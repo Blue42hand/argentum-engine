@@ -238,7 +238,7 @@ private data class CoverageCliOptions(
                         require(i + 1 < args.size) { "--output requires a path" }
                         output = Path.of(args[++i])
                     }
-                    else -> deckFiles += Path.of(arg)
+                    else -> deckFiles.add(Path.of(arg))
                 }
                 i++
             }
