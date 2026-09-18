@@ -35,13 +35,6 @@ data class EnvConfig(
     val startingPlayerIndex: Int? = null,
 
     /**
-     * Runtime game rules. Defaults to Standard for wire compatibility with
-     * existing gym clients. Commander callers set [Format.Commander] and give
-     * each [PlayerSpec] a [PlayerSpec.commanderCardName].
-     */
-    val format: Format = Format.Standard,
-
-    /**
      * Which player's information-set the default [com.wingedsheep.gym.contract.TrainingObservation]
      * represents. Callers can still override per-request when observing.
      */
@@ -51,7 +44,15 @@ data class EnvConfig(
      * If `true`, opponent hand and libraries are revealed — debug only,
      * must never be enabled in production self-play.
      */
-    val revealAll: Boolean = false
+    val revealAll: Boolean = false,
+
+    /**
+     * Runtime game rules. Appended to the wire/source constructor so existing
+     * positional clients retain their previous argument meaning. Commander
+     * callers set [Format.Commander] and give each [PlayerSpec] a
+     * [PlayerSpec.commanderCardName].
+     */
+    val format: Format = Format.Standard
 ) {
     init {
         require(players.size >= 2) { "Need at least 2 players" }
