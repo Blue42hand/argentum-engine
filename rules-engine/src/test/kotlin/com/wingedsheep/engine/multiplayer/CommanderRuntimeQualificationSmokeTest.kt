@@ -126,7 +126,7 @@ class CommanderRuntimeQualificationSmokeTest : FunSpec({
         val zoneChoice = driver.pendingDecision.shouldBeInstanceOf<YesNoDecision>()
         zoneChoice.playerId shouldBe caster
         driver.submitYesNo(caster, true)
-        commanderId in driver.state.getZone(ZoneKey(caster, Zone.COMMAND)) shouldBe true
+        (commanderId in driver.state.getZone(ZoneKey(caster, Zone.COMMAND))) shouldBe true
 
         // The first command-zone cast was committed, so the second costs the printed {R} + {2}.
         // Prove the tax at the action boundary: base mana alone fails, then exactly two generic
