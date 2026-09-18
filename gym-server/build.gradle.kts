@@ -26,6 +26,7 @@ dependencies {
 }
 
 tasks.register<JavaExec>("commanderGymDeckCoverage") {
+    notCompatibleWithConfigurationCache("Consumes external deck paths supplied at execution time")
     group = "application"
     description = "Report deck compatibility against the full Gym CardRegistry"
     classpath = sourceSets["main"].runtimeClasspath
