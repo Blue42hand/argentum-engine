@@ -24,3 +24,25 @@ dependencies {
     testImplementation(libs.kotestAssertions)
     testImplementation(libs.kotestExtensionsSpring)
 }
+
+tasks.register<JavaExec>("commanderGymDeckCoverage") {
+    group = "application"
+    description = "Report deck compatibility against the full Gym CardRegistry"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.wingedsheep.gym.server.tools.DeckCoverageCliKt")
+
+    doFirst {
+        val files = providers.gradleProperty("deckFiles").orNull
+            ?.split(';')
+            ?.map(String::trim)
+            ?.filter(String::isNotEmpty)
+            .orEmpty()
+        require(files.isNotEmpty()) {
+            "Pass -PdeckFiles='/path/deck-a.txt;/path/deck-b.txt'"
+        }
+        args(files)
+        providers.gradleProperty("coverageOutput").orNull?.let {
+            args("--output", it)
+        }
+    }
+}
