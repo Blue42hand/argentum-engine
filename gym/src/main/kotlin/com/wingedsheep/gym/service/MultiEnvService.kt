@@ -151,13 +151,15 @@ class MultiEnvService(
                 name = spec.name,
                 deck = deckResolver.resolve(spec.deck),
                 startingLife = spec.startingLife,
-                playerId = spec.playerId
+                playerId = spec.playerId,
+                commanderCardName = spec.commanderCardName
             )
         },
         startingHandSize = startingHandSize,
         skipMulligans = skipMulligans,
         useHandSmoother = useHandSmoother,
-        startingPlayerIndex = startingPlayerIndex
+        startingPlayerIndex = startingPlayerIndex,
+        format = format
     )
 
     private fun requireEnv(envId: EnvId): GymEnv =
