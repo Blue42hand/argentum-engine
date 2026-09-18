@@ -16,18 +16,21 @@ class DeckCoverageCliTest : FunSpec({
                 CardDefinition.creature(
                     name = "Commander One",
                     manaCost = ManaCost.parse("{1}{G}"),
+                    subtypes = emptySet(),
                     power = 2,
                     toughness = 2,
                 ),
                 CardDefinition.creature(
                     name = "Supported Card",
                     manaCost = ManaCost.parse("{1}{G}"),
+                    subtypes = emptySet(),
                     power = 2,
                     toughness = 2,
                 ),
                 CardDefinition.creature(
                     name = "Front Face",
                     manaCost = ManaCost.parse("{2}{G}"),
+                    subtypes = emptySet(),
                     power = 3,
                     toughness = 3,
                 ),
