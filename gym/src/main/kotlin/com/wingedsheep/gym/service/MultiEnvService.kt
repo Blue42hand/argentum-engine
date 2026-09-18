@@ -138,8 +138,10 @@ class MultiEnvService(
         requireGameEnv(envId).snapshot(snapshotCodec)
 
     /** Restore a game env to a previously-snapshotted state. */
-    fun restore(envId: EnvId, handle: SnapshotHandle): ObservationResult =
-        requireGameEnv(envId).restore(snapshotCodec, handle)
+    fun restore(envId: EnvId, handle: SnapshotHandle): ObservationResult {
+        val snap = snapshotCodec.load(handle)
+        return requireGameEnv(envId).restore(snapshotCodec, handle)
+    }
 
     // =========================================================================
     // Internals
@@ -151,13 +153,15 @@ class MultiEnvService(
                 name = spec.name,
                 deck = deckResolver.resolve(spec.deck),
                 startingLife = spec.startingLife,
-                playerId = spec.playerId
+                playerId = spec.playerId,
+                commanderCardName = spec.commanderCardName
             )
         },
         startingHandSize = startingHandSize,
         skipMulligans = skipMulligans,
         useHandSmoother = useHandSmoother,
-        startingPlayerIndex = startingPlayerIndex
+        startingPlayerIndex = startingPlayerIndex,
+        format = format
     )
 
     private fun requireEnv(envId: EnvId): GymEnv =
