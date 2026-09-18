@@ -35,12 +35,12 @@ tasks.register<JavaExec>("commanderGymDeckCoverage") {
         val files = providers.gradleProperty("deckFiles").orNull
             ?.split(';')
             ?.map(String::trim)
-            ?.filter(String::isNotEmpty)
+            ?.filter { it.isNotEmpty() }
             .orEmpty()
         require(files.isNotEmpty()) {
             "Pass -PdeckFiles='/path/deck-a.txt;/path/deck-b.txt'"
         }
-        args(files)
+        setArgs(files)
         providers.gradleProperty("coverageOutput").orNull?.let {
             args("--output", it)
         }
