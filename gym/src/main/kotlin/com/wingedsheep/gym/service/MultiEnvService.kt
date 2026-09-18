@@ -138,10 +138,8 @@ class MultiEnvService(
         requireGameEnv(envId).snapshot(snapshotCodec)
 
     /** Restore a game env to a previously-snapshotted state. */
-    fun restore(envId: EnvId, handle: SnapshotHandle): ObservationResult {
-        val snap = snapshotCodec.load(handle)
-        return requireGameEnv(envId).restore(snapshotCodec, handle)
-    }
+    fun restore(envId: EnvId, handle: SnapshotHandle): ObservationResult =
+        requireGameEnv(envId).restore(snapshotCodec, handle)
 
     // =========================================================================
     // Internals
