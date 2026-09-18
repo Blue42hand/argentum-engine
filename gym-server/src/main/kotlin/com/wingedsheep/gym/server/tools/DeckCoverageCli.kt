@@ -7,7 +7,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.name
 
 /**
  * Machine-readable compatibility probe for externally maintained deck lists.
