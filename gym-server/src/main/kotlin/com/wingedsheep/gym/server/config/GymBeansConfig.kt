@@ -5,8 +5,6 @@ import com.wingedsheep.gym.service.MultiEnvService
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.registry.PrintingRegistry
 import com.wingedsheep.mtg.sets.MtgSetCatalog
-import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
-import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -24,21 +22,7 @@ import org.springframework.context.annotation.Configuration
 class GymBeansConfig {
 
     @Bean
-    fun cardRegistry(): CardRegistry = CardRegistry().apply {
-        // Predefined tokens (Treasure, Food, Clue, Map, Incubator, …) are looked up by name at
-        // resolution time by `CreatePredefinedTokenExecutor`, which returns an `EffectResult.error`
-        // when the name is unregistered — so without this line every card in the corpus that mints
-        // one silently minted nothing over the gym API, while `game-server`'s `GameBeansConfig`
-        // (which does register them) behaved correctly. Self-play then reported those cards as broken.
-        register(PredefinedTokens.allTokens)
-        for (set in MtgSetCatalog.all) {
-            register(set.cards.stampSetCode(set.code))
-            // Basic-land variants are needed for the RandomSealed path so that
-            // variant names like "Swamp#BLB-270" resolve during GameInitializer.
-            register(set.basicLands)
-            set.basicLandsFallback?.let { register(it.basicLands) }
-        }
-    }
+    fun cardRegistry(): CardRegistry = createGymCardRegistry()
 
     @Bean
     fun printingRegistry(cardRegistry: CardRegistry): PrintingRegistry = PrintingRegistry().apply {
@@ -65,10 +49,6 @@ class GymBeansConfig {
         boosterGenerator: BoosterGenerator
     ): MultiEnvService = MultiEnvService(cardRegistry, boosterGenerator)
 }
-
-/** Stamp a set code onto any card that doesn't already carry one, so printing synthesis keys correctly. */
-private fun List<CardDefinition>.stampSetCode(setCode: String): List<CardDefinition> =
-    map { if (it.setCode == null) it.copy(setCode = setCode) else it }
 
 private fun MtgSet.toBoosterSetConfig(): BoosterGenerator.SetConfig =
     BoosterGenerator.SetConfig(
