@@ -42,7 +42,7 @@ fun main(args: Array<String>) {
     if (output == null) {
         println(json)
     } else {
-        output.parent?.let(Files::createDirectories)
+        output.parent?.let { Files.createDirectories(it) }
         Files.writeString(output, json + System.lineSeparator())
     }
 }
