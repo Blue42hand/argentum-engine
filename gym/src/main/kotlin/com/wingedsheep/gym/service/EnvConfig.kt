@@ -1,6 +1,7 @@
 package com.wingedsheep.gym.service
 
 import com.wingedsheep.gym.contract.ActionParams
+import com.wingedsheep.sdk.core.Format
 import com.wingedsheep.sdk.model.EntityId
 import kotlinx.serialization.Serializable
 
@@ -32,6 +33,13 @@ data class EnvConfig(
      * scenarios.
      */
     val startingPlayerIndex: Int? = null,
+
+    /**
+     * Runtime game rules. Defaults to Standard for wire compatibility with
+     * existing gym clients. Commander callers set [Format.Commander] and give
+     * each [PlayerSpec] a [PlayerSpec.commanderCardName].
+     */
+    val format: Format = Format.Standard,
 
     /**
      * Which player's information-set the default [com.wingedsheep.gym.contract.TrainingObservation]
@@ -84,7 +92,13 @@ data class PlayerSpec(
     val name: String,
     val deck: DeckSpec,
     val startingLife: Int = 20,
-    val playerId: EntityId? = null
+    val playerId: EntityId? = null,
+    /**
+     * Commander card to instantiate outside [deck] when [EnvConfig.format] uses
+     * commanders. The rules engine validates that every Commander player names
+     * a card present in the authoritative registry.
+     */
+    val commanderCardName: String? = null
 )
 
 /** A single environment's `step()` input — batched into [com.wingedsheep.gym.service.MultiEnvService.stepBatch]. */
