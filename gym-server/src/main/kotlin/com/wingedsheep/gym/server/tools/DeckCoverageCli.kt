@@ -11,6 +11,8 @@ import java.nio.file.Path
 /**
  * Machine-readable compatibility probe for externally maintained deck lists.
  *
+ * Intended for engine-adapter qualification as well as Commander Gym migration audits.
+ *
  * This deliberately uses the same full [CardRegistry] as the Gym server instead of inferring card
  * support from source filenames. It does not copy deck contents into Argentum; callers pass local
  * files at execution time.
