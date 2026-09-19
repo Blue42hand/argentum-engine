@@ -282,6 +282,12 @@ enum class StackItemKind { SPELL, TRIGGERED_ABILITY, ACTIVATED_ABILITY, OTHER }
  * to commit. The registry mapping `Int → engine action` lives on the server
  * and is regenerated every step.
  *
+ * [semanticId] is Argentum-owned durable provenance for this choice. Unlike
+ * [actionId], it may be recorded across equivalent observations and runs. Game
+ * actions use [SemanticIdentity.ACTION_VERSION]; folded decision choices use
+ * [SemanticIdentity.RESPONSE_VERSION]. Deckbuild actions do not yet expose a
+ * semantic identity and therefore leave this field null.
+ *
  * Decision options (when [TrainingObservation.pendingDecision] is set and
  * the decision is simple enough to fold in — YesNo, ChooseNumber, ChooseMode,
  * ChooseOption, ChooseColor, and single-select SelectCards) also appear as
@@ -293,6 +299,7 @@ data class LegalActionView(
     val kind: String,
     val description: String,
     val affordable: Boolean,
+    val semanticId: String? = null,
     val sourceEntityId: EntityId? = null,
     val targetEntityIds: List<EntityId> = emptyList(),
     val manaCost: String? = null,
@@ -337,6 +344,10 @@ data class LegalActionView(
  * Summary of the currently-paused decision. When present, [LegalActionView]s
  * with `isDecisionOption = true` are the concrete choices the player can post.
  *
+ * [semanticId] is the durable, schema-scoped identity of the authoritative
+ * decision semantics. [decisionId] remains the live routing nonce that must be
+ * echoed when submitting a structured response.
+ *
  * For complex decisions (multi-target ChooseTargets, DistributeDecision,
  * OrderObjectsDecision, SplitPilesDecision, ReorderLibraryDecision) the folded
  * action-ID space is not expressive enough; [legalActions] will be empty and
@@ -346,6 +357,7 @@ data class LegalActionView(
 @Serializable
 data class PendingDecisionView(
     val decisionId: String,
+    val semanticId: String,
     val kind: PendingDecisionKind,
     val playerId: EntityId,
     val prompt: String,
