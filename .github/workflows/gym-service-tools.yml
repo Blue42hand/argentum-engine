@@ -1,0 +1,23 @@
+name: Gym service tools
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/gym_server_launchd.py'
+      - 'scripts/run-gym-server-service.sh'
+      - 'scripts/test_gym_server_launchd.py'
+      - 'docs/gym-server-macos-service.md'
+      - '.github/workflows/gym-service-tools.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Test launchd plist/provenance rendering
+        run: python3 -m unittest scripts/test_gym_server_launchd.py
+      - name: Check service runner shell syntax
+        run: bash -n scripts/run-gym-server-service.sh
