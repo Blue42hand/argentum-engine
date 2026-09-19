@@ -7,7 +7,6 @@ import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.registry.CardRegistry
-import com.wingedsheep.gym.contract.ActionParams
 import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.sdk.model.Deck
@@ -39,13 +38,15 @@ class GameGymEnvSeatSafetyTest : FunSpec({
 
         val alice = environment.playerIds[0]
         val bob = environment.playerIds[1]
-        val suspended = environment.state.suspendForDecision(
+        val baseState = environment.state
+
+        fun suspendForBob(sourceId: String) = baseState.suspendForDecision(
             question = { id ->
                 YesNoDecision(
                     id = id,
                     playerId = bob,
                     prompt = "Secret decision for Bob",
-                    context = DecisionContext(sourceId = EntityId("hidden-source"))
+                    context = DecisionContext(sourceId = EntityId(sourceId))
                 )
             },
             answer = ChooseDoorContinuation(
@@ -55,31 +56,47 @@ class GameGymEnvSeatSafetyTest : FunSpec({
                 lock = true
             )
         )
-        val hiddenDecisionId = requireNotNull(suspended.pendingDecision).id
-        environment.restore(suspended.state, environment.playerIds)
+
+        val firstSuspended = suspendForBob("hidden-source-a")
+        val firstHiddenDecisionId = requireNotNull(firstSuspended.pendingDecision).id
+        environment.restore(firstSuspended.state, environment.playerIds)
 
         val aliceEnv = GameGymEnv(
             environment = environment,
             perspectivePlayerIndex = 0,
             defaultRevealAll = false
         )
-        val aliceView = aliceEnv.observe().observation as TrainingObservation
+        val firstAliceView = aliceEnv.observe().observation as TrainingObservation
 
-        aliceView.perspectivePlayerId shouldBe alice
-        aliceView.agentToAct shouldBe bob
-        aliceView.pendingDecision shouldBe null
-        aliceView.legalActions.shouldNotBeEmpty()
-        aliceView.legalActions.all { it.semanticId == null } shouldBe true
+        firstAliceView.perspectivePlayerId shouldBe alice
+        firstAliceView.agentToAct shouldBe bob
+        firstAliceView.pendingDecision shouldBe null
+        firstAliceView.legalActions.shouldNotBeEmpty()
+        firstAliceView.legalActions.all { it.semanticId == null } shouldBe true
 
-        val debugView = aliceEnv.observe(revealAll = true).observation as TrainingObservation
-        val debugDecision = debugView.pendingDecision
-        debugDecision shouldNotBe null
-        debugDecision!!.decisionId shouldBe hiddenDecisionId
-        debugDecision.semanticId shouldNotBe null
-        debugView.legalActions.shouldNotBeEmpty()
-        debugView.legalActions.all { it.semanticId != null } shouldBe true
+        val firstDebugView = aliceEnv.observe(revealAll = true).observation as TrainingObservation
+        val firstDebugDecision = firstDebugView.pendingDecision
+        firstDebugDecision shouldNotBe null
+        firstDebugDecision!!.decisionId shouldBe firstHiddenDecisionId
+        firstDebugDecision.semanticId shouldNotBe null
+        firstDebugView.legalActions.shouldNotBeEmpty()
+        firstDebugView.legalActions.all { it.semanticId != null } shouldBe true
 
-        // Removing cross-seat provenance must not break the existing shared-env stepping contract.
-        aliceEnv.step(aliceView.legalActions.first().actionId, ActionParams())
+        // Change only hidden decision semantics. The debug observation must notice the difference,
+        // while Alice's seat-projected provenance must remain identical so the digest cannot be
+        // used as an equality oracle for another player's private decision.
+        val secondSuspended = suspendForBob("hidden-source-b")
+        environment.restore(secondSuspended.state, environment.playerIds)
+
+        val secondAliceView = aliceEnv.observe().observation as TrainingObservation
+        val secondDebugView = aliceEnv.observe(revealAll = true).observation as TrainingObservation
+
+        secondAliceView.pendingDecision shouldBe null
+        secondAliceView.legalActions.all { it.semanticId == null } shouldBe true
+        secondAliceView.stateDigest shouldBe firstAliceView.stateDigest
+
+        secondDebugView.pendingDecision shouldNotBe null
+        secondDebugView.pendingDecision!!.semanticId shouldNotBe firstDebugDecision.semanticId
+        secondDebugView.stateDigest shouldNotBe firstDebugView.stateDigest
     }
 })
