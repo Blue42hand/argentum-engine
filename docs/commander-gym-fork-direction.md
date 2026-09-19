@@ -1,6 +1,8 @@
 # Commander Gym fork direction
 
-This fork of Argentum exists primarily to make Argentum the best practical game environment for the Commander Gym project while keeping improvements generally useful to Argentum itself.
+This fork of Argentum exists as a staging area for making Argentum the best practical game environment for the Commander Gym project and contributing those improvements back upstream.
+
+The desired long-term state is that Commander Gym plugs into **vanilla upstream Argentum**. A permanent Commander-Gym-specific Argentum distribution is not the goal; the less fork-only engine code this project owns, the better.
 
 A useful shorthand is:
 
@@ -44,9 +46,36 @@ Development in this fork should usually answer one of these questions:
 4. Does the game-server need a better generic controller/player seam so a program can occupy the same kind of seat as a human?
 5. Is there a generally useful Argentum capability currently being reimplemented awkwardly in Commander Gym?
 
-If yes, the work likely belongs here.
+If yes, the work likely belongs in Argentum. In this fork, that normally means: implement it generically, validate it here, and prepare it for upstream contribution.
+
+Every fork delta should be treated as one of:
+
+- **upstream candidate** — the default for generic game/environment work;
+- **downstream extension** — exceptional work that truly should not be part of Argentum;
+- **transitional infrastructure** — temporary integration machinery with a clear retirement path.
+
+Once upstream contains the required capability, Commander Gym should consume upstream and remove the corresponding fork-only dependency. The target required fork delta is zero.
 
 Strategic intelligence should not move into Argentum merely because Commander Gym needs it. Built-in Argentum AI remains useful as a baseline, opponent, simulator, and fallback, but Commander Gym is responsible for producing the strongest artificial player.
+
+## Upstream contribution discipline
+
+Follow upstream Argentum's own contribution and architecture guidance for work developed here rather than treating this fork as a private patch stack.
+
+For card-database work, in particular:
+
+- use Scryfall Oracle text and rulings as the implementation source;
+- compose existing `Effects.*` / `Patterns.*` primitives before introducing new SDK/engine vocabulary;
+- keep one scenario-test file per card;
+- manually exercise the card and player-facing interaction;
+- batch cards only when they reuse existing primitives;
+- isolate cards that require a new effect, condition, keyword, decision flow, or other engine primitive into focused changes with primitive-level tests.
+
+Commander Gym's active deck roster is the first card-coverage priority; after roster coverage, Commander usage/popularity data such as EDHREC can prioritize broadly useful cards. Mechanic leverage may move a card earlier when implementing its generic capability unlocks many other cards.
+
+Non-card work should likewise be written as generally useful Argentum capability whenever the need is about the game/environment: external-player APIs, Gym semantics, multiplayer, server/controller seams, provenance, replay, transport, diagnostics, performance, and rules correctness are all natural upstream candidates.
+
+This policy does **not** blur the boundary: player reasoning, learning, deck construction, strategy, model policy, and training remain Commander Gym work.
 
 ## Two interfaces, one player
 
@@ -66,7 +95,7 @@ The training interface can expose machine-oriented affordances such as batch ste
 
 The near-term objective is broad player competence rather than separate casual and competitive AI modes.
 
-Argentum work should therefore prioritize the environment qualities needed to measure and improve competence:
+Argentum work should therefore prioritize the environment qualities needed to measure and improve competence, while keeping those improvements suitable for upstream Argentum:
 
 - correct Commander and multiplayer rules;
 - sufficient card coverage for representative decks;
