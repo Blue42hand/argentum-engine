@@ -61,6 +61,14 @@ data class SchemaHashResponse(val schemaHash: String)
 @Serializable
 data class HealthResponse(val status: String = "ok")
 
+@Serializable
+data class ServiceStatusResponse(
+    val status: String = "ok",
+    val service: String = "argentum-gym-server",
+    val schemaHash: String,
+    val buildRevision: String
+)
+
 /** Shared error envelope for `@ExceptionHandler` responses. */
 @Serializable
 data class ErrorResponse(
