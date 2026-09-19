@@ -25,6 +25,10 @@ dependencies {
     testImplementation(libs.kotestExtensionsSpring)
 }
 
+springBoot {
+    mainClass.set("com.wingedsheep.gym.server.GymServerApplicationKt")
+}
+
 // Spring Boot does not always infer the Kotlin top-level main class for bootRun.
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
     mainClass.set("com.wingedsheep.gym.server.GymServerApplicationKt")
