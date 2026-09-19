@@ -9,6 +9,8 @@ import com.wingedsheep.gym.contract.ActionRegistry
 import com.wingedsheep.gym.contract.ObservationBuilder
 import com.wingedsheep.gym.contract.ObservationResult
 import com.wingedsheep.gym.contract.ResolvedAction
+import com.wingedsheep.gym.contract.StateDigest
+import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.gym.service.SnapshotCodec
 import com.wingedsheep.gym.service.SnapshotHandle
 
@@ -81,6 +83,27 @@ class GameGymEnv(
         val result = observationBuilder.build(
             environment.state, perspective, environment.legalActions(), revealAll
         )
+
+        // A fixed-perspective environment may be observed while another seat has priority or a
+        // pending decision. The full builder necessarily sees the acting seat's authoritative
+        // action/decision data in order to serve that seat, but those choices — including their
+        // semantic fingerprints — are not part of another player's information set. Fail closed at
+        // the seat boundary: keep public game state and `agentToAct`, but remove the other seat's
+        // decision/action surface and recompute provenance from the sanitized observation.
+        val seatOwnsAction = environment.agentToAct == null || environment.agentToAct == perspective
+        if (!revealAll && !seatOwnsAction) {
+            val observation = result.observation as? TrainingObservation
+                ?: throw IllegalStateException("GameGymEnv expected a TrainingObservation")
+            val sanitized = observation.copy(
+                pendingDecision = null,
+                legalActions = emptyList(),
+                stateDigest = ""
+            )
+            val safeObservation = sanitized.copy(stateDigest = StateDigest.compute(sanitized))
+            registry = ActionRegistry.EMPTY
+            return ObservationResult(safeObservation, ActionRegistry.EMPTY)
+        }
+
         registry = result.registry
         return result
     }
