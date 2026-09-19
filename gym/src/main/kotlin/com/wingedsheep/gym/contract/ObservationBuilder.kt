@@ -403,6 +403,7 @@ class ObservationBuilder(
             kind = la.actionType,
             description = la.description,
             affordable = la.affordable,
+            semanticId = SemanticIdentity.forLegalAction(la),
             sourceEntityId = null,
             targetEntityIds = la.validTargets ?: emptyList(),
             manaCost = la.manaCostString,
@@ -588,6 +589,7 @@ class ObservationBuilder(
         val ctx = decision.context
         return PendingDecisionView(
             decisionId = decision.id,
+            semanticId = SemanticIdentity.forPendingDecision(decision),
             kind = kind,
             playerId = decision.playerId,
             prompt = decision.prompt,
@@ -610,6 +612,7 @@ class ObservationBuilder(
                 kind = "DECISION",
                 description = describeResponse(decision, response),
                 affordable = true,
+                semanticId = SemanticIdentity.forDecisionResponse(response),
                 isDecisionOption = true
             )
         }
