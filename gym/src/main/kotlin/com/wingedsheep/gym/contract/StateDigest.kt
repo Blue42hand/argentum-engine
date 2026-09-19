@@ -84,10 +84,11 @@ object StateDigest {
                 .append('|')
         }
 
-        // Pending decision — identity + kind only; per-option IDs are not
-        // part of game identity.
+        // Pending decision — semantic identity + kind only. The live decisionId is a routing nonce,
+        // so including it would make equivalent observations hash differently across replays/runs.
+        // Per-option execution IDs are likewise not part of game identity.
         obs.pendingDecision?.let { d ->
-            sb.append("D=").appendText(d.decisionId)
+            sb.append("D=").appendText(d.semanticId)
                 .append(':').append(d.kind.name)
                 .append(':').append(d.requiresStructuredResponse).append('|')
         }
