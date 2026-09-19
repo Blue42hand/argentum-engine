@@ -8,6 +8,11 @@ spring:
   application:
     name: argentum-gym-server
 
+argentum:
+  # Persistent deployments should set this to the exact checked-out/build commit.
+  # Keeping it explicit avoids pretending an unknown build has trustworthy provenance.
+  build-revision: ${ARGENTUM_BUILD_REVISION:unknown}
+
 # Swagger UI is enabled by default here because the gym server is a
 # development/training tool. Disable in any deployment where the
 # endpoint surface should be hidden (set both to `false`).
