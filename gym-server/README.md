@@ -135,9 +135,23 @@ sets — the `MultiEnvService` bean will pick them up automatically.
 ## Running it
 
 ```bash
-just gym-server                # default config, port 8081
+just gym-server                # default config, 127.0.0.1:8081
 ./gradlew :gym-server:bootRun
 ```
+
+The server binds to **127.0.0.1 by default**. This is intentional: there is
+currently no application-layer authentication, so the raw gym API should
+not be exposed directly to an untrusted network.
+
+For controlled deployments, override the bind address explicitly:
+
+```bash
+GYM_SERVER_BIND_ADDRESS=0.0.0.0 ./gradlew :gym-server:bootRun
+```
+
+Prefer keeping the server on loopback and placing an authenticated gateway,
+reverse proxy, or secure tunnel in front of it for remote trainer access.
+Do not commit gateway credentials or tunnel service tokens to this repository.
 
 The process has no persistence — env state is all in-memory. Restart
 clears everything.
