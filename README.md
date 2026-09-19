@@ -22,6 +22,12 @@ Argentum Engine is a modular MTG implementation composed of:
 - **Gym** — An RL/MCTS environment wrapper around the rules engine, with an HTTP transport for Python training loops
 - **Argentum Assay** — A bidirectional Oracle-text parser that measures, card by card, how much of Magic the card SDK can express
 
+## Commander Gym fork direction
+
+This fork is also the game/environment foundation for [Commander Gym](https://github.com/Blue42hand/commander-gym), an artificial-player and learning project. The boundary is intentionally simple: **Argentum is the game; Commander Gym is the player.** Fork development should improve rules, multiplayer, player/controller interfaces, Gym training surfaces, performance, and other generally useful environment capabilities rather than embedding Commander Gym-specific strategic intelligence here.
+
+See [`docs/commander-gym-fork-direction.md`](docs/commander-gym-fork-direction.md) for the detailed placement rule and development priorities.
+
 ## Implementation Progress
 
 **[Live set completion tracker → magic.wingedsheep.com/set-completion](https://magic.wingedsheep.com/set-completion)** —
