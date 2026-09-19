@@ -9,6 +9,8 @@ import com.wingedsheep.gym.contract.ActionRegistry
 import com.wingedsheep.gym.contract.ObservationBuilder
 import com.wingedsheep.gym.contract.ObservationResult
 import com.wingedsheep.gym.contract.ResolvedAction
+import com.wingedsheep.gym.contract.StateDigest
+import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.gym.service.SnapshotCodec
 import com.wingedsheep.gym.service.SnapshotHandle
 
@@ -81,6 +83,27 @@ class GameGymEnv(
         val result = observationBuilder.build(
             environment.state, perspective, environment.legalActions(), revealAll
         )
+
+        // A fixed-perspective environment can be observed while another seat must act. Existing
+        // Gym callers still need the live action IDs in that case so they can advance the shared
+        // environment, but durable semantic provenance for another seat is not part of this
+        // perspective's information set. Keep the pre-existing execution surface while removing
+        // the new equality/provenance channel introduced by semantic IDs. A future multi-seat Gym
+        // contract can tighten the broader action surface independently.
+        val seatOwnsAction = environment.agentToAct == null || environment.agentToAct == perspective
+        if (!revealAll && !seatOwnsAction) {
+            val observation = result.observation as? TrainingObservation
+                ?: throw IllegalStateException("GameGymEnv expected a TrainingObservation")
+            val sanitized = observation.copy(
+                pendingDecision = null,
+                legalActions = observation.legalActions.map { it.copy(semanticId = null) },
+                stateDigest = ""
+            )
+            val safeObservation = sanitized.copy(stateDigest = StateDigest.compute(sanitized))
+            registry = result.registry
+            return ObservationResult(safeObservation, result.registry)
+        }
+
         registry = result.registry
         return result
     }

@@ -1,0 +1,102 @@
+package com.wingedsheep.gym
+
+import com.wingedsheep.engine.core.ChooseDoorContinuation
+import com.wingedsheep.engine.core.DecisionContext
+import com.wingedsheep.engine.core.GameConfig
+import com.wingedsheep.engine.core.PlayerConfig
+import com.wingedsheep.engine.core.YesNoDecision
+import com.wingedsheep.engine.core.suspendForDecision
+import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.gym.contract.TrainingObservation
+import com.wingedsheep.mtg.sets.definitions.por.PortalSet
+import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.EntityId
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+
+class GameGymEnvSeatSafetyTest : FunSpec({
+    fun registry(): CardRegistry = CardRegistry().apply {
+        register(PortalSet.cards)
+        register(PortalSet.basicLands)
+    }
+
+    test("another seat cannot observe pending decision semantic provenance") {
+        val environment = GameEnvironment.create(registry())
+        environment.reset(
+            GameConfig(
+                players = listOf(
+                    PlayerConfig("Alice", Deck.of("Mountain" to 20)),
+                    PlayerConfig("Bob", Deck.of("Mountain" to 20))
+                ),
+                skipMulligans = true,
+                startingPlayerIndex = 0,
+                seed = 20260919L
+            )
+        )
+
+        val alice = environment.playerIds[0]
+        val bob = environment.playerIds[1]
+        val baseState = environment.state
+
+        fun suspendForBob(sourceId: String) = baseState.suspendForDecision(
+            question = { id ->
+                YesNoDecision(
+                    id = id,
+                    playerId = bob,
+                    prompt = "Secret decision for Bob",
+                    context = DecisionContext(sourceId = EntityId(sourceId))
+                )
+            },
+            answer = ChooseDoorContinuation(
+                controllerId = bob,
+                roomId = EntityId("unused-room"),
+                candidateFaceIds = emptyList(),
+                lock = true
+            )
+        )
+
+        val firstSuspended = suspendForBob("hidden-source-a")
+        val firstHiddenDecisionId = requireNotNull(firstSuspended.pendingDecision).id
+        environment.restore(firstSuspended.state, environment.playerIds)
+
+        val aliceEnv = GameGymEnv(
+            environment = environment,
+            perspectivePlayerIndex = 0,
+            defaultRevealAll = false
+        )
+        val firstAliceView = aliceEnv.observe().observation as TrainingObservation
+
+        firstAliceView.perspectivePlayerId shouldBe alice
+        firstAliceView.agentToAct shouldBe bob
+        firstAliceView.pendingDecision shouldBe null
+        firstAliceView.legalActions.shouldNotBeEmpty()
+        firstAliceView.legalActions.all { it.semanticId == null } shouldBe true
+
+        val firstDebugView = aliceEnv.observe(revealAll = true).observation as TrainingObservation
+        val firstDebugDecision = firstDebugView.pendingDecision
+        firstDebugDecision shouldNotBe null
+        firstDebugDecision!!.decisionId shouldBe firstHiddenDecisionId
+        firstDebugDecision.semanticId shouldNotBe null
+        firstDebugView.legalActions.shouldNotBeEmpty()
+        firstDebugView.legalActions.all { it.semanticId != null } shouldBe true
+
+        // Change only hidden decision semantics. The debug observation must notice the difference,
+        // while Alice's seat-projected provenance must remain identical so the digest cannot be
+        // used as an equality oracle for another player's private decision.
+        val secondSuspended = suspendForBob("hidden-source-b")
+        environment.restore(secondSuspended.state, environment.playerIds)
+
+        val secondAliceView = aliceEnv.observe().observation as TrainingObservation
+        val secondDebugView = aliceEnv.observe(revealAll = true).observation as TrainingObservation
+
+        secondAliceView.pendingDecision shouldBe null
+        secondAliceView.legalActions.all { it.semanticId == null } shouldBe true
+        secondAliceView.stateDigest shouldBe firstAliceView.stateDigest
+
+        secondDebugView.pendingDecision shouldNotBe null
+        secondDebugView.pendingDecision!!.semanticId shouldNotBe firstDebugDecision.semanticId
+        secondDebugView.stateDigest shouldNotBe firstDebugView.stateDigest
+    }
+})
