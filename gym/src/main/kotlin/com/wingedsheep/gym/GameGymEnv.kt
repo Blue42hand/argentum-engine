@@ -84,24 +84,24 @@ class GameGymEnv(
             environment.state, perspective, environment.legalActions(), revealAll
         )
 
-        // A fixed-perspective environment may be observed while another seat has priority or a
-        // pending decision. The full builder necessarily sees the acting seat's authoritative
-        // action/decision data in order to serve that seat, but those choices — including their
-        // semantic fingerprints — are not part of another player's information set. Fail closed at
-        // the seat boundary: keep public game state and `agentToAct`, but remove the other seat's
-        // decision/action surface and recompute provenance from the sanitized observation.
+        // A fixed-perspective environment can be observed while another seat must act. Existing
+        // Gym callers still need the live action IDs in that case so they can advance the shared
+        // environment, but durable semantic provenance for another seat is not part of this
+        // perspective's information set. Keep the pre-existing execution surface while removing
+        // the new equality/provenance channel introduced by semantic IDs. A future multi-seat Gym
+        // contract can tighten the broader action surface independently.
         val seatOwnsAction = environment.agentToAct == null || environment.agentToAct == perspective
         if (!revealAll && !seatOwnsAction) {
             val observation = result.observation as? TrainingObservation
                 ?: throw IllegalStateException("GameGymEnv expected a TrainingObservation")
             val sanitized = observation.copy(
                 pendingDecision = null,
-                legalActions = emptyList(),
+                legalActions = observation.legalActions.map { it.copy(semanticId = null) },
                 stateDigest = ""
             )
             val safeObservation = sanitized.copy(stateDigest = StateDigest.compute(sanitized))
-            registry = ActionRegistry.EMPTY
-            return ObservationResult(safeObservation, ActionRegistry.EMPTY)
+            registry = result.registry
+            return ObservationResult(safeObservation, result.registry)
         }
 
         registry = result.registry
