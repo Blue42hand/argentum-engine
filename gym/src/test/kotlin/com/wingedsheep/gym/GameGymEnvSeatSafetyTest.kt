@@ -7,12 +7,13 @@ import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.gym.contract.ActionParams
 import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
@@ -67,11 +68,18 @@ class GameGymEnvSeatSafetyTest : FunSpec({
         aliceView.perspectivePlayerId shouldBe alice
         aliceView.agentToAct shouldBe bob
         aliceView.pendingDecision shouldBe null
-        aliceView.legalActions.shouldBeEmpty()
+        aliceView.legalActions.shouldNotBeEmpty()
+        aliceView.legalActions.all { it.semanticId == null } shouldBe true
 
         val debugView = aliceEnv.observe(revealAll = true).observation as TrainingObservation
-        debugView.pendingDecision shouldNotBe null
-        debugView.pendingDecision!!.decisionId shouldBe hiddenDecisionId
-        debugView.pendingDecision!!.semanticId shouldNotBe null
+        val debugDecision = debugView.pendingDecision
+        debugDecision shouldNotBe null
+        debugDecision!!.decisionId shouldBe hiddenDecisionId
+        debugDecision.semanticId shouldNotBe null
+        debugView.legalActions.shouldNotBeEmpty()
+        debugView.legalActions.all { it.semanticId != null } shouldBe true
+
+        // Removing cross-seat provenance must not break the existing shared-env stepping contract.
+        aliceEnv.step(aliceView.legalActions.first().actionId, ActionParams())
     }
 })
