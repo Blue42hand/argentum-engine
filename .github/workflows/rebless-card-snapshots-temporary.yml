@@ -1,0 +1,36 @@
+name: Temporary Skullclamp snapshot rebless
+
+on:
+  push:
+    branches:
+      - issue-20-skullclamp
+
+permissions:
+  contents: write
+
+jobs:
+  rebless:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: issue-20-skullclamp
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Rebless card snapshots
+        run: scripts/gradle-locked :mtg-sets:test --tests "*CardDefinitionSnapshotTest" -DupdateSnapshots=true
+      - name: Commit Darksteel snapshot if changed
+        run: |
+          git add mtg-sets/src/test/resources/snapshots/cards/DST.json
+          if git diff --cached --quiet; then
+            echo "No snapshot update needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Rebless Darksteel card snapshot for Skullclamp"
+          git push origin HEAD:issue-20-skullclamp
