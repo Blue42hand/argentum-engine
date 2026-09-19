@@ -29,6 +29,10 @@ springBoot {
     mainClass.set("com.wingedsheep.gym.server.GymServerApplicationKt")
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    mainClass.set("com.wingedsheep.gym.server.GymServerApplicationKt")
+}
+
 tasks.register<JavaExec>("commanderGymDeckCoverage") {
     notCompatibleWithConfigurationCache("Consumes external deck paths supplied at execution time")
     group = "application"
