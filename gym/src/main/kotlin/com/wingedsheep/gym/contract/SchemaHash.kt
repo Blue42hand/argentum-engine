@@ -1,15 +1,13 @@
 package com.wingedsheep.gym.contract
 
 /**
- * Contract-schema hash. Python clients compare this against the value they
- * were built with; a mismatch warns (or hard-fails in strict mode) that the
- * DTO shape has drifted.
+ * Schema/version identity for the Gym observation contract.
  *
- * Bump [CURRENT] whenever any `@Serializable` data class in this package
- * changes shape — or a field changes what it means — in a way that would
- * break a downstream consumer. The value itself is arbitrary; uniqueness is
- * what matters.
+ * Clients treat this as a fail-closed compatibility boundary. Changes to the
+ * model-facing schema or to provenance semantics that affect durable hashes
+ * must advance the value so artifacts from incompatible contracts cannot be
+ * mistaken for equivalent observations/actions.
  */
 object SchemaHash {
-    const val CURRENT: String = "argentum-gym-contract@v1.6-semantic-provenance"
+    const val CURRENT: String = "argentum-gym-contract@v1.7-semantic-state-provenance"
 }
