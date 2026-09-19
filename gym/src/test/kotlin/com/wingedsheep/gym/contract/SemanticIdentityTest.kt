@@ -5,6 +5,7 @@ import com.wingedsheep.engine.core.PassPriority
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.legalactions.LegalAction
+import com.wingedsheep.engine.provenance.SemanticFingerprint
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -97,5 +98,36 @@ class SemanticIdentityTest : FunSpec({
             SemanticIdentity.forDecisionResponse(no)
         SemanticIdentity.forDecisionResponse(yesA) shouldStartWith
             "argentum-decision-response-v1:"
+    }
+
+    test("Gym delegates byte-for-byte to the shared engine primitive with a surface schema scope") {
+        val action = LegalAction(
+            action = PassPriority(player),
+            actionType = "PassPriority",
+            description = "Pass priority"
+        )
+        val decision = YesNoDecision(
+            id = "routing-a",
+            playerId = player,
+            prompt = "Do the thing?",
+            context = DecisionContext(sourceId = EntityId("source-1"))
+        )
+        val response = YesNoResponse(decisionId = "routing-a", choice = true)
+
+        SemanticIdentity.forLegalAction(action) shouldBe
+            SemanticFingerprint.forLegalAction(action, SchemaHash.CURRENT)
+        SemanticIdentity.forPendingDecision(decision) shouldBe
+            SemanticFingerprint.forPendingDecision(decision, SchemaHash.CURRENT)
+        SemanticIdentity.forDecisionResponse(response) shouldBe
+            SemanticFingerprint.forDecisionResponse(response, SchemaHash.CURRENT)
+
+        // game-server or another Argentum surface can use the same semantic primitive while
+        // supplying its own compatibility scope instead of depending on the Gym contract.
+        SemanticFingerprint.forLegalAction(action, "argentum-game-server@v1") shouldNotBe
+            SemanticIdentity.forLegalAction(action)
+        SemanticFingerprint.forPendingDecision(decision, "argentum-game-server@v1") shouldNotBe
+            SemanticIdentity.forPendingDecision(decision)
+        SemanticFingerprint.forDecisionResponse(response, "argentum-game-server@v1") shouldNotBe
+            SemanticIdentity.forDecisionResponse(response)
     }
 })
