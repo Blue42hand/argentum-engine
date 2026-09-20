@@ -18,7 +18,7 @@
 - [ ] 1 Deep Forest Hermit
 - [ ] 1 End-Raze Forerunners
 - [ ] 1 Gilded Goose
-- [ ] 1 Haywire Mite
+- [x] 1 Haywire Mite
 - [ ] 1 Hazel's Brewmaster
 - [ ] 1 Honored Dreyleader
 - [ ] 1 Insatiable Frugivore
@@ -28,7 +28,7 @@
 - [ ] 1 Nested Shambler
 - [ ] 1 Ogre Slumlord
 - [ ] 1 Plaguecrafter
-- [ ] 1 Poison-Tip Archer
+- [x] 1 Poison-Tip Archer
 - [ ] 1 Prosperous Innkeeper
 - [ ] 1 Ravenous Squirrel
 - [ ] 1 Scurry of Squirrels
@@ -83,7 +83,7 @@
 - [x] 1 Beastmaster Ascension
 - [ ] 1 Binding the Old Gods
 - [ ] 1 Gourmand's Talent
-- [ ] 1 Moldervine Reclamation
+- [x] 1 Moldervine Reclamation
 - [ ] 1 Squirrel Nest
 - [ ] 1 Wolfwillow Haven
 
