@@ -21,16 +21,31 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Assay parse and explain
+      - name: Install just
         run: |
           set -euxo pipefail
-          just assay parse "Victimize" || true
-          just assay explain "Victimize" || true
+          mkdir -p "$HOME/.local/bin"
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/just" --version
+
+      - name: Assay parse and explain
+        run: |
+          set -uxo pipefail
+          just assay parse "Victimize"
+          PARSE_STATUS=$?
+          just assay explain "Victimize"
+          EXPLAIN_STATUS=$?
+          echo "assay_parse_status=$PARSE_STATUS assay_explain_status=$EXPLAIN_STATUS"
+          exit 0
 
       - name: Fidelity draft
         run: |
-          set -euxo pipefail
-          just coverage-fidelity --emit "Victimize" || true
+          set -uxo pipefail
+          just coverage-fidelity --emit "Victimize"
+          STATUS=$?
+          echo "coverage_fidelity_status=$STATUS"
+          exit 0
 
       - name: Scryfall evidence
         run: |
@@ -46,11 +61,15 @@ jobs:
           curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" "$RULINGS" | jq '.data[] | {published_at,comment}'
           echo '--- printings oldest first ---'
           curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" "$PRINTS&order=released&dir=asc" | jq '.data[] | select(.set_type != "promo" and .set_type != "token" and .set_type != "art_series" and .set_type != "memorabilia") | {set,set_name,set_type,released_at,collector_number,rarity,artist,image_uris}'
+          echo '--- canonical USG printing ---'
+          curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" \
+            'https://api.scryfall.com/cards/named?exact=Victimize&set=usg' | \
+            jq '{name,mana_cost,type_line,oracle_text,set,set_name,released_at,collector_number,rarity,artist,flavor_text,image_uris}'
 
       - name: Canonical placement and existing support
         run: |
           set -euxo pipefail
           grep -rn 'name = "Victimize"\|card("Victimize")' mtg-sets/*/src/main/kotlin/ || true
-          just where ULG || true
+          just where USG
           grep -R "fun IfYouDo\|fun SacrificeOwn\|class IfYouDoEffect\|data class IfYouDoEffect" -n mtg-sdk/src/main/kotlin | head -80 || true
-          grep -R "ToZone(Zone.BATTLEFIELD" -n mtg-sets/*/src/main/kotlin | grep -i grave -C 2 | head -120 || true
+          grep -R "ZonePlacement.Tapped" -n mtg-sets/*/src/main/kotlin | head -80 || true
