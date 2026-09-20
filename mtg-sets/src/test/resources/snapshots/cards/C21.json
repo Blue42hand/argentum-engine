@@ -1,3 +1,113 @@
+// Laelia, the Blade Reforged
+{
+    "name": "Laelia, the Blade Reforged",
+    "manaCost": "{2}{R}",
+    "typeLine": "Legendary Creature — Spirit Warrior",
+    "oracleText": "Haste\nWhenever Laelia attacks, exile the top card of your library. You may play that card this turn.\nWhenever one or more cards are put into exile from your library and/or your graveyard, put a +1/+1 counter on Laelia.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "impulseExiled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "impulseExiled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "impulseExiled"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever Laelia attacks, exile the top card of your library. You may play that card this turn."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "CardsPutIntoExileEvent",
+                    "fromZones": [
+                        "Library",
+                        "Graveyard"
+                    ],
+                    "filter": "ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever one or more cards are put into exile from your library and/or your graveyard, put a +1/+1 counter on Laelia."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "53",
+        "rarity": "RARE",
+        "artist": "Wisnu Tan",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/3/a3bb2881-e8fb-4fba-a9f9-d93e6ca24378.jpg?1783927592",
+        "rulings": [
+            {
+                "date": "2024-06-07",
+                "text": "You must follow the normal timing permissions and restrictions while playing the exiled card. If it's a land, you can't play it unless you have land plays available."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "Cards exiled by Laelia, the Blade Reforged are exiled face up."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "You'll still pay all costs for a spell cast this way, including additional costs. You may also pay alternative costs if any are available."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "If a player is instructed to exile cards from their library \"until\" a certain event occurs (for example, because of the triggered ability of a spell with cascade or discover), that player exiles those cards one at a time. Laelia's last ability will trigger that many times."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "If you play a card this way, it leaves exile and becomes a new object. If it returns to exile later in the turn, you can't play it again."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "The last ability triggers only once for each time cards are put into exile from your library and/or graveyard, no matter how many cards were exiled at the same time."
+            },
+            {
+                "date": "2024-06-07",
+                "text": "Laelia's last triggered ability doesn't care which player is exiling cards from the library or graveyard. Cards put into exile from your library or graveyard for any reason, such as the delve ability, cause the ability to trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Monologue Tax
 {
     "name": "Monologue Tax",
