@@ -35,6 +35,7 @@ val GenerousGift = card("Generous Gift") {
                 colors = setOf(Color.GREEN),
                 creatureTypes = setOf("Elephant"),
                 controller = EffectTarget.TargetController,
+                imageUri = "https://cards.scryfall.io/normal/front/1/a/1ae11d5f-f29d-44f4-8d90-cdada1040435.jpg?1783933227",
             )
         )
     }
