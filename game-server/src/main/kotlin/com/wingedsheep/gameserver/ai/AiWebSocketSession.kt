@@ -57,11 +57,11 @@ class AiWebSocketSession(
     private val onMulliganTake: (EntityId) -> Unit,
     private val onBottomCards: (EntityId, List<EntityId>) -> Unit,
     /**
-     * Built-in AI controllers retain the legacy actions-only resilience path. External controller
-     * providers set this false so the game server never makes strategic choices on their behalf
-     * when the virtual session has not yet synchronized a full masked state.
+     * Built-in AI controllers retain legacy game-server strategic recovery. External controller
+     * providers set this false so the server never chooses an action on their behalf, either when
+     * transport state is unsynchronized or after the controller's own response is rejected.
      */
-    private val allowActionsOnlyFallback: Boolean = true,
+    internal val allowActionsOnlyFallback: Boolean = true,
     /**
      * Local testing mode: the last word on what this seat submits. Given the move the AI chose, it
      * may hold the decision until a human approves it and may hand back a different move entirely
