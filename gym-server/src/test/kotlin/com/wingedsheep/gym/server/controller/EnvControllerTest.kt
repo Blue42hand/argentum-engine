@@ -16,6 +16,7 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.string.shouldContain
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -161,6 +162,17 @@ class EnvControllerTest : FunSpec() {
                 get("/envs/${created.envId.value}").body()
             )
             observed.stateDigest shouldBe created.observation.stateDigest
+
+            val actingPlayerId = created.observation.agentToAct.shouldNotBeNull().value
+            val actingView = json.decodeFromString<TrainingObservation>(
+                get("/envs/${created.envId.value}?perspectivePlayerId=$actingPlayerId").body()
+            )
+            actingView.perspectivePlayerId.value shouldBe actingPlayerId
+            actingView.agentToAct shouldBe created.observation.agentToAct
+            actingView.legalActions.all { it.semanticId != null } shouldBe true
+
+            get("/envs/${created.envId.value}?perspectivePlayerId=not-seated")
+                .statusCode() shouldBe 400
 
             // -- step using an actionId from the opening observation --
             val actionId = created.observation.legalActions.first().actionId

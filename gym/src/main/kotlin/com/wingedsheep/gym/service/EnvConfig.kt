@@ -52,7 +52,10 @@ data class EnvConfig(
      * callers set [Format.Commander] and give each [PlayerSpec] a
      * [PlayerSpec.commanderCardName].
      */
-    val format: Format = Format.Standard
+    val format: Format = Format.Standard,
+
+    /** Deterministic game RNG seed. Null selects fresh engine entropy. */
+    val seed: Long? = null
 ) {
     init {
         require(players.size >= 2) { "Need at least 2 players" }
