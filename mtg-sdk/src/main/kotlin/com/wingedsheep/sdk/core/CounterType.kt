@@ -115,6 +115,7 @@ enum class CounterType {
     FILM,
     SKEWER,
     ENERGY,
+    EXPERIENCE,
     ICE,
     OMEN,
     SUSPECT,
@@ -670,6 +671,15 @@ object Counters {
      * NOT a keyword counter, so it is intentionally absent from `StateProjector.KEYWORD_COUNTER_MAP`.
      */
     const val ENERGY = "energy"
+
+    /**
+     * Experience counter (Commander 2015 onward). Experience counters are placed on players and
+     * have no inherent rules meaning; cards such as Meren of Clan Nel Toth grant them and then read
+     * the shared player total. Like energy, they use the player's [CountersComponent] through
+     * `Effects.AddCounters(..., EffectTarget.Controller)` and
+     * `DynamicAmount.PlayerCounterCount(Counters.EXPERIENCE)`.
+     */
+    const val EXPERIENCE = "experience"
 
     /**
      * Ice counter (SOI — Thing in the Ice). Passive "thaw countdown" counter with no inherent rule

@@ -1573,7 +1573,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   lets the player answer 0 to every prompt and still report success, firing the payoff for free against
   CR 603.12. Use `RemoveCountersUpTo` only where the card really does say "up to".
 - **Player-scoped counters (CR 122.1, 107.14).** Every counter type above lives on a permanent/object. Poison,
-  energy, and rad counters instead live directly on a **player entity**, reusing the same `CountersComponent` —
+  energy, experience, and rad counters instead live directly on a **player entity**, reusing the same `CountersComponent` —
   no separate component or data model. `AddCountersExecutor` already resolves player-shaped targets (`that
   player gets two poison counters`, Virulent Silencer), so a fixed grant needs no new vocabulary at all.
   - `GetEnergy(amount, target = Controller)` — sugar for `AddCounters(Counters.ENERGY, amount, target)`. "You get
@@ -1604,7 +1604,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
     — how many counters of `counterType` a player currently has; the player-scoped sibling of
     `EntityProperty(entity, CounterCount(filter))` (which has no case for "a player" — `EntityReference` only
     resolves permanents/objects). `DynamicAmounts.energyCount(player)` is sugar for the energy case — "where X is
-    the number of energy counters you have" (Longtusk Cub, Electrostatic Pummeler).
+    the number of energy counters you have" (Longtusk Cub, Electrostatic Pummeler). Experience-card scripts use
+    `Counters.EXPERIENCE` with the generic helper (Meren of Clan Nel Toth).
 - `ConvertCountersToTokensEffect(counterType = +1/+1, tokenFactory)` — "remove any number of `counterType`
   counters from this permanent; for each removed, create one token." Prompts for `0..(count on source)`,
   removes that many, then mints exactly that many tokens from `tokenFactory` (its own `count` is ignored).
