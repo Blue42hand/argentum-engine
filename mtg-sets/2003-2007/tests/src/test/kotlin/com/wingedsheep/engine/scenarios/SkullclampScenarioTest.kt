@@ -2,6 +2,7 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
+import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -79,13 +80,19 @@ class SkullclampScenarioTest : FunSpec({
         val d = driver()
         val me = d.activePlayer!!
         val host = d.putCreatureOnBattlefield(me, "Savannah Lions") // 2/1
+        val clamp = d.putPermanentOnBattlefield(me, "Skullclamp")
         val handBefore = d.getHand(me).size
-        d.putEquipmentAttached(me, host)
 
-        // Replacing the state stabilizes state-based actions immediately, so the 0-toughness
-        // creature may already be in the graveyard with Skullclamp's trigger queued.
-        d.bothPass()
-        d.bothPass()
+        d.giveMana(me, Color.BLACK, 1)
+        val equip = d.legalActions(me)
+            .map { it.action }
+            .filterIsInstance<ActivateAbility>()
+            .single { it.sourceId == clamp }
+            .copy(targets = listOf(ChosenTarget.Permanent(host)))
+        d.submitSuccess(equip)
+
+        d.bothPass() // resolve equip; the +1/-1 makes Savannah Lions 3/0, so SBAs kill it
+        d.bothPass() // resolve Skullclamp's death trigger
 
         d.getGraveyard(me) shouldContain host
         d.getHand(me).size shouldBe handBefore + 2
