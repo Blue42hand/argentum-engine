@@ -1,0 +1,86 @@
+// Savvy Trader
+{
+    "name": "Savvy Trader",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Human Citizen",
+    "oracleText": "When this creature enters, exile target permanent card from your graveyard. You may play that card for as long as it remains exiled.\nSpells you cast from anywhere other than your hand cost {1} less to cast.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ExileAndGrantOwnerPlayPermission",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target permanent card from your graveyard"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "permanent own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "target permanent card from your graveyard"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCastFromZones",
+                    "zones": [
+                        "Library",
+                        "Battlefield",
+                        "Graveyard",
+                        "Stack",
+                        "Exile",
+                        "Command",
+                        "Sideboard"
+                    ]
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "33",
+        "rarity": "RARE",
+        "artist": "Scott Murphy",
+        "flavorText": "\"A little dirt doesn't indicate quality—with goods or with people.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/1/118f25cf-faa6-4d60-a156-27bf7aedf7eb.jpg?1783911962",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "You may play the card exiled with Savvy Trader's first ability even if Savvy Trader leaves the battlefield. If another player gains control of Savvy Trader, that player can't play the card, and you still can."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "You pay all costs and follow all normal timing rules for the card played from exile with Savvy Trader's first ability. For example, if the exiled card is a land card, you may play it only during your main phase while the stack is empty."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "Savvy Trader's last ability doesn't change the mana cost or mana value of any spell. It changes only the total cost you pay to cast spells from anywhere other than your hand."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "Savvy Trader's last ability can't reduce the amount of colored mana you pay for a spell. It reduces only the generic mana component of that spell's cost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
