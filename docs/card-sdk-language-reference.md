@@ -5838,15 +5838,18 @@ caster with `EffectTarget.PlayerRef(Player.TriggeringPlayer)`.
   `FilterCollectionEffect(from = TRIGGER_CAPTURED_COLLECTION, …)` if it must act on fewer objects
   than the gate matched.
 
-- `youPlayLand(fromZoneOtherThan: Zone? = null)` — "whenever you play a land" (CR 305.1, the special
-  land-play action). Pass `fromZoneOtherThan = Zone.HAND` for "whenever you play a land … from anywhere
-  other than your hand" (Shadow of the Goblin). Backed by the engine's `LandPlayedEvent`, emitted **only**
+- `youPlayLand(fromZone: Zone? = null, fromZoneOtherThan: Zone? = null)` — "whenever you play a land"
+  (CR 305.1, the special land-play action). Pass `fromZone = Zone.EXILE` for "plays a land from exile"
+  (Rocco, Street Chef), or `fromZoneOtherThan = Zone.HAND` for "whenever you play a land … from anywhere
+  other than your hand" (Shadow of the Goblin); the two restrictions are mutually exclusive. Backed by
+  the engine's `LandPlayedEvent`, emitted **only**
   for a played land — never for a land an effect *puts* onto the battlefield (fetch / reanimate / ramp), so
   it does not over-trigger. ANY binding (a player-scoped observer). For the union "play a land **or** cast a
   spell from a non-hand zone", use two triggered abilities — this one plus
   `youCastSpell(requires = setOf(SpellCastPredicate.CastFromZoneOtherThan(Zone.HAND)))`.
 
-- `anyPlayerPlaysLand(fromZoneOtherThan: Zone? = null)` — "whenever **a player** plays a land"
+- `anyPlayerPlaysLand(fromZone: Zone? = null, fromZoneOtherThan: Zone? = null)` — "whenever **a
+  player** plays a land"
   (Cemetery Gatekeeper). The any-player scope of `youPlayLand`, and the land-play counterpart of
   `AnyPlayerCastsSpell`: `EventPattern.LandPlayedEvent.player` reads the same `Player` vocabulary
   `SpellCastEvent.player` does, so the two compose for the printed "plays a land or casts a spell"

@@ -368,13 +368,17 @@ object Triggers {
     )
 
     /**
-     * When you play a land (CR 305.1). Pass [fromZoneOtherThan] to restrict to lands played from a
-     * zone other than that one — Shadow of the Goblin: "whenever you play a land … from anywhere
-     * other than your hand" is `youPlayLand(fromZoneOtherThan = Zone.HAND)`. Fires only for the
-     * land-play action, not for a land an effect puts onto the battlefield.
+     * When you play a land (CR 305.1). Pass [fromZone] to require an exact origin — Rocco, Street
+     * Chef's "plays a land from exile" is `youPlayLand(fromZone = Zone.EXILE)`. Pass
+     * [fromZoneOtherThan] to exclude one origin — Shadow of the Goblin's "from anywhere other than
+     * your hand" is `youPlayLand(fromZoneOtherThan = Zone.HAND)`. Fires only for the land-play
+     * action, not for a land an effect puts onto the battlefield.
      */
-    fun youPlayLand(fromZoneOtherThan: com.wingedsheep.sdk.core.Zone? = null): TriggerSpec = TriggerSpec(
-        event = LandPlayedEvent(fromZoneOtherThan = fromZoneOtherThan),
+    fun youPlayLand(
+        fromZone: com.wingedsheep.sdk.core.Zone? = null,
+        fromZoneOtherThan: com.wingedsheep.sdk.core.Zone? = null,
+    ): TriggerSpec = TriggerSpec(
+        event = LandPlayedEvent(fromZone = fromZone, fromZoneOtherThan = fromZoneOtherThan),
         binding = TriggerBinding.ANY
     )
 
@@ -384,9 +388,16 @@ object Triggers {
      * [AnyPlayerCastsSpell], so the two compose under [or] for the printed "plays a land or casts
      * a spell" ability.
      */
-    fun anyPlayerPlaysLand(fromZoneOtherThan: com.wingedsheep.sdk.core.Zone? = null): TriggerSpec =
+    fun anyPlayerPlaysLand(
+        fromZone: com.wingedsheep.sdk.core.Zone? = null,
+        fromZoneOtherThan: com.wingedsheep.sdk.core.Zone? = null,
+    ): TriggerSpec =
         TriggerSpec(
-            event = LandPlayedEvent(fromZoneOtherThan = fromZoneOtherThan, player = Player.Each),
+            event = LandPlayedEvent(
+                fromZone = fromZone,
+                fromZoneOtherThan = fromZoneOtherThan,
+                player = Player.Each,
+            ),
             binding = TriggerBinding.ANY
         )
 
