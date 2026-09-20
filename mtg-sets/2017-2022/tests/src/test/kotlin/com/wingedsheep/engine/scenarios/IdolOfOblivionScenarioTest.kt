@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
+import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.state.components.player.TokensCreatedThisTurnComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
@@ -14,12 +15,17 @@ import io.kotest.matchers.shouldBe
  * The important card-specific rule is that the draw activation looks at turn history, not the
  * current battlefield. The qualifying token can have been created before Idol entered and can
  * already be gone. Token-creation provenance itself is tested at the engine layer; here we prove
- * that Idol consumes that persisted history as its activation restriction.
+ * that Idol consumes that persisted history as its activation restriction and that its sacrifice
+ * ability creates the printed 10/10 colorless Eldrazi token.
  */
 class IdolOfOblivionScenarioTest : ScenarioTestBase() {
 
     private val drawAbilityId by lazy {
         cardRegistry.getCard("Idol of Oblivion")!!.script.activatedAbilities[0].id
+    }
+
+    private val eldraziAbilityId by lazy {
+        cardRegistry.getCard("Idol of Oblivion")!!.script.activatedAbilities[1].id
     }
 
     init {
@@ -86,6 +92,41 @@ class IdolOfOblivionScenarioTest : ScenarioTestBase() {
 
                 game.handSize(1) shouldBe handBefore + 1
                 game.librarySize(1) shouldBe libraryBefore - 1
+            }
+
+            test("sacrifice ability creates a 10/10 colorless Eldrazi token") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardOnBattlefield(1, "Idol of Oblivion")
+                    .withLandsOnBattlefield(1, "Forest", 8)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val idol = game.findPermanent("Idol of Oblivion")!!
+                val result = game.execute(
+                    ActivateAbility(
+                        playerId = game.player1Id,
+                        sourceId = idol,
+                        abilityId = eldraziAbilityId,
+                    )
+                )
+                withClue("Eight mana should make Idol's sacrifice ability activatable") {
+                    result.error shouldBe null
+                }
+                withClue("Idol is sacrificed as a cost before the ability resolves") {
+                    game.isOnBattlefield("Idol of Oblivion") shouldBe false
+                    game.isInGraveyard(1, "Idol of Oblivion") shouldBe true
+                }
+
+                game.resolveStack()
+
+                val eldrazi = game.findPermanents("Eldrazi Token").single()
+                withClue("The created permanent is a token") {
+                    game.state.getEntity(eldrazi)?.has<TokenComponent>() shouldBe true
+                }
+                game.state.projectedState.getPower(eldrazi) shouldBe 10
+                game.state.projectedState.getToughness(eldrazi) shouldBe 10
             }
         }
     }
