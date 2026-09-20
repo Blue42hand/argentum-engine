@@ -1,16 +1,21 @@
-name: Issue 34 Victimize preflight
+name: Issue 34 Victimize validation
 
 on:
   push:
     branches: [ "issue-34-victimize" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  preflight:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: issue-34-victimize
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -29,47 +34,54 @@ jobs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           "$HOME/.local/bin/just" --version
 
-      - name: Assay parse and explain
+      - name: Victimize scenario gate
         run: |
-          set -uxo pipefail
-          just assay parse "Victimize"
-          PARSE_STATUS=$?
-          just assay explain "Victimize"
-          EXPLAIN_STATUS=$?
-          echo "assay_parse_status=$PARSE_STATUS assay_explain_status=$EXPLAIN_STATUS"
-          exit 0
+          set -euxo pipefail
+          just test-class VictimizeScenarioTest
 
-      - name: Fidelity draft
+      - name: Rebless and scope card snapshot
+        id: snapshot
+        run: |
+          set -euxo pipefail
+          just rebless-cards
+          echo '--- changed files after rebless ---'
+          git diff --name-only
+          NON_SNAPSHOT=$(git diff --name-only | grep -vE '(^|/)snapshots/cards/[Uu][Ss][Gg]\.json$' || true)
+          if [ -n "$NON_SNAPSHOT" ]; then
+            echo "Unexpected rebless changes:"
+            echo "$NON_SNAPSHOT"
+            exit 1
+          fi
+          if git diff --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Full card build gate
+        run: |
+          set -euxo pipefail
+          just build
+
+      - name: Assay differential
         run: |
           set -uxo pipefail
-          just coverage-fidelity --emit "Victimize"
+          just assay-differential --set USG
           STATUS=$?
-          echo "coverage_fidelity_status=$STATUS"
+          echo "assay_differential_status=$STATUS"
           exit 0
 
-      - name: Scryfall evidence
+      - name: Canonical printing gate
         run: |
           set -euxo pipefail
-          UA='CommanderGym-Argentum-coverage/1.0'
-          ACCEPT='application/json;q=0.9,*/*;q=0.8'
-          curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" \
-            'https://api.scryfall.com/cards/named?exact=Victimize' > /tmp/victimize.json
-          jq '{name,mana_cost,type_line,oracle_text,set,set_name,released_at,collector_number,rarity,artist,image_uris,rulings_uri,prints_search_uri}' /tmp/victimize.json
-          RULINGS=$(jq -r '.rulings_uri' /tmp/victimize.json)
-          PRINTS=$(jq -r '.prints_search_uri' /tmp/victimize.json)
-          echo '--- rulings ---'
-          curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" "$RULINGS" | jq '.data[] | {published_at,comment}'
-          echo '--- printings oldest first ---'
-          curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" "$PRINTS&order=released&dir=asc" | jq '.data[] | select(.set_type != "promo" and .set_type != "token" and .set_type != "art_series" and .set_type != "memorabilia") | {set,set_name,set_type,released_at,collector_number,rarity,artist,image_uris}'
-          echo '--- canonical USG printing ---'
-          curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" \
-            'https://api.scryfall.com/cards/named?exact=Victimize&set=usg' | \
-            jq '{name,mana_cost,type_line,oracle_text,set,set_name,released_at,collector_number,rarity,artist,flavor_text,image_uris}'
+          just check-card-printing "Victimize"
 
-      - name: Canonical placement and existing support
+      - name: Preserve verified snapshot on branch
+        if: steps.snapshot.outputs.changed == 'true'
         run: |
           set -euxo pipefail
-          grep -rn 'name = "Victimize"\|card("Victimize")' mtg-sets/*/src/main/kotlin/ || true
-          just where USG
-          grep -R "fun IfYouDo\|fun SacrificeOwn\|class IfYouDoEffect\|data class IfYouDoEffect" -n mtg-sdk/src/main/kotlin | head -80 || true
-          grep -R "ZonePlacement.Tapped" -n mtg-sets/*/src/main/kotlin | head -80 || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- '*snapshots/cards/[Uu][Ss][Gg].json'
+          git commit -m 'Update Victimize card snapshot'
+          git push origin HEAD:issue-34-victimize
