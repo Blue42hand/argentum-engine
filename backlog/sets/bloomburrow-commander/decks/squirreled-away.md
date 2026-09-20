@@ -101,7 +101,7 @@
 - [ ] 1 Haunted Mire
 - [x] 1 Jungle Hollow
 - [x] 1 Llanowar Wastes
-- [ ] 1 Necroblossom Snarl
+- [x] 1 Necroblossom Snarl
 - [ ] 1 Oran-Rief, the Vastwood
 - [x] 1 Path of Ancestry
 - [ ] 4 Swamp

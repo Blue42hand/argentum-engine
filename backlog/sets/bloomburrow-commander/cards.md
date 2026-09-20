@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 128 / 312
+**Implemented:** 129 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -12,7 +12,7 @@
 | Green      | 62    | 2    |
 | Multicolor | 40    | 1    |
 | Colorless  | 33    | 1    |
-| Land       | 69    | 8    |
+| Land       | 69    | 9    |
 
 ---
 
@@ -187,7 +187,7 @@
 - [x] Mystic Monastery
 - [ ] Nadier's Nightblade
 - [ ] Narset, Parter of Veils
-- [ ] Necroblossom Snarl
+- [x] Necroblossom Snarl
 - [ ] Nested Shambler
 - [ ] Nissa, Who Shakes the World
 - [ ] Octomancer
