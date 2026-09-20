@@ -149,7 +149,8 @@ object TokenCreationReplacementHelper {
         cardRegistry: CardRegistry?,
         staticAbilityHandler: StaticAbilityHandler?,
         predicateEvaluator: PredicateEvaluator = PredicateEvaluator(),
-        conditionEvaluator: ConditionEvaluator = ConditionEvaluator()
+        conditionEvaluator: ConditionEvaluator = ConditionEvaluator(),
+        tokenCreatorId: EntityId = tokenControllerId,
     ): Pair<GameState, List<com.wingedsheep.engine.core.GameEvent>> {
         if (createdTokenIds.isEmpty() || cardRegistry == null) return state to emptyList()
 
@@ -238,7 +239,7 @@ object TokenCreationReplacementHelper {
 
                 newState = newState.withEntity(tokenId, tokenContainer)
                 newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                    .place(newState, tokenControllerId, tokenId)
+                    .place(newState, tokenControllerId, tokenId, tokenCreatorId = tokenCreatorId)
                 // Honor global "[filter] enter tapped" replacements on the added token too.
                 newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
                     .applyCreatedTokenEntryTap(
@@ -398,7 +399,7 @@ object TokenCreationReplacementHelper {
             }
             newState = newState.withEntity(tokenId, container)
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                .place(newState, controllerId, tokenId)
+                .place(newState, controllerId, tokenId, tokenCreatorId = controllerId)
             // Honor global "[filter] enter tapped" replacements on the copy too.
             newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
                 .applyCreatedTokenEntryTap(newState, tokenId, controllerId)

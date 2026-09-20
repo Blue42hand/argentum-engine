@@ -23,6 +23,7 @@ import com.wingedsheep.engine.state.components.player.CardsDiscardedThisTurnComp
 import com.wingedsheep.engine.state.components.player.LandsPlayedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CardsDrawnThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CardsPutIntoExileThisTurnComponent
+import com.wingedsheep.engine.state.components.player.TokensCreatedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent
 import com.wingedsheep.engine.state.components.player.ExhaustAbilitiesActivatedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.ManaSpentOnSpellsThisTurnComponent
@@ -164,6 +165,7 @@ class TurnManager(
         for (pid in state.turnOrder) {
             newState = newState.updateEntity(pid) { container ->
                 container.with(CardsDrawnThisTurnComponent(count = 0))
+                    .with(TokensCreatedThisTurnComponent(count = 0))
                     .with(CardsPutIntoExileThisTurnComponent(count = 0))
                     .with(ManaSpentOnSpellsThisTurnComponent(totalSpent = 0))
                     .with(EquipActivationsThisTurnComponent(count = 0))

@@ -2,6 +2,7 @@ package com.wingedsheep.engine.handlers.effects
 
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.player.TokensCreatedThisTurnComponent
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 
@@ -30,11 +31,24 @@ import com.wingedsheep.sdk.model.EntityId
 object BattlefieldEntry {
 
     /**
-     * Add [entityId] to [controllerId]'s battlefield and record the ETB-by-type.
+     * Add [entityId] to [controllerId]'s battlefield and record the ETB-by-type. Token-creation
+     * callers pass [tokenCreatorId] after replacement handling so creation history is credited to
+     * the creator independently of who controls the resulting token.
      */
-    fun place(state: GameState, controllerId: EntityId, entityId: EntityId): GameState {
+    fun place(
+        state: GameState,
+        controllerId: EntityId,
+        entityId: EntityId,
+        tokenCreatorId: EntityId? = null,
+    ): GameState {
         val battlefieldZone = ZoneKey(controllerId, Zone.BATTLEFIELD)
         val withZone = state.addToZone(battlefieldZone, entityId)
-        return PermanentEntryTracker.record(withZone, controllerId, entityId)
+        val withEntry = PermanentEntryTracker.record(withZone, controllerId, entityId)
+        return tokenCreatorId?.let { creatorId ->
+            withEntry.updateEntity(creatorId) { container ->
+                val count = container.get<TokensCreatedThisTurnComponent>()?.count ?: 0
+                container.with(TokensCreatedThisTurnComponent(count + 1))
+            }
+        } ?: withEntry
     }
 }

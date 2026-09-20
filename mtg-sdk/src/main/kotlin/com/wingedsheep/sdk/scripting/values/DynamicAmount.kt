@@ -102,6 +102,12 @@ enum class TurnTracker {
      * (Spider-UK). Reach for the threshold form via `Conditions.CreaturesEnteredThisTurn`.
      */
     CREATURES_ENTERED_UNDER_CONTROL,
+    /**
+     * Number of tokens the player created this turn. This is creator-scoped rather than
+     * controller-scoped: a token an effect creates under another player's control is credited to
+     * the player instructed to create it. The history remains after the token leaves play.
+     */
+    TOKENS_CREATED,
     /** Indicator (0 or 1) that the player sacrificed at least one Food this turn. */
     FOOD_SACRIFICED,
     /**
@@ -246,6 +252,7 @@ enum class TurnTracker {
         LANDS_ENTERED_UNDER_CONTROL -> "the number of lands that entered the battlefield under ${player.possessive} control this turn"
         NONLAND_PERMANENTS_ENTERED -> "the number of nonland permanents that entered the battlefield under ${player.possessive} control this turn"
         CREATURES_ENTERED_UNDER_CONTROL -> "the number of creatures that entered the battlefield under ${player.possessive} control this turn"
+        TOKENS_CREATED -> "the number of tokens ${player.description} created this turn"
         FOOD_SACRIFICED -> "whether ${player.description} sacrificed a Food this turn"
         ARTIFACT_SACRIFICED -> "whether ${player.description} sacrificed an artifact this turn"
         CARDS_LEFT_GRAVEYARD -> "the number of cards that left ${player.possessive} graveyard this turn"

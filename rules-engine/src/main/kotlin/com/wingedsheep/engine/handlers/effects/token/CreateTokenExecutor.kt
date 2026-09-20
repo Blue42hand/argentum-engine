@@ -268,7 +268,7 @@ class CreateTokenExecutor(
 
             // Add to battlefield
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                .place(newState, tokenControllerId, tokenId)
+                .place(newState, tokenControllerId, tokenId, tokenCreatorId = context.controllerId)
 
             // Tokens honor global "[filter] enter tapped" replacements from other permanents
             // (Dauntless Dismantler, Authority of the Consuls, …) — BattlefieldEntry.place doesn't
@@ -440,7 +440,7 @@ class CreateTokenExecutor(
         val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokens, effect.tapped,
-                cardRegistry, staticAbilityHandler
+                cardRegistry, staticAbilityHandler, tokenCreatorId = context.controllerId
             )
         newState = afterAdditional
 

@@ -931,6 +931,16 @@ data class CardsDrawnThisTurnComponent(
 ) : Component
 
 /**
+ * Number of tokens this player created during the current turn. Creation is attributed to the
+ * player performing the instruction, not necessarily the token's controller, and is recorded only
+ * after replacement effects have produced an actual token. Cleared at the turn boundary.
+ */
+@Serializable
+data class TokensCreatedThisTurnComponent(
+    val count: Int = 0
+) : Component
+
+/**
  * How many cards this player had in hand **at the beginning of the current turn** — a snapshot,
  * not a running count. Written for every player in `BeginningPhaseManager.performUntapStep`, the
  * first turn-based action of every turn (CR 502), and overwritten there each turn.

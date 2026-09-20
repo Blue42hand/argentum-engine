@@ -150,7 +150,7 @@ object TokenFromDefinition {
         }
 
         var newState = stateWithId.withEntity(tokenId, container)
-        newState = BattlefieldEntry.place(newState, controllerId, tokenId)
+        newState = BattlefieldEntry.place(newState, controllerId, tokenId, tokenCreatorId = controllerId)
 
         // As-enters: enters tapped (CR 614). The payLifeCost (shock-land) form is land-only.
         val entersTapped = cardDef.script.replacementEffects.filterIsInstance<EntersTapped>().firstOrNull()

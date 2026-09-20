@@ -127,7 +127,7 @@ class CreateTokenCopyOfSourceExecutor(
 
             // Add to battlefield
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                .place(newState, controllerId, tokenId)
+                .place(newState, controllerId, tokenId, tokenCreatorId = context.controllerId)
 
             // A token copy honors global "[filter] enter tapped" replacements (Authority of the
             // Consuls / Dauntless Dismantler on an opponent's token copy).

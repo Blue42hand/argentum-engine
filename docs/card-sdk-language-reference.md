@@ -11608,6 +11608,11 @@ this turn").
   and post-departure persistence as `NONLAND_PERMANENTS_ENTERED`. At a threshold of two it backs
   `Conditions.CreaturesEnteredThisTurn` — Spider-UK's "two or more creatures entered the
   battlefield under your control this turn."
+- `TOKENS_CREATED` — tokens the player created this turn, recorded only after replacement effects
+  produce an actual token. Creator-scoped rather than controller-scoped: a token you create under
+  another player's control increments your tally. The history remains after the token leaves play.
+  `Conditions.PlayerCreatedTokensThisTurn(player, atLeast)` is the generic threshold facade;
+  `Conditions.YouCreatedTokensThisTurn` is its common one-token form.
 - `FOOD_SACRIFICED` — Food tokens sacrificed.
 - `ARTIFACT_SACRIFICED` — indicator (0 or 1) that the player sacrificed an artifact this turn, read
   off the projected type line at sacrifice time. Backs `Conditions.SacrificedArtifactThisTurn`

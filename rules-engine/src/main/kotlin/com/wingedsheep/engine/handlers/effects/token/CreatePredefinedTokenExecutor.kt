@@ -149,7 +149,7 @@ class CreatePredefinedTokenExecutor(
             newState = newState.withEntity(tokenId, container)
 
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                .place(newState, tokenControllerId, tokenId)
+                .place(newState, tokenControllerId, tokenId, tokenCreatorId = context.controllerId)
 
             // Predefined Map/Treasure/Clue/etc. tokens honor global "[filter] enter tapped"
             // replacements (Dauntless Dismantler taps an opponent's artifact token).
@@ -177,7 +177,7 @@ class CreatePredefinedTokenExecutor(
         val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokenIds, effect.tapped,
-                cardRegistry, staticAbilityHandler
+                cardRegistry, staticAbilityHandler, tokenCreatorId = context.controllerId
             )
         newState = afterAdditional
         events.addAll(additionalEvents)

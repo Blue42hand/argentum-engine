@@ -139,7 +139,7 @@ class CreateTokenCopyOfChosenPermanentExecutor(
 
             var newState = stateWithId.withEntity(tokenId, container)
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                .place(newState, controllerId, tokenId)
+                .place(newState, controllerId, tokenId, tokenCreatorId = controllerId)
 
             // A token copy honors global "[filter] enter tapped" replacements (Authority of the
             // Consuls taps an opponent's token copy of a creature).
