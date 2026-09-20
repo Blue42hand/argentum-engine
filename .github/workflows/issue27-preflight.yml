@@ -1,42 +1,72 @@
-name: Issue 27 Generous Gift preflight
+name: Issue 27 Generous Gift validation
 
 on:
   push:
     branches: [issue-27-generous-gift]
+    paths:
+      - '.github/workflows/issue27-preflight.yml'
+      - 'mtg-sets/2017-2022/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/mh1/cards/GenerousGift.kt'
+      - 'mtg-sets/2017-2022/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/GenerousGiftScenarioTest.kt'
+
+concurrency:
+  group: issue-27-generous-gift-validation
+  cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  preflight:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '23'
       - uses: extractions/setup-just@v2
-      - name: Scryfall canonical metadata, rulings, and token art
+      - name: Rules scenarios
+        run: just test-class GenerousGiftScenarioTest
+      - name: Rebless card snapshot locally
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --get \
-            --data-urlencode 'exact=Generous Gift' \
-            --data-urlencode 'set=mh1' \
-            https://api.scryfall.com/cards/named > /tmp/generous-gift.json
-          jq '{name,mana_cost,type_line,oracle_text,colors,rarity,collector_number,artist,flavor_text,image_uris,prints_search_uri,rulings_uri,released_at,set,set_name}' /tmp/generous-gift.json
-          rulings_uri=$(jq -r '.rulings_uri' /tmp/generous-gift.json)
-          curl --fail --silent --show-error "$rulings_uri" | jq '{data: [.data[] | {published_at,comment}]}'
-          prints_uri=$(jq -r '.prints_search_uri' /tmp/generous-gift.json)
-          curl --fail --silent --show-error "$prints_uri" | jq '{data: [.data[] | {set,set_name,released_at,promo,collector_number}]}'
-          curl --fail --silent --show-error --get \
-            --data-urlencode 'q=t:token name:"Elephant" set:tmh1' \
-            https://api.scryfall.com/cards/search | jq '{data: [.data[] | {name,set,collector_number,power,toughness,colors,type_line,artist,image_uris}]}'
-      - name: Assay and fidelity preflight
+          just rebless-cards
+          mapfile -t changed < <(git diff --name-only)
+          if [ "${#changed[@]}" -eq 0 ]; then
+            echo 'Expected a new Generous Gift card snapshot, but rebless produced no diff.' >&2
+            exit 1
+          fi
+          printf 'Rebless changed:\n%s\n' "${changed[@]}"
+          for file in "${changed[@]}"; do
+            case "$file" in
+              *snapshots/cards/*) ;;
+              *) echo "Unexpected rebless change: $file" >&2; exit 1 ;;
+            esac
+          done
+          git diff --stat
+      - name: Card gates
         shell: bash
         run: |
           set -euo pipefail
-          just assay parse 'Generous Gift'
-          just assay explain 'Generous Gift'
-          just coverage-fidelity --emit 'Generous Gift'
+          just build
+          just assay-differential --set MH1
+          just check-card-printing 'Generous Gift'
+      - name: Preserve verified snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t changed < <(git diff --name-only)
+          for file in "${changed[@]}"; do
+            case "$file" in
+              *snapshots/cards/*) ;;
+              *) echo "Unexpected generated change before snapshot commit: $file" >&2; exit 1 ;;
+            esac
+          done
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "${changed[@]}"
+          git commit -m 'Rebless Generous Gift snapshot'
+          git push origin HEAD:issue-27-generous-gift
