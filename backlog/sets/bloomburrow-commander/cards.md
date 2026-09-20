@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 124 / 312
+**Implemented:** 128 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -33,7 +33,7 @@
 - [x] Baird, Steward of Argive
 - [ ] Baleful Strix
 - [x] Barren Moor
-- [ ] Bastion of Remembrance
+- [x] Bastion of Remembrance
 - [x] Battlefield Forge
 - [x] Beast Within
 - [x] Beastmaster Ascension
@@ -198,7 +198,7 @@
 - [ ] Overflowing Basin
 - [x] Path of Ancestry
 - [x] Path of Discovery
-- [ ] Path to Exile
+- [x] Path to Exile
 - [ ] Perch Protection
 - [ ] Perplexing Test
 - [ ] Plaguecrafter
@@ -278,7 +278,7 @@
 - [ ] Swiftfoot Boots
 - [ ] Sword of the Squeak
 - [x] Swords to Plowshares
-- [ ] Tainted Wood
+- [x] Tainted Wood
 - [x] Talisman of Impulse
 - [ ] Talisman of Resilience
 - [x] Tamiyo, Field Researcher
@@ -308,7 +308,7 @@
 - [ ] Thriving Heath
 - [ ] Thriving Isle
 - [ ] Time Wipe
-- [ ] Tireless Provisioner
+- [x] Tireless Provisioner
 - [ ] Toski, Bearer of Secrets
 - [x] Trailtracker Scout
 - [x] Tranquil Thicket

@@ -157,6 +157,80 @@
     ]
 }
 
+// Dispatch
+{
+    "name": "Dispatch",
+    "manaCost": "{W}",
+    "typeLine": "Instant",
+    "oracleText": "Tap target creature.\nMetalcraft — If you control three or more artifacts, exile that creature.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "artifact"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 3
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature"
+                        },
+                        "destination": "Exile"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "rarity": "UNCOMMON",
+        "artist": "Erica Yang",
+        "flavorText": "Venser wondered if it could still be called a teleportation spell if the destination is oblivion.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/496634f9-1271-4be7-bad5-364bb87a6962.jpg?1783941327",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "If you control three or more artifacts when Dispatch resolves, you'll tap the creature, then exile it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Flameborn Viron
 {
     "name": "Flameborn Viron",

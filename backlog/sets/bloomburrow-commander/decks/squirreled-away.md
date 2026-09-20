@@ -35,7 +35,7 @@
 - [ ] 1 Skyfisher Spider
 - [ ] 1 Squirrel Sovereign
 - [ ] 1 The Odd Acorn Gang
-- [ ] 1 Tireless Provisioner
+- [x] 1 Tireless Provisioner
 - [ ] 1 Toski, Bearer of Secrets
 - [ ] 1 Woe Strider
 - [ ] 1 Zulaport Cutthroat
@@ -79,7 +79,7 @@
 
 ## Enchantments (7)
 
-- [ ] 1 Bastion of Remembrance
+- [x] 1 Bastion of Remembrance
 - [x] 1 Beastmaster Ascension
 - [ ] 1 Binding the Old Gods
 - [ ] 1 Gourmand's Talent
@@ -107,7 +107,7 @@
 - [ ] 4 Swamp
 - [ ] 4 Swamp
 - [ ] 1 Swarmyard
-- [ ] 1 Tainted Wood
+- [x] 1 Tainted Wood
 - [x] 1 Temple of Malady
 - [x] 1 Terramorphic Expanse
 - [x] 1 Tranquil Thicket
