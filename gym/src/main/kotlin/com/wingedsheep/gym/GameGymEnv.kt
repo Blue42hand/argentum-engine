@@ -13,6 +13,7 @@ import com.wingedsheep.gym.contract.StateDigest
 import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.gym.service.SnapshotCodec
 import com.wingedsheep.gym.service.SnapshotHandle
+import com.wingedsheep.sdk.model.EntityId
 
 /**
  * [GymEnv] adapter over a [GameEnvironment] — a game of Magic.
@@ -37,6 +38,15 @@ class GameGymEnv(
 
     override fun observe(revealAll: Boolean?): ObservationResult =
         build(revealAll ?: defaultRevealAll)
+
+    /** Observe the current state from one named seat without enabling debug visibility. */
+    fun observeForPlayer(
+        playerId: EntityId,
+        revealAll: Boolean? = null
+    ): ObservationResult {
+        require(playerId in environment.playerIds) { "Player $playerId is not seated in this env" }
+        return build(revealAll ?: defaultRevealAll, playerId)
+    }
 
     override fun step(actionId: Int, params: ActionParams): ObservationResult {
         executeResolved(registry.resolve(actionId), actionId, params)
@@ -77,19 +87,19 @@ class GameGymEnv(
 
     // --- internals -----------------------------------------------------------
 
-    private fun build(revealAll: Boolean): ObservationResult {
-        val perspective = environment.playerIds.getOrNull(perspectivePlayerIndex)
+    private fun build(
+        revealAll: Boolean,
+        requestedPerspective: EntityId? = null
+    ): ObservationResult {
+        val perspective = requestedPerspective
+            ?: environment.playerIds.getOrNull(perspectivePlayerIndex)
             ?: throw IllegalStateException("Env has no player at index $perspectivePlayerIndex")
         val result = observationBuilder.build(
             environment.state, perspective, environment.legalActions(), revealAll
         )
 
-        // A fixed-perspective environment can be observed while another seat must act. Existing
-        // Gym callers still need the live action IDs in that case so they can advance the shared
-        // environment, but durable semantic provenance for another seat is not part of this
-        // perspective's information set. Keep the pre-existing execution surface while removing
-        // the new equality/provenance channel introduced by semantic IDs. A future multi-seat Gym
-        // contract can tighten the broader action surface independently.
+        // A non-acting perspective must not receive another seat's decision provenance. Callers
+        // that control several seats request the current actor explicitly through observeForPlayer.
         val seatOwnsAction = environment.agentToAct == null || environment.agentToAct == perspective
         if (!revealAll && !seatOwnsAction) {
             val observation = result.observation as? TrainingObservation

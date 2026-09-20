@@ -12,7 +12,9 @@ import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
@@ -73,6 +75,16 @@ class GameGymEnvSeatSafetyTest : FunSpec({
         firstAliceView.pendingDecision shouldBe null
         firstAliceView.legalActions.shouldNotBeEmpty()
         firstAliceView.legalActions.all { it.semanticId == null } shouldBe true
+
+        val firstBobView = aliceEnv.observeForPlayer(bob).observation as TrainingObservation
+        firstBobView.perspectivePlayerId shouldBe bob
+        firstBobView.agentToAct shouldBe bob
+        firstBobView.pendingDecision.shouldNotBeNull()
+        firstBobView.legalActions.all { it.semanticId != null } shouldBe true
+
+        shouldThrow<IllegalArgumentException> {
+            aliceEnv.observeForPlayer(EntityId("not-seated"))
+        }
 
         val firstDebugView = aliceEnv.observe(revealAll = true).observation as TrainingObservation
         val firstDebugDecision = firstDebugView.pendingDecision

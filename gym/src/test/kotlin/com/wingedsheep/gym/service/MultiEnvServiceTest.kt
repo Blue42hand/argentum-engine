@@ -8,6 +8,7 @@ import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
+import com.wingedsheep.sdk.model.EntityId
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -82,6 +83,24 @@ class MultiEnvServiceTest : FunSpec({
 
         val again = svc.observe(envId)
         again.observation.stateDigest shouldBe opening.observation.stateDigest
+    }
+
+    test("explicit EnvConfig seed reproduces the opening observation") {
+        val config = EnvConfig(
+            players = listOf(
+                PlayerSpec("Alice", simpleDeck(), playerId = EntityId("alice")),
+                PlayerSpec("Bob", simpleDeck(), playerId = EntityId("bob"))
+            ),
+            skipMulligans = true,
+            startingPlayerIndex = 0,
+            seed = 20260920L
+        )
+        val svc = MultiEnvService(registry())
+
+        val first = svc.create(config).observation.observation
+        val second = svc.create(config).observation.observation
+
+        second.stateDigest shouldBe first.stateDigest
     }
 
     test("reset on an existing envId reinitializes the game") {

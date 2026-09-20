@@ -95,8 +95,21 @@ class MultiEnvService(
     // =========================================================================
 
     /** Get the current observation without advancing state. */
-    fun observe(envId: EnvId, revealAll: Boolean? = null): ObservationResult =
-        requireEnv(envId).observe(revealAll)
+    fun observe(
+        envId: EnvId,
+        revealAll: Boolean? = null,
+        perspectivePlayerId: EntityId? = null
+    ): ObservationResult {
+        val env = requireEnv(envId)
+        return if (perspectivePlayerId == null) {
+            env.observe(revealAll)
+        } else {
+            (env as? GameGymEnv
+                ?: throw IllegalStateException(
+                    "Env $envId is not a game env; player perspective is not supported"
+                )).observeForPlayer(perspectivePlayerId, revealAll)
+        }
+    }
 
     /**
      * Advance a single env by the given [StepRequest.actionId]. The ID must
@@ -159,7 +172,8 @@ class MultiEnvService(
         skipMulligans = skipMulligans,
         useHandSmoother = useHandSmoother,
         startingPlayerIndex = startingPlayerIndex,
-        format = format
+        format = format,
+        seed = seed
     )
 
     private fun requireEnv(envId: EnvId): GymEnv =

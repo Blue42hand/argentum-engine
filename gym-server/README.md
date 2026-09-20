@@ -31,7 +31,7 @@ Default port **8081** so it coexists with the game server on 8080.
 | `POST /envs` | `MultiEnvService.create` | `EnvConfig` JSON |
 | `GET /envs` | `listEnvs` | — |
 | `DELETE /envs` | `dispose` | `{ "envIds": [...] }` |
-| `GET /envs/{id}` | `observe` | `?revealAll=true` optional |
+| `GET /envs/{id}` | `observe` | `?revealAll=true` and `?perspectivePlayerId=<seated-id>` optional |
 | `POST /envs/{id}/reset` | `reset` | `EnvConfig` JSON |
 | `POST /envs/{id}/step` | `step` | `{ "actionId": 3 }`, plus optional `params` — `attackers` / `blockers` / `targets` / `xValue` (see below) |
 | `POST /envs/step-batch` | `stepBatch` (parallel) | `[ { envId, actionId, params? }, ...]` |
@@ -109,6 +109,17 @@ regenerates the `ActionRegistry`, and IDs from a prior observation
 become invalid. This matches the `:gym` contract — see its README
 for the rationale — and the test suite exercises the failure mode so a
 trainer that holds onto stale IDs fails loudly (400).
+
+### Multi-seat observations
+
+One environment can be controlled by several independent agents without revealing
+debug state. Read `agentToAct` from the latest observation, then request
+`GET /envs/{id}?perspectivePlayerId=<agentToAct>` before choosing. The requested ID
+must name a player seated in that environment. Non-acting perspectives remain masked
+and do not receive another player's pending decision or semantic action provenance.
+
+`EnvConfig.seed` optionally fixes the authoritative game RNG for reproducible games.
+When omitted, the engine continues to select fresh entropy.
 
 ### No authentication, no TTLs, no metrics
 
