@@ -102,7 +102,7 @@ class CreateRoleTokenExecutor(
         }
 
         newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-            .place(newState, tokenControllerId, tokenId)
+            .place(newState, tokenControllerId, tokenId, tokenCreatorId = context.controllerId)
 
         events.add(
             ZoneChangeEvent(
