@@ -75,6 +75,250 @@
     ]
 }
 
+// Fetid Heath
+{
+    "name": "Fetid Heath",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W/B}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "Add {W}{W}."
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W/B}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "WHITE"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLACK"
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "Add {W}{B}."
+            },
+            {
+                "id": "ability_4",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W/B}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "Add {B}{B}."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "176",
+        "rarity": "RARE",
+        "artist": "Daarken",
+        "flavorText": "\"Do not linger in such places, child. There the gwyllions dance. If they find you, you will join in their revels for eternity.\"\n—Talara, elvish safewright",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0fbb9790-3744-4dcb-881a-452573298822.jpg?1783942654"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
+// Rugged Prairie
+{
+    "name": "Rugged Prairie",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{R/W}, {T}: Add {R}{R}, {R}{W}, or {W}{W}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{R/W}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "Add {R}{R}."
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{R/W}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "WHITE"
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "Add {R}{W}."
+            },
+            {
+                "id": "ability_4",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{R/W}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "Add {W}{W}."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "178",
+        "rarity": "RARE",
+        "artist": "Fred Fields",
+        "flavorText": "Hobs bury their kin far from home. They believe the dry, open ground keeps hags from stealing the bones and gwyllions from stealing the spirits.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/3/e31f8b2a-acf4-423c-bc99-8cf44f3c018a.jpg?1783942654"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}
+
 // Scarecrone
 {
     "name": "Scarecrone",

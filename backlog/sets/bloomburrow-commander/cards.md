@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 132 / 312
+**Implemented:** 133 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -233,7 +233,7 @@
 - [ ] Rootcast Apprenticeship
 - [ ] Rose Room Treasurer
 - [x] Rowdy Research
-- [ ] Rugged Prairie
+- [x] Rugged Prairie
 - [x] Sakura-Tribe Elder
 - [ ] Saw in Half
 - [ ] Scurry of Squirrels

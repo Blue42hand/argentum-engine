@@ -107,7 +107,7 @@
 - [x] 1 Path of Ancestry
 - [ ] 3 Plains
 - [ ] 2 Plains
-- [ ] 1 Rugged Prairie
+- [x] 1 Rugged Prairie
 - [x] 1 Seachrome Coast
 - [x] 1 Shivan Reef
 - [ ] 1 Skycloud Expanse
