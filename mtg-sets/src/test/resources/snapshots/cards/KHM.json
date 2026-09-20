@@ -3104,6 +3104,55 @@
     ]
 }
 
+// Starnheim Courser
+{
+    "name": "Starnheim Courser",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Pegasus",
+    "oracleText": "Flying\nArtifact and enchantment spells you cast cost {1} less to cast.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "artifact|enchantment"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "32",
+        "artist": "Andrew Mar",
+        "flavorText": "Every worthy warrior who arrives in Starnheim is gifted a mount befitting their heroism, a mighty pegasus raised and trained by the valkyries.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/c/5c5373dd-4aec-4e93-97fb-a639aa096764.jpg?1783928276",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying, add any cost increases, then apply any cost reductions (such as that of Starnheim Courser). The mana value of the spell is determined only by its mana cost, no matter what the total cost to cast the spell was."
+            },
+            {
+                "date": "2021-02-05",
+                "text": "The cost reduction applies only to generic mana in the costs of artifact and enchantment spells you cast. It can't reduce requirements of specific colors of mana."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Story Seeker
 {
     "name": "Story Seeker",
