@@ -1405,6 +1405,67 @@
     ]
 }
 
+// Starfield Mystic
+{
+    "name": "Starfield Mystic",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Cleric",
+    "oracleText": "Enchantment spells you cast cost {1} less to cast.\nWhenever an enchantment you control is put into a graveyard from the battlefield, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "enchantment ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "enchantment"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "RARE",
+        "artist": "Eric Deschamps",
+        "flavorText": "\"The realm of the gods opens before me!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/0/80382963-a9d7-4c2d-8671-8dd3fdd4dbdc.jpg?1783933019",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "If you cast an Aura spell targeting an opponent's permanent, you still control the Aura after it resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Twinblade Paladin
 {
     "name": "Twinblade Paladin",

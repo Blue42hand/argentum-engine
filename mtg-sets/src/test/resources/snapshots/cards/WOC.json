@@ -1,0 +1,77 @@
+// Tegwyll, Duke of Splendor
+{
+    "name": "Tegwyll, Duke of Splendor",
+    "manaCost": "{1}{U}{B}",
+    "typeLine": "Legendary Creature — Faerie Noble",
+    "oracleText": "Flying, deathtouch\nOther Faeries you control get +1/+1.\nWhenever another Faerie you control dies, you draw a card and you lose 1 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING",
+        "DEATHTOUCH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Faerie ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "permanent Faerie ctrl:you",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "MYTHIC",
+        "artist": "Ekaterina Burmak",
+        "flavorText": "He weaves glamours as easily as breathing, his otherworldly beauty entrancing fae and mortal alike.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/3/03fab911-7bd4-45fa-ba07-cd0e51b0cd95.jpg?1783914991",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "If Tegwyll, Duke of Splendor dies at the same time as one or more other Faeries you control, Tegwyll's ability triggers for each of those other Faeries."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}

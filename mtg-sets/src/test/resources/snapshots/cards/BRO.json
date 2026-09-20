@@ -1850,6 +1850,45 @@
     }
 }
 
+// Tocasia's Welcome
+{
+    "name": "Tocasia's Welcome",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever one or more creatures you control with mana value 3 or less enter, draw a card. This ability triggers only once each turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature mv<=3 ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "oncePerTurn": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "30",
+        "rarity": "RARE",
+        "artist": "Johan Grenier",
+        "flavorText": "\"Your father was a dear friend to whom I owe much. He wanted me to look after you, to care for you should something happen to him.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/56cd89f1-f9f4-4cb5-a573-79809d0b6dfd.jpg?1783920123"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Tomakul Honor Guard
 {
     "name": "Tomakul Honor Guard",
