@@ -540,6 +540,127 @@
     ]
 }
 
+// Faldorn, Dread Wolf Herald
+{
+    "name": "Faldorn, Dread Wolf Herald",
+    "manaCost": "{1}{R}{G}",
+    "typeLine": "Legendary Creature — Human Druid",
+    "oracleText": "Whenever you cast a spell from exile or a land you control enters from exile, create a 2/2 green Wolf creature token.\n{1}, {T}, Discard a card: Exile the top card of your library. You may play it this turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "SpellCastEvent",
+                            "requires": [
+                                {
+                                    "type": "SpellCastFromZone",
+                                    "zone": "Exile"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "land ctrl:you",
+                            "from": "Exile",
+                            "to": "Battlefield"
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Wolf"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/1/81605b8d-cf1d-49dc-aebb-a857d6796a77.jpg?1783922305"
+                },
+                "descriptionOverride": "Whenever you cast a spell from exile or a land you control enters from exile, create a 2/2 green Wolf creature token."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": "AtomDiscard"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "impulseExiled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "impulseExiled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "impulseExiled"
+                        }
+                    ]
+                },
+                "descriptionOverride": "{1}, {T}, Discard a card: Exile the top card of your library. You may play it this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "647",
+        "rarity": "MYTHIC",
+        "artist": "Jason A. Engle",
+        "flavorText": "\"Cities are a blight on the beauty of nature.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/1/213e530e-33a9-4358-b43b-4a276a7e7190.jpg?1783922519",
+        "rulings": [
+            {
+                "date": "2022-06-10",
+                "text": "You must pay all costs and follow all normal timing rules for cards played this way. For example, you may only play a land from exile this way during your main phase while the stack is empty, and only if you haven't played a land yet this turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
 // Pseudodragon Familiar
 {
     "name": "Pseudodragon Familiar",

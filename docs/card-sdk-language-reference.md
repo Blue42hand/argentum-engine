@@ -5303,7 +5303,7 @@ What that gets you, uniformly, for targeted and untargeted triggers alike:
 ### Zone change
 
 Named sugar for the common cases; reach for `entersBattlefield(...)` / `leavesBattlefield(...)`
-for any other (filter, binding, to/excludeTo) combination.
+for any other (filter, binding, source/destination zone) combination.
 
 **Enters the battlefield**
 
@@ -5312,8 +5312,9 @@ for any other (filter, binding, to/excludeTo) combination.
 - `LandYouControlEnters` — landfall: **ANY** binding, filter = `Land.youControl()`. No landfall
   ability prints "another", so a land carrying one sees itself enter; a card that *does* print
   "another land you control" wants `entersBattlefield(..., TriggerBinding.OTHER)` instead.
-- `entersBattlefield(filter, binding)` — factory. Covers face-down filters,
-  ANY-binding tribal scopes, permanent-you-control scopes, enchantment-enters scopes (Eerie), etc.
+- `entersBattlefield(filter, binding, from = null)` — factory. Covers face-down filters,
+  ANY-binding tribal scopes, permanent-you-control scopes, enchantment-enters scopes (Eerie), and
+  source-zone restrictions such as `from = EXILE` for "a land you control enters from exile."
 
 **Leaves / dies**
 
