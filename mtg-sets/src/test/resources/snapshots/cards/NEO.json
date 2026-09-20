@@ -434,6 +434,61 @@
     "colorIdentityOverride": []
 }
 
+// Dockside Chef
+{
+    "name": "Dockside Chef",
+    "manaCost": "{B}",
+    "typeLine": "Enchantment Creature — Human Citizen",
+    "oracleText": "{1}{B}, Sacrifice an artifact or creature: Draw a card.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature|artifact"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "93",
+        "rarity": "UNCOMMON",
+        "artist": "Steven Belledin",
+        "flavorText": "The squirming is how you know it's fresh.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/8/d80100c3-c81e-4084-8dfe-f8610637fd91.jpg?1783923888"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dokuchi Shadow-Walker
 {
     "name": "Dokuchi Shadow-Walker",
