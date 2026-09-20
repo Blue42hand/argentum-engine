@@ -43,7 +43,10 @@ data class EnvConfig(
      * If `true`, opponent hand and libraries are revealed — debug only,
      * must never be enabled in production self-play.
      */
-    val revealAll: Boolean = false
+    val revealAll: Boolean = false,
+
+    /** Deterministic game RNG seed. `null` selects fresh engine entropy. */
+    val seed: Long? = null
 ) {
     init {
         require(players.size >= 2) { "Need at least 2 players" }
