@@ -107,7 +107,7 @@ object Triggers {
      * Generic "enters the battlefield" trigger factory. Use the named
      * constants above (`EntersBattlefield`, `OtherCreatureEnters`,
      * `LandYouControlEnters`) when their defaults match; reach for this
-     * factory for any other combination of (filter, binding).
+     * factory for any other combination of (filter, source zone, binding).
      *
      * Examples:
      * - "Whenever a face-down creature enters the battlefield":
@@ -119,12 +119,16 @@ object Triggers {
      * - "Whenever an enchantment you control enters the battlefield" (Eerie):
      *   `entersBattlefield(filter = GameObjectFilter.Enchantment.youControl(),
      *                      binding = TriggerBinding.ANY)`
+     * - "Whenever a land you control enters the battlefield from exile":
+     *   `entersBattlefield(filter = GameObjectFilter.Land.youControl(),
+     *                      from = Zone.EXILE, binding = TriggerBinding.ANY)`
      */
     fun entersBattlefield(
         filter: GameObjectFilter = GameObjectFilter.Any,
         binding: TriggerBinding = TriggerBinding.SELF,
+        from: Zone? = null,
     ): TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(filter = filter, to = Zone.BATTLEFIELD),
+        event = ZoneChangeEvent(filter = filter, from = from, to = Zone.BATTLEFIELD),
         binding = binding,
     )
 
