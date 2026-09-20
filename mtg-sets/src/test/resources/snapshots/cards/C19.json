@@ -1,0 +1,83 @@
+// Idol of Oblivion
+{
+    "name": "Idol of Oblivion",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Draw a card. Activate only if you created a token this turn.\n{8}, {T}, Sacrifice this artifact: Create a 10/10 colorless Eldrazi creature token.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "TurnTracking",
+                                "player": "You",
+                                "tracker": "TOKENS_CREATED"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    }
+                ],
+                "descriptionOverride": "Draw a card. Activate only if you created a token this turn."
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{8}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 10,
+                    "toughness": 10,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Eldrazi"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/c/9/c9854bcf-8729-45b9-9ea3-c43898e4fe5f.jpg?1783932823"
+                },
+                "descriptionOverride": "Create a 10/10 colorless Eldrazi creature token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "RARE",
+        "artist": "Piotr Dura",
+        "flavorText": "\"Arise, great one, and cleanse the world of our enemies!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/a/daed8456-011e-44e2-b180-6a8a75089257.jpg?1783932793",
+        "rulings": [
+            {
+                "date": "2019-08-23",
+                "text": "You can activate Idol of Oblivion's first ability even if the token you've created was created before Idol of Oblivion entered the battlefield or if the token has left the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
