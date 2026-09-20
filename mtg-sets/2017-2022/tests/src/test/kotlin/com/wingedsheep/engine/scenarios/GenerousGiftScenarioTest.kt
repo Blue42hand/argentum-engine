@@ -73,9 +73,9 @@ class GenerousGiftScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player1", "Player2")
                     .withCardInHand(1, "Generous Gift")
+                    .withCardInHand(1, "Unsummon")
                     .withLandsOnBattlefield(1, "Plains", 3)
-                    .withCardInHand(2, "Unsummon")
-                    .withLandsOnBattlefield(2, "Island", 1)
+                    .withLandsOnBattlefield(1, "Island", 1)
                     .withCardOnBattlefield(2, "Centaur Courser")
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -87,7 +87,10 @@ class GenerousGiftScenarioTest : ScenarioTestBase() {
                     gift.error shouldBe null
                 }
 
-                val unsummon = game.castSpell(2, "Unsummon", targetId = target)
+                // The active player receives priority again after casting a spell, so the same
+                // player can Unsummon the target before Generous Gift resolves. This exercises the
+                // printed illegal-target ruling without relying on a priority handoff helper.
+                val unsummon = game.castSpell(1, "Unsummon", targetId = target)
                 withClue("Casting Unsummon in response should succeed: ${unsummon.error}") {
                     unsummon.error shouldBe null
                 }
