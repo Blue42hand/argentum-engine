@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 121 / 312
+**Implemented:** 122 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -81,7 +81,7 @@
 - [x] Cultivate
 - [ ] Curiosity Crafter
 - [ ] Cut a Deal
-- [ ] Deadly Dispute
+- [x] Deadly Dispute
 - [x] Decimate
 - [x] Decree of Pain
 - [ ] Deep Forest Hermit
