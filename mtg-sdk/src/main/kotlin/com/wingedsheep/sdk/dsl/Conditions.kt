@@ -1475,6 +1475,19 @@ object Conditions {
     val YouGainedLifeThisTurn: ConditionInterface =
         trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LIFE_GAINED)
 
+    /** Whether [player] created at least [atLeast] tokens this turn. */
+    fun PlayerCreatedTokensThisTurn(
+        player: Player = Player.You,
+        atLeast: Int = 1,
+    ): ConditionInterface = trackerAtLeast(
+        com.wingedsheep.sdk.scripting.values.TurnTracker.TOKENS_CREATED,
+        atLeast,
+        player,
+    )
+
+    /** Whether you created one or more tokens this turn. */
+    val YouCreatedTokensThisTurn: ConditionInterface = PlayerCreatedTokensThisTurn()
+
     /**
      * If you gained [atLeast] or more life this turn.
      * Used for Scheming Silvertongue ("if you gained 2 or more life this turn").
