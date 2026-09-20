@@ -1527,6 +1527,59 @@
     ]
 }
 
+// Coastal Piracy
+{
+    "name": "Coastal Piracy",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a creature you control deals combat damage to an opponent, you may draw a card.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantTriggeredAbility",
+                "ability": {
+                    "id": "ability_1",
+                    "trigger": {
+                        "type": "DealsDamageEvent",
+                        "damageType": "DamageCombat",
+                        "recipient": "AnyPlayer"
+                    },
+                    "effect": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    }
+                },
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "68",
+        "rarity": "UNCOMMON",
+        "artist": "Matthew D. Wilson",
+        "flavorText": "\"I don't like to think of myself as a pirate. I'm more like a stimulator of the local economy.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/7/179d1f76-6f4c-4a77-815a-aae7a933c9ad.jpg?1783945969",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "You draw one card per creature, not one per point of damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Collective Unconscious
 {
     "name": "Collective Unconscious",

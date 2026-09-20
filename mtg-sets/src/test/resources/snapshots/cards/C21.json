@@ -1,0 +1,48 @@
+// Monologue Tax
+{
+    "name": "Monologue Tax",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever an opponent casts their second spell each turn, you create a Treasure token.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "NthSpellCastEvent",
+                    "nthSpell": 2,
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "rarity": "RARE",
+        "artist": "Justine Cruz",
+        "flavorText": "\"Your unsolicited words enrich us all. Please, continue.\"\n—Yold, professor of cryptorelicology",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/9/e9449f23-6a14-453b-8bb6-5cf85ed7a851.jpg?1783927608",
+        "rulings": [
+            {
+                "date": "2021-04-16",
+                "text": "Nothing special happens on the third spell, fourth spell, and so on."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "It doesn't matter if Monologue Tax was on the battlefield for the first spell. It also doesn't matter if that first spell resolved or not."
+            },
+            {
+                "date": "2021-04-16",
+                "text": "The ability can trigger once each turn for each opponent."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
