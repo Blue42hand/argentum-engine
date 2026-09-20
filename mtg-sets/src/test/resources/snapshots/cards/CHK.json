@@ -2781,6 +2781,50 @@
     ]
 }
 
+// Kokusho, the Evening Star
+{
+    "name": "Kokusho, the Evening Star",
+    "manaCost": "{4}{B}{B}",
+    "typeLine": "Legendary Creature — Dragon Spirit",
+    "oracleText": "Flying\nWhen Kokusho dies, each opponent loses 5 life. You gain life equal to the life lost this way.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "DrainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    }
+                },
+                "descriptionOverride": "When Kokusho dies, each opponent loses 5 life. You gain life equal to the life lost this way."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "RARE",
+        "artist": "Tsutomu Kawade",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/63dc0698-e92f-4134-80e4-5cc37b80e37c.jpg?1783944312"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Konda, Lord of Eiganjo
 {
     "name": "Konda, Lord of Eiganjo",

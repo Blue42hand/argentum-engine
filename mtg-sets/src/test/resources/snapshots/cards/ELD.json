@@ -1,3 +1,91 @@
+// Alela, Artful Provocateur
+{
+    "name": "Alela, Artful Provocateur",
+    "manaCost": "{1}{W}{U}{B}",
+    "typeLine": "Legendary Creature — Faerie Warlock",
+    "oracleText": "Flying, deathtouch, lifelink\nOther creatures you control with flying get +1/+0.\nWhenever you cast an artifact or enchantment spell, create a 1/1 blue Faerie creature token with flying.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING",
+        "DEATHTOUCH",
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsArtifact",
+                                    "IsEnchantment"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "BLUE"
+                    ],
+                    "creatureTypes": [
+                        "Faerie"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/c/bcd82cb0-ff4b-4f4d-b3d0-3ac53883b099.jpg?1783932483"
+                },
+                "descriptionOverride": "Whenever you cast an artifact or enchantment spell, create a 1/1 blue Faerie creature token with flying."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 0,
+                "filter": {
+                    "baseFilter": "creature kw:flying ctrl:you",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "324",
+        "rarity": "MYTHIC",
+        "artist": "Grzegorz Rutkowski",
+        "flavorText": "\"Rankle's pranks are child's play. My games will topple kingdoms.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/726e7dc5-2089-4758-93e1-79212aedf75f.jpg?1783932550",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "Alela's last ability resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "A spell that's both an artifact and an enchantment spell causes Alela's last ability to trigger only once."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE",
+        "BLACK"
+    ]
+}
+
 // All That Glitters
 {
     "name": "All That Glitters",
