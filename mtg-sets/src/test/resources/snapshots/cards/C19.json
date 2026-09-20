@@ -34,7 +34,7 @@
                         }
                     }
                 ],
-                "descriptionOverride": "Draw a card. Activate only if you created a token this turn."
+                "descriptionOverride": "{T}: Draw a card. Activate only if you created a token this turn."
             },
             {
                 "id": "ability_2",
@@ -60,9 +60,9 @@
                     "creatureTypes": [
                         "Eldrazi"
                     ],
-                    "imageUri": "https://cards.scryfall.io/normal/front/c/9/c9854bcf-8729-45b9-9ea3-c43898e4fe5f.jpg?1783932823"
+                    "imageUri": "https://cards.scryfall.io/normal/front/c/9/c9854bcf-8729-45b9-9ea3-c43898e4fe5f.jpg?1572370795"
                 },
-                "descriptionOverride": "Create a 10/10 colorless Eldrazi creature token."
+                "descriptionOverride": "{8}, {T}, Sacrifice this artifact: Create a 10/10 colorless Eldrazi creature token."
             }
         ]
     },
