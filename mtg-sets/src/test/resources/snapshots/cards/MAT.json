@@ -1,3 +1,96 @@
+// Pia Nalaar, Consul of Revival
+{
+    "name": "Pia Nalaar, Consul of Revival",
+    "manaCost": "{R}{W}",
+    "typeLine": "Legendary Creature — Human Artificer",
+    "oracleText": "Thopters you control have haste.\nWhenever you play a land from exile or cast a spell from exile, create a 1/1 colorless Thopter artifact creature token with flying.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "LandPlayedEvent",
+                    "fromZone": "Exile"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Thopter"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/3/d38fc294-ad86-441e-96fe-4ca286a11218.jpg?1783907677",
+                    "artifactToken": true
+                },
+                "descriptionOverride": "Whenever you play a land from exile, create a 1/1 colorless Thopter artifact creature token with flying."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "requires": [
+                        {
+                            "type": "SpellCastFromZone",
+                            "zone": "Exile"
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Thopter"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/3/d38fc294-ad86-441e-96fe-4ca286a11218.jpg?1783907677",
+                    "artifactToken": true
+                },
+                "descriptionOverride": "Whenever you cast a spell from exile, create a 1/1 colorless Thopter artifact creature token with flying."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "HASTE",
+                "filter": {
+                    "baseFilter": "creature Thopter ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "42",
+        "rarity": "RARE",
+        "artist": "Marta Nael",
+        "flavorText": "Renegade turned revolutionary turned rebuilder.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/a/0ae89461-4bce-4b49-b875-03afc2469fe7.jpg?1783916510",
+        "rulings": [
+            {
+                "date": "2023-05-12",
+                "text": "Once a Thopter that came under your control this turn has legally attacked, causing it to lose haste by removing Pia Nalaar won't remove that Thopter from combat. It will just keep attacking. Good Thopter."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}
+
 // Rocco, Street Chef
 {
     "name": "Rocco, Street Chef",
