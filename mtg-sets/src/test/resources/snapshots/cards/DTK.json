@@ -39,6 +39,79 @@
     ]
 }
 
+// Ainok Survivalist
+{
+    "name": "Ainok Survivalist",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Dog Shaman",
+    "oracleText": "Megamorph {1}{G} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)\nWhen this creature is turned face up, destroy target artifact or enchantment an opponent controls.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywordAbilities": [
+        {
+            "type": "Morph",
+            "morphCost": {
+                "type": "PayAtom",
+                "atom": {
+                    "type": "AtomMana",
+                    "cost": "{1}{G}"
+                }
+            },
+            "faceUpEffect": {
+                "type": "AddCounters",
+                "counterType": "+1/+1",
+                "count": 1,
+                "target": "Self"
+            }
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "TurnFaceUpEvent",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact|enchantment ctrl:opponent"
+                    }
+                },
+                "descriptionOverride": "When this creature is turned face up, destroy target artifact or enchantment an opponent controls."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "172",
+        "rarity": "UNCOMMON",
+        "artist": "Craig J Spearing",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/c/ac0a7410-493c-4c99-99e2-b8e1116622e8.jpg?1783938582",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "Turning a face-down creature with megamorph face up and putting a +1/+1 counter on it is a special action. It doesn't use the stack and can't be responded to."
+            },
+            {
+                "date": "2015-02-25",
+                "text": "If a face-down creature with megamorph is turned face up some other way, you won't put a +1/+1 counter on it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Ancient Carp
 {
     "name": "Ancient Carp",

@@ -59,3 +59,65 @@
         "WHITE"
     ]
 }
+
+// Darksteel Mutation
+{
+    "name": "Darksteel Mutation",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature is an Insect artifact creature with base power and toughness 0/1 and has indestructible, and it loses all other abilities, card types, and creature types.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "TransformPermanent",
+                "setCardTypes": [
+                    "ARTIFACT",
+                    "CREATURE"
+                ],
+                "setSubtypes": [
+                    "Insect"
+                ]
+            },
+            {
+                "type": "SetBasePowerToughnessStatic",
+                "power": 0,
+                "toughness": 1
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "INDESTRUCTIBLE"
+            },
+            "LoseAllAbilities"
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "9",
+        "rarity": "UNCOMMON",
+        "artist": "Daniel Ljunggren",
+        "flavorText": "Infinitely powerless.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/f/df7d800b-0120-4036-81d7-dec60ccc8057.jpg?1783939691",
+        "rulings": [
+            {
+                "date": "2013-10-17",
+                "text": "The enchanted creature will be only an artifact and a creature, not any other card types. It will be only an Insect, not any other creature types."
+            },
+            {
+                "date": "2013-10-17",
+                "text": "The creature will keep any supertypes it previously had. Notably, if Darksteel Mutation is enchanting a legendary creature, that creature will continue to be legendary. Also, if it's enchanting a commander, that creature will continue to be a commander."
+            },
+            {
+                "date": "2013-10-17",
+                "text": "Darksteel Mutation causes the enchanted creature to lose all abilities except indestructible at the time it becomes enchanted. Any abilities the creature gains after that point will work normally."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
