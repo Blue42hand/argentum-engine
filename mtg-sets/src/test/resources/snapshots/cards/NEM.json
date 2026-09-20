@@ -910,6 +910,55 @@
     ]
 }
 
+// Mogg Alarm
+{
+    "name": "Mogg Alarm",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "You may sacrifice two Mountains rather than pay this spell's mana cost.\nCreate two 1/1 red Goblin creature tokens.",
+    "script": {
+        "spellEffect": {
+            "type": "CreateToken",
+            "count": {
+                "type": "Fixed",
+                "amount": 2
+            },
+            "power": 1,
+            "toughness": 1,
+            "colors": [
+                "RED"
+            ],
+            "creatureTypes": [
+                "Goblin"
+            ],
+            "imageUri": "https://cards.scryfall.io/normal/front/1/d/1db51576-a755-45de-b37b-f16b27e8f3a1.jpg?1783922311"
+        },
+        "selfAlternativeCost": {
+            "manaCost": "{0}",
+            "additionalCosts": [
+                {
+                    "type": "AdditionalAtom",
+                    "atom": {
+                        "type": "AtomSacrifice",
+                        "filter": "land Mountain",
+                        "count": 2
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "93",
+        "rarity": "UNCOMMON",
+        "artist": "Dave Dorman",
+        "flavorText": "They make mountains into mogg holes.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f246e128-0a43-478a-a232-51020fab76d5.jpg?1783945817"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Moggcatcher
 {
     "name": "Moggcatcher",

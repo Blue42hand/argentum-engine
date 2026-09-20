@@ -1,0 +1,48 @@
+// Eclipsed Steppe
+{
+    "name": "Eclipsed Steppe",
+    "manaCost": "",
+    "typeLine": "Land — Plains Swamp",
+    "oracleText": "({T}: Add {W} or {B}.)\nThis land enters tapped unless you control two or more basic lands.",
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersTapped",
+                "unlessCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "basicland"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "53",
+        "rarity": "RARE",
+        "artist": "Leon Tukker",
+        "flavorText": "The Arch Obscura never appears for the same eyes twice. Those who bear witness either find peace in their own insignificance or dread in the unnatural twilight.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/8/d890999a-dcc7-479e-b0f0-60388c737043.jpg?1783903847",
+        "rulings": [
+            {
+                "date": "2026-03-20",
+                "text": "If this land enters the battlefield at the same time as any number of basic lands, those other lands are not counted when determining if this land enters the battlefield tapped or untapped."
+            },
+            {
+                "date": "2026-03-20",
+                "text": "Unlike some other dual lands, Eclipsed Steppe has two basic land types. It's not basic, so effects that search for basic lands can't find it, but it does have the appropriate land types for effects such as that of Shineshadow Snarl (included in the Secrets of Strixhaven Commander decks)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}

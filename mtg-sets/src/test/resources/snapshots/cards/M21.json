@@ -44,6 +44,74 @@
     ]
 }
 
+// Conclave Mentor
+{
+    "name": "Conclave Mentor",
+    "manaCost": "{G}{W}",
+    "typeLine": "Creature — Centaur Cleric",
+    "oracleText": "If one or more +1/+1 counters would be put on a creature you control, that many plus one +1/+1 counters are put on that creature instead.\nWhen this creature dies, you gain life equal to its power.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Source",
+                        "numericProperty": "Power"
+                    }
+                }
+            }
+        ],
+        "replacementEffects": [
+            "ModifyCounterPlacement"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "216",
+        "rarity": "UNCOMMON",
+        "artist": "Raoul Vitale",
+        "flavorText": "\"I have faith in your potential.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/3/a328a93a-e720-46d5-a190-cc65d1c90cea.jpg?1783930665",
+        "rulings": [
+            {
+                "date": "2020-06-23",
+                "text": "If a creature you control would enter the battlefield with a number of +1/+1 counters on it, it enters with that many plus one instead."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "Conclave Mentor's first ability doesn't apply to itself if it's somehow entering the battlefield with a +1/+1 counter on it."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "If you control two Conclave Mentors, the number of +1/+1 counters put on a creature is two plus the original number. Three Conclave Mentors add three, and so on."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "If two or more effects attempt to modify how many counters would be put onto a creature you control, you choose the order to apply those effects, no matter who controls the sources of those effects."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "Use Conclave Mentor's power as it last existed on the battlefield to determine how much life you gain."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Daybreak Charger
 {
     "name": "Daybreak Charger",

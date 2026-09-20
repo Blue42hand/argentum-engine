@@ -1220,6 +1220,81 @@
     ]
 }
 
+// Kami of Whispered Hopes
+{
+    "name": "Kami of Whispered Hopes",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "If one or more +1/+1 counters would be put on a permanent you control, that many plus one +1/+1 counters are put on that permanent instead.\n{T}: Add X mana of any one color, where X is this creature's power.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Source",
+                        "numericProperty": "Power"
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "ModifyCounterPlacement",
+                "appliesTo": {
+                    "type": "CounterPlacementEvent",
+                    "counterType": "PlusOnePlusOne",
+                    "recipient": {
+                        "type": "RecipientMatching",
+                        "filter": "permanent ctrl:you"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "196",
+        "rarity": "UNCOMMON",
+        "artist": "Filipe Pagliuso",
+        "flavorText": "Nashi knelt reverently before the kami and envisioned his family reunited.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/c/5c644650-3861-4a78-9e39-a413b073ddac.jpg?1783916966",
+        "rulings": [
+            {
+                "date": "2023-04-14",
+                "text": "If you control two Kamis of Whispered Hopes, the number of +1/+1 counters put on a permanent is two plus the original number. Three Kamis of Whispered Hopes add three, and so on."
+            },
+            {
+                "date": "2023-04-14",
+                "text": "If another permanent you control would enter the battlefield with a number of +1/+1 counters on it, it enters with that many plus one instead."
+            },
+            {
+                "date": "2023-04-14",
+                "text": "If two or more effects attempt to modify how many counters would be put onto a permanent you control, you choose the order to apply those effects, no matter who controls the sources of those effects."
+            },
+            {
+                "date": "2023-04-14",
+                "text": "The last ability is a mana ability. It doesn't use the stack and can't be responded to."
+            },
+            {
+                "date": "2023-04-14",
+                "text": "However, if Kami of Whispered Hopes somehow enters the battlefield with +1/+1 counters it, its first ability won't apply to itself."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Kithkin Billyrider
 {
     "name": "Kithkin Billyrider",
