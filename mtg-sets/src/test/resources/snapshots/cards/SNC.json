@@ -3361,6 +3361,51 @@
     ]
 }
 
+// Witty Roastmaster
+{
+    "name": "Witty Roastmaster",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Devil Citizen",
+    "oracleText": "Alliance — Whenever another creature you control enters, this creature deals 1 damage to each opponent.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "artist": "Joe Slucher",
+        "flavorText": "If you're lucky, you'll walk out with just your ego singed.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/1/71d13f19-482b-4a2e-9692-b7d7caf2f9f5.jpg?1783923109"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Wrecking Crew
 {
     "name": "Wrecking Crew",
