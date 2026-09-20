@@ -52,11 +52,6 @@ object GoldenSnapshot {
         }
         if (existing != expected) {
             val written = writeBuild(resourcePath, expected)
-            if (resourcePath.endsWith("/C19.json")) {
-                println("=== BEGIN C19 SNAPSHOT ACTUAL ===")
-                print(expected)
-                println("=== END C19 SNAPSHOT ACTUAL ===")
-            }
             throw AssertionError(
                 "Snapshot mismatch for $resourcePath. Fresh output written to $written.\n" +
                     "Review the diff. If the change is intentional, re-bless with:\n" +
