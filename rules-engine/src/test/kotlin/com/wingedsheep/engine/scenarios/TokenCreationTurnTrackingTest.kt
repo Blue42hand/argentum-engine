@@ -13,10 +13,10 @@ import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.state.components.player.TokensCreatedThisTurnComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.model.TypeLine
 import io.kotest.matchers.shouldBe
 
 class TokenCreationTurnTrackingTest : ScenarioTestBase() {
