@@ -1,0 +1,184 @@
+// Rocco, Street Chef
+{
+    "name": "Rocco, Street Chef",
+    "manaCost": "{R}{G}{W}",
+    "typeLine": "Legendary Creature — Elf Druid",
+    "oracleText": "At the beginning of your end step, each player exiles the top card of their library. Until your next end step, each player may play the card they exiled this way.\nWhenever a player plays a land from exile or casts a spell from exile, you put a +1/+1 counter on target creature and create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeAs": "roccoExiled"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "roccoExiled",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "storeMovedAs": "roccoExiled"
+                            },
+                            {
+                                "type": "GrantMayPlayFromExile",
+                                "from": "roccoExiled",
+                                "expiry": {
+                                    "type": "UntilControllerStep",
+                                    "step": "END"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, each player exiles the top card of their library. Until your next end step, each player may play the card they exiled this way."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "LandPlayedEvent",
+                    "fromZone": "Exile",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            }
+                        },
+                        {
+                            "type": "CreatePredefinedToken",
+                            "tokenType": "Food"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target creature"
+                },
+                "descriptionOverride": "Whenever a player plays a land from exile, you put a +1/+1 counter on target creature and create a Food token."
+            },
+            {
+                "id": "ability_3",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "player": "Each",
+                    "requires": [
+                        {
+                            "type": "SpellCastFromZone",
+                            "zone": "Exile"
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            }
+                        },
+                        {
+                            "type": "CreatePredefinedToken",
+                            "tokenType": "Food"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target creature"
+                },
+                "descriptionOverride": "Whenever a player casts a spell from exile, you put a +1/+1 counter on target creature and create a Food token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "44",
+        "rarity": "RARE",
+        "artist": "Bram Sels",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/d/cdb53ce7-845c-4c62-98a9-4fc33c67a07b.jpg?1783916509",
+        "rulings": [
+            {
+                "date": "2023-05-12",
+                "text": "Unless an effect allows you to play additional lands that turn, you can play a land card you exiled with Rocco only if you haven't played a land yet that turn."
+            },
+            {
+                "date": "2023-05-12",
+                "text": "If Rocco's last ability triggers because a spell was cast, that ability will resolve before that spell does. If the ability triggers because a land was played, the land will be on the battlefield by the time you put the ability on the stack. If the land entering the battlefield causes any triggered abilities to trigger, those abilities and Rocco's ability will be put on the stack at the same time, with the abilities controlled by the player whose turn it is going on the stack first (and thus resolving last)."
+            },
+            {
+                "date": "2023-05-12",
+                "text": "All cards not played remain exiled."
+            },
+            {
+                "date": "2023-05-12",
+                "text": "A player may play the card they exiled with Rocco even if Rocco leaves the battlefield before the duration expires."
+            },
+            {
+                "date": "2023-05-12",
+                "text": "Playing the card you exiled with Rocco follows the normal rules for playing that card. You must pay its costs, and you must follow all applicable timing rules. For example, if the card is a creature card, you can cast that card by paying its mana cost only during your main phase while the stack is empty."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "Food is an artifact type. Even though it appears on some creatures, it's never a creature type."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "You can't sacrifice a Food to pay multiple costs. For example, you can't sacrifice a Food token to activate its own ability and also to activate Maraleaf Rider's ability."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "Whatever you do, don't eat the delicious cards."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN",
+        "WHITE"
+    ]
+}
