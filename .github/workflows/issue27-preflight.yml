@@ -17,7 +17,7 @@ jobs:
           distribution: temurin
           java-version: '23'
       - uses: extractions/setup-just@v2
-      - name: Scryfall canonical metadata and rulings
+      - name: Scryfall canonical metadata, rulings, and token art
         shell: bash
         run: |
           set -euo pipefail
@@ -25,11 +25,14 @@ jobs:
             --data-urlencode 'exact=Generous Gift' \
             --data-urlencode 'set=mh1' \
             https://api.scryfall.com/cards/named > /tmp/generous-gift.json
-          jq '{name,mana_cost,type_line,oracle_text,colors,rarity,collector_number,artist,image_uris,prints_search_uri,rulings_uri,released_at,set,set_name}' /tmp/generous-gift.json
+          jq '{name,mana_cost,type_line,oracle_text,colors,rarity,collector_number,artist,flavor_text,image_uris,prints_search_uri,rulings_uri,released_at,set,set_name}' /tmp/generous-gift.json
           rulings_uri=$(jq -r '.rulings_uri' /tmp/generous-gift.json)
           curl --fail --silent --show-error "$rulings_uri" | jq '{data: [.data[] | {published_at,comment}]}'
           prints_uri=$(jq -r '.prints_search_uri' /tmp/generous-gift.json)
           curl --fail --silent --show-error "$prints_uri" | jq '{data: [.data[] | {set,set_name,released_at,promo,collector_number}]}'
+          curl --fail --silent --show-error --get \
+            --data-urlencode 'q=t:token name:"Elephant" set:tmh1' \
+            https://api.scryfall.com/cards/search | jq '{data: [.data[] | {name,set,collector_number,power,toughness,colors,type_line,artist,image_uris}]}'
       - name: Assay and fidelity preflight
         shell: bash
         run: |
