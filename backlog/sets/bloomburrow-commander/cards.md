@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 133 / 312
+**Implemented:** 134 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -115,7 +115,7 @@
 - [x] Generous Gift
 - [x] Ghalta, Primal Hunger
 - [ ] Ghirapur Orrery
-- [ ] Gilded Goose
+- [x] Gilded Goose
 - [x] Gilded Lotus
 - [ ] Glacial Fortress
 - [x] Golgari Rot Farm

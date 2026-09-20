@@ -17,7 +17,7 @@
 - [ ] 1 Chittering Witch
 - [ ] 1 Deep Forest Hermit
 - [ ] 1 End-Raze Forerunners
-- [ ] 1 Gilded Goose
+- [x] 1 Gilded Goose
 - [x] 1 Haywire Mite
 - [ ] 1 Hazel's Brewmaster
 - [ ] 1 Honored Dreyleader
