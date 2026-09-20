@@ -1542,6 +1542,100 @@
     ]
 }
 
+// Goblin Cratermaker
+{
+    "name": "Goblin Cratermaker",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin Warrior",
+    "oracleText": "{1}, Sacrifice this creature: Choose one —\n• This creature deals 2 damage to target creature.\n• Destroy target colorless nonland permanent.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                },
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature"
+                                    }
+                                }
+                            ],
+                            "description": "This creature deals 2 damage to target creature"
+                        },
+                        {
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "destination": "Graveyard",
+                                "byDestruction": true
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": {
+                                            "cardPredicates": [
+                                                "IsPermanent",
+                                                "IsNonland",
+                                                "IsColorless"
+                                            ]
+                                        }
+                                    }
+                                }
+                            ],
+                            "description": "Destroy target colorless nonland permanent"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "103",
+        "rarity": "UNCOMMON",
+        "artist": "Svetlin Velinov",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/86ecaedc-08f1-4de7-aae8-056df57940e0.jpg?1783934162"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Golgari Findbroker
 {
     "name": "Golgari Findbroker",
