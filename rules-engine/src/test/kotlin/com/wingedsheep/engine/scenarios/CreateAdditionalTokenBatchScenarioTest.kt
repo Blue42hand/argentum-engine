@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.support.ScenarioTestBase
+import com.wingedsheep.engine.state.components.player.TokensCreatedThisTurnComponent
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
@@ -65,6 +66,10 @@ class CreateAdditionalTokenBatchScenarioTest : ScenarioTestBase() {
                 }
                 withClue("Exactly one additional Food — not two (the pre-fix bug double-added per batch)") {
                     game.findPermanents("Food").size shouldBe 1
+                }
+                withClue("The successful replacement result records all three actually-created tokens") {
+                    game.state.getEntity(game.player1Id)
+                        ?.get<TokensCreatedThisTurnComponent>()?.count shouldBe 3
                 }
             }
         }
