@@ -44,6 +44,7 @@ val IdolOfOblivion = card("Idol of Oblivion") {
             power = 10,
             toughness = 10,
             creatureTypes = setOf("Eldrazi"),
+            imageUri = "https://cards.scryfall.io/normal/front/c/9/c9854bcf-8729-45b9-9ea3-c43898e4fe5f.jpg?1572370795",
         )
         description = "{8}, {T}, Sacrifice this artifact: Create a 10/10 colorless Eldrazi creature token."
     }
