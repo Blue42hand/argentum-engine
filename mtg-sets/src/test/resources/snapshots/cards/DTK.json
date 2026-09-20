@@ -3002,6 +3002,74 @@
     ]
 }
 
+// Stratus Dancer
+{
+    "name": "Stratus Dancer",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Djinn Monk",
+    "oracleText": "Flying\nMegamorph {1}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)\nWhen this creature is turned face up, counter target instant or sorcery spell.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Morph",
+            "morphCost": {
+                "type": "PayAtom",
+                "atom": {
+                    "type": "AtomMana",
+                    "cost": "{1}{U}"
+                }
+            },
+            "faceUpEffect": {
+                "type": "AddCounters",
+                "counterType": "+1/+1",
+                "count": 1,
+                "target": "Self"
+            }
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "TurnFaceUpEvent",
+                "effect": "Counter",
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "instant|sorcery",
+                        "zone": "Stack"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "rarity": "RARE",
+        "artist": "Anastasia Ovchinnikova",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/3/e3bf4f37-2a2e-4c49-88dc-a26dd7367afb.jpg?1783938602",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "Turning a face-down creature with megamorph face up and putting a +1/+1 counter on it is a special action. It doesn't use the stack and can't be responded to."
+            },
+            {
+                "date": "2015-02-25",
+                "text": "If a face-down creature with megamorph is turned face up some other way, you won't put a +1/+1 counter on it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Strongarm Monk
 {
     "name": "Strongarm Monk",

@@ -1,3 +1,109 @@
+// Battle Cry Goblin
+{
+    "name": "Battle Cry Goblin",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin",
+    "oracleText": "{1}{R}: Goblins you control get +1/+0 and gain haste until end of turn.\nPack tactics — Whenever this creature attacks, if you attacked with creatures with total power 6 or greater this combat, create a 1/1 red Goblin creature token that's tapped and attacking.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Goblin"
+                    ],
+                    "tapped": true,
+                    "attacking": true
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature attacking",
+                        "aggregation": "SUM",
+                        "property": "POWER"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 6
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{R}"
+                    }
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature Goblin ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "target": "Self"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": "Self"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "132",
+        "rarity": "UNCOMMON",
+        "artist": "April Prime",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/7/9766a427-2bb3-4028-a502-d1194cdc93aa.jpg?1783926484",
+        "rulings": [
+            {
+                "date": "2021-07-23",
+                "text": "Battle Cry Goblin's activated ability will affect only Goblins you control as it resolves. If you activate it before attacking and then create a Goblin with its triggered ability during combat, the Goblin you create will not get +1/+0."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Deadly Dispute
 {
     "name": "Deadly Dispute",
