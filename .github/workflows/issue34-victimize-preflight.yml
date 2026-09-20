@@ -1,0 +1,56 @@
+name: Issue 34 Victimize preflight
+
+on:
+  push:
+    branches: [ "issue-34-victimize" ]
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Assay parse and explain
+        run: |
+          set -euxo pipefail
+          just assay parse "Victimize" || true
+          just assay explain "Victimize" || true
+
+      - name: Fidelity draft
+        run: |
+          set -euxo pipefail
+          just coverage-fidelity --emit "Victimize" || true
+
+      - name: Scryfall evidence
+        run: |
+          set -euxo pipefail
+          UA='CommanderGym-Argentum-coverage/1.0'
+          ACCEPT='application/json;q=0.9,*/*;q=0.8'
+          curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" \
+            'https://api.scryfall.com/cards/named?exact=Victimize' > /tmp/victimize.json
+          jq '{name,mana_cost,type_line,oracle_text,set,set_name,released_at,collector_number,rarity,artist,image_uris,rulings_uri,prints_search_uri}' /tmp/victimize.json
+          RULINGS=$(jq -r '.rulings_uri' /tmp/victimize.json)
+          PRINTS=$(jq -r '.prints_search_uri' /tmp/victimize.json)
+          echo '--- rulings ---'
+          curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" "$RULINGS" | jq '.data[] | {published_at,comment}'
+          echo '--- printings oldest first ---'
+          curl --fail --silent --show-error -H "User-Agent: $UA" -H "Accept: $ACCEPT" "$PRINTS&order=released&dir=asc" | jq '.data[] | select(.set_type != "promo" and .set_type != "token" and .set_type != "art_series" and .set_type != "memorabilia") | {set,set_name,set_type,released_at,collector_number,rarity,artist,image_uris}'
+
+      - name: Canonical placement and existing support
+        run: |
+          set -euxo pipefail
+          grep -rn 'name = "Victimize"\|card("Victimize")' mtg-sets/*/src/main/kotlin/ || true
+          just where ULG || true
+          grep -R "fun IfYouDo\|fun SacrificeOwn\|class IfYouDoEffect\|data class IfYouDoEffect" -n mtg-sdk/src/main/kotlin | head -80 || true
+          grep -R "ToZone(Zone.BATTLEFIELD" -n mtg-sets/*/src/main/kotlin | grep -i grave -C 2 | head -120 || true
