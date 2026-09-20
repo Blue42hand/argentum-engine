@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 122 / 312
+**Implemented:** 123 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -112,7 +112,7 @@
 - [x] Garruk's Packleader
 - [x] Garruk's Uprising
 - [ ] Garruk, Cursed Huntsman
-- [ ] Generous Gift
+- [x] Generous Gift
 - [x] Ghalta, Primal Hunger
 - [ ] Ghirapur Orrery
 - [ ] Gilded Goose
