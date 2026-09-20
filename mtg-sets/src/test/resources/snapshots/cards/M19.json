@@ -2690,6 +2690,67 @@
     ]
 }
 
+// Poison-Tip Archer
+{
+    "name": "Poison-Tip Archer",
+    "manaCost": "{2}{B}{G}",
+    "typeLine": "Creature — Elf Archer",
+    "oracleText": "Reach (This creature can block creatures with flying.)\nDeathtouch (Any amount of damage this deals to a creature is enough to destroy it.)\nWhenever another creature dies, each opponent loses 1 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "REACH",
+        "DEATHTOUCH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "220",
+        "rarity": "UNCOMMON",
+        "artist": "Dmitry Burmak",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/e/5e058ff8-043c-498b-8310-0ca45466ac27.jpg?1783934519",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If another creature dies at the same time as Poison-Tip Archer, each opponent loses 1 life."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "In a Two-Headed Giant game, Poison-Tip Archer's last ability causes the opposing team to lose 2 life."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Prodigious Growth
 {
     "name": "Prodigious Growth",
