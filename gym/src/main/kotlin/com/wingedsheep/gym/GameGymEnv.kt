@@ -98,20 +98,21 @@ class GameGymEnv(
             environment.state, perspective, environment.legalActions(), revealAll
         )
 
-        // A non-acting perspective must not receive another seat's decision provenance. Callers
-        // that control several seats request the current actor explicitly through observeForPlayer.
+        // A non-acting perspective must not receive another seat's pending decision or legal-action
+        // surface: action descriptions can themselves reveal hidden cards or choices. Callers that
+        // control several seats request the current actor explicitly through observeForPlayer.
         val seatOwnsAction = environment.agentToAct == null || environment.agentToAct == perspective
         if (!revealAll && !seatOwnsAction) {
             val observation = result.observation as? TrainingObservation
                 ?: throw IllegalStateException("GameGymEnv expected a TrainingObservation")
             val sanitized = observation.copy(
                 pendingDecision = null,
-                legalActions = observation.legalActions.map { it.copy(semanticId = null) },
+                legalActions = emptyList(),
                 stateDigest = ""
             )
             val safeObservation = sanitized.copy(stateDigest = StateDigest.compute(sanitized))
-            registry = result.registry
-            return ObservationResult(safeObservation, result.registry)
+            registry = ActionRegistry.EMPTY
+            return ObservationResult(safeObservation, ActionRegistry.EMPTY)
         }
 
         registry = result.registry
