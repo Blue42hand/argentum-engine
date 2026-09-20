@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 123 / 312
+**Implemented:** 124 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -48,7 +48,7 @@
 - [x] Blasphemous Act
 - [ ] Bloodroot Apothecary
 - [ ] Body of Knowledge
-- [ ] Bojuka Bog
+- [x] Bojuka Bog
 - [x] Bootleggers' Stash
 - [ ] Boros Signet
 - [ ] Boss's Chauffeur
