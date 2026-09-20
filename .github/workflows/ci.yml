@@ -108,6 +108,11 @@ jobs:
           wait "${BUILD_PID}"
           STATUS=$?
           kill "${WATCHDOG_PID}" 2>/dev/null || true
+          if [ "${{ matrix.name }}" = "content" ] && [ -f mtg-sets/build/snapshots-actual/snapshots/cards/C19.json ]; then
+            echo "=== BEGIN C19 SNAPSHOT ACTUAL ==="
+            cat mtg-sets/build/snapshots-actual/snapshots/cards/C19.json
+            echo "=== END C19 SNAPSHOT ACTUAL ==="
+          fi
           exit "${STATUS}"
 
   # Aggregate gate so branch protection can keep requiring a single "backend" check. It passes only
@@ -227,10 +232,10 @@ jobs:
   #       uses: actions/setup-node@v5
   #       with:
   #         node-version: 22
-  #         cache: npm
-  #         cache-dependency-path: |
-  #           web-client/package-lock.json
-  #           e2e-scenarios/package-lock.json
+  #       cache: npm
+  #       cache-dependency-path: |
+  #         web-client/package-lock.json
+  #         e2e-scenarios/package-lock.json
   #
   #     - name: Install web client dependencies
   #       run: npm ci
