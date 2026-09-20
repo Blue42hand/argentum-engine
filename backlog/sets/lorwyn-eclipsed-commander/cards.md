@@ -2,7 +2,7 @@
 
 **Set Size:** 153 cards
 **Release Date:** January 23, 2026
-**Implemented:** 2 / 153
+**Implemented:** 3 / 153
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 4     | 0    |
@@ -115,7 +115,7 @@
 - [ ] Opulent Palace
 - [ ] Painful Truths
 - [x] Path of Ancestry
-- [ ] Path to Exile
+- [x] Path to Exile
 - [ ] Persist
 - [ ] Primal Beyond
 - [ ] Puca's Covenant
