@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 120 / 312
+**Implemented:** 124 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -48,7 +48,7 @@
 - [x] Blasphemous Act
 - [ ] Bloodroot Apothecary
 - [ ] Body of Knowledge
-- [ ] Bojuka Bog
+- [x] Bojuka Bog
 - [x] Bootleggers' Stash
 - [ ] Boros Signet
 - [ ] Boss's Chauffeur
@@ -81,7 +81,7 @@
 - [x] Cultivate
 - [ ] Curiosity Crafter
 - [ ] Cut a Deal
-- [ ] Deadly Dispute
+- [x] Deadly Dispute
 - [x] Decimate
 - [x] Decree of Pain
 - [ ] Deep Forest Hermit
@@ -112,7 +112,7 @@
 - [x] Garruk's Packleader
 - [x] Garruk's Uprising
 - [ ] Garruk, Cursed Huntsman
-- [ ] Generous Gift
+- [x] Generous Gift
 - [x] Ghalta, Primal Hunger
 - [ ] Ghirapur Orrery
 - [ ] Gilded Goose
@@ -139,7 +139,7 @@
 - [x] Helm of the Host
 - [x] Hinterland Harbor
 - [ ] Hoofprints of the Stag
-- [ ] Idol of Oblivion
+- [x] Idol of Oblivion
 - [ ] Illusionist's Gambit
 - [ ] Illusory Ambusher
 - [ ] Inferno Titan
