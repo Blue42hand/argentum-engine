@@ -258,6 +258,7 @@ class AiGameManager(
         onMulliganKeep = onMulliganKeep,
         onMulliganTake = onMulliganTake,
         onBottomCards = onBottomCards,
+        allowActionsOnlyFallback = controller is EngineAiPlayerController || controller is LlmAiPlayerController,
         actionGate = gameSession?.let { aiInsightService.gateFor(it.sessionId) },
     )
 
