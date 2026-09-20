@@ -141,6 +141,11 @@ class MultiEnvService(
     fun restore(envId: EnvId, handle: SnapshotHandle): ObservationResult =
         requireGameEnv(envId).restore(snapshotCodec, handle)
 
+    /** Release a snapshot slot so long-lived trainers do not retain old game states indefinitely. */
+    fun disposeSnapshot(handle: SnapshotHandle) {
+        snapshotCodec.dispose(handle)
+    }
+
     // =========================================================================
     // Internals
     // =========================================================================
