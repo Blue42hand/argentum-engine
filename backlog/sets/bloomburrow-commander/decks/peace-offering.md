@@ -45,7 +45,7 @@
 
 - [ ] 1 An Offer You Can't Refuse
 - [ ] 1 Broken Wings
-- [ ] 1 Generous Gift
+- [x] 1 Generous Gift
 - [ ] 1 Illusionist's Gambit
 - [ ] 1 Intellectual Offering
 - [ ] 1 Long River's Pull

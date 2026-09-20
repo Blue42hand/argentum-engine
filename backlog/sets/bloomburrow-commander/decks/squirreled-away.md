@@ -47,7 +47,7 @@
 ## Instants (8)
 
 - [ ] 1 Cache Grab
-- [ ] 1 Deadly Dispute
+- [x] 1 Deadly Dispute
 - [ ] 1 Plumb the Forbidden
 - [ ] 1 Putrefy
 - [ ] 1 Saw in Half
@@ -70,7 +70,7 @@
 - [x] 1 Arcane Signet
 - [ ] 1 Chitterspitter
 - [ ] 1 Golgari Signet
-- [ ] 1 Idol of Oblivion
+- [x] 1 Idol of Oblivion
 - [ ] 1 Maskwood Nexus
 - [ ] 1 Skullclamp
 - [x] 1 Sol Ring
@@ -90,7 +90,7 @@
 ## Lands (38)
 
 - [x] 1 Barren Moor
-- [ ] 1 Bojuka Bog
+- [x] 1 Bojuka Bog
 - [x] 1 Command Tower
 - [x] 1 Evolving Wilds
 - [x] 1 Exotic Orchard
