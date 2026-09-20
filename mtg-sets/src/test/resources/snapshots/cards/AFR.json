@@ -245,3 +245,70 @@
         "BLACK"
     ]
 }
+
+// You See a Pair of Goblins
+{
+    "name": "You See a Pair of Goblins",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Charge Them — Creatures you control get +2/+0 until end of turn.\n• Befriend Them — Create two 1/1 red Goblin creature tokens.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": "Self"
+                        }
+                    },
+                    "description": "Creatures you control get +2/+0 until end of turn"
+                },
+                {
+                    "effect": {
+                        "type": "CreateToken",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [
+                            "RED"
+                        ],
+                        "creatureTypes": [
+                            "Goblin"
+                        ]
+                    },
+                    "description": "Create two 1/1 red Goblin creature tokens"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "170",
+        "rarity": "UNCOMMON",
+        "artist": "Aaron Miller",
+        "flavorText": "\"I have the shot. Shall I take it?\"\n—Varis, Silverymoon ranger",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/6/b69e7200-96ea-4455-83cc-0a497d56efe5.jpg?1783926468"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
