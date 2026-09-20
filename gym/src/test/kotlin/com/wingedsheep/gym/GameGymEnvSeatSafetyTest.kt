@@ -7,12 +7,14 @@ import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.gym.contract.ActionParams
 import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -24,7 +26,7 @@ class GameGymEnvSeatSafetyTest : FunSpec({
         register(PortalSet.basicLands)
     }
 
-    test("another seat cannot observe pending decision semantic provenance") {
+    test("another seat cannot observe or submit the acting seat's decision surface") {
         val environment = GameEnvironment.create(registry())
         environment.reset(
             GameConfig(
@@ -73,13 +75,16 @@ class GameGymEnvSeatSafetyTest : FunSpec({
         firstAliceView.perspectivePlayerId shouldBe alice
         firstAliceView.agentToAct shouldBe bob
         firstAliceView.pendingDecision shouldBe null
-        firstAliceView.legalActions.shouldNotBeEmpty()
-        firstAliceView.legalActions.all { it.semanticId == null } shouldBe true
+        firstAliceView.legalActions.shouldBeEmpty()
+        shouldThrow<IllegalArgumentException> {
+            aliceEnv.step(0, ActionParams())
+        }
 
         val firstBobView = aliceEnv.observeForPlayer(bob).observation as TrainingObservation
         firstBobView.perspectivePlayerId shouldBe bob
         firstBobView.agentToAct shouldBe bob
         firstBobView.pendingDecision.shouldNotBeNull()
+        firstBobView.legalActions.shouldNotBeEmpty()
         firstBobView.legalActions.all { it.semanticId != null } shouldBe true
 
         shouldThrow<IllegalArgumentException> {
@@ -95,8 +100,8 @@ class GameGymEnvSeatSafetyTest : FunSpec({
         firstDebugView.legalActions.all { it.semanticId != null } shouldBe true
 
         // Change only hidden decision semantics. The debug observation must notice the difference,
-        // while Alice's seat-projected provenance must remain identical so the digest cannot be
-        // used as an equality oracle for another player's private decision.
+        // while Alice's seat-projected view remains identical so the digest cannot be used as an
+        // equality oracle for another player's private decision or legal-action surface.
         val secondSuspended = suspendForBob("hidden-source-b")
         environment.restore(secondSuspended.state, environment.playerIds)
 
@@ -104,7 +109,7 @@ class GameGymEnvSeatSafetyTest : FunSpec({
         val secondDebugView = aliceEnv.observe(revealAll = true).observation as TrainingObservation
 
         secondAliceView.pendingDecision shouldBe null
-        secondAliceView.legalActions.all { it.semanticId == null } shouldBe true
+        secondAliceView.legalActions.shouldBeEmpty()
         secondAliceView.stateDigest shouldBe firstAliceView.stateDigest
 
         secondDebugView.pendingDecision shouldNotBe null
