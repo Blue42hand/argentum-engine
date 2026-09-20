@@ -1,0 +1,39 @@
+name: Issue 27 Generous Gift preflight
+
+on:
+  push:
+    branches: [issue-27-generous-gift]
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '23'
+      - uses: extractions/setup-just@v2
+      - name: Scryfall canonical metadata and rulings
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --get \
+            --data-urlencode 'exact=Generous Gift' \
+            --data-urlencode 'set=mh1' \
+            https://api.scryfall.com/cards/named > /tmp/generous-gift.json
+          jq '{name,mana_cost,type_line,oracle_text,colors,rarity,collector_number,artist,image_uris,prints_search_uri,rulings_uri,released_at,set,set_name}' /tmp/generous-gift.json
+          rulings_uri=$(jq -r '.rulings_uri' /tmp/generous-gift.json)
+          curl --fail --silent --show-error "$rulings_uri" | jq '{data: [.data[] | {published_at,comment}]}'
+          prints_uri=$(jq -r '.prints_search_uri' /tmp/generous-gift.json)
+          curl --fail --silent --show-error "$prints_uri" | jq '{data: [.data[] | {set,set_name,released_at,promo,collector_number}]}'
+      - name: Assay and fidelity preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          just assay parse 'Generous Gift'
+          just assay explain 'Generous Gift'
+          just coverage-fidelity --emit 'Generous Gift'
