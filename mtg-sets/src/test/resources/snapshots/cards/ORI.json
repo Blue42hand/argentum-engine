@@ -1267,6 +1267,100 @@
     ]
 }
 
+// Evolutionary Leap
+{
+    "name": "Evolutionary Leap",
+    "manaCost": "{1}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "{G}, Sacrifice a creature: Reveal cards from the top of your library until you reveal a creature card. Put that card into your hand and the rest on the bottom of your library in a random order.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{G}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature ctrl:you"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherUntilMatch",
+                            "filter": "creature",
+                            "storeMatch": "ignored",
+                            "storeRevealed": "revealed"
+                        },
+                        {
+                            "type": "RevealCollection",
+                            "from": "revealed"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "revealed",
+                            "filter": {
+                                "type": "MatchesFilter",
+                                "filter": "creature"
+                            },
+                            "storeMatching": "matchedToHand",
+                            "storeNonMatching": "rest"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "matchedToHand",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "rest",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "176",
+        "rarity": "RARE",
+        "artist": "Chris Rahn",
+        "flavorText": "The essence of nature is change.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/2/c27f3193-3083-409e-99d8-10f5b1afe9f1.jpg?1783938323",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "If you don't reveal a creature card, you'll reveal all the cards from your library and then put them back in your library in a random order."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Eyeblight Assassin
 {
     "name": "Eyeblight Assassin",
