@@ -103,6 +103,64 @@
     ]
 }
 
+// Heroic Intervention
+{
+    "name": "Heroic Intervention",
+    "manaCost": "{1}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Permanents you control gain hexproof and indestructible until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "permanent ctrl:you"
+                }
+            },
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "HEXPROOF",
+                        "target": "Self"
+                    },
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "INDESTRUCTIBLE",
+                        "target": "Self"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "rarity": "RARE",
+        "artist": "James Ryman",
+        "flavorText": "\"Wherever the strong would harm the weak, I will be there.\"\n—Ajani Goldmane",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f5a620c-fde7-4b72-bf8a-efc4f14560c5.jpg?1783936743",
+        "rulings": [
+            {
+                "date": "2023-07-28",
+                "text": "A battle with indestructible still loses defense counters as it's dealt damage. If it's a Siege, it will still be exiled when the last defense counter is removed from it, and its controller may still cast it transformed without paying its mana cost."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "A planeswalker with indestructible still loses loyalty counters as it's dealt damage and will still be put into its owner's graveyard if its loyalty reaches 0."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "The set of permanents affected by Heroic Intervention is determined as the spell resolves. Permanents you begin to control later in the turn won't gain hexproof and indestructible."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Lathnu Sailback
 {
     "name": "Lathnu Sailback",

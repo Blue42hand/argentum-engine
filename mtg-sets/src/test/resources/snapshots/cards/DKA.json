@@ -249,6 +249,84 @@
     "colorIdentityOverride": []
 }
 
+// Dawntreader Elk
+{
+    "name": "Dawntreader Elk",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elk",
+    "oracleText": "{G}, Sacrifice this creature: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{G}"
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "basicland"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "artist": "John Avon",
+        "flavorText": "Silent as winter snow, it seeks wild places unspoiled by the walking dead.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/2/127c969b-1c9a-4265-af0e-5b9dbe136064.jpg?1783940809"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Deadly Allure
 {
     "name": "Deadly Allure",
