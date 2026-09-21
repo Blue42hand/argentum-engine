@@ -13,28 +13,35 @@ import java.util.concurrent.Callable
 fun MultiEnvService.createBatch(configs: List<EnvConfig>): List<CreatedEnv> {
     if (configs.isEmpty()) return emptyList()
 
+    val lifecycleLock = Any()
+    val createdIds = mutableListOf<EnvId>()
+    var abandoned = false
     val tasks = configs.mapIndexed { index, config ->
         Callable<CreateBatchOutcome> {
             try {
-                CreateBatchOutcome.Success(create(config))
+                val created = create(config)
+                synchronized(lifecycleLock) {
+                    // Interrupted callers may have returned while this worker was still initializing.
+                    if (abandoned) dispose(listOf(created.envId)) else createdIds.add(created.envId)
+                }
+                CreateBatchOutcome.Success(created)
             } catch (error: Exception) {
                 CreateBatchOutcome.Failure(index, error)
             }
         }
     }
-    val outcomes = workerPool.invokeAll(tasks)
-    val failure = outcomes.firstNotNullOfOrNull { it as? CreateBatchOutcome.Failure }
-
-    if (failure != null) {
-        dispose(
-            outcomes.mapNotNull { outcome ->
-                (outcome as? CreateBatchOutcome.Success)?.created?.envId
-            }
-        )
-        throwCreateBatchFailure(failure)
+    try {
+        val outcomes = workerPool.invokeAll(tasks)
+        val failure = outcomes.firstNotNullOfOrNull { it as? CreateBatchOutcome.Failure }
+        if (failure != null) throwCreateBatchFailure(failure)
+        return outcomes.map { (it as CreateBatchOutcome.Success).created }
+    } catch (error: Throwable) {
+        synchronized(lifecycleLock) {
+            abandoned = true
+            dispose(createdIds)
+        }
+        throw error
     }
-
-    return outcomes.map { (it as CreateBatchOutcome.Success).created }
 }
 
 private sealed interface CreateBatchOutcome {
