@@ -126,7 +126,13 @@ class MultiEnvService(
     fun stepBatch(requests: List<StepRequest>): List<Pair<EnvId, ObservationResult>> {
         if (requests.isEmpty()) return emptyList()
         requireDistinctEnvIds("step", requests.map { it.envId })
-        val tasks = requests.map { req -> Callable { req.envId to step(req) } }
+        val tasks = requests.map { req ->
+            Callable {
+                withBatchContext("step", req.envId) {
+                    req.envId to step(req)
+                }
+            }
+        }
         return workerPool.invokeAll(tasks)
     }
 
@@ -145,7 +151,13 @@ class MultiEnvService(
     fun submitDecisionBatch(requests: List<DecisionRequest>): List<Pair<EnvId, ObservationResult>> {
         if (requests.isEmpty()) return emptyList()
         requireDistinctEnvIds("decision", requests.map { it.envId })
-        val tasks = requests.map { req -> Callable { req.envId to submitDecision(req.envId, req.response) } }
+        val tasks = requests.map { req ->
+            Callable {
+                withBatchContext("decision", req.envId) {
+                    req.envId to submitDecision(req.envId, req.response)
+                }
+            }
+        }
         return workerPool.invokeAll(tasks)
     }
 
@@ -220,6 +232,25 @@ class MultiEnvService(
                     ?: throw IllegalStateException("Env $envId is not a game env; operation not supported")
             )
         }
+
+    /**
+     * Preserve the singular operation's error category while identifying which batch item failed.
+     * The HTTP layer maps these three exception types to 404 / 400 / 409 respectively, so changing
+     * their type here would make a batched request behave differently from the equivalent singular
+     * request. Unexpected failures are left untouched and remain server errors.
+     */
+    private inline fun <T> withBatchContext(operation: String, envId: EnvId, block: () -> T): T {
+        val prefix = "$operation batch item envId=$envId failed"
+        return try {
+            block()
+        } catch (e: NoSuchElementException) {
+            throw NoSuchElementException("$prefix: ${e.message}").also { it.initCause(e) }
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("$prefix: ${e.message}", e)
+        } catch (e: IllegalStateException) {
+            throw IllegalStateException("$prefix: ${e.message}", e)
+        }
+    }
 
     private fun requireDistinctEnvIds(operation: String, envIds: List<EnvId>) {
         val seen = HashSet<EnvId>(envIds.size)
