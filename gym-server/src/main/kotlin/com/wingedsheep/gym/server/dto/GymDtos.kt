@@ -27,11 +27,16 @@ data class CreateEnvResponse(
  * [params] completes an action whose enumerated form is a template — which creatures attack and
  * whom, which blocks are made, a spell's targets, X. Omit it for actions that need no choice beyond
  * their ID; see [ActionParams] for what is (and isn't) expressible here.
+ *
+ * [expectedStateDigest] is an optional optimistic-concurrency guard copied from the observation
+ * that supplied [actionId]. Remote callers should send it so a delayed/replayed request fails
+ * closed if another operation has advanced the environment. Omit it for backwards compatibility.
  */
 @Serializable
 data class StepBody(
     val actionId: Int,
-    val params: ActionParams = ActionParams.EMPTY
+    val params: ActionParams = ActionParams.EMPTY,
+    val expectedStateDigest: String? = null
 )
 
 /** Single entry for `POST /envs/observe-batch`. */
@@ -69,7 +74,8 @@ data class ResetBatchResult(
 data class StepBatchItem(
     val envId: EnvId,
     val actionId: Int,
-    val params: ActionParams = ActionParams.EMPTY
+    val params: ActionParams = ActionParams.EMPTY,
+    val expectedStateDigest: String? = null
 )
 
 /** Result entry for `POST /envs/step-batch`. */
