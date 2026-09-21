@@ -28,8 +28,9 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Each env is single-threaded. [MultiEnvService] serializes operations that name the
  * same [EnvId], including singular calls racing a batch item, while different envs run
- * independently in parallel via [resetBatch], [stepBatch], or [submitDecisionBatch]. This keeps
- * mutable per-env state and action registries race-free without imposing a global lock.
+ * independently in parallel via [resetBatch], [stepBatch], [submitDecisionBatch], or
+ * [restoreBatch]. This keeps mutable per-env state and action registries race-free without
+ * imposing a global lock.
  *
  * ## Registry regeneration
  *
@@ -198,6 +199,20 @@ class MultiEnvService(
     fun restore(envId: EnvId, handle: SnapshotHandle): ObservationResult =
         withGameEnv(envId) { it.restore(snapshotCodec, handle) }
 
+    /** Restore N distinct game envs in parallel from existing snapshot handles. */
+    fun restoreBatch(requests: List<RestoreRequest>): List<Pair<EnvId, ObservationResult>> {
+        if (requests.isEmpty()) return emptyList()
+        requireDistinctEnvIds("restore", requests.map { it.envId })
+        val tasks = requests.map { req ->
+            Callable {
+                withBatchContext("restore", req.envId) {
+                    req.envId to restore(req.envId, req.handle)
+                }
+            }
+        }
+        return workerPool.invokeAll(tasks)
+    }
+
     /** Release a snapshot slot so long-lived trainers do not retain old game states indefinitely. */
     fun disposeSnapshot(handle: SnapshotHandle) {
         snapshotCodec.dispose(handle)
@@ -288,6 +303,12 @@ data class CreatedEnv(
 data class ResetRequest(
     val envId: EnvId,
     val config: EnvConfig
+)
+
+/** One restore request for [MultiEnvService.restoreBatch]. */
+data class RestoreRequest(
+    val envId: EnvId,
+    val handle: SnapshotHandle
 )
 
 /** One structured-decision submission for [MultiEnvService.submitDecisionBatch]. */
