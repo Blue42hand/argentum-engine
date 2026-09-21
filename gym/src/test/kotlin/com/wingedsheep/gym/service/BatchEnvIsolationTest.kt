@@ -4,6 +4,7 @@ import com.wingedsheep.engine.core.NumberChosenResponse
 import com.wingedsheep.engine.registry.CardRegistry
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.string.shouldContain
 
 class BatchEnvIsolationTest : FunSpec({
@@ -20,7 +21,7 @@ class BatchEnvIsolationTest : FunSpec({
             )
         }
 
-        error.message.shouldContain("step batch contains duplicate envId")
+        error.message.shouldNotBeNull() shouldContain "step batch contains duplicate envId"
     }
 
     test("submitDecisionBatch rejects duplicate env IDs before scheduling work") {
@@ -30,12 +31,18 @@ class BatchEnvIsolationTest : FunSpec({
         val error = shouldThrow<IllegalArgumentException> {
             service.submitDecisionBatch(
                 listOf(
-                    DecisionRequest(envId, NumberChosenResponse("decision-a", 1)),
-                    DecisionRequest(envId, NumberChosenResponse("decision-b", 2))
+                    DecisionRequest(
+                        envId,
+                        NumberChosenResponse(decisionId = "decision-a", number = 1)
+                    ),
+                    DecisionRequest(
+                        envId,
+                        NumberChosenResponse(decisionId = "decision-b", number = 2)
+                    )
                 )
             )
         }
 
-        error.message.shouldContain("decision batch contains duplicate envId")
+        error.message.shouldNotBeNull() shouldContain "decision batch contains duplicate envId"
     }
 })
