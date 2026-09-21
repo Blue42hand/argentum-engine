@@ -42,7 +42,6 @@ class VictimizeScenarioTest : ScenarioTestBase() {
                 val courser = game.state.getGraveyard(game.player1Id).first { id ->
                     game.state.getEntity(id)?.get<CardComponent>()?.name == "Centaur Courser"
                 }
-                val bears = game.findPermanent("Grizzly Bears")!!
 
                 val cast = game.execute(
                     CastSpell(
@@ -58,8 +57,8 @@ class VictimizeScenarioTest : ScenarioTestBase() {
                     cast.error shouldBe null
                 }
 
-                game.resolveStack()
-                game.selectCards(listOf(bears))
+                // With exactly one creature available to sacrifice, SacrificeOwn has only one
+                // legal choice and resolves it directly; no selection decision is required.
                 game.resolveStack()
 
                 withClue("the chosen battlefield creature should be sacrificed") {
