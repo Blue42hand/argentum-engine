@@ -80,6 +80,20 @@ data class DecisionBatchResult(
 @Serializable
 data class RestoreBody(val handle: SnapshotHandle)
 
+/** Single entry for `POST /envs/restore-batch`. */
+@Serializable
+data class RestoreBatchItem(
+    val envId: EnvId,
+    val handle: SnapshotHandle
+)
+
+/** Result entry for `POST /envs/restore-batch`. */
+@Serializable
+data class RestoreBatchResult(
+    val envId: EnvId,
+    val observation: Observation
+)
+
 /** Body for `DELETE /envs`. List of envs to dispose. */
 @Serializable
 data class DisposeBody(val envIds: List<EnvId>)
