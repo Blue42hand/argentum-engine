@@ -70,8 +70,24 @@ class GameGymEnv(
         return build(defaultRevealAll)
     }
 
-    /** Submit a raw `DecisionResponse` while paused on a complex decision. */
-    fun submitDecision(response: DecisionResponse): ObservationResult {
+    /**
+     * Submit a raw `DecisionResponse` while paused on a complex decision. When
+     * [expectedStateDigest] is supplied, require the response to belong to the same observation
+     * that exposed the pending decision. This mirrors the ordinary-action stale-state guard while
+     * keeping the engine authoritative for the decision payload itself.
+     */
+    fun submitDecision(
+        response: DecisionResponse,
+        expectedStateDigest: String? = null
+    ): ObservationResult {
+        expectedStateDigest?.let { expected ->
+            val actual = checkNotNull(registryStateDigest) {
+                "Env has no decision-producing observation"
+            }
+            check(actual == expected) {
+                "Stale decision: expected stateDigest=$expected, current=$actual"
+            }
+        }
         val pending = environment.state.pendingDecision
             ?: throw IllegalStateException("Env is not paused on a decision")
         check(response.decisionId == pending.id) {
