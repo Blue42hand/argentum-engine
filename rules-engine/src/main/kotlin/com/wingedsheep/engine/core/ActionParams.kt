@@ -80,7 +80,7 @@ object ActionParameterizer {
             }
 
             else -> throw IllegalArgumentException(
-                "Action ${action::class.simpleName} takes no action params; got $params"
+                "Action ${action::class.simpleName} takes no step params; got $params"
             )
         }
     }
@@ -100,7 +100,7 @@ object ActionParameterizer {
     private fun ActionParams.allowOnly(action: GameAction, vararg allowed: String) {
         val unusable = populatedFields - allowed.toSet()
         require(unusable.isEmpty()) {
-            "Action param(s) ${unusable.joinToString(", ") { "'$it'" }} " +
+            "Step param(s) ${unusable.joinToString(", ") { "'$it'" }} " +
                 "are not applicable to ${action::class.simpleName}"
         }
     }
