@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.EntityId
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.longs.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 
@@ -60,8 +59,8 @@ class ResetBatchTest : FunSpec({
 
         results shouldHaveSize 2
         results.map { it.first } shouldBe listOf(first, second)
-        (results[0].second.observation as TrainingObservation).turnNumber.shouldBeExactly(1)
-        (results[1].second.observation as TrainingObservation).turnNumber.shouldBeExactly(1)
+        (results[0].second.observation as TrainingObservation).turnNumber shouldBe 1
+        (results[1].second.observation as TrainingObservation).turnNumber shouldBe 1
         results[0].second.observation.stateDigest shouldBe expectedFirst
         results[1].second.observation.stateDigest shouldBe expectedSecond
     }
