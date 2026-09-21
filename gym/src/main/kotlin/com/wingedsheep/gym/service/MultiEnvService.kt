@@ -157,7 +157,8 @@ class MultiEnvService(
         startingHandSize = startingHandSize,
         skipMulligans = skipMulligans,
         useHandSmoother = useHandSmoother,
-        startingPlayerIndex = startingPlayerIndex
+        startingPlayerIndex = startingPlayerIndex,
+        seed = seed
     )
 
     private fun requireEnv(envId: EnvId): GymEnv =
