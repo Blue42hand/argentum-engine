@@ -37,6 +37,9 @@ class GameGymEnv(
     @Volatile
     private var registryStateDigest: String? = null
 
+    @Volatile
+    private var observedDecisionId: String? = null
+
     override val isTerminal: Boolean get() = environment.state.gameOver
 
     override val actionStateDigest: String? get() = registryStateDigest
@@ -90,6 +93,9 @@ class GameGymEnv(
         }
         val pending = environment.state.pendingDecision
             ?: throw IllegalStateException("Env is not paused on a decision")
+        require(observedDecisionId == pending.id) {
+            "Observe the deciding player before submitting this decision"
+        }
         check(response.decisionId == pending.id) {
             "Decision ID mismatch: response=${response.decisionId}, pending=${pending.id}"
         }
@@ -139,11 +145,13 @@ class GameGymEnv(
             val safeObservation = sanitized.copy(stateDigest = StateDigest.compute(sanitized))
             registry = ActionRegistry.EMPTY
             registryStateDigest = safeObservation.stateDigest
+            observedDecisionId = null
             return ObservationResult(safeObservation, ActionRegistry.EMPTY)
         }
 
         registry = result.registry
         registryStateDigest = result.observation.stateDigest
+        observedDecisionId = environment.state.pendingDecision?.id
         return result
     }
 
