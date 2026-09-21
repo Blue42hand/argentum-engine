@@ -6,6 +6,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import java.util.concurrent.Callable
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 
 /**
  * The pool must propagate a task's *own* exception, not the `ExecutionException` its `Future` wraps
@@ -48,6 +52,51 @@ class EnvWorkerPoolTest : FunSpec({
     test("an IllegalStateException keeps its identity too, so it can still map to 409") {
         shouldThrow<IllegalStateException> {
             pool.invokeAll(listOf(Callable { 1 }, Callable<Int> { throw IllegalStateException("nope") }))
+        }
+    }
+
+    test("a failing batch waits for every submitted task to settle before propagating") {
+        val testPool = EnvWorkerPool(parallelism = 1)
+        val laterTaskStarted = CountDownLatch(1)
+        val releaseLaterTask = CountDownLatch(1)
+        val callFinished = CountDownLatch(1)
+        val thrown = AtomicReference<Throwable?>()
+
+        val caller = thread(name = "env-worker-pool-settle-test") {
+            try {
+                testPool.invokeAll(
+                    listOf(
+                        Callable<Int> { throw IllegalArgumentException("first task failed") },
+                        Callable {
+                            laterTaskStarted.countDown()
+                            releaseLaterTask.await()
+                            2
+                        }
+                    )
+                )
+            } catch (error: Throwable) {
+                thrown.set(error)
+            } finally {
+                callFinished.countDown()
+            }
+        }
+
+        try {
+            laterTaskStarted.await(1, TimeUnit.SECONDS) shouldBe true
+
+            // The first task has already failed and the second is deliberately blocked. The batch
+            // call must therefore still be waiting rather than reporting failure early while a
+            // submitted task can continue mutating state behind the caller's back.
+            callFinished.await(100, TimeUnit.MILLISECONDS) shouldBe false
+
+            releaseLaterTask.countDown()
+            callFinished.await(1, TimeUnit.SECONDS) shouldBe true
+            (thrown.get() is IllegalArgumentException) shouldBe true
+            thrown.get()?.message.orEmpty() shouldContain "first task failed"
+        } finally {
+            releaseLaterTask.countDown()
+            caller.join(1_000)
+            testPool.close()
         }
     }
 })
