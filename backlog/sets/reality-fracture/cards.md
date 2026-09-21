@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 15 / 285
+**Implemented:** 20 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 15   |
+| Extras     | 285   | 20   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -78,7 +78,7 @@
 - [ ] Extrapolate the Impossible
 - [ ] Eye of Jace
 - [ ] Face Yourself
-- [ ] Fatehold Annex
+- [x] Fatehold Annex
 - [ ] Fatehold Charm
 - [ ] Fatehold Chronologist
 - [ ] Fateshaper Aspirant
@@ -136,7 +136,7 @@
 - [ ] Kindred Judgment
 - [ ] Kiora of Fire and Ashes
 - [ ] Kiora of Salt and Sand
-- [ ] Konstrari Annex
+- [x] Konstrari Annex
 - [ ] Konstrari Charm
 - [ ] Konstrari Improviser
 - [ ] Koth of the Homestead
@@ -224,7 +224,7 @@
 - [ ] Sphinx of False Conclusions
 - [ ] Sphinx's Approach
 - [ ] Stingcaster Mage
-- [ ] Stingerquill Annex
+- [x] Stingerquill Annex
 - [ ] Stingerquill Charm
 - [ ] Stingerquill Voxmancer
 - [ ] Stinging Vitriol
@@ -249,7 +249,7 @@
 - [ ] Theoretical Necromancer
 - [ ] Theorist's Proxy
 - [ ] Theorist's Sanctum
-- [ ] Theorix Annex
+- [x] Theorix Annex
 - [ ] Theorix Charm
 - [ ] Theorix Metamage
 - [ ] Tinybones, Pocket Nuisance
@@ -267,7 +267,7 @@
 - [ ] Unsummon
 - [ ] Variable Chaser
 - [ ] Verdant Kraken
-- [ ] Vigorbloom Annex
+- [x] Vigorbloom Annex
 - [ ] Vigorbloom Charm
 - [ ] Vigorbloom Vanguard
 - [ ] Vindictive Triumph
