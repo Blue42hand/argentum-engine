@@ -107,4 +107,16 @@ class DeckCoverageCliTest : FunSpec({
         parsed.commander shouldBe "Commander One"
         parsed.library shouldContainExactly listOf("Supported Card", "Missing Card")
     }
+
+    test("registry name export is complete and deterministic") {
+        val output = Files.createTempFile("registry-card-names", ".txt")
+
+        writeRegistryNames(output, registry())
+
+        Files.readAllLines(output) shouldContainExactly listOf(
+            "Commander One",
+            "Front Face",
+            "Supported Card",
+        )
+    }
 })
