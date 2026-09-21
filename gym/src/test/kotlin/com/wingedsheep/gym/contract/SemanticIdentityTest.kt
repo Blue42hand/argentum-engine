@@ -116,6 +116,11 @@ class SemanticIdentityTest : FunSpec({
 
         SemanticIdentity.forLegalAction(action) shouldBe
             SemanticFingerprint.forLegalAction(action, SchemaHash.CURRENT)
+        SemanticFingerprint.forGameAction(
+            action.actionType,
+            action.action,
+            SchemaHash.CURRENT,
+        ) shouldBe SemanticIdentity.forLegalAction(action)
         SemanticIdentity.forPendingDecision(decision) shouldBe
             SemanticFingerprint.forPendingDecision(decision, SchemaHash.CURRENT)
         SemanticIdentity.forDecisionResponse(response) shouldBe
