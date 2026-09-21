@@ -458,6 +458,52 @@
     ]
 }
 
+// Multiply by Zero
+{
+    "name": "Multiply by Zero",
+    "manaCost": "{1}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature has base power and toughness 0/0 until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "SetBaseStats",
+            "target": {
+                "type": "BoundVariable",
+                "name": "creature"
+            },
+            "power": {
+                "type": "Fixed",
+                "amount": 0
+            },
+            "toughness": {
+                "type": "Fixed",
+                "amount": 0
+            },
+            "duration": "EndOfTurn"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "58",
+        "rarity": "UNCOMMON",
+        "artist": "Florian Herold",
+        "flavorText": "Existence can be categorically denied. You just need the right variables.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/90d684a4-9639-4792-8760-2011a7a85370.jpg?1789644823",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Stingerquill Annex
 {
     "name": "Stingerquill Annex",
