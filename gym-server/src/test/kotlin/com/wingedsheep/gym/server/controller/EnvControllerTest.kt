@@ -8,6 +8,7 @@ import com.wingedsheep.gym.service.PlayerSpec
 import com.wingedsheep.gym.server.dto.CreateEnvResponse
 import com.wingedsheep.gym.server.dto.DisposeBody
 import com.wingedsheep.gym.server.dto.SchemaHashResponse
+import com.wingedsheep.gym.server.dto.StepBatchItem
 import com.wingedsheep.gym.server.dto.StepBody
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -31,9 +32,9 @@ import java.net.http.HttpResponse
  * so we exercise the real converter chain (kotlinx.serialization) and
  * exception-handler chain.
  *
- * Deliberately thin — happy path, 404/400 errors, and a stale-action-ID
- * rejection. Sealed-deck flows and structured decisions belong in
- * dedicated tests alongside the controllers.
+ * Deliberately thin — happy path, 404/400 errors, and stale-action protection.
+ * Sealed-deck flows and structured decisions belong in dedicated tests alongside
+ * the controllers.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class EnvControllerTest : FunSpec() {
@@ -148,11 +149,16 @@ class EnvControllerTest : FunSpec() {
             )
             observed.stateDigest shouldBe created.observation.stateDigest
 
-            // -- step using an actionId from the opening observation --
+            // -- step using an actionId and digest from the opening observation --
             val actionId = created.observation.legalActions.first().actionId
             val stepResp = postJson(
                 "/envs/${created.envId.value}/step",
-                json.encodeToString(StepBody(actionId))
+                json.encodeToString(
+                    StepBody(
+                        actionId = actionId,
+                        expectedStateDigest = created.observation.stateDigest
+                    )
+                )
             )
             stepResp.statusCode() shouldBe 200
             val afterStep = json.decodeFromString<TrainingObservation>(stepResp.body())
@@ -200,6 +206,62 @@ class EnvControllerTest : FunSpec() {
             stepResp.statusCode() shouldBe 400
 
             // Cleanup
+            deleteJson("/envs", json.encodeToString(DisposeBody(listOf(created.envId))))
+        }
+
+        test("HTTP step digest guard rejects stale singular and batched actions without mutation") {
+            val created = json.decodeFromString<CreateEnvResponse>(
+                postJson("/envs", json.encodeToString(twoPlayerConfig())).body()
+            )
+            val opening = created.observation as TrainingObservation
+            val openingActionId = opening.legalActions.first().actionId
+
+            val accepted = postJson(
+                "/envs/${created.envId.value}/step",
+                json.encodeToString(
+                    StepBody(
+                        actionId = openingActionId,
+                        expectedStateDigest = opening.stateDigest
+                    )
+                )
+            )
+            accepted.statusCode() shouldBe 200
+            val advanced = json.decodeFromString<TrainingObservation>(accepted.body())
+            advanced.stateDigest shouldNotBe opening.stateDigest
+
+            val staleSingular = postJson(
+                "/envs/${created.envId.value}/step",
+                json.encodeToString(
+                    StepBody(
+                        actionId = openingActionId,
+                        expectedStateDigest = opening.stateDigest
+                    )
+                )
+            )
+            staleSingular.statusCode() shouldBe 409
+            staleSingular.body() shouldContain "Stale step"
+            json.decodeFromString<TrainingObservation>(
+                get("/envs/${created.envId.value}").body()
+            ).stateDigest shouldBe advanced.stateDigest
+
+            val staleBatch = postJson(
+                "/envs/step-batch",
+                json.encodeToString(
+                    listOf(
+                        StepBatchItem(
+                            envId = created.envId,
+                            actionId = openingActionId,
+                            expectedStateDigest = opening.stateDigest
+                        )
+                    )
+                )
+            )
+            staleBatch.statusCode() shouldBe 409
+            staleBatch.body() shouldContain "Stale step"
+            json.decodeFromString<TrainingObservation>(
+                get("/envs/${created.envId.value}").body()
+            ).stateDigest shouldBe advanced.stateDigest
+
             deleteJson("/envs", json.encodeToString(DisposeBody(listOf(created.envId))))
         }
 
