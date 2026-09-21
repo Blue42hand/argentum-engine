@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Each env is single-threaded — two calls naming the same [EnvId] must not
  * overlap or they race on mutable env fields. The intended use is: a trainer
  * owns an env and calls it sequentially, possibly interleaved with N other
- * envs which run in parallel via [stepBatch].
+ * envs which run in parallel via [stepBatch] or [submitDecisionBatch].
  *
  * ## Registry regeneration
  *
@@ -132,6 +132,17 @@ class MultiEnvService(
     fun submitDecision(envId: EnvId, response: DecisionResponse): ObservationResult =
         requireGameEnv(envId).submitDecision(response)
 
+    /**
+     * Submit structured decisions to N game envs in parallel. Results preserve request order,
+     * matching [stepBatch]. Each referenced env must still obey the service's single-owner rule:
+     * callers must not overlap another operation naming the same env.
+     */
+    fun submitDecisionBatch(requests: List<DecisionRequest>): List<Pair<EnvId, ObservationResult>> {
+        if (requests.isEmpty()) return emptyList()
+        val tasks = requests.map { req -> Callable { req.envId to submitDecision(req.envId, req.response) } }
+        return workerPool.invokeAll(tasks)
+    }
+
     // =========================================================================
     // Fork / snapshot / restore
     // =========================================================================
@@ -193,4 +204,10 @@ class MultiEnvService(
 data class CreatedEnv(
     val envId: EnvId,
     val observation: ObservationResult
+)
+
+/** One structured-decision submission for [MultiEnvService.submitDecisionBatch]. */
+data class DecisionRequest(
+    val envId: EnvId,
+    val response: DecisionResponse
 )
