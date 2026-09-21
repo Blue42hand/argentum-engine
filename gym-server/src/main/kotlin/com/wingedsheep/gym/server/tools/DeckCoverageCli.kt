@@ -25,13 +25,16 @@ import java.nio.file.Path
  *
  *   ./gradlew -q :gym-server:commanderGymDeckCoverage \
  *     -PdeckFiles="/path/a.txt;/path/b.txt" \
- *     -PcoverageOutput="/tmp/coverage.json"
+ *     -PcoverageOutput="/tmp/coverage.json" \
+ *     -PregistryNamesOutput="/tmp/registry-card-names.txt"
  */
 fun main(args: Array<String>) {
     val options = CoverageCliOptions.parse(args)
     require(options.deckFiles.isNotEmpty()) { "At least one deck file is required" }
 
     val registry = createGymCardRegistry()
+    options.registryNamesOutput?.let { writeRegistryNames(it, registry) }
+
     val decks = options.deckFiles.map { analyzeDeck(it, registry) }
     val report = DeckCoverageReport(
         registryCardNames = registry.size,
@@ -89,6 +92,14 @@ internal data class ParsedDeck(
     val commander: String?,
     val library: List<String>,
 )
+
+internal fun writeRegistryNames(path: Path, registry: CardRegistry) {
+    path.parent?.let { Files.createDirectories(it) }
+    Files.write(
+        path,
+        registry.allCardNames().sorted(),
+    )
+}
 
 internal fun analyzeDeck(path: Path, registry: CardRegistry): DeckCoverage {
     val parsed = parseDeck(path)
@@ -226,11 +237,13 @@ private enum class DeckSection { DECK, COMMANDER, SIDEBOARD, COMPANION }
 private data class CoverageCliOptions(
     val deckFiles: List<Path>,
     val output: Path?,
+    val registryNamesOutput: Path?,
 ) {
     companion object {
         fun parse(args: Array<String>): CoverageCliOptions {
             val deckFiles = mutableListOf<Path>()
             var output: Path? = null
+            var registryNamesOutput: Path? = null
             var i = 0
             while (i < args.size) {
                 when (val arg = args[i]) {
@@ -238,11 +251,15 @@ private data class CoverageCliOptions(
                         require(i + 1 < args.size) { "--output requires a path" }
                         output = Path.of(args[++i])
                     }
+                    "--registry-names-output" -> {
+                        require(i + 1 < args.size) { "--registry-names-output requires a path" }
+                        registryNamesOutput = Path.of(args[++i])
+                    }
                     else -> deckFiles.add(Path.of(arg))
                 }
                 i++
             }
-            return CoverageCliOptions(deckFiles, output)
+            return CoverageCliOptions(deckFiles, output, registryNamesOutput)
         }
     }
 }
