@@ -87,6 +87,53 @@
     ]
 }
 
+// Chandra's Emberling
+{
+    "name": "Chandra's Emberling",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Gremlin Elemental",
+    "oracleText": "Haste\nWhenever you cast a noncreature spell, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "76",
+        "artist": "Borja Pindado",
+        "flavorText": "When Chandra needed to summon a chaotic distraction, only one form came to mind.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/a/3a64c5f4-9cfc-4d19-bd99-13d619b1aa9d.jpg?1789385708",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Dedicated Commons
 {
     "name": "Dedicated Commons",
