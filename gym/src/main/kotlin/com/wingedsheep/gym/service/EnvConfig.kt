@@ -45,7 +45,11 @@ data class EnvConfig(
      */
     val revealAll: Boolean = false,
 
-    /** Deterministic game RNG seed. `null` selects fresh engine entropy. */
+    /**
+     * Deterministic game RNG seed. `null` selects fresh engine entropy on create and reset.
+     * Controls game initialization and subsequent game randomness, not [DeckSpec.RandomSealed]
+     * deck generation. Use identical explicit decks to reproduce a game.
+     */
     val seed: Long? = null
 ) {
     init {
