@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 25 / 285
+**Implemented:** 26 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 25   |
+| Extras     | 285   | 26   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -27,7 +27,7 @@
 - [ ] Archive Arbiter
 - [ ] Arni, Humble Scribe
 - [ ] Arni, Renowned Champion
-- [ ] Artifist Acumen
+- [x] Artifist Acumen
 - [ ] Avatar of Burgeoning Echoes
 - [ ] Awaken the Inferno
 - [ ] Bestial Incursion

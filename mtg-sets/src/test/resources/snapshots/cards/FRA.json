@@ -1,3 +1,49 @@
+// Artifist Acumen
+{
+    "name": "Artifist Acumen",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Creatures you control gain first strike until end of turn.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "GrantKeyword",
+                        "keyword": "FIRST_STRIKE",
+                        "target": "Self"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "artist": "Anna Podedworna",
+        "flavorText": "\"It's important to emphasize core principles, but to win duels you must extrapolate your designs to work in a variety of formats.\"\n—*Advanced Tethering*",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/d/7d3b720d-f27c-462a-8f80-15748e5086e1.jpg?1789729762",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Dedicated Commons
 {
     "name": "Dedicated Commons",
