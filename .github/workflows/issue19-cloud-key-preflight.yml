@@ -1,0 +1,93 @@
+name: Issue 19 Cloud Key preflight
+
+on:
+  push:
+    branches: [ "codex/issue-19-cloud-key-preflight" ]
+    paths:
+      - ".github/workflows/issue19-cloud-key-preflight.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+        with:
+          ref: codex/issue-19-cloud-key-preflight
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Install just
+        run: |
+          set -euxo pipefail
+          mkdir -p "$HOME/.local/bin"
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Verify canonical Scryfall card, rulings, printing, and image
+        run: |
+          set -euxo pipefail
+          UA='CommanderGymArgentumCoverage/1.0 (github.com/Blue42hand/argentum-engine)'
+          curl --fail --silent --show-error \
+            -H "User-Agent: $UA" -H 'Accept: application/json' \
+            'https://api.scryfall.com/cards/named?exact=Cloud%20Key&set=fut' \
+            -o /tmp/cloud-key.json
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/cloud-key.json'))
+          keep={k:c.get(k) for k in ['id','oracle_id','name','mana_cost','type_line','oracle_text','set','set_name','set_type','collector_number','rarity','artist','flavor_text','released_at','rulings_uri','prints_search_uri']}
+          keep['image_normal']=(c.get('image_uris') or {}).get('normal')
+          print(json.dumps(keep, indent=2, ensure_ascii=False))
+          assert c['name']=='Cloud Key'
+          assert c['set']=='fut'
+          assert c['collector_number']=='160'
+          assert c['set_type']=='expansion'
+          assert c['type_line']=='Artifact'
+          assert c['mana_cost']=='{3}'
+          assert c['image_uris']['normal'].startswith('https://cards.scryfall.io/')
+          PY
+
+          RULINGS=$(python3 -c "import json; print(json.load(open('/tmp/cloud-key.json'))['rulings_uri'])")
+          curl --fail --silent --show-error \
+            -H "User-Agent: $UA" -H 'Accept: application/json' \
+            "$RULINGS" -o /tmp/cloud-key-rulings.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/cloud-key-rulings.json'))
+          print(json.dumps(r.get('data', []), indent=2, ensure_ascii=False))
+          assert any(x.get('published_at')=='2021-03-19' and 'generic mana' in x.get('comment','') for x in r.get('data', []))
+          PY
+
+          curl --fail --silent --show-error \
+            -H "User-Agent: $UA" -H 'Accept: application/json' \
+            'https://api.scryfall.com/cards/search?q=%21%22Cloud%20Key%22&unique=prints&order=released&dir=asc' \
+            -o /tmp/cloud-key-prints.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/cloud-key-prints.json'))['data']
+          real=[c for c in d if c.get('set_type')=='expansion']
+          print(json.dumps([{k:c.get(k) for k in ['set','set_name','set_type','released_at','collector_number']} for c in d[:12]], indent=2))
+          assert real, 'no real expansion printing found'
+          assert real[0]['set']=='fut', real[0]
+          assert real[0]['collector_number']=='160', real[0]
+          PY
+
+          IMAGE=$(python3 -c "import json; print(json.load(open('/tmp/cloud-key.json'))['image_uris']['normal'])")
+          curl --fail --silent --show-error --head "$IMAGE" | head -20
+
+      - name: Run Assay and fidelity preflight
+        run: |
+          set -euxo pipefail
+          just assay parse "Cloud Key" | tee /tmp/cloud-key-assay-parse.txt
+          just assay explain "Cloud Key" | tee /tmp/cloud-key-assay-explain.txt
+          just coverage-fidelity --emit "Cloud Key" | tee /tmp/cloud-key-fidelity.txt
