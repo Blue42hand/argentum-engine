@@ -33,11 +33,10 @@ import org.springframework.web.bind.annotation.RestController
  * HTTP façade over [MultiEnvService]. Each endpoint is a near-verbatim
  * mapping onto a service method — business logic stays in the service.
  *
- * **Concurrency model.** A trainer owns an env and calls sequentially.
- * Batched calls for different envs (`/envs/step-batch`) are safe because
- * the service fans out per-env through [com.wingedsheep.gym.service.EnvWorkerPool].
- * Two concurrent calls naming the same envId race on the underlying
- * `GameEnvironment` — don't do that.
+ * **Concurrency model.** Calls naming the same env are serialized by
+ * [MultiEnvService], including singular requests racing batch items. Batched calls for
+ * different envs (`/envs/step-batch`) still fan out through
+ * [com.wingedsheep.gym.service.EnvWorkerPool] and run in parallel.
  *
  * **Action-ID stability.** IDs inside `TrainingObservation.legalActions`
  * are only valid for the observation they came in. After any step/reset,
@@ -271,7 +270,7 @@ class EnvController(
 
     @Operation(
         summary = "Advance many envs in parallel",
-        description = "Results are returned in request order. Safe because each env runs in its own worker thread."
+        description = "Results are returned in request order. Distinct envs run in parallel; calls naming the same env are serialized."
     )
     @PostMapping("/step-batch")
     fun stepBatch(@RequestBody items: List<StepBatchItem>): List<StepBatchResult> {
