@@ -125,7 +125,7 @@ class AiWebSocketSession(
         }
     }
 
-    private suspend fun handleServerMessage(message: ServerMessage) {
+    internal suspend fun handleServerMessage(message: ServerMessage) {
         when (message) {
             is ServerMessage.StateUpdate -> {
                 logger.info("AI received StateUpdate: phase={}, step={}, priority={}, legalActions={}, pendingDecision={}",

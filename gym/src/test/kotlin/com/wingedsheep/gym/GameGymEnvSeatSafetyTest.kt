@@ -1,9 +1,11 @@
 package com.wingedsheep.gym
 
-import com.wingedsheep.engine.core.ChooseDoorContinuation
+import com.wingedsheep.engine.core.MayAbilityContinuation
+import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.GameConfig
 import com.wingedsheep.engine.core.PlayerConfig
+import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.registry.CardRegistry
@@ -50,11 +52,12 @@ class GameGymEnvSeatSafetyTest : FunSpec({
                     context = DecisionContext(sourceId = EntityId("hidden-source"))
                 )
             },
-            answer = ChooseDoorContinuation(
-                controllerId = bob,
-                roomId = EntityId("unused-room"),
-                candidateFaceIds = emptyList(),
-                lock = true
+            answer = MayAbilityContinuation(
+                playerId = bob,
+                sourceName = null,
+                effectIfYes = null,
+                effectIfNo = null,
+                effectContext = EffectContext(sourceId = null, controllerId = bob)
             )
         )
         environment.restore(suspended.state, environment.playerIds)
@@ -74,6 +77,12 @@ class GameGymEnvSeatSafetyTest : FunSpec({
             gymEnv.step(0, ActionParams())
         }
 
+        val beforeRejectedDecision = environment.state
+        shouldThrow<IllegalArgumentException> {
+            gymEnv.submitDecision(YesNoResponse(suspended.state.pendingDecision!!.id, false))
+        }
+        environment.state shouldBe beforeRejectedDecision
+
         val bobView = gymEnv.observeForPlayer(bob).observation as TrainingObservation
         bobView.perspectivePlayerId shouldBe bob
         bobView.agentToAct shouldBe bob
@@ -84,8 +93,19 @@ class GameGymEnvSeatSafetyTest : FunSpec({
             gymEnv.observeForPlayer(EntityId("not-seated"))
         }
 
+        // Observing the other seat must revoke both folded and structured decisions.
+        gymEnv.observeForPlayer(alice)
+        shouldThrow<IllegalArgumentException> {
+            gymEnv.submitDecision(YesNoResponse(suspended.state.pendingDecision!!.id, false))
+        }
+        shouldThrow<IllegalArgumentException> { gymEnv.step(0, ActionParams()) }
+
         val debugView = gymEnv.observe(revealAll = true).observation as TrainingObservation
         debugView.pendingDecision.shouldNotBeNull()
         debugView.legalActions.shouldNotBeEmpty()
+
+        gymEnv.observeForPlayer(bob)
+        gymEnv.submitDecision(YesNoResponse(suspended.state.pendingDecision!!.id, false))
+        environment.state.pendingDecision shouldBe null
     }
 })
