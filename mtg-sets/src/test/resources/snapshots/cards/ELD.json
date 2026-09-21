@@ -570,6 +570,82 @@
     ]
 }
 
+// Escape to the Wilds
+{
+    "name": "Escape to the Wilds",
+    "manaCost": "{3}{R}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Exile the top five cards of your library. You may play cards exiled this way until the end of your next turn.\nYou may play an additional land this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    },
+                    "storeAs": "impulseExiled"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "impulseExiled",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    }
+                },
+                {
+                    "type": "GrantMayPlayFromExile",
+                    "from": "impulseExiled",
+                    "expiry": {
+                        "type": "UntilControllerStep",
+                        "step": "CLEANUP",
+                        "includeCurrentTurn": false
+                    }
+                },
+                {
+                    "type": "PlayAdditionalLands",
+                    "count": 1
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "189",
+        "rarity": "RARE",
+        "artist": "Chris Ostrowski",
+        "flavorText": "The guards kindled the hearth and locked the door to Ellwen's chamber. By morning, the fire was out and Ellwen was gone.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/e/3e26c10b-179f-4a6e-bc8d-3ec1d6783fb9.jpg?1783932598",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "Escape to the Wilds doesn't change when you can play the exiled cards. For example, if you exile a sorcery card, you can cast it only during your main phase when the stack is empty. If you exile a land card, you can play it only during your main phase and only if you have an available land play remaining."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "Casting an exiled card causes it to leave exile. You can't cast it multiple times."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "The additional land that you play doesn't have to be from among the exiled cards."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If you don't play a card exiled this way, it remains in exile."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
 // Faerie Formation
 {
     "name": "Faerie Formation",
