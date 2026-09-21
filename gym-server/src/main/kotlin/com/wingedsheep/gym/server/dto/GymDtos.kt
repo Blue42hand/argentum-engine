@@ -3,6 +3,7 @@ package com.wingedsheep.gym.server.dto
 import com.wingedsheep.engine.core.DecisionResponse
 import com.wingedsheep.gym.contract.ActionParams
 import com.wingedsheep.gym.contract.Observation
+import com.wingedsheep.gym.service.EnvConfig
 import com.wingedsheep.gym.service.EnvId
 import com.wingedsheep.gym.service.SnapshotHandle
 import kotlinx.serialization.Serializable
@@ -30,6 +31,20 @@ data class CreateEnvResponse(
 data class StepBody(
     val actionId: Int,
     val params: ActionParams = ActionParams.EMPTY
+)
+
+/** Single entry for `POST /envs/reset-batch`. */
+@Serializable
+data class ResetBatchItem(
+    val envId: EnvId,
+    val config: EnvConfig
+)
+
+/** Result entry for `POST /envs/reset-batch`. */
+@Serializable
+data class ResetBatchResult(
+    val envId: EnvId,
+    val observation: Observation
 )
 
 /** Single entry for `POST /envs/step-batch`. */
