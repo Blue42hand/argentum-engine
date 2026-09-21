@@ -28,11 +28,11 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Each env is single-threaded. [MultiEnvService] serializes operations that name the
  * same [EnvId], including singular calls racing a batch item, while different envs run
- * independently in parallel via [observeBatch], [resetBatch], [stepBatch], [snapshotBatch],
- * [restoreBatch], or [submitDecisionBatch]. Read-only [observeBatch] may intentionally name the
- * same env more than once (for example to request multiple seat perspectives); those items serialize
- * on that env. This keeps mutable per-env state and action registries race-free without imposing a
- * global lock.
+ * independently in parallel via [observeBatch], [resetBatch], [stepBatch], [forkBatch],
+ * [snapshotBatch], [restoreBatch], or [submitDecisionBatch]. Read-only [observeBatch] may intentionally
+ * name the same env more than once (for example to request multiple seat perspectives); those items
+ * serialize on that env. This keeps mutable per-env state and action registries race-free without
+ * imposing a global lock.
  *
  * ## Registry regeneration
  *
@@ -233,6 +233,24 @@ class MultiEnvService(
         }
     }
 
+    /**
+     * Fork multiple distinct source envs in parallel. Each result preserves the source request order
+     * and the child order/count returned by singular [fork]. Duplicate source env IDs are rejected
+     * before scheduling so callers cannot accidentally expand the same branch point twice.
+     */
+    fun forkBatch(requests: List<ForkRequest>): List<Pair<EnvId, List<EnvId>>> {
+        if (requests.isEmpty()) return emptyList()
+        requireDistinctEnvIds("fork", requests.map { it.envId })
+        val tasks = requests.map { req ->
+            Callable {
+                withBatchContext("fork", req.envId) {
+                    req.envId to fork(req.envId, req.count)
+                }
+            }
+        }
+        return workerPool.invokeAll(tasks)
+    }
+
     fun snapshot(envId: EnvId): SnapshotHandle =
         withGameEnv(envId) { it.snapshot(snapshotCodec) }
 
@@ -368,6 +386,12 @@ data class ObserveRequest(
 data class ResetRequest(
     val envId: EnvId,
     val config: EnvConfig
+)
+
+/** One fork request for [MultiEnvService.forkBatch]. */
+data class ForkRequest(
+    val envId: EnvId,
+    val count: Int = 1
 )
 
 /** One snapshot-restore request for [MultiEnvService.restoreBatch]. */
