@@ -253,7 +253,11 @@ class EnvController(
     @Operation(
         summary = "Advance an env by one action",
         description = """
-            `actionId` must come from the most recent observation. Stale IDs return 400.
+            `actionId` must come from the most recent observation. Remote/asynchronous callers
+            should also send that observation's `stateDigest` as `expectedStateDigest`; if another
+            operation has already advanced the env, the stale request fails closed before action
+            resolution. The field is optional for backwards compatibility.
+
             Optional `params` complete an action the ID alone can't describe — `attackers`
             (attacker id → defender id), `blockers` (blocker id → attackers blocked), `targets`,
             `xValue`. The candidates come from the same legal action's `validAttackers` /
@@ -266,15 +270,29 @@ class EnvController(
         @PathVariable id: String,
         @RequestBody body: StepBody
     ): Observation =
-        multiEnvService.step(StepRequest(EnvId(id), body.actionId, body.params)).observation
+        multiEnvService.step(
+            StepRequest(
+                envId = EnvId(id),
+                actionId = body.actionId,
+                params = body.params,
+                expectedStateDigest = body.expectedStateDigest
+            )
+        ).observation
 
     @Operation(
         summary = "Advance many envs in parallel",
-        description = "Results are returned in request order. Distinct envs run in parallel; calls naming the same env are serialized."
+        description = "Results are returned in request order. Distinct envs run in parallel; calls naming the same env are serialized. Each item may include `expectedStateDigest` to fail closed on stale actions."
     )
     @PostMapping("/step-batch")
     fun stepBatch(@RequestBody items: List<StepBatchItem>): List<StepBatchResult> {
-        val requests = items.map { StepRequest(it.envId, it.actionId, it.params) }
+        val requests = items.map {
+            StepRequest(
+                envId = it.envId,
+                actionId = it.actionId,
+                params = it.params,
+                expectedStateDigest = it.expectedStateDigest
+            )
+        }
         return multiEnvService.stepBatch(requests).map { (envId, obs) ->
             StepBatchResult(envId, obs.observation)
         }
