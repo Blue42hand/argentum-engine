@@ -73,6 +73,7 @@ class GameGymEnv(
             "Decision ID mismatch: response=${response.decisionId}, pending=${pending.id}"
         }
         environment.step(SubmitDecision(pending.playerId, response))
+        failOnDecisionRejection(response.decisionId)
         return build(defaultRevealAll)
     }
 
@@ -154,6 +155,13 @@ class GameGymEnv(
     private fun failOnRejection(actionId: Int) {
         environment.lastRejection?.let {
             throw IllegalArgumentException("Action $actionId rejected by the engine: $it")
+        }
+    }
+
+    /** Raw structured decisions bypass the action registry, so surface their rejection explicitly. */
+    private fun failOnDecisionRejection(decisionId: String) {
+        environment.lastRejection?.let {
+            throw IllegalArgumentException("Decision $decisionId rejected by the engine: $it")
         }
     }
 }
