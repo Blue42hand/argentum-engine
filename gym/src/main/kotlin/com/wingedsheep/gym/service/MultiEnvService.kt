@@ -28,8 +28,10 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Each env is single-threaded. [MultiEnvService] serializes operations that name the
  * same [EnvId], including singular calls racing a batch item, while different envs run
- * independently in parallel via [resetBatch], [stepBatch], or [submitDecisionBatch]. This keeps
- * mutable per-env state and action registries race-free without imposing a global lock.
+ * independently in parallel via [observeBatch], [resetBatch], [stepBatch], or
+ * [submitDecisionBatch]. Read-only [observeBatch] may intentionally name the same env more than
+ * once (for example to request multiple seat perspectives); those items serialize on that env.
+ * This keeps mutable per-env state and action registries race-free without imposing a global lock.
  *
  * ## Registry regeneration
  *
@@ -127,6 +129,24 @@ class MultiEnvService(
                     "Env $envId is not a game env; player perspective is not supported"
                 )).observeForPlayer(perspectivePlayerId, revealAll)
         }
+    }
+
+    /**
+     * Observe N environments in parallel without advancing them. Items preserve request order and
+     * delegate to [observe], so seat validation and hidden-information projection stay authoritative
+     * in one place. Unlike mutating batches, repeated env IDs are allowed so callers can request
+     * multiple player perspectives of one game in a single round-trip.
+     */
+    fun observeBatch(requests: List<ObserveRequest>): List<Pair<EnvId, ObservationResult>> {
+        if (requests.isEmpty()) return emptyList()
+        val tasks = requests.map { req ->
+            Callable {
+                withBatchContext("observe", req.envId) {
+                    req.envId to observe(req.envId, req.revealAll, req.perspectivePlayerId)
+                }
+            }
+        }
+        return workerPool.invokeAll(tasks)
     }
 
     /**
@@ -282,6 +302,13 @@ class MultiEnvService(
 data class CreatedEnv(
     val envId: EnvId,
     val observation: ObservationResult
+)
+
+/** One read-only observation request for [MultiEnvService.observeBatch]. */
+data class ObserveRequest(
+    val envId: EnvId,
+    val revealAll: Boolean? = null,
+    val perspectivePlayerId: EntityId? = null
 )
 
 /** One reset request for [MultiEnvService.resetBatch]. */
