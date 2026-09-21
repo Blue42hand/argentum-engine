@@ -104,6 +104,13 @@ data class DecisionBatchResult(
     val observation: Observation
 )
 
+/** Result entry for `POST /envs/snapshot-batch`. */
+@Serializable
+data class SnapshotBatchResult(
+    val envId: EnvId,
+    val handle: SnapshotHandle
+)
+
 /** Body for `POST /envs/{id}/restore`. */
 @Serializable
 data class RestoreBody(val handle: SnapshotHandle)
