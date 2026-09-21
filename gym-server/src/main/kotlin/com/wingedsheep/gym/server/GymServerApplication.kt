@@ -20,7 +20,10 @@ import org.springframework.boot.runApplication
  *   thread + heartbeat header is the next step.
  * - **Byte-based snapshots**: `SnapshotHandle.Slot` is still in-process.
  *   Distributed MCTS will want a `SnapshotHandle.Bytes` variant.
- * - **Metrics / observability**: no Prometheus, no structured logs.
+ *
+ * Standard Spring Actuator/Micrometer HTTP request metrics are exposed by
+ * this transport so persistent-host qualification can measure request count,
+ * latency and failures without changing the Gym game/environment contract.
  */
 @SpringBootApplication
 class GymServerApplication
