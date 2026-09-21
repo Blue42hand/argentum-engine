@@ -121,6 +121,7 @@ class MultiEnvService(
     /** Advance N envs in parallel. Each env is single-threaded inside its own task. */
     fun stepBatch(requests: List<StepRequest>): List<Pair<EnvId, ObservationResult>> {
         if (requests.isEmpty()) return emptyList()
+        requireDistinctEnvIds("step", requests.map { it.envId })
         val tasks = requests.map { req -> Callable { req.envId to step(req) } }
         return workerPool.invokeAll(tasks)
     }
@@ -139,6 +140,7 @@ class MultiEnvService(
      */
     fun submitDecisionBatch(requests: List<DecisionRequest>): List<Pair<EnvId, ObservationResult>> {
         if (requests.isEmpty()) return emptyList()
+        requireDistinctEnvIds("decision", requests.map { it.envId })
         val tasks = requests.map { req -> Callable { req.envId to submitDecision(req.envId, req.response) } }
         return workerPool.invokeAll(tasks)
     }
@@ -191,6 +193,14 @@ class MultiEnvService(
         format = format,
         seed = seed
     )
+
+    private fun requireDistinctEnvIds(operation: String, envIds: List<EnvId>) {
+        val seen = HashSet<EnvId>(envIds.size)
+        val duplicate = envIds.firstOrNull { !seen.add(it) }
+        require(duplicate == null) {
+            "$operation batch contains duplicate envId: $duplicate"
+        }
+    }
 
     private fun requireEnv(envId: EnvId): GymEnv =
         envs[envId] ?: throw NoSuchElementException("Unknown envId: $envId")
