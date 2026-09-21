@@ -28,8 +28,8 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Each env is single-threaded. [MultiEnvService] serializes operations that name the
  * same [EnvId], including singular calls racing a batch item, while different envs run
- * independently in parallel via [stepBatch] or [submitDecisionBatch]. This keeps mutable
- * per-env state and action registries race-free without imposing a global lock.
+ * independently in parallel via [resetBatch], [stepBatch], or [submitDecisionBatch]. This keeps
+ * mutable per-env state and action registries race-free without imposing a global lock.
  *
  * ## Registry regeneration
  *
@@ -82,6 +82,20 @@ class MultiEnvService(
     /** Reset an existing game env while keeping the same [EnvId]. */
     fun reset(envId: EnvId, config: EnvConfig): ObservationResult =
         withGameEnv(envId) { it.reset(config.toGameConfig()) }
+
+    /** Reset N distinct game envs in parallel while preserving each [EnvId]. */
+    fun resetBatch(requests: List<ResetRequest>): List<Pair<EnvId, ObservationResult>> {
+        if (requests.isEmpty()) return emptyList()
+        requireDistinctEnvIds("reset", requests.map { it.envId })
+        val tasks = requests.map { req ->
+            Callable {
+                withBatchContext("reset", req.envId) {
+                    req.envId to reset(req.envId, req.config)
+                }
+            }
+        }
+        return workerPool.invokeAll(tasks)
+    }
 
     /** Drop envs from the registry. Idempotent and ordered after in-flight operations. */
     fun dispose(envIds: Collection<EnvId>) {
@@ -268,6 +282,12 @@ class MultiEnvService(
 data class CreatedEnv(
     val envId: EnvId,
     val observation: ObservationResult
+)
+
+/** One reset request for [MultiEnvService.resetBatch]. */
+data class ResetRequest(
+    val envId: EnvId,
+    val config: EnvConfig
 )
 
 /** One structured-decision submission for [MultiEnvService.submitDecisionBatch]. */
