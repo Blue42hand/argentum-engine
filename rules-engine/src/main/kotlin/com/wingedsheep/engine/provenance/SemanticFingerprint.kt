@@ -35,17 +35,26 @@ object SemanticFingerprint {
         classDiscriminator = "type"
     }
 
-    /** Stable identity of one engine-authored legal action template. */
-    fun forLegalAction(action: LegalAction, schemaScope: String): String {
+    /**
+     * Stable identity of one engine-authored action template.
+     *
+     * External player surfaces sometimes retain only the projected action type plus the native
+     * [GameAction], rather than the internal [LegalAction] wrapper. Keeping this primitive here
+     * lets those surfaces use the same fingerprint algorithm without rebuilding Gym semantics.
+     */
+    fun forGameAction(actionType: String, action: GameAction, schemaScope: String): String {
         val payload = buildJsonObject {
-            // Keep the key name stable so existing Gym fingerprints remain byte-for-byte identical
-            // when Gym delegates here with its current SchemaHash.
+            // Keep the key name stable so existing Gym fingerprints remain byte-for-byte identical.
             put("schemaHash", schemaScope)
-            put("actionType", action.actionType)
-            put("action", json.encodeToJsonElement(GameAction.serializer(), action.action))
+            put("actionType", actionType)
+            put("action", json.encodeToJsonElement(GameAction.serializer(), action))
         }
         return "$ACTION_VERSION:${sha256(canonical(payload))}"
     }
+
+    /** Stable identity of one engine-authored legal action template. */
+    fun forLegalAction(action: LegalAction, schemaScope: String): String =
+        forGameAction(action.actionType, action.action, schemaScope)
 
     /**
      * Stable identity of a pending engine decision, excluding its routing nonce and fields whose
