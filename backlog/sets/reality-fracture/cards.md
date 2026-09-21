@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 20 / 285
+**Implemented:** 25 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 20   |
+| Extras     | 285   | 25   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -31,7 +31,7 @@
 - [ ] Avatar of Burgeoning Echoes
 - [ ] Awaken the Inferno
 - [ ] Bestial Incursion
-- [ ] Blazing Crescendo
+- [x] Blazing Crescendo
 - [ ] Blessed Ghoul
 - [ ] Bloodline Recollector
 - [ ] Bloombrute
@@ -142,7 +142,7 @@
 - [ ] Koth of the Homestead
 - [ ] Koth, the Geomancer
 - [ ] Kwia Vigorbloom
-- [ ] Last Gasp
+- [x] Last Gasp
 - [ ] Lich's Relic
 - [ ] Liliana the Faultless
 - [ ] Liliana the Repentant
@@ -239,7 +239,7 @@
 - [ ] Terminal Criticism
 - [ ] Tether Technician
 - [ ] Tethermage's Advantage
-- [ ] Tetsuko Umezawa, Fugitive
+- [x] Tetsuko Umezawa, Fugitive
 - [ ] Tetsuko Umezawa, Pursuer
 - [ ] Teyo, Diamondblade Mage
 - [ ] Teyo, Lightshield Expert
@@ -264,7 +264,7 @@
 - [ ] Uldaros Theorix
 - [ ] Undulating Witness
 - [ ] Unflinching Hortimancer
-- [ ] Unsummon
+- [x] Unsummon
 - [ ] Variable Chaser
 - [ ] Verdant Kraken
 - [x] Vigorbloom Annex
@@ -294,7 +294,7 @@
 - [ ] Woodwork Prodigy
 - [ ] Wrath of the Bloodmane
 - [ ] Wrecking Gecko
-- [ ] Yargle, Glutton of Urborg
+- [x] Yargle, Glutton of Urborg
 - [ ] Yargle, Goliath of Otaria
 - [ ] Yoshimaru, Beloved Companion
 - [ ] Yoshimaru, Scrappy Stray
