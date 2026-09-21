@@ -53,5 +53,8 @@ tasks.register<JavaExec>("commanderGymDeckCoverage") {
         providers.gradleProperty("coverageOutput").orNull?.let {
             args("--output", it)
         }
+        providers.gradleProperty("registryNamesOutput").orNull?.let {
+            args("--registry-names-output", it)
+        }
     }
 }
