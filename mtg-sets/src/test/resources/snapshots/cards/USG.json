@@ -4904,6 +4904,79 @@
     ]
 }
 
+// Victimize
+{
+    "name": "Victimize",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose two target creature cards in your graveyard. Sacrifice a creature. If you do, return the chosen cards to the battlefield tapped.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.DoAction",
+                "action": {
+                    "type": "Sacrifice",
+                    "filter": "creature"
+                },
+                "successCriterion": "SuccessCriterion.PermanentsSacrificed"
+            },
+            "then": {
+                "type": "ForEach",
+                "space": "IterationSpace.Targets",
+                "body": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
+                    "destination": "Battlefield",
+                    "placement": "Tapped"
+                }
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 2,
+                "filter": {
+                    "baseFilter": "creature own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "two target creature cards in your graveyard"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "166",
+        "rarity": "UNCOMMON",
+        "artist": "Val Mayerik",
+        "flavorText": "The priest cast Xantcha to the ground. \"It is defective. We must scrap it.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/caafe7da-0167-4c53-bbad-172f900d137b.jpg?1783946336",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "You must choose two target creature cards. You can't cast Victimize targeting only one creature card."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If one of the targeted creature cards is an illegal target as Victimize resolves, you still sacrifice a creature and return the other card to the battlefield. If both targets are illegal, Victimize doesn't resolve and you won't sacrifice a creature."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "The creature sacrificed for Victimize isn't chosen until it resolves. You can't sacrifice one of the creature cards targeted by Victimize because those cards are in your graveyard at that time."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "As Victimize resolves, you must sacrifice a creature if able. You can't choose not to sacrifice one if you control a creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Voice of Grace
 {
     "name": "Voice of Grace",
