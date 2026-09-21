@@ -3,9 +3,12 @@ package com.wingedsheep.gym
 import com.wingedsheep.engine.core.ChooseDoorContinuation
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.GameConfig
+import com.wingedsheep.engine.core.MayAbilityContinuation
 import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.core.YesNoDecision
+import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.core.suspendForDecision
+import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.gym.contract.ActionParams
 import com.wingedsheep.gym.contract.TrainingObservation
@@ -115,5 +118,73 @@ class GameGymEnvSeatSafetyTest : FunSpec({
         secondDebugView.pendingDecision shouldNotBe null
         secondDebugView.pendingDecision!!.semanticId shouldNotBe firstDebugDecision.semanticId
         secondDebugView.stateDigest shouldNotBe firstDebugView.stateDigest
+    }
+
+    test("raw structured decisions require the deciding seat's latest observation") {
+        val environment = GameEnvironment.create(registry())
+        environment.reset(
+            GameConfig(
+                players = listOf(
+                    PlayerConfig("Alice", Deck.of("Mountain" to 20)),
+                    PlayerConfig("Bob", Deck.of("Mountain" to 20))
+                ),
+                skipMulligans = true,
+                startingPlayerIndex = 0,
+                seed = 20260920L
+            )
+        )
+
+        val alice = environment.playerIds[0]
+        val bob = environment.playerIds[1]
+        val suspended = environment.state.suspendForDecision(
+            question = { id ->
+                YesNoDecision(
+                    id = id,
+                    playerId = bob,
+                    prompt = "Secret decision for Bob",
+                    context = DecisionContext(sourceId = EntityId("hidden-source"))
+                )
+            },
+            answer = MayAbilityContinuation(
+                playerId = bob,
+                sourceName = null,
+                effectIfYes = null,
+                effectIfNo = null,
+                effectContext = EffectContext(sourceId = null, controllerId = bob)
+            )
+        )
+        environment.restore(suspended.state, environment.playerIds)
+
+        val gymEnv = GameGymEnv(
+            environment = environment,
+            perspectivePlayerIndex = 0,
+            defaultRevealAll = false
+        )
+        val decisionId = requireNotNull(suspended.state.pendingDecision).id
+
+        val aliceView = gymEnv.observe().observation as TrainingObservation
+        aliceView.perspectivePlayerId shouldBe alice
+        aliceView.pendingDecision shouldBe null
+
+        val beforeRejectedDecision = environment.state
+        shouldThrow<IllegalArgumentException> {
+            gymEnv.submitDecision(YesNoResponse(decisionId, false))
+        }
+        environment.state shouldBe beforeRejectedDecision
+
+        val bobView = gymEnv.observeForPlayer(bob).observation as TrainingObservation
+        bobView.pendingDecision.shouldNotBeNull()
+
+        // Looking through another non-acting seat revokes the raw decision authority again.
+        gymEnv.observeForPlayer(alice)
+        shouldThrow<IllegalArgumentException> {
+            gymEnv.submitDecision(YesNoResponse(decisionId, false))
+        }
+        environment.state shouldBe beforeRejectedDecision
+
+        // Re-observing the deciding seat authorizes this exact pending decision.
+        gymEnv.observeForPlayer(bob)
+        gymEnv.submitDecision(YesNoResponse(decisionId, false))
+        environment.state.pendingDecision shouldBe null
     }
 })
