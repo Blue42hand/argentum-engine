@@ -63,9 +63,10 @@ class MultiEnvService(
         val env = GameEnvironment.create(cardRegistry)
         env.reset(gameConfig)
         val gymEnv = GameGymEnv(env, config.perspectivePlayerIndex, config.revealAll)
+        val observation = gymEnv.observe()
         val envId = EnvId.generate()
         envs[envId] = gymEnv
-        return CreatedEnv(envId, gymEnv.observe())
+        return CreatedEnv(envId, observation)
     }
 
     /**
@@ -79,9 +80,10 @@ class MultiEnvService(
             basics = sealed.basics,
             targetSize = config.targetSize
         )
+        val observation = env.observe()
         val envId = EnvId.generate()
         envs[envId] = env
-        return CreatedEnv(envId, env.observe())
+        return CreatedEnv(envId, observation)
     }
 
     /** Reset an existing game env while keeping the same [EnvId]. */
