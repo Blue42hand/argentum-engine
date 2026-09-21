@@ -26,4 +26,14 @@ class SnapshotController(
         multiEnvService.disposeSnapshot(handle)
         return ResponseEntity.noContent().build()
     }
+
+    @Operation(
+        summary = "Dispose many snapshots",
+        description = "Releases many retained snapshot states in one round trip. Empty input, duplicate handles, and already-disposed handles are safe."
+    )
+    @DeleteMapping("/batch")
+    fun disposeBatch(@RequestBody handles: List<SnapshotHandle>): ResponseEntity<Unit> {
+        handles.forEach(multiEnvService::disposeSnapshot)
+        return ResponseEntity.noContent().build()
+    }
 }
