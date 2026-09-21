@@ -335,7 +335,7 @@ These are review targets, not declarations that new effect types are necessary. 
 
 ## Suggested implementation order
 
-1. Add FRA basic lands and earliest-printing reprint rows; the checklist remains 0/285 until actual definitions or printings land.
+1. FRA now has all five basic land types (25 artwork variants) and the five allied slowland reprints (10 printing records). Add the remaining reprints using their earliest canonical definitions. Scryfall still marks these basic-land variants outside boosters, so their limited-deckbuilding availability remains disabled pending corrected metadata.
 2. Run `just assay-ready FRA` to identify cards that compose existing vocabulary. Implement and verify those in small related batches.
 3. Build Empower Jace as a reusable mechanic with a planeswalker-token scenario, including multiple existing Jace tokens and zero added counters.
 4. Extend loyalty activation events/history and permissions, then author their payoffs. Address the focused investigations in separate mechanic-sized changes.

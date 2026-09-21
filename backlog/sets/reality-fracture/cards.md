@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 0 / 285
+**Implemented:** 10 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 0    |
+| Extras     | 285   | 10   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -61,7 +61,7 @@
 - [ ] Darklight Phoenix
 - [ ] Dedicated Commons
 - [ ] Denzilore Fatehold
-- [ ] Deserted Beach
+- [x] Deserted Beach
 - [ ] Desperate Futurescribe
 - [ ] Diviner of Victory
 - [ ] Divining Duelist
@@ -87,7 +87,7 @@
 - [ ] Ferocity of the Hunt
 - [ ] Flickering Hound
 - [ ] Flourishing Grapple
-- [ ] Forest
+- [x] Forest
 - [ ] Formidable Commons
 - [ ] Frostbite Pyromental
 - [ ] Fulminous Forte
@@ -111,7 +111,7 @@
 - [ ] Hallway Heckler
 - [ ] Hapatra, the Desert Fang
 - [ ] Hapatra, the Desert Frost
-- [ ] Haunted Ridge
+- [x] Haunted Ridge
 - [ ] Heartstring Puller
 - [ ] Heartwood Crafter
 - [ ] Hexhaven Battalion
@@ -125,7 +125,7 @@
 - [ ] Ingris Stingerquill
 - [ ] Innovative Commons
 - [ ] Inspired Tethermage
-- [ ] Island
+- [x] Island
 - [ ] Jace's Machinations
 - [ ] Jace, Reality Sculptor
 - [ ] Jiang Yanggu, Alone
@@ -163,19 +163,19 @@
 - [ ] Meticulous Commons
 - [ ] Mind Meanderer
 - [ ] Mindseeker Oculus
-- [ ] Mountain
+- [x] Mountain
 - [ ] Multiply by Zero
 - [ ] Murmuring Volume
 - [ ] No Admittance
 - [ ] Null Summoner
 - [ ] Omnipresence
-- [ ] Overgrown Farmland
+- [x] Overgrown Farmland
 - [ ] Overwrite the Multiverse
 - [ ] Paradox Shaper
 - [ ] Perfected Theory
 - [ ] Pia, Aether Ascetic
 - [ ] Pia, Determined Rebuilder
-- [ ] Plains
+- [x] Plains
 - [ ] Plan for All Outcomes
 - [ ] Pompous Battlemage
 - [ ] Precise Redaction
@@ -199,7 +199,7 @@
 - [ ] Return to the Light Realms
 - [ ] Rewrite Regrets
 - [ ] Rise of the Deathbringer
-- [ ] Rockfall Vale
+- [x] Rockfall Vale
 - [ ] Roiling Canopy
 - [ ] Room of Refuge
 - [ ] Ruric Thar, Biomagus
@@ -213,7 +213,7 @@
 - [ ] Seasoned Cryomancer
 - [ ] Semester Foreseer
 - [ ] Shatterwing Pegasus
-- [ ] Shipwreck Marsh
+- [x] Shipwreck Marsh
 - [ ] Silence the Echo
 - [ ] Simulacrum Shaper
 - [ ] Skilled Battlecarver
@@ -231,7 +231,7 @@
 - [ ] Sureshot Sower
 - [ ] Surgical Precision
 - [ ] Surveillance Phantasm
-- [ ] Swamp
+- [x] Swamp
 - [ ] Tam's Resistance
 - [ ] Tam, the Possibility
 - [ ] Tarmogoyf
