@@ -6,6 +6,7 @@ import com.wingedsheep.gym.contract.Observation
 import com.wingedsheep.gym.service.EnvConfig
 import com.wingedsheep.gym.service.EnvId
 import com.wingedsheep.gym.service.SnapshotHandle
+import com.wingedsheep.sdk.model.EntityId
 import kotlinx.serialization.Serializable
 
 /**
@@ -31,6 +32,22 @@ data class CreateEnvResponse(
 data class StepBody(
     val actionId: Int,
     val params: ActionParams = ActionParams.EMPTY
+)
+
+/** Single entry for `POST /envs/observe-batch`. */
+@Serializable
+data class ObserveBatchItem(
+    val envId: EnvId,
+    val revealAll: Boolean? = null,
+    val perspectivePlayerId: EntityId? = null
+)
+
+/** Result entry for `POST /envs/observe-batch`. */
+@Serializable
+data class ObserveBatchResult(
+    val envId: EnvId,
+    val perspectivePlayerId: EntityId? = null,
+    val observation: Observation
 )
 
 /** Single entry for `POST /envs/reset-batch`. */
