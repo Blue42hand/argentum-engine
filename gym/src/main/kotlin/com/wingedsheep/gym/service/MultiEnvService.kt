@@ -36,7 +36,9 @@ import java.util.concurrent.ConcurrentHashMap
  * ## Registry regeneration
  *
  * Every `reset` / `step` rebuilds the env's action mapping. Action IDs from a
- * previous step are invalidated.
+ * previous step are invalidated. Remote/asynchronous callers can additionally set
+ * [StepRequest.expectedStateDigest] to make stale-action rejection explicit even if
+ * an integer action ID happens to be reused by the newly-built registry.
  */
 class MultiEnvService(
     val cardRegistry: CardRegistry,
@@ -151,10 +153,20 @@ class MultiEnvService(
 
     /**
      * Advance a single env by the given [StepRequest.actionId]. The ID must
-     * come from the most-recent observation for that env.
+     * come from the most-recent observation for that env. If [StepRequest.expectedStateDigest]
+     * is supplied, verify it against the current authoritative observation before resolving the
+     * action ID so a delayed request cannot silently execute against a newer registry.
      */
     fun step(request: StepRequest): ObservationResult =
-        withEnv(request.envId) { it.step(request.actionId, request.params) }
+        withEnv(request.envId) { env ->
+            request.expectedStateDigest?.let { expected ->
+                val actual = env.observe().observation.stateDigest
+                check(actual == expected) {
+                    "Stale step for env ${request.envId}: expected stateDigest=$expected, current=$actual"
+                }
+            }
+            env.step(request.actionId, request.params)
+        }
 
     /** Advance N distinct envs in parallel; each env is serialized against other calls naming it. */
     fun stepBatch(requests: List<StepRequest>): List<Pair<EnvId, ObservationResult>> {
