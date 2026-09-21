@@ -44,6 +44,49 @@
     ]
 }
 
+// Cast Away Doubt
+{
+    "name": "Cast Away Doubt",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Draw two cards. Cast Away Doubt deals 2 damage to each player.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "51",
+        "artist": "Zara Alfonso",
+        "flavorText": "Every part of Jace's mind that objected to his plan had been cut away. The Theorist was all that remained.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3b5b28a4-0abd-4dc2-9856-c9a8d27f6a2d.jpg?1788353191",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dedicated Commons
 {
     "name": "Dedicated Commons",
