@@ -26,10 +26,10 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * ## Threading
  *
- * Each env is single-threaded — two calls naming the same [EnvId] must not
- * overlap or they race on mutable env fields. The intended use is: a trainer
- * owns an env and calls it sequentially, possibly interleaved with N other
- * envs which run in parallel via [stepBatch] or [submitDecisionBatch].
+ * Each env is single-threaded. [MultiEnvService] serializes operations that name the
+ * same [EnvId], including singular calls racing a batch item, while different envs run
+ * independently in parallel via [stepBatch] or [submitDecisionBatch]. This keeps mutable
+ * per-env state and action registries race-free without imposing a global lock.
  *
  * ## Registry regeneration
  *
@@ -81,11 +81,16 @@ class MultiEnvService(
 
     /** Reset an existing game env while keeping the same [EnvId]. */
     fun reset(envId: EnvId, config: EnvConfig): ObservationResult =
-        requireGameEnv(envId).reset(config.toGameConfig())
+        withGameEnv(envId) { it.reset(config.toGameConfig()) }
 
-    /** Drop envs from the registry. Idempotent. */
+    /** Drop envs from the registry. Idempotent and ordered after in-flight operations. */
     fun dispose(envIds: Collection<EnvId>) {
-        envIds.forEach { envs.remove(it) }
+        envIds.forEach { envId ->
+            val env = envs[envId] ?: return@forEach
+            synchronized(env) {
+                envs.remove(envId, env)
+            }
+        }
     }
 
     fun listEnvs(): Set<EnvId> = envs.keys.toSet()
@@ -99,9 +104,8 @@ class MultiEnvService(
         envId: EnvId,
         revealAll: Boolean? = null,
         perspectivePlayerId: EntityId? = null
-    ): ObservationResult {
-        val env = requireEnv(envId)
-        return if (perspectivePlayerId == null) {
+    ): ObservationResult = withEnv(envId) { env ->
+        if (perspectivePlayerId == null) {
             env.observe(revealAll)
         } else {
             (env as? GameGymEnv
@@ -116,9 +120,9 @@ class MultiEnvService(
      * come from the most-recent observation for that env.
      */
     fun step(request: StepRequest): ObservationResult =
-        requireEnv(request.envId).step(request.actionId, request.params)
+        withEnv(request.envId) { it.step(request.actionId, request.params) }
 
-    /** Advance N envs in parallel. Each env is single-threaded inside its own task. */
+    /** Advance N distinct envs in parallel; each env is serialized against other calls naming it. */
     fun stepBatch(requests: List<StepRequest>): List<Pair<EnvId, ObservationResult>> {
         if (requests.isEmpty()) return emptyList()
         requireDistinctEnvIds("step", requests.map { it.envId })
@@ -131,12 +135,12 @@ class MultiEnvService(
      * decision. Simple decisions are driven via [step] with a folded action ID.
      */
     fun submitDecision(envId: EnvId, response: DecisionResponse): ObservationResult =
-        requireGameEnv(envId).submitDecision(response)
+        withGameEnv(envId) { it.submitDecision(response) }
 
     /**
      * Submit structured decisions to N game envs in parallel. Results preserve request order,
-     * matching [stepBatch]. Each referenced env must still obey the service's single-owner rule:
-     * callers must not overlap another operation naming the same env.
+     * matching [stepBatch]. Duplicate env IDs are rejected; independent calls naming one of the
+     * same envs are serialized at the service boundary.
      */
     fun submitDecisionBatch(requests: List<DecisionRequest>): List<Pair<EnvId, ObservationResult>> {
         if (requests.isEmpty()) return emptyList()
@@ -152,20 +156,21 @@ class MultiEnvService(
     /** Fork an env N times. Children diverge independently from the next step on. */
     fun fork(srcEnvId: EnvId, count: Int = 1): List<EnvId> {
         require(count > 0) { "fork count must be positive" }
-        val src = requireEnv(srcEnvId)
-        return List(count) {
-            val newId = EnvId.generate()
-            envs[newId] = src.fork()
-            newId
+        return withEnv(srcEnvId) { src ->
+            List(count) {
+                val newId = EnvId.generate()
+                envs[newId] = src.fork()
+                newId
+            }
         }
     }
 
     fun snapshot(envId: EnvId): SnapshotHandle =
-        requireGameEnv(envId).snapshot(snapshotCodec)
+        withGameEnv(envId) { it.snapshot(snapshotCodec) }
 
     /** Restore a game env to a previously-snapshotted state. */
     fun restore(envId: EnvId, handle: SnapshotHandle): ObservationResult =
-        requireGameEnv(envId).restore(snapshotCodec, handle)
+        withGameEnv(envId) { it.restore(snapshotCodec, handle) }
 
     /** Release a snapshot slot so long-lived trainers do not retain old game states indefinitely. */
     fun disposeSnapshot(handle: SnapshotHandle) {
@@ -194,6 +199,28 @@ class MultiEnvService(
         seed = seed
     )
 
+    /**
+     * Run one operation under the environment's own monitor. Re-check the registry after taking the
+     * monitor so a request that fetched an env just before [dispose] cannot operate on it afterward.
+     */
+    private inline fun <T> withEnv(envId: EnvId, block: (GymEnv) -> T): T {
+        val env = requireEnv(envId)
+        return synchronized(env) {
+            if (envs[envId] !== env) {
+                throw NoSuchElementException("Unknown envId: $envId")
+            }
+            block(env)
+        }
+    }
+
+    private inline fun <T> withGameEnv(envId: EnvId, block: (GameGymEnv) -> T): T =
+        withEnv(envId) { env ->
+            block(
+                env as? GameGymEnv
+                    ?: throw IllegalStateException("Env $envId is not a game env; operation not supported")
+            )
+        }
+
     private fun requireDistinctEnvIds(operation: String, envIds: List<EnvId>) {
         val seen = HashSet<EnvId>(envIds.size)
         val duplicate = envIds.firstOrNull { !seen.add(it) }
@@ -204,10 +231,6 @@ class MultiEnvService(
 
     private fun requireEnv(envId: EnvId): GymEnv =
         envs[envId] ?: throw NoSuchElementException("Unknown envId: $envId")
-
-    private fun requireGameEnv(envId: EnvId): GameGymEnv =
-        requireEnv(envId) as? GameGymEnv
-            ?: throw IllegalStateException("Env $envId is not a game env; operation not supported")
 }
 
 /** Result of [MultiEnvService.create] — the new env's ID plus its opening observation. */
