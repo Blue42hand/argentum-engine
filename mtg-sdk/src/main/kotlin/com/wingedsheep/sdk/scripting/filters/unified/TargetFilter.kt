@@ -136,7 +136,7 @@ data class TargetFilter(
         /** Target blocking creature */
         val BlockingCreature = TargetFilter(GameObjectFilter.Companion.Creature.blocking())
 
-        /** Target blocked creature — an attacker that had a blocker declared against it (CR 509.1h) */
+        /** Target blocked creature — an attacker that has become blocked (CR 509.1h) */
         val BlockedCreature = TargetFilter(GameObjectFilter.Companion.Creature.blocked())
 
         /** Target attacking or blocking creature */

@@ -1,10 +1,13 @@
 package com.wingedsheep.engine.mechanics.combat
 
+import com.wingedsheep.engine.mechanics.battle.Battles
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.combat.BlockedComponent
+import com.wingedsheep.engine.state.components.combat.BlockersDeclaredThisCombatComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -26,6 +29,36 @@ internal object CombatStatusQueries {
         if (container.has<BlockedComponent>()) return true
         return state.getBattlefield().any { blockerId ->
             state.getEntity(blockerId)?.get<BlockingComponent>()?.blockedAttackerIds?.contains(entityId) == true
+        }
+    }
+
+    /** Unblocked status starts at block declaration, not at attack declaration (CR 509.1h). */
+    fun isUnblockedAttacker(
+        state: GameState,
+        entityId: EntityId,
+        container: ComponentContainer,
+        projectedController: (EntityId) -> EntityId?,
+    ): Boolean {
+        val attacking = container.get<AttackingComponent>() ?: return false
+        if (isBlockedAttacker(state, entityId, container)) return false
+        return when (state.step) {
+            Step.DECLARE_BLOCKERS -> {
+                val defender = attacking.defenderId
+                val defendingPlayer = if (defender in state.turnOrder) defender else
+                    Battles.protectorOf(state, defender) ?: projectedController(defender)
+                if (defendingPlayer != null) {
+                    state.sharedTurnTeam(defendingPlayer).all {
+                        state.getEntity(it)?.has<BlockersDeclaredThisCombatComponent>() == true
+                    }
+                } else {
+                    // The attacked permanent can leave after blockers were declared.
+                    state.turnOrder.any {
+                        state.getEntity(it)?.has<BlockersDeclaredThisCombatComponent>() == true
+                    }
+                }
+            }
+            Step.FIRST_STRIKE_COMBAT_DAMAGE, Step.COMBAT_DAMAGE, Step.END_COMBAT -> true
+            else -> false
         }
     }
 }

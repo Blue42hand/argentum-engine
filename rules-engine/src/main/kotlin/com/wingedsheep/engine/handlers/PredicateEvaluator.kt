@@ -1438,8 +1438,7 @@ class PredicateEvaluator {
             StatePredicate.IsBlocking -> container.has<BlockingComponent>()
             StatePredicate.IsBlocked -> CombatStatusQueries.isBlockedAttacker(state, entityId, container)
             StatePredicate.IsUnblocked ->
-                container.has<AttackingComponent>() &&
-                    !CombatStatusQueries.isBlockedAttacker(state, entityId, container)
+                CombatStatusQueries.isUnblockedAttacker(state, entityId, container, projected::getController)
 
             // Same combat band as the effect's source (CR 702.22). Resolves against
             // context.sourceId: matches the source creature itself, or a creature sharing the

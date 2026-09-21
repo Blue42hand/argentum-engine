@@ -89,9 +89,8 @@ object Targets {
     val BlockingCreature: TargetRequirement = TargetCreature(filter = TargetFilter.BlockingCreature)
 
     /**
-     * Target blocked creature (Smite) — an attacking creature that had at least one blocker
-     * declared against it. It stays a legal target for the rest of combat even once its blockers
-     * are gone (CR 509.1h).
+     * Target blocked creature (Smite) — an attacker with blocked status, even after its blockers
+     * leave combat. Leaving combat or an explicit unblock effect ends that status (CR 509.1h).
      */
     val BlockedCreature: TargetRequirement = TargetCreature(filter = TargetFilter.BlockedCreature)
 

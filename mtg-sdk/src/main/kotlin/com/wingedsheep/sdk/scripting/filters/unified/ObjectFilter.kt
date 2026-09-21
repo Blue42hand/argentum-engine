@@ -1020,16 +1020,15 @@ data class GameObjectFilter(
     )
 
     /**
-     * Must be a blocked creature — an attacker that had at least one blocker declared against it
-     * (Smite). Per CR 509.1h it stays blocked for the rest of combat even once every creature
-     * blocking it has left combat, so this is not the live "something is blocking it right now"
-     * question. See [StatePredicate.IsBlocked].
+     * Must be an attacker with blocked status, even after its last blocker leaves combat.
+     * Leaving combat or an explicit unblock effect ends that status (CR 509.1h).
+     * See [StatePredicate.IsBlocked].
      */
     fun blocked() = copy(
         statePredicates = statePredicates + StatePredicate.IsBlocked
     )
 
-    /** Must be an attacking creature that was never blocked this combat. See [StatePredicate.IsUnblocked]. */
+    /** Must be an attacker with unblocked status after blockers are declared. See [StatePredicate.IsUnblocked]. */
     fun unblocked() = copy(
         statePredicates = statePredicates + StatePredicate.IsUnblocked
     )

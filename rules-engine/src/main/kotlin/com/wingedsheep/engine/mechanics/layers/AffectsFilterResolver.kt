@@ -478,8 +478,9 @@ internal class AffectsFilterResolver {
         }
         StatePredicate.IsBlocking -> container.has<BlockingComponent>()
         StatePredicate.IsBlocked -> CombatStatusQueries.isBlockedAttacker(state, entityId, container)
-        StatePredicate.IsUnblocked -> container.has<AttackingComponent>() &&
-            !CombatStatusQueries.isBlockedAttacker(state, entityId, container)
+        StatePredicate.IsUnblocked -> CombatStatusQueries.isUnblockedAttacker(state, entityId, container) {
+            projectedController(state, it, projectedValues)
+        }
         // Source-relative band membership has no meaning when projecting a group static ability
         // (there's no per-recipient "source" here); it's only evaluated in damage-prevention
         // recipient filters via PredicateEvaluator. Never match in this context.
