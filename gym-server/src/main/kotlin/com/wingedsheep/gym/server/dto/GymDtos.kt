@@ -104,6 +104,20 @@ data class DecisionBatchResult(
     val observation: Observation
 )
 
+/** Single entry for `POST /envs/fork-batch`. */
+@Serializable
+data class ForkBatchItem(
+    val envId: EnvId,
+    val count: Int = 1
+)
+
+/** Result entry for `POST /envs/fork-batch`. */
+@Serializable
+data class ForkBatchResult(
+    val envId: EnvId,
+    val childEnvIds: List<EnvId>
+)
+
 /** Result entry for `POST /envs/snapshot-batch`. */
 @Serializable
 data class SnapshotBatchResult(
