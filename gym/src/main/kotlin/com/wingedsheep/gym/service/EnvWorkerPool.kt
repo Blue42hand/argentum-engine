@@ -30,18 +30,31 @@ class EnvWorkerPool(
      * `ExecutionException` matches neither, so a rejected action in a batch used to surface as a
      * 500 while the same action posted to `/envs/{id}/step` — or in a batch of one, which takes the
      * fast path below — correctly returned 400.
+     *
+     * Once a multi-task batch is submitted, task failures are collected until every submitted task
+     * has settled. This makes the return/throw boundary authoritative: callers never observe a
+     * failed batch while another task from that same batch is still mutating its environment.
+     * Interrupted waits still propagate immediately rather than being swallowed.
      */
     fun <T> invokeAll(tasks: List<Callable<T>>): List<T> {
         if (tasks.isEmpty()) return emptyList()
         if (tasks.size == 1) return listOf(tasks.single().call())
         val futures = tasks.map { pool.submit(it) }
-        return futures.map { future ->
+        val results = ArrayList<T>(futures.size)
+        var firstFailure: Throwable? = null
+
+        for (future in futures) {
             try {
-                future.get()
+                results += future.get()
             } catch (e: ExecutionException) {
-                throw e.cause ?: e
+                if (firstFailure == null) {
+                    firstFailure = e.cause ?: e
+                }
             }
         }
+
+        firstFailure?.let { throw it }
+        return results
     }
 
     /** Shut the pool down gracefully; awaits in-flight tasks. */
