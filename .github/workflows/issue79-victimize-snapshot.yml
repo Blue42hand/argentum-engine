@@ -1,5 +1,6 @@
 name: Issue 79 Victimize snapshot refresh
 
+# One-shot workflow: the follow-up commit is intentional so GitHub sees the workflow before triggering it.
 on:
   push:
     branches: [ "codex/issue-34-victimize-current-main" ]
