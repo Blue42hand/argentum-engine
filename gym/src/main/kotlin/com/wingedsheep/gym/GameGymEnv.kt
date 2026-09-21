@@ -34,7 +34,12 @@ class GameGymEnv(
     @Volatile
     private var registry: ActionRegistry = ActionRegistry.EMPTY
 
+    @Volatile
+    private var registryStateDigest: String? = null
+
     override val isTerminal: Boolean get() = environment.state.gameOver
+
+    override val actionStateDigest: String? get() = registryStateDigest
 
     override fun observe(revealAll: Boolean?): ObservationResult =
         build(revealAll ?: defaultRevealAll)
@@ -117,10 +122,12 @@ class GameGymEnv(
             )
             val safeObservation = sanitized.copy(stateDigest = StateDigest.compute(sanitized))
             registry = ActionRegistry.EMPTY
+            registryStateDigest = safeObservation.stateDigest
             return ObservationResult(safeObservation, ActionRegistry.EMPTY)
         }
 
         registry = result.registry
+        registryStateDigest = result.observation.stateDigest
         return result
     }
 

@@ -154,13 +154,17 @@ class MultiEnvService(
     /**
      * Advance a single env by the given [StepRequest.actionId]. The ID must
      * come from the most-recent observation for that env. If [StepRequest.expectedStateDigest]
-     * is supplied, verify it against the current authoritative observation before resolving the
-     * action ID so a delayed request cannot silently execute against a newer registry.
+     * is supplied, verify it against the digest paired with that same observation/action mapping
+     * before resolving the action ID. Do not rebuild an observation here: game observations can be
+     * seat-specific, and rebuilding from the configured default perspective would compare a
+     * different information set and replace the registry the submitted action ID belongs to.
      */
     fun step(request: StepRequest): ObservationResult =
         withEnv(request.envId) { env ->
             request.expectedStateDigest?.let { expected ->
-                val actual = env.observe().observation.stateDigest
+                val actual = checkNotNull(env.actionStateDigest) {
+                    "Env ${request.envId} has no action-producing observation"
+                }
                 check(actual == expected) {
                     "Stale step for env ${request.envId}: expected stateDigest=$expected, current=$actual"
                 }

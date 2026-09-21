@@ -21,6 +21,16 @@ interface GymEnv {
     val isTerminal: Boolean
 
     /**
+     * Digest of the most recent observation that populated this env's action mapping.
+     *
+     * This is deliberately stored alongside the action registry rather than recomputed by calling
+     * [observe]: an observation can select a seat/perspective, and rebuilding it during step
+     * validation could both compare against a different information set and replace the very
+     * action mapping the caller is trying to use. Null only before the first observation.
+     */
+    val actionStateDigest: String?
+
+    /**
      * Current observation without advancing. [revealAll] is honoured by game envs
      * (unmask opponent hand/libraries) and ignored by deckbuild envs, which have no
      * hidden information. Passing null uses the env's configured default.
