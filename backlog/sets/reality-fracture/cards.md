@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 25 / 285
+**Implemented:** 30 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 25   |
+| Extras     | 285   | 30   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -27,7 +27,7 @@
 - [ ] Archive Arbiter
 - [ ] Arni, Humble Scribe
 - [ ] Arni, Renowned Champion
-- [ ] Artifist Acumen
+- [x] Artifist Acumen
 - [ ] Avatar of Burgeoning Echoes
 - [ ] Awaken the Inferno
 - [ ] Bestial Incursion
@@ -40,8 +40,8 @@
 - [ ] Budding Insurgent
 - [ ] Campus Crier
 - [ ] Carnivorous Cultivator
-- [ ] Cast Away Doubt
-- [ ] Chandra's Emberling
+- [x] Cast Away Doubt
+- [x] Chandra's Emberling
 - [ ] Chandra, Chill of Compliance
 - [ ] Chandra, Torch of Defiance
 - [ ] Charge the Sanctum
@@ -164,7 +164,7 @@
 - [ ] Mind Meanderer
 - [ ] Mindseeker Oculus
 - [x] Mountain
-- [ ] Multiply by Zero
+- [x] Multiply by Zero
 - [ ] Murmuring Volume
 - [ ] No Admittance
 - [ ] Null Summoner
@@ -190,7 +190,7 @@
 - [ ] Puppet Crafting
 - [ ] Pyre Rhymer
 - [ ] Rampart Hunter
-- [ ] Rank Rat
+- [x] Rank Rat
 - [ ] Recursive Recruitment
 - [ ] Refute Destiny
 - [ ] Repurposed Enforcer
