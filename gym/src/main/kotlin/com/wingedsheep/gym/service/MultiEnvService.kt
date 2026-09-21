@@ -28,10 +28,11 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Each env is single-threaded. [MultiEnvService] serializes operations that name the
  * same [EnvId], including singular calls racing a batch item, while different envs run
- * independently in parallel via [observeBatch], [resetBatch], [stepBatch], [restoreBatch], or
- * [submitDecisionBatch]. Read-only [observeBatch] may intentionally name the same env more than
- * once (for example to request multiple seat perspectives); those items serialize on that env.
- * This keeps mutable per-env state and action registries race-free without imposing a global lock.
+ * independently in parallel via [observeBatch], [resetBatch], [stepBatch], [snapshotBatch],
+ * [restoreBatch], or [submitDecisionBatch]. Read-only [observeBatch] may intentionally name the
+ * same env more than once (for example to request multiple seat perspectives); those items serialize
+ * on that env. This keeps mutable per-env state and action registries race-free without imposing a
+ * global lock.
  *
  * ## Registry regeneration
  *
@@ -234,6 +235,23 @@ class MultiEnvService(
 
     fun snapshot(envId: EnvId): SnapshotHandle =
         withGameEnv(envId) { it.snapshot(snapshotCodec) }
+
+    /**
+     * Capture snapshots for N distinct game envs in parallel. Duplicate env IDs are rejected so a
+     * caller cannot accidentally retain multiple snapshot slots for the same branch point.
+     */
+    fun snapshotBatch(envIds: List<EnvId>): List<Pair<EnvId, SnapshotHandle>> {
+        if (envIds.isEmpty()) return emptyList()
+        requireDistinctEnvIds("snapshot", envIds)
+        val tasks = envIds.map { envId ->
+            Callable {
+                withBatchContext("snapshot", envId) {
+                    envId to snapshot(envId)
+                }
+            }
+        }
+        return workerPool.invokeAll(tasks)
+    }
 
     /** Restore a game env to a previously-snapshotted state. */
     fun restore(envId: EnvId, handle: SnapshotHandle): ObservationResult =
