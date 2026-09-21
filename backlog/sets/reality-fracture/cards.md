@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 10 / 285
+**Implemented:** 15 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 10   |
+| Extras     | 285   | 15   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -59,7 +59,7 @@
 - [ ] Danitha, Sword of Hope
 - [ ] Dark Matter Manipulator
 - [ ] Darklight Phoenix
-- [ ] Dedicated Commons
+- [x] Dedicated Commons
 - [ ] Denzilore Fatehold
 - [x] Deserted Beach
 - [ ] Desperate Futurescribe
@@ -88,7 +88,7 @@
 - [ ] Flickering Hound
 - [ ] Flourishing Grapple
 - [x] Forest
-- [ ] Formidable Commons
+- [x] Formidable Commons
 - [ ] Frostbite Pyromental
 - [ ] Fulminous Forte
 - [ ] Gallia, Tragic Host
@@ -123,7 +123,7 @@
 - [ ] Identity Echo
 - [ ] Infinite Coursework
 - [ ] Ingris Stingerquill
-- [ ] Innovative Commons
+- [x] Innovative Commons
 - [ ] Inspired Tethermage
 - [x] Island
 - [ ] Jace's Machinations
@@ -160,7 +160,7 @@
 - [ ] Master of Barbs
 - [ ] Medic's Kitesail
 - [ ] Memory Trap
-- [ ] Meticulous Commons
+- [x] Meticulous Commons
 - [ ] Mind Meanderer
 - [ ] Mindseeker Oculus
 - [x] Mountain
@@ -256,7 +256,7 @@
 - [ ] Titanbones, Towering Heart
 - [ ] Tomik, Izzet Sparkmage
 - [ ] Tomik, Orzhov Lawmage
-- [ ] Transformative Commons
+- [x] Transformative Commons
 - [ ] Traxos, Academy Guardian
 - [ ] Traxos, Scourge Eternal
 - [ ] Twinned Vision
