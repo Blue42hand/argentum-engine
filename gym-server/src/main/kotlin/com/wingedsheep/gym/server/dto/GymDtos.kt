@@ -1,5 +1,6 @@
 package com.wingedsheep.gym.server.dto
 
+import com.wingedsheep.engine.core.DecisionResponse
 import com.wingedsheep.gym.contract.ActionParams
 import com.wingedsheep.gym.contract.Observation
 import com.wingedsheep.gym.service.EnvId
@@ -42,6 +43,20 @@ data class StepBatchItem(
 /** Result entry for `POST /envs/step-batch`. */
 @Serializable
 data class StepBatchResult(
+    val envId: EnvId,
+    val observation: Observation
+)
+
+/** Single entry for `POST /envs/decision-batch`. */
+@Serializable
+data class DecisionBatchItem(
+    val envId: EnvId,
+    val response: DecisionResponse
+)
+
+/** Result entry for `POST /envs/decision-batch`. */
+@Serializable
+data class DecisionBatchResult(
     val envId: EnvId,
     val observation: Observation
 )
