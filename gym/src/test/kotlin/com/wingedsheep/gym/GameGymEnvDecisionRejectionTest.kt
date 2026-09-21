@@ -4,6 +4,7 @@ import com.wingedsheep.engine.core.ChooseDoorContinuation
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.GameConfig
 import com.wingedsheep.engine.core.NumberChosenResponse
+import com.wingedsheep.engine.core.PendingDecision
 import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.core.suspendForDecision
@@ -24,7 +25,7 @@ class GameGymEnvDecisionRejectionTest : FunSpec({
         register(PortalSet.basicLands)
     }
 
-    test("raw structured decision rejection fails closed") {
+    fun fixture(): Triple<GameEnvironment, GameGymEnv, PendingDecision> {
         val environment = GameEnvironment.create(registry())
         environment.reset(
             GameConfig(
@@ -57,25 +58,53 @@ class GameGymEnvDecisionRejectionTest : FunSpec({
         )
         val decision = suspended.pendingDecision.shouldNotBeNull()
         environment.restore(suspended.state, environment.playerIds)
-        val preSubmissionState = environment.state
-
         val gymEnv = GameGymEnv(
             environment = environment,
             perspectivePlayerIndex = 0,
             defaultRevealAll = false
         )
+        return Triple(environment, gymEnv, decision)
+    }
+
+    test("raw structured decision rejection fails closed after a matching freshness guard") {
+        val (environment, gymEnv, decision) = fixture()
+        val currentDigest = gymEnv.observe().observation.stateDigest
+        val preSubmissionState = environment.state
 
         val error = shouldThrow<IllegalArgumentException> {
             gymEnv.submitDecision(
                 NumberChosenResponse(
                     decisionId = decision.id,
                     number = 1
-                )
+                ),
+                expectedStateDigest = currentDigest
             )
         }
 
         error.message.shouldNotBeNull() shouldContain "Decision ${decision.id} rejected by the engine"
         environment.lastRejection.shouldNotBeNull()
+        environment.state shouldBeSameInstanceAs preSubmissionState
+        environment.state.pendingDecision shouldBe decision
+    }
+
+    test("stale structured decision is rejected before authoritative decision validation") {
+        val (environment, gymEnv, decision) = fixture()
+        val currentDigest = gymEnv.observe().observation.stateDigest
+        val preSubmissionState = environment.state
+        environment.lastRejection shouldBe null
+
+        val error = shouldThrow<IllegalStateException> {
+            gymEnv.submitDecision(
+                NumberChosenResponse(
+                    decisionId = decision.id,
+                    number = 1
+                ),
+                expectedStateDigest = "stale-$currentDigest"
+            )
+        }
+
+        error.message.shouldNotBeNull() shouldContain "Stale decision"
+        environment.lastRejection shouldBe null
         environment.state shouldBeSameInstanceAs preSubmissionState
         environment.state.pendingDecision shouldBe decision
     }

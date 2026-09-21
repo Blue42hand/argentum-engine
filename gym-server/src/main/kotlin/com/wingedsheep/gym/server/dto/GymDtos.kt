@@ -85,11 +85,16 @@ data class StepBatchResult(
     val observation: Observation
 )
 
-/** Single entry for `POST /envs/decision-batch`. */
+/**
+ * Single entry for `POST /envs/decision-batch`.
+ * [expectedStateDigest] optionally binds the response to the observation that exposed the pending
+ * decision, matching the stale-state protection available for ordinary actions.
+ */
 @Serializable
 data class DecisionBatchItem(
     val envId: EnvId,
-    val response: DecisionResponse
+    val response: DecisionResponse,
+    val expectedStateDigest: String? = null
 )
 
 /** Result entry for `POST /envs/decision-batch`. */

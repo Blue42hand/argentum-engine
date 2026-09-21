@@ -188,10 +188,15 @@ class MultiEnvService(
 
     /**
      * Submit a raw `DecisionResponse` for a game env paused on a complex pending
-     * decision. Simple decisions are driven via [step] with a folded action ID.
+     * decision. Simple decisions are driven via [step] with a folded action ID. Optional
+     * [expectedStateDigest] rejects a delayed response before it reaches the engine.
      */
-    fun submitDecision(envId: EnvId, response: DecisionResponse): ObservationResult =
-        withGameEnv(envId) { it.submitDecision(response) }
+    fun submitDecision(
+        envId: EnvId,
+        response: DecisionResponse,
+        expectedStateDigest: String? = null
+    ): ObservationResult =
+        withGameEnv(envId) { it.submitDecision(response, expectedStateDigest) }
 
     /**
      * Submit structured decisions to N game envs in parallel. Results preserve request order,
@@ -204,7 +209,7 @@ class MultiEnvService(
         val tasks = requests.map { req ->
             Callable {
                 withBatchContext("decision", req.envId) {
-                    req.envId to submitDecision(req.envId, req.response)
+                    req.envId to submitDecision(req.envId, req.response, req.expectedStateDigest)
                 }
             }
         }
@@ -336,5 +341,6 @@ data class ResetRequest(
 /** One structured-decision submission for [MultiEnvService.submitDecisionBatch]. */
 data class DecisionRequest(
     val envId: EnvId,
-    val response: DecisionResponse
+    val response: DecisionResponse,
+    val expectedStateDigest: String? = null
 )

@@ -26,12 +26,16 @@ class DecisionBatchController(
         description = """
             Parallel counterpart to `POST /envs/{id}/decision`. Results preserve request order.
             Each env remains single-threaded: callers must not overlap another operation naming the
-            same envId while its batch item is running.
+            same envId while its batch item is running. Optional `expectedStateDigest` entries reject
+            responses produced from stale observations before they reach authoritative decision
+            validation.
         """
     )
     @PostMapping("/decision-batch")
     fun submitDecisionBatch(@RequestBody items: List<DecisionBatchItem>): List<DecisionBatchResult> {
-        val requests = items.map { DecisionRequest(it.envId, it.response) }
+        val requests = items.map {
+            DecisionRequest(it.envId, it.response, it.expectedStateDigest)
+        }
         return multiEnvService.submitDecisionBatch(requests).map { (envId, obs) ->
             DecisionBatchResult(envId, obs.observation)
         }
