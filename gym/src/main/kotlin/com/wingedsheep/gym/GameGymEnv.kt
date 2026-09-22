@@ -34,9 +34,14 @@ class GameGymEnv(
     @Volatile
     private var registry: ActionRegistry = ActionRegistry.EMPTY
 
+    @Volatile
+    private var registryStateDigest: String? = null
+
     private var observedDecisionId: String? = null
 
     override val isTerminal: Boolean get() = environment.state.gameOver
+
+    override val actionStateDigest: String? get() = registryStateDigest
 
     override fun observe(revealAll: Boolean?): ObservationResult =
         build(revealAll ?: defaultRevealAll)
@@ -67,8 +72,24 @@ class GameGymEnv(
         return build(defaultRevealAll)
     }
 
-    /** Submit a raw `DecisionResponse` while paused on a complex decision. */
-    fun submitDecision(response: DecisionResponse): ObservationResult {
+    /**
+     * Submit a raw `DecisionResponse` while paused on a complex decision. When
+     * [expectedStateDigest] is supplied, require the response to belong to the same observation
+     * that exposed the pending decision. This mirrors the ordinary-action stale-state guard while
+     * leaving the engine authoritative for the decision payload itself.
+     */
+    fun submitDecision(
+        response: DecisionResponse,
+        expectedStateDigest: String? = null
+    ): ObservationResult {
+        expectedStateDigest?.let { expected ->
+            val actual = checkNotNull(registryStateDigest) {
+                "Env has no decision-producing observation"
+            }
+            check(actual == expected) {
+                "Stale decision: expected stateDigest=$expected, current=$actual"
+            }
+        }
         val pending = environment.state.pendingDecision
             ?: throw IllegalStateException("Env is not paused on a decision")
         require(observedDecisionId == pending.id) {
@@ -117,11 +138,13 @@ class GameGymEnv(
             )
             val safeObservation = sanitized.copy(stateDigest = StateDigest.compute(sanitized))
             registry = ActionRegistry.EMPTY
+            registryStateDigest = safeObservation.stateDigest
             observedDecisionId = null
             return ObservationResult(safeObservation, ActionRegistry.EMPTY)
         }
 
         registry = result.registry
+        registryStateDigest = result.observation.stateDigest
         observedDecisionId = environment.state.pendingDecision?.id
         return result
     }
