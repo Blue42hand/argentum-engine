@@ -64,6 +64,7 @@ class GameGymEnvDecisionRejectionTest : FunSpec({
             perspectivePlayerIndex = 0,
             defaultRevealAll = false
         )
+        gymEnv.observeForPlayer(alice)
 
         val error = shouldThrow<IllegalArgumentException> {
             gymEnv.submitDecision(
