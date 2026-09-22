@@ -7,6 +7,15 @@ spring:
   application:
     name: argentum-gym-server
 
+# Standard Spring/Micrometer request metrics make persistent-host qualification
+# measurable without changing the Gym contract. The server binds to loopback by
+# default; remote deployments should keep an authenticated gateway in front.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+
 # Swagger UI is enabled by default here because the gym server is a
 # development/training tool. Disable in any deployment where the
 # endpoint surface should be hidden (set both to `false`).
