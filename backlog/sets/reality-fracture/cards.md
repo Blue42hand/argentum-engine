@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 44 / 285
+**Implemented:** 45 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 44   |
+| Extras     | 285   | 45   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -25,7 +25,7 @@
 - [ ] Apex Witchstalker
 - [ ] Arcane Amphisbaena
 - [ ] Archive Arbiter
-- [ ] Arni, Humble Scribe
+- [x] Arni, Humble Scribe
 - [ ] Arni, Renowned Champion
 - [x] Artifist Acumen
 - [ ] Avatar of Burgeoning Echoes
