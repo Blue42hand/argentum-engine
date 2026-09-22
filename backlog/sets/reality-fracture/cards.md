@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 121 / 285
+**Implemented:** 135 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -28,7 +28,7 @@
 - [x] Arni, Renowned Champion
 - [x] Artifist Acumen
 - [ ] Avatar of Burgeoning Echoes
-- [ ] Awaken the Inferno
+- [x] Awaken the Inferno
 - [x] Bestial Incursion
 - [x] Blazing Crescendo
 - [x] Blessed Ghoul
@@ -36,7 +36,7 @@
 - [x] Bloombrute
 - [ ] Blossom-Blessed Angel
 - [ ] Break Under Pressure
-- [ ] Budding Insurgent
+- [x] Budding Insurgent
 - [ ] Campus Crier
 - [ ] Carnivorous Cultivator
 - [x] Cast Away Doubt
@@ -56,7 +56,7 @@
 - [x] Curse-Marred Demon
 - [ ] Danitha, Spear of Agony
 - [ ] Danitha, Sword of Hope
-- [ ] Dark Matter Manipulator
+- [x] Dark Matter Manipulator
 - [ ] Darklight Phoenix
 - [x] Dedicated Commons
 - [x] Denzilore Fatehold
@@ -67,7 +67,7 @@
 - [ ] Draconic Visitor
 - [x] Eardrum Rattler
 - [x] Edgar, Ancient Bloodlord
-- [ ] Edgar, Moonlit Sovereign
+- [x] Edgar, Moonlit Sovereign
 - [ ] Emergency Phytomedic
 - [ ] Emrakul, the Exigent Doom
 - [ ] Enlightened Confidant
@@ -99,7 +99,7 @@
 - [x] Generous Revival
 - [x] Germinate Recruits
 - [ ] Ghalta the Immovable
-- [ ] Ghalta the Unstoppable
+- [x] Ghalta the Unstoppable
 - [ ] Gideon the Oathless
 - [ ] Gideon's Memorial
 - [x] Graft Surgeon
@@ -130,7 +130,7 @@
 - [ ] Jiang Yanggu, Alone
 - [x] Jiang Yanggu, Never Alone
 - [ ] Karn, Argent Defender
-- [ ] Karn, Gilded Guardian
+- [x] Karn, Gilded Guardian
 - [ ] Keeper of the Quiet Hour
 - [x] Kindred Judgment
 - [x] Kiora of Fire and Ashes
@@ -144,14 +144,14 @@
 - [x] Last Gasp
 - [ ] Lich's Relic
 - [x] Liliana the Faultless
-- [ ] Liliana the Repentant
+- [x] Liliana the Repentant
 - [x] Living Library
 - [ ] Loot, the Anomaly
 - [ ] Loot, the Nexus
 - [x] Loyal Tutor
 - [x] Lyra, Archangel of Dawn
 - [ ] Lyra, Tolarian Archangel
-- [ ] Mabel, Bitter Recluse
+- [x] Mabel, Bitter Recluse
 - [ ] Mabel, Valley Hero
 - [x] Marwyn, the Clearcutter
 - [x] Marwyn, the Preserver
@@ -160,7 +160,7 @@
 - [x] Medic's Kitesail
 - [x] Memory Trap
 - [x] Meticulous Commons
-- [ ] Mind Meanderer
+- [x] Mind Meanderer
 - [ ] Mindseeker Oculus
 - [x] Mountain
 - [x] Multiply by Zero
@@ -172,7 +172,7 @@
 - [ ] Overwrite the Multiverse
 - [ ] Paradox Shaper
 - [x] Perfected Theory
-- [ ] Pia, Aether Ascetic
+- [x] Pia, Aether Ascetic
 - [x] Pia, Determined Rebuilder
 - [x] Plains
 - [ ] Plan for All Outcomes
@@ -240,8 +240,8 @@
 - [x] Tethermage's Advantage
 - [x] Tetsuko Umezawa, Fugitive
 - [ ] Tetsuko Umezawa, Pursuer
-- [ ] Teyo, Diamondblade Mage
-- [ ] Teyo, Lightshield Expert
+- [x] Teyo, Diamondblade Mage
+- [x] Teyo, Lightshield Expert
 - [ ] Thalia, the Survivor
 - [x] The Echoverse Fulcrum
 - [ ] The Theorist, Jace Beleren
@@ -275,7 +275,7 @@
 - [ ] Void Extrapolator
 - [ ] Vraska's Final Mercy
 - [ ] Vraska, Soul of Stone
-- [ ] Vraska, the Cutting Glare
+- [x] Vraska, the Cutting Glare
 - [ ] Warrior's Blades
 - [ ] Way of the Cryomancer
 - [ ] Way of the Deathbringer
@@ -296,7 +296,7 @@
 - [x] Yargle, Glutton of Urborg
 - [x] Yargle, Goliath of Otaria
 - [ ] Yoshimaru, Beloved Companion
-- [ ] Yoshimaru, Scrappy Stray
+- [x] Yoshimaru, Scrappy Stray
 - [x] Your Fate Ends Here
 - [ ] Yuriko, Blade of the Mighty
 - [ ] Yuriko, Hope from the Shadows

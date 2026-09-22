@@ -1023,6 +1023,9 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   and marked-damage-aware) that `target1` deals **to `target2`** is stored into that pipeline number
   variable for a following effect to read via `DynamicAmount.VariableReference` — e.g. The Last Agni Kai:
   `Fight(yours, theirs, "excess") then AddMana(RED, VariableReference("excess"))`.
+  If either fighter is no longer a creature on the battlefield when the fight happens, neither deals
+  damage (CR 701.14b) and the excess variable is 0 — this covers a `Self` fighter ("it fights"), which
+  no target re-check removes.
 - `Effects.DividedDamage(total, minTargets, maxTargets, dynamicTotal?)` — "N damage divided as you
   choose among target ..." The targets come from the ability's target requirement; pair with
   `TargetCreature(count, minCount)` (Forked Lightning, Skirk Volcanist) or, for "any number of target",
