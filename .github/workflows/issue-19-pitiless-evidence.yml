@@ -1,0 +1,70 @@
+name: Issue 19 Pitiless Plunderer evidence probe
+
+on:
+  push:
+    branches:
+      - automation/issue-19-pitiless-evidence
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Fetch canonical Scryfall evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/issue19-scryfall
+          ua='CommanderGymCoverage/1.0 (+https://github.com/Blue42hand/argentum-engine)'
+          accept='application/json;q=0.9,*/*;q=0.8'
+          card='Pitiless Plunderer'
+          slug='pitiless-plunderer'
+          encoded=$(python3 -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "$card")
+          curl -fsS --retry 0 -H "User-Agent: $ua" -H "Accept: $accept" \
+            "https://api.scryfall.com/cards/named?exact=${encoded}" \
+            -o "/tmp/issue19-scryfall/${slug}.json"
+          rulings=$(jq -r '.rulings_uri' "/tmp/issue19-scryfall/${slug}.json")
+          prints=$(jq -r '.prints_search_uri' "/tmp/issue19-scryfall/${slug}.json")
+          curl -fsS --retry 0 -H "User-Agent: $ua" -H "Accept: $accept" "$rulings" \
+            -o "/tmp/issue19-scryfall/${slug}-rulings.json"
+          curl -fsS --retry 0 -H "User-Agent: $ua" -H "Accept: $accept" "$prints&order=released&dir=asc" \
+            -o "/tmp/issue19-scryfall/${slug}-prints.json"
+          echo "===== ${card} card ====="
+          jq '{id,name,mana_cost,type_line,oracle_text,power,toughness,colors,set,set_name,collector_number,rarity,released_at,artist,image_uris,rulings_uri,prints_search_uri}' "/tmp/issue19-scryfall/${slug}.json"
+          echo "===== ${card} rulings ====="
+          jq '{data:[.data[]|{published_at,comment}]}' "/tmp/issue19-scryfall/${slug}-rulings.json"
+          echo "===== ${card} earliest non-promo/non-token/non-art-series/non-memorabilia printing ====="
+          jq '[.data[] | select((.promo|not) and .layout != "token" and .layout != "art_series" and .layout != "memorabilia") | {set,set_name,collector_number,released_at,rarity,artist,image_uris}] | sort_by(.released_at) | .[0]' "/tmp/issue19-scryfall/${slug}-prints.json"
+      - name: Build Assay and fidelity CLIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          scripts/gradle-locked -q --console=plain :oracle-assay:installDist
+          scripts/gradle-locked -q --console=plain :mtgish-tooling:installDist
+      - name: Assay and fidelity preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          assay=oracle-assay/build/install/oracle-assay/bin/oracle-assay
+          fidelity=mtgish-tooling/build/install/mtgish-tooling/bin/mtgish-tooling
+          card='Pitiless Plunderer'
+          echo "===== assay parse: ${card} ====="
+          "$assay" parse "$card" || true
+          echo "===== assay explain: ${card} ====="
+          "$assay" explain "$card" || true
+          echo "===== fidelity emit: ${card} ====="
+          "$fidelity" fidelity --emit "$card" || true
+      - name: Upload evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-19-pitiless-plunderer-evidence
+          path: /tmp/issue19-scryfall
