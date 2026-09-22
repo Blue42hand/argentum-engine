@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 48 / 285
+**Implemented:** 49 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 48   |
+| Extras     | 285   | 49   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -212,7 +212,7 @@
 - [ ] Screeching Soulbreaker
 - [ ] Seasoned Cryomancer
 - [ ] Semester Foreseer
-- [ ] Shatterwing Pegasus
+- [x] Shatterwing Pegasus
 - [x] Shipwreck Marsh
 - [ ] Silence the Echo
 - [ ] Simulacrum Shaper
