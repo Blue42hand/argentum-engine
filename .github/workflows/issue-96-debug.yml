@@ -1,4 +1,4 @@
-name: Issue 96 focused-test diagnostics
+name: Issue 96 finish and verify
 
 on:
   push:
@@ -7,18 +7,29 @@ on:
     paths:
       - '.github/workflows/issue-96-debug.yml'
 
+permissions:
+  contents: write
+
 jobs:
-  diagnose:
+  finish-and-verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: codex/issue-96-card-type-choice
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: gradle
+      - name: Configure git and merge current integration main
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
       - name: Reapply completion patch from finish workflow
         shell: bash
         run: |
@@ -32,7 +43,7 @@ jobs:
           code = textwrap.dedent(text[start:end])
           exec(compile(code, 'issue-96-finish-inline.py', 'exec'))
           EXTRACT
-      - name: Treat a paused land play as the expected as-enters decision path
+      - name: Correct direct-entry test semantics for a paused as-enters decision
         shell: bash
         run: |
           python3 - <<'PY'
@@ -45,27 +56,22 @@ jobs:
               raise SystemExit(f'expected two playLand assertions, found {s.count(old)}')
           p.write_text(s.replace(old, new))
           PY
+      - name: Compile SDK, engine, and Assay
+        run: ./gradlew :mtg-sdk:compileKotlin :rules-engine:compileKotlin :oracle-assay:compileKotlin --no-daemon
       - name: Run focused CARD_TYPE entry tests
-        id: focused
-        continue-on-error: true
+        run: ./gradlew :rules-engine:test --tests '*EntersWithCardTypeChoiceTest' --no-daemon
+      - name: Run SDK and rules-engine tests
+        run: ./gradlew :mtg-sdk:test :rules-engine:test --no-daemon
+      - name: Run Assay gate
+        run: just assay-gate --limit 2000
+      - name: Commit verified completion and remove staging workflows
         shell: bash
         run: |
-          set -o pipefail
-          ./gradlew :rules-engine:test --tests '*EntersWithCardTypeChoiceTest' --no-daemon --stacktrace 2>&1 | tee focused-test.log
-      - name: Collect test diagnostics
-        if: always()
-        shell: bash
-        run: |
-          mkdir -p issue-96-diagnostics
-          cp focused-test.log issue-96-diagnostics/ || true
-          cp rules-engine/src/test/kotlin/com/wingedsheep/engine/scenarios/EntersWithCardTypeChoiceTest.kt issue-96-diagnostics/ || true
-          if [ -d rules-engine/build/test-results/test ]; then cp -R rules-engine/build/test-results/test issue-96-diagnostics/test-results; fi
-          if [ -d rules-engine/build/reports/tests/test ]; then cp -R rules-engine/build/reports/tests/test issue-96-diagnostics/test-report; fi
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: issue-96-focused-test-diagnostics
-          path: issue-96-diagnostics
-      - name: Enforce focused test
-        if: steps.focused.outcome != 'success'
-        run: exit 1
+          rm -f .github/workflows/issue-96-debug.yml .github/workflows/issue-96-finish.yml .github/workflows/issue-96-card-type-choice.yml
+          git add mtg-sdk rules-engine docs .github/workflows
+          if git diff --cached --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
+          git commit -m 'Complete card-type choices for EntersWithChoice'
+          git push origin HEAD:codex/issue-96-card-type-choice
