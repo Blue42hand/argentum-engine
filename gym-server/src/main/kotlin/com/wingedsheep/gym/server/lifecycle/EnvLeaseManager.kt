@@ -26,8 +26,8 @@ class EnvLeaseManager(
     @Value("\${GYM_SERVER_ENV_TTL_MS:0}") private val ttlMs: Long,
 ) {
     private data class Lease(
-        var lastActivity: Instant,
-        var activeRequests: Int = 0,
+        val lastActivity: Instant,
+        val activeRequests: Int = 0,
     )
 
     private val leases = ConcurrentHashMap<EnvId, Lease>()
@@ -48,11 +48,7 @@ class EnvLeaseManager(
         envIds.toSet().forEach { envId ->
             leases.compute(envId) { _, existing ->
                 val lease = existing ?: Lease(at)
-                synchronized(lease) {
-                    lease.lastActivity = at
-                    lease.activeRequests += 1
-                }
-                lease
+                lease.copy(lastActivity = at, activeRequests = lease.activeRequests + 1)
             }
         }
     }
@@ -62,10 +58,11 @@ class EnvLeaseManager(
         if (!enabled) return
         val at = now()
         envIds.toSet().forEach { envId ->
-            val lease = leases[envId] ?: return@forEach
-            synchronized(lease) {
-                lease.lastActivity = at
-                if (lease.activeRequests > 0) lease.activeRequests -= 1
+            leases.computeIfPresent(envId) { _, lease ->
+                lease.copy(
+                    lastActivity = at,
+                    activeRequests = (lease.activeRequests - 1).coerceAtLeast(0),
+                )
             }
         }
     }
@@ -76,6 +73,10 @@ class EnvLeaseManager(
      * Environments unknown to this manager (for example those created before leases were enabled)
      * are initialized with a full grace period on the first scan. Explicitly disposed envs are
      * pruned from lease bookkeeping on the next scan.
+     *
+     * All state transitions for one environment are serialized by [ConcurrentHashMap.compute] /
+     * `computeIfPresent`. No separate per-lease monitor is taken, so request admission and reaping
+     * cannot acquire the map and lease locks in opposite orders.
      */
     @Scheduled(fixedDelayString = "\${GYM_SERVER_ENV_REAPER_INTERVAL_MS:30000}")
     fun reapIdle() {
@@ -88,14 +89,15 @@ class EnvLeaseManager(
         leases.keys.removeIf { it !in live }
 
         live.forEach { envId ->
-            val lease = leases[envId] ?: return@forEach
-            synchronized(lease) {
+            leases.computeIfPresent(envId) { _, lease ->
                 val expired = lease.activeRequests == 0 &&
                     !lease.lastActivity.plusMillis(ttlMs).isAfter(at)
-                if (expired) {
+                if (!expired) {
+                    lease
+                } else {
                     multiEnvService.dispose(listOf(envId))
-                    leases.remove(envId, lease)
                     logger.debug("Disposed idle Gym environment {} after {} ms TTL", envId.value, ttlMs)
+                    null
                 }
             }
         }
