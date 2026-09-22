@@ -1,13 +1,13 @@
 package com.wingedsheep.gym.server.lifecycle
 
-import com.wingedsheep.gym.server.config.createGymCardRegistry
+import com.wingedsheep.gym.server.config.GymBeansConfig
 import com.wingedsheep.gym.service.MultiEnvService
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.mock.web.MockHttpServletRequest
 
 class SnapshotPublicationFilterTest : FunSpec({
-    val filter = SnapshotPublicationFilter(MultiEnvService(createGymCardRegistry()))
+    val filter = SnapshotPublicationFilter(MultiEnvService(GymBeansConfig().cardRegistry()))
 
     fun request(method: String, path: String) = MockHttpServletRequest(method, path)
 
