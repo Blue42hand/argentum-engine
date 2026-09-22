@@ -65,15 +65,25 @@ class EnvLeaseManager(
         }
     }
 
+    internal fun reconcileLeases(live: Set<EnvId>, at: Instant) {
+        live.forEach { envId -> leases.putIfAbsent(envId, Lease(at)) }
+        leases.keys.forEach { envId ->
+            if (envId !in live) {
+                leases.computeIfPresent(envId) { _, lease ->
+                    if (lease.activeRequests == 0) null else lease
+                }
+            }
+        }
+    }
+
     @Scheduled(fixedDelayString = "\${GYM_SERVER_ENV_REAPER_INTERVAL_MS:30000}")
     fun reapIdle() {
         if (!enabled) return
 
         val at = now()
-        val live = multiEnvService.listEnvs()
+        val live = multiEnvService.listEnvs().toSet()
 
-        live.forEach { envId -> leases.putIfAbsent(envId, Lease(at)) }
-        leases.keys.removeIf { it !in live }
+        reconcileLeases(live, at)
 
         live.forEach { envId ->
             leases.computeIfPresent(envId) { _, lease ->
