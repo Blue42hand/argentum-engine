@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 41 / 285
+**Implemented:** 42 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 41   |
+| Extras     | 285   | 42   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -172,7 +172,7 @@
 - [x] Overgrown Farmland
 - [ ] Overwrite the Multiverse
 - [ ] Paradox Shaper
-- [ ] Perfected Theory
+- [x] Perfected Theory
 - [ ] Pia, Aether Ascetic
 - [ ] Pia, Determined Rebuilder
 - [x] Plains

@@ -873,6 +873,88 @@
     ]
 }
 
+// Perfected Theory
+{
+    "name": "Perfected Theory",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Target creature has base power and toughness 1/1 until end of turn.\n• Target creature has base power and toughness 4/5 until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "SetBaseStats",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "creature"
+                        },
+                        "power": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughness": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "duration": "EndOfTurn"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            },
+                            "id": "creature"
+                        }
+                    ],
+                    "description": "Target creature has base power and toughness 1/1 until end of turn"
+                },
+                {
+                    "effect": {
+                        "type": "SetBaseStats",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "creature"
+                        },
+                        "power": {
+                            "type": "Fixed",
+                            "amount": 4
+                        },
+                        "toughness": {
+                            "type": "Fixed",
+                            "amount": 5
+                        },
+                        "duration": "EndOfTurn"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            },
+                            "id": "creature"
+                        }
+                    ],
+                    "description": "Target creature has base power and toughness 4/5 until end of turn"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "rarity": "UNCOMMON",
+        "artist": "Marta Nael",
+        "flavorText": "In the Meditation Realm, Jace had seen himself reflected in a Multiverse complete in every detail. Now he only had to make it real.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0ecae06-bc5a-4886-84df-c2900816f226.jpg?1788329222",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Precise Redaction
 {
     "name": "Precise Redaction",
