@@ -26,8 +26,8 @@ class EnvLeaseManager(
     @Value("\${GYM_SERVER_ENV_TTL_MS:0}") private val ttlMs: Long,
 ) {
     private data class Lease(
-        var lastActivity: Instant,
-        var activeRequests: Int = 0,
+        val lastActivity: Instant,
+        val activeRequests: Int = 0,
     )
 
     private val leases = ConcurrentHashMap<EnvId, Lease>()
@@ -47,11 +47,7 @@ class EnvLeaseManager(
         envIds.toSet().forEach { envId ->
             leases.compute(envId) { _, existing ->
                 val lease = existing ?: Lease(at)
-                synchronized(lease) {
-                    lease.lastActivity = at
-                    lease.activeRequests += 1
-                }
-                lease
+                lease.copy(lastActivity = at, activeRequests = lease.activeRequests + 1)
             }
         }
     }
@@ -60,10 +56,11 @@ class EnvLeaseManager(
         if (!enabled) return
         val at = now()
         envIds.toSet().forEach { envId ->
-            val lease = leases[envId] ?: return@forEach
-            synchronized(lease) {
-                lease.lastActivity = at
-                if (lease.activeRequests > 0) lease.activeRequests -= 1
+            leases.computeIfPresent(envId) { _, lease ->
+                lease.copy(
+                    lastActivity = at,
+                    activeRequests = (lease.activeRequests - 1).coerceAtLeast(0),
+                )
             }
         }
     }
@@ -79,14 +76,15 @@ class EnvLeaseManager(
         leases.keys.removeIf { it !in live }
 
         live.forEach { envId ->
-            val lease = leases[envId] ?: return@forEach
-            synchronized(lease) {
+            leases.computeIfPresent(envId) { _, lease ->
                 val expired = lease.activeRequests == 0 &&
                     !lease.lastActivity.plusMillis(ttlMs).isAfter(at)
-                if (expired) {
+                if (!expired) {
+                    lease
+                } else {
                     multiEnvService.dispose(listOf(envId))
-                    leases.remove(envId, lease)
                     logger.debug("Disposed idle Gym environment {} after {} ms TTL", envId.value, ttlMs)
+                    null
                 }
             }
         }
