@@ -24,17 +24,23 @@ Singular requests whose path contains an environment ID (`/envs/{id}`, `/envs/{i
 `/envs/{id}/decision`, `/envs/{id}/reset`, `/envs/{id}/fork`, `/envs/{id}/snapshot`, and
 `/envs/{id}/restore`) automatically hold and renew that environment's lease for the request.
 
-Batch endpoints do not encode their environment IDs in the URL. When environment leases are enabled,
-batch clients should send the participating IDs in a comma-separated header:
+Existing-environment batch endpoints derive their participating IDs from the parsed request body and
+automatically hold and renew those leases while the authoritative batch operation runs. Callers do
+not need to repeat those IDs in a header for ordinary observe/reset/step/decision/fork/snapshot/restore
+batch requests.
+
+`X-Argentum-Gym-Env-Ids` remains available as an optional comma-separated heartbeat or early-request
+lease hint:
 
 ```text
 X-Argentum-Gym-Env-Ids: <env-a>,<env-b>,<env-c>
 ```
 
-The same header can be sent periodically as a lightweight heartbeat on any Gym HTTP request when a
-trainer may spend longer than the environment TTL in inference, search, checkpointing, or other work
-between engine calls. It is also accepted on singular requests and de-duplicated with the path-derived
-ID.
+It is useful when a trainer may spend longer than the environment TTL in inference, search,
+checkpointing, or other work between engine calls. It can also protect named environments before a
+batch request reaches controller dispatch. Header-derived and body-derived leases compose safely, so
+supplying the header for a normal batch request is redundant but valid. The header is also accepted on
+singular requests and de-duplicated with the path-derived ID.
 
 A newly discovered live environment receives one full TTL grace period before it can be reaped. A
 leased request increments an in-flight count before controller execution; the scheduled reaper skips

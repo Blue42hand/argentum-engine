@@ -2,6 +2,7 @@ package com.wingedsheep.gym.server.controller
 
 import com.wingedsheep.gym.server.dto.RestoreBatchItem
 import com.wingedsheep.gym.server.dto.RestoreBatchResult
+import com.wingedsheep.gym.server.lifecycle.EnvLeaseManager
 import com.wingedsheep.gym.service.MultiEnvService
 import com.wingedsheep.gym.service.RestoreRequest
 import io.swagger.v3.oas.annotations.Operation
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/envs")
 @Tag(name = "Environments")
 class RestoreBatchController(
-    private val multiEnvService: MultiEnvService
+    private val multiEnvService: MultiEnvService,
+    private val leaseManager: EnvLeaseManager,
 ) {
     @Operation(
         summary = "Restore many envs from snapshots in parallel",
@@ -26,10 +28,11 @@ class RestoreBatchController(
         """
     )
     @PostMapping("/restore-batch")
-    fun restoreBatch(@RequestBody items: List<RestoreBatchItem>): List<RestoreBatchResult> {
-        val requests = items.map { RestoreRequest(it.envId, it.handle) }
-        return multiEnvService.restoreBatch(requests).map { (envId, obs) ->
-            RestoreBatchResult(envId, obs.observation)
+    fun restoreBatch(@RequestBody items: List<RestoreBatchItem>): List<RestoreBatchResult> =
+        leaseManager.withLeases(items.map { it.envId }) {
+            val requests = items.map { RestoreRequest(it.envId, it.handle) }
+            multiEnvService.restoreBatch(requests).map { (envId, obs) ->
+                RestoreBatchResult(envId, obs.observation)
+            }
         }
-    }
 }

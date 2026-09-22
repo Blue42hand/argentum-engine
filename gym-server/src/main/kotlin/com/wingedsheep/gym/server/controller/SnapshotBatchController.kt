@@ -1,6 +1,7 @@
 package com.wingedsheep.gym.server.controller
 
 import com.wingedsheep.gym.server.dto.SnapshotBatchResult
+import com.wingedsheep.gym.server.lifecycle.EnvLeaseManager
 import com.wingedsheep.gym.service.EnvId
 import com.wingedsheep.gym.service.MultiEnvService
 import io.swagger.v3.oas.annotations.Operation
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/envs")
 @Tag(name = "Environments")
 class SnapshotBatchController(
-    private val multiEnvService: MultiEnvService
+    private val multiEnvService: MultiEnvService,
+    private val leaseManager: EnvLeaseManager,
 ) {
     @Operation(
         summary = "Capture snapshots for many envs in parallel",
@@ -27,7 +29,9 @@ class SnapshotBatchController(
     )
     @PostMapping("/snapshot-batch")
     fun snapshotBatch(@RequestBody envIds: List<EnvId>): List<SnapshotBatchResult> =
-        multiEnvService.snapshotBatch(envIds).map { (envId, handle) ->
-            SnapshotBatchResult(envId, handle)
+        leaseManager.withLeases(envIds) {
+            multiEnvService.snapshotBatch(envIds).map { (envId, handle) ->
+                SnapshotBatchResult(envId, handle)
+            }
         }
 }

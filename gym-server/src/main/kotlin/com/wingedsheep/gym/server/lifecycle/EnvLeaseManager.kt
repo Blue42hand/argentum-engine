@@ -41,6 +41,23 @@ class EnvLeaseManager(
     val enabled: Boolean
         get() = ttlMs > 0
 
+    /**
+     * Hold leases for [envIds] while [block] performs one parsed HTTP operation.
+     *
+     * This is primarily used by batch controllers, whose environment IDs live in the request body
+     * rather than the URL. It deliberately composes with [EnvLeaseFilter]: an optional header lease
+     * may already be active before controller dispatch, and this nested lease keeps the body-derived
+     * environments protected for the authoritative operation itself.
+     */
+    fun <T> withLeases(envIds: Collection<EnvId>, block: () -> T): T {
+        begin(envIds)
+        return try {
+            block()
+        } finally {
+            end(envIds)
+        }
+    }
+
     /** Mark the supplied environments active for the duration of one HTTP request. */
     fun begin(envIds: Collection<EnvId>) {
         if (!enabled) return
