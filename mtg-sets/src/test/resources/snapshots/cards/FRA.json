@@ -873,6 +873,69 @@
     ]
 }
 
+// Fulminous Forte
+{
+    "name": "Fulminous Forte",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Fulminous Forte deals 1 damage to each creature and planeswalker your opponents control.\n• Fulminous Forte deals 5 damage to target creature or planeswalker.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature|planeswalker ctrl:opponent"
+                            }
+                        },
+                        "body": {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "Self"
+                        }
+                    },
+                    "description": "Deal 1 damage to each creature and planeswalker your opponents control."
+                },
+                {
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 5
+                        },
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    },
+                    "targetRequirements": [
+                        "TargetCreatureOrPlaneswalker"
+                    ],
+                    "description": "Deal 5 damage to target creature or planeswalker."
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "84",
+        "rarity": "UNCOMMON",
+        "artist": "Andre Garcia",
+        "flavorText": "A solo so violent even the echoes can deafen the unprepared.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/9/19acb2b5-3b3e-43f0-bd81-8426ed3d9c55.jpg?1789614832",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Geist of Saint Thalia
 {
     "name": "Geist of Saint Thalia",
