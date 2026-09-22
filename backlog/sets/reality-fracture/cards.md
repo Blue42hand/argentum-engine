@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 100 / 285
+**Implemented:** 111 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -50,10 +50,10 @@
 - [ ] Compel Brutality
 - [ ] Countersculpt
 - [ ] Craftwork Crusher
-- [ ] Craterclaw Colossus
+- [x] Craterclaw Colossus
 - [ ] Cruel Calculations
 - [x] Cryotheory Adept
-- [ ] Curse-Marred Demon
+- [x] Curse-Marred Demon
 - [ ] Danitha, Spear of Agony
 - [ ] Danitha, Sword of Hope
 - [ ] Dark Matter Manipulator
@@ -72,7 +72,7 @@
 - [ ] Emrakul, the Exigent Doom
 - [ ] Enlightened Confidant
 - [ ] Entrust the Spark
-- [ ] Essence Burn
+- [x] Essence Burn
 - [x] Extended Absence
 - [ ] Extrapolate the Impossible
 - [ ] Eye of Jace
@@ -102,7 +102,7 @@
 - [ ] Ghalta the Unstoppable
 - [ ] Gideon the Oathless
 - [ ] Gideon's Memorial
-- [ ] Graft Surgeon
+- [x] Graft Surgeon
 - [x] Greenhouse Propagator
 - [ ] Grim Repriser
 - [ ] Guiding Hydra
@@ -118,7 +118,7 @@
 - [ ] Hexhaven Invigorator
 - [ ] Hungering Puppetbeast
 - [ ] Hunter's Axe
-- [ ] Icy Reception
+- [x] Icy Reception
 - [ ] Identity Echo
 - [ ] Infinite Coursework
 - [ ] Ingris Stingerquill
@@ -132,7 +132,7 @@
 - [ ] Karn, Argent Defender
 - [ ] Karn, Gilded Guardian
 - [ ] Keeper of the Quiet Hour
-- [ ] Kindred Judgment
+- [x] Kindred Judgment
 - [x] Kiora of Fire and Ashes
 - [ ] Kiora of Salt and Sand
 - [x] Konstrari Annex
@@ -200,7 +200,7 @@
 - [ ] Rise of the Deathbringer
 - [x] Rockfall Vale
 - [ ] Roiling Canopy
-- [ ] Room of Refuge
+- [x] Room of Refuge
 - [ ] Ruric Thar, Biomagus
 - [ ] Ruric Thar, Magecrusher
 - [ ] Saheeli, Consul of Oversight
@@ -213,20 +213,20 @@
 - [ ] Semester Foreseer
 - [x] Shatterwing Pegasus
 - [x] Shipwreck Marsh
-- [ ] Silence the Echo
+- [x] Silence the Echo
 - [x] Simulacrum Shaper
 - [x] Skilled Battlecarver
 - [x] Solarium Sentry
 - [ ] Solitary Cell
 - [ ] Solve for Disappointment
-- [ ] Something Worth Saving
+- [x] Something Worth Saving
 - [ ] Sphinx of False Conclusions
 - [ ] Sphinx's Approach
 - [x] Stingcaster Mage
 - [x] Stingerquill Annex
 - [x] Stingerquill Charm
 - [ ] Stingerquill Voxmancer
-- [ ] Stinging Vitriol
+- [x] Stinging Vitriol
 - [x] Sureshot Sower
 - [x] Surgical Precision
 - [ ] Surveillance Phantasm
@@ -236,7 +236,7 @@
 - [ ] Tarmogoyf
 - [ ] Tenured Tethermage
 - [x] Terminal Criticism
-- [ ] Tether Technician
+- [x] Tether Technician
 - [x] Tethermage's Advantage
 - [x] Tetsuko Umezawa, Fugitive
 - [ ] Tetsuko Umezawa, Pursuer
