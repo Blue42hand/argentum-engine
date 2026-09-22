@@ -4,6 +4,7 @@ import com.wingedsheep.gym.service.MultiEnvService
 import com.wingedsheep.gym.service.ResetRequest
 import com.wingedsheep.gym.server.dto.ResetBatchItem
 import com.wingedsheep.gym.server.dto.ResetBatchResult
+import com.wingedsheep.gym.server.lifecycle.EnvLeaseManager
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/envs")
 @Tag(name = "Environments")
 class ResetBatchController(
-    private val multiEnvService: MultiEnvService
+    private val multiEnvService: MultiEnvService,
+    private val leaseManager: EnvLeaseManager,
 ) {
     @Operation(
         summary = "Reset many envs in parallel",
@@ -26,10 +28,11 @@ class ResetBatchController(
         """
     )
     @PostMapping("/reset-batch")
-    fun resetBatch(@RequestBody items: List<ResetBatchItem>): List<ResetBatchResult> {
-        val requests = items.map { ResetRequest(it.envId, it.config) }
-        return multiEnvService.resetBatch(requests).map { (envId, obs) ->
-            ResetBatchResult(envId, obs.observation)
+    fun resetBatch(@RequestBody items: List<ResetBatchItem>): List<ResetBatchResult> =
+        leaseManager.withLeases(items.map { it.envId }) {
+            val requests = items.map { ResetRequest(it.envId, it.config) }
+            multiEnvService.resetBatch(requests).map { (envId, obs) ->
+                ResetBatchResult(envId, obs.observation)
+            }
         }
-    }
 }
