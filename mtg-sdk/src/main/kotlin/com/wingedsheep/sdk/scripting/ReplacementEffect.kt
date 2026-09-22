@@ -1717,6 +1717,8 @@ enum class ChoiceType {
     COLOR,
     /** Choose a creature type (e.g., Doom Cannon, Cover of Darkness) */
     CREATURE_TYPE,
+    /** Choose a card type (artifact, creature, enchantment, instant, land, etc.) */
+    CARD_TYPE,
     /** Choose another creature you control (e.g., Dauntless Bodyguard) */
     CREATURE_ON_BATTLEFIELD,
     /**
@@ -1843,6 +1845,11 @@ data class EntersWithChoice(
      */
     val allowedCreatureTypes: List<String>? = null,
     /**
+     * When [choiceType] is [ChoiceType.CARD_TYPE], restrict the choosable card types.
+     * A card with a printed shortlist should provide it explicitly.
+     */
+    val allowedCardTypes: List<com.wingedsheep.sdk.core.CardType>? = null,
+    /**
      * When [choiceType] is [ChoiceType.MODE], the card-defined list of named
      * options the player picks between. Required for MODE; ignored otherwise.
      */
@@ -1885,6 +1892,11 @@ data class EntersWithChoice(
             "As this permanent enters, an opponent chooses a creature type"
         } else {
             "As this permanent enters, choose a creature type"
+        }
+        ChoiceType.CARD_TYPE -> if (chooser == Player.AnOpponent) {
+            "As this permanent enters, an opponent chooses a card type"
+        } else {
+            "As this permanent enters, choose a card type"
         }
         ChoiceType.CREATURE_ON_BATTLEFIELD -> "As this creature enters, choose another creature you control"
         ChoiceType.MODE -> {

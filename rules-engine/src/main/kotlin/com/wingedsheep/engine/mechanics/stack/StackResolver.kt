@@ -3950,6 +3950,35 @@ class StackResolver(
                 )
             }
 
+            ChoiceType.CARD_TYPE -> {
+                val cardTypeOptions = choice.allowedCardTypes
+                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")
+                val continuation = EntersWithChoiceSpellContinuation(
+                    spellId = spellId,
+                    controllerId = controllerId,
+                    ownerId = ownerId,
+                    choiceType = ChoiceType.CARD_TYPE,
+                    cardTypes = cardTypeOptions
+                )
+                state.suspendForDecision(
+                    question = { decisionId ->
+                        ChooseOptionDecision(
+                            id = decisionId,
+                            playerId = chooserId,
+                            prompt = "Choose a creature type",
+                            context = DecisionContext(
+                                sourceId = spellId,
+                                sourceName = cardComponent.name,
+                                phase = DecisionPhase.RESOLUTION
+                            ),
+                            options = cardTypeOptions.map { it.displayName },
+                            defaultSearch = ""
+                        )
+                    },
+                    answer = continuation
+                )
+            }
+
             ChoiceType.CREATURE_ON_BATTLEFIELD -> {
                 val battlefieldCreatures = state.getBattlefield().filter { entityId ->
                     entityId != spellId &&

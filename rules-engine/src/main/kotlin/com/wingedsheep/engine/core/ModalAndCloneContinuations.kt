@@ -329,6 +329,7 @@ data class EntersWithChoiceSpellContinuation(
     val ownerId: EntityId,
     val choiceType: com.wingedsheep.sdk.scripting.ChoiceType,
     val creatureTypes: List<String> = emptyList(),
+    val cardTypes: List<com.wingedsheep.sdk.core.CardType> = emptyList(),
     /**
      * For [com.wingedsheep.sdk.scripting.ChoiceType.MODE] choices, the
      * positionally aligned list of mode ids. The response's chosen index
@@ -395,6 +396,7 @@ data class EntersWithChoiceOnBattlefieldContinuation(
     val controllerId: EntityId,
     val choiceType: com.wingedsheep.sdk.scripting.ChoiceType,
     val creatureTypes: List<String> = emptyList(),
+    val cardTypes: List<com.wingedsheep.sdk.core.CardType> = emptyList(),
     /** For [com.wingedsheep.sdk.scripting.ChoiceType.MODE] choices, see
      *  [EntersWithChoiceSpellContinuation.modeOptionIds]. */
     val modeOptionIds: List<String> = emptyList(),

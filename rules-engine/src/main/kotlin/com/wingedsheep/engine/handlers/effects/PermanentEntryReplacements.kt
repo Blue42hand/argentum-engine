@@ -405,6 +405,28 @@ object PermanentEntryReplacements {
                 )
             }
 
+            ChoiceType.CARD_TYPE -> {
+                val options = choice.allowedCardTypes
+                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")
+                pause(
+                    { id -> ChooseOptionDecision(
+                        id = id,
+                        playerId = chooserId,
+                        prompt = "Choose a creature type",
+                        context = context(),
+                        options = options.map { it.displayName },
+                        defaultSearch = ""
+                    ) },
+                    EntersWithChoiceOnBattlefieldContinuation(
+                        entityId = entityId,
+                        controllerId = controllerId,
+                        choiceType = ChoiceType.CARD_TYPE,
+                        cardTypes = options,
+                        fromZone = fromZone
+                    )
+                )
+            }
+
             ChoiceType.CREATURE_ON_BATTLEFIELD -> {
                 val creatures = state.getBattlefield().filter { eid ->
                     if (eid == entityId) return@filter false

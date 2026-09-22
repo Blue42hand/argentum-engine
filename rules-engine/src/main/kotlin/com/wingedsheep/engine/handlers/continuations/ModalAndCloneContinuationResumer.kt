@@ -557,6 +557,16 @@ class ModalAndCloneContinuationResumer(
                     c.withCastChoice(ChoiceSlot.CREATURE_TYPE, ChoiceValue.TextChoice(chosenType))
                 }
             }
+            com.wingedsheep.sdk.scripting.ChoiceType.CARD_TYPE -> {
+                if (response !is OptionChosenResponse) {
+                    return ExecutionResult.error(state, "Expected option chosen response for card type choice")
+                }
+                val chosenType = continuation.cardTypes.getOrNull(response.optionIndex)
+                    ?: return ExecutionResult.error(state, "Invalid card type index: ${response.optionIndex}")
+                state.updateEntity(spellId) { c ->
+                    c.withCastChoice(ChoiceSlot.CARD_TYPE, ChoiceValue.TextChoice(chosenType.displayName))
+                }
+            }
             com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_ON_BATTLEFIELD -> {
                 if (response !is CardsSelectedResponse) {
                     return ExecutionResult.error(state, "Expected cards selected response for creature choice")
@@ -742,6 +752,16 @@ class ModalAndCloneContinuationResumer(
                     ?: return ExecutionResult.error(state, "Invalid creature type index: ${response.optionIndex}")
                 state.updateEntity(entityId) { c ->
                     c.withCastChoice(ChoiceSlot.CREATURE_TYPE, ChoiceValue.TextChoice(chosenType))
+                }
+            }
+            com.wingedsheep.sdk.scripting.ChoiceType.CARD_TYPE -> {
+                if (response !is OptionChosenResponse) {
+                    return ExecutionResult.error(state, "Expected option chosen response for card type choice")
+                }
+                val chosenType = continuation.cardTypes.getOrNull(response.optionIndex)
+                    ?: return ExecutionResult.error(state, "Invalid card type index: ${response.optionIndex}")
+                state.updateEntity(entityId) { c ->
+                    c.withCastChoice(ChoiceSlot.CARD_TYPE, ChoiceValue.TextChoice(chosenType.displayName))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_ON_BATTLEFIELD -> {
