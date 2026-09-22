@@ -8,8 +8,8 @@ spring:
     name: argentum-gym-server
 
 # Standard Spring/Micrometer request metrics make persistent-host qualification
-# measurable without changing the Gym contract. The server binds to loopback by
-# default; remote deployments should keep an authenticated gateway in front.
+# measurable without changing the Gym contract. Management endpoints share the
+# Gym HTTP listener and should use the same deployment/network protection.
 management:
   endpoints:
     web:
