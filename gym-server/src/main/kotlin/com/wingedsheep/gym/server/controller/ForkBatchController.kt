@@ -2,6 +2,7 @@ package com.wingedsheep.gym.server.controller
 
 import com.wingedsheep.gym.server.dto.ForkBatchItem
 import com.wingedsheep.gym.server.dto.ForkBatchResult
+import com.wingedsheep.gym.server.lifecycle.EnvLeaseManager
 import com.wingedsheep.gym.service.ForkRequest
 import com.wingedsheep.gym.service.MultiEnvService
 import io.swagger.v3.oas.annotations.Operation
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/envs")
 @Tag(name = "Environments")
 class ForkBatchController(
-    private val multiEnvService: MultiEnvService
+    private val multiEnvService: MultiEnvService,
+    private val leaseManager: EnvLeaseManager,
 ) {
     @Operation(
         summary = "Fork many source envs in parallel",
@@ -28,7 +30,9 @@ class ForkBatchController(
     )
     @PostMapping("/fork-batch")
     fun forkBatch(@RequestBody items: List<ForkBatchItem>): List<ForkBatchResult> =
-        multiEnvService.forkBatch(items.map { ForkRequest(it.envId, it.count) }).map { (envId, children) ->
-            ForkBatchResult(envId, children)
+        leaseManager.withLeases(items.map { it.envId }) {
+            multiEnvService.forkBatch(items.map { ForkRequest(it.envId, it.count) }).map { (envId, children) ->
+                ForkBatchResult(envId, children)
+            }
         }
 }
