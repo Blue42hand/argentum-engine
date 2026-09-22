@@ -1569,6 +1569,78 @@
     ]
 }
 
+// Jiang Yanggu, Never Alone
+{
+    "name": "Jiang Yanggu, Never Alone",
+    "manaCost": "{3}{G}",
+    "typeLine": "Legendary Creature — Human Druid",
+    "oracleText": "When Jiang Yanggu enters, create Mowu, a legendary 3/3 green Dog creature token.\nAt the beginning of your end step, untap all tokens you control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 3,
+                    "toughness": 3,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Dog"
+                    ],
+                    "name": "Mowu",
+                    "imageUri": "https://cards.scryfall.io/normal/front/5/8/5868190d-18f6-43b6-af83-9e0ef585687d.jpg?1789735768",
+                    "legendary": true
+                },
+                "descriptionOverride": "When Jiang Yanggu enters, create Mowu, a legendary 3/3 green Dog creature token."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "token ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "TapUntap",
+                        "target": "Self",
+                        "tap": false
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, untap all tokens you control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "261",
+        "rarity": "UNCOMMON",
+        "artist": "Dmitry Burmak",
+        "flavorText": "\"I traveled with Mowu as a Planeswalker. Now I do so through Omenpaths. Neither of us are complaining about the longer walk.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f5a0bb3e-8119-4739-8684-e61d1d607dcb.jpg?1789014406",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Kiora of Fire and Ashes
 {
     "name": "Kiora of Fire and Ashes",
@@ -1788,6 +1860,232 @@
     "colorIdentityOverride": [
         "RED",
         "GREEN"
+    ]
+}
+
+// Koth of the Homestead
+{
+    "name": "Koth of the Homestead",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Human Citizen",
+    "oracleText": "Landfall — Whenever a land you control enters, you gain 1 life.\nWhenever a Plains you control enters, put a +1/+1 counter on target creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, you gain 1 life."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land Plains ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target creature"
+                },
+                "descriptionOverride": "Whenever a Plains you control enters, put a +1/+1 counter on target creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "199",
+        "rarity": "UNCOMMON",
+        "artist": "Kieran Yanner",
+        "flavorText": "\"Malach, tell your mother the steelfruit harvest is abundant this cycle!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/920703fd-2a2f-454b-8829-af8f2afda4f4.jpg?1789568532",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Koth, the Geomancer
+{
+    "name": "Koth, the Geomancer",
+    "manaCost": "{2}{R}",
+    "typeLine": "Legendary Creature — Human Warrior",
+    "oracleText": "Reach\nLandfall — Whenever a land you control enters, Koth deals 1 damage to each opponent. If that land is a Mountain, add {R}.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "EntityMatches",
+                                    "entity": "TriggeringEntity",
+                                    "filter": "land Mountain"
+                                }
+                            },
+                            "then": {
+                                "type": "AddMana",
+                                "color": "RED"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, Koth deals 1 damage to each opponent. If that land is a Mountain, add {R}."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "248",
+        "rarity": "UNCOMMON",
+        "artist": "Kieran Yanner",
+        "flavorText": "\"My home was lost a long time ago. But maybe we can forge something new.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/4/54f64e95-5a97-4d7c-9939-7f33a3165562.jpg?1789470892",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Liliana the Faultless
+{
+    "name": "Liliana the Faultless",
+    "manaCost": "{W}",
+    "typeLine": "Legendary Creature — Human Cleric",
+    "oracleText": "Whenever another creature or planeswalker you control enters, you gain 1 life.\n{1}, {T}, Discard a card: Another target creature or planeswalker you control gains hexproof until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature|planeswalker ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Whenever another creature or planeswalker you control enters, you gain 1 life."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": "AtomDiscard"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "HEXPROOF",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "another target creature or planeswalker you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature|planeswalker ctrl:you",
+                            "excludeSelf": true
+                        },
+                        "id": "another target creature or planeswalker you control"
+                    }
+                ],
+                "descriptionOverride": "Another target creature or planeswalker you control gains hexproof until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "200",
+        "rarity": "RARE",
+        "artist": "Marta Nael",
+        "flavorText": "\"All mistakes can be fixed. Even you.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/70d8c400-87dc-4f15-808f-e54a95d779fc.jpg?1788329194",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -2077,6 +2375,80 @@
     "colorIdentityOverride": [
         "GREEN"
     ]
+}
+
+// Medic's Kitesail
+{
+    "name": "Medic's Kitesail",
+    "manaCost": "{2}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +1/+0 and has flying and \"Whenever this creature attacks, you gain 1 life.\"\nEquip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 0
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "FLYING"
+            },
+            {
+                "type": "GrantTriggeredAbility",
+                "ability": {
+                    "id": "ability_2",
+                    "trigger": "AttackEvent",
+                    "effect": {
+                        "type": "GainLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "equipCost": "{2}",
+    "metadata": {
+        "collectorNumber": "173",
+        "artist": "Paolo Parente",
+        "flavorText": "An apothecary on wings.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/b/8b07409a-1dce-461d-95e4-1130521ff4c4.jpg?1789556945",
+        "inBooster": false
+    },
+    "colorIdentityOverride": []
 }
 
 // Memory Trap
@@ -2528,6 +2900,84 @@
     ]
 }
 
+// Prophesied End
+{
+    "name": "Prophesied End",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target creature. If it wasn't attacking, its controller draws a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": {
+                    "type": "Not",
+                    "condition": {
+                        "type": "EntityMatches",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "filter": "creature attacking"
+                    }
+                }
+            },
+            "then": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "TargetController"
+                    }
+                ]
+            },
+            "otherwise": {
+                "type": "MoveToZone",
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "target creature"
+                },
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "17",
+        "rarity": "UNCOMMON",
+        "artist": "A. M. Sartor",
+        "flavorText": "Upon death, an oracle of Arcavios returns to the very source of their world. Jace followed Jadzi's mind to witness two planes becoming one.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/f/1f95399a-9766-4f3d-aa6a-ece55e0530d9.jpg?1788951920",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Rampart Hunter
 {
     "name": "Rampart Hunter",
@@ -2713,6 +3163,62 @@
         "artist": "Billy Christian",
         "flavorText": "Quandrix believed in finding the equations of the natural world. Hexhaven disrupted the pattern of existence.",
         "imageUri": "https://cards.scryfall.io/normal/front/2/c/2c588954-c6eb-4aae-a2fa-0651ccf2d90a.jpg?1789470778",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Rescue Girl, First Responder
+{
+    "name": "Rescue Girl, First Responder",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Human Cleric",
+    "oracleText": "Flying\n{T}: Return another target permanent you control to its owner's hand. Activate only during your turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "another target permanent you control"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent ctrl:you",
+                            "excludeSelf": true
+                        },
+                        "id": "another target permanent you control"
+                    }
+                ],
+                "restrictions": [
+                    "OnlyDuringYourTurn"
+                ],
+                "descriptionOverride": "{T}: Return another target permanent you control to its owner's hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "202",
+        "rarity": "UNCOMMON",
+        "artist": "Cristi Balanescu",
+        "flavorText": "\"The Helpful Hero! The Daring Darling of the Tenth District!\"\n—*Ravnica Gazette* headline",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/9/699874e3-1ccf-4a6c-8371-61040de82d08.jpg?1789645598",
         "inBooster": false
     },
     "colorIdentityOverride": [
@@ -3177,6 +3683,58 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Solarium Sentry
+{
+    "name": "Solarium Sentry",
+    "manaCost": "{G}{W}",
+    "typeLine": "Creature — Cat Soldier",
+    "oracleText": "Whenever an opponent casts a spell with mana value 2 or less, you gain 2 life.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMost",
+                                "max": 2
+                            }
+                        ]
+                    },
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "descriptionOverride": "Whenever an opponent casts a spell with mana value 2 or less, you gain 2 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "148",
+        "rarity": "RARE",
+        "artist": "Chris Rallis",
+        "flavorText": "\"I've seen hay fever hit harder than that!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/e/1ef12dcf-df50-4da6-8c4c-e2937ba9698e.jpg?1789127651",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
     ]
 }
 
@@ -3651,6 +4209,125 @@
     ]
 }
 
+// The Echoverse Fulcrum
+{
+    "name": "The Echoverse Fulcrum",
+    "manaCost": "{2}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "When The Echoverse Fulcrum enters, draw a card, then discard a card.\n{5}, {T}, Exile The Echoverse Fulcrum: Destroy all creatures. Activate only as a sorcery.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "descriptionOverride": "When The Echoverse Fulcrum enters, draw a card, then discard a card."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{5}"
+                            }
+                        },
+                        "CostTap",
+                        "CostExileSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "creature"
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "{5}, {T}, Exile The Echoverse Fulcrum: Destroy all creatures."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "169",
+        "rarity": "MYTHIC",
+        "artist": "Adam Paquette",
+        "flavorText": "The tower transformed to fulfill its true purpose: as a catalyst to merge the old Multiverse with the new.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d71d250f-c0e0-44b2-877c-76f3bcab4f34.jpg?1789385887",
+        "inBooster": false
+    },
+    "colorIdentityOverride": []
+}
+
 // Theoretical Necromancer
 {
     "name": "Theoretical Necromancer",
@@ -3877,6 +4554,157 @@
     "colorIdentityOverride": [
         "BLUE",
         "BLACK"
+    ]
+}
+
+// Tinybones, Pocket Nuisance
+{
+    "name": "Tinybones, Pocket Nuisance",
+    "manaCost": "{2}{B}",
+    "typeLine": "Legendary Creature — Skeleton Rogue",
+    "oracleText": "When Tinybones enters, each opponent discards a card.\nWhenever a player discards one or more cards, Tinybones deals 1 damage to each opponent.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "EachOpponent"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "hand"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "hand",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "discarded"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discarded",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "When Tinybones enters, each opponent discards a card."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "DiscardEvent",
+                    "player": "Each",
+                    "batch": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                },
+                "descriptionOverride": "Whenever a player discards one or more cards, Tinybones deals 1 damage to each opponent."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "237",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Ejsing",
+        "flavorText": "No score is too small, no coin purse too big.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/f/2f47ddf7-35b6-4205-8045-f057914c5f64.jpg?1788329294",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Titanbones, Towering Heart
+{
+    "name": "Titanbones, Towering Heart",
+    "manaCost": "{3}{G}",
+    "typeLine": "Legendary Creature — Skeleton Druid",
+    "oracleText": "Reach\nWhenever you gain life, put two +1/+1 counters on Titanbones.\nWhen you discard this card, you gain 3 life.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 2,
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever you gain life, put two +1/+1 counters on Titanbones."
+            },
+            {
+                "id": "ability_2",
+                "trigger": "DiscardEvent",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                "descriptionOverride": "When you discard this card, you gain 3 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "266",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Ejsing",
+        "flavorText": "Titanbones found he received the greatest gifts in the littlest things.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/d/edea6f70-a5a7-475d-b7f2-97933d0f32cf.jpg?1788329375",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
