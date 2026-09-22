@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 69 / 285
+**Implemented:** 70 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 69   |
+| Extras     | 285   | 70   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -293,7 +293,7 @@
 - [ ] Winter, Tormented Loner
 - [ ] Woodwork Prodigy
 - [ ] Wrath of the Bloodmane
-- [ ] Wrecking Gecko
+- [x] Wrecking Gecko
 - [x] Yargle, Glutton of Urborg
 - [ ] Yargle, Goliath of Otaria
 - [ ] Yoshimaru, Beloved Companion
