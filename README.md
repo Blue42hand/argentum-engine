@@ -103,7 +103,7 @@ Copy `.env.example` to `.env` to configure:
 | `REDIS_PORT` | `6379` | Redis port |
 | `GAME_AI_ENABLED` | `true` | Enable AI opponent |
 | `GAME_AI_MODE` | `engine` | AI mode: `engine` (built-in), `llm` (requires API key), `jev` (local profile), or the mode of a registered `AiControllerProvider`. An unrecognised value fails startup. |
-| `OPENROUTER_API_KEY` | | OpenRouter API key (only needed for `llm` mode) |
+| `OPENROUTER_API_KEY` | | Shared OpenRouter API key for `llm` and `jev` modes |
 | `GAME_AI_MODEL` | `google/gemini-3.1-flash-lite-preview` | LLM model (only for `llm` mode) |
 
 ## Tech Stack
@@ -184,13 +184,11 @@ Add these to your `.env`, then run `just dev` (which activates the `local` Sprin
 GAME_AI_ENABLED=true
 GAME_AI_MODE=jev
 OPENROUTER_API_KEY=your-openrouter-key
-# Optional dedicated credential, preferred over OPENROUTER_API_KEY:
-# GAME_AI_JEV_API_KEY=your-openrouter-key
 ```
 
 Choose **Just me**, pick a deck source, and start playing (or use **Add AI** in a lobby); the opponent's name ends in **(Jev)**.
 No Ollama or TypeSafe account is needed. The default model is `typesafe/jev-1.13`.
-Jev has its own endpoint and credential settings, so local Ollama defaults cannot redirect its requests.
+Jev shares `OPENROUTER_API_KEY` with OpenRouter chat models and has its own endpoint, so local Ollama defaults cannot redirect its requests.
 Do not put Jev in `GAME_AI_MODEL`: that setting uses the chat-completions protocol.
 
 Jev chooses plays, targets, X, modes, attackers, blockers, damage assignments, card selections,

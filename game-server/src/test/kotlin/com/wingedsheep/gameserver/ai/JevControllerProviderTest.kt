@@ -12,13 +12,13 @@ import org.springframework.context.annotation.Profile
 
 class JevControllerProviderTest : FunSpec({
     fun provider(key: String = "", mode: String = "jev", timeout: Long = 30000) = JevControllerProvider(
-        CardRegistry(), GameProperties(ai = AiProperties(enabled = true, mode = mode)), key,
+        CardRegistry(), GameProperties(ai = AiProperties(enabled = true, mode = mode, openRouterApiKey = key)),
         "http://127.0.0.1:1/alpha/decisions", "typesafe/jev-1.13", timeout)
 
     test("Jev is a local-only provider and fails startup with an actionable missing-key error") {
         JevControllerProvider::class.java.getAnnotation(Profile::class.java).value.toList() shouldBe listOf("local")
         shouldThrow<IllegalArgumentException> { provider().validateConfig() }.message shouldBe
-            "Jev requires GAME_AI_JEV_API_KEY or OPENROUTER_API_KEY"
+            "Jev requires OPENROUTER_API_KEY"
         provider(mode = "engine").validateConfig()
     }
     test("configured provider creates Jev through the same registry as other AI modes") {

@@ -22,17 +22,17 @@ import org.springframework.stereotype.Component
 class JevControllerProvider(
     private val registry: CardRegistry,
     private val properties: GameProperties,
-    @Value("\${game.ai.jev.api-key:}") private val apiKey: String,
     @Value("\${game.ai.jev.endpoint:https://openrouter.ai/api/alpha/decisions}") private val endpoint: String,
     @Value("\${game.ai.jev.model:typesafe/jev-1.13}") private val model: String,
     @Value("\${game.ai.jev.timeout-ms:30000}") private val timeoutMs: Long,
 ) : AiControllerProvider {
     override val mode = "jev"
+    private val apiKey: String get() = properties.ai.openRouterApiKey
 
     @PostConstruct
     fun validateConfig() {
         if (properties.ai.enabled && properties.ai.mode.trim().equals(mode, ignoreCase = true)) {
-            require(apiKey.isNotBlank()) { "Jev requires GAME_AI_JEV_API_KEY or OPENROUTER_API_KEY" }
+            require(apiKey.isNotBlank()) { "Jev requires OPENROUTER_API_KEY" }
             require(timeoutMs in 1..120_000) { "Jev timeout must be between 1 and 120000 ms" }
         }
     }
