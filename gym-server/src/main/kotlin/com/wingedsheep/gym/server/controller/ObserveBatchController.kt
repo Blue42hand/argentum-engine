@@ -2,6 +2,7 @@ package com.wingedsheep.gym.server.controller
 
 import com.wingedsheep.gym.server.dto.ObserveBatchItem
 import com.wingedsheep.gym.server.dto.ObserveBatchResult
+import com.wingedsheep.gym.server.lifecycle.EnvLeaseManager
 import com.wingedsheep.gym.service.MultiEnvService
 import com.wingedsheep.gym.service.ObserveRequest
 import io.swagger.v3.oas.annotations.Operation
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/envs")
 @Tag(name = "Environments")
 class ObserveBatchController(
-    private val multiEnvService: MultiEnvService
+    private val multiEnvService: MultiEnvService,
+    private val leaseManager: EnvLeaseManager,
 ) {
     @Operation(
         summary = "Observe many envs in parallel",
@@ -28,17 +30,18 @@ class ObserveBatchController(
         """
     )
     @PostMapping("/observe-batch")
-    fun observeBatch(@RequestBody items: List<ObserveBatchItem>): List<ObserveBatchResult> {
-        val requests = items.map { item ->
-            ObserveRequest(item.envId, item.revealAll, item.perspectivePlayerId)
+    fun observeBatch(@RequestBody items: List<ObserveBatchItem>): List<ObserveBatchResult> =
+        leaseManager.withLeases(items.map { it.envId }) {
+            val requests = items.map { item ->
+                ObserveRequest(item.envId, item.revealAll, item.perspectivePlayerId)
+            }
+            val results = multiEnvService.observeBatch(requests)
+            items.zip(results).map { (item, result) ->
+                ObserveBatchResult(
+                    envId = result.first,
+                    perspectivePlayerId = item.perspectivePlayerId,
+                    observation = result.second.observation
+                )
+            }
         }
-        val results = multiEnvService.observeBatch(requests)
-        return items.zip(results).map { (item, result) ->
-            ObserveBatchResult(
-                envId = result.first,
-                perspectivePlayerId = item.perspectivePlayerId,
-                observation = result.second.observation
-            )
-        }
-    }
 }
