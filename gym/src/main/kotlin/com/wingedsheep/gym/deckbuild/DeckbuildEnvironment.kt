@@ -54,7 +54,12 @@ class DeckbuildEnvironment(
     /** Action list for the most recent observation; `step` indexes into it. */
     private var actions: List<DeckbuildAction> = emptyList()
 
+    /** Digest paired with [actions], for stale-step validation without rebuilding the action list. */
+    private var observedStateDigest: String? = null
+
     override val isTerminal: Boolean get() = finalized
+
+    override val actionStateDigest: String? get() = observedStateDigest
 
     /** The finished decklist once finalized, else null. */
     val finalDeck: Map<String, Int>? get() = if (finalized) LinkedHashMap(selected) else null
@@ -82,6 +87,7 @@ class DeckbuildEnvironment(
             terminated = finalized,
             stateDigest = digest()
         )
+        observedStateDigest = obs.stateDigest
         return ObservationResult(obs, ActionRegistry.EMPTY)
     }
 
