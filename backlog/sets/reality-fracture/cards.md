@@ -2,8 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 68 / 285
-
+**Implemented:** 79 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 68   |
@@ -24,7 +23,7 @@
 - [ ] Ajani's Anguish
 - [x] Apex Witchstalker
 - [ ] Arcane Amphisbaena
-- [ ] Archive Arbiter
+- [x] Archive Arbiter
 - [x] Arni, Humble Scribe
 - [ ] Arni, Renowned Champion
 - [x] Artifist Acumen
@@ -44,7 +43,7 @@
 - [x] Chandra's Emberling
 - [ ] Chandra, Chill of Compliance
 - [ ] Chandra, Torch of Defiance
-- [ ] Charge the Sanctum
+- [x] Charge the Sanctum
 - [ ] Clash of Elements
 - [ ] Codie, Ravenous Codex
 - [ ] Command the Stage
@@ -67,7 +66,7 @@
 - [ ] Divining Duelist
 - [ ] Draconic Visitor
 - [x] Eardrum Rattler
-- [ ] Edgar, Ancient Bloodlord
+- [x] Edgar, Ancient Bloodlord
 - [ ] Edgar, Moonlit Sovereign
 - [ ] Emergency Phytomedic
 - [ ] Emrakul, the Exigent Doom
@@ -137,7 +136,7 @@
 - [ ] Kiora of Fire and Ashes
 - [ ] Kiora of Salt and Sand
 - [x] Konstrari Annex
-- [ ] Konstrari Charm
+- [x] Konstrari Charm
 - [ ] Konstrari Improviser
 - [ ] Koth of the Homestead
 - [ ] Koth, the Geomancer
@@ -150,7 +149,7 @@
 - [ ] Loot, the Anomaly
 - [ ] Loot, the Nexus
 - [x] Loyal Tutor
-- [ ] Lyra, Archangel of Dawn
+- [x] Lyra, Archangel of Dawn
 - [ ] Lyra, Tolarian Archangel
 - [ ] Mabel, Bitter Recluse
 - [ ] Mabel, Valley Hero
@@ -205,7 +204,7 @@
 - [ ] Ruric Thar, Biomagus
 - [ ] Ruric Thar, Magecrusher
 - [ ] Saheeli, Consul of Oversight
-- [ ] Saheeli, Jewel of Avishkar
+- [x] Saheeli, Jewel of Avishkar
 - [x] Samut, Hazoret's Champion
 - [ ] Samut, Tyrant of Naktamun
 - [ ] Sanctum Lurker
@@ -225,7 +224,7 @@
 - [ ] Sphinx's Approach
 - [x] Stingcaster Mage
 - [x] Stingerquill Annex
-- [ ] Stingerquill Charm
+- [x] Stingerquill Charm
 - [ ] Stingerquill Voxmancer
 - [ ] Stinging Vitriol
 - [ ] Sureshot Sower
@@ -250,7 +249,7 @@
 - [ ] Theorist's Proxy
 - [ ] Theorist's Sanctum
 - [x] Theorix Annex
-- [ ] Theorix Charm
+- [x] Theorix Charm
 - [ ] Theorix Metamage
 - [ ] Tinybones, Pocket Nuisance
 - [ ] Titanbones, Towering Heart
@@ -260,7 +259,7 @@
 - [ ] Traxos, Academy Guardian
 - [ ] Traxos, Scourge Eternal
 - [ ] Twinned Vision
-- [ ] Twisted Fates
+- [x] Twisted Fates
 - [ ] Uldaros Theorix
 - [x] Undulating Witness
 - [x] Unflinching Hortimancer
@@ -268,7 +267,7 @@
 - [ ] Variable Chaser
 - [ ] Verdant Kraken
 - [x] Vigorbloom Annex
-- [ ] Vigorbloom Charm
+- [x] Vigorbloom Charm
 - [ ] Vigorbloom Vanguard
 - [ ] Vindictive Triumph
 - [ ] Vinelasher Adept
@@ -292,7 +291,7 @@
 - [x] Winter, Team Player
 - [ ] Winter, Tormented Loner
 - [ ] Woodwork Prodigy
-- [ ] Wrath of the Bloodmane
+- [x] Wrath of the Bloodmane
 - [ ] Wrecking Gecko
 - [x] Yargle, Glutton of Urborg
 - [ ] Yargle, Goliath of Otaria
