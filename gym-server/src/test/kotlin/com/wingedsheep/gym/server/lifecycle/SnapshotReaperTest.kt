@@ -22,28 +22,28 @@ class SnapshotReaperTest : FunSpec({
     )
 
     test("enabled snapshot reaper releases idle slots") {
-        var instant = Instant.parse("2026-09-22T00:00:00Z")
-        val codec = SnapshotCodec().also { it.now = { instant } }
+        val codec = SnapshotCodec()
         val service = MultiEnvService(createGymCardRegistry(), snapshotCodec = codec)
         val envId = service.create(config()).envId
         service.snapshot(envId)
-        val reaper = SnapshotReaper(service, ttlMs = 1_000)
+        val reaper = SnapshotReaper(service, ttlMs = 1_000).also {
+            it.now = { Instant.parse("2100-01-01T00:00:00Z") }
+        }
 
         codec.size() shouldBe 1
-        instant = instant.plusMillis(1_000)
         reaper.reapIdle()
         codec.size() shouldBe 0
     }
 
     test("disabled snapshot reaper preserves explicit cleanup") {
-        var instant = Instant.parse("2026-09-22T00:00:00Z")
-        val codec = SnapshotCodec().also { it.now = { instant } }
+        val codec = SnapshotCodec()
         val service = MultiEnvService(createGymCardRegistry(), snapshotCodec = codec)
         val envId = service.create(config()).envId
         service.snapshot(envId)
-        val reaper = SnapshotReaper(service, ttlMs = 0)
+        val reaper = SnapshotReaper(service, ttlMs = 0).also {
+            it.now = { Instant.parse("2100-01-01T00:00:00Z") }
+        }
 
-        instant = instant.plusSeconds(86_400)
         reaper.reapIdle()
         codec.size() shouldBe 1
     }
