@@ -1,0 +1,134 @@
+name: Issue 96 card-type choice implementation
+
+on:
+  push:
+    branches:
+      - codex/issue-96-card-type-choice
+
+permissions:
+  contents: write
+
+jobs:
+  implement-and-verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/issue-96-card-type-choice
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Apply bounded CARD_TYPE as-enters implementation
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              s = p.read_text()
+              assert s.count(old) == 1, (path, 'expected exactly one match', s.count(old), old)
+              p.write_text(s.replace(old, new, 1))
+
+          sdk = 'mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/scripting/ReplacementEffect.kt'
+          replace_once(
+              sdk,
+              '    CREATURE_TYPE,\n    /** Choose another creature you control',
+              '    CREATURE_TYPE,\n    /** Choose a card type (artifact, creature, enchantment, instant, land, etc.) */\n    CARD_TYPE,\n    /** Choose another creature you control'
+          )
+          replace_once(
+              sdk,
+              '    val allowedCreatureTypes: List<String>? = null,\n    /**\n     * When [choiceType] is [ChoiceType.MODE]',
+              '    val allowedCreatureTypes: List<String>? = null,\n    /**\n     * When [choiceType] is [ChoiceType.CARD_TYPE], restrict the choosable card types.\n     * A card with a printed shortlist should provide it explicitly.\n     */\n    val allowedCardTypes: List<com.wingedsheep.sdk.core.CardType>? = null,\n    /**\n     * When [choiceType] is [ChoiceType.MODE]'
+          )
+
+          cont = 'rules-engine/src/main/kotlin/com/wingedsheep/engine/core/ModalAndCloneContinuations.kt'
+          p = Path(cont); s = p.read_text()
+          needle = '    val creatureTypes: List<String> = emptyList(),'
+          assert s.count(needle) == 2, (cont, s.count(needle))
+          s = s.replace(needle, needle + '\n    val cardTypes: List<com.wingedsheep.sdk.core.CardType> = emptyList(),')
+          p.write_text(s)
+
+          def extract_when_branch(text, marker):
+              start = text.index(marker)
+              brace = text.index('{', start)
+              depth = 0
+              i = brace
+              while i < len(text):
+                  if text[i] == '{': depth += 1
+                  elif text[i] == '}':
+                      depth -= 1
+                      if depth == 0:
+                          return start, i + 1, text[start:i+1]
+                  i += 1
+              raise AssertionError('unbalanced branch ' + marker)
+
+          def add_card_type_branch(path, marker, direct=False):
+              p = Path(path); s = p.read_text()
+              assert 'ChoiceType.CARD_TYPE ->' not in s, path
+              start, end, block = extract_when_branch(s, marker)
+              b = block.replace('ChoiceType.CREATURE_TYPE', 'ChoiceType.CARD_TYPE')
+              b = b.replace('creatureTypeOptions', 'cardTypeOptions').replace('creatureTypes', 'cardTypes')
+              b = b.replace('val options = choice.allowedCreatureTypes ?: Subtype.ALL_CREATURE_TYPES',
+                            'val options = choice.allowedCardTypes\n                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")')
+              b = b.replace('val cardTypeOptions = choice.allowedCreatureTypes\n                    ?: com.wingedsheep.sdk.core.Subtype.ALL_CREATURE_TYPES',
+                            'val cardTypeOptions = choice.allowedCardTypes\n                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")')
+              # Decision options must be strings while continuation payload remains typed.
+              b = b.replace('options = cardTypeOptions,', 'options = cardTypeOptions.map { it.displayName },')
+              b = b.replace('options = options,', 'options = options.map { it.displayName },')
+              # For direct-entry branch the continuation argument uses the local `options` list.
+              b = b.replace('cardTypes = options,', 'cardTypes = options,')
+              s = s[:end] + '\n\n            ' + b + s[end:]
+              p.write_text(s)
+
+          add_card_type_branch(
+              'rules-engine/src/main/kotlin/com/wingedsheep/engine/mechanics/stack/StackResolver.kt',
+              'ChoiceType.CREATURE_TYPE -> {'
+          )
+          add_card_type_branch(
+              'rules-engine/src/main/kotlin/com/wingedsheep/engine/handlers/effects/PermanentEntryReplacements.kt',
+              'ChoiceType.CREATURE_TYPE -> {'
+          )
+
+          resumer = 'rules-engine/src/main/kotlin/com/wingedsheep/engine/handlers/continuations/ModalAndCloneContinuationResumer.kt'
+          p = Path(resumer); s = p.read_text()
+          marker = 'com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_TYPE -> {'
+          starts = []
+          offset = 0
+          while True:
+              try:
+                  idx = s.index(marker, offset)
+              except ValueError:
+                  break
+              starts.append(idx); offset = idx + 1
+          assert len(starts) == 2, (resumer, len(starts))
+          # Insert from last to first so offsets stay valid.
+          for start in reversed(starts):
+              _, end, block = extract_when_branch(s[start:], marker)
+              end += start
+              block = block.replace('com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_TYPE',
+                                    'com.wingedsheep.sdk.scripting.ChoiceType.CARD_TYPE')
+              block = block.replace('creatureTypes', 'cardTypes')
+              block = block.replace('ChoiceSlot.CREATURE_TYPE', 'ChoiceSlot.CARD_TYPE')
+              block = block.replace('creature type choice', 'card type choice')
+              block = block.replace('creature type index', 'card type index')
+              block = block.replace('ChoiceValue.TextChoice(chosenType)',
+                                    'ChoiceValue.TextChoice(chosenType.displayName)')
+              s = s[:end] + '\n            ' + block + s[end:]
+          p.write_text(s)
+
+      - name: Compile SDK and rules engine
+        run: ./gradlew :mtg-sdk:compileKotlin :rules-engine:compileKotlin
+      - name: Run SDK and rules engine tests
+        run: ./gradlew :mtg-sdk:test :rules-engine:test
+      - name: Commit verified implementation and remove staging workflow
+        run: |
+          rm .github/workflows/issue-96-card-type-choice.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add mtg-sdk rules-engine .github/workflows/issue-96-card-type-choice.yml
+          git commit -m 'Add card-type choices to EntersWithChoice'
+          git push origin HEAD:codex/issue-96-card-type-choice
