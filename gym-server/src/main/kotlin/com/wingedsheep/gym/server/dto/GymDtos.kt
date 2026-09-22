@@ -24,11 +24,15 @@ data class CreateEnvResponse(
  * [params] completes an action whose enumerated form is a template — which creatures attack and
  * whom, which blocks are made, a spell's targets, X. Omit it for actions that need no choice beyond
  * their ID; see [ActionParams] for what is (and isn't) expressible here.
+ *
+ * [expectedStateDigest] optionally binds the action to the observation that supplied its action ID.
+ * A mismatch fails closed instead of allowing a delayed request to reuse an integer ID in newer state.
  */
 @Serializable
 data class StepBody(
     val actionId: Int,
-    val params: ActionParams = ActionParams.EMPTY
+    val params: ActionParams = ActionParams.EMPTY,
+    val expectedStateDigest: String? = null
 )
 
 /** Single entry for `POST /envs/step-batch`. */
@@ -36,7 +40,8 @@ data class StepBody(
 data class StepBatchItem(
     val envId: EnvId,
     val actionId: Int,
-    val params: ActionParams = ActionParams.EMPTY
+    val params: ActionParams = ActionParams.EMPTY,
+    val expectedStateDigest: String? = null
 )
 
 /** Result entry for `POST /envs/step-batch`. */
