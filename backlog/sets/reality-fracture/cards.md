@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 58 / 285
+**Implemented:** 59 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 58   |
+| Extras     | 285   | 59   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -159,7 +159,7 @@
 - [ ] Massacre Girl, Most Wanted
 - [ ] Master of Barbs
 - [ ] Medic's Kitesail
-- [ ] Memory Trap
+- [x] Memory Trap
 - [x] Meticulous Commons
 - [ ] Mind Meanderer
 - [ ] Mindseeker Oculus
