@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 57 / 285
+**Implemented:** 58 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 57   |
+| Extras     | 285   | 58   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -196,7 +196,7 @@
 - [ ] Repurposed Enforcer
 - [ ] Rescue Girl, First Responder
 - [x] Restore with Empathy
-- [ ] Return to the Light Realms
+- [x] Return to the Light Realms
 - [ ] Rewrite Regrets
 - [ ] Rise of the Deathbringer
 - [x] Rockfall Vale
