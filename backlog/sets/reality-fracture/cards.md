@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 58 / 285
+**Implemented:** 68 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 58   |
+| Extras     | 285   | 68   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -53,7 +53,7 @@
 - [ ] Craftwork Crusher
 - [ ] Craterclaw Colossus
 - [ ] Cruel Calculations
-- [ ] Cryotheory Adept
+- [x] Cryotheory Adept
 - [ ] Curse-Marred Demon
 - [ ] Danitha, Spear of Agony
 - [ ] Danitha, Sword of Hope
@@ -90,7 +90,7 @@
 - [x] Forest
 - [x] Formidable Commons
 - [x] Frostbite Pyromental
-- [ ] Fulminous Forte
+- [x] Fulminous Forte
 - [ ] Gallia, Tragic Host
 - [ ] Gallia, the Merrymaker
 - [ ] Gardenize
@@ -159,7 +159,7 @@
 - [ ] Massacre Girl, Most Wanted
 - [ ] Master of Barbs
 - [ ] Medic's Kitesail
-- [ ] Memory Trap
+- [x] Memory Trap
 - [x] Meticulous Commons
 - [ ] Mind Meanderer
 - [ ] Mindseeker Oculus
@@ -179,7 +179,7 @@
 - [ ] Plan for All Outcomes
 - [ ] Pompous Battlemage
 - [x] Precise Redaction
-- [ ] Predictive Preparations
+- [x] Predictive Preparations
 - [ ] Primal Witchstalker
 - [ ] Proctor of Potential
 - [ ] Proft, Consulting Detective
@@ -192,7 +192,7 @@
 - [x] Rampart Hunter
 - [x] Rank Rat
 - [ ] Recursive Recruitment
-- [ ] Refute Destiny
+- [x] Refute Destiny
 - [ ] Repurposed Enforcer
 - [ ] Rescue Girl, First Responder
 - [x] Restore with Empathy
@@ -216,20 +216,20 @@
 - [x] Shipwreck Marsh
 - [ ] Silence the Echo
 - [ ] Simulacrum Shaper
-- [ ] Skilled Battlecarver
+- [x] Skilled Battlecarver
 - [ ] Solarium Sentry
 - [ ] Solitary Cell
 - [ ] Solve for Disappointment
 - [ ] Something Worth Saving
 - [ ] Sphinx of False Conclusions
 - [ ] Sphinx's Approach
-- [ ] Stingcaster Mage
+- [x] Stingcaster Mage
 - [x] Stingerquill Annex
 - [ ] Stingerquill Charm
 - [ ] Stingerquill Voxmancer
 - [ ] Stinging Vitriol
 - [ ] Sureshot Sower
-- [ ] Surgical Precision
+- [x] Surgical Precision
 - [ ] Surveillance Phantasm
 - [x] Swamp
 - [ ] Tam's Resistance
@@ -246,7 +246,7 @@
 - [ ] Thalia, the Survivor
 - [ ] The Echoverse Fulcrum
 - [ ] The Theorist, Jace Beleren
-- [ ] Theoretical Necromancer
+- [x] Theoretical Necromancer
 - [ ] Theorist's Proxy
 - [ ] Theorist's Sanctum
 - [x] Theorix Annex
@@ -298,6 +298,6 @@
 - [ ] Yargle, Goliath of Otaria
 - [ ] Yoshimaru, Beloved Companion
 - [ ] Yoshimaru, Scrappy Stray
-- [ ] Your Fate Ends Here
+- [x] Your Fate Ends Here
 - [ ] Yuriko, Blade of the Mighty
 - [ ] Yuriko, Hope from the Shadows
