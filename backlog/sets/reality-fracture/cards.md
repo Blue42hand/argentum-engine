@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 56 / 285
+**Implemented:** 57 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 56   |
+| Extras     | 285   | 57   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -289,7 +289,7 @@
 - [ ] Way of the Warlord
 - [ ] Way of the Wildspeaker
 - [ ] Whiplash Wordsmith
-- [ ] Winter, Team Player
+- [x] Winter, Team Player
 - [ ] Winter, Tormented Loner
 - [ ] Woodwork Prodigy
 - [ ] Wrath of the Bloodmane
