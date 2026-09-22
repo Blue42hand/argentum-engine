@@ -873,6 +873,60 @@
     ]
 }
 
+// Murmuring Volume
+{
+    "name": "Murmuring Volume",
+    "manaCost": "{3}",
+    "typeLine": "Artifact — Book",
+    "oracleText": "{T}: Add one mana of any color.\n{2}, {T}, Discard a card: Draw a card.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": "AtomDiscard"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "174",
+        "artist": "Zoltan Boros",
+        "flavorText": "Its pages surrender no words until the book has first read its prospective reader.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/6/d68eab2e-89dd-4377-b7af-01512b1804a0.jpg?1789385977",
+        "inBooster": false
+    },
+    "colorIdentityOverride": []
+}
+
 // Perfected Theory
 {
     "name": "Perfected Theory",
