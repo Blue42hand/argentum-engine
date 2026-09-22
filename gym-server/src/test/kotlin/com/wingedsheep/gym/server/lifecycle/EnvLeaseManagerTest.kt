@@ -92,22 +92,24 @@ class EnvLeaseManagerTest : FunSpec({
         val manager = EnvLeaseManager(service, ttlMs = 1_000)
         var instant = Instant.parse("2026-09-22T00:00:00Z")
         manager.now = { instant }
-        lateinit var newEnvId: EnvId
+        var publishedEnvId: EnvId? = null
 
         manager.reapIdle() // discover the pre-existing env
         instant = instant.plusMillis(1_001)
 
         manager.withEnvPublication {
-            newEnvId = service.create(config()).envId
+            val createdEnvId = service.create(config()).envId
+            publishedEnvId = createdEnvId
             manager.reapIdle()
             service.listEnvs() shouldNotContain oldEnvId
-            service.listEnvs() shouldContain newEnvId
+            service.listEnvs() shouldContain createdEnvId
 
             instant = instant.plusMillis(5_000)
             manager.reapIdle() // well beyond TTL, but the new env is still unpublished
-            service.listEnvs() shouldContain newEnvId
+            service.listEnvs() shouldContain createdEnvId
         }
 
+        val newEnvId = checkNotNull(publishedEnvId)
         instant = instant.plusMillis(999)
         manager.reapIdle()
         service.listEnvs() shouldContain newEnvId
