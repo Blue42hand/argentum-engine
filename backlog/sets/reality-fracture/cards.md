@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 135 / 285
+**Implemented:** 145 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -22,12 +22,12 @@
 - [ ] Ajani Unrelenting
 - [x] Ajani's Anguish
 - [x] Apex Witchstalker
-- [ ] Arcane Amphisbaena
+- [x] Arcane Amphisbaena
 - [x] Archive Arbiter
 - [x] Arni, Humble Scribe
 - [x] Arni, Renowned Champion
 - [x] Artifist Acumen
-- [ ] Avatar of Burgeoning Echoes
+- [x] Avatar of Burgeoning Echoes
 - [x] Awaken the Inferno
 - [x] Bestial Incursion
 - [x] Blazing Crescendo
@@ -131,7 +131,7 @@
 - [x] Jiang Yanggu, Never Alone
 - [ ] Karn, Argent Defender
 - [x] Karn, Gilded Guardian
-- [ ] Keeper of the Quiet Hour
+- [x] Keeper of the Quiet Hour
 - [x] Kindred Judgment
 - [x] Kiora of Fire and Ashes
 - [ ] Kiora of Salt and Sand
@@ -161,7 +161,7 @@
 - [x] Memory Trap
 - [x] Meticulous Commons
 - [x] Mind Meanderer
-- [ ] Mindseeker Oculus
+- [x] Mindseeker Oculus
 - [x] Mountain
 - [x] Multiply by Zero
 - [x] Murmuring Volume
@@ -192,7 +192,7 @@
 - [x] Rank Rat
 - [ ] Recursive Recruitment
 - [x] Refute Destiny
-- [ ] Repurposed Enforcer
+- [x] Repurposed Enforcer
 - [x] Rescue Girl, First Responder
 - [x] Restore with Empathy
 - [x] Return to the Light Realms
@@ -246,7 +246,7 @@
 - [x] The Echoverse Fulcrum
 - [ ] The Theorist, Jace Beleren
 - [x] Theoretical Necromancer
-- [ ] Theorist's Proxy
+- [x] Theorist's Proxy
 - [ ] Theorist's Sanctum
 - [x] Theorix Annex
 - [x] Theorix Charm
@@ -279,14 +279,14 @@
 - [ ] Warrior's Blades
 - [ ] Way of the Cryomancer
 - [ ] Way of the Deathbringer
-- [ ] Way of the Healer
-- [ ] Way of the Mentor
+- [x] Way of the Healer
+- [x] Way of the Mentor
 - [ ] Way of the Mind Sculptor
-- [ ] Way of the Necromancer
+- [x] Way of the Necromancer
 - [ ] Way of the Paradox
 - [ ] Way of the Pyromancer
 - [ ] Way of the Warlord
-- [ ] Way of the Wildspeaker
+- [x] Way of the Wildspeaker
 - [ ] Whiplash Wordsmith
 - [x] Winter, Team Player
 - [ ] Winter, Tormented Loner
