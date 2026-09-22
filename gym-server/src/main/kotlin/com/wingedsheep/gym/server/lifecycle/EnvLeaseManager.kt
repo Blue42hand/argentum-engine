@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Optional server-side leases for long-lived Gym environments.
@@ -32,7 +32,8 @@ class EnvLeaseManager(
     )
 
     private val leases = ConcurrentHashMap<EnvId, Lease>()
-    private val publicationScopes = AtomicInteger(0)
+    private val publicationScopes = ConcurrentHashMap<Long, Set<EnvId>>()
+    private val nextPublicationScope = AtomicLong(0)
 
     internal var now: () -> Instant = { Instant.now() }
 
@@ -65,19 +66,21 @@ class EnvLeaseManager(
      *
      * Callers cannot lease an environment ID before the server has returned it. A long-running create
      * or fork request can therefore outlive the configured TTL after a scheduled scan first discovers
-     * one of its newly registered environments. While this bounded publication scope is active the
-     * reaper may reconcile lease bookkeeping, but it does not dispose environments. On successful
-     * completion every environment that appeared since the scope began receives a fresh full TTL.
+     * one of its newly registered environments. Each publication scope records the live registry at
+     * request admission; only environments absent from that baseline are protected from expiry. Old,
+     * unrelated idle environments continue to reap normally while the request is in flight.
      *
-     * Concurrent publication scopes may harmlessly renew one another's newly-created environments;
-     * the important contract is that no unpublished result can be reclaimed before its response is
-     * complete. [MultiEnvService] remains unaware of this HTTP lifecycle concern.
+     * On successful completion every environment that appeared since the scope began receives a fresh
+     * full TTL before the scope is removed. Concurrent scopes may harmlessly protect or renew one
+     * another's newly-created environments. [MultiEnvService] remains unaware of this HTTP lifecycle
+     * concern.
      */
     fun <T> withEnvPublication(block: () -> T): T {
         if (!enabled) return block()
 
-        publicationScopes.incrementAndGet()
         val before = multiEnvService.listEnvs()
+        val scopeId = nextPublicationScope.incrementAndGet()
+        publicationScopes[scopeId] = before
         var completed = false
         return try {
             val result = block()
@@ -89,7 +92,7 @@ class EnvLeaseManager(
                     renew(multiEnvService.listEnvs() - before, now())
                 }
             } finally {
-                publicationScopes.decrementAndGet()
+                publicationScopes.remove(scopeId)
             }
         }
     }
@@ -129,6 +132,9 @@ class EnvLeaseManager(
         }
     }
 
+    private fun isAwaitingPublication(envId: EnvId): Boolean =
+        publicationScopes.values.any { baseline -> envId !in baseline }
+
     /**
      * Reconcile lease bookkeeping with one point-in-time live-environment snapshot.
      *
@@ -155,9 +161,8 @@ class EnvLeaseManager(
      * are initialized with a full grace period on the first scan. Explicitly disposed envs are
      * pruned from lease bookkeeping on a later scan once no leased request remains in flight.
      *
-     * Resource-producing HTTP requests temporarily defer disposal because their newly-created IDs
-     * cannot be leased by the caller until the response is published. Lease reconciliation still
-     * runs during that bounded window, so ordinary idle cleanup resumes immediately afterward.
+     * A newly registered environment that is still awaiting publication by a resource-producing HTTP
+     * request is also protected. Pre-existing idle environments remain eligible for normal cleanup.
      *
      * All state transitions for one environment are serialized by [ConcurrentHashMap.compute] /
      * `computeIfPresent`. No separate per-lease monitor is taken, so request admission and reaping
@@ -171,13 +176,12 @@ class EnvLeaseManager(
         val live = multiEnvService.listEnvs().toSet()
 
         reconcileLeases(live, at)
-        if (publicationScopes.get() > 0) return
 
         live.forEach { envId ->
             leases.computeIfPresent(envId) { _, lease ->
                 val expired = lease.activeRequests == 0 &&
                     !lease.lastActivity.plusMillis(ttlMs).isAfter(at)
-                if (!expired) {
+                if (!expired || isAwaitingPublication(envId)) {
                     lease
                 } else {
                     multiEnvService.dispose(listOf(envId))
