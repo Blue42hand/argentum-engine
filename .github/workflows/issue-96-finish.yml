@@ -1,0 +1,230 @@
+name: Issue 96 finish verification
+
+on:
+  push:
+    branches:
+      - codex/issue-96-card-type-choice
+    paths:
+      - '.github/workflows/issue-96-finish.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finish-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/issue-96-card-type-choice
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Apply issue 96 completion patch
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              s = p.read_text()
+              if old not in s:
+                  raise SystemExit(f"expected text not found in {path}: {old[:120]!r}")
+              p.write_text(s.replace(old, new, 1))
+
+          # Single-source the existing engine's default card-type-choice universe in the typed SDK enum.
+          replace_once(
+              'mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/core/CardType.kt',
+              '    companion object {\n        fun fromString(value: String): CardType? =',
+              '''    companion object {\n        /**\n         * The card types offered by generic "choose a card type" effects in ordinary games.\n         * Kept here so every chooser uses one typed, ordered vocabulary.\n         *\n         * This intentionally preserves the engine's pre-existing choice universe: the eight\n         * ordinary game card types, excluding Kindred and Vanguard. Card text that names an\n         * explicit subset should pass that subset instead.\n         */\n        val DEFAULT_CHOOSABLE_TYPES: List<CardType> = listOf(\n            ARTIFACT, BATTLE, CREATURE, ENCHANTMENT, INSTANT, LAND, PLANESWALKER, SORCERY\n        )\n\n        fun fromString(value: String): CardType? ='''
+          )
+
+          # Reuse that typed vocabulary in the existing effect executor rather than maintaining a parallel list.
+          p = Path('rules-engine/src/main/kotlin/com/wingedsheep/engine/handlers/effects/player/ChooseCardTypeForSourceExecutor.kt')
+          s = p.read_text()
+          if 'import com.wingedsheep.sdk.core.CardType\n' not in s:
+              s = s.replace('import com.wingedsheep.engine.core.suspendForDecision\n', 'import com.wingedsheep.engine.core.suspendForDecision\nimport com.wingedsheep.sdk.core.CardType\n', 1)
+          old = '''    /** The card types (CR 205.2a) offered when the effect doesn't restrict the set. */\n    private val allCardTypes = listOf(\n        "Artifact", "Battle", "Creature", "Enchantment", "Instant", "Land", "Planeswalker", "Sorcery"\n    )\n\n'''
+          if old not in s:
+              raise SystemExit('existing ChooseCardTypeForSourceExecutor default list not found')
+          s = s.replace(old, '', 1)
+          s = s.replace('val options = effect.allowedCardTypes ?: allCardTypes', 'val options = effect.allowedCardTypes ?: CardType.DEFAULT_CHOOSABLE_TYPES.map { it.displayName }', 1)
+          p.write_text(s)
+
+          # CARD_TYPE as-enters choices: unrestricted uses the same typed default vocabulary; prompt says card type.
+          for path, import_anchor, variable in [
+              ('rules-engine/src/main/kotlin/com/wingedsheep/engine/mechanics/stack/StackResolver.kt', 'import com.wingedsheep.sdk.core.Color\n', 'cardTypeOptions'),
+              ('rules-engine/src/main/kotlin/com/wingedsheep/engine/handlers/effects/PermanentEntryReplacements.kt', 'import com.wingedsheep.sdk.core.Subtype\n', 'options'),
+          ]:
+              p = Path(path)
+              s = p.read_text()
+              if 'import com.wingedsheep.sdk.core.CardType\n' not in s:
+                  s = s.replace(import_anchor, import_anchor + 'import com.wingedsheep.sdk.core.CardType\n', 1)
+              error_expr = f'''val {variable} = choice.allowedCardTypes\n                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")'''
+              fallback_expr = f'''val {variable} = choice.allowedCardTypes\n                    ?: CardType.DEFAULT_CHOOSABLE_TYPES'''
+              if error_expr not in s:
+                  raise SystemExit(f'CARD_TYPE fallback block not found in {path}')
+              s = s.replace(error_expr, fallback_expr, 1)
+              marker = f'val {variable} = choice.allowedCardTypes'
+              idx = s.index(marker)
+              tail = s[idx:]
+              prompt = 'prompt = "Choose a creature type"'
+              if prompt not in tail:
+                  raise SystemExit(f'CARD_TYPE prompt not found after branch marker in {path}')
+              tail = tail.replace(prompt, 'prompt = "Choose a card type"', 1)
+              s = s[:idx] + tail
+              p.write_text(s)
+
+          # The structural linter must know that the new choice declares the durable CARD_TYPE slot.
+          replace_once(
+              'mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/serialization/CardLinter.kt',
+              '        "CREATURE_TYPE" to "CREATURE_TYPE",\n',
+              '        "CREATURE_TYPE" to "CREATURE_TYPE",\n        "CARD_TYPE" to "CARD_TYPE",\n'
+          )
+
+          # SDK reference: document the new discriminator and its persistence semantics.
+          docs = Path('docs/card-sdk-language-reference.md')
+          text = docs.read_text()
+          marker = '#### `EntersWithChoice(ChoiceType.CARD_TYPE)`'
+          if marker not in text:
+              text += '''\n\n#### `EntersWithChoice(ChoiceType.CARD_TYPE)`\n\nUse this replacement for “as this permanent enters, choose a card type.” The choice is\nstored durably in `ChoiceSlot.CARD_TYPE` as the chosen type's display name, so existing\nchosen-card-type predicates and cost modifiers can read it. `allowedCardTypes` restricts\nthe menu for text that names a subset (for example Cloud Key); when it is omitted, the\nengine uses `CardType.DEFAULT_CHOOSABLE_TYPES`, the same ordered universe used by\n`ChooseCardTypeForSourceEffect`. Both cast-permanent resolution and direct entry paths\n(land/token entry through `PermanentEntryReplacements`) use the same decision/persistence\ncontract.\n'''
+              docs.write_text(text)
+
+          test_path = Path('rules-engine/src/test/kotlin/com/wingedsheep/engine/scenarios/EntersWithCardTypeChoiceTest.kt')
+          test_path.write_text(r'''package com.wingedsheep.engine.scenarios
+
+import com.wingedsheep.engine.core.ChooseOptionDecision
+import com.wingedsheep.engine.core.OptionChosenResponse
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.engine.support.GameTestDriver
+import com.wingedsheep.engine.support.TestCards
+import com.wingedsheep.sdk.core.CardType
+import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.sdk.scripting.ChoiceType
+import com.wingedsheep.sdk.scripting.EntersWithChoice
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+
+/** Pins the generic CARD_TYPE as-enters contract independently of Cloud Key. */
+class EntersWithCardTypeChoiceTest : FunSpec({
+    val restrictedTypes = listOf(CardType.ARTIFACT, CardType.CREATURE, CardType.SORCERY)
+
+    val CastTypeChooser = card("Cast Type Chooser") {
+        manaCost = "{0}"
+        typeLine = "Artifact"
+        oracleText = "As this artifact enters, choose artifact, creature, or sorcery."
+        replacementEffect(EntersWithChoice(choiceType = ChoiceType.CARD_TYPE, allowedCardTypes = restrictedTypes))
+    }
+
+    val LandTypeChooser = card("Land Type Chooser") {
+        typeLine = "Land"
+        oracleText = "As this land enters, choose artifact, creature, or sorcery."
+        replacementEffect(EntersWithChoice(choiceType = ChoiceType.CARD_TYPE, allowedCardTypes = restrictedTypes))
+    }
+
+    val UnrestrictedLandTypeChooser = card("Unrestricted Land Type Chooser") {
+        typeLine = "Land"
+        oracleText = "As this land enters, choose a card type."
+        replacementEffect(EntersWithChoice(choiceType = ChoiceType.CARD_TYPE))
+    }
+
+    fun newDriver(): GameTestDriver {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all + listOf(CastTypeChooser, LandTypeChooser, UnrestrictedLandTypeChooser))
+        driver.initMirrorMatch(deck = Deck.of("Forest" to 40))
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        return driver
+    }
+
+    fun chosenType(driver: GameTestDriver, entityId: EntityId): String? =
+        (driver.state.getEntity(entityId)
+            ?.get<CastChoicesComponent>()
+            ?.chosen
+            ?.get(ChoiceSlot.CARD_TYPE) as? ChoiceValue.TextChoice)?.text
+
+    test("cast permanent offers the restricted card types and persists the chosen type") {
+        val driver = newDriver()
+        val player = driver.activePlayer!!
+        val card = driver.putCardInHand(player, "Cast Type Chooser")
+
+        driver.castSpell(player, card).isSuccess shouldBe true
+        driver.bothPass()
+
+        val decision = driver.pendingDecision as ChooseOptionDecision
+        decision.prompt shouldBe "Choose a card type"
+        decision.options shouldContainExactly listOf("Artifact", "Creature", "Sorcery")
+        driver.submitDecision(player, OptionChosenResponse(decision.id, decision.options.indexOf("Creature")))
+
+        val permanent = driver.findPermanent(player, "Cast Type Chooser")!!
+        chosenType(driver, permanent) shouldBe "Creature"
+    }
+
+    test("direct land entry uses the same restricted menu and persists the chosen type") {
+        val driver = newDriver()
+        val player = driver.activePlayer!!
+        val land = driver.putCardInHand(player, "Land Type Chooser")
+
+        driver.playLand(player, land).isSuccess shouldBe true
+
+        val decision = driver.pendingDecision as ChooseOptionDecision
+        decision.prompt shouldBe "Choose a card type"
+        decision.options shouldContainExactly listOf("Artifact", "Creature", "Sorcery")
+        driver.submitDecision(player, OptionChosenResponse(decision.id, decision.options.indexOf("Sorcery")))
+
+        chosenType(driver, land) shouldBe "Sorcery"
+    }
+
+    test("unrestricted entry reuses the canonical default card-type universe") {
+        val driver = newDriver()
+        val player = driver.activePlayer!!
+        val land = driver.putCardInHand(player, "Unrestricted Land Type Chooser")
+
+        driver.playLand(player, land).isSuccess shouldBe true
+
+        val decision = driver.pendingDecision as ChooseOptionDecision
+        decision.prompt shouldBe "Choose a card type"
+        decision.options shouldContainExactly CardType.DEFAULT_CHOOSABLE_TYPES.map { it.displayName }
+        driver.submitDecision(player, OptionChosenResponse(decision.id, decision.options.indexOf("Instant")))
+
+        chosenType(driver, land) shouldBe "Instant"
+    }
+})
+''')
+          PY
+      - name: Compile SDK, engine, and Assay
+        run: ./gradlew :mtg-sdk:compileKotlin :rules-engine:compileKotlin :oracle-assay:compileKotlin --no-daemon
+      - name: Run focused CARD_TYPE entry tests
+        run: ./gradlew :rules-engine:test --tests '*EntersWithCardTypeChoiceTest' --no-daemon
+      - name: Run SDK and rules-engine tests
+        run: ./gradlew :mtg-sdk:test :rules-engine:test --no-daemon
+      - name: Run Assay gate
+        run: |
+          if command -v just >/dev/null 2>&1; then
+            just assay-gate --limit 2000
+          else
+            echo 'just is unavailable on this runner; fail closed rather than skipping the required gate.' >&2
+            exit 1
+          fi
+      - name: Commit verified completion and remove staging workflow
+        shell: bash
+        run: |
+          rm .github/workflows/issue-96-finish.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mtg-sdk rules-engine docs .github/workflows/issue-96-finish.yml
+          if git diff --cached --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
+          git commit -m 'Complete card-type choices for EntersWithChoice'
+          git push origin HEAD:codex/issue-96-card-type-choice
