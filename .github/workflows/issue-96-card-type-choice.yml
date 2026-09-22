@@ -43,6 +43,26 @@ jobs:
               '    val allowedCreatureTypes: List<String>? = null,\n    /**\n     * When [choiceType] is [ChoiceType.MODE]',
               '    val allowedCreatureTypes: List<String>? = null,\n    /**\n     * When [choiceType] is [ChoiceType.CARD_TYPE], restrict the choosable card types.\n     * A card with a printed shortlist should provide it explicitly.\n     */\n    val allowedCardTypes: List<com.wingedsheep.sdk.core.CardType>? = null,\n    /**\n     * When [choiceType] is [ChoiceType.MODE]'
           )
+          replace_once(
+              sdk,
+              '''        ChoiceType.CREATURE_TYPE -> if (chooser == Player.AnOpponent) {
+            "As this permanent enters, an opponent chooses a creature type"
+        } else {
+            "As this permanent enters, choose a creature type"
+        }
+        ChoiceType.CREATURE_ON_BATTLEFIELD ->''',
+              '''        ChoiceType.CREATURE_TYPE -> if (chooser == Player.AnOpponent) {
+            "As this permanent enters, an opponent chooses a creature type"
+        } else {
+            "As this permanent enters, choose a creature type"
+        }
+        ChoiceType.CARD_TYPE -> if (chooser == Player.AnOpponent) {
+            "As this permanent enters, an opponent chooses a card type"
+        } else {
+            "As this permanent enters, choose a card type"
+        }
+        ChoiceType.CREATURE_ON_BATTLEFIELD ->'''
+          )
 
           cont = 'rules-engine/src/main/kotlin/com/wingedsheep/engine/core/ModalAndCloneContinuations.kt'
           p = Path(cont); s = p.read_text()
