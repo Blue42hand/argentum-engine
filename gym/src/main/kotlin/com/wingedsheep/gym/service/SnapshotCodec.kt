@@ -47,6 +47,8 @@ class SnapshotCodec {
 
     private val slots = ConcurrentHashMap<Long, StoredEntry>()
     private val nextId = AtomicLong(1)
+    private val publicationScopes = ConcurrentHashMap<Long, Set<Long>>()
+    private val nextPublicationScope = AtomicLong(0)
 
     internal var now: () -> Instant = { Instant.now() }
 
@@ -73,6 +75,35 @@ class SnapshotCodec {
     }
 
     /**
+     * Protect snapshots created by [block] until their handles have been published to a caller.
+     *
+     * Idle cleanup can otherwise reclaim a newly-saved slot before an outer transport boundary has
+     * returned its opaque handle. Slots absent from this scope's admission baseline are therefore
+     * ineligible for [disposeIdle] until the scope closes. On successful completion they receive a
+     * fresh activity timestamp before the protection is removed. Pre-existing idle snapshots remain
+     * eligible for normal cleanup throughout the scope.
+     */
+    fun <T> withPublication(block: () -> T): T {
+        val before = slots.keys.toSet()
+        val scopeId = nextPublicationScope.incrementAndGet()
+        publicationScopes[scopeId] = before
+        var completed = false
+        return try {
+            val result = block()
+            completed = true
+            result
+        } finally {
+            try {
+                if (completed) {
+                    renew(slots.keys - before, now())
+                }
+            } finally {
+                publicationScopes.remove(scopeId)
+            }
+        }
+    }
+
+    /**
      * Release snapshots idle for at least [ttlMs]. `ttlMs=0` disables automatic disposal.
      *
      * Each slot is checked with [ConcurrentHashMap.computeIfPresent], the same per-key atomic
@@ -94,7 +125,7 @@ class SnapshotCodec {
         slots.keys.forEach { slotId ->
             slots.computeIfPresent(slotId) { _, stored ->
                 val expired = !stored.lastAccess.plusMillis(ttlMs).isAfter(at)
-                if (expired) {
+                if (expired && !isAwaitingPublication(slotId)) {
                     disposed.incrementAndGet()
                     null
                 } else {
@@ -104,6 +135,15 @@ class SnapshotCodec {
         }
         return disposed.get()
     }
+
+    private fun renew(slotIds: Collection<Long>, at: Instant) {
+        slotIds.forEach { slotId ->
+            slots.computeIfPresent(slotId) { _, stored -> stored.copy(lastAccess = at) }
+        }
+    }
+
+    private fun isAwaitingPublication(slotId: Long): Boolean =
+        publicationScopes.values.any { baseline -> slotId !in baseline }
 
     fun size(): Int = slots.size
 }
