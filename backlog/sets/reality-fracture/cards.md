@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 89 / 285
+**Implemented:** 100 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -128,7 +128,7 @@
 - [ ] Jace's Machinations
 - [ ] Jace, Reality Sculptor
 - [ ] Jiang Yanggu, Alone
-- [ ] Jiang Yanggu, Never Alone
+- [x] Jiang Yanggu, Never Alone
 - [ ] Karn, Argent Defender
 - [ ] Karn, Gilded Guardian
 - [ ] Keeper of the Quiet Hour
@@ -138,12 +138,12 @@
 - [x] Konstrari Annex
 - [x] Konstrari Charm
 - [ ] Konstrari Improviser
-- [ ] Koth of the Homestead
-- [ ] Koth, the Geomancer
+- [x] Koth of the Homestead
+- [x] Koth, the Geomancer
 - [ ] Kwia Vigorbloom
 - [x] Last Gasp
 - [ ] Lich's Relic
-- [ ] Liliana the Faultless
+- [x] Liliana the Faultless
 - [ ] Liliana the Repentant
 - [x] Living Library
 - [ ] Loot, the Anomaly
@@ -157,7 +157,7 @@
 - [x] Marwyn, the Preserver
 - [ ] Massacre Girl, Most Wanted
 - [ ] Master of Barbs
-- [ ] Medic's Kitesail
+- [x] Medic's Kitesail
 - [x] Memory Trap
 - [x] Meticulous Commons
 - [ ] Mind Meanderer
@@ -183,7 +183,7 @@
 - [ ] Proctor of Potential
 - [ ] Proft, Consulting Detective
 - [ ] Proft, Sinister Mastermind
-- [ ] Prophesied End
+- [x] Prophesied End
 - [ ] Protege's Awakening
 - [ ] Prudent Fateseer
 - [ ] Puppet Crafting
@@ -193,7 +193,7 @@
 - [ ] Recursive Recruitment
 - [x] Refute Destiny
 - [ ] Repurposed Enforcer
-- [ ] Rescue Girl, First Responder
+- [x] Rescue Girl, First Responder
 - [x] Restore with Empathy
 - [x] Return to the Light Realms
 - [ ] Rewrite Regrets
@@ -216,7 +216,7 @@
 - [ ] Silence the Echo
 - [x] Simulacrum Shaper
 - [x] Skilled Battlecarver
-- [ ] Solarium Sentry
+- [x] Solarium Sentry
 - [ ] Solitary Cell
 - [ ] Solve for Disappointment
 - [ ] Something Worth Saving
@@ -243,7 +243,7 @@
 - [ ] Teyo, Diamondblade Mage
 - [ ] Teyo, Lightshield Expert
 - [ ] Thalia, the Survivor
-- [ ] The Echoverse Fulcrum
+- [x] The Echoverse Fulcrum
 - [ ] The Theorist, Jace Beleren
 - [x] Theoretical Necromancer
 - [ ] Theorist's Proxy
@@ -251,8 +251,8 @@
 - [x] Theorix Annex
 - [x] Theorix Charm
 - [ ] Theorix Metamage
-- [ ] Tinybones, Pocket Nuisance
-- [ ] Titanbones, Towering Heart
+- [x] Tinybones, Pocket Nuisance
+- [x] Titanbones, Towering Heart
 - [ ] Tomik, Izzet Sparkmage
 - [ ] Tomik, Orzhov Lawmage
 - [x] Transformative Commons
