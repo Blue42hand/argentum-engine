@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 50 / 285
+**Implemented:** 51 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 50   |
+| Extras     | 285   | 51   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -262,7 +262,7 @@
 - [ ] Twinned Vision
 - [ ] Twisted Fates
 - [ ] Uldaros Theorix
-- [ ] Undulating Witness
+- [x] Undulating Witness
 - [x] Unflinching Hortimancer
 - [x] Unsummon
 - [ ] Variable Chaser
