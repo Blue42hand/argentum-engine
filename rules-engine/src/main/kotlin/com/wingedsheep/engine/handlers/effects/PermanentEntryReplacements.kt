@@ -25,6 +25,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.PlayerComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.EntityId
@@ -407,12 +408,12 @@ object PermanentEntryReplacements {
 
             ChoiceType.CARD_TYPE -> {
                 val options = choice.allowedCardTypes
-                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")
+                    ?: CardType.DEFAULT_CHOOSABLE_TYPES
                 pause(
                     { id -> ChooseOptionDecision(
                         id = id,
                         playerId = chooserId,
-                        prompt = "Choose a creature type",
+                        prompt = "Choose a card type",
                         context = context(),
                         options = options.map { it.displayName },
                         defaultSearch = ""

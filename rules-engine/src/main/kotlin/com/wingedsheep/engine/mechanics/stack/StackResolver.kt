@@ -61,6 +61,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.GrantCantBeCountered
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.engine.event.DelayedTriggeredAbility
@@ -3952,7 +3953,7 @@ class StackResolver(
 
             ChoiceType.CARD_TYPE -> {
                 val cardTypeOptions = choice.allowedCardTypes
-                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")
+                    ?: CardType.DEFAULT_CHOOSABLE_TYPES
                 val continuation = EntersWithChoiceSpellContinuation(
                     spellId = spellId,
                     controllerId = controllerId,
@@ -3965,7 +3966,7 @@ class StackResolver(
                         ChooseOptionDecision(
                             id = decisionId,
                             playerId = chooserId,
-                            prompt = "Choose a creature type",
+                            prompt = "Choose a card type",
                             context = DecisionContext(
                                 sourceId = spellId,
                                 sourceName = cardComponent.name,

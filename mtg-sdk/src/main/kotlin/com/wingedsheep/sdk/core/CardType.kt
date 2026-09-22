@@ -19,6 +19,18 @@ enum class CardType(val displayName: String) {
         get() = this in listOf(CREATURE, ENCHANTMENT, ARTIFACT, LAND, PLANESWALKER, BATTLE)
 
     companion object {
+        /**
+         * The card types offered by generic "choose a card type" effects in ordinary games.
+         * Kept here so every chooser uses one typed, ordered vocabulary.
+         *
+         * This intentionally preserves the engine's pre-existing choice universe: the eight
+         * ordinary game card types, excluding Kindred and Vanguard. Card text that names an
+         * explicit subset should pass that subset instead.
+         */
+        val DEFAULT_CHOOSABLE_TYPES: List<CardType> = listOf(
+            ARTIFACT, BATTLE, CREATURE, ENCHANTMENT, INSTANT, LAND, PLANESWALKER, SORCERY
+        )
+
         fun fromString(value: String): CardType? =
             entries.find { it.displayName.equals(value, ignoreCase = true) }
     }

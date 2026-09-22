@@ -784,6 +784,7 @@ object CardLinter {
     private val choiceTypeToSlot: Map<String, String> = mapOf(
         "COLOR" to "COLOR",
         "CREATURE_TYPE" to "CREATURE_TYPE",
+        "CARD_TYPE" to "CARD_TYPE",
         "BASIC_LAND_TYPE" to "LAND_TYPE",
         "MODE" to "MODE",
         "CREATURE_ON_BATTLEFIELD" to "CREATURE",
