@@ -61,6 +61,12 @@ When snapshot TTL cleanup is enabled, saving a snapshot starts its idle period a
 snapshot load/restore renews it. `DELETE /snapshots` and `DELETE /snapshots/batch` remain the preferred
 normal cleanup paths and remain idempotent.
 
+Resource-producing `POST /envs/{id}/snapshot` and `POST /envs/snapshot-batch` requests hold a snapshot
+response-publication scope. A newly-created handle cannot be used or renewed by its caller until the
+response has returned, so idle cleanup skips slots created during that bounded scope. Successful
+publication refreshes those new slots to a full TTL before protection ends; unrelated pre-existing idle
+snapshots remain eligible for normal cleanup.
+
 Snapshot lifetime is deliberately **not tied to source-environment lifetime**. A trainer may dispose
 the source environment and keep a snapshot for a later restore or branch. Environment reaping therefore
 does not delete snapshots; the independent snapshot TTL exists specifically to reclaim handles that a

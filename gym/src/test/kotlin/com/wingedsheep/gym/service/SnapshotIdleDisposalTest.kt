@@ -78,4 +78,29 @@ class SnapshotIdleDisposalTest : FunSpec({
         codec.disposeIdle(0) shouldBe 0
         codec.size() shouldBe 1
     }
+
+    test("new snapshots survive publication while unrelated idle slots still expire") {
+        var instant = Instant.parse("2026-09-22T00:00:00Z")
+        val codec = SnapshotCodec().also { it.now = { instant } }
+        val service = MultiEnvService(registry(), snapshotCodec = codec)
+        val envId = service.create(config()).envId
+        service.snapshot(envId)
+
+        instant = instant.plusMillis(1_001)
+        codec.withPublication {
+            service.snapshot(envId)
+            instant = instant.plusMillis(1_001)
+
+            codec.disposeIdle(1_000) shouldBe 1
+            codec.size() shouldBe 1
+        }
+
+        instant = instant.plusMillis(999)
+        codec.disposeIdle(1_000) shouldBe 0
+        codec.size() shouldBe 1
+
+        instant = instant.plusMillis(1)
+        codec.disposeIdle(1_000) shouldBe 1
+        codec.size() shouldBe 0
+    }
 })
