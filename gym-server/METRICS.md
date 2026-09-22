@@ -2,7 +2,7 @@
 
 `gym-server` exposes Spring Boot Actuator's standard Micrometer HTTP request metrics for persistent-host qualification and performance diagnosis. This is transport observability only; it does not change the Gym environment contract or add player policy.
 
-The server still binds to `127.0.0.1` by default. Remote deployments should keep an authenticated gateway, reverse proxy, or secure tunnel in front of the raw Gym server exactly as they do for the game/environment endpoints.
+The management endpoints share the Gym server's HTTP listener. Remote deployments should protect that listener with the same network boundary, authenticated gateway, reverse proxy, or secure tunnel used for the game/environment endpoints.
 
 ## Endpoints
 
