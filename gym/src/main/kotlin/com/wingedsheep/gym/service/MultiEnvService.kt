@@ -138,13 +138,18 @@ class MultiEnvService(
     // Fork / snapshot / restore
     // =========================================================================
 
-    /** Fork an env N times. Children diverge independently from the next step on. */
+    /**
+     * Fork an env N times. Children diverge independently from the next step on. All child envs are
+     * built before any are published, so a failure while creating a later child cannot retain earlier
+     * children whose IDs were never returned to the caller.
+     */
     fun fork(srcEnvId: EnvId, count: Int = 1): List<EnvId> {
         require(count > 0) { "fork count must be positive" }
         val src = requireEnv(srcEnvId)
-        return List(count) {
+        val children = List(count) { src.fork() }
+        return children.map { child ->
             val newId = EnvId.generate()
-            envs[newId] = src.fork()
+            envs[newId] = child
             newId
         }
     }
