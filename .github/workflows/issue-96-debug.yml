@@ -1,0 +1,57 @@
+name: Issue 96 focused-test diagnostics
+
+on:
+  push:
+    branches:
+      - codex/issue-96-card-type-choice
+    paths:
+      - '.github/workflows/issue-96-debug.yml'
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/issue-96-card-type-choice
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Reapply completion patch from finish workflow
+        shell: bash
+        run: |
+          python3 - <<'EXTRACT'
+          import textwrap
+          from pathlib import Path
+          text = Path('.github/workflows/issue-96-finish.yml').read_text()
+          marker = "          python3 - <<'PY'\n"
+          start = text.index(marker) + len(marker)
+          end = text.index("\n          PY", start)
+          code = textwrap.dedent(text[start:end])
+          exec(compile(code, 'issue-96-finish-inline.py', 'exec'))
+          EXTRACT
+      - name: Run focused CARD_TYPE entry tests
+        id: focused
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew :rules-engine:test --tests '*EntersWithCardTypeChoiceTest' --no-daemon --stacktrace 2>&1 | tee focused-test.log
+      - name: Collect test diagnostics
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p issue-96-diagnostics
+          cp focused-test.log issue-96-diagnostics/ || true
+          if [ -d rules-engine/build/test-results/test ]; then cp -R rules-engine/build/test-results/test issue-96-diagnostics/test-results; fi
+          if [ -d rules-engine/build/reports/tests/test ]; then cp -R rules-engine/build/reports/tests/test issue-96-diagnostics/test-report; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: issue-96-focused-test-diagnostics
+          path: issue-96-diagnostics
+      - name: Enforce focused test
+        if: steps.focused.outcome != 'success'
+        run: exit 1
