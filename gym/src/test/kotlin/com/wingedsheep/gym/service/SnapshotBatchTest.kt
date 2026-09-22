@@ -84,6 +84,22 @@ class SnapshotBatchTest : FunSpec({
         svc.snapshotCodec.size() shouldBe 0
     }
 
+    test("snapshotBatch disposes successful handles when another env fails") {
+        val svc = MultiEnvService(registry())
+        val created = svc.create(config(1))
+        val preexisting = svc.snapshot(created.envId)
+        val missing = EnvId("missing-snapshot-env")
+
+        val error = shouldThrow<NoSuchElementException> {
+            svc.snapshotBatch(listOf(created.envId, missing))
+        }
+
+        error.message.orEmpty() shouldContain "snapshot batch item envId=$missing failed"
+        svc.snapshotCodec.size() shouldBe 1
+        svc.restore(created.envId, preexisting).observation.stateDigest shouldBe
+            created.observation.observation.stateDigest
+    }
+
     test("empty snapshotBatch returns empty results") {
         val svc = MultiEnvService(registry())
         svc.snapshotBatch(emptyList()) shouldBe emptyList()

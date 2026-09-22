@@ -223,13 +223,18 @@ class MultiEnvService(
     // Fork / snapshot / restore
     // =========================================================================
 
-    /** Fork an env N times. Children diverge independently from the next step on. */
+    /**
+     * Fork an env N times. Children diverge independently from the next step on. All child envs are
+     * built before any are published, so a failure while creating a later child cannot retain earlier
+     * children whose IDs were never returned to the caller.
+     */
     fun fork(srcEnvId: EnvId, count: Int = 1): List<EnvId> {
         require(count > 0) { "fork count must be positive" }
         return withEnv(srcEnvId) { src ->
-            List(count) {
+            val children = List(count) { src.fork() }
+            children.map { child ->
                 val newId = EnvId.generate()
-                envs[newId] = src.fork()
+                envs[newId] = child
                 newId
             }
         }
@@ -239,18 +244,49 @@ class MultiEnvService(
      * Fork multiple distinct source envs in parallel. Each result preserves the source request order
      * and the child order/count returned by singular [fork]. Duplicate source env IDs are rejected
      * before scheduling so callers cannot accidentally expand the same branch point twice.
+     *
+     * Resource ownership is atomic from the caller's perspective: if any item fails, every child
+     * created by this batch is disposed before the failure is returned. If the caller is interrupted,
+     * workers that finish later self-dispose their children instead of publishing orphan envs.
      */
     fun forkBatch(requests: List<ForkRequest>): List<Pair<EnvId, List<EnvId>>> {
         if (requests.isEmpty()) return emptyList()
         requireDistinctEnvIds("fork", requests.map { it.envId })
+
+        val lifecycleLock = Any()
+        val createdIds = mutableListOf<EnvId>()
+        var abandoned = false
         val tasks = requests.map { req ->
-            Callable {
-                withBatchContext("fork", req.envId) {
-                    req.envId to fork(req.envId, req.count)
+            Callable<ForkBatchOutcome> {
+                try {
+                    val children = withBatchContext("fork", req.envId) {
+                        fork(req.envId, req.count)
+                    }
+                    synchronized(lifecycleLock) {
+                        if (abandoned) dispose(children) else createdIds.addAll(children)
+                    }
+                    ForkBatchOutcome.Success(req.envId, children)
+                } catch (error: Exception) {
+                    ForkBatchOutcome.Failure(error)
                 }
             }
         }
-        return workerPool.invokeAll(tasks)
+
+        try {
+            val outcomes = workerPool.invokeAll(tasks)
+            val failure = outcomes.firstNotNullOfOrNull { it as? ForkBatchOutcome.Failure }
+            if (failure != null) throw failure.error
+            return outcomes.map { outcome ->
+                val success = outcome as ForkBatchOutcome.Success
+                success.sourceEnvId to success.children
+            }
+        } catch (error: Throwable) {
+            synchronized(lifecycleLock) {
+                abandoned = true
+                dispose(createdIds)
+            }
+            throw error
+        }
     }
 
     fun snapshot(envId: EnvId): SnapshotHandle =
@@ -259,18 +295,49 @@ class MultiEnvService(
     /**
      * Capture snapshots for N distinct game envs in parallel. Duplicate env IDs are rejected so a
      * caller cannot accidentally retain multiple snapshot slots for the same branch point.
+     *
+     * Resource ownership is atomic from the caller's perspective: if any item fails, every snapshot
+     * retained by this batch is disposed before the failure is returned. If the caller is interrupted,
+     * workers that finish later self-dispose their handles instead of retaining unreachable slots.
      */
     fun snapshotBatch(envIds: List<EnvId>): List<Pair<EnvId, SnapshotHandle>> {
         if (envIds.isEmpty()) return emptyList()
         requireDistinctEnvIds("snapshot", envIds)
+
+        val lifecycleLock = Any()
+        val retainedHandles = mutableListOf<SnapshotHandle>()
+        var abandoned = false
         val tasks = envIds.map { envId ->
-            Callable {
-                withBatchContext("snapshot", envId) {
-                    envId to snapshot(envId)
+            Callable<SnapshotBatchOutcome> {
+                try {
+                    val handle = withBatchContext("snapshot", envId) {
+                        snapshot(envId)
+                    }
+                    synchronized(lifecycleLock) {
+                        if (abandoned) disposeSnapshot(handle) else retainedHandles.add(handle)
+                    }
+                    SnapshotBatchOutcome.Success(envId, handle)
+                } catch (error: Exception) {
+                    SnapshotBatchOutcome.Failure(error)
                 }
             }
         }
-        return workerPool.invokeAll(tasks)
+
+        try {
+            val outcomes = workerPool.invokeAll(tasks)
+            val failure = outcomes.firstNotNullOfOrNull { it as? SnapshotBatchOutcome.Failure }
+            if (failure != null) throw failure.error
+            return outcomes.map { outcome ->
+                val success = outcome as SnapshotBatchOutcome.Success
+                success.envId to success.handle
+            }
+        } catch (error: Throwable) {
+            synchronized(lifecycleLock) {
+                abandoned = true
+                retainedHandles.forEach(::disposeSnapshot)
+            }
+            throw error
+        }
     }
 
     /** Restore a game env to a previously-snapshotted state. */
@@ -369,6 +436,24 @@ class MultiEnvService(
 
     private fun requireEnv(envId: EnvId): GymEnv =
         envs[envId] ?: throw NoSuchElementException("Unknown envId: $envId")
+}
+
+private sealed interface ForkBatchOutcome {
+    data class Success(
+        val sourceEnvId: EnvId,
+        val children: List<EnvId>
+    ) : ForkBatchOutcome
+
+    data class Failure(val error: Exception) : ForkBatchOutcome
+}
+
+private sealed interface SnapshotBatchOutcome {
+    data class Success(
+        val envId: EnvId,
+        val handle: SnapshotHandle
+    ) : SnapshotBatchOutcome
+
+    data class Failure(val error: Exception) : SnapshotBatchOutcome
 }
 
 /** Result of [MultiEnvService.create] — the new env's ID plus its opening observation. */

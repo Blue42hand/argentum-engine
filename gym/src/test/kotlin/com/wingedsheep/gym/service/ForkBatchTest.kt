@@ -112,6 +112,28 @@ class ForkBatchTest : FunSpec({
         svc.listEnvs() shouldBe before
     }
 
+    test("forkBatch disposes successful children when another source fails") {
+        val svc = MultiEnvService(registry())
+        val created = svc.create(config(1))
+        val preexistingChild = svc.fork(created.envId).single()
+        val before = svc.listEnvs()
+        val missing = EnvId("missing-fork-source")
+
+        val error = shouldThrow<NoSuchElementException> {
+            svc.forkBatch(
+                listOf(
+                    ForkRequest(created.envId, count = 2),
+                    ForkRequest(missing, count = 1)
+                )
+            )
+        }
+
+        error.message.orEmpty() shouldContain "fork batch item envId=$missing failed"
+        svc.listEnvs() shouldBe before
+        svc.observe(preexistingChild).observation.stateDigest shouldBe
+            svc.observe(created.envId).observation.stateDigest
+    }
+
     test("empty forkBatch returns empty results") {
         val svc = MultiEnvService(registry())
         svc.forkBatch(emptyList()) shouldBe emptyList()
