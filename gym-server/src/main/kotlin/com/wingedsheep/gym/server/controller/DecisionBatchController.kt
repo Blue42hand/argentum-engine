@@ -4,6 +4,7 @@ import com.wingedsheep.gym.service.DecisionRequest
 import com.wingedsheep.gym.service.MultiEnvService
 import com.wingedsheep.gym.server.dto.DecisionBatchItem
 import com.wingedsheep.gym.server.dto.DecisionBatchResult
+import com.wingedsheep.gym.server.lifecycle.EnvLeaseManager
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.PostMapping
@@ -19,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/envs")
 @Tag(name = "Environments")
 class DecisionBatchController(
-    private val multiEnvService: MultiEnvService
+    private val multiEnvService: MultiEnvService,
+    private val leaseManager: EnvLeaseManager,
 ) {
     @Operation(
         summary = "Submit structured decisions to many envs in parallel",
@@ -32,12 +34,13 @@ class DecisionBatchController(
         """
     )
     @PostMapping("/decision-batch")
-    fun submitDecisionBatch(@RequestBody items: List<DecisionBatchItem>): List<DecisionBatchResult> {
-        val requests = items.map {
-            DecisionRequest(it.envId, it.response, it.expectedStateDigest)
+    fun submitDecisionBatch(@RequestBody items: List<DecisionBatchItem>): List<DecisionBatchResult> =
+        leaseManager.withLeases(items.map { it.envId }) {
+            val requests = items.map {
+                DecisionRequest(it.envId, it.response, it.expectedStateDigest)
+            }
+            multiEnvService.submitDecisionBatch(requests).map { (envId, obs) ->
+                DecisionBatchResult(envId, obs.observation)
+            }
         }
-        return multiEnvService.submitDecisionBatch(requests).map { (envId, obs) ->
-            DecisionBatchResult(envId, obs.observation)
-        }
-    }
 }
