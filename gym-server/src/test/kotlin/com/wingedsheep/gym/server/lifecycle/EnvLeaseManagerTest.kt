@@ -85,6 +85,32 @@ class EnvLeaseManagerTest : FunSpec({
         service.listEnvs() shouldNotContain envId
     }
 
+    test("new environments cannot expire before their producing response is published") {
+        val service = MultiEnvService(createGymCardRegistry())
+        val manager = EnvLeaseManager(service, ttlMs = 1_000)
+        var instant = Instant.parse("2026-09-22T00:00:00Z")
+        manager.now = { instant }
+        lateinit var envId: com.wingedsheep.gym.service.EnvId
+
+        manager.withEnvPublication {
+            envId = service.create(config()).envId
+            manager.reapIdle() // discover the unpublished env
+            service.listEnvs() shouldContain envId
+
+            instant = instant.plusMillis(5_000)
+            manager.reapIdle() // well beyond TTL, but the response is still in flight
+            service.listEnvs() shouldContain envId
+        }
+
+        instant = instant.plusMillis(999)
+        manager.reapIdle()
+        service.listEnvs() shouldContain envId
+
+        instant = instant.plusMillis(2)
+        manager.reapIdle()
+        service.listEnvs() shouldNotContain envId
+    }
+
     test("overlapping leased requests keep the environment active until all requests end") {
         val service = MultiEnvService(createGymCardRegistry())
         val envId = service.create(config()).envId
