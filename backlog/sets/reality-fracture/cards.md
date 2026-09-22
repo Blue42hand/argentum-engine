@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 38 / 285
+**Implemented:** 48 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 38   |
+| Extras     | 285   | 48   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -18,14 +18,14 @@
 
 - [ ] Academic Ascent
 - [ ] Aerid Konstrari
-- [ ] Afterthought Sentry
+- [x] Afterthought Sentry
 - [ ] Ajani Resolute
 - [ ] Ajani Unrelenting
 - [ ] Ajani's Anguish
 - [ ] Apex Witchstalker
 - [ ] Arcane Amphisbaena
 - [ ] Archive Arbiter
-- [ ] Arni, Humble Scribe
+- [x] Arni, Humble Scribe
 - [ ] Arni, Renowned Champion
 - [x] Artifist Acumen
 - [ ] Avatar of Burgeoning Echoes
@@ -60,13 +60,13 @@
 - [ ] Dark Matter Manipulator
 - [ ] Darklight Phoenix
 - [x] Dedicated Commons
-- [ ] Denzilore Fatehold
+- [x] Denzilore Fatehold
 - [x] Deserted Beach
 - [ ] Desperate Futurescribe
 - [ ] Diviner of Victory
 - [ ] Divining Duelist
 - [ ] Draconic Visitor
-- [ ] Eardrum Rattler
+- [x] Eardrum Rattler
 - [ ] Edgar, Ancient Bloodlord
 - [ ] Edgar, Moonlit Sovereign
 - [ ] Emergency Phytomedic
@@ -89,7 +89,7 @@
 - [ ] Flourishing Grapple
 - [x] Forest
 - [x] Formidable Commons
-- [ ] Frostbite Pyromental
+- [x] Frostbite Pyromental
 - [ ] Fulminous Forte
 - [ ] Gallia, Tragic Host
 - [ ] Gallia, the Merrymaker
@@ -146,7 +146,7 @@
 - [ ] Lich's Relic
 - [ ] Liliana the Faultless
 - [ ] Liliana the Repentant
-- [ ] Living Library
+- [x] Living Library
 - [ ] Loot, the Anomaly
 - [ ] Loot, the Nexus
 - [x] Loyal Tutor
@@ -154,7 +154,7 @@
 - [ ] Lyra, Tolarian Archangel
 - [ ] Mabel, Bitter Recluse
 - [ ] Mabel, Valley Hero
-- [ ] Marwyn, the Clearcutter
+- [x] Marwyn, the Clearcutter
 - [ ] Marwyn, the Preserver
 - [ ] Massacre Girl, Most Wanted
 - [ ] Master of Barbs
@@ -165,14 +165,14 @@
 - [ ] Mindseeker Oculus
 - [x] Mountain
 - [x] Multiply by Zero
-- [ ] Murmuring Volume
+- [x] Murmuring Volume
 - [ ] No Admittance
 - [ ] Null Summoner
 - [ ] Omnipresence
 - [x] Overgrown Farmland
 - [ ] Overwrite the Multiverse
 - [ ] Paradox Shaper
-- [ ] Perfected Theory
+- [x] Perfected Theory
 - [ ] Pia, Aether Ascetic
 - [ ] Pia, Determined Rebuilder
 - [x] Plains
@@ -189,7 +189,7 @@
 - [ ] Prudent Fateseer
 - [ ] Puppet Crafting
 - [ ] Pyre Rhymer
-- [ ] Rampart Hunter
+- [x] Rampart Hunter
 - [x] Rank Rat
 - [ ] Recursive Recruitment
 - [ ] Refute Destiny
