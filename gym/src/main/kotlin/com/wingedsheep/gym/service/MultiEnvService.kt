@@ -34,7 +34,9 @@ import java.util.concurrent.ConcurrentHashMap
  * ## Registry regeneration
  *
  * Every `reset` / `step` rebuilds the env's action mapping. Action IDs from a
- * previous step are invalidated.
+ * previous step are invalidated. Remote/asynchronous callers can additionally set
+ * [StepRequest.expectedStateDigest] so a reused integer action ID fails closed when
+ * it no longer belongs to the observation that produced it.
  */
 class MultiEnvService(
     val cardRegistry: CardRegistry,
@@ -114,11 +116,25 @@ class MultiEnvService(
     }
 
     /**
-     * Advance a single env by the given [StepRequest.actionId]. The ID must
-     * come from the most-recent observation for that env.
+     * Advance a single env by the given [StepRequest.actionId]. The ID must come from the most recent
+     * observation for that env. If [StepRequest.expectedStateDigest] is supplied, verify it against
+     * the digest paired with that same observation/action mapping before resolving the action ID.
+     * Do not rebuild an observation here: game observations can be seat-specific, and rebuilding from
+     * the configured default perspective could compare a different information set and replace the
+     * registry the submitted action ID belongs to.
      */
     fun step(request: StepRequest): ObservationResult =
-        requireEnv(request.envId).step(request.actionId, request.params)
+        requireEnv(request.envId).let { env ->
+            request.expectedStateDigest?.let { expected ->
+                val actual = checkNotNull(env.actionStateDigest) {
+                    "Env ${request.envId} has no action-producing observation"
+                }
+                check(actual == expected) {
+                    "Stale step for env ${request.envId}: expected stateDigest=$expected, current=$actual"
+                }
+            }
+            env.step(request.actionId, request.params)
+        }
 
     /** Advance N envs in parallel. Each env is single-threaded inside its own task. */
     fun stepBatch(requests: List<StepRequest>): List<Pair<EnvId, ObservationResult>> {
@@ -128,11 +144,16 @@ class MultiEnvService(
     }
 
     /**
-     * Submit a raw `DecisionResponse` for a game env paused on a complex pending
-     * decision. Simple decisions are driven via [step] with a folded action ID.
+     * Submit a raw `DecisionResponse` for a game env paused on a complex pending decision. Simple
+     * decisions are driven via [step] with a folded action ID. Optional [expectedStateDigest] rejects
+     * a delayed response before it reaches authoritative decision validation.
      */
-    fun submitDecision(envId: EnvId, response: DecisionResponse): ObservationResult =
-        requireGameEnv(envId).submitDecision(response)
+    fun submitDecision(
+        envId: EnvId,
+        response: DecisionResponse,
+        expectedStateDigest: String? = null
+    ): ObservationResult =
+        requireGameEnv(envId).submitDecision(response, expectedStateDigest)
 
     // =========================================================================
     // Fork / snapshot / restore
