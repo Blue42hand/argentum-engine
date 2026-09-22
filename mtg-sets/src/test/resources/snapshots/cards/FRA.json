@@ -235,6 +235,57 @@
     ]
 }
 
+// Denzilore Fatehold
+{
+    "name": "Denzilore Fatehold",
+    "manaCost": "{1}{W}{U}{U}",
+    "typeLine": "Legendary Creature — Elder Sphinx",
+    "oracleText": "Flash\nFlying\nWhenever you scry or surveil, put a +1/+1 counter on each creature you control.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLASH",
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "ScriedOrSurveiledEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 1,
+                        "target": "Self"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "128",
+        "rarity": "MYTHIC",
+        "artist": "Dmitry Burmak",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/8/986f9e98-9d8d-428b-9187-860745cf3269.jpg?1788878215",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "WHITE"
+    ]
+}
+
 // Extended Absence
 {
     "name": "Extended Absence",

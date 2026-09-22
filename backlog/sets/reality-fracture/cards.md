@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 39 / 285
+**Implemented:** 40 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 39   |
+| Extras     | 285   | 40   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -60,7 +60,7 @@
 - [ ] Dark Matter Manipulator
 - [ ] Darklight Phoenix
 - [x] Dedicated Commons
-- [ ] Denzilore Fatehold
+- [x] Denzilore Fatehold
 - [x] Deserted Beach
 - [ ] Desperate Futurescribe
 - [ ] Diviner of Victory
