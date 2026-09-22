@@ -99,4 +99,56 @@ class EnvWorkerPoolTest : FunSpec({
             testPool.close()
         }
     }
+
+    test("an interrupted batch settles every submitted task before restoring interruption") {
+        val testPool = EnvWorkerPool(parallelism = 1)
+        val firstTaskStarted = CountDownLatch(1)
+        val releaseFirstTask = CountDownLatch(1)
+        val callFinished = CountDownLatch(1)
+        val thrown = AtomicReference<Throwable?>()
+        val interruptedAtCatch = AtomicReference(false)
+
+        val caller = thread(name = "env-worker-pool-interrupt-test") {
+            try {
+                testPool.invokeAll(
+                    listOf(
+                        Callable {
+                            firstTaskStarted.countDown()
+                            releaseFirstTask.await()
+                            1
+                        },
+                        Callable<Int> { throw IllegalStateException("worker failed while draining") }
+                    )
+                )
+            } catch (error: Throwable) {
+                thrown.set(error)
+                interruptedAtCatch.set(Thread.currentThread().isInterrupted)
+            } finally {
+                callFinished.countDown()
+            }
+        }
+
+        try {
+            firstTaskStarted.await(1, TimeUnit.SECONDS) shouldBe true
+            caller.interrupt()
+
+            // Interruption must not publish an abandoned-batch boundary while the first worker can
+            // still mutate state and the second worker has not even run yet.
+            callFinished.await(100, TimeUnit.MILLISECONDS) shouldBe false
+
+            releaseFirstTask.countDown()
+            callFinished.await(1, TimeUnit.SECONDS) shouldBe true
+
+            val interruption = thrown.get()
+            (interruption is InterruptedException) shouldBe true
+            interruptedAtCatch.get() shouldBe true
+            interruption?.suppressed?.any {
+                it is IllegalStateException && it.message.orEmpty().contains("worker failed while draining")
+            } shouldBe true
+        } finally {
+            releaseFirstTask.countDown()
+            caller.join(1_000)
+            testPool.close()
+        }
+    }
 })

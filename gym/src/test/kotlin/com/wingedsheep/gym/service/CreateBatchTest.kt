@@ -71,7 +71,7 @@ class CreateBatchTest : FunSpec({
         svc.listEnvs() shouldBe setOf(existing)
     }
 
-    test("interrupted createBatch disposes environments completed after its caller returns") {
+    test("interrupted createBatch waits for workers then disposes their environments") {
         val pool = EnvWorkerPool(parallelism = 2)
         val svc = MultiEnvService(registry(), workerPool = pool)
         val started = CountDownLatch(2)
@@ -97,12 +97,19 @@ class CreateBatchTest : FunSpec({
                     Thread.interrupted()
                 }
             }
+
+            // Both workers are occupied, so the interrupted caller must remain inside invokeAll
+            // rather than publishing a failed batch while queued creates can still run later.
+            caller.join(100)
+            caller.isAlive shouldBe true
+
+            release.countDown()
+            blockers.join(5000)
             caller.join(5000)
             caller.isAlive shouldBe false
             (failure.get() is InterruptedException) shouldBe true
         } finally {
             release.countDown()
-            blockers.join(5000)
             pool.close(awaitSeconds = 30)
         }
         svc.listEnvs() shouldBe emptySet()
