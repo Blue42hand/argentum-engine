@@ -14,6 +14,7 @@ import com.wingedsheep.gym.server.dto.RestoreBody
 import com.wingedsheep.gym.server.dto.StepBatchItem
 import com.wingedsheep.gym.server.dto.StepBatchResult
 import com.wingedsheep.gym.server.dto.StepBody
+import com.wingedsheep.gym.server.lifecycle.EnvLeaseManager
 import com.wingedsheep.sdk.model.EntityId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -46,7 +47,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/envs")
 @Tag(name = "Environments", description = "Create, drive and tear down MTG game environments for RL / MCTS training.")
 class EnvController(
-    private val multiEnvService: MultiEnvService
+    private val multiEnvService: MultiEnvService,
+    private val leaseManager: EnvLeaseManager,
 ) {
 
     // =========================================================================
@@ -277,14 +279,15 @@ class EnvController(
         description = "Results are returned in request order. Distinct envs run in parallel; calls naming the same env are serialized. Optional `expectedStateDigest` entries preserve the singular stale-state guard."
     )
     @PostMapping("/step-batch")
-    fun stepBatch(@RequestBody items: List<StepBatchItem>): List<StepBatchResult> {
-        val requests = items.map {
-            StepRequest(it.envId, it.actionId, it.params, it.expectedStateDigest)
+    fun stepBatch(@RequestBody items: List<StepBatchItem>): List<StepBatchResult> =
+        leaseManager.withLeases(items.map { it.envId }) {
+            val requests = items.map {
+                StepRequest(it.envId, it.actionId, it.params, it.expectedStateDigest)
+            }
+            multiEnvService.stepBatch(requests).map { (envId, obs) ->
+                StepBatchResult(envId, obs.observation)
+            }
         }
-        return multiEnvService.stepBatch(requests).map { (envId, obs) ->
-            StepBatchResult(envId, obs.observation)
-        }
-    }
 
     @Operation(
         summary = "Submit a structured decision",
