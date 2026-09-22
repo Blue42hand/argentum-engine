@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 60 / 285
+**Implemented:** 61 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 60   |
+| Extras     | 285   | 61   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -192,7 +192,7 @@
 - [x] Rampart Hunter
 - [x] Rank Rat
 - [ ] Recursive Recruitment
-- [ ] Refute Destiny
+- [x] Refute Destiny
 - [ ] Repurposed Enforcer
 - [ ] Rescue Girl, First Responder
 - [x] Restore with Empathy

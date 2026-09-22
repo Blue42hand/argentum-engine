@@ -1746,6 +1746,53 @@
     ]
 }
 
+// Refute Destiny
+{
+    "name": "Refute Destiny",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Exile target creature or planeswalker that's green or blue. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "green or blue creature or planeswalker"
+                    },
+                    "destination": "Exile"
+                },
+                {
+                    "type": "Surveil",
+                    "count": 1
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|planeswalker green|blue"
+                },
+                "id": "green or blue creature or planeswalker"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "rarity": "UNCOMMON",
+        "artist": "Billy Christian",
+        "flavorText": "Quandrix believed in finding the equations of the natural world. Hexhaven disrupted the pattern of existence.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/c/2c588954-c6eb-4aae-a2fa-0651ccf2d90a.jpg?1789470778",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Restore with Empathy
 {
     "name": "Restore with Empathy",
