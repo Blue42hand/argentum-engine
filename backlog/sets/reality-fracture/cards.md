@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 48 / 285
+**Implemented:** 58 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 48   |
+| Extras     | 285   | 58   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -22,7 +22,7 @@
 - [ ] Ajani Resolute
 - [ ] Ajani Unrelenting
 - [ ] Ajani's Anguish
-- [ ] Apex Witchstalker
+- [x] Apex Witchstalker
 - [ ] Arcane Amphisbaena
 - [ ] Archive Arbiter
 - [x] Arni, Humble Scribe
@@ -155,7 +155,7 @@
 - [ ] Mabel, Bitter Recluse
 - [ ] Mabel, Valley Hero
 - [x] Marwyn, the Clearcutter
-- [ ] Marwyn, the Preserver
+- [x] Marwyn, the Preserver
 - [ ] Massacre Girl, Most Wanted
 - [ ] Master of Barbs
 - [ ] Medic's Kitesail
@@ -196,7 +196,7 @@
 - [ ] Repurposed Enforcer
 - [ ] Rescue Girl, First Responder
 - [x] Restore with Empathy
-- [ ] Return to the Light Realms
+- [x] Return to the Light Realms
 - [ ] Rewrite Regrets
 - [ ] Rise of the Deathbringer
 - [x] Rockfall Vale
@@ -206,13 +206,13 @@
 - [ ] Ruric Thar, Magecrusher
 - [ ] Saheeli, Consul of Oversight
 - [ ] Saheeli, Jewel of Avishkar
-- [ ] Samut, Hazoret's Champion
+- [x] Samut, Hazoret's Champion
 - [ ] Samut, Tyrant of Naktamun
 - [ ] Sanctum Lurker
-- [ ] Screeching Soulbreaker
+- [x] Screeching Soulbreaker
 - [ ] Seasoned Cryomancer
 - [ ] Semester Foreseer
-- [ ] Shatterwing Pegasus
+- [x] Shatterwing Pegasus
 - [x] Shipwreck Marsh
 - [ ] Silence the Echo
 - [ ] Simulacrum Shaper
@@ -236,7 +236,7 @@
 - [ ] Tam, the Possibility
 - [ ] Tarmogoyf
 - [ ] Tenured Tethermage
-- [ ] Terminal Criticism
+- [x] Terminal Criticism
 - [ ] Tether Technician
 - [x] Tethermage's Advantage
 - [x] Tetsuko Umezawa, Fugitive
@@ -262,8 +262,8 @@
 - [ ] Twinned Vision
 - [ ] Twisted Fates
 - [ ] Uldaros Theorix
-- [ ] Undulating Witness
-- [ ] Unflinching Hortimancer
+- [x] Undulating Witness
+- [x] Unflinching Hortimancer
 - [x] Unsummon
 - [ ] Variable Chaser
 - [ ] Verdant Kraken
@@ -289,7 +289,7 @@
 - [ ] Way of the Warlord
 - [ ] Way of the Wildspeaker
 - [ ] Whiplash Wordsmith
-- [ ] Winter, Team Player
+- [x] Winter, Team Player
 - [ ] Winter, Tormented Loner
 - [ ] Woodwork Prodigy
 - [ ] Wrath of the Bloodmane
