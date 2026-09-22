@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers.effects.player
 
 import com.wingedsheep.engine.core.suspendForDecision
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.engine.core.ChooseCardTypeForSourceContinuation
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.DecisionContext
@@ -34,11 +35,6 @@ class ChooseCardTypeForSourceExecutor : EffectExecutor<ChooseCardTypeForSourceEf
 
     override val effectType: KClass<ChooseCardTypeForSourceEffect> = ChooseCardTypeForSourceEffect::class
 
-    /** The card types (CR 205.2a) offered when the effect doesn't restrict the set. */
-    private val allCardTypes = listOf(
-        "Artifact", "Battle", "Creature", "Enchantment", "Instant", "Land", "Planeswalker", "Sorcery"
-    )
-
     override fun execute(
         state: GameState,
         effect: ChooseCardTypeForSourceEffect,
@@ -47,7 +43,7 @@ class ChooseCardTypeForSourceExecutor : EffectExecutor<ChooseCardTypeForSourceEf
         val sourceId = context.sourceId ?: return EffectResult.success(state)
         val source = state.getEntity(sourceId)
 
-        val options = effect.allowedCardTypes ?: allCardTypes
+        val options = effect.allowedCardTypes ?: CardType.DEFAULT_CHOOSABLE_TYPES.map { it.displayName }
         if (options.isEmpty()) return EffectResult.success(state)
 
         // "look at an opponent's hand, then choose …" — a durable reveal to the controller first.

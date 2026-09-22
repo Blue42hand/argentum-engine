@@ -13506,3 +13506,15 @@ and `Not`. They delegate that relational comparison to the shared predicate eval
 intermediate projection, preserving colorless results instead of falling back to printed colors.
 Public library-reveal statics follow projected control, so stealing a reveal source switches which
 player's top card is visible.
+
+
+#### `EntersWithChoice(ChoiceType.CARD_TYPE)`
+
+Use this replacement for “as this permanent enters, choose a card type.” The choice is
+stored durably in `ChoiceSlot.CARD_TYPE` as the chosen type's display name, so existing
+chosen-card-type predicates and cost modifiers can read it. `allowedCardTypes` restricts
+the menu for text that names a subset (for example Cloud Key); when it is omitted, the
+engine uses `CardType.DEFAULT_CHOOSABLE_TYPES`, the same ordered universe used by
+`ChooseCardTypeForSourceEffect`. Both cast-permanent resolution and direct entry paths
+(land/token entry through `PermanentEntryReplacements`) use the same decision/persistence
+contract.

@@ -61,6 +61,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.GrantCantBeCountered
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.engine.event.DelayedTriggeredAbility
@@ -3943,6 +3944,35 @@ class StackResolver(
                                 phase = DecisionPhase.RESOLUTION
                             ),
                             options = creatureTypeOptions,
+                            defaultSearch = ""
+                        )
+                    },
+                    answer = continuation
+                )
+            }
+
+            ChoiceType.CARD_TYPE -> {
+                val cardTypeOptions = choice.allowedCardTypes
+                    ?: CardType.DEFAULT_CHOOSABLE_TYPES
+                val continuation = EntersWithChoiceSpellContinuation(
+                    spellId = spellId,
+                    controllerId = controllerId,
+                    ownerId = ownerId,
+                    choiceType = ChoiceType.CARD_TYPE,
+                    cardTypes = cardTypeOptions
+                )
+                state.suspendForDecision(
+                    question = { decisionId ->
+                        ChooseOptionDecision(
+                            id = decisionId,
+                            playerId = chooserId,
+                            prompt = "Choose a card type",
+                            context = DecisionContext(
+                                sourceId = spellId,
+                                sourceName = cardComponent.name,
+                                phase = DecisionPhase.RESOLUTION
+                            ),
+                            options = cardTypeOptions.map { it.displayName },
                             defaultSearch = ""
                         )
                     },
