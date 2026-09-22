@@ -58,6 +58,33 @@ class EnvLeaseManagerTest : FunSpec({
         service.listEnvs() shouldNotContain envId
     }
 
+    test("a scoped body-derived lease protects batch work and renews on completion") {
+        val service = MultiEnvService(createGymCardRegistry())
+        val envId = service.create(config()).envId
+        val manager = EnvLeaseManager(service, ttlMs = 1_000)
+        var instant = Instant.parse("2026-09-22T00:00:00Z")
+        manager.now = { instant }
+
+        manager.reapIdle()
+        instant = instant.plusMillis(1_001)
+
+        manager.withLeases(listOf(envId)) {
+            manager.reapIdle()
+            service.listEnvs() shouldContain envId
+            instant = instant.plusMillis(5_000)
+            manager.reapIdle()
+            service.listEnvs() shouldContain envId
+        }
+
+        instant = instant.plusMillis(999)
+        manager.reapIdle()
+        service.listEnvs() shouldContain envId
+
+        instant = instant.plusMillis(2)
+        manager.reapIdle()
+        service.listEnvs() shouldNotContain envId
+    }
+
     test("overlapping leased requests keep the environment active until all requests end") {
         val service = MultiEnvService(createGymCardRegistry())
         val envId = service.create(config()).envId
