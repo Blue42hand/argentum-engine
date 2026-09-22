@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 74 / 285
+**Implemented:** 75 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 74   |
+| Extras     | 285   | 75   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -64,7 +64,7 @@
 - [x] Deserted Beach
 - [ ] Desperate Futurescribe
 - [ ] Diviner of Victory
-- [ ] Divining Duelist
+- [x] Divining Duelist
 - [ ] Draconic Visitor
 - [x] Eardrum Rattler
 - [ ] Edgar, Ancient Bloodlord
