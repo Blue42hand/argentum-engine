@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 45 / 285
+**Implemented:** 46 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 45   |
+| Extras     | 285   | 46   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -66,7 +66,7 @@
 - [ ] Diviner of Victory
 - [ ] Divining Duelist
 - [ ] Draconic Visitor
-- [ ] Eardrum Rattler
+- [x] Eardrum Rattler
 - [ ] Edgar, Ancient Bloodlord
 - [ ] Edgar, Moonlit Sovereign
 - [ ] Emergency Phytomedic
