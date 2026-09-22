@@ -82,7 +82,11 @@ class GameGymEnv(
     }
 
     fun snapshot(codec: SnapshotCodec): SnapshotHandle =
-        codec.save(state = environment.state, playerIds = environment.playerIds, stepCount = 0)
+        codec.save(
+            state = environment.state,
+            playerIds = environment.playerIds,
+            stepCount = environment.stepCount
+        )
 
     fun restore(codec: SnapshotCodec, handle: SnapshotHandle): ObservationResult {
         val snap = codec.load(handle)
