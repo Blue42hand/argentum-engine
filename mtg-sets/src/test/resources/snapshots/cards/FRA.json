@@ -1636,6 +1636,40 @@
     ]
 }
 
+// Samut, Hazoret's Champion
+{
+    "name": "Samut, Hazoret's Champion",
+    "manaCost": "{1}{R}",
+    "typeLine": "Legendary Creature — Human Warrior Cleric",
+    "oracleText": "Creatures you control have haste.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "HASTE",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "251",
+        "rarity": "RARE",
+        "artist": "Grzegorz Rutkowski",
+        "flavorText": "Samut doesn't pretend to know the best path, but she does know that Amonkhet will only thrive if its people keep moving forward.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/a/ba920f23-f05c-410e-8516-c93abedf1d4d.jpg?1789729662",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Screeching Soulbreaker
 {
     "name": "Screeching Soulbreaker",
