@@ -129,6 +129,85 @@
     ]
 }
 
+// Archive Arbiter
+{
+    "name": "Archive Arbiter",
+    "manaCost": "{6}",
+    "typeLine": "Artifact Creature — Sphinx",
+    "oracleText": "Flying\nWhen this creature enters, choose one —\n• Destroy target noncreature, nonland permanent.\n• You gain 4 life.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "destination": "Graveyard",
+                                "byDestruction": true
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": {
+                                            "cardPredicates": [
+                                                "IsNonland",
+                                                "IsPermanent",
+                                                {
+                                                    "type": "Not",
+                                                    "predicate": "IsCreature"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ],
+                            "description": "Destroy target noncreature, nonland permanent."
+                        },
+                        {
+                            "effect": {
+                                "type": "GainLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                }
+                            },
+                            "description": "You gain 4 life."
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "167",
+        "rarity": "UNCOMMON",
+        "artist": "Valera Lutfullina",
+        "flavorText": "It ensures students leave the Folioplex with the correct notes, theories, and ponderings.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/024bce1e-a5f3-4292-bc17-d0355a5d65e1.jpg?1789614867",
+        "inBooster": false
+    },
+    "colorIdentityOverride": []
+}
+
 // Arni, Humble Scribe
 {
     "name": "Arni, Humble Scribe",
@@ -447,6 +526,105 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Charge the Sanctum
+{
+    "name": "Charge the Sanctum",
+    "manaCost": "{2}{R/W}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Creatures you control get +2/+0 until end of turn.\n• Target creature gets +2/+0 and gains first strike until end of turn. Put a +1/+1 counter on it.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": "Self"
+                        }
+                    },
+                    "description": "Creatures you control get +2/+0 until end of turn"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                }
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "FIRST_STRIKE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                }
+                            },
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 1,
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            },
+                            "id": "target creature"
+                        }
+                    ],
+                    "description": "Target creature gets +2/+0 and gains first strike until end of turn. Put a +1/+1 counter on it"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "125",
+        "artist": "Néstor Ossandón Leal",
+        "flavorText": "Deep in their hearts, the team believed what was left of Jace could still be reasoned with.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/7/87b40df5-5c0a-41f5-a09c-a04f17066a91.jpg?1788521570",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
     ]
 }
 
@@ -817,6 +995,92 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Edgar, Ancient Bloodlord
+{
+    "name": "Edgar, Ancient Bloodlord",
+    "manaCost": "{W}{B}",
+    "typeLine": "Legendary Creature — Vampire Noble",
+    "oracleText": "Whenever another creature or planeswalker you control dies, you gain 1 life.\n{2}, Sacrifice another creature or planeswalker: Put a +1/+1 counter on Edgar. He gains menace until end of turn. (He can't be blocked except by two or more creatures.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature|planeswalker ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature|planeswalker",
+                                "excludeSelf": true
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "MENACE",
+                            "target": "Self"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "270",
+        "rarity": "UNCOMMON",
+        "artist": "Joshua Raphael",
+        "flavorText": "\"Our family was born in blood, and through blood it will endure.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c619fed-2394-4efc-8cdc-6df5f51c1f57.jpg?1789127743",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
     ]
 }
 
@@ -1435,6 +1699,98 @@
     ]
 }
 
+// Konstrari Charm
+{
+    "name": "Konstrari Charm",
+    "manaCost": "{R}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Konstrari Charm deals 6 damage to target creature with flying.\n• Put two +1/+1 counters on target creature. It gains trample until end of turn.\n• Add {C}{C}{C}.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 6
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature with flying"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature kw:flying"
+                            },
+                            "id": "target creature with flying"
+                        }
+                    ],
+                    "description": "Konstrari Charm deals 6 damage to target creature with flying"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 2,
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                }
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "TRAMPLE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            },
+                            "id": "target creature"
+                        }
+                    ],
+                    "description": "Put two +1/+1 counters on target creature. It gains trample until end of turn"
+                },
+                {
+                    "effect": {
+                        "type": "AddColorlessMana",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "138",
+        "rarity": "UNCOMMON",
+        "artist": "Matheus Graef",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/d/7d29dfa1-9582-47bc-8f42-62b611bdcc4e.jpg?1789127645",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
 // Living Library
 {
     "name": "Living Library",
@@ -1545,6 +1901,56 @@
         "artist": "Darren Tan",
         "flavorText": "\"We swore to keep watch,\" Ajani growled through gritted teeth, \"and that includes against our own.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/4/9/490dae91-94ce-42a9-a11f-6c5e77c4e486.jpg?1788878096",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Lyra, Archangel of Dawn
+{
+    "name": "Lyra, Archangel of Dawn",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Angel Knight",
+    "oracleText": "Flying\nWhenever you gain life, put a +1/+1 counter on each Angel you control.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "permanent Angel ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 1,
+                        "target": "Self"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "201",
+        "rarity": "RARE",
+        "artist": "Victor Adame Minguez",
+        "flavorText": "She is the radiant sun that shatters darkness.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/86a3866e-68a8-402c-baf0-1908e98e3995.jpg?1789127693",
         "inBooster": false
     },
     "colorIdentityOverride": [
@@ -2408,6 +2814,69 @@
     ]
 }
 
+// Saheeli, Jewel of Avishkar
+{
+    "name": "Saheeli, Jewel of Avishkar",
+    "manaCost": "{2}{U}{R}",
+    "typeLine": "Legendary Creature — Human Artificer",
+    "oracleText": "Thopters you control have haste.\nWhenever you cast a noncreature spell, create a 1/1 colorless Thopter artifact creature token with flying.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Thopter"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/f/bfd6132f-c96b-4ce0-ac4d-c46356afc767.jpg?1789735223",
+                    "artifactToken": true
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "HASTE",
+                "filter": {
+                    "baseFilter": "permanent Thopter ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "275",
+        "rarity": "UNCOMMON",
+        "artist": "Billy Christian",
+        "flavorText": "\"Life isn't worth living without freedom of expression.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/8/28d84ef6-e190-46d4-882d-1cea5e111e2a.jpg?1789644883",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Samut, Hazoret's Champion
 {
     "name": "Samut, Hazoret's Champion",
@@ -2816,6 +3285,113 @@
     ]
 }
 
+// Stingerquill Charm
+{
+    "name": "Stingerquill Charm",
+    "manaCost": "{B}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Stingerquill Charm deals 3 damage to any target.\n• Target creature gains first strike and deathtouch until end of turn.\n• Create a 2/2 colorless Wizard Soldier creature token named Cadet. It gains haste until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "any target"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "AnyTarget",
+                            "id": "any target"
+                        }
+                    ],
+                    "description": "Stingerquill Charm deals 3 damage to any target"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "FIRST_STRIKE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                }
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "DEATHTOUCH",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            },
+                            "id": "target creature"
+                        }
+                    ],
+                    "description": "Target creature gains first strike and deathtouch until end of turn"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "CreateToken",
+                                "power": 2,
+                                "toughness": 2,
+                                "colors": [],
+                                "creatureTypes": [
+                                    "Wizard",
+                                    "Soldier"
+                                ],
+                                "name": "Cadet",
+                                "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": {
+                                    "type": "PipelineTarget",
+                                    "collectionName": "createdTokens"
+                                }
+                            }
+                        ]
+                    },
+                    "description": "Create a 2/2 colorless Wizard Soldier creature token named Cadet. It gains haste until end of turn"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "UNCOMMON",
+        "artist": "Danny Schwartz",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/1/81733ff7-e611-43ee-bf38-6bb700676017.jpg?1789127652",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Sureshot Sower
 {
     "name": "Sureshot Sower",
@@ -3192,6 +3768,118 @@
     ]
 }
 
+// Theorix Charm
+{
+    "name": "Theorix Charm",
+    "manaCost": "{U}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Counter target noncreature spell unless its controller pays {2}.\n• Target creature gets -2/-2 until end of turn.\n• Mill three cards, then draw a card. (To mill three cards, put the top three cards of your library into your graveyard.)",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "Counter",
+                        "condition": {
+                            "type": "CounterCondition.UnlessPaysMana",
+                            "cost": "{2}"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "noncreature",
+                                "zone": "Stack"
+                            }
+                        }
+                    ],
+                    "description": "Counter target noncreature spell unless its controller pays {2}"
+                },
+                {
+                    "effect": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            },
+                            "id": "target creature"
+                        }
+                    ],
+                    "description": "Target creature gets -2/-2 until end of turn"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "TopOfLibrary",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 3
+                                            },
+                                            "isMill": true
+                                        },
+                                        "storeAs": "milled"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "milled",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
+                        ]
+                    },
+                    "description": "Mill three cards, then draw a card"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "155",
+        "rarity": "UNCOMMON",
+        "artist": "Elliot Lang",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/8/2835c9aa-0904-44db-8da2-e8c4e04201aa.jpg?1789127659",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
 // Transformative Commons
 {
     "name": "Transformative Commons",
@@ -3243,6 +3931,81 @@
     "colorIdentityOverride": [
         "GREEN",
         "BLUE"
+    ]
+}
+
+// Twisted Fates
+{
+    "name": "Twisted Fates",
+    "manaCost": "{2}{W}{W}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy target nonland permanent. Put a +1/+1 counter on each creature target player controls.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target nonland permanent"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature"
+                                ],
+                                "controllerPredicate": {
+                                    "type": "ControlledByReferencedPlayer",
+                                    "target": {
+                                        "type": "BoundVariable",
+                                        "name": "target player"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 1,
+                        "target": "Self"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "nonland permanent"
+                },
+                "id": "target nonland permanent"
+            },
+            {
+                "type": "TargetPlayer",
+                "id": "target player"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "158",
+        "rarity": "UNCOMMON",
+        "artist": "Lorenzo Mastroianni",
+        "flavorText": "\"Josu's ashes choke you even now. You failed, while I will have our brother live forever,\" said one Liliana to the other.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/7/c7c0765d-38fd-4d7b-bfb4-49b10ff5939b.jpg?1789614785",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
     ]
 }
 
@@ -3412,6 +4175,131 @@
     ]
 }
 
+// Vigorbloom Charm
+{
+    "name": "Vigorbloom Charm",
+    "manaCost": "{G}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Target permanent you control gains hexproof and indestructible until end of turn.\n• You draw a card and gain 3 life.\n• Put a +1/+1 counter on target creature you control. Then it fights target creature an opponent controls. (Each deals damage equal to its power to the other.)",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HEXPROOF",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target permanent you control"
+                                }
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "INDESTRUCTIBLE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target permanent you control"
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "permanent ctrl:you"
+                            },
+                            "id": "target permanent you control"
+                        }
+                    ],
+                    "description": "Target permanent you control gains hexproof and indestructible until end of turn"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            {
+                                "type": "GainLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            }
+                        ]
+                    },
+                    "description": "You draw a card and gain 3 life"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 1,
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                }
+                            },
+                            {
+                                "type": "Fight",
+                                "target1": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                },
+                                "target2": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature an opponent controls"
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            },
+                            "id": "target creature you control"
+                        },
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:opponent"
+                            },
+                            "id": "target creature an opponent controls"
+                        }
+                    ],
+                    "description": "Put a +1/+1 counter on target creature you control. Then it fights target creature an opponent controls"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "160",
+        "rarity": "UNCOMMON",
+        "artist": "Kaitlyn McCulley",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/b/2b198e10-b507-4314-a29c-a219f06e48b7.jpg?1789127656",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Vinelasher Adept
 {
     "name": "Vinelasher Adept",
@@ -3532,6 +4420,62 @@
         "artist": "Aurore Folny",
         "flavorText": "\"Everyone stick together. Follow my lead!\"",
         "imageUri": "https://cards.scryfall.io/normal/front/d/f/df8713cd-3f4b-43ef-adbd-e37c2617c617.jpg?1789128020",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Wrath of the Bloodmane
+{
+    "name": "Wrath of the Bloodmane",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant",
+    "oracleText": "This spell costs {1} less to cast if you control a legendary creature.\nWrath of the Bloodmane deals 4 damage to target creature or planeswalker.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 4
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target creature or planeswalker"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetCreatureOrPlaneswalker",
+                "id": "target creature or planeswalker"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "FixedIfControlFilter",
+                        "amount": 1,
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                "IsLegendary"
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "96",
+        "artist": "Manuel Castañón",
+        "flavorText": "\"I can see the weakness in your soul. Let me cut it out of you!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/5/b5b55617-684a-4036-be9b-a3b24fc9cd5a.jpg?1789385820",
         "inBooster": false
     },
     "colorIdentityOverride": [
