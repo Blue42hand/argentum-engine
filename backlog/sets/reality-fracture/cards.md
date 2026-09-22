@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 46 / 285
+**Implemented:** 47 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 46   |
+| Extras     | 285   | 47   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -146,7 +146,7 @@
 - [ ] Lich's Relic
 - [ ] Liliana the Faultless
 - [ ] Liliana the Repentant
-- [ ] Living Library
+- [x] Living Library
 - [ ] Loot, the Anomaly
 - [ ] Loot, the Nexus
 - [x] Loyal Tutor
