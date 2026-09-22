@@ -23,6 +23,7 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: gradle
+      - uses: extractions/setup-just@v2
       - name: Configure git and merge current integration main
         shell: bash
         run: |
