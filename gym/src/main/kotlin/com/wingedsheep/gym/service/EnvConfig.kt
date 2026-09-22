@@ -100,7 +100,13 @@ data class StepRequest(
     val envId: EnvId,
     val actionId: Int,
     /** Choices the action ID can't carry — attackers, blockers, targets, X. See [ActionParams]. */
-    val params: ActionParams = ActionParams.EMPTY
+    val params: ActionParams = ActionParams.EMPTY,
+    /**
+     * Optional optimistic-concurrency guard. When supplied, the service rejects the step if the
+     * action mapping no longer belongs to this observation digest. This lets asynchronous and remote
+     * callers fail closed instead of accidentally reusing an action ID after another operation.
+     */
+    val expectedStateDigest: String? = null
 )
 
 /** Result of deck validation. Surfaced by [DeckResolver.validate]. */
