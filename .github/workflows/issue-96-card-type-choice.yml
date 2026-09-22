@@ -25,7 +25,6 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          import re
 
           def replace_once(path, old, new):
               p = Path(path)
@@ -56,17 +55,15 @@ jobs:
               start = text.index(marker)
               brace = text.index('{', start)
               depth = 0
-              i = brace
-              while i < len(text):
+              for i in range(brace, len(text)):
                   if text[i] == '{': depth += 1
                   elif text[i] == '}':
                       depth -= 1
                       if depth == 0:
                           return start, i + 1, text[start:i+1]
-                  i += 1
               raise AssertionError('unbalanced branch ' + marker)
 
-          def add_card_type_branch(path, marker, direct=False):
+          def add_card_type_branch(path, marker):
               p = Path(path); s = p.read_text()
               assert 'ChoiceType.CARD_TYPE ->' not in s, path
               start, end, block = extract_when_branch(s, marker)
@@ -76,11 +73,8 @@ jobs:
                             'val options = choice.allowedCardTypes\n                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")')
               b = b.replace('val cardTypeOptions = choice.allowedCreatureTypes\n                    ?: com.wingedsheep.sdk.core.Subtype.ALL_CREATURE_TYPES',
                             'val cardTypeOptions = choice.allowedCardTypes\n                    ?: return ExecutionResult.error(state, "CARD_TYPE EntersWithChoice requires allowedCardTypes")')
-              # Decision options must be strings while continuation payload remains typed.
               b = b.replace('options = cardTypeOptions,', 'options = cardTypeOptions.map { it.displayName },')
               b = b.replace('options = options,', 'options = options.map { it.displayName },')
-              # For direct-entry branch the continuation argument uses the local `options` list.
-              b = b.replace('cardTypes = options,', 'cardTypes = options,')
               s = s[:end] + '\n\n            ' + b + s[end:]
               p.write_text(s)
 
@@ -105,10 +99,9 @@ jobs:
                   break
               starts.append(idx); offset = idx + 1
           assert len(starts) == 2, (resumer, len(starts))
-          # Insert from last to first so offsets stay valid.
           for start in reversed(starts):
-              _, end, block = extract_when_branch(s[start:], marker)
-              end += start
+              _, rel_end, block = extract_when_branch(s[start:], marker)
+              end = start + rel_end
               block = block.replace('com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_TYPE',
                                     'com.wingedsheep.sdk.scripting.ChoiceType.CARD_TYPE')
               block = block.replace('creatureTypes', 'cardTypes')
@@ -121,10 +114,26 @@ jobs:
           p.write_text(s)
 
       - name: Compile SDK and rules engine
-        run: ./gradlew :mtg-sdk:compileKotlin :rules-engine:compileKotlin
+        id: compile
+        shell: bash
+        run: |
+          set +e
+          ./gradlew :mtg-sdk:compileKotlin :rules-engine:compileKotlin > issue96-compile.log 2>&1
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload compile diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue96-compile-diagnostics
+          path: issue96-compile.log
       - name: Run SDK and rules engine tests
+        if: steps.compile.outputs.exit_code == '0'
+        id: tests
         run: ./gradlew :mtg-sdk:test :rules-engine:test
       - name: Commit verified implementation and remove staging workflow
+        if: steps.compile.outputs.exit_code == '0' && steps.tests.outcome == 'success'
         run: |
           rm .github/workflows/issue-96-card-type-choice.yml
           git config user.name github-actions[bot]
@@ -132,3 +141,6 @@ jobs:
           git add mtg-sdk rules-engine .github/workflows/issue-96-card-type-choice.yml
           git commit -m 'Add card-type choices to EntersWithChoice'
           git push origin HEAD:codex/issue-96-card-type-choice
+      - name: Fail if compile failed
+        if: steps.compile.outputs.exit_code != '0'
+        run: exit 1
