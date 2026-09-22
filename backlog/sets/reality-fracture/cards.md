@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 40 / 285
+**Implemented:** 41 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 40   |
+| Extras     | 285   | 41   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -89,7 +89,7 @@
 - [ ] Flourishing Grapple
 - [x] Forest
 - [x] Formidable Commons
-- [ ] Frostbite Pyromental
+- [x] Frostbite Pyromental
 - [ ] Fulminous Forte
 - [ ] Gallia, Tragic Host
 - [ ] Gallia, the Merrymaker
