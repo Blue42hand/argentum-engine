@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 47 / 285
+**Implemented:** 48 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 47   |
+| Extras     | 285   | 48   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -154,7 +154,7 @@
 - [ ] Lyra, Tolarian Archangel
 - [ ] Mabel, Bitter Recluse
 - [ ] Mabel, Valley Hero
-- [ ] Marwyn, the Clearcutter
+- [x] Marwyn, the Clearcutter
 - [ ] Marwyn, the Preserver
 - [ ] Massacre Girl, Most Wanted
 - [ ] Master of Barbs
