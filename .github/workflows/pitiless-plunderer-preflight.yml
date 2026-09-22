@@ -17,6 +17,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - uses: extractions/setup-just@v3
       - name: Fetch canonical Scryfall evidence
         shell: bash
         run: |
