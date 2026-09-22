@@ -2363,6 +2363,69 @@
     ]
 }
 
+// Theoretical Necromancer
+{
+    "name": "Theoretical Necromancer",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Vampire Warlock",
+    "oracleText": "{3}{B}, Exile this card from your graveyard: Return another target creature card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{B}"
+                            }
+                        },
+                        "CostExileSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "another creature card in your graveyard"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature own:you",
+                            "zone": "Graveyard",
+                            "excludeSelf": true
+                        },
+                        "id": "another creature card in your graveyard"
+                    }
+                ],
+                "activateFromZone": "Graveyard",
+                "descriptionOverride": "Return another target creature card from your graveyard to your hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "69",
+        "artist": "Chris Rallis",
+        "flavorText": "\"Mortality is just one more parameter to define and defy.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/3/e36a7908-1e22-494b-adb4-e72ac0974d62.jpg?1789556734",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Theorix Annex
 {
     "name": "Theorix Annex",
