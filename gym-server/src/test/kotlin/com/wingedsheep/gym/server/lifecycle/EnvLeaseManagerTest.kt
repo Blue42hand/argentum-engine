@@ -92,7 +92,7 @@ class EnvLeaseManagerTest : FunSpec({
         val manager = EnvLeaseManager(service, ttlMs = 1_000)
         var instant = Instant.parse("2026-09-22T00:00:00Z")
         manager.now = { instant }
-        var newEnvId: EnvId? = null
+        lateinit var newEnvId: EnvId
 
         manager.reapIdle() // discover the pre-existing env
         instant = instant.plusMillis(1_001)
