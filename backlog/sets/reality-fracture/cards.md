@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 53 / 285
+**Implemented:** 54 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 53   |
+| Extras     | 285   | 54   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -236,7 +236,7 @@
 - [ ] Tam, the Possibility
 - [ ] Tarmogoyf
 - [ ] Tenured Tethermage
-- [ ] Terminal Criticism
+- [x] Terminal Criticism
 - [ ] Tether Technician
 - [x] Tethermage's Advantage
 - [x] Tetsuko Umezawa, Fugitive
