@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Optional server-side leases for long-lived Gym environments.
@@ -31,6 +32,8 @@ class EnvLeaseManager(
     )
 
     private val leases = ConcurrentHashMap<EnvId, Lease>()
+    private val publicationScopes = ConcurrentHashMap<Long, Set<EnvId>>()
+    private val nextPublicationScope = AtomicLong(0)
 
     internal var now: () -> Instant = { Instant.now() }
 
@@ -55,6 +58,42 @@ class EnvLeaseManager(
             block()
         } finally {
             end(envIds)
+        }
+    }
+
+    /**
+     * Protect newly registered environments until a resource-producing HTTP response is published.
+     *
+     * Callers cannot lease an environment ID before the server has returned it. A long-running create
+     * or fork request can therefore outlive the configured TTL after a scheduled scan first discovers
+     * one of its newly registered environments. Each publication scope records the live registry at
+     * request admission; only environments absent from that baseline are protected from expiry. Old,
+     * unrelated idle environments continue to reap normally while the request is in flight.
+     *
+     * On successful completion every environment that appeared since the scope began receives a fresh
+     * full TTL before the scope is removed. Concurrent scopes may harmlessly protect or renew one
+     * another's newly-created environments. [MultiEnvService] remains unaware of this HTTP lifecycle
+     * concern.
+     */
+    fun <T> withEnvPublication(block: () -> T): T {
+        if (!enabled) return block()
+
+        val before = multiEnvService.listEnvs()
+        val scopeId = nextPublicationScope.incrementAndGet()
+        publicationScopes[scopeId] = before
+        var completed = false
+        return try {
+            val result = block()
+            completed = true
+            result
+        } finally {
+            try {
+                if (completed) {
+                    renew(multiEnvService.listEnvs() - before, now())
+                }
+            } finally {
+                publicationScopes.remove(scopeId)
+            }
         }
     }
 
@@ -84,6 +123,18 @@ class EnvLeaseManager(
         }
     }
 
+    private fun renew(envIds: Collection<EnvId>, at: Instant) {
+        envIds.forEach { envId ->
+            leases.compute(envId) { _, existing ->
+                val lease = existing ?: Lease(at)
+                lease.copy(lastActivity = at)
+            }
+        }
+    }
+
+    private fun isAwaitingPublication(envId: EnvId): Boolean =
+        publicationScopes.values.any { baseline -> envId !in baseline }
+
     /**
      * Reconcile lease bookkeeping with one point-in-time live-environment snapshot.
      *
@@ -110,6 +161,9 @@ class EnvLeaseManager(
      * are initialized with a full grace period on the first scan. Explicitly disposed envs are
      * pruned from lease bookkeeping on a later scan once no leased request remains in flight.
      *
+     * A newly registered environment that is still awaiting publication by a resource-producing HTTP
+     * request is also protected. Pre-existing idle environments remain eligible for normal cleanup.
+     *
      * All state transitions for one environment are serialized by [ConcurrentHashMap.compute] /
      * `computeIfPresent`. No separate per-lease monitor is taken, so request admission and reaping
      * cannot acquire the map and lease locks in opposite orders.
@@ -127,7 +181,7 @@ class EnvLeaseManager(
             leases.computeIfPresent(envId) { _, lease ->
                 val expired = lease.activeRequests == 0 &&
                     !lease.lastActivity.plusMillis(ttlMs).isAfter(at)
-                if (!expired) {
+                if (!expired || isAwaitingPublication(envId)) {
                     lease
                 } else {
                     multiEnvService.dispose(listOf(envId))

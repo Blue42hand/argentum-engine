@@ -13,6 +13,10 @@ import org.springframework.web.filter.OncePerRequestFilter
  * Singular `/envs/{id}/...` requests infer their environment automatically. Batch callers should
  * send `X-Argentum-Gym-Env-Ids` with a comma-separated list of every environment participating in
  * the request. The header may also be used on singular requests and is de-duplicated with the path.
+ *
+ * Resource-producing create/fork requests additionally hold a publication scope through the entire
+ * HTTP filter chain. New environment IDs cannot be leased by the caller until the response exists,
+ * so the environment reaper defers disposal until those IDs have been published and renewed.
  */
 @Component
 class EnvLeaseFilter(
@@ -29,12 +33,20 @@ class EnvLeaseFilter(
             return
         }
 
-        val envIds = envIdsFor(request)
-        leaseManager.begin(envIds)
-        try {
-            filterChain.doFilter(request, response)
-        } finally {
-            leaseManager.end(envIds)
+        val runRequest = {
+            val envIds = envIdsFor(request)
+            leaseManager.begin(envIds)
+            try {
+                filterChain.doFilter(request, response)
+            } finally {
+                leaseManager.end(envIds)
+            }
+        }
+
+        if (publishesNewEnvironments(request)) {
+            leaseManager.withEnvPublication(runRequest)
+        } else {
+            runRequest()
         }
     }
 
@@ -54,6 +66,21 @@ class EnvLeaseFilter(
         }
 
         return ids
+    }
+
+    internal fun publishesNewEnvironments(request: HttpServletRequest): Boolean {
+        if (!request.method.equals("POST", ignoreCase = true)) return false
+
+        val path = request.requestURI.removePrefix(request.contextPath)
+        val segments = path.split('/').filter(String::isNotEmpty)
+        return when {
+            segments == listOf("envs") -> true
+            segments == listOf("envs", "deckbuild") -> true
+            segments == listOf("envs", "create-batch") -> true
+            segments == listOf("envs", "fork-batch") -> true
+            segments.size == 3 && segments[0] == "envs" && segments[2] == "fork" -> true
+            else -> false
+        }
     }
 
     companion object {

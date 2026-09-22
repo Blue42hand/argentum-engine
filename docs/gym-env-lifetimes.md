@@ -48,6 +48,12 @@ any environment with a leased request in flight and refreshes its last-activity 
 request finishes. Explicit `DELETE /envs` remains the preferred normal cleanup path and remains
 idempotent.
 
+Resource-producing `POST /envs`, `/envs/deckbuild`, `/envs/create-batch`, `/envs/{id}/fork`, and
+`/envs/fork-batch` requests also hold a response-publication scope. A caller cannot lease a newly
+created environment before its ID has been returned, so the reaper may reconcile bookkeeping during
+that bounded scope but does not dispose environments. After a successful response completes, any new
+environments receive a fresh full TTL before ordinary idle cleanup resumes.
+
 ## Snapshot activity and independence
 
 A snapshot retains an immutable `GameState` reference in `SnapshotCodec` until the handle is disposed.
