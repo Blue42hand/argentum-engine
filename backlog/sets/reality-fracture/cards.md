@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 68 / 285
+**Implemented:** 69 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 68   |
+| Extras     | 285   | 69   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -271,7 +271,7 @@
 - [ ] Vigorbloom Charm
 - [ ] Vigorbloom Vanguard
 - [ ] Vindictive Triumph
-- [ ] Vinelasher Adept
+- [x] Vinelasher Adept
 - [ ] Violent Echoes
 - [ ] Void Extrapolator
 - [ ] Vraska's Final Mercy
