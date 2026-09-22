@@ -87,7 +87,8 @@ class SnapshotCodec {
         return disposeIdle(ttlMs, now())
     }
 
-    internal fun disposeIdle(ttlMs: Long, at: Instant): Int {
+    /** Same cleanup operation with an explicit scan timestamp for deterministic schedulers/tests. */
+    fun disposeIdle(ttlMs: Long, at: Instant): Int {
         require(ttlMs > 0) { "snapshot TTL must be > 0 when cleanup is enabled" }
         val disposed = AtomicInteger(0)
         slots.keys.forEach { slotId ->
