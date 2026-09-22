@@ -45,23 +45,8 @@ jobs:
           )
           replace_once(
               sdk,
-              '''        ChoiceType.CREATURE_TYPE -> if (chooser == Player.AnOpponent) {
-            "As this permanent enters, an opponent chooses a creature type"
-        } else {
-            "As this permanent enters, choose a creature type"
-        }
-        ChoiceType.CREATURE_ON_BATTLEFIELD ->''',
-              '''        ChoiceType.CREATURE_TYPE -> if (chooser == Player.AnOpponent) {
-            "As this permanent enters, an opponent chooses a creature type"
-        } else {
-            "As this permanent enters, choose a creature type"
-        }
-        ChoiceType.CARD_TYPE -> if (chooser == Player.AnOpponent) {
-            "As this permanent enters, an opponent chooses a card type"
-        } else {
-            "As this permanent enters, choose a card type"
-        }
-        ChoiceType.CREATURE_ON_BATTLEFIELD ->'''
+              '        ChoiceType.CREATURE_TYPE -> if (chooser == Player.AnOpponent) {\n            "As this permanent enters, an opponent chooses a creature type"\n        } else {\n            "As this permanent enters, choose a creature type"\n        }\n        ChoiceType.CREATURE_ON_BATTLEFIELD ->',
+              '        ChoiceType.CREATURE_TYPE -> if (chooser == Player.AnOpponent) {\n            "As this permanent enters, an opponent chooses a creature type"\n        } else {\n            "As this permanent enters, choose a creature type"\n        }\n        ChoiceType.CARD_TYPE -> if (chooser == Player.AnOpponent) {\n            "As this permanent enters, an opponent chooses a card type"\n        } else {\n            "As this permanent enters, choose a card type"\n        }\n        ChoiceType.CREATURE_ON_BATTLEFIELD ->'
           )
 
           cont = 'rules-engine/src/main/kotlin/com/wingedsheep/engine/core/ModalAndCloneContinuations.kt'
