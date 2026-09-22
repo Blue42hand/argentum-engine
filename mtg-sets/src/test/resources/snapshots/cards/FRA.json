@@ -1031,6 +1031,54 @@
     ]
 }
 
+// Heartstring Puller
+{
+    "name": "Heartstring Puller",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Elf Sorcerer",
+    "oracleText": "Trample\nWhen this creature enters, create a 2/2 colorless Wizard Soldier creature token named Cadet.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Wizard",
+                        "Soldier"
+                    ],
+                    "name": "Cadet",
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "86",
+        "artist": "Jessica Liu",
+        "flavorText": "\"Come on cadet, I'll show you the ropes!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cbfe3354-7ced-4773-9a4e-a937ae9f94f8.jpg?1789556808",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Innovative Commons
 {
     "name": "Innovative Commons",
