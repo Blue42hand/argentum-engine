@@ -68,11 +68,30 @@ class EnvLeaseManager(
     }
 
     /**
+     * Reconcile lease bookkeeping with one point-in-time live-environment snapshot.
+     *
+     * The snapshot may already be stale by the time reconciliation runs. In particular, an
+     * environment can be created after [MultiEnvService.listEnvs] returns and then acquire a lease
+     * before this method sees the old snapshot. Never delete an active lease merely because that
+     * environment is absent from the snapshot; a later scan can reconcile it once the request ends.
+     */
+    internal fun reconcileLeases(live: Set<EnvId>, at: Instant) {
+        live.forEach { envId -> leases.putIfAbsent(envId, Lease(at)) }
+        leases.keys.forEach { envId ->
+            if (envId !in live) {
+                leases.computeIfPresent(envId) { _, lease ->
+                    if (lease.activeRequests == 0) null else lease
+                }
+            }
+        }
+    }
+
+    /**
      * Dispose environments whose lease has expired and that have no leased request in flight.
      *
      * Environments unknown to this manager (for example those created before leases were enabled)
      * are initialized with a full grace period on the first scan. Explicitly disposed envs are
-     * pruned from lease bookkeeping on the next scan.
+     * pruned from lease bookkeeping on a later scan once no leased request remains in flight.
      *
      * All state transitions for one environment are serialized by [ConcurrentHashMap.compute] /
      * `computeIfPresent`. No separate per-lease monitor is taken, so request admission and reaping
@@ -83,10 +102,9 @@ class EnvLeaseManager(
         if (!enabled) return
 
         val at = now()
-        val live = multiEnvService.listEnvs()
+        val live = multiEnvService.listEnvs().toSet()
 
-        live.forEach { envId -> leases.putIfAbsent(envId, Lease(at)) }
-        leases.keys.removeIf { it !in live }
+        reconcileLeases(live, at)
 
         live.forEach { envId ->
             leases.computeIfPresent(envId) { _, lease ->
