@@ -84,6 +84,30 @@ class EnvLeaseManagerTest : FunSpec({
         service.listEnvs() shouldNotContain envId
     }
 
+    test("a stale live-environment scan cannot discard an active lease") {
+        val service = MultiEnvService(createGymCardRegistry())
+        val envId = service.create(config()).envId
+        val manager = EnvLeaseManager(service, ttlMs = 1_000)
+        var instant = Instant.parse("2026-09-22T00:00:00Z")
+        manager.now = { instant }
+
+        manager.begin(listOf(envId))
+        manager.reconcileLeases(emptySet(), instant) // simulate a scan taken before this env existed
+
+        instant = instant.plusMillis(1_001)
+        manager.reapIdle()
+        service.listEnvs() shouldContain envId
+
+        instant = instant.plusMillis(1_001)
+        manager.reapIdle()
+        service.listEnvs() shouldContain envId
+
+        manager.end(listOf(envId))
+        instant = instant.plusMillis(1_001)
+        manager.reapIdle()
+        service.listEnvs() shouldNotContain envId
+    }
+
     test("disabled leases preserve explicit-dispose-only behavior") {
         val service = MultiEnvService(createGymCardRegistry())
         val envId = service.create(config()).envId
