@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 71 / 285
+**Implemented:** 72 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 71   |
+| Extras     | 285   | 72   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -215,7 +215,7 @@
 - [x] Shatterwing Pegasus
 - [x] Shipwreck Marsh
 - [ ] Silence the Echo
-- [ ] Simulacrum Shaper
+- [x] Simulacrum Shaper
 - [x] Skilled Battlecarver
 - [ ] Solarium Sentry
 - [ ] Solitary Cell
