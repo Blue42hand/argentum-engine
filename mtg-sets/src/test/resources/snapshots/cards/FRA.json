@@ -441,6 +441,60 @@
     ]
 }
 
+// Greenhouse Propagator
+{
+    "name": "Greenhouse Propagator",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Cat Druid",
+    "oracleText": "Whenever another creature you control enters, you gain 1 life.\n{T}: Add {G}.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "104",
+        "artist": "Ekaterina Burmak",
+        "flavorText": "Vigorbloom's unique graft technique requires the tender nurturing of seedlings to root seamlessly into the body and facilitate healing.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/5/a56e0f91-b128-4693-a949-53cb403f4fbf.jpg?1789127136",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Innovative Commons
 {
     "name": "Innovative Commons",
