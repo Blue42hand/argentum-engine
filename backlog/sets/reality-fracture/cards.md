@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 59 / 285
+**Implemented:** 60 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 59   |
+| Extras     | 285   | 60   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -179,7 +179,7 @@
 - [ ] Plan for All Outcomes
 - [ ] Pompous Battlemage
 - [x] Precise Redaction
-- [ ] Predictive Preparations
+- [x] Predictive Preparations
 - [ ] Primal Witchstalker
 - [ ] Proctor of Potential
 - [ ] Proft, Consulting Detective
