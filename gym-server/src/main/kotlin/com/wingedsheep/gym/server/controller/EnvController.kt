@@ -256,8 +256,10 @@ class EnvController(
     @Operation(
         summary = "Advance an env by one action",
         description = """
-            `actionId` must come from the most recent observation. Stale IDs return 400.
-            Optional `params` complete an action the ID alone can't describe — `attackers`
+            `actionId` must come from the most recent observation. Invalid action IDs return 400.
+            Optional `expectedStateDigest` makes that freshness requirement explicit: if the current
+            action mapping belongs to another observation, the request returns 409 without applying
+            the action. Optional `params` complete an action the ID alone can't describe — `attackers`
             (attacker id → defender id), `blockers` (blocker id → attackers blocked), `targets`,
             `xValue`. The candidates come from the same legal action's `validAttackers` /
             `validAttackTargets` / `validBlockers`. Params the action can't use, and an action the
@@ -269,15 +271,19 @@ class EnvController(
         @PathVariable id: String,
         @RequestBody body: StepBody
     ): Observation =
-        multiEnvService.step(StepRequest(EnvId(id), body.actionId, body.params)).observation
+        multiEnvService.step(
+            StepRequest(EnvId(id), body.actionId, body.params, body.expectedStateDigest)
+        ).observation
 
     @Operation(
         summary = "Advance many envs in parallel",
-        description = "Results are returned in request order. Safe because each env runs in its own worker thread."
+        description = "Results are returned in request order. Optional `expectedStateDigest` entries preserve the singular stale-state guard."
     )
     @PostMapping("/step-batch")
     fun stepBatch(@RequestBody items: List<StepBatchItem>): List<StepBatchResult> {
-        val requests = items.map { StepRequest(it.envId, it.actionId, it.params) }
+        val requests = items.map {
+            StepRequest(it.envId, it.actionId, it.params, it.expectedStateDigest)
+        }
         return multiEnvService.stepBatch(requests).map { (envId, obs) ->
             StepBatchResult(envId, obs.observation)
         }
@@ -290,15 +296,18 @@ class EnvController(
             ChooseTargets, Distribute, Order, SplitPiles, Search, Reorder,
             AssignDamage, SelectManaSources, multi-select SelectCards,
             multi-mode ChooseMode, BudgetModal.
-            Returns 409 if the env is not currently paused on a decision.
+            Optional `expectedStateDigest` binds the response to the observation that exposed the
+            decision, rejecting stale remote/asynchronous responses before decision validation.
+            Returns 409 if the env is not currently paused on a decision or the digest is stale.
         """
     )
     @PostMapping("/{id}/decision")
     fun submitDecision(
         @PathVariable id: String,
+        @RequestParam(required = false) expectedStateDigest: String?,
         @RequestBody response: DecisionResponse
     ): Observation =
-        multiEnvService.submitDecision(EnvId(id), response).observation
+        multiEnvService.submitDecision(EnvId(id), response, expectedStateDigest).observation
 
     // =========================================================================
     // Fork / snapshot / restore
