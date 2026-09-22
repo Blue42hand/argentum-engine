@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 111 / 285
+**Implemented:** 121 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -20,12 +20,12 @@
 - [x] Afterthought Sentry
 - [ ] Ajani Resolute
 - [ ] Ajani Unrelenting
-- [ ] Ajani's Anguish
+- [x] Ajani's Anguish
 - [x] Apex Witchstalker
 - [ ] Arcane Amphisbaena
 - [x] Archive Arbiter
 - [x] Arni, Humble Scribe
-- [ ] Arni, Renowned Champion
+- [x] Arni, Renowned Champion
 - [x] Artifist Acumen
 - [ ] Avatar of Burgeoning Echoes
 - [ ] Awaken the Inferno
@@ -33,7 +33,7 @@
 - [x] Blazing Crescendo
 - [x] Blessed Ghoul
 - [ ] Bloodline Recollector
-- [ ] Bloombrute
+- [x] Bloombrute
 - [ ] Blossom-Blessed Angel
 - [ ] Break Under Pressure
 - [ ] Budding Insurgent
@@ -49,7 +49,7 @@
 - [ ] Command the Stage
 - [ ] Compel Brutality
 - [ ] Countersculpt
-- [ ] Craftwork Crusher
+- [x] Craftwork Crusher
 - [x] Craterclaw Colossus
 - [ ] Cruel Calculations
 - [x] Cryotheory Adept
@@ -80,10 +80,10 @@
 - [x] Fatehold Annex
 - [ ] Fatehold Charm
 - [ ] Fatehold Chronologist
-- [ ] Fateshaper Aspirant
+- [x] Fateshaper Aspirant
 - [ ] Fblthp, Impossibly Lost
 - [ ] Fblthp, Knows the Way
-- [ ] Ferocity of the Hunt
+- [x] Ferocity of the Hunt
 - [ ] Flickering Hound
 - [ ] Flourishing Grapple
 - [x] Forest
@@ -96,8 +96,8 @@
 - [ ] Garruk, Curse Breaker
 - [ ] Garruk, Veiled Butcher
 - [x] Geist of Saint Thalia
-- [ ] Generous Revival
-- [ ] Germinate Recruits
+- [x] Generous Revival
+- [x] Germinate Recruits
 - [ ] Ghalta the Immovable
 - [ ] Ghalta the Unstoppable
 - [ ] Gideon the Oathless
@@ -105,7 +105,7 @@
 - [x] Graft Surgeon
 - [x] Greenhouse Propagator
 - [ ] Grim Repriser
-- [ ] Guiding Hydra
+- [x] Guiding Hydra
 - [ ] Hall of Echoes
 - [ ] Hallway Heckler
 - [ ] Hapatra, the Desert Fang
@@ -257,7 +257,7 @@
 - [ ] Tomik, Orzhov Lawmage
 - [x] Transformative Commons
 - [ ] Traxos, Academy Guardian
-- [ ] Traxos, Scourge Eternal
+- [x] Traxos, Scourge Eternal
 - [ ] Twinned Vision
 - [x] Twisted Fates
 - [ ] Uldaros Theorix
