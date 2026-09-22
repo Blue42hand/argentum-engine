@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 43 / 285
+**Implemented:** 44 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 43   |
+| Extras     | 285   | 44   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -18,7 +18,7 @@
 
 - [ ] Academic Ascent
 - [ ] Aerid Konstrari
-- [ ] Afterthought Sentry
+- [x] Afterthought Sentry
 - [ ] Ajani Resolute
 - [ ] Ajani Unrelenting
 - [ ] Ajani's Anguish
