@@ -1173,6 +1173,70 @@
     ]
 }
 
+// Marwyn, the Preserver
+{
+    "name": "Marwyn, the Preserver",
+    "manaCost": "{1}{G}",
+    "typeLine": "Legendary Creature — Elf Druid",
+    "oracleText": "Lands you control have hexproof. (They can't be the targets of spells or abilities your opponents control.)\n{2}: Return target land card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "land"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land own:you",
+                            "zone": "Graveyard"
+                        },
+                        "id": "land"
+                    }
+                ]
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "HEXPROOF",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "263",
+        "rarity": "UNCOMMON",
+        "artist": "Quintin Gleim",
+        "flavorText": "\"We are Llanowar's children, but also its protectors. Our destinies are one.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/90f33f99-7bc5-42e1-815e-bfb4c2b74107.jpg?1789644564",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Meticulous Commons
 {
     "name": "Meticulous Commons",
