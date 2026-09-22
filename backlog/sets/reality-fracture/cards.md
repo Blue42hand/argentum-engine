@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 61 / 285
+**Implemented:** 62 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 61   |
+| Extras     | 285   | 62   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -229,7 +229,7 @@
 - [ ] Stingerquill Voxmancer
 - [ ] Stinging Vitriol
 - [ ] Sureshot Sower
-- [ ] Surgical Precision
+- [x] Surgical Precision
 - [ ] Surveillance Phantasm
 - [x] Swamp
 - [ ] Tam's Resistance
