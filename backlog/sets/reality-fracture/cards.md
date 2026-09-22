@@ -2,11 +2,11 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 68 / 285
+**Implemented:** 78 / 285
 
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 285   | 68   |
+| Extras     | 285   | 78   |
 
 > Verify status anytime with `scripts/card-status --set FRA` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -30,7 +30,7 @@
 - [x] Artifist Acumen
 - [ ] Avatar of Burgeoning Echoes
 - [ ] Awaken the Inferno
-- [ ] Bestial Incursion
+- [x] Bestial Incursion
 - [x] Blazing Crescendo
 - [x] Blessed Ghoul
 - [ ] Bloodline Recollector
@@ -64,7 +64,7 @@
 - [x] Deserted Beach
 - [ ] Desperate Futurescribe
 - [ ] Diviner of Victory
-- [ ] Divining Duelist
+- [x] Divining Duelist
 - [ ] Draconic Visitor
 - [x] Eardrum Rattler
 - [ ] Edgar, Ancient Bloodlord
@@ -112,7 +112,7 @@
 - [ ] Hapatra, the Desert Fang
 - [ ] Hapatra, the Desert Frost
 - [x] Haunted Ridge
-- [ ] Heartstring Puller
+- [x] Heartstring Puller
 - [ ] Heartwood Crafter
 - [ ] Hexhaven Battalion
 - [ ] Hexhaven Dueling Arena
@@ -134,7 +134,7 @@
 - [ ] Karn, Gilded Guardian
 - [ ] Keeper of the Quiet Hour
 - [ ] Kindred Judgment
-- [ ] Kiora of Fire and Ashes
+- [x] Kiora of Fire and Ashes
 - [ ] Kiora of Salt and Sand
 - [x] Konstrari Annex
 - [ ] Konstrari Charm
@@ -174,7 +174,7 @@
 - [ ] Paradox Shaper
 - [x] Perfected Theory
 - [ ] Pia, Aether Ascetic
-- [ ] Pia, Determined Rebuilder
+- [x] Pia, Determined Rebuilder
 - [x] Plains
 - [ ] Plan for All Outcomes
 - [ ] Pompous Battlemage
@@ -215,7 +215,7 @@
 - [x] Shatterwing Pegasus
 - [x] Shipwreck Marsh
 - [ ] Silence the Echo
-- [ ] Simulacrum Shaper
+- [x] Simulacrum Shaper
 - [x] Skilled Battlecarver
 - [ ] Solarium Sentry
 - [ ] Solitary Cell
@@ -228,7 +228,7 @@
 - [ ] Stingerquill Charm
 - [ ] Stingerquill Voxmancer
 - [ ] Stinging Vitriol
-- [ ] Sureshot Sower
+- [x] Sureshot Sower
 - [x] Surgical Precision
 - [ ] Surveillance Phantasm
 - [x] Swamp
@@ -271,7 +271,7 @@
 - [ ] Vigorbloom Charm
 - [ ] Vigorbloom Vanguard
 - [ ] Vindictive Triumph
-- [ ] Vinelasher Adept
+- [x] Vinelasher Adept
 - [ ] Violent Echoes
 - [ ] Void Extrapolator
 - [ ] Vraska's Final Mercy
@@ -293,9 +293,9 @@
 - [ ] Winter, Tormented Loner
 - [ ] Woodwork Prodigy
 - [ ] Wrath of the Bloodmane
-- [ ] Wrecking Gecko
+- [x] Wrecking Gecko
 - [x] Yargle, Glutton of Urborg
-- [ ] Yargle, Goliath of Otaria
+- [x] Yargle, Goliath of Otaria
 - [ ] Yoshimaru, Beloved Companion
 - [ ] Yoshimaru, Scrappy Stray
 - [x] Your Fate Ends Here
