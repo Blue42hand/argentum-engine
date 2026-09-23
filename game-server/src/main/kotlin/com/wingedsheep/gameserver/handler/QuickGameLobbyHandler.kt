@@ -462,11 +462,10 @@ class QuickGameLobbyHandler(
         // Empty deck = "random pool" — skip validation. The commander field, if any, is meaningless
         // without an accompanying deck list and gets dropped at the lobby layer below.
         if (message.deckList.isNotEmpty()) {
-            // Commander-aware path: the wire format `deckList` represents the *full* deck (matches
-            // the saved-deck "merged" view the picker emits), but `Deck.cards` follows the server
-            // convention where the commander lives in `Deck.commander` and is NOT counted in
-            // `cards`. Strip one copy here so the validator (which re-adds it) doesn't trip the
-            // singleton check on the commander itself.
+            // Commander-aware path: current clients submit the library in `deckList` and the
+            // commander separately, matching `Deck.cards` / `Deck.commander`. Strip defensively
+            // anyway so older/alternate clients that submit the merged 100-card view remain
+            // compatible without double-counting the commander in validation.
             val result = if (message.commander != null) {
                 val cardsWithoutCommander = stripCommanderFromCards(message.deckList, message.commander)
                 val deckCards = cardsWithoutCommander.flatMap { (name, count) -> List(count) { name } }
@@ -903,7 +902,10 @@ class QuickGameLobbyHandler(
     }
 
     private fun QuickGameLobbyPlayer.toView(lobby: QuickGameLobby, seatIndex: Int): ServerMessage.QuickGameLobbyPlayerView {
-        val total = deckList?.values?.sum() ?: 0
+        // Commander submissions store the 99-card library separately from the command-zone card.
+        // Report the effective deck size to the UI so a legal Commander deck reads 100, not 99.
+        val total = (deckList?.values?.sum() ?: 0) +
+            if (lobby.usesCommanderRules && commander != null && !deckList.isNullOrEmpty()) 1 else 0
         // Momir Basic has no deckbuilding: every seat plays the fixed 60 basics, so it always counts
         // as "deck selected" and shows a fixed label rather than the deck-picker states.
         val label = when {
