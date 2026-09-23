@@ -968,16 +968,9 @@ class ActivateAbilityHandler(
             // exiles "two creature cards from a single graveyard", so every player's graveyard is
             // in the pool, and a graveyard holding fewer than `count` matches is dropped because
             // it can't legally supply the whole payment on its own.
-            val exileOwners =
-                if (exileFromGraveyardCost.anyPlayersZone) state.turnOrder else listOf(action.playerId)
-            val exileCandidatesByOwner = exileOwners.map { owner ->
-                costHandler.findMatchingCardsUnified(
-                    state,
-                    state.getZone(com.wingedsheep.engine.state.ZoneKey(owner, Zone.GRAVEYARD)),
-                    exileFromGraveyardCost.filter,
-                    action.playerId
-                )
-            }
+            val exileCandidatesByOwner = costHandler
+                .exileCandidatesByOwner(state, exileFromGraveyardCost, action.playerId, action.sourceId)
+                .values
             val exileCandidates =
                 if (exileFromGraveyardCost.singleZone) {
                     exileCandidatesByOwner.filter { it.size >= exileFromGraveyardCost.count }.flatten()
@@ -1919,7 +1912,8 @@ class ActivateAbilityHandler(
             targetRequirements = effectiveTargetReqs,
             costsTap = hasTapCost(effectiveCost),
             isExhaust = ability.isExhaust,
-            cantBeCopied = ability.cantBeCopied
+            cantBeCopied = ability.cantBeCopied,
+            isLoyalty = ability.isPlaneswalkerAbility,
         )
         currentState = stackResult.newState
         events.addAll(stackResult.events)
