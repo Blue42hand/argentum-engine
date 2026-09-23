@@ -507,18 +507,6 @@ class ModalAndCloneContinuationResumer(
             copyOfOriginalName = copyOfOriginalName,
             oldObject = continuation.entryOldObject, newObject = continuation.entryNewObject,
         )
-        val triggers = services.triggerDetector.detectTriggers(newState, listOf(zoneChangeEvent))
-        if (triggers.isNotEmpty()) {
-            val triggerResult = services.triggerProcessor.processTriggers(newState, triggers)
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state,
-                    outEvents + zoneChangeEvent + triggerResult.events
-                )
-            }
-            return checkForMore(triggerResult.newState, outEvents + zoneChangeEvent + triggerResult.events)
-        }
-
         return checkForMore(newState, outEvents + zoneChangeEvent)
     }
 
@@ -856,10 +844,9 @@ class ModalAndCloneContinuationResumer(
             // null means the chained choice couldn't be presented — fall through to fire triggers.
         }
 
-        // Final choice resolved — fire any triggers from the permanent entering (e.g. landfall,
-        // "when ~ enters"). The permanent already moved to the battlefield when it was placed; we
-        // synthesize the matching ZoneChangeEvent here so triggers can react now that the chosen
-        // value is recorded.
+        // Final choice resolved — emit the entry event, so the permanent's enters triggers (landfall,
+        // "when ~ enters") fire now that the chosen value is recorded. The permanent already moved to
+        // the battlefield when it was placed; the caller deliberately left this event to us.
         val zoneChangeEvent = ZoneChangeEvent(
             entityId,
             cardComponent?.name ?: "Unknown",
@@ -868,27 +855,15 @@ class ModalAndCloneContinuationResumer(
             continuation.controllerId,
             oldObject = continuation.entryOldObject, newObject = continuation.entryNewObject,
         )
-        val triggerEvents = listOf(zoneChangeEvent)
-        val triggers = services.triggerDetector.detectTriggers(newState, triggerEvents)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = services.triggerProcessor.processTriggers(newState, triggers)
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state,
-                    syntheticRiotEvents + triggerResult.events
-                )
-            }
-            return checkForMore(triggerResult.newState, syntheticRiotEvents + triggerResult.events)
-        }
-
-        return checkForMore(newState, syntheticRiotEvents)
+        return checkForMore(newState, syntheticRiotEvents + zoneChangeEvent)
     }
 
     /**
      * Resume after player answers yes/no to "pay life or enter tapped" for a land played directly.
      *
      * The land is already on the battlefield. If yes -> pay life, land stays untapped.
-     * If no -> land gets tapped. Then detect and process triggers from the land entering.
+     * If no -> land gets tapped. Then emit the land's entry event, which its enters triggers
+     * (landfall) fire from.
      */
     fun resumePayLifeOrEnterTappedLand(
         state: GameState,
@@ -917,7 +892,7 @@ class ModalAndCloneContinuationResumer(
             }
         }
 
-        // Detect and process any triggers from the land entering (e.g., landfall)
+        // The land's entry event, which PlayLandHandler left to this resumer (landfall, etc.)
         val landContainer = newState.getEntity(continuation.landId)
         val cardComponent = landContainer?.get<CardComponent>()
         val zoneChangeEvent = ZoneChangeEvent(
@@ -928,25 +903,7 @@ class ModalAndCloneContinuationResumer(
             continuation.controllerId,
             oldObject = continuation.entryOldObject, newObject = continuation.entryNewObject,
         )
-        val triggerEvents = listOf(zoneChangeEvent)
-        val triggers = services.triggerDetector.detectTriggers(newState, triggerEvents)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = services.triggerProcessor.processTriggers(newState, triggers)
-
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state,
-                    events + triggerResult.events
-                )
-            }
-
-            return ExecutionResult.success(
-                triggerResult.newState,
-                events + triggerResult.events
-            )
-        }
-
-        return checkForMore(newState, events)
+        return checkForMore(newState, events + zoneChangeEvent)
     }
 
     /**
@@ -1039,30 +996,9 @@ class ModalAndCloneContinuationResumer(
             return castResult
         }
 
-        var allEvents = castResult.events
-
-        // Detect and process triggers from casting (same as CastSpellHandler does)
-        val triggers = services.triggerDetector.detectTriggers(castResult.newState, allEvents)
-        if (triggers.isNotEmpty()) {
-            val triggerResult = services.triggerProcessor.processTriggers(castResult.newState, triggers)
-
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state.withPriority(continuation.casterId),
-                    allEvents + triggerResult.events
-                )
-            }
-
-            allEvents = allEvents + triggerResult.events
-            return ExecutionResult.success(
-                triggerResult.newState.withPriority(continuation.casterId),
-                allEvents
-            )
-        }
-
         return ExecutionResult.success(
             castResult.newState.withPriority(continuation.casterId),
-            allEvents
+            castResult.events
         )
     }
 

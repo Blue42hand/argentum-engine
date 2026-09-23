@@ -138,6 +138,15 @@ data class GameState(
     /** Continuation stack for resuming after player decisions */
     val continuationStack: List<ContinuationFrame> = emptyList(),
 
+    /**
+     * Triggered abilities that have triggered but are not on the stack yet (CR 603.3): they wait
+     * until the next time a player would receive priority. Only [com.wingedsheep.engine.core.Settler]
+     * fills and drains this. It detects triggers once per action at the engine boundary, parks them
+     * here while a decision is pending, and puts them on the stack when the game settles. Nothing
+     * else detects triggers from events, so no trigger is detected twice.
+     */
+    val pendingTriggers: List<com.wingedsheep.engine.event.PendingTrigger> = emptyList(),
+
     /** Number of spells cast this turn (by all players), used for Storm count */
     val spellsCastThisTurn: Int = 0,
 

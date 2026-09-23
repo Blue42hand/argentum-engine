@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  * Nested engine steps also use `ExecutionResult` while composing an action and may have built
  * intermediate immutable states before reporting an error. [ActionProcessor] is the public
  * transaction boundary: a top-level error exposes the exact input state and retains only the error
- * message, with no events, pending decision, or processed-trigger marker from the rejected attempt.
+ * message, with no events or pending decision from the rejected attempt.
  *
  * Game-over is signaled via `state.gameOver` + a [GameEndedEvent] in `events`.
  */
@@ -24,15 +24,6 @@ data class ExecutionResult(
     val events: List<GameEvent> = emptyList(),
     val error: String? = null,
     val pendingDecision: PendingDecision? = null,
-    /**
-     * `true` when the producing action handler already ran [TriggerDetector] over
-     * [events] and put any resulting triggers on the stack itself. Callers resuming
-     * a paused action (notably `SubmitDecisionHandler`) must skip detection on
-     * [events] when this is set; otherwise battlefield triggers like Riku of Many
-     * Paths would be duplicated on the stack — once by the handler, once by the
-     * resumer running on the same `SpellCastEvent`.
-     */
-    val triggersAlreadyProcessed: Boolean = false
 ) {
     val isSuccess: Boolean get() = error == null && pendingDecision == null
     val isPaused: Boolean get() = pendingDecision != null

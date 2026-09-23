@@ -1294,23 +1294,6 @@ class TriggerProcessor(
             trigger.ability.binding == com.wingedsheep.sdk.scripting.TriggerBinding.SELF
 
     /**
-     * Convenience method to detect and process triggers in one call.
-     *
-     * @param state The current game state
-     * @param events The events that may have caused triggers
-     * @param triggerDetector The detector to use for finding triggers
-     * @return ExecutionResult with triggers placed on stack (or paused for target selection)
-     */
-    fun detectAndProcess(
-        state: GameState,
-        events: List<GameEvent>,
-        triggerDetector: TriggerDetector
-    ): ExecutionResult {
-        val triggers = triggerDetector.detectTriggers(state, events)
-        return processTriggers(state, triggers)
-    }
-
-    /**
      * Create a ChosenTarget from an EntityId based on what the entity is in the game state.
      *
      * @param state The current game state

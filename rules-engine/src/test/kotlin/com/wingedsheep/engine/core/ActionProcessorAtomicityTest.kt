@@ -49,7 +49,6 @@ class ActionProcessorAtomicityTest : ScenarioTestBase() {
                 result.state.continuationStack shouldBe preActionState.continuationStack
                 result.events.shouldBeEmpty()
                 result.pendingDecision shouldBe null
-                result.triggersAlreadyProcessed shouldBe false
                 processed.undoPolicy shouldBe UndoCheckpointAction.PRESERVE
             }
         }

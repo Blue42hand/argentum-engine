@@ -53,6 +53,9 @@ class PrismariTheInspirationScenarioTest : FunSpec({
         val caster = driver.activePlayer!!
         val opponent = driver.getOpponent(caster)
 
+        // Prismari is legendary: a second copy needs a waiver, or the legend rule (CR 704.5j)
+        // removes one before the storm triggers are put on the stack.
+        driver.putPermanentOnBattlefield(caster, "Legend Rule Waiver")
         driver.putCreatureOnBattlefield(caster, "Prismari, the Inspiration")
         driver.putCreatureOnBattlefield(caster, "Prismari, the Inspiration")
         driver.replaceState(driver.state.copy(spellsCastThisTurn = 1))

@@ -1085,6 +1085,7 @@ class SacrificeAndPayContinuationResumer(
             }
         }
 
-        return ExecutionResult.success(newState, events)
+        // The rest of the turn (TurnManager parks it beneath this choice) carries on from here.
+        return checkForMore(newState, events)
     }
 }

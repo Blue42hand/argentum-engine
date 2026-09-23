@@ -41,8 +41,9 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
 
                 // The reader changes only suspension representation. Entity state, RNG, counters,
                 // permissions, and all other saved fields are retained exactly on initial load.
-                // Object identity and zone returns postdate these captures. Compare the saved
-                // fields after checking that the new return bookkeeping starts empty.
+                // Object identity, zone returns and the waiting-trigger queue postdate these
+                // captures. Compare the saved fields after checking that the new return
+                // bookkeeping starts empty.
                 val encoded = encodeState(state)
                 JsonObject(encoded - "continuationStack" - POST_CAPTURE_FIELDS) shouldBe
                     JsonObject(original - "continuationStack" - "pendingDecision")
@@ -303,6 +304,6 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
         private const val CORE = "com.wingedsheep.engine.core."
 
         /** Fields introduced after these captures; decoding supplies their defaults. */
-        private val POST_CAPTURE_FIELDS = setOf("objectIdentities", "nextObjectGeneration", "zoneReturns")
+        private val POST_CAPTURE_FIELDS = setOf("objectIdentities", "nextObjectGeneration", "zoneReturns", "pendingTriggers")
     }
 }

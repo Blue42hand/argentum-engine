@@ -537,12 +537,9 @@ class TurnManager(
         when (nextStep) {
             Step.UNTAP -> {
                 val untapResult = beginningPhaseManager.performUntapStep(newState)
-                if (!untapResult.isSuccess) return untapResult
+                if (untapResult.error != null) return untapResult
                 if (untapResult.isPaused) {
-                    return ExecutionResult.propagatePause(
-                        untapResult.newState,
-                        events + untapResult.events
-                    )
+                    return parkRestOfTurn(untapResult, newState, AdvanceStepContinuation, events + untapResult.events)
                 }
                 newState = untapResult.newState
                 events.addAll(untapResult.events)
@@ -791,7 +788,10 @@ class TurnManager(
 
             Step.CLEANUP -> {
                 val cleanupResult = cleanupPhaseManager.performCleanupStep(newState)
-                if (!cleanupResult.isSuccess) return cleanupResult
+                if (cleanupResult.error != null) return cleanupResult
+                if (cleanupResult.isPaused) {
+                    return parkRestOfTurn(cleanupResult, newState, AdvanceStepContinuation, events + cleanupResult.events)
+                }
                 newState = cleanupResult.newState
                 events.addAll(cleanupResult.events)
 
@@ -854,31 +854,55 @@ class TurnManager(
 
         // Perform the untap step
         val untapResult = beginningPhaseManager.performUntapStep(turnResult.newState)
-        if (!untapResult.isSuccess) return untapResult
-
+        if (untapResult.error != null) return untapResult
         if (untapResult.isPaused) {
-            return ExecutionResult.propagatePause(
-                untapResult.newState,
+            return parkRestOfTurn(
+                untapResult, turnResult.newState, FinishUntapStepContinuation(nextPlayer),
                 turnResult.events + untapResult.events
             )
         }
 
-        // Expire UntilYourNextTurn effects after the untap step completes.
-        var postUntapState = cleanupPhaseManager.expireUntilYourNextTurnEffects(untapResult.newState, nextPlayer)
-        postUntapState = cleanupPhaseManager.expireAffectedControllersNextUntapEffects(postUntapState, nextPlayer)
+        val finished = finishUntapStep(untapResult.newState, nextPlayer)
+        return finished.copy(events = turnResult.events + untapResult.events + finished.events)
+    }
+
+    /**
+     * The rest of starting [activePlayer]'s turn once its untap step is over: effects that last
+     * "until your next turn" or until that player's next untap step end, goad designations end,
+     * and the game advances to the upkeep step. Runs inline from [endTurn], or from a
+     * [FinishUntapStepContinuation] when the untap step stopped for a choice.
+     */
+    fun finishUntapStep(state: GameState, activePlayer: EntityId): ExecutionResult {
+        var postUntapState = cleanupPhaseManager.expireUntilYourNextTurnEffects(state, activePlayer)
+        postUntapState = cleanupPhaseManager.expireAffectedControllersNextUntapEffects(postUntapState, activePlayer)
         // CR 701.15a: goaded designation lasts "until the next turn of the
         // controller of that spell or ability"; same hook as the floating-effect
         // path above so all "until your next turn" semantics share one site.
-        val (goadCleanedState, goadEvents) = cleanupPhaseManager.expireGoadedDesignationFor(postUntapState, nextPlayer)
+        val (goadCleanedState, goadEvents) = cleanupPhaseManager.expireGoadedDesignationFor(postUntapState, activePlayer)
         postUntapState = goadCleanedState
 
         // Advance to upkeep (this sets priority to the active player)
         val advanceResult = advanceStep(postUntapState)
+        return advanceResult.copy(events = goadEvents + advanceResult.events)
+    }
 
-        return ExecutionResult.success(
-            advanceResult.newState,
-            turnResult.events + untapResult.events + goadEvents + advanceResult.events
+    /**
+     * A turn-based action of the current step stopped for a choice. Park [rest] beneath every
+     * frame that action pushed, measured from [before], so the choice and anything it chains into
+     * finish first. After that, the turn carries on exactly as the unpaused path would have.
+     */
+    private fun parkRestOfTurn(
+        paused: ExecutionResult,
+        before: GameState,
+        rest: AutomaticContinuation,
+        events: List<GameEvent>
+    ): ExecutionResult {
+        val stack = paused.state.continuationStack
+        val at = before.continuationStack.size
+        val parked = paused.state.copy(
+            continuationStack = stack.subList(0, at) + rest + stack.subList(at, stack.size)
         )
+        return ExecutionResult.propagatePause(parked, events)
     }
 
     /**
@@ -935,24 +959,28 @@ class TurnManager(
     }
 
     /**
-     * Carry out an "end the turn" effect (CR 720). Invoked by
-     * [com.wingedsheep.engine.handlers.actions.priority.PassPriorityHandler] once the spell or
-     * ability that requested it (via [EndTheTurnRequestedComponent]) has finished resolving.
+     * Carry out an "end the turn" effect (CR 724.1). Invoked by [Settler] once the spell or ability
+     * that requested it (via [EndTheTurnRequestedComponent]) has finished resolving.
      *
-     * In order (CR 720.1):
-     *  - **a.** every spell and ability still on the stack is exiled — spells go to exile, abilities
-     *    cease to exist — and the source of the effect is exiled too;
-     *  - **c.** state-based actions are checked once; no triggered abilities are put on the stack —
-     *    the caller drops the triggers detected from the resolution/board-wipe events and diverts
-     *    here instead of processing them;
-     *  - **b.** all creatures and players are removed from combat;
-     *  - **d.** the game skips straight to the cleanup step, which runs as normal (CR 720.2): the
-     *    active player discards down to their maximum hand size, marked damage wears off, and
-     *    "until end of turn" / "this turn" effects end — then the turn ends into the next turn.
+     * In order (CR 724.1):
+     *  - **a.** triggered abilities waiting to be put on the stack cease to exist. The waiting queue
+     *    is cleared, and a [TurnEndedByEffectEvent] tells the settle boundary to ignore every
+     *    earlier event;
+     *  - **b.** every spell and ability still on the stack is exiled (spells go to exile, abilities
+     *    cease to exist), and the source of the effect is exiled too;
+     *  - **c.** state-based actions are checked once, and no triggered abilities are put on the stack;
+     *  - **d.** all creatures are removed from combat, and the game skips straight to the cleanup
+     *    step, which runs as normal: the active player discards down to their maximum hand size,
+     *    marked damage wears off, and "until end of turn" / "this turn" effects end. Then the turn
+     *    ends into the next turn.
      *
-     * The cleanup + turn-end reuse the same machinery as a natural cleanup step, so if the active
-     * player is over their maximum hand size this returns paused for the discard, and the game
-     * advances CLEANUP → next turn once the discard resolves (mirrors [advanceStep]'s CLEANUP path).
+     * Abilities that trigger during this process go on the stack at the next settle, which is after
+     * the next turn has begun. CR 724.1f would put them on the stack in an extra cleanup step
+     * instead, and the engine doesn't model that.
+     *
+     * The cleanup and the turn end reuse the machinery of a natural cleanup step. If the active
+     * player is over their maximum hand size, this returns paused for the discard, with an
+     * [AdvanceStepContinuation] beneath it that ends the turn once the discard resolves.
      */
     fun performEndTheTurn(state: GameState): ExecutionResult {
         val activePlayer = state.activePlayerId
@@ -960,9 +988,10 @@ class TurnManager(
 
         val request = state.getEntity(activePlayer)?.get<EndTheTurnRequestedComponent>()
         var newState = state.updateEntity(activePlayer) { it.without<EndTheTurnRequestedComponent>() }
-        val events = mutableListOf<GameEvent>()
+            .copy(pendingTriggers = emptyList())
+        val events = mutableListOf<GameEvent>(TurnEndedByEffectEvent(activePlayer))
 
-        // CR 720.1c: state-based actions are checked. (Creatures destroyed by a preceding board
+        // CR 724.1c: state-based actions are checked. (Creatures destroyed by a preceding board
         // wipe are already handled by that effect; this catches any other pending SBA.)
         val sbaResult = sbaChecker.checkAndApply(newState)
         if (sbaResult.isPaused) {
@@ -974,7 +1003,7 @@ class TurnManager(
             return ExecutionResult.success(newState.copy(priorityPlayerId = null), events)
         }
 
-        // CR 720.1a: exile every remaining spell and ability on the stack. Snapshot the ids first
+        // CR 724.1b: exile every remaining spell and ability on the stack. Snapshot the ids first
         // because exiling mutates the stack.
         val resolver = StackResolver(cardRegistry = cardRegistry)
         for (entityId in newState.stack.toList()) {
@@ -992,7 +1021,7 @@ class TurnManager(
             }
         }
 
-        // CR 720.1a: the source spell/ability is exiled along with the rest of the stack. After its
+        // CR 724.1b: the source spell/ability is exiled along with the rest of the stack. After its
         // resolution a spell source has been put into its owner's graveyard — move it to exile.
         request?.sourceId?.let { sourceId ->
             val (movedState, moveEvents) = moveSourceToExile(newState, sourceId)
@@ -1000,7 +1029,7 @@ class TurnManager(
             events.addAll(moveEvents)
         }
 
-        // CR 720.1b: remove all creatures and players from combat.
+        // CR 724.1d: remove all creatures from combat.
         if (newState.phase == Phase.COMBAT) {
             val endCombatResult = combatManager.endCombat(newState)
             if (endCombatResult.isSuccess) {
@@ -1009,7 +1038,7 @@ class TurnManager(
             }
         }
 
-        // CR 720.1d / 720.2: skip straight to the cleanup step (bypassing the end step and any queued
+        // CR 724.1d: skip straight to the cleanup step (bypassing the end step and any queued
         // additional end steps), run its turn-based actions, then end the turn. Mirrors the
         // Step.CLEANUP branch of [advanceStep] so hand-size discard and end-of-turn cleanup behave
         // identically.
@@ -1025,11 +1054,8 @@ class TurnManager(
         val cleanupResult = cleanupPhaseManager.performCleanupStep(newState)
         if (cleanupResult.isPaused) {
             // Over max hand size: pause for the discard. The HandSizeDiscardContinuation finishes the
-            // cleanup turn-based actions, then the game advances CLEANUP → next turn (advanceStep).
-            return ExecutionResult.propagatePause(
-                cleanupResult.newState,
-                events + cleanupResult.events
-            )
+            // cleanup turn-based actions, then the parked frame advances CLEANUP → next turn.
+            return parkRestOfTurn(cleanupResult, newState, AdvanceStepContinuation, events + cleanupResult.events)
         }
         if (cleanupResult.error != null) {
             return ExecutionResult.error(cleanupResult.newState, cleanupResult.error)
@@ -1048,7 +1074,7 @@ class TurnManager(
     }
 
     /**
-     * Move an "end the turn" source from its owner's graveyard to exile (CR 720.1a). Best-effort:
+     * Move an "end the turn" source from its owner's graveyard to exile (CR 724.1b). Best-effort:
      * if the source is not currently in a graveyard (e.g. it was a token or an ability that already
      * ceased to exist) it is left untouched.
      */

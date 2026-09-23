@@ -6,11 +6,11 @@ import com.wingedsheep.engine.handlers.EffectContext
 
 /**
  * Core auto-resumers that process continuations without player input:
+ * - AdvanceStepContinuation / FinishUntapStepContinuation (the rest of a turn-based step)
  * - PendingTriggersContinuation (remaining triggers after first pauses)
  * - ForEachContinuation (remaining ForEach iterations, any iteration space)
  * - DrawReplacementRemainingDrawsContinuation (remaining draws after bounce)
- * - CycleDrawContinuation (draw after cycling triggers)
- * - TypecycleSearchContinuation (search after typecycling triggers)
+ * - CycleDrawContinuation / TypecycleSearchContinuation (legacy saved games only)
  * - EffectContinuation (auto-resume remaining effects)
  * - RepeatWhileContinuation (ask condition after body)
  */
@@ -24,9 +24,15 @@ class CoreAutoResumerModule(
             val result = services.stackResolver.finishResolvingSpell(state, continuation)
             mergeAndContinue(result, events, checkForMore)
         },
-        autoResumer(PendingTriggersContinuation::class) { state, continuation, events, _ ->
+        autoResumer(AdvanceStepContinuation::class) { state, _, events, checkForMore ->
+            mergeAndContinue(services.turnManager.advanceStep(state), events, checkForMore)
+        },
+        autoResumer(FinishUntapStepContinuation::class) { state, continuation, events, checkForMore ->
+            mergeAndContinue(services.turnManager.finishUntapStep(state, continuation.activePlayerId), events, checkForMore)
+        },
+        autoResumer(PendingTriggersContinuation::class) { state, continuation, events, checkForMore ->
             val result = services.triggerProcessor.processTriggers(state, continuation.remainingTriggers)
-            mergeAndContinue(result, events)
+            mergeAndContinue(result, events, checkForMore)
         },
 
         autoResumer(ForEachContinuation::class, canResume = {

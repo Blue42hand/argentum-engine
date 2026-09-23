@@ -55,6 +55,9 @@ class KrarksThumbScenarioTest : FunSpec({
 
         repeat(3) { d.putLandOnBattlefield(d.player1, "Mountain") }
         d.getLands(d.player1).forEach { d.tapPermanent(it) }
+        // Krark's Thumb is legendary: a second copy needs a waiver, or the legend rule (CR 704.5j)
+        // removes one before the Gambit's caster gets priority back.
+        if (thumbs > 1) d.putPermanentOnBattlefield(d.player1, "Legend Rule Waiver")
         repeat(thumbs) { d.putPermanentOnBattlefield(d.player1, "Krark's Thumb") }
 
         val gambit = d.putCardInHand(d.player1, "Fiery Gambit")

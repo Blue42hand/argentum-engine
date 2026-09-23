@@ -155,7 +155,7 @@ class ReplacementContinuationResumer(
             if (effectResult.isPaused) {
                 // Clear chain on pause so subsequent execution is unaffected.
                 val clearedState = effectResult.state.copy(activeReplacementChain = null)
-                return ExecutionResult(clearedState, effectResult.events, effectResult.error, effectResult.pendingDecision, effectResult.triggersAlreadyProcessed)
+                return ExecutionResult(clearedState, effectResult.events, effectResult.error, effectResult.pendingDecision)
             }
             val clearedState = effectResult.state.copy(activeReplacementChain = null)
             return checkForMore(clearedState, effectResult.events)

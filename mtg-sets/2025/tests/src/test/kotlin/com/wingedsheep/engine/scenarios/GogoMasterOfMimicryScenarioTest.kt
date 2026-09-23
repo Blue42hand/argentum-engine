@@ -193,6 +193,8 @@ class GogoMasterOfMimicryScenarioTest : FunSpec({
         val me = driver.player1
         val opponent = driver.getOpponent(me)
 
+        // Gogo is legendary: a second copy needs a waiver, or the legend rule (CR 704.5j) removes one.
+        driver.putPermanentOnBattlefield(me, "Legend Rule Waiver")
         val gogoA = driver.putPermanentOnBattlefield(me, "Gogo, Master of Mimicry")
         val gogoB = driver.putPermanentOnBattlefield(me, "Gogo, Master of Mimicry")
         val pyromancer = driver.putPermanentOnBattlefield(me, "Prodigal Pyromancer")

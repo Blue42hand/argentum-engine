@@ -708,6 +708,16 @@ class TriggerDetector {
 }
 ```
 
+**Detection happens in exactly one place: the settle boundary.** Handlers, resumers and executors
+only emit events. After every accepted action, `ActionProcessor` runs `Settler.settle`, which is the
+only caller of event-based detection. It detects triggers from the action's events (plus phase/step
+and delayed triggers for a step the action began) and parks them in `GameState.pendingTriggers`,
+the triggered abilities waiting to be put on the stack (CR 603.3). If the action ended on a
+question, they wait there. Otherwise the boundary performs state-based actions, queues the triggers
+those cause, and puts the whole queue on the stack in APNAP order, repeating until nothing is left
+(CR 117.5, 704.3). A trigger is detected once no matter how many handlers its events pass through,
+so there is no "already processed" flag to thread, and no path has its own copy of the loop.
+
 **Why explicit events instead of polling or observer patterns?**
 
 - **Decoupling.** The `CombatManager` dealing damage doesn't need to know about "Enrage" abilities.
@@ -1033,9 +1043,9 @@ val priorityPassedBy: Set<EntityId> = emptySet() // players who passed this roun
 When a player passes priority, the engine adds them to `priorityPassedBy` and checks
 `allPlayersPassed()`. Two outcomes are possible:
 
-1. **Stack is non-empty:** The top item resolves. After resolution, the engine runs state-based
-   actions, detects triggers, and gives priority back to the active player with `priorityPassedBy`
-   reset.
+1. **Stack is non-empty:** The top item resolves and the handler names who receives priority
+   next. The settle boundary then runs state-based actions and puts waiting triggers on the stack,
+   and that player receives priority with `priorityPassedBy` reset.
 2. **Stack is empty:** The `TurnManager` advances to the next step. `priorityPassedBy` is cleared,
    step-specific actions execute (draw a card, deal combat damage, etc.), and priority goes to the
    active player.
@@ -1054,12 +1064,15 @@ behavior:
 - **CLEANUP:** Discard to hand size, remove damage, expire end-of-turn effects. Normally no
   priority — but if SBAs or triggers occur during cleanup, a new cleanup step begins with priority.
 
-**Trigger detection at step boundaries.** When the stack empties and the game advances, the engine
+**Trigger detection at step boundaries.** When an action begins a new step, the settle boundary
 runs three rounds of trigger detection: standard event-based triggers (from events emitted during
 advancement), delayed triggers (scheduled for specific future steps, e.g., Astral Slide's "return at
 end of turn"), and phase/step triggers (permanents with "at the beginning of your upkeep" abilities).
-All detected triggers are processed via `TriggerProcessor`, which may pause for targeting decisions
-using the continuation system.
+All detected triggers are placed via `TriggerProcessor`, which may pause for targeting decisions
+using the continuation system. That holds whether the step began from a priority pass or from the
+answer to a question: a turn-based action that stops for a choice (an untap choice, the discard to
+hand size) parks the rest of its turn beneath that choice (`AdvanceStepContinuation`,
+`FinishUntapStepContinuation`), so the answer carries the game on into the next step.
 
 **Why model priority as a passed-by set?**
 
