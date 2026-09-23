@@ -34,7 +34,7 @@ import java.io.File
  * `rules-engine/src/main/kotlin` is covered. The scan also does not cover `ai/`, `game-server/`,
  * `gym/` or `mtg-sets/` at all; the reads there are attack-evaluation heuristics and scenario setup.
  * A per-line allowlist (file → a regex the permitted line must match, e.g.
- * `ControlledSinceYourMostRecentTurn` / `canAttack`) would close six of the eight without new
+ * `ControlledSinceYourMostRecentTurn` / `canAttack`) would close five of the seven without new
  * machinery, and is the obvious next step if this ever catches nothing while a bypass ships.
  */
 class SummoningSicknessGateEnforcementTest : FunSpec({
@@ -80,8 +80,6 @@ class SummoningSicknessGateEnforcementTest : FunSpec({
             // only the tap/untap symbols). The one evaluation shared by the activation handler,
             // the enumerators and the mana solver.
             "com/wingedsheep/engine/mechanics/ActivationRestrictionKernel.kt",
-            // Same restriction, still evaluated by the handler's own restriction switch.
-            "com/wingedsheep/engine/handlers/actions/ability/ActivateAbilityHandler.kt",
             // The client's "summoning sick" badge, which reports attack-readiness.
             "com/wingedsheep/engine/view/ClientStateTransformer.kt",
         )
