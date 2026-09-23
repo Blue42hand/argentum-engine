@@ -460,6 +460,11 @@ exist in the cost and charges the life through the shared life-payment service.
   counters first, so the resolving effect can still read them via
   `DynamicAmounts.lastKnownSourceCounters(...)`.
 - `Costs.ExileFromGraveyard(count, filter)` — exile N matching cards from your graveyard.
+- `Costs.ExileAnotherFromGraveyard(count = 1, filter)` — "exile **another** [filter] card from your
+  graveyard": `CostAtom.ExileFrom(..., excludeSelf = true)`, the `Sacrifice.excludeSelf` twin. For an
+  ability activated *from* the graveyard, so the activating card can't pay its own cost (Gallia,
+  Tragic Host). Affordability, the activation-time pick and payment share one candidate rule
+  (`CostHandler.exileCandidatesByOwner`).
 - `Costs.ExileXFromGraveyard(filter)` — **variable-count** "exile X cards from your graveyard".
   X *is* the size of the graveyard selection, so activating raises a single `SelectCardsDecision`
   over the matching graveyard cards and the count the player picks becomes the ability's X — read it
@@ -5783,6 +5788,10 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
   `isExhaust` flag. The event is emitted as soon as the exhaust ability is put on the stack, so the triggered
   ability is stacked above it and resolves first (Adrenaline Jockey, Rangers' Aetherhive). This is the plain
   Aetherdrift wording, which counts an exhaust *mana* ability too.
+- `YouActivateLoyaltyAbility` / `OpponentActivatesLoyaltyAbility` — you / an opponent activates a
+  **loyalty ability** (CR 606): `AbilityActivatedEvent(requireLoyalty = true)`, matched against the
+  activation event's `isLoyalty` flag (set from `ActivatedAbility.isPlaneswalkerAbility`). Way of the
+  Paradox, Gideon the Oathless — "that player" is `EffectTarget.PlayerRef(Player.TriggeringPlayer)`.
 - `YouActivateNonManaExhaustAbility` — the same, but with the "that isn't a mana ability" clause
   (`EventPattern.AbilityActivatedEvent(requireExhaust = true, excludeManaAbilities = true)`). Pit Automaton's
   Oracle text was updated on release to add that clause so its copy payoff can't latch onto a mana ability;
@@ -5939,6 +5948,16 @@ matcher branch — `SpellCastEvent` does not grow a new field per axis.
   as its creature half never matches, and neither does an unrelated instant/sorcery. Contrast
   `CardPredicate.HasAdventure`, which is true of an adventurer *card* in any zone regardless of which
   half was cast.
+- `SpellCastPredicate.TargetsOpponent` — the cast spell has ≥1 chosen target that is an **opponent** of
+  the trigger's controller: the player half of `TargetsMatching`, which only sees objects.
+- `SpellCastPredicate.SpellMatches(filter)` — the spell itself matches `filter` (the `spellFilter` test
+  as a predicate), so it can sit inside `AnyOf`. Standing alone, prefer `spellFilter`.
+- `SpellCastPredicate.AnyOf(options)` — ≥1 of `options` holds; `requires` itself is conjunctive.
+  "An Equipment spell or a spell that targets a creature you control" (Danitha, Sword of Hope) is
+  `AnyOf(SpellMatches(Equipment), TargetsMatching(Creature.youControl()))`; "a spell that targets an
+  opponent or a creature an opponent controls" (Danitha, Spear of Agony) is
+  `AnyOf(TargetsOpponent, TargetsMatching(Creature.opponentControls()))`. The "those creatures"
+  capture reads top-level `TargetsMatching` only, so don't nest one a payoff acts on.
 
 Examples:
 
@@ -7329,8 +7348,9 @@ staticAbility {
 }
 ```
 
-- `target: SpellCostTarget` — `SelfCast`, `YouCast(filter)`, `AnyCaster(filter)`,
+- `target: SpellCostTarget` — `SelfCast`, `YouCast(filter)`, `AnyCaster(filter)`, `OpponentsCast(filter)`,
   `OpponentsCastTargeting(GroupFilter)`, `OpponentsCastFromZones(zones, filter?)`, `YouCastFromZones(zones, filter?)`, `FaceDownYouCast`, `MorphActivation`.
+  - `OpponentsCast(filter = Any)` — spells matching `filter` cast by an **opponent** of the source's controller, from any zone; the controller's own spells are untouched. Thalia, the Survivor: `OpponentsCast(Noncreature)` + `IncreaseGeneric(1)`. Like `AnyCaster`, it also taxes alternative costs such as flashback (CR 118.9d).
   - `OpponentsCastFromZones(zones, filter = Any)` — spells the source-controller's opponents cast **from one of `zones`** (matched against the spell's actual cast zone, threaded as `fromZone`), matching `filter`. Pair with `CostModification.IncreaseGeneric(n)` for the Aven Interrupter shape: `OpponentsCastFromZones(setOf(Zone.GRAVEYARD, Zone.EXILE))` + `IncreaseGeneric(2)` = "Spells your opponents cast from graveyards or from exile cost {2} more to cast."
   - `YouCastFromZones(zones, filter = Any)` — the you-cast analogue: spells the **source's controller** casts **from one of `zones`**, matching `filter`. Pair with `CostModification.ReduceGeneric(n)` for Doc Aurlock, Grizzled Genius: `YouCastFromZones(setOf(Zone.GRAVEYARD, Zone.EXILE))` + `ReduceGeneric(2)` = "Spells you cast from your graveyard or from exile cost {2} less to cast." (Only the normal-cast path threads `fromZone`; alternative-cost casts such as flashback compute their own base cost and are unaffected.)
 - `modification: CostModification` — `ReduceGeneric(amount)`, `ReduceGenericBy(source)`,
@@ -10108,6 +10128,8 @@ answer it and would silently return `false`.
   counts). Used by Ragged Recluse's end-step flip. Counts **cards**, not discard events — one discard
   of two cards satisfies it exactly as two discards of one do. Not `YouDiscardedThisCardThisTurn`,
   which is Mayhem's per-*card* question and reads a different record.
+- `ScriedOrSurveiledThisTurn` — you scried or surveilled this turn (Surveillance Phantasm, Desperate
+  Futurescribe, Proctor of Potential), read through the `SCRIED_OR_SURVEILED` turn tracker.
 - `PutCounterOnCreatureThisTurn` — you put ≥1 counter of *any* kind on a creature this turn (Lasting
   Tarfire), read through the `COUNTERS_PUT_ON_CREATURE` turn tracker.
 - `PutCounterKindOnCreatureThisTurn(counterType, player = Player.You)` — the **kind-scoped** reading
@@ -11644,6 +11666,10 @@ this turn").
   `Conditions.CreaturesEnteredThisTurn` — Spider-UK's "two or more creatures entered the
   battlefield under your control this turn."
 - `FOOD_SACRIFICED` — Food tokens sacrificed.
+- `SCRIED_OR_SURVEILED` — indicator (0 or 1) that the player scried or surveilled this turn. Marked by
+  the executors that emit `ScriedEvent` / `SurveiledEvent`, so it is set exactly when a "whenever you
+  scry or surveil" trigger would fire: scry 0 / surveil 0 never marks it (CR 701.22b / 701.25c); a
+  scry into an empty library still does. Backs `Conditions.ScriedOrSurveiledThisTurn`.
 - `ARTIFACT_SACRIFICED` — indicator (0 or 1) that the player sacrificed an artifact this turn, read
   off the projected type line at sacrifice time. Backs `Conditions.SacrificedArtifactThisTurn`
   (Suspicious Detonation, Furtive Courier).
