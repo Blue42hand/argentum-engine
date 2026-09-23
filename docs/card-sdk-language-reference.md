@@ -6921,6 +6921,10 @@ staticAbility {
   not the player a per-player iteration is currently bound to, so a `ForEachPlayer` wrapper (Killing
   Wave) still reports the caster. Only sacrifices are covered — lethal damage, 0 toughness, the legend
   rule and destruction are untouched.
+- `GrantKeyword(AbilityFlag.SURVIVES_ZERO_LOYALTY.name, filter)` — matching planeswalkers aren't put
+  into their owners' graveyards for having 0 loyalty: `PlaneswalkerLoyaltyCheck` skips them (CR 704.5i).
+  Only that state-based action — destruction, sacrifice and the legend rule still apply, and one that
+  loses the flag at 0 loyalty goes to the graveyard at the next SBA check. (Sanctum Lurker)
 - `GrantKeyword(AbilityFlag.CANT_BE_ENCHANTED.name, filter)` — matching permanents can't be enchanted
   (CR 303.4): an Aura can't legally target them. Honored in `TargetValidator` at Aura-cast/activation
   target legality (only the targeting step — effects that move/attach an Aura without targeting are not

@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 146 / 285
+**Implemented:** 157 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -15,7 +15,7 @@
 
 > Current Scryfall data marks every FRA printing `booster: false`, so the import places all cards here. This is a metadata classification, not a claim that FRA lacks boosters. Refresh the import when those flags change; counted separately by `scripts/card-status`.
 
-- [ ] Academic Ascent
+- [x] Academic Ascent
 - [ ] Aerid Konstrari
 - [x] Afterthought Sentry
 - [ ] Ajani Resolute
@@ -37,7 +37,7 @@
 - [ ] Blossom-Blessed Angel
 - [ ] Break Under Pressure
 - [x] Budding Insurgent
-- [ ] Campus Crier
+- [x] Campus Crier
 - [ ] Carnivorous Cultivator
 - [x] Cast Away Doubt
 - [x] Chandra's Emberling
@@ -165,11 +165,11 @@
 - [x] Mountain
 - [x] Multiply by Zero
 - [x] Murmuring Volume
-- [ ] No Admittance
+- [x] No Admittance
 - [ ] Null Summoner
 - [ ] Omnipresence
 - [x] Overgrown Farmland
-- [ ] Overwrite the Multiverse
+- [x] Overwrite the Multiverse
 - [ ] Paradox Shaper
 - [x] Perfected Theory
 - [x] Pia, Aether Ascetic
@@ -184,7 +184,7 @@
 - [ ] Proft, Consulting Detective
 - [ ] Proft, Sinister Mastermind
 - [x] Prophesied End
-- [ ] Protege's Awakening
+- [x] Protege's Awakening
 - [ ] Prudent Fateseer
 - [ ] Puppet Crafting
 - [ ] Pyre Rhymer
@@ -196,7 +196,7 @@
 - [x] Rescue Girl, First Responder
 - [x] Restore with Empathy
 - [x] Return to the Light Realms
-- [ ] Rewrite Regrets
+- [x] Rewrite Regrets
 - [ ] Rise of the Deathbringer
 - [x] Rockfall Vale
 - [ ] Roiling Canopy
@@ -207,7 +207,7 @@
 - [x] Saheeli, Jewel of Avishkar
 - [x] Samut, Hazoret's Champion
 - [ ] Samut, Tyrant of Naktamun
-- [ ] Sanctum Lurker
+- [x] Sanctum Lurker
 - [x] Screeching Soulbreaker
 - [ ] Seasoned Cryomancer
 - [ ] Semester Foreseer
@@ -218,7 +218,7 @@
 - [x] Skilled Battlecarver
 - [x] Solarium Sentry
 - [ ] Solitary Cell
-- [ ] Solve for Disappointment
+- [x] Solve for Disappointment
 - [x] Something Worth Saving
 - [ ] Sphinx of False Conclusions
 - [ ] Sphinx's Approach
@@ -231,7 +231,7 @@
 - [x] Surgical Precision
 - [ ] Surveillance Phantasm
 - [x] Swamp
-- [ ] Tam's Resistance
+- [x] Tam's Resistance
 - [ ] Tam, the Possibility
 - [ ] Tarmogoyf
 - [ ] Tenured Tethermage
@@ -273,7 +273,7 @@
 - [x] Vinelasher Adept
 - [ ] Violent Echoes
 - [ ] Void Extrapolator
-- [ ] Vraska's Final Mercy
+- [x] Vraska's Final Mercy
 - [ ] Vraska, Soul of Stone
 - [x] Vraska, the Cutting Glare
 - [ ] Warrior's Blades
@@ -284,7 +284,7 @@
 - [ ] Way of the Mind Sculptor
 - [x] Way of the Necromancer
 - [ ] Way of the Paradox
-- [ ] Way of the Pyromancer
+- [x] Way of the Pyromancer
 - [ ] Way of the Warlord
 - [x] Way of the Wildspeaker
 - [ ] Whiplash Wordsmith
