@@ -8,6 +8,7 @@ import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.effects.library.ChooseCreatureTypePipelineExecutor
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.sdk.model.EntityId
@@ -64,15 +65,9 @@ internal class AbilityResolver(
         // re-checking it would fizzle abilities that must resolve.
         abilityComponent.interveningIf?.let { condition ->
             if (!conditionEvaluator.evaluate(state, condition, context)) {
-                return ExecutionResult.success(
-                    state.removeEntity(abilityId),
-                    listOf(
-                        AbilityFizzledEvent(
-                            abilityComponent.sourceId,
-                            abilityComponent.description,
-                            "Intervening-if condition is no longer true"
-                        )
-                    )
+                return abilityFizzled(
+                    state, abilityId, abilityComponent.sourceId, abilityComponent.description,
+                    "Intervening-if condition is no longer true"
                 )
             }
         }
@@ -95,16 +90,9 @@ internal class AbilityResolver(
             )
             if (validTargets.isEmpty()) {
                 // Fizzle - remove ability entity
-                val newState = state.removeEntity(abilityId)
-                return ExecutionResult.success(
-                    newState,
-                    listOf(
-                        AbilityFizzledEvent(
-                            abilityComponent.sourceId,
-                            abilityComponent.description,
-                            "All targets are invalid"
-                        )
-                    )
+                return abilityFizzled(
+                    state, abilityId, abilityComponent.sourceId, abilityComponent.description,
+                    "All targets are invalid"
                 )
             }
             val aligned = targetValidator.buildAlignedValidated(targetsComponent.targets, validTargets)
@@ -119,43 +107,14 @@ internal class AbilityResolver(
         }
 
         // Execute the effect
-        val effectResult = effectHandler.execute(state, abilityComponent.effect, context)
-
-        // If effect is paused awaiting a decision, return paused state
-        // The ability entity stays removed (it's off the stack), but the decision must resolve
-        if (effectResult.outcome is Outcome.Paused) {
-            val pausedState = effectResult.state.removeEntity(abilityId)
-            return ExecutionResult.propagatePause(
-                pausedState,
-                effectResult.events
-            )
-        }
-
-        var newState = effectResult.newState
-
-        // Remove the ability entity
-        newState = newState.removeEntity(abilityId)
-
-        // A Saga chapter ability resolving emits SagaChapterResolvedEvent so "whenever the final
-        // chapter ability of a Saga you control resolves" triggers (Tom Bombadil) can detect it.
-        val sagaEvents = abilityComponent.sagaChapterInfo?.let { info ->
-            listOf(
-                SagaChapterResolvedEvent(
-                    sagaId = abilityComponent.sourceId,
-                    controllerId = abilityComponent.controllerId,
-                    chapterNumber = info.chapterNumber,
-                    finalChapterNumber = info.finalChapterNumber,
-                    isFinalChapter = info.isFinalChapter
+        return executeThenLeaveStack(
+            state, abilityId, abilityComponent.effect, context,
+            resolvedEvents = listOf(
+                AbilityResolvedEvent(
+                    abilityComponent.sourceId,
+                    abilityComponent.description
                 )
-            )
-        } ?: emptyList()
-
-        return ExecutionResult.success(
-            newState,
-            effectResult.events + AbilityResolvedEvent(
-                abilityComponent.sourceId,
-                abilityComponent.description
-            ) + sagaEvents
+            ) + sagaChapterResolvedEvents(abilityComponent)
         )
     }
 
@@ -194,16 +153,9 @@ internal class AbilityResolver(
                 targetEntryStamps = targetsComponent.targetEntryStamps
             )
             if (validTargets.isEmpty()) {
-                val newState = state.removeEntity(abilityId)
-                return ExecutionResult.success(
-                    newState,
-                    listOf(
-                        AbilityFizzledEvent(
-                            abilityComponent.sourceId,
-                            abilityComponent.sourceName,
-                            "All targets are invalid"
-                        )
-                    )
+                return abilityFizzled(
+                    state, abilityId, abilityComponent.sourceId, abilityComponent.sourceName,
+                    "All targets are invalid"
                 )
             }
             activatedTargets = validTargets
@@ -214,7 +166,29 @@ internal class AbilityResolver(
         }
 
         // Execute the effect
-        val context = EffectContext(
+        val context = activatedAbilityContext(
+            state, abilityId, abilityComponent, activatedReqs, activatedTargets, alignedActivatedTargets
+        )
+        return executeThenLeaveStack(
+            state, abilityId, abilityComponent.effect, context,
+            resolvedEvents = listOf(
+                AbilityResolvedEvent(
+                    abilityComponent.sourceId,
+                    abilityComponent.sourceName
+                )
+            )
+        )
+    }
+
+    private fun activatedAbilityContext(
+        state: GameState,
+        abilityId: EntityId,
+        abilityComponent: ActivatedAbilityOnStackComponent,
+        activatedReqs: List<TargetRequirement>,
+        activatedTargets: List<ChosenTarget>,
+        alignedActivatedTargets: List<ChosenTarget?>
+    ): EffectContext =
+        EffectContext(
             sourceId = abilityComponent.sourceId,
             controllerId = abilityComponent.controllerId,
             granterId = abilityComponent.granterId,
@@ -245,7 +219,34 @@ internal class AbilityResolver(
             )
         ).forAbilityResolution(state, abilityId)
 
-        val effectResult = effectHandler.execute(state, abilityComponent.effect, context)
+    /**
+     * An ability that ends its resolution early (CR 608.2a / 608.2b) is removed from the stack and
+     * does nothing; it reports an [AbilityFizzledEvent] with [reason].
+     */
+    private fun abilityFizzled(
+        state: GameState,
+        abilityId: EntityId,
+        sourceId: EntityId,
+        description: String,
+        reason: String
+    ): ExecutionResult =
+        ExecutionResult.success(
+            state.removeEntity(abilityId),
+            listOf(AbilityFizzledEvent(sourceId, description, reason))
+        )
+
+    /**
+     * Run the ability's effect, then remove the ability from the stack (CR 608.2n) and report
+     * [resolvedEvents] after the effect's own events.
+     */
+    private fun executeThenLeaveStack(
+        state: GameState,
+        abilityId: EntityId,
+        effect: Effect,
+        context: EffectContext,
+        resolvedEvents: List<GameEvent>
+    ): ExecutionResult {
+        val effectResult = effectHandler.execute(state, effect, context)
 
         // If effect is paused awaiting a decision, return paused state
         // The ability entity stays removed (it's off the stack), but the decision must resolve
@@ -261,13 +262,23 @@ internal class AbilityResolver(
 
         // Remove the ability entity
         newState = newState.removeEntity(abilityId)
-
-        return ExecutionResult.success(
-            newState,
-            effectResult.events + AbilityResolvedEvent(
-                abilityComponent.sourceId,
-                abilityComponent.sourceName
-            )
-        )
+        return ExecutionResult.success(newState, effectResult.events + resolvedEvents)
     }
+
+    /**
+     * A Saga chapter ability resolving emits SagaChapterResolvedEvent so "whenever the final
+     * chapter ability of a Saga you control resolves" triggers (Tom Bombadil) can detect it.
+     */
+    private fun sagaChapterResolvedEvents(abilityComponent: TriggeredAbilityOnStackComponent): List<GameEvent> =
+        abilityComponent.sagaChapterInfo?.let { info ->
+            listOf(
+                SagaChapterResolvedEvent(
+                    sagaId = abilityComponent.sourceId,
+                    controllerId = abilityComponent.controllerId,
+                    chapterNumber = info.chapterNumber,
+                    finalChapterNumber = info.finalChapterNumber,
+                    isFinalChapter = info.isFinalChapter
+                )
+            )
+        } ?: emptyList()
 }

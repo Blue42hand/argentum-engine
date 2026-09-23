@@ -70,7 +70,7 @@ internal class NonPermanentSpellResolver(
     /**
      * Resolve a non-permanent spell - execute effects, put in graveyard.
      *
-     * CR 608.2c–h: the spell's instructions are followed in order — its own effect first, then any
+     * CR 608.2c: the spell's instructions are followed in order — its own effect first, then any
      * spliced text (CR 702.47b) — and only then (CR 608.2n) is the card moved off the stack by
      * [finishNonPermanentSpell]. When an effect pauses, the pre-pushed
      * [FinishResolvingSpellContinuation] performs that last step once the decision resolves.
