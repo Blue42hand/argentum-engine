@@ -64,6 +64,12 @@ class QuickGameLobbyCommanderAiTest : GameServerTestBase() {
                     commander = commander,
                 )
             )
+            eventually(5.seconds) {
+                val host = client.messages.filterIsInstance<ServerMessage.QuickGameLobbyState>()
+                    .lastOrNull()?.players?.firstOrNull { !it.isAi }
+                host?.deckCardCount shouldBe 100
+                host?.deckLabel shouldBe "Custom (100)"
+            }
             client.send(ClientMessage.SetQuickGameLobbyReady(true))
 
             eventually(10.seconds) {

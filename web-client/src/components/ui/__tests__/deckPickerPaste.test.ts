@@ -24,6 +24,18 @@ describe('DeckPicker paste parsing', () => {
     expect(parsed.sideboard).toEqual({ 'Redcap Melee': 2, 'Ghost Vacuum': 1 })
   })
 
+
+  it('keeps a Commander section in the full deck and exposes its designation', () => {
+    const parsed = parseDeckText(`Commander
+1 Krenko, Mob Boss
+
+Deck
+99 Mountain`)
+    expect(parsed.commander).toBe('Krenko, Mob Boss')
+    expect(parsed.cards).toEqual({ 'Krenko, Mob Boss': 1, Mountain: 99 })
+    expect(Object.values(parsed.cards).reduce((sum, count) => sum + count, 0)).toBe(100)
+  })
+
   it('reads the per-line SB: prefix as sideboard too', () => {
     const parsed = parseDeckText('4 Lightning Bolt\nSB: 2 Counterspell')
     expect(parsed.cards).toEqual({ 'Lightning Bolt': 4 })

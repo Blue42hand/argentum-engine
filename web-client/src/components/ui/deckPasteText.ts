@@ -17,6 +17,8 @@ export interface ParsedPaste {
    * library and inflate the deck past its legal size.
    */
   sideboard: Record<string, number>
+  /** First card under a Commander/Commanders/EDH header, if present. */
+  commander?: string
   deckName?: string
 }
 
@@ -28,6 +30,12 @@ export function parseDeckText(text: string): ParsedPaste {
   const cards: Record<string, number> = {}
   const sideboard: Record<string, number> = {}
   for (const entry of parsed.entries) {
+    cards[entry.name] = (cards[entry.name] ?? 0) + entry.count
+  }
+  // The picker's working deck is the full deck, including its commander, just like the
+  // deckbuilder import path. The commander is also returned separately so the lobby can
+  // designate it while stripping it only at the server/library boundary.
+  for (const entry of parsed.commander) {
     cards[entry.name] = (cards[entry.name] ?? 0) + entry.count
   }
   for (const entry of parsed.sideboard) {
@@ -44,9 +52,13 @@ export function parseDeckText(text: string): ParsedPaste {
     const board = err.section === 'side' ? sideboard : cards
     board[name] = (board[name] ?? 0) + 1
   }
-  return parsed.deckName !== undefined
-    ? { cards, sideboard, deckName: parsed.deckName }
-    : { cards, sideboard }
+  const commander = parsed.commander[0]?.name
+  return {
+    cards,
+    sideboard,
+    ...(commander ? { commander } : {}),
+    ...(parsed.deckName !== undefined ? { deckName: parsed.deckName } : {}),
+  }
 }
 
 function formatDeckLines(cards: Record<string, number>): string {
