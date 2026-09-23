@@ -60,6 +60,35 @@ data class ActionParams(
 }
 
 /**
+ * Machine-readable parameter vocabulary for one native [GameAction] template.
+ *
+ * External action hosts should consume this instead of reconstructing which [ActionParams] fields
+ * apply to which action type. This describes only the wire shape accepted by [ActionParameterizer];
+ * the legal-action projection and normal engine validation remain authoritative for which entity ids
+ * and values are legal in the current state.
+ */
+@Serializable
+data class ActionParameterSpec(
+    val allowedFields: Map<String, ActionParameterFieldKind> = emptyMap(),
+) {
+    val acceptsParameters: Boolean
+        get() = allowedFields.isNotEmpty()
+
+    companion object {
+        val EMPTY = ActionParameterSpec()
+    }
+}
+
+/** Wire-level kinds used by [ActionParameterSpec]. */
+@Serializable
+enum class ActionParameterFieldKind {
+    ENTITY_ID_MAP,
+    ENTITY_ID_ARRAY_MAP,
+    ENTITY_ID_ARRAY,
+    INTEGER,
+}
+
+/**
  * Folds [ActionParams] into the template `GameAction` an action ID resolved to.
  *
  * Pure — it builds the action the engine will then validate; it does not check legality itself.
@@ -68,22 +97,45 @@ data class ActionParams(
  */
 object ActionParameterizer {
 
+    /**
+     * Return the native parameter contract for [action].
+     *
+     * The same contract drives [apply]'s field whitelist, keeping external metadata and native
+     * acceptance semantics from drifting apart. An empty spec means the action takes no
+     * [ActionParams].
+     */
+    fun spec(action: GameAction): ActionParameterSpec = when (action) {
+        is DeclareAttackers -> ActionParameterSpec(
+            mapOf("attackers" to ActionParameterFieldKind.ENTITY_ID_MAP)
+        )
+        is DeclareBlockers -> ActionParameterSpec(
+            mapOf("blockers" to ActionParameterFieldKind.ENTITY_ID_ARRAY_MAP)
+        )
+        is CastSpell, is ActivateAbility -> ActionParameterSpec(
+            mapOf(
+                "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "xValue" to ActionParameterFieldKind.INTEGER,
+            )
+        )
+        else -> ActionParameterSpec.EMPTY
+    }
+
     fun apply(action: GameAction, params: ActionParams, state: GameState): GameAction {
         if (params.isEmpty) return action
 
         return when (action) {
             is DeclareAttackers -> {
-                params.allowOnly(action, "attackers")
+                params.allowOnly(action, spec(action))
                 action.copy(attackers = params.attackers)
             }
 
             is DeclareBlockers -> {
-                params.allowOnly(action, "blockers")
+                params.allowOnly(action, spec(action))
                 action.copy(blockers = params.blockers)
             }
 
             is CastSpell -> {
-                params.allowOnly(action, "targets", "xValue")
+                params.allowOnly(action, spec(action))
                 action.copy(
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
@@ -92,7 +144,7 @@ object ActionParameterizer {
             }
 
             is ActivateAbility -> {
-                params.allowOnly(action, "targets", "xValue")
+                params.allowOnly(action, spec(action))
                 action.copy(
                     targets = params.targets.map { resolveTarget(it, state) }
                         .ifEmpty { action.targets },
@@ -126,13 +178,9 @@ object ActionParameterizer {
         }
     }
 
-    /**
-     * Reject any populated field [action] can't use. Stated as a whitelist rather than as one
-     * rejection per inapplicable field, so a new [ActionParams] field is inapplicable everywhere by
-     * default instead of being silently dropped by every branch that forgot to name it.
-     */
-    private fun ActionParams.allowOnly(action: GameAction, vararg allowed: String) {
-        val unusable = populatedFields - allowed.toSet()
+    /** Reject fields outside the engine-authored [ActionParameterSpec] for [action]. */
+    private fun ActionParams.allowOnly(action: GameAction, spec: ActionParameterSpec) {
+        val unusable = populatedFields - spec.allowedFields.keys
         require(unusable.isEmpty()) {
             "Step param(s) ${unusable.joinToString(", ") { "'$it'" }} " +
                 "are not applicable to ${action::class.simpleName}"
