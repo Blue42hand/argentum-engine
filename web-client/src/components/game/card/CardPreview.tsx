@@ -143,6 +143,7 @@ export function CardPreview() {
   const effectToughnessMod = card.toughness !== null && card.baseToughness !== null
     ? (card.toughness - card.baseToughness) - counterModifier : 0
   const hasEffects = effectPowerMod !== 0 || effectToughnessMod !== 0
+  const playerName = (id: string) => gameState?.players.find((p) => p.playerId === id)?.name ?? 'Unknown player'
 
   // Estimate extra height for positioning
   let extraHeight = 0
@@ -151,6 +152,7 @@ export function CardPreview() {
   // The cost ladder is a real panel though: header + padding, then a row (plus its optional hint line).
   if (showCostLadder) extraHeight += 40 + costRows.length * 26 + GAP
   if (hasStatModifications) extraHeight += 80 + GAP
+  if (card.protectorId) extraHeight += (card.controllerId !== card.protectorId ? 76 : 44) + GAP
   if (card.keywords.length > 0 || (card.abilityFlags && card.abilityFlags.length > 0)) extraHeight += 40 + GAP
 
   // Split-layout cards (CR 709) — Rooms and classic Invasion split spells like
@@ -387,6 +389,23 @@ export function CardPreview() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Battle panel — who defends it and who controls it. On the board a battle sits in front of
+          its protector, so a Siege you cast shows up across the table; this says whose it is. */}
+      {card.protectorId && (
+        <div style={styles.cardPreviewEffects}>
+          <div style={styles.cardPreviewEffect}>
+            <span style={styles.cardPreviewEffectName}>Protected by</span>
+            <span style={styles.cardPreviewEffectText}>{playerName(card.protectorId)}</span>
+          </div>
+          {card.controllerId !== card.protectorId && (
+            <div style={styles.cardPreviewEffect}>
+              <span style={styles.cardPreviewEffectName}>Controlled by</span>
+              <span style={styles.cardPreviewEffectText}>{playerName(card.controllerId)}</span>
+            </div>
+          )}
         </div>
       )}
 

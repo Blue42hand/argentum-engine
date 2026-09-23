@@ -34,6 +34,7 @@ import { LearnCoach } from '@/components/learn/LearnCoach'
 import { useViewingPlayer, useBattlefieldCards } from './store/selectors'
 import type { ClientAttacker, EntityId } from './types'
 import { GameOverReason } from './types'
+import { defendingPlayerOf } from './utils/combatTargets'
 
 export default function App() {
   const interactionEpoch = useGameStore((state) => state.interactionEpoch)
@@ -254,7 +255,7 @@ export default function App() {
       const attacksSeat = (a: ClientAttacker): boolean => {
         if (!defendingSeat) return true
         if (a.attackingTarget.type === 'Player') return a.attackingTarget.playerId === defendingSeat
-        return gameState?.cards[a.attackingTarget.permanentId]?.controllerId === defendingSeat
+        return defendingPlayerOf(a.attackingTarget.permanentId, gameState?.cards) === defendingSeat
       }
       const relevantAttackers = (gameState?.combat?.attackers ?? []).filter(attacksSeat)
       const attackingCreatures: EntityId[] = relevantAttackers.map((a) => a.creatureId)

@@ -20,6 +20,7 @@ import {
 } from './cardGrouping'
 import { teamLabel } from './teamLabel'
 import { castOfferFace } from '@/utils/castFace'
+import { isBattle, tableSideOf } from '@/utils/combatTargets'
 
 /**
  * Select the game state (works for both normal play and spectating).
@@ -779,14 +780,18 @@ export function useBattlefieldCards(
     // dropping it (it is only ever rendered nested under a host card otherwise).
     const cardIdSet = new Set(cards.map((c) => c.id))
     const isNotAttached = (c: ClientCard) => !c.attachedTo || !cardIdSet.has(c.attachedTo)
-    const playerCards = cards.filter((c) => c.controllerId === playerId)
+    // Sides go by `tableSideOf`, not raw controller: a battle sits in front of its protector, so
+    // a Siege you cast lands across the table where your attacks go and your opponent blocks.
+    const playerCards = cards.filter((c) => tableSideOf(c) === playerId)
     const opponentCards = opponentId
-      ? cards.filter((c) => c.controllerId === opponentId)
-      : cards.filter((c) => c.controllerId !== playerId)
+      ? cards.filter((c) => tableSideOf(c) === opponentId)
+      : cards.filter((c) => tableSideOf(c) !== playerId)
 
     const isLand = (c: ClientCard) => c.cardTypes.includes('LAND')
     const isCreature = (c: ClientCard) => c.cardTypes.includes('CREATURE')
-    const isPlaneswalker = (c: ClientCard) => c.cardTypes.includes('PLANESWALKER')
+    // Planeswalkers and battles share the front-row slot beside the creatures: both are the
+    // permanents creatures attack, so they read as one group during combat.
+    const isPlaneswalker = (c: ClientCard) => c.cardTypes.includes('PLANESWALKER') || isBattle(c)
 
     // Animated lands (both creature + land) should appear in the creatures row
     const isNonCreatureLand = (c: ClientCard) => isLand(c) && !isCreature(c)

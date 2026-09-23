@@ -764,9 +764,8 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   // spore (the Fungus/Thallid mechanic).
   //
   // CounterType.DEFENSE is deliberately absent. It is the battle analogue of loyalty (CR 310.4c) —
-  // a number the permanent is defined by, not a marker sitting on it — so it belongs with the
-  // loyalty-style display battles will need, not in this marker-badge allowlist. Until that exists
-  // it still shows in the card preview's counter panel, which lists whatever the server sent.
+  // a number the permanent is defined by, not a marker sitting on it — so GameCard draws it as the
+  // battle's own defense badge over the printed shield, not in this marker-badge allowlist.
   CounterType.STORAGE,
   CounterType.HUNGER,
   CounterType.DOOM,
