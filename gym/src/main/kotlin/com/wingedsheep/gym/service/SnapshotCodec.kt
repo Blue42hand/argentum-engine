@@ -4,6 +4,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.model.EntityId
 import kotlinx.serialization.Serializable
 import java.time.Instant
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -17,9 +18,19 @@ import java.util.concurrent.atomic.AtomicLong
  */
 @Serializable
 sealed interface SnapshotHandle {
-    /** An in-process slot managed by [SnapshotCodec]. */
+    /**
+     * An in-process slot managed by one [SnapshotCodec] instance.
+     *
+     * [codecId] is nullable only so an older serialized handle can still be decoded after this field
+     * was introduced. Such a legacy handle deliberately fails closed on load: an in-process snapshot
+     * cannot survive the codec/process that created it, so accepting a bare local slot number could
+     * alias a different snapshot after restart.
+     */
     @Serializable
-    data class Slot(val slotId: Long) : SnapshotHandle
+    data class Slot(
+        val slotId: Long,
+        val codecId: String? = null,
+    ) : SnapshotHandle
 }
 
 /**
@@ -28,10 +39,12 @@ sealed interface SnapshotHandle {
  * — and restoring is also free: the restored env's state field is set back
  * to the referenced object, no deep copy required.
  *
- * Slots are keyed by a monotonically-increasing `Long`. Explicit [dispose] is
- * recommended for long-lived training sessions. Persistent hosts may also call
- * [disposeIdle] to reclaim snapshots abandoned by clients that disappeared
- * before cleanup; successful [load] calls renew that snapshot's idle activity.
+ * Slots are keyed by a monotonically-increasing `Long` within this codec and handles also carry an
+ * opaque per-codec namespace. The namespace makes stale handles fail closed across process restarts
+ * or independent service instances even when both local counters allocate the same slot number.
+ * Explicit [dispose] is recommended for long-lived training sessions. Persistent hosts may also call
+ * [disposeIdle] to reclaim snapshots abandoned by clients that disappeared before cleanup;
+ * successful [load] calls renew that snapshot's idle activity.
  */
 class SnapshotCodec {
     data class Entry(
@@ -45,6 +58,7 @@ class SnapshotCodec {
         val lastAccess: Instant,
     )
 
+    private val codecId = UUID.randomUUID().toString()
     private val slots = ConcurrentHashMap<Long, StoredEntry>()
     private val nextId = AtomicLong(1)
     private val publicationScopes = ConcurrentHashMap<Long, Set<Long>>()
@@ -58,11 +72,12 @@ class SnapshotCodec {
             entry = Entry(state, playerIds, stepCount),
             lastAccess = now(),
         )
-        return SnapshotHandle.Slot(id)
+        return SnapshotHandle.Slot(id, codecId)
     }
 
     fun load(handle: SnapshotHandle): Entry = when (handle) {
         is SnapshotHandle.Slot -> {
+            requireOwned(handle)
             val at = now()
             slots.computeIfPresent(handle.slotId) { _, stored ->
                 stored.copy(lastAccess = at)
@@ -71,7 +86,11 @@ class SnapshotCodec {
     }
 
     fun dispose(handle: SnapshotHandle) {
-        if (handle is SnapshotHandle.Slot) slots.remove(handle.slotId)
+        // Disposal is intentionally idempotent. A foreign/stale handle must be just as harmless as
+        // an already-disposed local handle; in particular it must never delete a colliding local ID.
+        if (handle is SnapshotHandle.Slot && handle.codecId == codecId) {
+            slots.remove(handle.slotId)
+        }
     }
 
     /**
@@ -134,6 +153,14 @@ class SnapshotCodec {
             }
         }
         return disposed.get()
+    }
+
+    private fun requireOwned(handle: SnapshotHandle.Slot) {
+        if (handle.codecId != codecId) {
+            throw NoSuchElementException(
+                "Snapshot slot ${handle.slotId} does not belong to this snapshot codec"
+            )
+        }
     }
 
     private fun renew(slotIds: Collection<Long>, at: Instant) {
