@@ -41,7 +41,7 @@ jobs:
           echo 'Cloud Key differential rows:'
           grep -i 'Cloud Key' /tmp/cloud-key-assay.txt || true
       - name: Canonical printing check
-        run: scripts/gradle-locked :rules-engine:run --args='--check-card-printing "Cloud Key"'
+        run: scripts/check-card-printing.py "Cloud Key"
       - name: Commit only the expected snapshot and remove temporary gate
         shell: bash
         run: |
