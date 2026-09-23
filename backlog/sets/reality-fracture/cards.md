@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 191 / 285
+**Implemented:** 204 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -34,11 +34,11 @@
 - [x] Blessed Ghoul
 - [x] Bloodline Recollector
 - [x] Bloombrute
-- [ ] Blossom-Blessed Angel
+- [x] Blossom-Blessed Angel
 - [x] Break Under Pressure
 - [x] Budding Insurgent
 - [x] Campus Crier
-- [ ] Carnivorous Cultivator
+- [x] Carnivorous Cultivator
 - [x] Cast Away Doubt
 - [x] Chandra's Emberling
 - [ ] Chandra, Chill of Compliance
@@ -62,13 +62,13 @@
 - [x] Denzilore Fatehold
 - [x] Deserted Beach
 - [x] Desperate Futurescribe
-- [ ] Diviner of Victory
+- [x] Diviner of Victory
 - [x] Divining Duelist
 - [ ] Draconic Visitor
 - [x] Eardrum Rattler
 - [x] Edgar, Ancient Bloodlord
 - [x] Edgar, Moonlit Sovereign
-- [ ] Emergency Phytomedic
+- [x] Emergency Phytomedic
 - [ ] Emrakul, the Exigent Doom
 - [ ] Enlightened Confidant
 - [ ] Entrust the Spark
@@ -79,7 +79,7 @@
 - [ ] Face Yourself
 - [x] Fatehold Annex
 - [ ] Fatehold Charm
-- [ ] Fatehold Chronologist
+- [x] Fatehold Chronologist
 - [x] Fateshaper Aspirant
 - [ ] Fblthp, Impossibly Lost
 - [ ] Fblthp, Knows the Way
@@ -107,7 +107,7 @@
 - [ ] Grim Repriser
 - [x] Guiding Hydra
 - [ ] Hall of Echoes
-- [ ] Hallway Heckler
+- [x] Hallway Heckler
 - [ ] Hapatra, the Desert Fang
 - [x] Hapatra, the Desert Frost
 - [x] Haunted Ridge
@@ -176,7 +176,7 @@
 - [x] Pia, Determined Rebuilder
 - [x] Plains
 - [ ] Plan for All Outcomes
-- [ ] Pompous Battlemage
+- [x] Pompous Battlemage
 - [x] Precise Redaction
 - [x] Predictive Preparations
 - [ ] Primal Witchstalker
@@ -185,7 +185,7 @@
 - [x] Proft, Sinister Mastermind
 - [x] Prophesied End
 - [x] Protege's Awakening
-- [ ] Prudent Fateseer
+- [x] Prudent Fateseer
 - [ ] Puppet Crafting
 - [ ] Pyre Rhymer
 - [x] Rampart Hunter
@@ -210,7 +210,7 @@
 - [x] Sanctum Lurker
 - [x] Screeching Soulbreaker
 - [ ] Seasoned Cryomancer
-- [ ] Semester Foreseer
+- [x] Semester Foreseer
 - [x] Shatterwing Pegasus
 - [x] Shipwreck Marsh
 - [x] Silence the Echo
@@ -225,7 +225,7 @@
 - [x] Stingcaster Mage
 - [x] Stingerquill Annex
 - [x] Stingerquill Charm
-- [ ] Stingerquill Voxmancer
+- [x] Stingerquill Voxmancer
 - [x] Stinging Vitriol
 - [x] Sureshot Sower
 - [x] Surgical Precision
@@ -250,7 +250,7 @@
 - [ ] Theorist's Sanctum
 - [x] Theorix Annex
 - [x] Theorix Charm
-- [ ] Theorix Metamage
+- [x] Theorix Metamage
 - [x] Tinybones, Pocket Nuisance
 - [x] Titanbones, Towering Heart
 - [ ] Tomik, Izzet Sparkmage
@@ -268,11 +268,11 @@
 - [ ] Verdant Kraken
 - [x] Vigorbloom Annex
 - [x] Vigorbloom Charm
-- [ ] Vigorbloom Vanguard
+- [x] Vigorbloom Vanguard
 - [ ] Vindictive Triumph
 - [x] Vinelasher Adept
 - [ ] Violent Echoes
-- [ ] Void Extrapolator
+- [x] Void Extrapolator
 - [x] Vraska's Final Mercy
 - [ ] Vraska, Soul of Stone
 - [x] Vraska, the Cutting Glare

@@ -1215,6 +1215,74 @@
     ]
 }
 
+// Blossom-Blessed Angel
+{
+    "name": "Blossom-Blessed Angel",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Angel Cleric",
+    "oracleText": "Flying, vigilance\nThis creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "VIGILANCE",
+        "PREPARED"
+    ],
+    "metadata": {
+        "collectorNumber": "3",
+        "artist": "Joshua Raphael",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/e/5e77fbf0-9d1f-4e7d-a02e-43065d11b0d9.jpg?1789692643",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Seed Suture",
+            "manaCost": "{G/W}",
+            "typeLine": "Sorcery",
+            "oracleText": "Put a +1/+1 counter on target creature. You gain 1 life.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target creature"
+                    }
+                ]
+            }
+        }
+    ]
+}
+
 // Break Under Pressure
 {
     "name": "Break Under Pressure",
@@ -1476,6 +1544,108 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Carnivorous Cultivator
+{
+    "name": "Carnivorous Cultivator",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elf Warlock",
+    "oracleText": "Deathtouch\nThis creature enters prepared.\nWhenever this creature deals combat damage to a player, return target land card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEATHTOUCH",
+        "PREPARED"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": "AnyPlayer"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target land card from your graveyard"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "land own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "target land card from your graveyard"
+                },
+                "descriptionOverride": "Whenever this creature deals combat damage to a player, return target land card from your graveyard to your hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "100",
+        "rarity": "RARE",
+        "artist": "Martina Fačková",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/9/79dd5c54-5ea5-47b5-8f9b-50ed57a5ea45.jpg?1789385967",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Enroot",
+            "manaCost": "{G}",
+            "typeLine": "Sorcery",
+            "oracleText": "Search your library for a land card, put it into your graveyard, then shuffle.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "land"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                }
+            }
+        }
     ]
 }
 
@@ -2485,6 +2655,90 @@
     ]
 }
 
+// Diviner of Victory
+{
+    "name": "Diviner of Victory",
+    "manaCost": "{U}",
+    "typeLine": "Creature — Dwarf Wizard",
+    "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\nWhenever you scry or surveil, this creature gets +1/+1 until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "ScriedOrSurveiledEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever you scry or surveil, this creature gets +1/+1 until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "28",
+        "rarity": "RARE",
+        "artist": "Justyna Dura",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/0853bb80-8664-432a-8457-600139fd96d5.jpg?1788878145",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Unwind History",
+            "manaCost": "{1}{U}",
+            "typeLine": "Sorcery",
+            "oracleText": "Return target creature an opponent controls with mana value 3 or less to its owner's hand. Surveil 1.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature an opponent controls with mana value 3 or less"
+                            },
+                            "destination": "Hand"
+                        },
+                        {
+                            "type": "Surveil",
+                            "count": 1
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature mv<=3 ctrl:opponent"
+                        },
+                        "id": "target creature an opponent controls with mana value 3 or less"
+                    }
+                ]
+            }
+        }
+    ]
+}
+
 // Divining Duelist
 {
     "name": "Divining Duelist",
@@ -2850,6 +3104,72 @@
     ]
 }
 
+// Emergency Phytomedic
+{
+    "name": "Emergency Phytomedic",
+    "manaCost": "{G/W}",
+    "typeLine": "Creature — Dryad Cleric",
+    "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "metadata": {
+        "collectorNumber": "130",
+        "artist": "Dmitry Burmak",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/e/de94d388-919d-44ff-baef-8c90a417ac6d.jpg?1789637792",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Seed Suture",
+            "manaCost": "{G/W}",
+            "typeLine": "Sorcery",
+            "oracleText": "Put a +1/+1 counter on target creature. You gain 1 life.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target creature"
+                    }
+                ]
+            }
+        }
+    ]
+}
+
 // Essence Burn
 {
     "name": "Essence Burn",
@@ -3096,6 +3416,64 @@
     "colorIdentityOverride": [
         "BLUE",
         "WHITE"
+    ]
+}
+
+// Fatehold Chronologist
+{
+    "name": "Fatehold Chronologist",
+    "manaCost": "{1}{W/U}",
+    "typeLine": "Creature — Bird Wizard",
+    "oracleText": "Flying\nThis creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING",
+        "PREPARED"
+    ],
+    "metadata": {
+        "collectorNumber": "133",
+        "artist": "Alexander Mokhov",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29e7ec16-0c16-48aa-8e09-ce6e0d5bd40b.jpg?1789060173",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "WHITE"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Peer Review",
+            "manaCost": "{2}{W/U}",
+            "typeLine": "Sorcery",
+            "oracleText": "Create a 2/2 colorless Wizard Soldier creature token named Cadet. Surveil 1.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 2,
+                            "toughness": 2,
+                            "colors": [],
+                            "creatureTypes": [
+                                "Wizard",
+                                "Soldier"
+                            ],
+                            "name": "Cadet",
+                            "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
+                        },
+                        {
+                            "type": "Surveil",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
     ]
 }
 
@@ -3943,6 +4321,84 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Hallway Heckler
+{
+    "name": "Hallway Heckler",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Elemental Sorcerer",
+    "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\n{T}, Discard a card: Draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": "AtomDiscard"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "{T}, Discard a card: Draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "85",
+        "artist": "Gustavo Pelissari",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/e/7e324816-552f-455d-97c4-5ea6b26d2e6e.jpg?1789127576",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Vicious Verse",
+            "manaCost": "{B/R}",
+            "typeLine": "Sorcery",
+            "oracleText": "Vicious Verse deals 1 damage to target opponent.",
+            "script": {
+                "spellEffect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target opponent"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target opponent"
+                    }
+                ]
+            }
+        }
     ]
 }
 
@@ -6862,6 +7318,96 @@
     ]
 }
 
+// Pompous Battlemage
+{
+    "name": "Pompous Battlemage",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goblin Sorcerer",
+    "oracleText": "Prowess\nThis creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "PROWESS",
+        "PREPARED"
+    ],
+    "metadata": {
+        "collectorNumber": "90",
+        "rarity": "RARE",
+        "artist": "Justin Gerard",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/a/aa0f77ac-741a-444a-8bf0-a42c644726bf.jpg?1788878186",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Improvised Act",
+            "manaCost": "{R}",
+            "typeLine": "Sorcery",
+            "oracleText": "You may discard a card. If you do, draw a card.",
+            "script": {
+                "spellEffect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.DoAction",
+                            "action": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Hand"
+                                        },
+                                        "storeAs": "hand"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "hand",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "discarded",
+                                        "prompt": "Choose 1 card to discard"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "discarded",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Discard"
+                                    }
+                                ]
+                            }
+                        },
+                        "then": {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    },
+                    "descriptionOverride": "You may discard a card. If you do, draw a card."
+                }
+            }
+        }
+    ]
+}
+
 // Precise Redaction
 {
     "name": "Precise Redaction",
@@ -7330,6 +7876,96 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Prudent Fateseer
+{
+    "name": "Prudent Fateseer",
+    "manaCost": "{1}{W/U}{W/U}",
+    "typeLine": "Creature — Dwarf Wizard",
+    "oracleText": "This creature enters prepared.\nWhenever you scry or surveil, creatures you control get +1/+0 until end of turn. This ability triggers only once each turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "ScriedOrSurveiledEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 0
+                        },
+                        "target": "Self"
+                    }
+                },
+                "oncePerTurn": true,
+                "descriptionOverride": "Whenever you scry or surveil, creatures you control get +1/+0 until end of turn. This ability triggers only once each turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "146",
+        "rarity": "UNCOMMON",
+        "artist": "Gustavo Pelissari",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/c/6c1c790b-9e0e-4964-9ea3-554843907f06.jpg?1788329412",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "WHITE"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Peer Review",
+            "manaCost": "{2}{W/U}",
+            "typeLine": "Sorcery",
+            "oracleText": "Create a 2/2 colorless Wizard Soldier creature token named Cadet. Surveil 1.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 2,
+                            "toughness": 2,
+                            "colors": [],
+                            "creatureTypes": [
+                                "Wizard",
+                                "Soldier"
+                            ],
+                            "name": "Cadet",
+                            "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
+                        },
+                        {
+                            "type": "Surveil",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
     ]
 }
 
@@ -8540,6 +9176,79 @@
     ]
 }
 
+// Semester Foreseer
+{
+    "name": "Semester Foreseer",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\nWhen this creature enters, surveil 1.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Surveil",
+                    "count": 1
+                },
+                "descriptionOverride": "When this creature enters, surveil 1."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "artist": "Alix Branwyn",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/e/7e5a640b-fd88-4b5a-9dfc-1d8f5a5cef41.jpg?1789127516",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "WHITE"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Peer Review",
+            "manaCost": "{2}{W/U}",
+            "typeLine": "Sorcery",
+            "oracleText": "Create a 2/2 colorless Wizard Soldier creature token named Cadet. Surveil 1.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 2,
+                            "toughness": 2,
+                            "colors": [],
+                            "creatureTypes": [
+                                "Wizard",
+                                "Soldier"
+                            ],
+                            "name": "Cadet",
+                            "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
+                        },
+                        {
+                            "type": "Surveil",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+
 // Shatterwing Pegasus
 {
     "name": "Shatterwing Pegasus",
@@ -9371,6 +10080,83 @@
     "colorIdentityOverride": [
         "BLACK",
         "RED"
+    ]
+}
+
+// Stingerquill Voxmancer
+{
+    "name": "Stingerquill Voxmancer",
+    "manaCost": "{B/R}",
+    "typeLine": "Creature — Goblin Sorcerer",
+    "oracleText": "At the beginning of your upkeep, if this creature isn't prepared, it becomes prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": "BecomePrepared",
+                "interveningIf": {
+                    "type": "Not",
+                    "condition": {
+                        "type": "EntityMatches",
+                        "entity": "Self",
+                        "filter": {
+                            "statePredicates": [
+                                "IsPrepared"
+                            ]
+                        }
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, if this creature isn't prepared, it becomes prepared."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "rarity": "UNCOMMON",
+        "artist": "Igor Grechanyi",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/4/84b1c268-3b8a-41b6-92e3-a2ce0cc3d738.jpg?1788329418",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Vicious Verse",
+            "manaCost": "{B/R}",
+            "typeLine": "Sorcery",
+            "oracleText": "Vicious Verse deals 1 damage to target opponent.",
+            "script": {
+                "spellEffect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target opponent"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target opponent"
+                    }
+                ]
+            }
+        }
     ]
 }
 
@@ -10849,6 +11635,120 @@
     ]
 }
 
+// Theorix Metamage
+{
+    "name": "Theorix Metamage",
+    "manaCost": "{2}{U/B}",
+    "typeLine": "Creature — Shade Wizard",
+    "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\nThreshold — This creature gets +1/+0 and has flying as long as there are seven or more cards in your graveyard.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 1,
+                    "toughnessBonus": 0,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "FLYING",
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "156",
+        "artist": "Slawomir Maniak",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/b/fb6bad96-841d-4738-8e62-92f346f914fd.jpg?1789556930",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Omit Variables",
+            "manaCost": "{U/B}",
+            "typeLine": "Sorcery",
+            "oracleText": "Mill three cards. (Put the top three cards of your library into your graveyard.)",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+
 // Tinybones, Pocket Nuisance
 {
     "name": "Tinybones, Pocket Nuisance",
@@ -11603,6 +12503,95 @@
     ]
 }
 
+// Vigorbloom Vanguard
+{
+    "name": "Vigorbloom Vanguard",
+    "manaCost": "{1}{G/W}",
+    "typeLine": "Creature — Troll Druid",
+    "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\nEach creature you control with a +1/+1 counter on it has vigilance.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "VIGILANCE",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "HasCounter",
+                                "counterType": "+1/+1"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "161",
+        "rarity": "UNCOMMON",
+        "artist": "Denman Rooke",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/c/acefc515-bf97-4dc0-b0f7-ae8ae5a61671.jpg?1788329423",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Seed Suture",
+            "manaCost": "{G/W}",
+            "typeLine": "Sorcery",
+            "oracleText": "Put a +1/+1 counter on target creature. You gain 1 life.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target creature"
+                    }
+                ]
+            }
+        }
+    ]
+}
+
 // Vinelasher Adept
 {
     "name": "Vinelasher Adept",
@@ -11664,6 +12653,96 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Void Extrapolator
+{
+    "name": "Void Extrapolator",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Aetherborn Warlock",
+    "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\nThreshold — This creature gets +1/+1 as long as there are seven or more cards in your graveyard.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 1,
+                    "toughnessBonus": 1,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "70",
+        "artist": "Valera Lutfullina",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/e/0eae2efb-bf25-48ee-9c07-9098008110ad.jpg?1789556787",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Omit Variables",
+            "manaCost": "{U/B}",
+            "typeLine": "Sorcery",
+            "oracleText": "Mill three cards. (Put the top three cards of your library into your graveyard.)",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
     ]
 }
 
