@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.persistence.dto
 
+import com.wingedsheep.gameserver.ai.AiControllerSpec
 import kotlinx.serialization.Serializable
 
 /**
@@ -86,6 +87,8 @@ data class PersistentLobbyPlayer(
     val currentSpectatingGameId: String? = null,  // Game being spectated (for bye players)
     val isAi: Boolean = false,
     val aiModelOverride: String? = null,
+    /** Durable generic controller mode/profile selection for an AI seat; null uses server defaults. */
+    val aiControllerSpec: AiControllerSpec? = null,
     val submittedSideboard: Map<String, Int> = emptyMap(),  // cardName -> count (outside the game)
 )
 
