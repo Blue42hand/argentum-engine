@@ -424,6 +424,12 @@ exist in the cost and charges the life through the shared life-payment service.
   "Discard two cards at random").
 - `Costs.DiscardHand` — discard your entire hand.
 - `Costs.DiscardSelf` — discard this card (cycling-style).
+- `Costs.PutFromHandOnTopOfLibrary(count = 1, filter = Any)` — "put a card from your hand on top of
+  your library" (Leashling). `Atom(CostAtom.PutFromHandOnTopOfLibrary)`. Not a discard — no discard
+  trigger or madness. Unpayable with fewer than `count` matching hand cards; `ActivateAbilityHandler`
+  pauses with a `SelectCardsDecision` for the choice (auto-paid when the hand holds exactly `count`),
+  carried in `AdditionalCostPayment.cardsPutOnLibrary`. Also payable as a `PayCost` through
+  `CostPaymentService`; not offered as a spell additional cost or a `PayOrSuffer` cost.
 - `Costs.DiscardLastDrawnThisTurn` — discard the specific card you drew most recently this turn
   (Jandor's Ring: "{2}, {T}, Discard the last card you drew this turn: Draw a card."). The engine
   tracks the per-player most-recently-drawn entity on `GameState.lastCardDrawnThisTurnByPlayer`

@@ -267,7 +267,7 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Crown of Convergence | Continuously compare creature colors with the current top library card. |
 | Circu, Dimir Lobotomist | Name matching over the whole linked exile pile for casting restrictions. |
 | Spectral Searchlight | Non-targeting player choice followed by that player's color choice, preserving mana-ability resolution. |
-| Sunforger, Leashling | Unattach-equipment and hand-to-library costs, paid before resolution. |
+| Sunforger, Leashling | **Resolved** — `CostAtom.Unattach` and `CostAtom.PutFromHandOnTopOfLibrary`, both paid before resolution. |
 | Brightflame | Aggregate actual damage dealt after prevention/replacement before life gain. |
 | Master Warcraft | Attack/block declaration choice ownership across engine, server, and client. |
 | Grifter’s Blade | Enter attached as a replacement, rather than an entry trigger. |

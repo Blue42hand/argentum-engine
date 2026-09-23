@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards
 **Release Date:** October 7, 2005
-**Implemented:** 275 / 291
+**Implemented:** 276 / 291
 | Section    | Total | Done |
 |------------|-------|------|
 | White      | 37    | 33   |
@@ -295,7 +295,7 @@
 - [x] Golgari Signet
 - [x] Grifter's Blade
 - [x] Junktroller
-- [ ] Leashling
+- [x] Leashling
 - [x] Nullstone Gargoyle
 - [x] Pariah's Shield
 - [x] Peregrine Mask
