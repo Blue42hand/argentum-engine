@@ -7,6 +7,7 @@ import com.wingedsheep.gameserver.lobby.AiDeckSpec
 import com.wingedsheep.gameserver.replay.ReplaySetup
 import com.wingedsheep.gameserver.replay.ReplayYieldEntry
 import com.wingedsheep.sdk.model.EntityId
+import kotlinx.serialization.Serializable
 
 /**
  * One lock-consistent view of the live inputs needed by a trusted server-side AI controller.
@@ -47,7 +48,7 @@ sealed interface AiReplayHistory {
         val yields: List<ReplayYieldEntry>
     }
 
-    /** These inputs reproduce the snapshot's live state. */
+    /** Replay inputs that reproduce the sampled live state exactly. */
     data class Complete(
         override val setup: ReplaySetup,
         override val actions: List<GameAction>,
@@ -63,6 +64,27 @@ sealed interface AiReplayHistory {
         override val actions: List<GameAction>,
         override val yields: List<ReplayYieldEntry>,
     ) : Recorded
+}
+
+/**
+ * Durable per-seat controller selection.
+ *
+ * [mode] selects either one of game-server's built-in controller modes (`engine` / `llm`) or an
+ * [AiControllerProvider.mode]. [profileId] is meaningful only for an external provider and stays
+ * opaque to game-server. Provider profile ids are deliberately case-sensitive; mode names retain
+ * their existing trim/case-insensitive resolution.
+ *
+ * A null spec means "follow the server-wide `game.ai.mode` fallback", preserving existing lobbies.
+ */
+@Serializable
+data class AiControllerSpec(
+    val mode: String,
+    val profileId: String? = null,
+) {
+    init {
+        require(mode.isNotBlank()) { "AI controller mode must not be blank" }
+        require(profileId == null || profileId.isNotBlank()) { "AI controller profile id must not be blank" }
+    }
 }
 
 /**
@@ -158,6 +180,8 @@ internal class AiControllerProviderRegistry(providers: List<AiControllerProvider
     }
 
     fun supportedModes(): Set<String> = BUILT_IN_MODES + providersByMode.keys
+
+    fun isBuiltIn(mode: String): Boolean = normalize(mode) in BUILT_IN_MODES
 
     private fun normalize(mode: String): String = mode.trim().lowercase()
 

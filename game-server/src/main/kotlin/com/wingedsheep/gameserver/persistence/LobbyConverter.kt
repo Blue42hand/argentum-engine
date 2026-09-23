@@ -24,9 +24,7 @@ import com.wingedsheep.sdk.model.EntityId
 // TournamentLobby Conversion
 // ============================================================================
 
-/**
- * Converts a TournamentLobby to its persistent representation.
- */
+/** Converts a TournamentLobby to its persistent representation. */
 fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
     return PersistentTournamentLobby(
         lobbyId = lobbyId,
@@ -52,6 +50,7 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
                 currentSpectatingGameId = playerState.identity.currentSpectatingGameId,
                 isAi = playerState.identity.isAi,
                 aiModelOverride = playerState.identity.aiModelOverride,
+                aiControllerSpec = playerState.identity.aiControllerSpec,
                 submittedSideboard = playerState.submittedSideboard
             )
         },
@@ -83,21 +82,9 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
     )
 }
 
-/**
- * Extension to get player order for persistence (exposed from TournamentLobby).
- */
-private fun TournamentLobby.getPlayerOrderForPersistence(): List<String> {
-    return getPlayerOrder().map { it.value }
-}
+private fun TournamentLobby.getPlayerOrderForPersistence(): List<String> = getPlayerOrder().map { it.value }
 
-/**
- * Restores a TournamentLobby from its persistent representation.
- *
- * @param persistent The persisted lobby data
- * @param cardRegistry The card registry for resolving card names to definitions
- * @param boosterGenerator The booster generator for sealed/draft operations
- * @return A restored TournamentLobby and a list of PlayerIdentity objects to register
- */
+/** Restores a TournamentLobby from its persistent representation. */
 fun restoreTournamentLobby(
     persistent: PersistentTournamentLobby,
     cardRegistry: CardRegistry,
@@ -110,10 +97,6 @@ fun restoreTournamentLobby(
         setNames = persistent.setNames,
         boosterGenerator = boosterGenerator,
         format = format,
-        // A row written before the Rules axis existed carries null and has to be inferred. Its
-        // deckFormat was never persisted either (a pre-existing gap), so the pack shape is all
-        // there is to go on — which is exactly what the old code derived commander-ness from
-        // whenever it read a restored lobby.
         rules = persistent.rules
             ?.let { runCatching { com.wingedsheep.sdk.core.GameRules.valueOf(it) }.getOrNull() }
             ?: com.wingedsheep.sdk.core.GameRules.inferred(
@@ -134,10 +117,7 @@ fun restoreTournamentLobby(
     )
     lobby.bannedCardNames = persistent.bannedCardNames
     lobby.includedSetProducts = persistent.includedSetProducts
-    if (persistent.cubeName != null &&
-        persistent.cubeBasicLandSetCode != null &&
-        persistent.cubePackSize != null
-    ) {
+    if (persistent.cubeName != null && persistent.cubeBasicLandSetCode != null && persistent.cubePackSize != null) {
         val cubeCards = persistent.cubeCardNames.mapNotNull(cardRegistry::getCard)
         lobby.configureCube(
             ResolvedCube(
@@ -147,22 +127,15 @@ fun restoreTournamentLobby(
                 packSize = persistent.cubePackSize,
             )
         )
-        // configureCube() clears the flag (it is cube-scoped), so restore it afterwards.
         lobby.cubePoolPlay = persistent.cubePoolPlay
         if (persistent.cubeDealerRemainingCardNames.isNotEmpty()) {
-            lobby.restoreCubeDealer(
-                persistent.cubeDealerRemainingCardNames.mapNotNull(cardRegistry::getCard)
-            )
+            lobby.restoreCubeDealer(persistent.cubeDealerRemainingCardNames.mapNotNull(cardRegistry::getCard))
         }
     }
-    // FFA in-flight state (last standings are deliberately not persisted — after a restart the
-    // pod simply readies up for the next game).
     lobby.ffaGameSessionId = persistent.ffaGameSessionId
     lobby.ffaGamesPlayed = persistent.ffaGamesPlayed
 
     val playerIdentities = mutableListOf<PlayerIdentity>()
-
-    // Restore players
     for ((playerIdStr, persistentPlayer) in persistent.players) {
         val playerId = EntityId(playerIdStr)
         val identity = PlayerIdentity(
@@ -170,29 +143,21 @@ fun restoreTournamentLobby(
             playerId = playerId,
             playerName = persistentPlayer.playerName,
             isAi = persistentPlayer.isAi,
-            aiModelOverride = persistentPlayer.aiModelOverride
+            aiModelOverride = persistentPlayer.aiModelOverride,
+            aiControllerSpec = persistentPlayer.aiControllerSpec,
         ).also {
             it.currentLobbyId = persistent.lobbyId
             it.currentSpectatingGameId = persistentPlayer.currentSpectatingGameId
         }
         playerIdentities.add(identity)
 
-        // Resolve card names to CardDefinitions
-        val cardPool = persistentPlayer.cardPoolNames.mapNotNull { cardName ->
-            cardRegistry.getCard(cardName)
-        }
-
-        // Resolve current pack for draft
-        val currentPack = persistentPlayer.currentPackNames?.mapNotNull { cardName ->
-            cardRegistry.getCard(cardName)
-        }
-
-        // Resolve queued packs for async draft
+        val cardPool = persistentPlayer.cardPoolNames.mapNotNull(cardRegistry::getCard)
+        val currentPack = persistentPlayer.currentPackNames?.mapNotNull(cardRegistry::getCard)
         val packQueue = persistentPlayer.packQueueNames.map { packNames ->
-            packNames.mapNotNull { cardName -> cardRegistry.getCard(cardName) }
+            packNames.mapNotNull(cardRegistry::getCard)
         }.toMutableList()
 
-        val playerState = LobbyPlayerState(
+        lobby.players[playerId] = LobbyPlayerState(
             identity = identity,
             cardPool = cardPool,
             currentPack = currentPack,
@@ -200,32 +165,22 @@ fun restoreTournamentLobby(
             submittedDeck = persistentPlayer.submittedDeck,
             submittedSideboard = persistentPlayer.submittedSideboard
         )
-        lobby.players[playerId] = playerState
     }
 
-    // 2HG manual team assignment — restored after players so the validity filter keeps current ids.
     lobby.setTeamAssignments(persistent.teamAssignments.mapKeys { EntityId(it.key) })
-
-    // Restore state via internal method
     lobby.restoreFromPersistence(
         state = LobbyState.valueOf(persistent.state),
         hostPlayerId = persistent.hostPlayerId?.let { EntityId(it) },
         completedAt = persistent.completedAt
     )
-
-    // Restore draft state if applicable
     lobby.restoreDraftState(
         currentPackNumber = persistent.currentPackNumber,
         currentPickNumber = persistent.currentPickNumber,
         playerOrder = persistent.playerOrder.map { EntityId(it) }
     )
-
-    // Restore Winston Draft state if applicable
     if (persistent.format == "WINSTON_DRAFT" && persistent.winstonMainDeckNames.isNotEmpty()) {
-        val mainDeck = persistent.winstonMainDeckNames.mapNotNull { cardRegistry.getCard(it) }
-        val piles = persistent.winstonPileNames.map { pileNames ->
-            pileNames.mapNotNull { cardRegistry.getCard(it) }
-        }
+        val mainDeck = persistent.winstonMainDeckNames.mapNotNull(cardRegistry::getCard)
+        val piles = persistent.winstonPileNames.map { pileNames -> pileNames.mapNotNull(cardRegistry::getCard) }
         lobby.restoreWinstonDraftState(
             mainDeck = mainDeck,
             piles = piles,
@@ -242,9 +197,6 @@ fun restoreTournamentLobby(
 // SealedSession Conversion (Legacy 2-player format)
 // ============================================================================
 
-/**
- * Converts a SealedSession to its persistent representation.
- */
 fun SealedSession.toPersistent(): PersistentSealedSession {
     return PersistentSealedSession(
         sessionId = sessionId,
@@ -267,9 +219,6 @@ fun SealedSession.toPersistent(): PersistentSealedSession {
 // TournamentManager Conversion
 // ============================================================================
 
-/**
- * Converts a TournamentManager to its persistent representation.
- */
 fun TournamentManager.toPersistent(lobbyId: String): PersistentTournament {
     return PersistentTournament(
         lobbyId = lobbyId,
@@ -310,14 +259,7 @@ fun TournamentManager.toPersistent(lobbyId: String): PersistentTournament {
     )
 }
 
-/**
- * Restores a TournamentManager from its persistent representation.
- *
- * @param persistent The persisted tournament data
- * @return A restored TournamentManager
- */
 fun restoreTournamentManager(persistent: PersistentTournament): TournamentManager {
-    // Reconstruct player list from standings (preserving order from playerIds)
     val players = persistent.playerIds.map { playerIdStr ->
         val standing = persistent.standings[playerIdStr]
             ?: throw IllegalStateException("Standing not found for player $playerIdStr")
@@ -330,7 +272,6 @@ fun restoreTournamentManager(persistent: PersistentTournament): TournamentManage
         gamesPerMatch = persistent.gamesPerMatch
     )
 
-    // Convert persistent rounds back to TournamentRounds
     val rounds = persistent.rounds.map { persistentRound ->
         TournamentRound(
             roundNumber = persistentRound.roundNumber,
@@ -350,7 +291,6 @@ fun restoreTournamentManager(persistent: PersistentTournament): TournamentManage
         )
     }
 
-    // Convert persistent standings back to PlayerStandings
     val standings = persistent.standings.mapKeys { EntityId(it.key) }.mapValues { (_, persistentStanding) ->
         PlayerStanding(
             playerId = EntityId(persistentStanding.playerId),
@@ -364,12 +304,10 @@ fun restoreTournamentManager(persistent: PersistentTournament): TournamentManage
         )
     }
 
-    // Restore internal state
     tournament.restoreFromPersistence(
         rounds = rounds,
         standings = standings,
         currentRoundIndex = persistent.currentRoundIndex
     )
-
     return tournament
 }

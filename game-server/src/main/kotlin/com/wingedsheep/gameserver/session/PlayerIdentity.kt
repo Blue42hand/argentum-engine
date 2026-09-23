@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.session
 
+import com.wingedsheep.gameserver.ai.AiControllerSpec
 import com.wingedsheep.sdk.model.EntityId
 import org.springframework.web.socket.WebSocketSession
 import java.util.UUID
@@ -17,8 +18,17 @@ class PlayerIdentity(
     playerName: String,
     val isAi: Boolean = false,
     /** LLM model override for AI players, null otherwise. Persisted alongside the lobby. */
-    val aiModelOverride: String? = null
+    val aiModelOverride: String? = null,
+    /**
+     * Generic per-seat controller selection. Null preserves the legacy server-wide `game.ai.mode`
+     * fallback. Mutable only so recovery can merge the same identity restored from game + lobby
+     * persistence before the AI session is rehydrated.
+     */
+    aiControllerSpec: AiControllerSpec? = null,
 ) {
+    @Volatile
+    var aiControllerSpec: AiControllerSpec? = aiControllerSpec
+
     /**
      * Display name shown to opponents and spectators. For a signed-in player this is the account's
      * profile display name — the server overwrites it whenever the account is (re)linked (see
