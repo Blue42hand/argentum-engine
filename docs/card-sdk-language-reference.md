@@ -8239,7 +8239,7 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   flashback's and warp's bundled costs, and a linked-exile granter's cost all go through — so it
   validates, surfaces its normal client picker, and (for collect evidence) inherits the CR 701.59b
   fail-closed gate for free. Affordability and the picker payload come from
-  `SelectionCostPresentation.canPay` / `.costData`, never from counting candidates: a sum-gated cost
+  `SpellCosts.canPayFrom` / `.present`, never from counting candidates: a sum-gated cost
   like collect evidence can have plenty of candidates and still be unreachable.
 
   Two things the label must keep apart: `LegalAction.manaCostString` stays a **parseable** mana cost
@@ -11856,7 +11856,7 @@ The cast surface follows: `CastSpellEnumerator` caps the offered `chooseCount` a
 the per-extra-mode cost on `modalEnumeration.additionalCostPerExtraMode`. The client's mode panel
 names it, then an injected `escalateCost` pipeline phase opens the ordinary picker for that cost
 type with the count scaled by the modes just chosen. Supported cost shapes are the selection-bearing
-ones (`SelectionCostPresentation`): sacrifice, discard, tap, bounce, exile from graveyard; any other
+ones (the cost kinds behind `SpellCosts`): sacrifice, discard, tap, bounce, exile from graveyard; any other
 atom caps the spell at one mode rather than offering a mode that can never be paid for.
 
 **Tiered (CR 702.183) — `spell { tiered { } }`.** *"Tiered (Choose one additional cost.)"* is a
