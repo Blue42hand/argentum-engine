@@ -1013,17 +1013,27 @@ export function DeckbuilderPage() {
     importedCommander: string | null,
     importedSideboard: Record<string, number> = {},
   ) => {
-    setDeckCards(cards)
-    // The Arena/MTGO list's "Sideboard"/"SB:" section becomes the wish sideboard (CR 100.4a).
-    setSideboardCards(importedSideboard)
-    // The commander designation rides along when the source list had a Commander
-    // section; otherwise reset so a stale value from the previous deck doesn't leak.
-    setCommander(importedCommander)
-    setActiveDeckId(null)
-    setPinnedPrintings({})
-    if (suggestedName) setDeckName(suggestedName)
-    navigate(`/deckbuilder${searchSuffix()}`)
-    setImportOpen(false)
+    // A Commander header is itself enough information to keep the designation alive. If the
+    // builder was still format-neutral, stamp Commander in the same transition as the imported
+    // commander; otherwise the "clear commander outside commander formats" effect can erase it
+    // before the user ever gets a chance to save the deck.
+    const params = new URLSearchParams(searchParams)
+    if (importedCommander && !isCommanderFormat) params.set('fmt', 'COMMANDER')
+    const suffix = params.toString()
+
+    startTransition(() => {
+      setDeckCards(cards)
+      // The Arena/MTGO list's "Sideboard"/"SB:" section becomes the wish sideboard (CR 100.4a).
+      setSideboardCards(importedSideboard)
+      // The commander designation rides along when the source list had a Commander
+      // section; otherwise reset so a stale value from the previous deck doesn't leak.
+      setCommander(importedCommander)
+      setActiveDeckId(null)
+      setPinnedPrintings({})
+      if (suggestedName) setDeckName(suggestedName)
+      navigate(`/deckbuilder${suffix ? `?${suffix}` : ''}`)
+      setImportOpen(false)
+    })
   }
 
   const handleLoadExample = (ex: ExampleDeck) => {
