@@ -54,7 +54,8 @@ class MoveToZoneEntersWithChoiceTest : FunSpec({
             EffectContext(sourceId = cardId, controllerId = player),
         )
 
-        result.isSuccess shouldBe true
+        // A pending decision is an expected pause, not a successful terminal effect result.
+        result.isPaused shouldBe true
         result.state.getBattlefield() shouldContain cardId
         val decision = result.pendingDecision.shouldBeInstanceOf<ChooseOptionDecision>()
         decision.prompt shouldBe "Choose a card type"
