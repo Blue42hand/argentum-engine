@@ -462,11 +462,10 @@ class QuickGameLobbyHandler(
         // Empty deck = "random pool" — skip validation. The commander field, if any, is meaningless
         // without an accompanying deck list and gets dropped at the lobby layer below.
         if (message.deckList.isNotEmpty()) {
-            // Commander-aware path: the wire format `deckList` represents the *full* deck (matches
-            // the saved-deck "merged" view the picker emits), but `Deck.cards` follows the server
-            // convention where the commander lives in `Deck.commander` and is NOT counted in
-            // `cards`. Strip one copy here so the validator (which re-adds it) doesn't trip the
-            // singleton check on the commander itself.
+            // Commander-aware path: the canonical wire format carries the library in `deckList`
+            // and the command-zone card separately in `commander`, matching `Deck.cards`.
+            // Keep the subtract-one compatibility shim for older clients that still send the
+            // commander merged into `deckList`; it is idempotent for the canonical 99+1 shape.
             val result = if (message.commander != null) {
                 val cardsWithoutCommander = stripCommanderFromCards(message.deckList, message.commander)
                 val deckCards = cardsWithoutCommander.flatMap { (name, count) -> List(count) { name } }
@@ -903,7 +902,8 @@ class QuickGameLobbyHandler(
     }
 
     private fun QuickGameLobbyPlayer.toView(lobby: QuickGameLobby, seatIndex: Int): ServerMessage.QuickGameLobbyPlayerView {
-        val total = deckList?.values?.sum() ?: 0
+        val libraryTotal = deckList?.values?.sum() ?: 0
+        val total = libraryTotal + if (deckList != null && commander != null) 1 else 0
         // Momir Basic has no deckbuilding: every seat plays the fixed 60 basics, so it always counts
         // as "deck selected" and shows a fixed label rather than the deck-picker states.
         val label = when {
