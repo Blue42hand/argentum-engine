@@ -1,0 +1,53 @@
+name: Issue 19 Cloud Key implementation evidence
+
+on:
+  push:
+    branches:
+      - automation/issue-19-cloud-key-card
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Fetch exact Future Sight Cloud Key evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ua='CommanderGymCoverage/1.0 (+https://github.com/Blue42hand/argentum-engine)'
+          accept='application/json;q=0.9,*/*;q=0.8'
+          card=/tmp/cloud-key.json
+          rulings=/tmp/cloud-key-rulings.json
+          curl -fsS -H "User-Agent: $ua" -H "Accept: $accept" \
+            'https://api.scryfall.com/cards/named?exact=Cloud%20Key&set=fut' -o "$card"
+          rulings_uri=$(jq -r '.rulings_uri' "$card")
+          curl -fsS -H "User-Agent: $ua" -H "Accept: $accept" "$rulings_uri" -o "$rulings"
+          image=$(jq -r '.image_uris.normal' "$card")
+          status=$(curl -sS -o /dev/null -w '%{http_code}' -I "$image")
+          test "$status" = 200
+          body=$(cat <<EOF
+          Cloud Key implementation evidence recovery on current card branch:
+
+          Canonical Scryfall exact-printing response for **Future Sight #160**:
+
+          \`\`\`json
+          $(jq '{id,name,mana_cost,type_line,oracle_text,colors,set,set_name,collector_number,rarity,released_at,artist,flavor_text,image_normal:.image_uris.normal}' "$card")
+          \`\`\`
+
+          Canonical Scryfall rulings:
+
+          \`\`\`json
+          $(jq '{data:[.data[]|{published_at,comment}]}' "$rulings")
+          \`\`\`
+
+          The exact \`image_uris.normal\` returned HTTP **${status}** via HEAD. This supplements the already-successful hosted Scryfall + Assay/fidelity preflight run 35675611330; it is recovery of the exact printing metadata needed by the add-card implementation, not a new coverage claim.
+          EOF
+          )
+          gh issue comment 19 --repo "$GITHUB_REPOSITORY" --body "$body"
