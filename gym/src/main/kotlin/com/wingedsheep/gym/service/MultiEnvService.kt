@@ -88,7 +88,13 @@ class MultiEnvService(
 
     /** Reset an existing game env while keeping the same [EnvId]. */
     fun reset(envId: EnvId, config: EnvConfig): ObservationResult =
-        withGameEnv(envId) { it.reset(config.toGameConfig()) }
+        withGameEnv(envId) {
+            it.reset(
+                config.toGameConfig(),
+                perspectivePlayerIndex = config.perspectivePlayerIndex,
+                defaultRevealAll = config.revealAll,
+            )
+        }
 
     /** Reset N distinct game envs in parallel while preserving each [EnvId]. */
     fun resetBatch(requests: List<ResetRequest>): List<Pair<EnvId, ObservationResult>> {
