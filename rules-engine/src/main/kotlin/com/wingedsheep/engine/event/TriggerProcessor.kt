@@ -736,7 +736,9 @@ class TriggerProcessor(
             TargetRequirementInfo(
                 index = index,
                 description = req.description,
-                minTargets = req.effectiveMinCount,
+                // A dependent slot is optional only if every slot after it is (DependentTargetSelection).
+                minTargets = if (sequential && !DependentTargetSelection.canStopAt(allRequirements, 0)) 1
+                    else req.effectiveMinCount,
                 maxTargets = maxTargets,
                 sameOwner = (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.sameOwner == true,
                 totalManaValueAtMost = resolveTotalManaValueAtMost(state, trigger, req),

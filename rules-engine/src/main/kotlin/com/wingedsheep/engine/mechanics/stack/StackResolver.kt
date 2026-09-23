@@ -3416,6 +3416,9 @@ class StackResolver(
             triggeringPlayerId = triggeringPlayerId,
             storedCollections = storedCollections,
             targets = targets,
+            // A filter bound to an earlier named target ("target creature that player controls",
+            // Ravager of the Fells) re-checks against the same choice at resolution.
+            namedTargets = EffectContext.buildNamedTargets(targetRequirements, targets),
         )
 
         return targets.filterIndexed { index, target ->
