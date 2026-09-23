@@ -69,6 +69,49 @@ class AiControllerSeatLifecycleTest : FunSpec({
         sessions.destroy()
     }
 
+    test("two AI seats in one game keep independent provider profiles") {
+        val provider = LifecycleProvider()
+        val sessions = SessionRegistry()
+        val manager = lifecycleManager(provider, sessions)
+
+        val strict = manager.createAiIdentity(
+            controllerSpec = AiControllerSpec(provider.mode, "strict-v1")
+        )
+        val loose = manager.createAiIdentity(
+            controllerSpec = AiControllerSpec(provider.mode, "loose-v1")
+        )
+        provider.contexts.clear()
+
+        val sharedGame = mockk<GameSession>(relaxed = true) {
+            every { sessionId } returns "shared-game"
+        }
+        manager.wireAiForGame(
+            gameSession = sharedGame,
+            aiPlayerId = strict.playerId,
+            deckList = mapOf("Mountain" to 40),
+            onActionReady = { _, _, _ -> },
+            onMulliganKeep = { _ -> },
+            onMulliganTake = { _ -> },
+            onBottomCards = { _, _ -> },
+        )
+        manager.wireAiForGame(
+            gameSession = sharedGame,
+            aiPlayerId = loose.playerId,
+            deckList = mapOf("Island" to 40),
+            onActionReady = { _, _, _ -> },
+            onMulliganKeep = { _ -> },
+            onMulliganTake = { _ -> },
+            onBottomCards = { _, _ -> },
+        )
+
+        provider.contexts.map { it.gameSessionId } shouldBe listOf("shared-game", "shared-game")
+        provider.contexts.associate { it.playerId to it.profileId } shouldBe mapOf(
+            strict.playerId to "strict-v1",
+            loose.playerId to "loose-v1",
+        )
+        sessions.destroy()
+    }
+
     test("explicit unknown provider profile fails before an AI identity is created") {
         val provider = LifecycleProvider()
         val sessions = SessionRegistry()
