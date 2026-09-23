@@ -854,7 +854,8 @@ class StackResolver(
         emitActivationEvent: Boolean = true,
         costsTap: Boolean = false,
         isExhaust: Boolean = false,
-        cantBeCopied: Boolean = false
+        cantBeCopied: Boolean = false,
+        isLoyalty: Boolean = false,
     ): ExecutionResult {
         val (abilityId, stateWithId) = state.newEntity()
 
@@ -888,6 +889,7 @@ class StackResolver(
                     costsTap = costsTap,
                     isManaAbility = false,
                     isExhaust = isExhaust,
+                    isLoyalty = isLoyalty,
                 )
             )
         }
