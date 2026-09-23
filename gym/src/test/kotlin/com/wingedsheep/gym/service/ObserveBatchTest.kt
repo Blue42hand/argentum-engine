@@ -69,6 +69,40 @@ class ObserveBatchTest : FunSpec({
         firstBob.legalActions.shouldBeEmpty()
     }
 
+    test("duplicate seat views leave the acting seat authoritative for the next step") {
+        val pool = EnvWorkerPool(parallelism = 1)
+        val svc = MultiEnvService(registry(), workerPool = pool)
+
+        try {
+            val envId = svc.create(config(303)).envId
+            val results = svc.observeBatch(
+                listOf(
+                    ObserveRequest(envId, perspectivePlayerId = alice),
+                    ObserveRequest(envId, perspectivePlayerId = bob)
+                )
+            )
+
+            val aliceView = results[0].second.observation as TrainingObservation
+            val bobView = results[1].second.observation as TrainingObservation
+            aliceView.agentToAct shouldBe alice
+            aliceView.legalActions.shouldNotBeEmpty()
+            bobView.legalActions.shouldBeEmpty()
+
+            val pass = aliceView.legalActions.first { it.kind == "PassPriority" }
+            val stepped = svc.step(
+                StepRequest(
+                    envId = envId,
+                    actionId = pass.actionId,
+                    expectedStateDigest = aliceView.stateDigest
+                )
+            ).observation as TrainingObservation
+
+            stepped.agentToAct shouldBe bob
+        } finally {
+            pool.close()
+        }
+    }
+
     test("observeBatch identifies the failing env and preserves singular error category") {
         val svc = MultiEnvService(registry())
         val missing = EnvId("missing-observe-env")
