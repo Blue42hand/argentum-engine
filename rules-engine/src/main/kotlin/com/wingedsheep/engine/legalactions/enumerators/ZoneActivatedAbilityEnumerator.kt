@@ -298,7 +298,7 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone) : ActionEnumerator 
      * Whether [playerId] has enough cards to pay an exile-from-zone cost of the ability on
      * [sourceId]. The card activating from its own graveyard is left out for an "exile **another**
      * …" cost (Gallia, Tragic Host) — otherwise a graveyard holding only the source would offer an
-     * ability payment then rejects. The *which cards* choice is made at activation
+     * ability that payment then rejects. The *which cards* choice is made at activation
      * (`ActivateAbilityHandler` pauses when there are more candidates than the count).
      */
     private fun canExile(
