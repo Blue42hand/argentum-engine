@@ -3,6 +3,7 @@ package com.wingedsheep.gameserver.handler
 import com.wingedsheep.ai.engine.SealedDeckGenerator
 import com.wingedsheep.ai.engine.deck.GeneratedDeck
 import com.wingedsheep.gameserver.ai.AiGameManager
+import com.wingedsheep.gameserver.ai.ResolvedAiSeatPreset
 import com.wingedsheep.gameserver.ai.RandomDeckResolver
 import com.wingedsheep.gameserver.config.GameProperties
 import com.wingedsheep.gameserver.deck.DeckValidator
@@ -142,6 +143,10 @@ class QuickGameLobbyHandler(
             }
             if (!current.players.removeIf { it.isAi }) return@withLock
             current.vsAi = false
+            // Controller + provider deck are one seat preset. Removing the seat discards both so
+            // adding a fresh default AI cannot inherit only the old preset's deck half.
+            current.aiControllerSpec = null
+            current.aiDeckSpec = AiDeckSpec.Auto
             broadcastState(current)
         }
     }
@@ -172,31 +177,21 @@ class QuickGameLobbyHandler(
                 sender.sendError(session, ErrorCode.INVALID_ACTION, "Only the host can choose the AI's deck")
                 return@withLock
             }
-            when (val spec = message.spec) {
-                is AiDeckSpec.Fixed -> {
-                    if (spec.deckList.isEmpty()) {
-                        sender.sendError(session, ErrorCode.INVALID_ACTION, "The AI's deck is empty")
-                        return@withLock
-                    }
-                    val result = validateAiDeck(spec, current.format)
-                    if (!result.valid) {
-                        val reason = result.errors.firstOrNull()?.message ?: "Deck is not legal"
-                        sender.sendError(session, ErrorCode.INVALID_ACTION, "AI deck rejected: $reason")
-                        return@withLock
-                    }
-                }
-                is AiDeckSpec.Sets -> {
-                    val unknown = spec.setCodes.filterNot { it in boosterGenerator.availableSets }
-                    if (unknown.isNotEmpty()) {
-                        sender.sendError(
-                            session,
-                            ErrorCode.INVALID_ACTION,
-                            "Unknown set${if (unknown.size > 1) "s" else ""}: ${unknown.joinToString(", ")}",
-                        )
-                        return@withLock
-                    }
-                }
-                is AiDeckSpec.Auto -> {}
+            val boundDeck = resolveCurrentPreset(session, current)?.deckSpec
+            if (current.aiControllerSpec != null && boundDeck == null && resolveCurrentPreset(session, current) == null) {
+                return@withLock
+            }
+            if (boundDeck != null) {
+                sender.sendError(
+                    session,
+                    ErrorCode.INVALID_ACTION,
+                    "The selected AI controller profile owns this seat's deck preset; choose another controller profile first",
+                )
+                return@withLock
+            }
+            aiDeckValidationError(message.spec, current.format)?.let { reason ->
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "AI deck rejected: $reason")
+                return@withLock
             }
             if (current.aiDeckSpec == message.spec) return@withLock
             current.aiDeckSpec = message.spec
@@ -219,6 +214,29 @@ class QuickGameLobbyHandler(
                 return@withLock
             }
             if (current.format == message.format && current.momirBasic == message.momirBasic) return@withLock
+
+            val resolvedPreset = resolveCurrentPreset(session, current)
+            if (current.aiControllerSpec != null && resolvedPreset == null) return@withLock
+            val boundDeck = resolvedPreset?.deckSpec
+            if (message.momirBasic && boundDeck != null) {
+                sender.sendError(
+                    session,
+                    ErrorCode.INVALID_ACTION,
+                    "The selected AI controller profile includes a deck preset and cannot be combined with Momir Basic",
+                )
+                return@withLock
+            }
+            if (!message.momirBasic && boundDeck != null) {
+                aiDeckValidationError(boundDeck, message.format)?.let { reason ->
+                    sender.sendError(
+                        session,
+                        ErrorCode.INVALID_ACTION,
+                        "Format change would invalidate the selected AI controller profile's deck: $reason",
+                    )
+                    return@withLock
+                }
+            }
+
             // Momir Basic is a "custom format" entry in the same dropdown: picking it flips the
             // lobby into the deckbuilding-free Vanguard mode (mutually exclusive with a deck-format
             // restriction). Any other choice clears Momir and applies the constructed format.
@@ -237,11 +255,10 @@ class QuickGameLobbyHandler(
                     val result = deckValidator.validate(deck, message.format)
                     if (!result.valid) player.ready = false
                 }
-                // Same rule for the AI's hand-picked deck, except the AI has no ready flag to
-                // clear: an illegal list is dropped back to Auto, which always builds something
-                // legal for the new format. The host sees the seat's label change.
+                // Same rule for a manually chosen AI deck. Provider-owned deck presets were
+                // preflighted above, so they can never be silently detached from their controller.
                 val aiSpec = current.aiDeckSpec
-                if (aiSpec is AiDeckSpec.Fixed && !validateAiDeck(aiSpec, message.format).valid) {
+                if (boundDeck == null && aiSpec is AiDeckSpec.Fixed && !validateAiDeck(aiSpec, message.format).valid) {
                     logger.info(
                         "Lobby {}: AI deck '{}' is not legal in {}; reverting the AI to Auto",
                         current.lobbyId,
@@ -326,13 +343,26 @@ class QuickGameLobbyHandler(
             sender.sendError(session, ErrorCode.INVALID_ACTION, "Already in a lobby")
             return
         }
-        if (message.vsAi && !aiGameManager.isEnabled) {
+        if (message.aiControllerSpec != null && !message.vsAi) {
+            sender.sendError(session, ErrorCode.INVALID_ACTION, "An AI controller can only be selected for a vs-AI lobby")
+            return
+        }
+
+        val resolvedPreset = if (message.aiControllerSpec != null) {
+            try {
+                aiGameManager.resolveSeatPreset(message.aiControllerSpec)
+            } catch (e: IllegalArgumentException) {
+                sender.sendError(session, ErrorCode.INVALID_ACTION, e.message ?: "AI controller selection is unavailable")
+                return
+            }
+        } else {
+            null
+        }
+
+        if (message.vsAi && resolvedPreset == null && !aiGameManager.isEnabled) {
             sender.sendError(session, ErrorCode.INVALID_ACTION, "AI opponent is not enabled on this server")
             return
         }
-        // A quick lobby's `vsAi` seats exactly one AI, and 2HG needs three to fill its four seats.
-        // The AI itself is no obstacle — a Two-Headed Giant tournament lobby seats AI teammates and
-        // opponents — so this is about which lobby can hold them, not about what the AI can play.
         if (message.twoHeadedGiant && message.vsAi) {
             sender.sendError(
                 session,
@@ -345,6 +375,20 @@ class QuickGameLobbyHandler(
             sender.sendError(session, ErrorCode.INVALID_ACTION, "Two-Headed Giant and Momir Basic cannot be combined")
             return
         }
+        if (message.momirBasic && resolvedPreset?.deckSpec != null) {
+            sender.sendError(
+                session,
+                ErrorCode.INVALID_ACTION,
+                "The selected AI controller profile includes a deck preset and cannot be combined with Momir Basic",
+            )
+            return
+        }
+        resolvedPreset?.deckSpec?.let { deckSpec ->
+            aiDeckValidationError(deckSpec, if (message.momirBasic) null else message.format)?.let { reason ->
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "AI controller profile deck rejected: $reason")
+                return
+            }
+        }
 
         val lobby = QuickGameLobby(
             vsAi = message.vsAi,
@@ -356,6 +400,11 @@ class QuickGameLobbyHandler(
             momirBasic = message.momirBasic,
             twoHeadedGiant = message.twoHeadedGiant,
         )
+        // Commit the complete provider seat preset only after controller and deck validation both
+        // succeeded. From this point onward the pair changes together or not at all.
+        lobby.aiControllerSpec = resolvedPreset?.controllerSpec
+        resolvedPreset?.deckSpec?.let { lobby.aiDeckSpec = it }
+
         // Ranked only applies to a standard 1v1 human-vs-human lobby (not AI / Two-Headed Giant).
         lobby.ranked = message.ranked && lobby.rankedEligible
         lobby.players += QuickGameLobbyPlayer(
@@ -592,6 +641,26 @@ class QuickGameLobbyHandler(
             return
         }
 
+        // Explicit provider/profile selections are re-resolved immediately before game creation.
+        // A provider that disappeared after lobby creation fails closed instead of degrading to the
+        // server default, and a provider-owned deck must still be exactly the deck on the seat.
+        if (lobby.aiControllerSpec != null) {
+            val resolved = try {
+                aiGameManager.resolveSeatPreset(lobby.aiControllerSpec!!)
+            } catch (e: IllegalArgumentException) {
+                logger.warn("Lobby {}: selected AI controller became unavailable: {}", lobby.lobbyId, e.message)
+                broadcastClosed(lobby, "Selected AI controller is unavailable: ${e.message}")
+                lobbyRepository.remove(lobby.lobbyId)
+                return
+            }
+            if (resolved.deckSpec != null && resolved.deckSpec != lobby.aiDeckSpec) {
+                logger.error("Lobby {}: AI controller/deck preset mismatch; refusing to start", lobby.lobbyId)
+                broadcastClosed(lobby, "AI controller/deck preset no longer matches; reselect the AI profile")
+                lobbyRepository.remove(lobby.lobbyId)
+                return
+            }
+        }
+
         // Ranked play only counts when every human seat is a signed-in account (no guests). A guest may
         // have joined a public ranked lobby since the host toggled it on; rather than block the start we
         // downgrade to a casual game and play on.
@@ -767,6 +836,7 @@ class QuickGameLobbyHandler(
                 // Cleared outside Commander rules so a commander on a host-picked deck can't route
                 // into a Standard game.
                 commanderCardName = aiDeck.commander?.takeIf { lobby.usesCommanderRules },
+                controllerSpec = lobby.aiControllerSpec,
             )
         }
 
@@ -875,6 +945,38 @@ class QuickGameLobbyHandler(
     }
 
     /**
+     * Resolve an already selected controller/profile without mutating the lobby. If an explicit
+     * provider/profile disappeared, report the exact failure and leave the current seat untouched.
+     */
+    private fun resolveCurrentPreset(session: WebSocketSession, lobby: QuickGameLobby): ResolvedAiSeatPreset? {
+        val spec = lobby.aiControllerSpec ?: return null
+        return try {
+            aiGameManager.resolveSeatPreset(spec)
+        } catch (e: IllegalArgumentException) {
+            sender.sendError(session, ErrorCode.INVALID_ACTION, e.message ?: "AI controller selection is unavailable")
+            null
+        }
+    }
+
+    /** Validate an AI deck specification without mutating lobby state. Null means it is usable. */
+    private fun aiDeckValidationError(spec: AiDeckSpec, format: DeckFormat?): String? = when (spec) {
+        is AiDeckSpec.Fixed -> {
+            if (spec.deckList.isEmpty()) {
+                "The AI's deck is empty"
+            } else {
+                val result = validateAiDeck(spec, format)
+                if (result.valid) null else result.errors.firstOrNull()?.message ?: "Deck is not legal"
+            }
+        }
+        is AiDeckSpec.Sets -> {
+            val unknown = spec.setCodes.filterNot { it in boosterGenerator.availableSets }
+            if (unknown.isEmpty()) null
+            else "Unknown set${if (unknown.size > 1) "s" else ""}: ${unknown.joinToString(", ")}"
+        }
+        is AiDeckSpec.Auto -> null
+    }
+
+    /**
      * Subtract one copy of [commander] from [deckList]. Mirrors the web-client's
      * `stripCommanderFromCards` helper — the wire format ships the merged deck (commander
      * counted in `deckList`), but the server's `Deck.cards` convention excludes it. Idempotent
@@ -904,7 +1006,7 @@ class QuickGameLobbyHandler(
     private fun QuickGameLobbyPlayer.toView(lobby: QuickGameLobby, seatIndex: Int): ServerMessage.QuickGameLobbyPlayerView {
         val libraryTotal = deckList?.values?.sum() ?: 0
         val total = libraryTotal + if (deckList != null && commander != null) 1 else 0
-        // Momir Basic has no deckbuilding: every seat plays the fixed 60 basics, so it always counts
+        // Momir Basic has no deckbuilding: every seat plays the same fixed 60 basics, so it always counts
         // as "deck selected" and shows a fixed label rather than the deck-picker states.
         val label = when {
             lobby.momirBasic -> "Momir Basic (${MomirBasicSetup.COPIES_PER_BASIC * MomirBasicSetup.BASIC_LAND_NAMES.size} lands)"
