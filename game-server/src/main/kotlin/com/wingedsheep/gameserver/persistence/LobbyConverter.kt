@@ -52,6 +52,7 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
                 currentSpectatingGameId = playerState.identity.currentSpectatingGameId,
                 isAi = playerState.identity.isAi,
                 aiModelOverride = playerState.identity.aiModelOverride,
+                aiControllerSpec = playerState.identity.aiControllerSpec,
                 submittedSideboard = playerState.submittedSideboard
             )
         },
@@ -170,7 +171,8 @@ fun restoreTournamentLobby(
             playerId = playerId,
             playerName = persistentPlayer.playerName,
             isAi = persistentPlayer.isAi,
-            aiModelOverride = persistentPlayer.aiModelOverride
+            aiModelOverride = persistentPlayer.aiModelOverride,
+            aiControllerSpec = persistentPlayer.aiControllerSpec,
         ).also {
             it.currentLobbyId = persistent.lobbyId
             it.currentSpectatingGameId = persistentPlayer.currentSpectatingGameId
@@ -347,29 +349,11 @@ fun restoreTournamentManager(persistent: PersistentTournament): TournamentManage
                     isSimulated = persistentMatch.isSimulated
                 )
             }
-        )
-    }
-
-    // Convert persistent standings back to PlayerStandings
-    val standings = persistent.standings.mapKeys { EntityId(it.key) }.mapValues { (_, persistentStanding) ->
-        PlayerStanding(
-            playerId = EntityId(persistentStanding.playerId),
-            playerName = persistentStanding.playerName,
-            wins = persistentStanding.wins,
-            losses = persistentStanding.losses,
-            draws = persistentStanding.draws,
-            gamesWon = persistentStanding.gamesWon,
-            gamesLost = persistentStanding.gamesLost,
-            lifeDifferential = persistentStanding.lifeDifferential
-        )
-    }
-
-    // Restore internal state
-    tournament.restoreFromPersistence(
-        rounds = rounds,
-        standings = standings,
-        currentRoundIndex = persistent.currentRoundIndex
+        },
+        currentRoundIndex = persistent.currentRoundIndex,
+        totalRounds = persistent.totalRounds,
+        gamesPerMatch = persistent.gamesPerMatch,
+        playerIds = persistent.playerIds.map { EntityId(it) }
     )
-
     return tournament
 }
