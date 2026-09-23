@@ -7187,6 +7187,18 @@ staticAbility {
     dropping a creature drops exactly its own charge.
   - Because a non-zero tax *pauses* declaration rather than rejecting it, a scenario test proves the
     charge by asserting a pending decision — not by expecting an error.
+- `CanAttackDespiteDefender(condition = null, filter = GroupFilter.source())` — creatures matching
+  `filter` can attack as though they didn't have defender (lifting CR 702.3b's restriction), as long
+  as `condition` holds (always when null). Self scope is the printed-on-the-creature form ("As long
+  as an artifact entered the battlefield under your control this turn, this creature can attack as
+  though it didn't have defender" — Shipwreck Sentry: `CanAttackDespiteDefender(Conditions.ArtifactEnteredBattlefieldThisTurn)`).
+  Battlefield scope is the lord form — Ghalta the Immovable's "Creatures you control can attack as
+  though they didn't have defender" is `CanAttackDespiteDefender(filter = GroupFilter.AllCreaturesYouControl)`;
+  the filter is matched against the would-be attacker with the carrying permanent as predicate
+  source and its controller as "you", and face-down carriers contribute nothing. Read at attack
+  declaration by `DefenderBypass` (shared by `DefenderAttackRule` and the client's "Can attack
+  despite defender" badge), never through projection. The turn-scoped, granted counterpart is
+  `Effects.CanAttackDespiteDefenderThisTurn`.
 - `CantBeAttackedBy(attackerFilter)` — the general **defender-side** attack restriction (CR
   508.1c): creatures matching `attackerFilter` can't attack the controller of the permanent carrying
   it. Resolved by `CantBeAttackedByDefenderRule`, which scans the *defending* player's projected
