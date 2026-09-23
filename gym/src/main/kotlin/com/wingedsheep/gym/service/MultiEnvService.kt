@@ -8,6 +8,7 @@ import com.wingedsheep.gym.GameEnvironment
 import com.wingedsheep.gym.GameGymEnv
 import com.wingedsheep.gym.GymEnv
 import com.wingedsheep.gym.contract.ObservationResult
+import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.gym.deckbuild.DeckbuildEnvironment
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.sdk.model.EntityId
@@ -31,8 +32,8 @@ import java.util.concurrent.ConcurrentHashMap
  * independently in parallel via [observeBatch], [resetBatch], [stepBatch], [forkBatch],
  * [snapshotBatch], [restoreBatch], or [submitDecisionBatch]. Read-only [observeBatch] may intentionally
  * name the same env more than once (for example to request multiple seat perspectives); those items
- * serialize on that env. This keeps mutable per-env state and action registries race-free without
- * imposing a global lock.
+ * execute in caller order under one env lock. This keeps mutable per-env state and action registries
+ * race-free without imposing a global lock.
  *
  * ## Registry regeneration
  *
@@ -132,32 +133,68 @@ class MultiEnvService(
         revealAll: Boolean? = null,
         perspectivePlayerId: EntityId? = null
     ): ObservationResult = withEnv(envId) { env ->
-        if (perspectivePlayerId == null) {
-            env.observe(revealAll)
-        } else {
-            (env as? GameGymEnv
-                ?: throw IllegalStateException(
-                    "Env $envId is not a game env; player perspective is not supported"
-                )).observeForPlayer(perspectivePlayerId, revealAll)
-        }
+        observeEnv(envId, env, revealAll, perspectivePlayerId)
     }
 
     /**
      * Observe N environments in parallel without advancing them. Items preserve request order and
-     * delegate to [observe], so seat validation and hidden-information projection stay authoritative
-     * in one place. Unlike mutating batches, repeated env IDs are allowed so callers can request
-     * multiple player perspectives of one game in a single round-trip.
+     * seat validation / hidden-information projection stay authoritative in one place.
+     *
+     * Repeated env IDs are allowed so callers can request several seat perspectives in one round
+     * trip. All requests for one env execute atomically in caller order under that env's monitor,
+     * while different envs still run in parallel. Because observing a game also installs the action
+     * registry / structured-decision authority used by the next mutation, an acting-seat view in the
+     * batch is restored as the authoritative view before the group releases its lock. If no acting
+     * seat was requested, the last requested view remains authoritative, preserving fail-closed
+     * behavior for batches containing only non-acting masked perspectives.
      */
     fun observeBatch(requests: List<ObserveRequest>): List<Pair<EnvId, ObservationResult>> {
         if (requests.isEmpty()) return emptyList()
-        val tasks = requests.map { req ->
-            Callable {
-                withBatchContext("observe", req.envId) {
-                    req.envId to observe(req.envId, req.revealAll, req.perspectivePlayerId)
+
+        val grouped = requests.withIndex().groupBy { it.value.envId }
+        val tasks = grouped.map { (envId, indexedRequests) ->
+            Callable<List<IndexedValue<Pair<EnvId, ObservationResult>>>> {
+                withBatchContext("observe", envId) {
+                    withEnv(envId) { env ->
+                        val results = indexedRequests.map { indexed ->
+                            val req = indexed.value
+                            val result = observeEnv(
+                                envId,
+                                env,
+                                req.revealAll,
+                                req.perspectivePlayerId,
+                            )
+                            IndexedValue(indexed.index, envId to result)
+                        }
+
+                        val actingPlayer = results.asSequence()
+                            .mapNotNull { indexed ->
+                                (indexed.value.second.observation as? TrainingObservation)?.agentToAct
+                            }
+                            .firstOrNull()
+                        val authorityRequest = actingPlayer?.let { actor ->
+                            indexedRequests.lastOrNull { indexed ->
+                                val observation = results.first { it.index == indexed.index }
+                                    .value.second.observation as? TrainingObservation
+                                observation?.perspectivePlayerId == actor
+                            }
+                        }
+
+                        if (authorityRequest != null && authorityRequest.index != indexedRequests.last().index) {
+                            val req = authorityRequest.value
+                            observeEnv(envId, env, req.revealAll, req.perspectivePlayerId)
+                        }
+
+                        results
+                    }
                 }
             }
         }
+
         return workerPool.invokeAll(tasks)
+            .flatten()
+            .sortedBy { it.index }
+            .map { it.value }
     }
 
     /**
@@ -390,6 +427,20 @@ class MultiEnvService(
         format = format,
         seed = seed
     )
+
+    private fun observeEnv(
+        envId: EnvId,
+        env: GymEnv,
+        revealAll: Boolean?,
+        perspectivePlayerId: EntityId?,
+    ): ObservationResult = if (perspectivePlayerId == null) {
+        env.observe(revealAll)
+    } else {
+        (env as? GameGymEnv
+            ?: throw IllegalStateException(
+                "Env $envId is not a game env; player perspective is not supported"
+            )).observeForPlayer(perspectivePlayerId, revealAll)
+    }
 
     /**
      * Run one operation under the environment's own monitor. Re-check the registry after taking the
