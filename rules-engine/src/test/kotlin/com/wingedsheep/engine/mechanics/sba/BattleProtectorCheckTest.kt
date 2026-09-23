@@ -25,6 +25,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * The CR 704.5x / 704.5y state-based actions that keep a battle's protector legal (CR 310.9),
@@ -87,7 +88,7 @@ class BattleProtectorCheckTest : FunSpec({
 
         val result = check.check(state)
 
-        result.isPaused shouldBe true
+        (result.outcome is Outcome.Paused) shouldBe true
         val decision = result.pendingDecision
         decision.shouldBeInstanceOf<ChooseOptionDecision>()
         withClue("the battle's controller makes the choice, not its would-be protector") {
@@ -106,7 +107,7 @@ class BattleProtectorCheckTest : FunSpec({
 
         val result = check.check(state)
 
-        result.isPaused shouldBe false
+        (result.outcome is Outcome.Paused) shouldBe false
         Battles.protectorOf(result.state, battleId) shouldBe p2
     }
 
@@ -137,7 +138,7 @@ class BattleProtectorCheckTest : FunSpec({
 
         val result = check.check(state)
 
-        result.isPaused shouldBe false
+        (result.outcome is Outcome.Paused) shouldBe false
         Battles.protectorOf(result.state, battleId) shouldBe p3
     }
 })

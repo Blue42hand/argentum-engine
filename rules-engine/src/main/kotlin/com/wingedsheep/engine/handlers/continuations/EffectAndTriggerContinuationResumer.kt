@@ -62,9 +62,9 @@ class EffectAndTriggerContinuationResumer(
                 val context = com.wingedsheep.engine.handlers.PredicateContext(
                     controllerId = continuation.controllerId,
                     sourceId = continuation.sourceId,
-                    triggeringEntityId = continuation.triggeringEntityId,
-                    triggeringPlayerId = continuation.triggeringPlayerId,
-                    xValue = continuation.xValue,
+                    triggeringEntityId = continuation.triggerContext?.triggeringEntityId,
+                    triggeringPlayerId = continuation.triggerContext?.triggeringPlayerId,
+                    xValue = continuation.triggerContext?.xValue,
                     storedCollections = pipeline?.storedCollections ?: emptyMap(),
                     chosenValues = pipeline?.chosenValues ?: emptyMap(),
                     storedStringLists = pipeline?.storedStringLists ?: emptyMap(),
@@ -132,35 +132,13 @@ class EffectAndTriggerContinuationResumer(
                 effect = continuation.elseEffect,
                 description = continuation.description,
                 abilityIdentity = continuation.abilityIdentity,
-                triggerDamageAmount = continuation.triggerDamageAmount,
-                triggeringEntityId = continuation.triggeringEntityId,
-                triggeringPlayerId = continuation.triggeringPlayerId,
-                triggerCounterCount = continuation.triggerCounterCount,
-                triggerTotalCounterCount = continuation.triggerTotalCounterCount,
-                triggerLastKnownCounters = continuation.triggerLastKnownCounters,
-                triggerLastKnownSubtypes = continuation.triggerLastKnownSubtypes,
-                triggerLastKnownCardTypes = continuation.triggerLastKnownCardTypes,
-                triggerLastKnownDamageDealtByPlayers = continuation.triggerLastKnownDamageDealtByPlayers,
-                triggerLastKnownBlockingOrBlockedByIds = continuation.triggerLastKnownBlockingOrBlockedByIds,
-                lastKnownPower = continuation.lastKnownPower,
-                lastKnownToughness = continuation.lastKnownToughness,
-                diedBatchTotalPower = continuation.diedBatchTotalPower,
-                triggerScryCount = continuation.triggerScryCount,
-                triggerClashWon = continuation.triggerClashWon,
-                triggerDiscardCount = continuation.triggerDiscardCount,
-                triggerDiscoverValue = continuation.triggerDiscoverValue,
-                triggerExcessDamageAmount = continuation.triggerExcessDamageAmount,
-                triggerRecipientToughness = continuation.triggerRecipientToughness,
-                triggerManaSpentOnTriggeringSpell = continuation.triggerManaSpentOnTriggeringSpell,
-                triggerColorsSpentOnTriggeringSpell = continuation.triggerColorsSpentOnTriggeringSpell,
-                triggerManaValueOfTriggeringSpell = continuation.triggerManaValueOfTriggeringSpell,
-                triggerXValueOfTriggeringSpell = continuation.triggerXValueOfTriggeringSpell,
-                xValue = continuation.xValue,
+                triggerContext = continuation.triggerContext,
+                xValue = continuation.triggerContext?.xValue,
                 carriedPipeline = continuation.carriedPipeline,
                 interveningIf = continuation.interveningIf
             )
             val stackResult = services.stackResolver.putTriggeredAbility(state, elseComponent, emptyList())
-            if (!stackResult.isSuccess) return stackResult
+            if (stackResult.outcome !is Outcome.Done) return stackResult
             return checkForMore(stackResult.newState, stackResult.events.toList())
         }
 
@@ -194,37 +172,12 @@ class EffectAndTriggerContinuationResumer(
             effect = continuation.effect,
             description = continuation.description,
             abilityIdentity = continuation.abilityIdentity,
-            triggerDamageAmount = continuation.triggerDamageAmount,
-            triggeringEntityId = continuation.triggeringEntityId,
-            triggeringPlayerId = continuation.triggeringPlayerId,
-            triggerCounterCount = continuation.triggerCounterCount,
-            triggerTotalCounterCount = continuation.triggerTotalCounterCount,
-            triggerLastKnownCounters = continuation.triggerLastKnownCounters,
-            triggerLastKnownSubtypes = continuation.triggerLastKnownSubtypes,
-            triggerLastKnownCardTypes = continuation.triggerLastKnownCardTypes,
-            triggerLastKnownDamageDealtByPlayers = continuation.triggerLastKnownDamageDealtByPlayers,
-            triggerLastKnownBlockingOrBlockedByIds = continuation.triggerLastKnownBlockingOrBlockedByIds,
-            lastKnownPower = continuation.lastKnownPower,
-            lastKnownToughness = continuation.lastKnownToughness,
-            diedBatchTotalPower = continuation.diedBatchTotalPower,
-            triggerModesChosenCount = continuation.triggerModesChosenCount,
-            enchantedCreatureLastKnownPower = continuation.enchantedCreatureLastKnownPower,
-            triggerScryCount = continuation.triggerScryCount,
-            triggerClashWon = continuation.triggerClashWon,
-            triggerDiscardCount = continuation.triggerDiscardCount,
-            triggerDiscoverValue = continuation.triggerDiscoverValue,
-            triggerExcessDamageAmount = continuation.triggerExcessDamageAmount,
-            triggerRecipientToughness = continuation.triggerRecipientToughness,
-            triggerManaSpentOnTriggeringSpell = continuation.triggerManaSpentOnTriggeringSpell,
-            triggerColorsSpentOnTriggeringSpell = continuation.triggerColorsSpentOnTriggeringSpell,
-            triggerManaValueOfTriggeringSpell = continuation.triggerManaValueOfTriggeringSpell,
-            triggerXValueOfTriggeringSpell = continuation.triggerXValueOfTriggeringSpell,
-            xValue = continuation.xValue,
+            // The whole record survives the target-selection pause — including a batch trigger's
+            // captured objects, so a payoff that says "from among them" still finds them
+            // (CR 603.2c; Kaya, Spirits' Justice is a batch trigger that also targets).
+            triggerContext = continuation.triggerContext,
+            xValue = continuation.triggerContext?.xValue,
             carriedPipeline = continuation.carriedPipeline,
-            // A batch trigger's captured objects survive the target-selection pause, so a payoff
-            // that says "from among them" still finds them (CR 603.2c) — Kaya, Spirits' Justice
-            // is a batch trigger that also targets.
-            capturedEntityIds = continuation.capturedEntityIds,
             interveningIf = continuation.interveningIf
         )
 
@@ -232,7 +185,7 @@ class EffectAndTriggerContinuationResumer(
             state, abilityComponent, selectedTargets, alignedRequirements
         )
 
-        if (!stackResult.isSuccess) {
+        if (stackResult.outcome !is Outcome.Done) {
             return stackResult
         }
 
@@ -285,20 +238,10 @@ class EffectAndTriggerContinuationResumer(
             effect = continuation.effect,
             description = continuation.description,
             abilityIdentity = continuation.abilityIdentity,
-            triggerDamageAmount = continuation.triggerDamageAmount,
-            triggeringEntityId = continuation.triggeringEntityId,
-            triggeringPlayerId = continuation.triggeringPlayerId,
-            triggerCounterCount = continuation.triggerCounterCount,
-            triggerTotalCounterCount = continuation.triggerTotalCounterCount,
-            triggerLastKnownCounters = continuation.triggerLastKnownCounters,
-            triggerLastKnownSubtypes = continuation.triggerLastKnownSubtypes,
-            triggerLastKnownCardTypes = continuation.triggerLastKnownCardTypes,
-            triggerLastKnownDamageDealtByPlayers = continuation.triggerLastKnownDamageDealtByPlayers,
-            triggerLastKnownBlockingOrBlockedByIds = continuation.triggerLastKnownBlockingOrBlockedByIds,
+            triggerContext = continuation.triggerContext,
             selectedTargets = selectedTargets,
             targetRequirements = continuation.targetRequirements,
             totalDamage = totalDamage,
-            capturedEntityIds = continuation.capturedEntityIds,
             interveningIf = continuation.interveningIf
         )
 
@@ -328,20 +271,9 @@ class EffectAndTriggerContinuationResumer(
             effect = continuation.effect,
             description = continuation.description,
             abilityIdentity = continuation.abilityIdentity,
-            triggerDamageAmount = continuation.triggerDamageAmount,
-            triggeringEntityId = continuation.triggeringEntityId,
-            triggeringPlayerId = continuation.triggeringPlayerId,
-            triggerCounterCount = continuation.triggerCounterCount,
-            triggerTotalCounterCount = continuation.triggerTotalCounterCount,
-            triggerLastKnownCounters = continuation.triggerLastKnownCounters,
-            triggerLastKnownSubtypes = continuation.triggerLastKnownSubtypes,
-            triggerLastKnownCardTypes = continuation.triggerLastKnownCardTypes,
-            triggerLastKnownDamageDealtByPlayers = continuation.triggerLastKnownDamageDealtByPlayers,
-            triggerLastKnownBlockingOrBlockedByIds = continuation.triggerLastKnownBlockingOrBlockedByIds,
-            lastKnownPower = continuation.lastKnownPower,
-            lastKnownToughness = continuation.lastKnownToughness,
+            triggerContext = continuation.triggerContext,
+            xValue = continuation.triggerContext?.xValue,
             damageDistribution = response.distribution,
-            capturedEntityIds = continuation.capturedEntityIds,
             interveningIf = continuation.interveningIf
         )
 
@@ -349,7 +281,7 @@ class EffectAndTriggerContinuationResumer(
             state, abilityComponent, continuation.selectedTargets, continuation.targetRequirements
         )
 
-        if (!stackResult.isSuccess) {
+        if (stackResult.outcome !is Outcome.Done) {
             return stackResult
         }
 
@@ -388,7 +320,7 @@ class EffectAndTriggerContinuationResumer(
             continuation.targetRequirement
         )
 
-        if (result.isPaused || !result.isSuccess) return result
+        if (result.outcome is Outcome.Paused || result.outcome !is Outcome.Done) return result
         return checkForMore(result.newState, result.events.toList())
     }
 
@@ -415,11 +347,11 @@ class EffectAndTriggerContinuationResumer(
 
         val result = services.triggerProcessor.processTargetedTrigger(state, unwrappedTrigger, continuation.targetRequirement)
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
 
-        if (!result.isSuccess) {
+        if (result.outcome !is Outcome.Done) {
             return result
         }
 
@@ -459,7 +391,7 @@ class EffectAndTriggerContinuationResumer(
             // Yes to all — unwrap each may and let the standard pipeline target them one by one.
             val unwrapped = run.mapNotNull(::unwrapMayTrigger)
             val result = services.triggerProcessor.processTriggers(state, unwrapped)
-            if (result.isPaused || !result.isSuccess) return result
+            if (result.outcome is Outcome.Paused || result.outcome !is Outcome.Done) return result
             return checkForMore(result.newState, result.events.toList())
         }
 
@@ -483,7 +415,7 @@ class EffectAndTriggerContinuationResumer(
         val unwrapped = unwrapMayTrigger(first)
             ?: return ExecutionResult.error(state, "Batch may continuation resumed on a non-may trigger")
         val result = services.triggerProcessor.processTriggers(workingState, listOf(unwrapped))
-        if (result.isPaused || !result.isSuccess) return result
+        if (result.outcome is Outcome.Paused || result.outcome !is Outcome.Done) return result
         return checkForMore(result.newState, result.events.toList())
     }
 
@@ -522,7 +454,7 @@ class EffectAndTriggerContinuationResumer(
 
         val result = services.effectExecutorRegistry.execute(state, effectToExecute, context).toExecutionResult()
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
 
@@ -574,7 +506,7 @@ class EffectAndTriggerContinuationResumer(
             .execute(state, effectToExecute, continuation.effectContext)
         val result = branchResult.toExecutionResult()
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
 
@@ -592,11 +524,7 @@ class EffectAndTriggerContinuationResumer(
             continuation.effectContext.pipeline.chosenValues + branchResult.updatedChosenValues,
         )
 
-        // Preserve `triggersAlreadyProcessed` across the continuation drain: if the gated effect ran
-        // a nested cast that already stacked its cast-triggers (Vaan casting an opponent's card via
-        // MayEffect), SubmitDecisionHandler must not re-detect the same SpellCastEvent.
         return checkForMore(stateWithCollections, result.events.toList())
-            .copy(triggersAlreadyProcessed = result.triggersAlreadyProcessed)
     }
 
     private fun resumeMayRevealCardFromHand(
@@ -618,7 +546,7 @@ class EffectAndTriggerContinuationResumer(
             val result = services.effectExecutorRegistry
                 .execute(state, otherwise, continuation.effectContext)
                 .toExecutionResult()
-            return if (result.isPaused) result
+            return if (result.outcome is Outcome.Paused) result
             else checkForMore(result.state, result.events.toList())
         }
 
@@ -666,7 +594,7 @@ class EffectAndTriggerContinuationResumer(
         val result = services.effectExecutorRegistry
             .execute(currentState, ifBeheld, continuation.effectContext)
             .toExecutionResult()
-        if (result.isPaused) return result
+        if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, events + result.events.toList())
     }
 
