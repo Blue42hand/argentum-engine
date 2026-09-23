@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 171 / 285
+**Implemented:** 181 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -35,7 +35,7 @@
 - [x] Bloodline Recollector
 - [x] Bloombrute
 - [ ] Blossom-Blessed Angel
-- [ ] Break Under Pressure
+- [x] Break Under Pressure
 - [x] Budding Insurgent
 - [x] Campus Crier
 - [ ] Carnivorous Cultivator
@@ -75,7 +75,7 @@
 - [x] Essence Burn
 - [x] Extended Absence
 - [ ] Extrapolate the Impossible
-- [ ] Eye of Jace
+- [x] Eye of Jace
 - [ ] Face Yourself
 - [x] Fatehold Annex
 - [ ] Fatehold Charm
@@ -109,7 +109,7 @@
 - [ ] Hall of Echoes
 - [ ] Hallway Heckler
 - [ ] Hapatra, the Desert Fang
-- [ ] Hapatra, the Desert Frost
+- [x] Hapatra, the Desert Frost
 - [x] Haunted Ridge
 - [x] Heartstring Puller
 - [ ] Heartwood Crafter
@@ -155,7 +155,7 @@
 - [ ] Mabel, Valley Hero
 - [x] Marwyn, the Clearcutter
 - [x] Marwyn, the Preserver
-- [ ] Massacre Girl, Most Wanted
+- [x] Massacre Girl, Most Wanted
 - [ ] Master of Barbs
 - [x] Medic's Kitesail
 - [x] Memory Trap
@@ -182,7 +182,7 @@
 - [ ] Primal Witchstalker
 - [ ] Proctor of Potential
 - [x] Proft, Consulting Detective
-- [ ] Proft, Sinister Mastermind
+- [x] Proft, Sinister Mastermind
 - [x] Prophesied End
 - [x] Protege's Awakening
 - [ ] Prudent Fateseer
@@ -190,14 +190,14 @@
 - [ ] Pyre Rhymer
 - [x] Rampart Hunter
 - [x] Rank Rat
-- [ ] Recursive Recruitment
+- [x] Recursive Recruitment
 - [x] Refute Destiny
 - [x] Repurposed Enforcer
 - [x] Rescue Girl, First Responder
 - [x] Restore with Empathy
 - [x] Return to the Light Realms
 - [x] Rewrite Regrets
-- [ ] Rise of the Deathbringer
+- [x] Rise of the Deathbringer
 - [x] Rockfall Vale
 - [ ] Roiling Canopy
 - [x] Room of Refuge
@@ -220,7 +220,7 @@
 - [ ] Solitary Cell
 - [x] Solve for Disappointment
 - [x] Something Worth Saving
-- [ ] Sphinx of False Conclusions
+- [x] Sphinx of False Conclusions
 - [ ] Sphinx's Approach
 - [x] Stingcaster Mage
 - [x] Stingerquill Annex
@@ -258,7 +258,7 @@
 - [x] Transformative Commons
 - [x] Traxos, Academy Guardian
 - [x] Traxos, Scourge Eternal
-- [ ] Twinned Vision
+- [x] Twinned Vision
 - [x] Twisted Fates
 - [ ] Uldaros Theorix
 - [x] Undulating Witness
@@ -289,7 +289,7 @@
 - [x] Way of the Wildspeaker
 - [ ] Whiplash Wordsmith
 - [x] Winter, Team Player
-- [ ] Winter, Tormented Loner
+- [x] Winter, Tormented Loner
 - [x] Woodwork Prodigy
 - [x] Wrath of the Bloodmane
 - [x] Wrecking Gecko
