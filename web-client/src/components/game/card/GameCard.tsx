@@ -2480,13 +2480,16 @@ function GameCardImpl({
         </>
       )}
 
-      {/* DFC (double-faced card) indicator badge */}
+      {/* DFC (double-faced card) indicator badge. It sits on the printed card's bottom edge: for a
+          landscape print (a battle's Siege front) the element is turned +90°, so that edge is the
+          element's right side — anchoring to the element's bottom would land it mid-card, over
+          the type line and rules text. */}
       {!faceDown && battlefield && card.isDoubleFaced && (
         <div style={{
           position: 'absolute',
-          bottom: 4,
-          left: '50%',
-          transform: 'translateX(-50%)',
+          ...(isLandscapePrint
+            ? { right: 4, top: '50%', transform: 'translateY(-50%) rotate(-90deg)' }
+            : { bottom: 4, left: '50%', transform: 'translateX(-50%)' }),
           backgroundColor: 'rgba(20, 20, 40, 0.9)',
           color: card.currentFace === 'BACK' ? '#b0b8d0' : '#f0d060',
           fontSize: responsive.badges.manaCostFontSize,
