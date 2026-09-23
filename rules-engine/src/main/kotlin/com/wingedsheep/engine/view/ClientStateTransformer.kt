@@ -3483,7 +3483,10 @@ class ClientStateTransformer(
                 val controllerId = container.get<ControllerComponent>()?.playerId
                 if (controllerId != null) {
                     attackingPlayerId = controllerId
-                    defendingPlayerId = attackingComponent.defenderId
+                    // A player, not the attacked permanent: a planeswalker's controller or a
+                    // battle's protector (CR 310.9d).
+                    defendingPlayerId = com.wingedsheep.engine.mechanics.combat.CombatDefenders
+                        .defendingPlayerOf(state, attackingComponent.defenderId)
                 }
 
                 val damageOrderComponent = container.get<DamageAssignmentOrderComponent>()
@@ -3493,10 +3496,12 @@ class ClientStateTransformer(
                     ClientAttacker(
                         creatureId = entityId,
                         creatureName = cardComponent.name,
-                        attackingTarget = if (state.turnOrder.contains(attackingComponent.defenderId)) {
-                            ClientCombatTarget.Player(attackingComponent.defenderId)
-                        } else {
-                            ClientCombatTarget.Planeswalker(attackingComponent.defenderId)
+                        attackingTarget = when {
+                            state.turnOrder.contains(attackingComponent.defenderId) ->
+                                ClientCombatTarget.Player(attackingComponent.defenderId)
+                            state.projectedState.isBattle(attackingComponent.defenderId) ->
+                                ClientCombatTarget.Battle(attackingComponent.defenderId)
+                            else -> ClientCombatTarget.Planeswalker(attackingComponent.defenderId)
                         },
                         blockedBy = blockedComponent?.blockerIds ?: emptyList(),
                         mustBeBlockedByAll = entityId in mustBeBlockedCreatures,

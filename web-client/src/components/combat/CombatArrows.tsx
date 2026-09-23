@@ -3,6 +3,7 @@ import { useGameStore } from '@/store/gameStore.ts'
 import { selectGameState, selectViewingPlayerId, useViewedOpponent, selectTeamMap, identitySeatColor } from '@/store/selectors.ts'
 import type { EntityId } from '@/types'
 import { Step, ZoneType } from '@/types'
+import { defendingPlayerOf, isBattle } from '@/utils/combatTargets'
 
 interface Point {
   x: number
@@ -291,11 +292,15 @@ export function CombatArrows() {
     pendingDecision?.context?.phase === 'COMBAT'
 
   // Hide all arrows during full-screen overlay decisions (e.g., ChooseColorDecision)
-  // But keep arrows visible for combat trigger YesNo decisions (e.g., Gustcloak Savior)
+  // But keep arrows visible for combat trigger YesNo decisions (e.g., Gustcloak Savior) — only
+  // while the triggering permanent is still on the battlefield. A defeated Siege's "cast it
+  // transformed" prompt is triggered by a battle already in exile, and its modal must not have
+  // attack chevrons drawn over it.
+  const yesNoTrigger = pendingDecision?.type === 'YesNoDecision' ? pendingDecision.context.triggeringEntityId : undefined
   const hasOverlayDecision = pendingDecision != null &&
     pendingDecision.type !== 'ChooseTargetsDecision' &&
     !(pendingDecision.type === 'SelectCardsDecision' && pendingDecision.useTargetingUI) &&
-    !(pendingDecision.type === 'YesNoDecision' && pendingDecision.context.triggeringEntityId)
+    !(yesNoTrigger != null && cards?.[yesNoTrigger]?.zone?.zoneType === ZoneType.BATTLEFIELD)
 
   // Track mouse/touch position during drag (blocker or attacker)
   useEffect(() => {
@@ -457,7 +462,8 @@ export function CombatArrows() {
       setArrows(newArrows)
 
       // Compute attacker arrows (visible to all players and spectators during combat).
-      // 2-player: only when planeswalkers exist — red triangle indicators suffice
+      // 2-player: only when an attackable permanent (planeswalker, battle) exists — red
+      // triangle indicators suffice
       // otherwise. Multiplayer: always — "whose spell, at whom" needs the arrows.
       // Attacks against a defender whose board is slid away bundle into one arrow
       // per defender, from the attacker group's centroid to their rail chip.
@@ -467,10 +473,10 @@ export function CombatArrows() {
       const pushAttackArrow = (attackerId: EntityId, targetId: EntityId) => {
         const attackerPos = getCardCenter(attackerId)
         if (!attackerPos) return
-        // The target is a planeswalker (a card) or a player; the defending player
-        // is the planeswalker's controller (CR 802.2a) or the player themself.
+        // The target is a player, a planeswalker, or a battle; the defending player is the
+        // player themself, the planeswalker's controller, or the battle's protector.
         const targetCard = cards?.[targetId]
-        const defenderId = targetCard ? targetCard.controllerId : targetId
+        const defenderId = defendingPlayerOf(targetId, cards)
         const isOtherOpponent =
           isMulti && defenderId !== viewingPlayerId && defenderId !== viewedOpponentId
         // A defender board sharing the strip (table overview / combat defender-focus
@@ -501,10 +507,11 @@ export function CombatArrows() {
         })
       }
 
-      const hasPlaneswalkerOnBattlefield = cards && Object.values(cards).some(
-        (card) => card.zone?.zoneType === ZoneType.BATTLEFIELD && card.cardTypes.includes('PLANESWALKER'),
+      const hasAttackablePermanent = cards && Object.values(cards).some(
+        (card) => card.zone?.zoneType === ZoneType.BATTLEFIELD &&
+          (card.cardTypes.includes('PLANESWALKER') || isBattle(card)),
       )
-      if ((hasPlaneswalkerOnBattlefield || isMulti) && gameStateCombat && gameStateCombat.attackers.length > 0) {
+      if ((hasAttackablePermanent || isMulti) && gameStateCombat && gameStateCombat.attackers.length > 0) {
         for (const attacker of gameStateCombat.attackers) {
           // Check if attacker is still on battlefield
           const attackerCard = cards?.[attacker.creatureId]
@@ -559,8 +566,7 @@ export function CombatArrows() {
       // Seat color for an indicator given the attack's target id (player or planeswalker).
       const indicatorColorFor = (targetId: EntityId | undefined): string => {
         if (!targetId) return '#ff4444'
-        const targetCard = cards?.[targetId]
-        return seatColorOf(targetCard ? targetCard.controllerId : targetId)
+        return seatColorOf(defendingPlayerOf(targetId, cards))
       }
 
       if (combatState?.mode === 'declareAttackers' && combatState.selectedAttackers.length > 0) {

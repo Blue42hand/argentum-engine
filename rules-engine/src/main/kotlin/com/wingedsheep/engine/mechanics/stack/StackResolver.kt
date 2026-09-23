@@ -1866,25 +1866,32 @@ class StackResolver(
         }
 
         // Sneak (CR 702.190b / 506.3a): a permanent spell whose sneak cost was paid enters
-        // tapped and attacking the same player or planeswalker the returned unblocked creature
-        // was attacking. A non-creature permanent can't attack, so it just enters tapped (506.3a).
+        // tapped and attacking the same player, planeswalker, or battle the returned unblocked
+        // creature was attacking. A non-creature permanent can't attack, so it just enters tapped
+        // (506.3a).
         if (spellComponent.wasSneaked) {
             newState = newState.updateEntity(spellId) { c -> c.with(TappedComponent) }
             val projected = newState.projectedState
-            // CR 506.3c: the creature only enters attacking if the carried defender is still a
-            // legal attack target — an opponent still in the game, or an opponent's planeswalker
-            // still on the battlefield (mirrors the defender check in AttackPhaseManager). If it's
+            // CR 506.3c / 508.4a: the creature only enters attacking if the carried defender is
+            // still a legal attack target — an opponent still in the game, an opponent's
+            // planeswalker still on the battlefield, or a battle still on the battlefield and
+            // protected by an opponent (mirrors the defender check in AttackPhaseManager). If it's
             // no longer valid, the creature enters but is never attacking — no redirect.
+            val opponents = newState.getOpponents(controllerId).toSet()
             val legalDefender = spellComponent.sneakAttackDefenderId?.takeIf { d ->
                 (d in newState.turnOrder && d != controllerId) ||
                     (projected.isPlaneswalker(d) &&
                         d in newState.getBattlefield() &&
-                        projected.getController(d) != controllerId)
+                        projected.getController(d) != controllerId) ||
+                    (projected.isBattle(d) &&
+                        d in newState.getBattlefield() &&
+                        com.wingedsheep.engine.mechanics.battle.Battles.canBeAttackedBy(newState, d, controllerId, opponents))
             }
             if (legalDefender != null && projected.isCreature(spellId)) {
                 newState = newState.updateEntity(spellId) { c ->
                     c.with(AttackingComponent(legalDefender))
                 }
+                newState = com.wingedsheep.engine.mechanics.combat.AttackedPermanents.markAttacked(newState, legalDefender)
             }
         }
 

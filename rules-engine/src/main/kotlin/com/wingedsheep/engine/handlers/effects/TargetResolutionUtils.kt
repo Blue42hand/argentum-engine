@@ -174,8 +174,11 @@ object TargetResolutionUtils {
         val defenderId = container.get<AttackingComponent>()?.defenderId
             ?: container.get<LastKnownPermanentComponent>()?.snapshot?.attackedDefenderId
             ?: return null
-        return if (defenderId in state.turnOrder) defenderId
-        else state.getEntity(defenderId)?.get<ControllerComponent>()?.playerId
+        // A player defends as themselves, a planeswalker for its controller, and a battle for its
+        // protector (CR 310.9d) — which for a Siege is not its controller.
+        if (defenderId in state.turnOrder) return defenderId
+        return com.wingedsheep.engine.mechanics.battle.Battles.protectorOf(state, defenderId)
+            ?: state.getEntity(defenderId)?.get<ControllerComponent>()?.playerId
     }
 
     /**
