@@ -381,9 +381,12 @@ export function DeckPicker({
       const saved = decks.find((d) => d.id === selectedSavedId)
       return saved?.commander ?? null
     }
-    if (tab === 'paste') return parsedPaste.commander ?? pasteCommander
+    if (tab === 'paste') {
+      const candidate = parsedPaste.commander ?? pasteCommander
+      return candidate && parsedPaste.cards[candidate] ? candidate : null
+    }
     return null
-  }, [tab, decks, selectedSavedId, parsedPaste.commander, pasteCommander])
+  }, [tab, decks, selectedSavedId, parsedPaste, pasteCommander])
 
   // The constructed sideboard ("outside the game", CR 400.11a) the wish effects fetch from.
   // Saved decks carry one (the deckbuilder persists it) and a pasted list carries whatever sat
@@ -577,9 +580,8 @@ export function DeckPicker({
               value={pasteText}
               onChange={(e) => {
                 setPasteText(e.target.value)
-                // A manual edit voids any commander designation an example may have carried —
-                // the user might have removed the commander card from the list entirely.
-                if (pasteCommander !== null) setPasteCommander(null)
+                // Keep an example/saved-deck designation through ordinary edits. currentCommander
+                // drops it automatically if that card actually disappears from the pasted list.
               }}
               disabled={disabled}
               className={styles.textarea}
