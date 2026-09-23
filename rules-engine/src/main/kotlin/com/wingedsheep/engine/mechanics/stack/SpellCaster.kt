@@ -10,6 +10,7 @@ import com.wingedsheep.engine.mechanics.layers.ContinuousEffectSourceComponent
 import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.FACE_DOWN_DISPLAY_NAME
+import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.permissions.removeMayPlayPermissionsForCard
 import com.wingedsheep.engine.state.ZoneKey
@@ -57,6 +58,11 @@ internal class SpellCaster(
      *                     every downstream read (resolution, targeting, the client view) sees the
      *                     back face's characteristics without a special case.
      * @param damageDistribution Pre-chosen damage distribution for DividedDamageEffect spells
+     *
+     * Runs the tail of the casting procedure (CR 601.2a, 601.2i): the card leaves the zone it was
+     * cast from, turns to the face it was cast as, and becomes a spell object carrying every
+     * cast-time choice; the cast is then committed (commander tax, consumed permissions) and
+     * announced (cast, crime, targeting and permission-rider events).
      */
     fun castSpell(
         state: GameState,
@@ -146,27 +152,9 @@ internal class SpellCaster(
         val backFaceManaValue = transformedBackDef
             ?.let { dfcBackFaceManaValue(transformedFrontDef, cardComponent.manaValue) }
         if (transformedFrontDef != null && transformedBackDef != null) {
-            newState = newState.updateEntity(cardId) { c ->
-                var updated = c
-                    .with(buildCardComponentForDfcFace(cardComponent, transformedBackDef, backFaceManaValue))
-                    .with(
-                        DoubleFacedComponent(
-                            frontCardDefinitionId = transformedFrontDef.name,
-                            backCardDefinitionId = transformedBackDef.name,
-                            currentFace = DoubleFacedComponent.Face.BACK,
-                            frontFaceCard = cardComponent
-                        )
-                    )
-                    .without<ContinuousEffectSourceComponent>()
-                    .without<ReplacementEffectSourceComponent>()
-                // Register the back face's static and replacement effects (the "if this would
-                // be put into a graveyard from anywhere, exile it instead" clause the disturb
-                // cycle prints on its back faces is one of these, and it must function from the
-                // moment the card is a back-face object — CR 614.12).
-                updated = staticAbilityHandler.addContinuousEffectComponent(updated, transformedBackDef)
-                updated = staticAbilityHandler.addReplacementEffectComponent(updated, transformedBackDef)
-                withDfcFaceSelfRedirects(updated, transformedBackDef)
-            }
+            newState = turnToBackFace(
+                newState, cardId, cardComponent, transformedFrontDef, transformedBackDef, backFaceManaValue
+            )
         }
 
         // The spell's mana value (CR 202.3), reported by the SpellCastEvent below — which feeds
@@ -179,25 +167,8 @@ internal class SpellCaster(
             ?: transformedBackDef?.manaCost?.cmc
             ?: cardComponent.manaValue
 
-        // CR 601.2b — a spell with `{X}` in its cost has X *announced as it is cast*; there is no
-        // such thing as a spell on the stack whose X is undetermined. A caller that announced
-        // nothing (the AI's CastSpell carries no xValue) paid nothing for X, so X is 0. For the
-        // other caller — a synthesized cast that pays no mana cost at all — CR 107.3b is directly
-        // on point: "the only legal choice for X is 0."
-        //
-        // Binding it here rather than leaving null is load-bearing, not cosmetic: the resolution-time
-        // `CardPredicate.ManaValueAtMostX` fails *open* on an unbound X — deliberately, so an X spell
-        // is still offered during legal-action enumeration, which runs before X is chosen. Left null
-        // all the way to resolution, "each creature with mana value X or less" matches *every*
-        // creature, and Day of Black Sun cast for X=0 wipes the board. It is also what puts the
-        // "(X=0)" in the game log's cast line, which is otherwise silently absent.
-        val boundXValue = xValue ?: run {
-            val castCost = faceIndex
-                ?.let { cardRegistry.getCard(cardComponent.cardDefinitionId)?.cardFaces?.getOrNull(it)?.manaCost }
-                ?: transformedBackDef?.manaCost
-                ?: cardComponent.manaCost
-            if (castCost.hasX) 0 else null
-        }
+        // CR 601.2b — X is announced as the spell is cast; see [bindAnnouncedX].
+        val boundXValue = bindAnnouncedX(xValue, faceIndex, cardComponent, transformedBackDef)
 
         // Build the flat target union for choose-N modal spells (Rule 700.2 / 601.2c).
         // TargetsComponent holds the union so existing target-arrow rendering and resolution-time
@@ -225,74 +196,58 @@ internal class SpellCaster(
         }
 
         // Add spell components
+        val spellOnStack = SpellOnStackComponent(
+            casterId = casterId,
+            xValue = boundXValue,
+            declaredCostSlot = declaredCostSlot,
+            wasBlightPaid = wasBlightPaid,
+            wasWaterbendPaid = wasWaterbendPaid,
+            giftRecipient = giftRecipient,
+            splicedCardNames = splicedCardNames,
+            splicedTargetsOrdered = splicedTargetsOrdered,
+            chosenModes = chosenModes,
+            modeTargetsOrdered = modeTargetsOrdered,
+            modeTargetRequirements = modeTargetRequirements,
+            modeDamageDistribution = modeDamageDistribution,
+            sacrificedPermanents = sacrificedPermanents,
+            castFaceDown = castFaceDown,
+            damageDistribution = damageDistribution,
+            chosenCreatureType = chosenCreatureType,
+            exiledCardCount = exiledCardCount,
+            additionalCostBlightAmount = additionalCostBlightAmount,
+            additionalCostPayXLifeAmount = additionalCostPayXLifeAmount,
+            castFromZone = castFromZone,
+            alternativeCost = alternativeCost,
+            wasWarped = wasWarped,
+            wasDashed = wasDashed,
+            wasEvoked = wasEvoked,
+            wasImpending = wasImpending,
+            wasCleaved = wasCleaved,
+            wasSneaked = wasSneaked,
+            sneakAttackDefenderId = sneakAttackDefenderId,
+            wasWebSlung = wasWebSlung,
+            webSlungReturnedManaValue = webSlungReturnedManaValue,
+            wasMayhem = wasMayhem,
+            beheldCards = beheldCards,
+            discardedAsCostCards = discardedAsCostCards,
+            exiledAsCostCards = exiledAsCostCards,
+            exiledAsCostSnapshots = exiledAsCostSnapshots,
+            chosenEntitySnapshots = chosenEntitySnapshots,
+            manaSpentWhite = manaSpentWhite,
+            manaSpentBlue = manaSpentBlue,
+            manaSpentBlack = manaSpentBlack,
+            manaSpentRed = manaSpentRed,
+            manaSpentGreen = manaSpentGreen,
+            manaSpentColorless = manaSpentColorless,
+            manaSpentBySubtype = spentManaProvenance.bySubtype,
+            manaSpentOnXByColor = manaSpentOnXByColor,
+            faceIndex = faceIndex,
+            castTimeFlags = castTimeFlags
+        )
         newState = newState.updateEntity(cardId) { c ->
-            var updated = c.with(SpellOnStackComponent(
-                casterId = casterId,
-                xValue = boundXValue,
-                declaredCostSlot = declaredCostSlot,
-                wasBlightPaid = wasBlightPaid,
-                wasWaterbendPaid = wasWaterbendPaid,
-                giftRecipient = giftRecipient,
-                splicedCardNames = splicedCardNames,
-                splicedTargetsOrdered = splicedTargetsOrdered,
-                chosenModes = chosenModes,
-                modeTargetsOrdered = modeTargetsOrdered,
-                modeTargetRequirements = modeTargetRequirements,
-                modeDamageDistribution = modeDamageDistribution,
-                sacrificedPermanents = sacrificedPermanents,
-                castFaceDown = castFaceDown,
-                damageDistribution = damageDistribution,
-                chosenCreatureType = chosenCreatureType,
-                exiledCardCount = exiledCardCount,
-                additionalCostBlightAmount = additionalCostBlightAmount,
-                additionalCostPayXLifeAmount = additionalCostPayXLifeAmount,
-                castFromZone = castFromZone,
-                alternativeCost = alternativeCost,
-                wasWarped = wasWarped,
-                wasDashed = wasDashed,
-                wasEvoked = wasEvoked,
-                wasImpending = wasImpending,
-                wasCleaved = wasCleaved,
-                wasSneaked = wasSneaked,
-                sneakAttackDefenderId = sneakAttackDefenderId,
-                wasWebSlung = wasWebSlung,
-                webSlungReturnedManaValue = webSlungReturnedManaValue,
-                wasMayhem = wasMayhem,
-                beheldCards = beheldCards,
-                discardedAsCostCards = discardedAsCostCards,
-                exiledAsCostCards = exiledAsCostCards,
-                exiledAsCostSnapshots = exiledAsCostSnapshots,
-                chosenEntitySnapshots = chosenEntitySnapshots,
-                manaSpentWhite = manaSpentWhite,
-                manaSpentBlue = manaSpentBlue,
-                manaSpentBlack = manaSpentBlack,
-                manaSpentRed = manaSpentRed,
-                manaSpentGreen = manaSpentGreen,
-                manaSpentColorless = manaSpentColorless,
-                manaSpentBySubtype = spentManaProvenance.bySubtype,
-                manaSpentOnXByColor = manaSpentOnXByColor,
-                faceIndex = faceIndex,
-                castTimeFlags = castTimeFlags
-            ))
-            if (effectiveTargets.isNotEmpty()) {
-                updated = updated.with(
-                    TargetsComponent.capture(state, effectiveTargets, effectiveTargetRequirements)
-                )
-            }
-            // Add turn-up data for cards castable face down (needed for face-down casting and
-            // for effects like Backslide that target "creature with a morph ability"). The mode
-            // decides which keyword's cost applies — FaceDownTurnUp is the single place that
-            // knows that mapping.
-            val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
-            val castFaceDownMode = faceDownCastMode(cardDef)
-            if (castFaceDownMode != null) {
-                FaceDownTurnUp.dataFor(cardDef, cardComponent.cardDefinitionId, castFaceDownMode)
-                    ?.let { updated = updated.with(it) }
-            }
-            if (castFaceDown) {
-                updated = updated.without<RevealedToComponent>()
-            }
-            updated
+            withSpellComponents(
+                state, c, cardComponent, spellOnStack, effectiveTargets, effectiveTargetRequirements, castFaceDown
+            )
         }
 
         // Commander tax bookkeeping (CR 903.8): increment castsFromCommandZone on cast-commit so
@@ -301,14 +256,7 @@ internal class SpellCaster(
         // onto the stack — i.e. the cast is "committed" the moment the spell becomes a real
         // game object on the stack.
         if (castFromZone == Zone.COMMAND) {
-            newState = newState.updateEntity(cardId) { c ->
-                val commander = c.get<com.wingedsheep.engine.state.components.identity.CommanderComponent>()
-                if (commander != null) {
-                    c.with(commander.copy(castsFromCommandZone = commander.castsFromCommandZone + 1))
-                } else {
-                    c
-                }
-            }
+            newState = incrementCommanderTax(newState, cardId)
         }
 
         val objectBeforeCast = state.objectRef(cardId)
@@ -317,6 +265,177 @@ internal class SpellCaster(
             .copy(priorityPassedBy = emptySet())
         val objectOnStack = newState.objectRef(cardId)
 
+        newState = consumeCastPermissions(newState, cardId, castFaceDown)
+        newState = unprepareSourceOfPrepareCopy(state, newState, cardId)
+
+        // A cast-transformed spell is on the stack back face up (CR 712.8c), so its *name* is the
+        // back face's — `cardComponent` was captured before the face swap above and still holds the
+        // front face's. The log used to announce a disturb cast as "cast Covetous Castaway" while
+        // the stack showed Ghostly Castigator. The mana value is `spellManaValue`, resolved with the
+        // face swap above because the two routes differ (CR 712.8c vs 712.8f); every card-definition
+        // lookup keeps using `cardComponent.cardDefinitionId`, which addresses the whole card.
+        val spellName = if (castTransformed) {
+            newState.getEntity(cardId)?.get<CardComponent>()?.name ?: cardComponent.name
+        } else {
+            cardComponent.name
+        }
+        // Preserve SpellCastEvent.cardName's historical public-name contract. The trusted
+        // presentation snapshot below separately retains semantic identity and private audiences.
+        val eventName = if (castFaceDown) FACE_DOWN_DISPLAY_NAME else spellName
+        val targetNames = castTargetNames(newState, effectiveTargets, casterId)
+        val reportedChosenModesCount = chosenModesCountForTriggers(cardComponent, chosenModes)
+
+        val events = mutableListOf<GameEvent>(
+            ZoneChangeEvent(cardId, eventName, castFromZone, Zone.STACK, cardComponent.ownerId ?: casterId,
+                oldObject = objectBeforeCast, newObject = objectOnStack),
+            SpellCastEvent(
+                spellEntityId = cardId,
+                cardName = eventName,
+                casterId = casterId,
+                targetNames = targetNames,
+                xValue = boundXValue,
+                cardPresentation = eventPresentationFactory.castSpellIdentity(
+                    beforeCast = castOriginState,
+                    onStack = newState,
+                    castFromZone = castFromZone,
+                    entityId = cardId,
+                    semanticName = spellName,
+                ),
+                declaredCostSlot = declaredCostSlot,
+                totalManaSpent = totalManaSpent,
+                distinctColorsSpent =
+                    com.wingedsheep.engine.handlers.ManaSpentReader.distinctColorsSpent(newState, cardId),
+                spentManaSubtypes = spentManaProvenance.spentSubtypes,
+                spentManaSourceIds = spentManaProvenance.sourceIds,
+                chosenModesCount = reportedChosenModesCount,
+                manaValue = spellManaValue,
+                castFromZone = castFromZone,
+                alternativeCost = alternativeCost,
+                // Last-known names of the bodies the cost ate, so an emerge cast's reduced
+                // `totalManaSpent` reads as a consequence rather than a mystery (CR 702.119a).
+                sacrificedAsCostNames = sacrificedPermanents.mapNotNull { it.name }
+            )
+        )
+
+        newState = announceTargets(newState, cardId, casterId, spellName, effectiveTargets, events)
+        addPermissionRiderEvents(state, castFromZone, cardId, casterId, events)
+
+        return ExecutionResult.success(
+            newState.tick(),
+            events
+        )
+    }
+
+    /**
+     * Cast transformed (CR 712.8c, disturb; CR 712.11b, a modal DFC's permanent back face): turn the
+     * card to [transformedBackDef] before it becomes a spell, stashing the front face so CR 712.8a
+     * can restore it.
+     */
+    private fun turnToBackFace(
+        state: GameState,
+        cardId: EntityId,
+        cardComponent: CardComponent,
+        transformedFrontDef: com.wingedsheep.sdk.model.CardDefinition,
+        transformedBackDef: com.wingedsheep.sdk.model.CardDefinition,
+        backFaceManaValue: Int?
+    ): GameState =
+        state.updateEntity(cardId) { c ->
+            var updated = c
+                .with(buildCardComponentForDfcFace(cardComponent, transformedBackDef, backFaceManaValue))
+                .with(
+                    DoubleFacedComponent(
+                        frontCardDefinitionId = transformedFrontDef.name,
+                        backCardDefinitionId = transformedBackDef.name,
+                        currentFace = DoubleFacedComponent.Face.BACK,
+                        frontFaceCard = cardComponent
+                    )
+                )
+                .without<ContinuousEffectSourceComponent>()
+                .without<ReplacementEffectSourceComponent>()
+            // Register the back face's static and replacement effects (the "if this would
+            // be put into a graveyard from anywhere, exile it instead" clause the disturb
+            // cycle prints on its back faces is one of these, and it must function from the
+            // moment the card is a back-face object — CR 614.12).
+            updated = staticAbilityHandler.addContinuousEffectComponent(updated, transformedBackDef)
+            updated = staticAbilityHandler.addReplacementEffectComponent(updated, transformedBackDef)
+            withDfcFaceSelfRedirects(updated, transformedBackDef)
+        }
+
+    /** The X the spell carries onto the stack. */
+    private fun bindAnnouncedX(
+        xValue: Int?,
+        faceIndex: Int?,
+        cardComponent: CardComponent,
+        transformedBackDef: com.wingedsheep.sdk.model.CardDefinition?
+    ): Int? {
+        // CR 601.2b — a spell with `{X}` in its cost has X *announced as it is cast*; there is no
+        // such thing as a spell on the stack whose X is undetermined. A caller that announced
+        // nothing (the AI's CastSpell carries no xValue) paid nothing for X, so X is 0. For the
+        // other caller — a synthesized cast that pays no mana cost at all — CR 107.3b is directly
+        // on point: "the only legal choice for X is 0."
+        //
+        // Binding it here rather than leaving null is load-bearing, not cosmetic: the resolution-time
+        // `CardPredicate.ManaValueAtMostX` fails *open* on an unbound X — deliberately, so an X spell
+        // is still offered during legal-action enumeration, which runs before X is chosen. Left null
+        // all the way to resolution, "each creature with mana value X or less" matches *every*
+        // creature, and Day of Black Sun cast for X=0 wipes the board. It is also what puts the
+        // "(X=0)" in the game log's cast line, which is otherwise silently absent.
+        return xValue ?: run {
+            val castCost = faceIndex
+                ?.let { cardRegistry.getCard(cardComponent.cardDefinitionId)?.cardFaces?.getOrNull(it)?.manaCost }
+                ?: transformedBackDef?.manaCost
+                ?: cardComponent.manaCost
+            if (castCost.hasX) 0 else null
+        }
+    }
+
+    /**
+     * The stack object's components: [spellOnStack], its captured targets, and the turn-up data of a
+     * card castable face down.
+     */
+    private fun withSpellComponents(
+        state: GameState,
+        c: ComponentContainer,
+        cardComponent: CardComponent,
+        spellOnStack: SpellOnStackComponent,
+        effectiveTargets: List<ChosenTarget>,
+        effectiveTargetRequirements: List<TargetRequirement>,
+        castFaceDown: Boolean
+    ): ComponentContainer {
+        var updated = c.with(spellOnStack)
+        if (effectiveTargets.isNotEmpty()) {
+            updated = updated.with(
+                TargetsComponent.capture(state, effectiveTargets, effectiveTargetRequirements)
+            )
+        }
+        // Add turn-up data for cards castable face down (needed for face-down casting and
+        // for effects like Backslide that target "creature with a morph ability"). The mode
+        // decides which keyword's cost applies — FaceDownTurnUp is the single place that
+        // knows that mapping.
+        val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
+        val castFaceDownMode = faceDownCastMode(cardDef)
+        if (castFaceDownMode != null) {
+            FaceDownTurnUp.dataFor(cardDef, cardComponent.cardDefinitionId, castFaceDownMode)
+                ?.let { updated = updated.with(it) }
+        }
+        if (castFaceDown) {
+            updated = updated.without<RevealedToComponent>()
+        }
+        return updated
+    }
+
+    private fun incrementCommanderTax(state: GameState, cardId: EntityId): GameState =
+        state.updateEntity(cardId) { c ->
+            val commander = c.get<com.wingedsheep.engine.state.components.identity.CommanderComponent>()
+            if (commander != null) {
+                c.with(commander.copy(castsFromCommandZone = commander.castsFromCommandZone + 1))
+            } else {
+                c
+            }
+        }
+
+    private fun consumeCastPermissions(state: GameState, cardId: EntityId, castFaceDown: Boolean): GameState {
+        var newState = state
         // Consume one-shot free-cast permissions used to play this spell. If the
         // spell is later countered or fizzles and AfterResolveDestinationComponent sends
         // it back to exile, the permission must already be gone — otherwise the
@@ -358,7 +477,12 @@ internal class SpellCaster(
                 }
             }
         )
+        return newState
+    }
 
+    /** [state] is the pre-cast state; [current] the state the source is unprepared in. */
+    private fun unprepareSourceOfPrepareCopy(state: GameState, current: GameState, cardId: EntityId): GameState {
+        var newState = current
         // Prepared (Secrets of Strixhaven): casting the prepare-spell copy unprepares its source
         // creature. Strip the source's PreparedComponent and consume the (permanent) cast-from-exile
         // permission for this copy so it can't be cast again — the copy itself is on the stack and
@@ -372,23 +496,16 @@ internal class SpellCaster(
             }
             newState = newState.removeMayPlayPermissionsForCard(cardId)
         }
+        return newState
+    }
 
-        // A cast-transformed spell is on the stack back face up (CR 712.8c), so its *name* is the
-        // back face's — `cardComponent` was captured before the face swap above and still holds the
-        // front face's. The log used to announce a disturb cast as "cast Covetous Castaway" while
-        // the stack showed Ghostly Castigator. The mana value is `spellManaValue`, resolved with the
-        // face swap above because the two routes differ (CR 712.8c vs 712.8f); every card-definition
-        // lookup keeps using `cardComponent.cardDefinitionId`, which addresses the whole card.
-        val spellName = if (castTransformed) {
-            newState.getEntity(cardId)?.get<CardComponent>()?.name ?: cardComponent.name
-        } else {
-            cardComponent.name
-        }
-        // Preserve SpellCastEvent.cardName's historical public-name contract. The trusted
-        // presentation snapshot below separately retains semantic identity and private audiences.
-        val eventName = if (castFaceDown) FACE_DOWN_DISPLAY_NAME else spellName
-        // Collect target names for the cast event log
-        val targetNames = effectiveTargets.mapNotNull { target ->
+    /** Target names for the cast event log. */
+    private fun castTargetNames(
+        newState: GameState,
+        effectiveTargets: List<ChosenTarget>,
+        casterId: EntityId
+    ): List<String> =
+        effectiveTargets.mapNotNull { target ->
             when (target) {
                 // A face-down permanent is no more nameable as a *target* than as a source —
                 // "cast Igneous Inspiration targeting Aurelia's Vindicator" gave away a disguised
@@ -406,6 +523,7 @@ internal class SpellCaster(
             }
         }
 
+    private fun chosenModesCountForTriggers(cardComponent: CardComponent, chosenModes: List<Int>): Int {
         // Only count modes for triggers (Riku of Many Paths' "Whenever you cast a
         // modal spell" → IsModal predicate + MODES_CHOSEN_ON_TRIGGERING_SPELL) when
         // the spell's effect is a *true* modal — printed "Choose one — • X • Y"
@@ -418,40 +536,19 @@ internal class SpellCaster(
             val modal = script?.spellEffect as? com.wingedsheep.sdk.scripting.effects.ModalEffect
             modal?.countsAsModalSpell ?: false
         }
-        val reportedChosenModesCount = if (countsAsModalForTriggers) chosenModes.size else 0
+        return if (countsAsModalForTriggers) chosenModes.size else 0
+    }
 
-        val events = mutableListOf<GameEvent>(
-            ZoneChangeEvent(cardId, eventName, castFromZone, Zone.STACK, cardComponent.ownerId ?: casterId,
-                oldObject = objectBeforeCast, newObject = objectOnStack),
-            SpellCastEvent(
-                spellEntityId = cardId,
-                cardName = eventName,
-                casterId = casterId,
-                targetNames = targetNames,
-                xValue = boundXValue,
-                cardPresentation = eventPresentationFactory.castSpellIdentity(
-                    beforeCast = castOriginState,
-                    onStack = newState,
-                    castFromZone = castFromZone,
-                    entityId = cardId,
-                    semanticName = spellName,
-                ),
-                declaredCostSlot = declaredCostSlot,
-                totalManaSpent = totalManaSpent,
-                distinctColorsSpent =
-                    com.wingedsheep.engine.handlers.ManaSpentReader.distinctColorsSpent(newState, cardId),
-                spentManaSubtypes = spentManaProvenance.spentSubtypes,
-                spentManaSourceIds = spentManaProvenance.sourceIds,
-                chosenModesCount = reportedChosenModesCount,
-                manaValue = spellManaValue,
-                castFromZone = castFromZone,
-                alternativeCost = alternativeCost,
-                // Last-known names of the bodies the cost ate, so an emerge cast's reduced
-                // `totalManaSpent` reads as a consequence rather than a mystery (CR 702.119a).
-                sacrificedAsCostNames = sacrificedPermanents.mapNotNull { it.name }
-            )
-        )
-
+    /** Crime, "chooses targets" and "becomes the target" events for the spell's targets (CR 601.2c). */
+    private fun announceTargets(
+        state: GameState,
+        cardId: EntityId,
+        casterId: EntityId,
+        spellName: String,
+        effectiveTargets: List<ChosenTarget>,
+        events: MutableList<GameEvent>
+    ): GameState {
+        var newState = state
         // Crime detection (CR Outlaws of Thunder Junction). Emit at most once per cast,
         // regardless of how many opponent-controlled targets the spell chose.
         if (CrimeDetector.isCrime(newState, casterId, effectiveTargets)) {
@@ -470,7 +567,16 @@ internal class SpellCaster(
         for (target in effectiveTargets) {
             newState = StackPlacement.emitBecomesTarget(newState, target, cardId, casterId, events, sourceIsSpell = true)
         }
+        return newState
+    }
 
+    private fun addPermissionRiderEvents(
+        state: GameState,
+        castFromZone: Zone?,
+        cardId: EntityId,
+        casterId: EntityId,
+        events: MutableList<GameEvent>
+    ) {
         // "When you play a card this way, …" rider (Fires of Mount Doom). If this spell was cast
         // from exile via a may-play permission that carries a rider, emit the linked event so the
         // rider's delayed triggered ability fires on the stack. Read off the pre-removal [state] —
@@ -494,11 +600,6 @@ internal class SpellCaster(
                 }
             }
         }
-
-        return ExecutionResult.success(
-            newState.tick(),
-            events
-        )
     }
 
     /**
