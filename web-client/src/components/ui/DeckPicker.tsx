@@ -373,16 +373,17 @@ export function DeckPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parsedPaste.deckName])
 
-  // Commander designation. Saved decks store one explicitly; commander-shape examples carry
-  // theirs through Paste via [pasteCommander]. Random has no commander hint.
+  // Commander designation. Saved decks store one explicitly; direct Commander-formatted pastes
+  // carry theirs from the parser; examples / saved-deck edits that render as plain text retain the
+  // designation in [pasteCommander]. Random has no commander hint.
   const currentCommander: string | null = useMemo(() => {
     if (tab === 'saved') {
       const saved = decks.find((d) => d.id === selectedSavedId)
       return saved?.commander ?? null
     }
-    if (tab === 'paste') return pasteCommander
+    if (tab === 'paste') return parsedPaste.commander ?? pasteCommander
     return null
-  }, [tab, decks, selectedSavedId, pasteCommander])
+  }, [tab, decks, selectedSavedId, parsedPaste.commander, pasteCommander])
 
   // The constructed sideboard ("outside the game", CR 400.11a) the wish effects fetch from.
   // Saved decks carry one (the deckbuilder persists it) and a pasted list carries whatever sat
@@ -473,10 +474,14 @@ export function DeckPicker({
 
   const handleSaveCurrent = async () => {
     if (!pendingName.trim() || Object.keys(currentDeck).length === 0) return
-    // Routes to the account when signed in (then refresh so the new cloud deck appears), else local.
+    // SavedDeck stores the commander separately from the library. Preserve that same shape here
+    // instead of saving a Commander paste as an ordinary 100-card list and losing its designation.
+    const cardsForSave = stripCommanderFromCards(currentDeck, currentCommander)
     const { id } = await saveDeckRouted({
       name: pendingName.trim(),
-      cards: currentDeck,
+      cards: cardsForSave,
+      ...(format ? { format } : {}),
+      ...(currentCommander ? { commander: currentCommander } : {}),
       ...(Object.keys(currentSideboard).length > 0 ? { sideboard: currentSideboard } : {}),
     })
     reloadDecks()
@@ -549,6 +554,7 @@ export function DeckPicker({
               setPasteText(
                 formatDeckText(mergeCommanderIntoCards(d.cards, d.commander ?? null), d.sideboard),
               )
+              setPasteCommander(d.commander ?? null)
               setPendingName(d.name)
               setTab('paste')
             }}
@@ -581,7 +587,8 @@ export function DeckPicker({
             />
             <p className={styles.helperText}>
               One card per line. Format: "4 Card Name" or "Card Name x4". A{' '}
-              <code>Sideboard</code> header (or per-line <code>SB:</code>) starts the sideboard.
+              <code>Commander</code> header designates the commander; a <code>Sideboard</code>{' '}
+              header (or per-line <code>SB:</code>) starts the sideboard.
               {pasteSideboardCount > 0
                 ? ` Sideboard: ${pasteSideboardCount} card${pasteSideboardCount === 1 ? '' : 's'}.`
                 : ''}
