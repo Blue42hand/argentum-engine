@@ -102,6 +102,18 @@ data class AiControllerProfile(
     val deckSpec: AiDeckSpec? = null,
 )
 
+/**
+ * One fully resolved controller preset before it mutates any lobby or seat state.
+ *
+ * This is deliberately a value object: provider/profile lookup happens first, then callers validate
+ * the optional [deckSpec] against their lobby shape, and only after both succeed do they commit the
+ * controller and deck together. That ordering is the generic guard against a half-applied preset.
+ */
+data class ResolvedAiSeatPreset(
+    val controllerSpec: AiControllerSpec,
+    val deckSpec: AiDeckSpec? = null,
+)
+
 /** Inputs supplied to an AI implementation hosted outside the game-server build. */
 data class AiControllerContext(
     val playerId: EntityId,
@@ -177,6 +189,27 @@ internal class AiControllerProviderRegistry(providers: List<AiControllerProvider
         return requireNotNull(provider.profiles.firstOrNull { it.id == profileId }) {
             "Unknown AI controller profile '$profileId' for mode '${provider.mode}'"
         }
+    }
+
+    /**
+     * Resolve the provider-owned part of one seat preset without mutating any seat state.
+     * Availability/credential gates remain [AiGameManager]'s responsibility; this method owns only
+     * the mode/profile ontology and associated generic deck preset.
+     */
+    fun resolveSeatPreset(spec: AiControllerSpec): ResolvedAiSeatPreset {
+        val mode = normalize(spec.mode)
+        if (mode in BUILT_IN_MODES) {
+            require(spec.profileId == null) {
+                "Built-in AI controller mode '${spec.mode}' does not support profiles"
+            }
+            return ResolvedAiSeatPreset(spec)
+        }
+
+        requireNotNull(providersByMode[mode]) {
+            "Unknown AI controller mode '${spec.mode}'; expected ${supportedModes().sorted().joinToString()}"
+        }
+        val profile = spec.profileId?.let { requireProfile(spec.mode, it) }
+        return ResolvedAiSeatPreset(spec, profile?.deckSpec)
     }
 
     fun supportedModes(): Set<String> = BUILT_IN_MODES + providersByMode.keys
