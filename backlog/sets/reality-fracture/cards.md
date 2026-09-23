@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 157 / 285
+**Implemented:** 171 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -16,7 +16,7 @@
 > Current Scryfall data marks every FRA printing `booster: false`, so the import places all cards here. This is a metadata classification, not a claim that FRA lacks boosters. Refresh the import when those flags change; counted separately by `scripts/card-status`.
 
 - [x] Academic Ascent
-- [ ] Aerid Konstrari
+- [x] Aerid Konstrari
 - [x] Afterthought Sentry
 - [ ] Ajani Resolute
 - [ ] Ajani Unrelenting
@@ -57,7 +57,7 @@
 - [ ] Danitha, Spear of Agony
 - [ ] Danitha, Sword of Hope
 - [x] Dark Matter Manipulator
-- [ ] Darklight Phoenix
+- [x] Darklight Phoenix
 - [x] Dedicated Commons
 - [x] Denzilore Fatehold
 - [x] Deserted Beach
@@ -113,15 +113,15 @@
 - [x] Haunted Ridge
 - [x] Heartstring Puller
 - [ ] Heartwood Crafter
-- [ ] Hexhaven Battalion
+- [x] Hexhaven Battalion
 - [ ] Hexhaven Dueling Arena
 - [ ] Hexhaven Invigorator
-- [ ] Hungering Puppetbeast
+- [x] Hungering Puppetbeast
 - [ ] Hunter's Axe
 - [x] Icy Reception
 - [ ] Identity Echo
 - [ ] Infinite Coursework
-- [ ] Ingris Stingerquill
+- [x] Ingris Stingerquill
 - [x] Innovative Commons
 - [ ] Inspired Tethermage
 - [x] Island
@@ -137,7 +137,7 @@
 - [ ] Kiora of Salt and Sand
 - [x] Konstrari Annex
 - [x] Konstrari Charm
-- [ ] Konstrari Improviser
+- [x] Konstrari Improviser
 - [x] Koth of the Homestead
 - [x] Koth, the Geomancer
 - [ ] Kwia Vigorbloom
@@ -170,7 +170,7 @@
 - [ ] Omnipresence
 - [x] Overgrown Farmland
 - [x] Overwrite the Multiverse
-- [ ] Paradox Shaper
+- [x] Paradox Shaper
 - [x] Perfected Theory
 - [x] Pia, Aether Ascetic
 - [x] Pia, Determined Rebuilder
@@ -181,7 +181,7 @@
 - [x] Predictive Preparations
 - [ ] Primal Witchstalker
 - [ ] Proctor of Potential
-- [ ] Proft, Consulting Detective
+- [x] Proft, Consulting Detective
 - [ ] Proft, Sinister Mastermind
 - [x] Prophesied End
 - [x] Protege's Awakening
@@ -201,9 +201,9 @@
 - [x] Rockfall Vale
 - [ ] Roiling Canopy
 - [x] Room of Refuge
-- [ ] Ruric Thar, Biomagus
+- [x] Ruric Thar, Biomagus
 - [ ] Ruric Thar, Magecrusher
-- [ ] Saheeli, Consul of Oversight
+- [x] Saheeli, Consul of Oversight
 - [x] Saheeli, Jewel of Avishkar
 - [x] Samut, Hazoret's Champion
 - [ ] Samut, Tyrant of Naktamun
@@ -234,12 +234,12 @@
 - [x] Tam's Resistance
 - [ ] Tam, the Possibility
 - [ ] Tarmogoyf
-- [ ] Tenured Tethermage
+- [x] Tenured Tethermage
 - [x] Terminal Criticism
 - [x] Tether Technician
 - [x] Tethermage's Advantage
 - [x] Tetsuko Umezawa, Fugitive
-- [ ] Tetsuko Umezawa, Pursuer
+- [x] Tetsuko Umezawa, Pursuer
 - [x] Teyo, Diamondblade Mage
 - [x] Teyo, Lightshield Expert
 - [ ] Thalia, the Survivor
@@ -256,7 +256,7 @@
 - [ ] Tomik, Izzet Sparkmage
 - [ ] Tomik, Orzhov Lawmage
 - [x] Transformative Commons
-- [ ] Traxos, Academy Guardian
+- [x] Traxos, Academy Guardian
 - [x] Traxos, Scourge Eternal
 - [ ] Twinned Vision
 - [x] Twisted Fates
@@ -290,7 +290,7 @@
 - [ ] Whiplash Wordsmith
 - [x] Winter, Team Player
 - [ ] Winter, Tormented Loner
-- [ ] Woodwork Prodigy
+- [x] Woodwork Prodigy
 - [x] Wrath of the Bloodmane
 - [x] Wrecking Gecko
 - [x] Yargle, Glutton of Urborg

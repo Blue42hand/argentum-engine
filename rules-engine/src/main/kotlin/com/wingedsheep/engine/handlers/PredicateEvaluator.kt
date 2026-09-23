@@ -19,6 +19,7 @@ import com.wingedsheep.engine.state.components.battlefield.LastKnownPermanentCom
 import com.wingedsheep.engine.state.components.battlefield.DealtCombatDamageToPlayersThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.HasDealtCombatDamageToPlayerComponent
 import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.PreparedComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.battlefield.SaddledComponent
 import com.wingedsheep.engine.state.components.battlefield.SolvedComponent
@@ -1482,6 +1483,7 @@ class PredicateEvaluator {
             // Tap state
             StatePredicate.IsTapped -> container.has<TappedComponent>()
             StatePredicate.IsUntapped -> !container.has<TappedComponent>()
+            StatePredicate.IsPrepared -> container.has<PreparedComponent>()
 
             // Combat state.
             //

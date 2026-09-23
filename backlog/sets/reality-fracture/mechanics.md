@@ -132,7 +132,7 @@ Cards: Chandra's Emberling; Craterclaw Colossus; Darklight Phoenix; Frostbite Py
 
 Create red and green artifact tokens with a tap ability producing red or green mana.
 
-**Engine support:** `Effects.CreateToken`, token colors/types, and activated mana abilities. Heartwood Crafter’s restricted mana is a separate investigation.
+**Engine support:** `Effects.CreateHeartwood(count?, tapped?, controller?)` over the predefined `Heartwood` token (red and green `Artifact — Heartwood`, `{T}: Add {R} or {G}`). Heartwood Crafter’s restricted mana (“can’t be spent to cast spells from your hand”) is a separate investigation.
 
 Cards: Aerid Konstrari; Heartwood Crafter; Hungering Puppetbeast; Konstrari Improviser; Tenured Tethermage; Woodwork Prodigy
 
