@@ -4649,8 +4649,14 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   window and whose recorded turn number answers the per-turn one. Nothing is cleared at end of turn —
   the stamp just stops matching — and every damage-dealing path records both windows in one write, so
   neither can silently drift from the other. Combat and noncombat damage both count, to any recipient
-  (player, creature, planeswalker, battle); "dealt **combat** damage" specifically has its own
-  recipient-scoped predicates below. Both windows reset when the permanent changes zones (CR 400.7).
+  (player, creature, planeswalker, battle); "dealt **combat** damage" to a *specific* recipient has its
+  own recipient-scoped predicates below. Both windows reset when the permanent changes zones (CR 400.7).
+- `.hasDealtCombatDamage()` — the same predicate narrowed to **combat** damage, to any recipient:
+  `StatePredicate.HasDealtDamage(combatOnly = true)`. The marker keeps a separate combat stamp beside
+  the any-damage one, carried forward across later noncombat damage, so a fight or a ping does not
+  count and cannot erase earlier combat damage. `combatOnly` combines with `thisTurnOnly` for "dealt
+  combat damage this turn". The source-scoped view is `Conditions.SourceHasDealtCombatDamage` —
+  negated for Ruric Thar, Magecrusher's "has hexproof as long as they haven't dealt combat damage yet".
   `.hasDealtDamageThisTurn()` is also on `TargetFilter` — "destroy target creature an opponent controls
   that dealt damage this turn" (Red Guardian, Super-Soldier) is
   `TargetFilter.Creature.hasDealtDamageThisTurn().opponentControls()`. The source-scoped view of the
@@ -10321,6 +10327,9 @@ that works in both resolution and static-ability (projection) contexts.
   `SourceMatches(GameObjectFilter.Any.hasDealtDamage())`, i.e. the source-scoped view of
   `StatePredicate.HasDealtDamage()`. For the per-turn window of the same predicate, put
   `.hasDealtDamageThisTurn()` on the filter directly.
+- `SourceHasDealtCombatDamage` — source has dealt combat damage (to any recipient) since entering the
+  battlefield; `SourceMatches(GameObjectFilter.Any.hasDealtCombatDamage())`. Noncombat damage doesn't
+  count. `Conditions.Not(SourceHasDealtCombatDamage)` gates Ruric Thar, Magecrusher's hexproof.
 - `SourceHasDealtCombatDamageToPlayer` — saboteur-style payoff gate.
 - `SourceIsModified` — has counters, attached Equipment, or controller-owned Aura
   attached (CR 700.4). Kept as a dedicated condition because the controller-of-Aura

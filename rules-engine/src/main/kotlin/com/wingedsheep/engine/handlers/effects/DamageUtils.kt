@@ -516,7 +516,7 @@ object DamageUtils {
         }
 
         newState = newState.updateEntity(targetId) { it.with(WasDealtDamageThisTurnComponent) }
-        newState = trackDamageDealt(newState, sourceId, effectiveAmount)
+        newState = trackDamageDealt(newState, sourceId, effectiveAmount, isCombatDamage)
         // Record the source on its controller's per-turn set of damage sources. Unlike the stamp
         // above this is not battlefield-only: a resolving burn spell is a source that dealt damage
         // just as much as a creature is (Case of the Burning Masks).
@@ -998,8 +998,13 @@ object DamageUtils {
         return newState to first
     }
 
-    /** Record actual damage for a battlefield source or a resolving spell, bound to its object identity. */
-    fun trackDamageDealt(state: GameState, sourceId: EntityId?, amount: Int): GameState {
+    /**
+     * Record actual damage for a battlefield source or a resolving spell, bound to its object identity.
+     *
+     * [isCombatDamage] has no default: each caller must say whether this was combat damage, because
+     * the lifetime marker keeps a separate combat stamp ("hasn't dealt combat damage yet").
+     */
+    fun trackDamageDealt(state: GameState, sourceId: EntityId?, amount: Int, isCombatDamage: Boolean): GameState {
         if (sourceId == null || amount <= 0) return state
         // An ability can deal damage using a source that has already left. Do not stamp the
         // new card in its owner's graveyard with the old battlefield object's damage history.
@@ -1012,8 +1017,20 @@ object DamageUtils {
                 it.turnNumber == state.turnNumber && it.sourceObject == sourceObject
             }?.amount ?: 0
             val updated = container.with(DamageDealtThisTurnComponent(state.turnNumber, priorAmount + amount, sourceObject))
-            // Preserve the existing permanent-only lifetime marker's semantics.
-            if (onBattlefield) updated.with(HasDealtDamageComponent(state.turnNumber)) else updated
+            // Preserve the existing permanent-only lifetime marker's semantics. The combat stamp is
+            // carried forward across a noncombat stamp, so a later ping can't erase "has dealt
+            // combat damage".
+            if (onBattlefield) {
+                val priorCombatTurn = container.get<HasDealtDamageComponent>()?.lastDealtCombatDamageTurn
+                updated.with(
+                    HasDealtDamageComponent(
+                        lastDealtDamageTurn = state.turnNumber,
+                        lastDealtCombatDamageTurn = if (isCombatDamage) state.turnNumber else priorCombatTurn
+                    )
+                )
+            } else {
+                updated
+            }
         }
     }
 

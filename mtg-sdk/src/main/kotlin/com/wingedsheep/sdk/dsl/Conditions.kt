@@ -1175,6 +1175,14 @@ object Conditions {
     val SourceHasDealtDamage: ConditionInterface =
         SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.hasDealtDamage())
 
+    /**
+     * If this creature has dealt combat damage — to a player, creature, planeswalker, or battle — at
+     * least once since entering the battlefield. Negate it for "as long as it hasn't dealt combat
+     * damage yet" (Ruric Thar, Magecrusher).
+     */
+    val SourceHasDealtCombatDamage: ConditionInterface =
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.hasDealtCombatDamage())
+
     /** If this creature has dealt combat damage to a player (Saboteur-style payoffs). */
     val SourceHasDealtCombatDamageToPlayer: ConditionInterface =
         SourceMatches(
