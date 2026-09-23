@@ -636,6 +636,8 @@ class DynamicAmountEvaluator(
                         state.getEntity(playerId)
                             ?.has<com.wingedsheep.engine.state.components.player.WasDealtCombatDamageThisTurnComponent>() == true
                     }
+                    TurnTracker.DEALT_NONCOMBAT_DAMAGE -> playerIds.count { it in state.playersDealtNoncombatDamageThisTurn }
+                    TurnTracker.DEALT_NONCOMBAT_DAMAGE_LAST_TURN -> playerIds.count { it in state.playersDealtNoncombatDamageLastTurn }
                     TurnTracker.DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE -> playerIds.count { playerId ->
                         state.getEntity(playerId)
                             ?.has<com.wingedsheep.engine.state.components.player.WasDealtCombatDamageByLegendaryCreatureThisTurnComponent>() == true
