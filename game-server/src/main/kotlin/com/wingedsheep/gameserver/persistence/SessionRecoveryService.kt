@@ -60,8 +60,9 @@ class SessionRecoveryService(
         val tournaments = redisLobbyRepository.loadAllTournamentsFromRedis()
         tournamentsRecovered = tournaments.size
 
-        // Rehydrate AI identities — recreates their virtual WebSocket session and
-        // re-registers them with AiGameManager so isConnected, isAiPlayer, etc. work.
+        // Rehydrate AI identities only after game + lobby records have been merged. The lobby is
+        // authoritative for per-seat controller selection, so an AI recreated here already has the
+        // same mode/profile it had before restart.
         val aiCount = sessionRegistry.getAllIdentities().count { it.isAi }
         sessionRegistry.getAllIdentities().filter { it.isAi }.forEach { identity ->
             aiGameManager.rehydrateAiIdentity(identity)
@@ -79,9 +80,9 @@ class SessionRecoveryService(
 
     /**
      * Register a player identity if one doesn't already exist with that token.
-     * If the token already exists, merge any additional context (lobbyId, spectatingGameId)
-     * from the new identity into the existing one. This handles the case where
-     * game session recovery and lobby recovery each provide partial state.
+     * If the token already exists, merge any additional context (lobbyId, spectatingGameId) and
+     * durable AI controller selection from the new identity into the existing one. This handles the
+     * case where game session recovery and lobby recovery each provide partial state.
      *
      * Restored identities have no WebSocket connection - they reconnect later.
      */
@@ -110,13 +111,23 @@ class SessionRecoveryService(
             if (identity.currentSpectatingGameId != null && existing.currentSpectatingGameId == null) {
                 existing.currentSpectatingGameId = identity.currentSpectatingGameId
             }
+            val recoveredController = identity.aiControllerSpec
+            if (recoveredController != null) {
+                val currentController = existing.aiControllerSpec
+                require(currentController == null || currentController == recoveredController) {
+                    "Conflicting persisted AI controller selection for ${identity.playerId.value}: " +
+                        "$currentController vs $recoveredController"
+                }
+                existing.aiControllerSpec = recoveredController
+            }
             logger.info(
-                "Merged player identity: {} ({}) — game={}, lobby={}, spectating={}",
+                "Merged player identity: {} ({}) — game={}, lobby={}, spectating={}, aiController={}",
                 existing.playerName,
                 existing.playerId.value,
                 existing.currentGameSessionId,
                 existing.currentLobbyId,
-                existing.currentSpectatingGameId
+                existing.currentSpectatingGameId,
+                existing.aiControllerSpec
             )
         }
     }
