@@ -836,18 +836,28 @@ export function useBattlefieldCards(
   }, [gameState, playerId, opponentId])
 }
 
+const EMPTY_CARDS: readonly ClientCard[] = Object.freeze([]) as readonly ClientCard[]
+
 /**
  * Hook to get stack items in order.
  */
 export function useStackCards(): readonly ClientCard[] {
   const gameState = useGameStore(selectGameState)
+  const previousRef = useRef<readonly ClientCard[]>(EMPTY_CARDS)
   return useMemo(() => {
-    if (!gameState) return []
-    const stack = gameState.zones.find((z) => z.zoneId.zoneType === ZoneType.STACK)
-    if (!stack || !stack.cardIds) return []
-    return stack.cardIds
-      .map((id) => gameState.cards[id])
-      .filter((card): card is ClientCard => card !== null && card !== undefined)
+    const stack = gameState?.zones.find((z) => z.zoneId.zoneType === ZoneType.STACK)
+    const next = !gameState || !stack?.cardIds
+      ? EMPTY_CARDS
+      : stack.cardIds
+          .map((id) => gameState.cards[id])
+          .filter((card): card is ClientCard => card !== null && card !== undefined)
+    // Card objects survive a delta untouched, so an element-wise identity check is enough to keep
+    // the array stable while the stack itself didn't change — downstream (split-out target ids,
+    // every battlefield grouping) is keyed on this array's identity.
+    const prev = previousRef.current
+    if (prev.length === next.length && prev.every((card, i) => card === next[i])) return prev
+    previousRef.current = next
+    return next
   }, [gameState])
 }
 

@@ -1,4 +1,13 @@
 import { useEffect, useState } from 'react'
+
+/**
+ * Functional-update helper that keeps the previous state when the freshly measured value is
+ * identical, so the 10 Hz re-measure below only re-renders when an arrow actually moved.
+ */
+function keepIfEqual<T>(next: T): (prev: T) => T {
+  const nextJson = JSON.stringify(next)
+  return (prev) => (JSON.stringify(prev) === nextJson ? prev : next)
+}
 import { useGameStore } from '@/store/gameStore.ts'
 import { selectGameState, selectViewingPlayerId, useViewedOpponent, selectTeamMap, identitySeatColor } from '@/store/selectors.ts'
 import type { EntityId } from '@/types'
@@ -309,20 +318,34 @@ export function CombatArrows() {
       return
     }
 
+    // Coalesce to one state update per frame — high-rate mice fire mousemove well above 60 Hz,
+    // and each update re-renders the whole arrow SVG.
+    let frame: number | null = null
+    let latest: Point | null = null
+    const schedule = (x: number, y: number) => {
+      latest = { x, y }
+      if (frame !== null) return
+      frame = requestAnimationFrame(() => {
+        frame = null
+        setMousePos(latest)
+      })
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY })
+      schedule(e.clientX, e.clientY)
     }
 
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0]
       if (touch) {
-        setMousePos({ x: touch.clientX, y: touch.clientY })
+        schedule(touch.clientX, touch.clientY)
       }
     }
 
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('touchmove', handleTouchMove)
     return () => {
+      if (frame !== null) cancelAnimationFrame(frame)
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('touchmove', handleTouchMove)
     }
@@ -337,6 +360,15 @@ export function CombatArrows() {
     // 1. If we're actively declaring blockers, use local combatState
     // 2. If we're the attacker and opponent is assigning blockers, use opponentBlockerAssignments
     // 3. Otherwise, use server-sent combat data (if blockers have been declared)
+
+    // Outside combat there is nothing to draw; don't keep a 10 Hz re-measure running all game.
+    if (!isInCombatPhase && !combatState && !gameStateCombat) {
+      setArrows(keepIfEqual<ArrowData[]>([]))
+      setAttackerArrows(keepIfEqual<AttackerArrowData[]>([]))
+      setBundledArrows(keepIfEqual<BundledArrowData[]>([]))
+      setAttackIndicators(keepIfEqual<AttackIndicatorData[]>([]))
+      return
+    }
 
     const updateArrows = () => {
       const newArrows: ArrowData[] = []
@@ -364,7 +396,7 @@ export function CombatArrows() {
 
       // Skip blocker arrows during damage order selection (that UI shows blockers separately)
       if (isSelectingDamageOrder) {
-        setArrows([])
+        setArrows(keepIfEqual<ArrowData[]>([]))
         // Still compute attacker arrows below
       } else if (isDeclaringBlockers && combatState) {
         // Use local blocker assignments (real-time feedback during declaration)
@@ -459,7 +491,7 @@ export function CombatArrows() {
         }
       }
 
-      setArrows(newArrows)
+      setArrows(keepIfEqual(newArrows))
 
       // Compute attacker arrows (visible to all players and spectators during combat).
       // 2-player: only when an attackable permanent (planeswalker, battle) exists — red
@@ -545,8 +577,8 @@ export function CombatArrows() {
           pushAttackArrow(attackerId, targetId)
         }
       }
-      setAttackerArrows(newAttackerArrows)
-      setBundledArrows(
+      setAttackerArrows(keepIfEqual(newAttackerArrows))
+      setBundledArrows(keepIfEqual(
         Array.from(bundleAcc.entries()).map(([defenderId, acc]) => ({
           defenderId,
           count: acc.count,
@@ -557,7 +589,7 @@ export function CombatArrows() {
           },
           color: seatColorOf(defenderId),
         })),
-      )
+      ))
 
       // Compute attack direction indicators (red triangles)
       const newIndicators: AttackIndicatorData[] = []
@@ -619,7 +651,7 @@ export function CombatArrows() {
           }
         }
       }
-      setAttackIndicators(newIndicators)
+      setAttackIndicators(keepIfEqual(newIndicators))
     }
 
     // Update immediately and on animation frames for smooth updates
