@@ -2046,29 +2046,10 @@ class TriggerMatcher(
                 controllerId = trigger.controllerId,
                 triggeringEntityId = trigger.triggerContext.triggeringEntityId,
                 triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
-                triggerDamageAmount = trigger.triggerContext.damageAmount,
-                triggerCounterCount = trigger.triggerContext.counterCount,
-                triggerTotalCounterCount = trigger.triggerContext.totalCounterCount,
-                triggerMinusOneMinusOneCounterCount = trigger.triggerContext.minusOneMinusOneCounterCount,
+                triggerContext = trigger.triggerContext,
                 // Per-kind last-known counters, so an intervening "if" can name the counter it
                 // cares about ("if it had a revival counter on it" — Nine-Lives Familiar) instead
                 // of settling for the +1/+1-only or sum-of-all-kinds scalars above.
-                triggerLastKnownCounters = trigger.triggerContext.lastKnownCounters,
-                triggerLastKnownSubtypes = trigger.triggerContext.lastKnownSubtypes,
-                triggerLastKnownCardTypes = trigger.triggerContext.lastKnownCardTypes,
-                triggerLastKnownPower = trigger.triggerContext.lastKnownPower,
-                triggerLastKnownToughness = trigger.triggerContext.lastKnownToughness,
-                triggerDiedBatchTotalPower = trigger.triggerContext.diedBatchTotalPower,
-                triggerScryCount = trigger.triggerContext.scryCount,
-                triggerClashWon = trigger.triggerContext.clashWon,
-                triggerDiscardCount = trigger.triggerContext.discardedCardCount,
-                triggerDiscoverValue = trigger.triggerContext.discoverValue,
-                triggerExcessDamageAmount = trigger.triggerContext.excessDamageAmount,
-                triggerRecipientToughness = trigger.triggerContext.recipientToughnessAtDamage,
-                triggerManaSpentOnTriggeringSpell = trigger.triggerContext.manaSpentOnTriggeringSpell,
-                triggerColorsSpentOnTriggeringSpell = trigger.triggerContext.colorsSpentOnTriggeringSpell,
-                triggerManaValueOfTriggeringSpell = trigger.triggerContext.manaValueOfTriggeringSpell,
-                triggerXValueOfTriggeringSpell = trigger.triggerContext.xValueOfTriggeringSpell,
                 // A batch trigger's captured members, under the same pipeline collection name the
                 // resolving ability sees (StackResolver seeds it from the stack component). Without
                 // this, a batch-scoped condition — "if one or more of them entered from exile",

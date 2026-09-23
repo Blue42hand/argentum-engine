@@ -93,7 +93,7 @@ Hard rules while writing it — these are the engine's recurring bug classes:
   projection. No separate `*ProjectionCondition` types; use `ConditionEvaluationContext`.
 - **Continuations carry targets** — any frame wrapping `EffectTarget.ContextTarget(n)` must propagate
   `targets` / `namedTargets` / `outerTargets` into the rebuilt `EffectContext`.
-- **Last-known information** — dies/leaves triggers read `triggerLastKnownPower`,
+- **Last-known information** — dies/leaves triggers read `triggerContext.lastKnownPower`,
   `lastKnownCardDefinitionId`, `lastKnownCounters` off the `ZoneChangeEvent`; the entity is gone by the
   time the trigger resolves.
 - **Layer 613.8 dependency** — new continuous-effect families sort by trial application before timestamp.

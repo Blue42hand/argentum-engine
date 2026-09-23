@@ -468,36 +468,21 @@ class ReflexiveTriggerEffectExecutor(
                 descriptionOverride = descriptionOverride,
                 carriedPipeline = effectContext.pipeline,
                 carriedObjectReferences = effectContext.objectReferences,
-                carriedTriggerContext = com.wingedsheep.engine.event.TriggerContext(
-                    triggeringEntityId = effectContext.triggeringEntityId,
-                    triggeringPlayerId = effectContext.triggeringPlayerId,
-                    damageAmount = effectContext.triggerDamageAmount,
-                    xValue = effectContext.xValue,
-                    counterCount = effectContext.triggerCounterCount,
-                    totalCounterCount = effectContext.triggerTotalCounterCount,
-                    minusOneMinusOneCounterCount = effectContext.triggerMinusOneMinusOneCounterCount,
-                    targetingSourceEntityId = effectContext.targetingSourceEntityId,
-                    lastKnownPower = effectContext.triggerLastKnownPower,
-                    lastKnownToughness = effectContext.triggerLastKnownToughness,
-                    diedBatchTotalPower = effectContext.triggerDiedBatchTotalPower,
-                    lastKnownSubtypes = effectContext.triggerLastKnownSubtypes,
-                    lastKnownCardTypes = effectContext.triggerLastKnownCardTypes,
-                    lastKnownCounters = effectContext.triggerLastKnownCounters,
-                    lastKnownDamageDealtByPlayers = effectContext.triggerLastKnownDamageDealtByPlayers,
-                    lastKnownBlockingOrBlockedByIds = effectContext.triggerLastKnownBlockingOrBlockedByIds,
-                    modesChosenCount = effectContext.triggerModesChosenCount,
-                    manaSpentOnTriggeringSpell = effectContext.triggerManaSpentOnTriggeringSpell,
-                    colorsSpentOnTriggeringSpell = effectContext.triggerColorsSpentOnTriggeringSpell,
-                    manaValueOfTriggeringSpell = effectContext.triggerManaValueOfTriggeringSpell,
-                    xValueOfTriggeringSpell = effectContext.triggerXValueOfTriggeringSpell,
-                    enchantedCreatureLastKnownPower = effectContext.enchantedCreatureLastKnownPower,
-                    scryCount = effectContext.triggerScryCount,
-                    clashWon = effectContext.triggerClashWon,
-                    discardedCardCount = effectContext.triggerDiscardCount,
-                    discoverValue = effectContext.triggerDiscoverValue,
-                    excessDamageAmount = effectContext.triggerExcessDamageAmount,
-                    recipientToughnessAtDamage = effectContext.triggerRecipientToughness
-                )
+                // The reflexive ability fires *because of* the resolving one (CR 603.12), so it
+                // inherits that ability's whole trigger record. Only the three slots EffectContext
+                // keeps outside the record are re-read, since iteration may have rebound them. The
+                // event-identity fields (triggering origin/object/visit) are dropped: they locate the
+                // *original* event's objects at detection time, and the reflexive trigger's object
+                // references are already captured from the resolving ability.
+                carriedTriggerContext = (effectContext.triggerContext ?: com.wingedsheep.engine.event.TriggerContext())
+                    .copy(
+                        triggeringEntityId = effectContext.triggeringEntityId,
+                        triggeringPlayerId = effectContext.triggeringPlayerId,
+                        xValue = effectContext.xValue,
+                        triggeringOrigin = null,
+                        triggeringObject = null,
+                        triggeringBattlefieldTimestamp = null
+                    )
             )
         }
     }

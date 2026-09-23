@@ -2717,8 +2717,8 @@ class StackResolver(
                 sourceId = abilityComponent.sourceId,
                 targetingSourceType = TargetingSourceType.ABILITY,
                 xValue = abilityComponent.xValue,
-                triggeringEntityId = abilityComponent.triggeringEntityId,
-                triggeringPlayerId = abilityComponent.triggeringPlayerId,
+                triggeringEntityId = abilityComponent.triggerContext?.triggeringEntityId,
+                triggeringPlayerId = abilityComponent.triggerContext?.triggeringPlayerId,
                 targetEntryStamps = targetsComponent.targetEntryStamps,
                 storedCollections = abilityComponent.carriedPipeline?.storedCollections ?: emptyMap(),
             )
