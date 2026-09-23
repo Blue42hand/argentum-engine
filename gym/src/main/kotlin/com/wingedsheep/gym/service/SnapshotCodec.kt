@@ -3,6 +3,7 @@ package com.wingedsheep.gym.service
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.model.EntityId
 import kotlinx.serialization.Serializable
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
@@ -15,9 +16,18 @@ import java.util.concurrent.atomic.AtomicLong
  */
 @Serializable
 sealed interface SnapshotHandle {
-    /** An in-process slot managed by [SnapshotCodec]. */
+    /**
+     * An in-process slot managed by one [SnapshotCodec] instance.
+     *
+     * [codecId] is nullable only so older serialized handles remain decodable. A legacy handle
+     * deliberately fails closed on load because the in-process snapshot it named cannot survive the
+     * codec/process that created it.
+     */
     @Serializable
-    data class Slot(val slotId: Long) : SnapshotHandle
+    data class Slot(
+        val slotId: Long,
+        val codecId: String? = null,
+    ) : SnapshotHandle
 }
 
 /**
@@ -26,11 +36,14 @@ sealed interface SnapshotHandle {
  * — and restoring is also free: the restored env's state field is set back
  * to the referenced object, no deep copy required.
  *
- * Slots are keyed by a monotonically-increasing `Long`. `dispose` is
- * optional but recommended for long-lived training sessions so the JVM
- * can collect old snapshots.
+ * Slots are keyed by a monotonically-increasing `Long` within this codec and handles also carry an
+ * opaque per-codec namespace. The namespace makes stale handles fail closed across process restarts
+ * or independent service instances even when both local counters allocate the same slot number.
+ * `dispose` is optional but recommended for long-lived training sessions so the JVM can collect old
+ * snapshots.
  */
 class SnapshotCodec {
+    private val codecId = UUID.randomUUID().toString()
     private val slots = ConcurrentHashMap<Long, Entry>()
     private val nextId = AtomicLong(1)
 
@@ -43,16 +56,30 @@ class SnapshotCodec {
     fun save(state: GameState, playerIds: List<EntityId>, stepCount: Int): SnapshotHandle.Slot {
         val id = nextId.getAndIncrement()
         slots[id] = Entry(state, playerIds, stepCount)
-        return SnapshotHandle.Slot(id)
+        return SnapshotHandle.Slot(id, codecId)
     }
 
     fun load(handle: SnapshotHandle): Entry = when (handle) {
-        is SnapshotHandle.Slot -> slots[handle.slotId]
-            ?: throw NoSuchElementException("Snapshot slot ${handle.slotId} not found")
+        is SnapshotHandle.Slot -> {
+            requireOwned(handle)
+            slots[handle.slotId]
+                ?: throw NoSuchElementException("Snapshot slot ${handle.slotId} not found")
+        }
     }
 
     fun dispose(handle: SnapshotHandle) {
-        if (handle is SnapshotHandle.Slot) slots.remove(handle.slotId)
+        // Disposal stays idempotent, but a stale/foreign handle must never delete a colliding slot.
+        if (handle is SnapshotHandle.Slot && handle.codecId == codecId) {
+            slots.remove(handle.slotId)
+        }
+    }
+
+    private fun requireOwned(handle: SnapshotHandle.Slot) {
+        if (handle.codecId != codecId) {
+            throw NoSuchElementException(
+                "Snapshot slot ${handle.slotId} does not belong to this snapshot codec"
+            )
+        }
     }
 
     fun size(): Int = slots.size
