@@ -30,6 +30,17 @@ describe('DeckPicker paste parsing', () => {
     expect(parsed.sideboard).toEqual({ Counterspell: 2 })
   })
 
+  it('keeps a Commander-section card in the full deck and preserves its designation', () => {
+    const parsed = parseDeckText(`Commander
+1 Krenko, Mob Boss
+
+Deck
+99 Mountain`)
+    expect(parsed.commander).toBe('Krenko, Mob Boss')
+    expect(parsed.cards).toEqual({ 'Krenko, Mob Boss': 1, Mountain: 99 })
+    expect(Object.values(parsed.cards).reduce((sum, count) => sum + count, 0)).toBe(100)
+  })
+
   it('rescues the bare-name shorthand onto the board it was written under', () => {
     const parsed = parseDeckText('Deck\nLightning Bolt\nSideboard\nCounterspell')
     expect(parsed.cards).toEqual({ 'Lightning Bolt': 1 })
