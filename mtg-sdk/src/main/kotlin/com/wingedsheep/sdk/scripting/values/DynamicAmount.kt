@@ -105,6 +105,14 @@ enum class TurnTracker {
     /** Indicator (0 or 1) that the player sacrificed at least one Food this turn. */
     FOOD_SACRIFICED,
     /**
+     * Indicator (0 or 1) that the player scried or surveilled this turn — "if you've scried or
+     * surveilled this turn" (Surveillance Phantasm, Desperate Futurescribe, Proctor of Potential).
+     * Recorded by the same executors that emit the scry / surveil events, so it is set exactly when
+     * a "whenever you scry or surveil" trigger would fire: a scry 0 or surveil 0 is no event at all
+     * (CR 701.22b / 701.25c) and never marks it, while a scry into an empty library still does.
+     */
+    SCRIED_OR_SURVEILED,
+    /**
      * Indicator (0 or 1) that the player sacrificed at least one artifact this turn — the
      * card-type sibling of [FOOD_SACRIFICED], recorded by the same central sacrifice hook and
      * read off the projected type line, so a permanent that was only an artifact through a
@@ -247,6 +255,7 @@ enum class TurnTracker {
         NONLAND_PERMANENTS_ENTERED -> "the number of nonland permanents that entered the battlefield under ${player.possessive} control this turn"
         CREATURES_ENTERED_UNDER_CONTROL -> "the number of creatures that entered the battlefield under ${player.possessive} control this turn"
         FOOD_SACRIFICED -> "whether ${player.description} sacrificed a Food this turn"
+        SCRIED_OR_SURVEILED -> "whether ${player.description} scried or surveilled this turn"
         ARTIFACT_SACRIFICED -> "whether ${player.description} sacrificed an artifact this turn"
         CARDS_LEFT_GRAVEYARD -> "the number of cards that left ${player.possessive} graveyard this turn"
         DESCENDED -> "the number of times ${player.description} descended this turn"

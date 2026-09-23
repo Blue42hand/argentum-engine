@@ -1949,6 +1949,13 @@ object Conditions {
         PermanentTypeEnteredBattlefieldThisTurn(CardType.ARTIFACT)
 
     /**
+     * "If you've scried or surveilled this turn" — Surveillance Phantasm, Desperate Futurescribe,
+     * Proctor of Potential.
+     */
+    val ScriedOrSurveiledThisTurn: ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.SCRIED_OR_SURVEILED)
+
+    /**
      * If you put a counter on a creature this turn.
      * Used for Lasting Tarfire.
      */
