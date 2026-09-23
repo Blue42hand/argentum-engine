@@ -1992,6 +1992,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `CreateMutavault(count?, tapped?, controller?)` — Mutavault tokens.
 - `CreateHeartwood(count?, tapped?, controller?)` — Heartwood tokens (Reality Fracture): a red and
   green "Artifact — Heartwood" with "{T}: Add {R} or {G}."
+- `CreateLotus(count?, controller?)` — Lotus tokens (Reality Fracture, Kwia Vigorbloom): a colorless
+  "Artifact" named Lotus with "{T}, Sacrifice this token: Add three mana of any one color."
 - `CreateEverywhere(count?, tapped?, controller?)` — Everywhere land tokens (Overlord of the Hauntwoods):
   a colorless land token with all five basic land subtypes (Plains/Island/Swamp/Mountain/Forest) that
   taps for any color — i.e. the mana ability of each basic land type, without the basic supertype. The
