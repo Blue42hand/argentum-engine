@@ -1087,7 +1087,7 @@ class CastSpellHandler(
                                 // paid with the other additional costs in `execute`.
                                 val altCosts = costCalculator.findAlternativeCastingCosts(state, action.playerId)
                                 if (altCosts.isEmpty()) return null
-                                costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, altCosts.first().manaCost)
+                                costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, altCosts.first().manaCost, action.playerId)
                             } else {
                                 // A specific alternative cost was requested (e.g. DASH) but its own
                                 // permission gate failed — never silently fall back to an unrelated
@@ -2471,7 +2471,7 @@ class CastSpellHandler(
                             } else if (action.altAllows(AlternativeCostType.GRANTED)) {
                                 val altCosts = costCalculator.findAlternativeCastingCosts(currentState, action.playerId)
                                 if (altCosts.isNotEmpty()) {
-                                    costCalculator.calculateEffectiveCostWithAlternativeBase(currentState, cardDef, altCosts.first().manaCost)
+                                    costCalculator.calculateEffectiveCostWithAlternativeBase(currentState, cardDef, altCosts.first().manaCost, action.playerId)
                                 } else {
                                     cardComponent.manaCost
                                 }

@@ -1193,6 +1193,14 @@ data class CardsPutIntoExileThisTurnComponent(val count: Int = 0) : Component
 data object SacrificedFoodThisTurnComponent : Component
 
 /**
+ * Marker: this player scried or surveilled this turn. Set by `EmitScriedEventExecutor` and
+ * `EmitSurveiledEventExecutor` — the two places a scry / surveil event is emitted — and cleared at
+ * end of turn by CleanupPhaseManager. Read through `TurnTracker.SCRIED_OR_SURVEILED`.
+ */
+@Serializable
+data object ScriedOrSurveiledThisTurnComponent : Component
+
+/**
  * Marker component indicating that this player has sacrificed an artifact this turn.
  * Cleared at end of turn by CleanupPhaseManager.
  *

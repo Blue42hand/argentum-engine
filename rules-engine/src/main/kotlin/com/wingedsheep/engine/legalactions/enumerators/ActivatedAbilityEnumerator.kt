@@ -314,7 +314,8 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         is CostAtom.ExileFrom -> {
                             val targets = context.costUtils.findExileTargets(
                                 state, playerId, atom.filter, atom.zone,
-                                atom.anyPlayersZone, atom.singleZone, atom.count
+                                atom.anyPlayersZone, atom.singleZone, atom.count,
+                                excludeSelfId = if (atom.excludeSelf) entityId else null
                             )
                             if (targets.size < atom.count) continue
                             exileCost = atom
@@ -560,7 +561,8 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                         // legal payment the UI never offered.
                                         val targets = context.costUtils.findExileTargets(
                                             state, playerId, atom.filter, atom.zone,
-                                            atom.anyPlayersZone, atom.singleZone, atom.count
+                                            atom.anyPlayersZone, atom.singleZone, atom.count,
+                                            excludeSelfId = if (atom.excludeSelf) entityId else null
                                         )
                                         if (targets.size < atom.count) {
                                             costCanBePaid = false

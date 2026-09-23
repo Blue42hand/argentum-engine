@@ -310,6 +310,7 @@ class TriggerMatcher(
             is EventPattern.AbilityActivatedEvent -> {
                 if (event !is AbilityActivatedEvent) return false
                 if (!matchesPlayer(state, trigger.player, event.controllerId, controllerId)) return false
+                if (trigger.requireLoyalty && !event.isLoyalty) return false
                 if (trigger.requireExhaust) {
                     if (!event.isExhaust) return false
                     // Plain "whenever you activate an exhaust ability" counts an exhaust mana
@@ -1941,6 +1942,18 @@ class TriggerMatcher(
                 ?: spellEntity?.get<CardComponent>()?.ownerId
             ownerId != null && ownerId != event.casterId
         }
+        SpellCastPredicate.TargetsOpponent ->
+            state.getEntity(event.spellEntityId)
+                ?.get<com.wingedsheep.engine.state.components.stack.TargetsComponent>()
+                ?.targets
+                .orEmpty()
+                .any {
+                    it is com.wingedsheep.engine.state.components.stack.ChosenTarget.Player &&
+                        state.isOpponentOf(it.playerId, controllerId)
+                }
+        is SpellCastPredicate.SpellMatches -> matchesSpellFilter(predicate.filter, event, state, sourceId)
+        is SpellCastPredicate.AnyOf ->
+            predicate.options.any { matchesSpellCastPredicate(it, event, state, sourceId, controllerId) }
     }
 
     /**

@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 181 / 285
+**Implemented:** 191 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -54,14 +54,14 @@
 - [ ] Cruel Calculations
 - [x] Cryotheory Adept
 - [x] Curse-Marred Demon
-- [ ] Danitha, Spear of Agony
-- [ ] Danitha, Sword of Hope
+- [x] Danitha, Spear of Agony
+- [x] Danitha, Sword of Hope
 - [x] Dark Matter Manipulator
 - [x] Darklight Phoenix
 - [x] Dedicated Commons
 - [x] Denzilore Fatehold
 - [x] Deserted Beach
-- [ ] Desperate Futurescribe
+- [x] Desperate Futurescribe
 - [ ] Diviner of Victory
 - [x] Divining Duelist
 - [ ] Draconic Visitor
@@ -90,7 +90,7 @@
 - [x] Formidable Commons
 - [x] Frostbite Pyromental
 - [x] Fulminous Forte
-- [ ] Gallia, Tragic Host
+- [x] Gallia, Tragic Host
 - [ ] Gallia, the Merrymaker
 - [ ] Gardenize
 - [ ] Garruk, Curse Breaker
@@ -100,7 +100,7 @@
 - [x] Germinate Recruits
 - [ ] Ghalta the Immovable
 - [x] Ghalta the Unstoppable
-- [ ] Gideon the Oathless
+- [x] Gideon the Oathless
 - [ ] Gideon's Memorial
 - [x] Graft Surgeon
 - [x] Greenhouse Propagator
@@ -180,7 +180,7 @@
 - [x] Precise Redaction
 - [x] Predictive Preparations
 - [ ] Primal Witchstalker
-- [ ] Proctor of Potential
+- [x] Proctor of Potential
 - [x] Proft, Consulting Detective
 - [x] Proft, Sinister Mastermind
 - [x] Prophesied End
@@ -229,7 +229,7 @@
 - [x] Stinging Vitriol
 - [x] Sureshot Sower
 - [x] Surgical Precision
-- [ ] Surveillance Phantasm
+- [x] Surveillance Phantasm
 - [x] Swamp
 - [x] Tam's Resistance
 - [ ] Tam, the Possibility
@@ -242,7 +242,7 @@
 - [x] Tetsuko Umezawa, Pursuer
 - [x] Teyo, Diamondblade Mage
 - [x] Teyo, Lightshield Expert
-- [ ] Thalia, the Survivor
+- [x] Thalia, the Survivor
 - [x] The Echoverse Fulcrum
 - [ ] The Theorist, Jace Beleren
 - [x] Theoretical Necromancer
@@ -283,7 +283,7 @@
 - [x] Way of the Mentor
 - [ ] Way of the Mind Sculptor
 - [x] Way of the Necromancer
-- [ ] Way of the Paradox
+- [x] Way of the Paradox
 - [x] Way of the Pyromancer
 - [ ] Way of the Warlord
 - [x] Way of the Wildspeaker
@@ -299,4 +299,4 @@
 - [x] Yoshimaru, Scrappy Stray
 - [x] Your Fate Ends Here
 - [ ] Yuriko, Blade of the Mighty
-- [ ] Yuriko, Hope from the Shadows
+- [x] Yuriko, Hope from the Shadows

@@ -658,6 +658,7 @@ val engineSerializersModule = SerializersModule {
         subclass(PlayerCantPlayFromHandComponent::class)
         subclass(PlayerShroudComponent::class)
         subclass(SacrificedFoodThisTurnComponent::class)
+        subclass(ScriedOrSurveiledThisTurnComponent::class)
         subclass(SacrificedArtifactThisTurnComponent::class)
         subclass(PermanentsEnteredUnderControlThisTurnComponent::class)
         subclass(SpellsCantBeCounteredComponent::class)

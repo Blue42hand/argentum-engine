@@ -100,7 +100,7 @@ Cards: Dark Matter Manipulator; Liliana the Repentant; Paradox Shaper; Primal Wi
 
 Reward scry/surveil events or test whether either action occurred this turn.
 
-**Engine support:** Event triggers exist as `Triggers.WheneverYouScryOrSurveil`. Turn-history conditions for Desperate Futurescribe, Proctor of Potential and Surveillance Phantasm need verification or implementation.
+**Engine support:** Event triggers exist as `Triggers.WheneverYouScryOrSurveil`. Turn history is `Conditions.ScriedOrSurveiledThisTurn` (`TurnTracker.SCRIED_OR_SURVEILED`), used by Desperate Futurescribe, Proctor of Potential and Surveillance Phantasm.
 
 Cards: Denzilore Fatehold; Desperate Futurescribe; Diviner of Victory; Proctor of Potential; Proft, Consulting Detective; Prudent Fateseer; Saheeli, Consul of Oversight; Surveillance Phantasm
 
@@ -140,7 +140,7 @@ Cards: Aerid Konstrari; Heartwood Crafter; Hungering Puppetbeast; Konstrari Impr
 
 Trigger on, modify timing of, or inspect activation of loyalty abilities.
 
-**Engine support:** Generic ability-activation events and granted activated abilities exist. Loyalty-specific event filtering, counters spent, history and restricted instant-speed permissions are not covered by a generic planeswalker source filter.
+**Engine support:** Loyalty-specific event filtering exists: `Triggers.YouActivateLoyaltyAbility` / `Triggers.OpponentActivatesLoyaltyAbility` (`AbilityActivatedEvent.requireLoyalty`, matched on the event's `isLoyalty` flag) — Gideon the Oathless and Way of the Paradox use it. Still missing: loyalty counters spent on the activation (Way of the Mind Sculptor), "you've activated a loyalty ability this turn" history (Kiora of Salt and Sand), and instant-speed loyalty permission (Jace's Machinations).
 
 Cards: Ajani Unrelenting; Gideon the Oathless; Jace's Machinations; Kiora of Salt and Sand; Way of the Mind Sculptor; Way of the Paradox
 

@@ -609,7 +609,7 @@ class CastSpellEnumerator : ActionEnumerator {
             // halves of the grant must be payable — a `{0}` mana half is trivially affordable, so
             // the non-mana half is the whole gate for a purely non-mana grant.
             val grantedAltCost = context.alternativeCastingCosts.firstOrNull { grant ->
-                val altEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, grant.manaCost)
+                val altEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, grant.manaCost, playerId)
                 context.manaSolver.canPay(state, playerId, altEffective, precomputedSources = cachedSources) &&
                     grant.additionalCosts.all { cost ->
                         canPayAdditionalCostForAlternative(context, state, playerId, cardId, cost)
@@ -857,7 +857,7 @@ class CastSpellEnumerator : ActionEnumerator {
             // rides along as the client's picker payload — the same [SelfAltCostResult] shape the
             // card's own alternative cost uses, so the two paths emit one kind of cast action.
             val altCostInfo = if (grantedAltCost != null) {
-                val altEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, grantedAltCost.manaCost)
+                val altEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, grantedAltCost.manaCost, playerId)
                 val altPreview = if (context.skipAutoTapPreview) null else {
                     context.manaSolver.solve(state, playerId, altEffective, precomputedSources = cachedSources)
                         ?.sources?.map { it.entityId }
