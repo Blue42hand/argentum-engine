@@ -114,8 +114,9 @@ class AiGameManager(
     val aiEnabledToggle: Boolean get() = gameProperties.ai.enabled
 
     /**
-     * Look up the LLM model override for an AI player by querying its identity in the SessionRegistry.
-     * The override is stored on `PlayerIdentity.aiModelOverride` so it survives server restart.
+     * Look up the legacy LLM model override for an AI player by querying its identity.
+     * New per-seat controller selection lives in [PlayerIdentity.aiControllerSpec]; the legacy
+     * override remains readable so persisted pre-spec lobbies keep working during migration.
      */
     private fun lookupModelOverride(aiPlayerId: EntityId): String? {
         return sessionRegistry.getAllIdentities()
@@ -124,23 +125,40 @@ class AiGameManager(
     }
 
     /**
-     * Create the appropriate AI controller based on configuration.
+     * Create the appropriate AI controller from a per-seat selection or the server-wide fallback.
      *
-     * @param modelOverride If non-null, overrides the server's configured model for LLM mode.
-     *        An override needs an API key to mean anything, so the two bring-up paths that have a
-     *        caller to report to reject an uncredentialed one up front (see
-     *        [requireCredentialedOverride]); the paths that recover or re-wire an *existing* AI
-     *        drop the override instead — see [usableModelOverride].
+     * An explicit [controllerSpec] is authoritative. Unknown providers or profiles throw instead of
+     * falling back to `game.ai.mode`; this is what makes a restored external seat fail closed when
+     * its provider disappears. [modelOverride] is the legacy built-in-LLM selector and may only be
+     * used when no controller spec exists.
      */
     private fun createController(
         aiPlayerId: EntityId,
         gameSession: GameSession? = null,
-        modelOverride: String? = null
+        modelOverride: String? = null,
+        controllerSpec: AiControllerSpec? = null,
     ): AiPlayerController {
+        require(controllerSpec == null || modelOverride == null) {
+            "An AI seat cannot select both aiControllerSpec and legacy aiModelOverride"
+        }
         val ai = gameProperties.ai
-        // A per-player model override explicitly requests the built-in LLM even when the
-        // server-wide mode is external.
-        if (modelOverride == null && !ai.isEngineMode && !ai.isLlmMode) {
+        val explicitMode = controllerSpec?.mode?.trim()
+
+        if (controllerSpec != null && !controllerProviders.isBuiltIn(explicitMode!!)) {
+            val provider = requireExternalProvider(explicitMode)
+            controllerSpec.profileId?.let { controllerProviders.requireProfile(explicitMode, it) }
+            return provider.create(
+                AiControllerContext(
+                    playerId = aiPlayerId,
+                    gameSessionId = gameSession?.sessionId,
+                    profileId = controllerSpec.profileId,
+                    snapshot = { gameSession?.getAiRuntimeSnapshot() },
+                )
+            )
+        }
+
+        // No per-seat selection: preserve the existing server-wide external-provider behavior.
+        if (controllerSpec == null && modelOverride == null && !ai.isEngineMode && !ai.isLlmMode) {
             return requireExternalProvider(ai.mode).create(
                 AiControllerContext(
                     playerId = aiPlayerId,
@@ -149,10 +167,19 @@ class AiGameManager(
                 )
             )
         }
-        // A model override implicitly requests LLM mode for this player,
-        // regardless of the server's global mode setting.
+
+        if (controllerSpec?.profileId != null) {
+            throw IllegalArgumentException("Built-in AI controller mode '${controllerSpec.mode}' does not support profiles")
+        }
+
+        // A legacy model override explicitly requests LLM. An explicit built-in spec selects its
+        // requested mode without changing the server's model/base-url tuning.
         val aiConfig = ai.toAiConfig().let { cfg ->
-            if (modelOverride != null) cfg.copy(model = modelOverride, mode = "llm") else cfg
+            when {
+                modelOverride != null -> cfg.copy(model = modelOverride, mode = "llm")
+                explicitMode != null -> cfg.copy(mode = explicitMode)
+                else -> cfg
+            }
         }
         // Local testing mode only, and null everywhere else: the LLM controller's engine fallback
         // gets one too, so a fallback decision doesn't silently vanish from the panel.
@@ -186,13 +213,40 @@ class AiGameManager(
             "Unknown game.ai.mode '$mode'; expected ${controllerProviders.supportedModes().sorted().joinToString()}"
         }
 
+    /** Validate a newly selected seat controller before creating any identity/session state. */
+    private fun requireAvailableSelection(controllerSpec: AiControllerSpec?, modelOverride: String?) {
+        require(gameProperties.ai.enabled) { "AI is not enabled. Set game.ai.enabled=true." }
+        require(controllerSpec == null || modelOverride == null) {
+            "An AI seat cannot select both aiControllerSpec and legacy aiModelOverride"
+        }
+        requireCredentialedOverride(modelOverride)
+        if (controllerSpec == null) {
+            require(isEnabled) { "AI is not enabled or its configured controller is unavailable." }
+            return
+        }
+
+        val mode = controllerSpec.mode.trim()
+        when {
+            mode.equals("engine", ignoreCase = true) -> require(controllerSpec.profileId == null) {
+                "Built-in AI controller mode '${controllerSpec.mode}' does not support profiles"
+            }
+            mode.equals("llm", ignoreCase = true) -> {
+                require(controllerSpec.profileId == null) {
+                    "Built-in AI controller mode '${controllerSpec.mode}' does not support profiles"
+                }
+                require(gameProperties.ai.effectiveApiKey.isNotBlank()) {
+                    "AI controller mode 'llm' requires an API key"
+                }
+            }
+            else -> {
+                requireExternalProvider(mode)
+                controllerSpec.profileId?.let { controllerProviders.requireProfile(mode, it) }
+            }
+        }
+    }
+
     /**
      * Reject a per-player LLM model override that no key can serve.
-     *
-     * Only for the paths that *mint* an AI ([createAiOpponent], [createAiIdentity]): there is a live
-     * caller to hand the error to, nothing exists yet to be left half-built, and silently seating a
-     * model-labelled AI that is really the engine fallback would make an LLM tournament a lie about
-     * what it compared.
      */
     private fun requireCredentialedOverride(modelOverride: String?) {
         require(modelOverride == null || gameProperties.ai.effectiveApiKey.isNotBlank()) {
@@ -201,16 +255,9 @@ class AiGameManager(
     }
 
     /**
-     * The same check for the paths that adopt an AI that already exists — [rehydrateAiIdentity] on
-     * startup and [wireAiForGame] at match start — where throwing costs more than degrading.
-     *
-     * Rehydration runs inside [com.wingedsheep.gameserver.persistence.SessionRecoveryService]'s
-     * `@PostConstruct`, so an override persisted while a key was configured would fail bean
-     * initialisation and take the whole server down on the next restart after the key went away.
-     * Wiring runs after both seats have already been told the match is starting, so throwing leaves
-     * a live table whose AI never acts. Both drop the override and fall back to the server-wide
-     * mode, which is what the LLM controller's engine fallback did anyway — loudly, so the operator
-     * can see that a model-specific AI is no longer playing its model.
+     * Legacy model overrides may degrade during recovery/wiring because that was their historical
+     * behavior. Explicit [AiControllerSpec] selections never use this path and therefore never fall
+     * back silently when their controller/profile is unavailable.
      */
     private fun usableModelOverride(modelOverride: String?, context: String): String? {
         if (modelOverride == null || gameProperties.ai.effectiveApiKey.isNotBlank()) return modelOverride
@@ -230,19 +277,7 @@ class AiGameManager(
         timeoutMs = timeoutMs, thinkingDelayMs = thinkingDelayMs
     )
 
-    /**
-     * The only place an [AiWebSocketSession] is constructed.
-     *
-     * There are four bring-up paths (fresh opponent, placeholder identity, rehydrated identity,
-     * re-wire at match start), and per-seat wiring added later has twice been attached to some of
-     * them and not the rest — the local testing mode's step gate went in at [registerAiSession] and
-     * was silently absent from [wireAiForGame], which is the path a normal game against the AI
-     * actually takes. Funnelling every construction through here is what stops the next addition
-     * from repeating that.
-     *
-     * A null [gameSession] means a placeholder seat that is not attached to a game yet: no
-     * callbacks, and no step gate to hang one on.
-     */
+    /** The only place an [AiWebSocketSession] is constructed. */
     private fun buildAiSession(
         aiPlayerId: EntityId,
         controller: AiPlayerController,
@@ -263,20 +298,13 @@ class AiGameManager(
         actionGate = gameSession?.let { aiInsightService.gateFor(it.sessionId) },
     )
 
-    /**
-     * Wire the AI plumbing common to every bring-up path: synthetic [AiWebSocketSession],
-     * its [PlayerSession]/[PlayerIdentity], registration with [SessionRegistry] +
-     * [activeSessions] + [aiPlayerIds].
-     *
-     * Each caller is responsible for the game-state side (deck list, [GameSession.addPlayer]
-     * vs [GameSession.associatePlayer], persistence info) since those vary per flow.
-     */
     private fun registerAiSession(
         gameSession: GameSession,
         aiPlayerId: EntityId,
         playerName: String,
         controller: AiPlayerController,
         modelOverride: String? = null,
+        controllerSpec: AiControllerSpec? = null,
         onActionReady: (EntityId, GameAction, String?) -> Unit,
         onMulliganKeep: (EntityId) -> Unit,
         onMulliganTake: (EntityId) -> Unit,
@@ -303,7 +331,8 @@ class AiGameManager(
             playerId = aiPlayerId,
             playerName = playerName,
             isAi = true,
-            aiModelOverride = modelOverride
+            aiModelOverride = modelOverride,
+            aiControllerSpec = controllerSpec,
         )
         identity.webSocketSession = aiSession
         identity.currentGameSessionId = gameSession.sessionId
@@ -314,17 +343,6 @@ class AiGameManager(
         return playerSession to identity
     }
 
-    /**
-     * Create an AI opponent and add it to the game session.
-     *
-     * @param gameSession The game session to add the AI to.
-     * @param onActionReady Callback invoked (async) with the action and its snapshot interaction epoch.
-     *        This MUST NOT be called while holding stateLock.
-     * @param onMulliganKeep Callback for AI keeping hand.
-     * @param onMulliganTake Callback for AI taking mulligan.
-     * @param onBottomCards Callback for AI choosing bottom cards.
-     * @return The AI player's EntityId and PlayerSession.
-     */
     fun createAiOpponent(
         gameSession: GameSession,
         setCode: String? = null,
@@ -332,64 +350,42 @@ class AiGameManager(
         onMulliganKeep: (EntityId) -> Unit,
         onMulliganTake: (EntityId) -> Unit,
         onBottomCards: (EntityId, List<EntityId>) -> Unit,
-        /**
-         * Fixed deck (card name → count) the AI must play instead of a generated sealed pool. Used
-         * by deckless formats such as Momir Basic, where every seat plays the same 60 basics.
-         * Null = the existing behaviour (generate a random sealed deck for [setCode]).
-         */
         deckOverride: Map<String, Int>? = null,
-        /** Commander to place in the command zone when [deckOverride] is a commander deck. */
         commanderCardName: String? = null,
+        /** Optional per-seat controller selection; null preserves the server-wide fallback. */
+        controllerSpec: AiControllerSpec? = null,
     ): PlayerSession {
-        require(isEnabled) { "AI is not enabled. Set game.ai.enabled=true." }
+        requireAvailableSelection(controllerSpec, modelOverride = null)
 
         val aiPlayerId = EntityId("ai-${UUID.randomUUID().toString().take(8)}")
-        val aiName = randomAiName() + if (gameProperties.ai.mode.trim().equals("jev", ignoreCase = true)) " (Jev)" else ""
+        val effectiveMode = controllerSpec?.mode ?: gameProperties.ai.mode
+        val aiName = randomAiName() + if (effectiveMode.trim().equals("jev", ignoreCase = true)) " (Jev)" else ""
 
-        val controller = createController(aiPlayerId, gameSession)
+        val controller = createController(aiPlayerId, gameSession, controllerSpec = controllerSpec)
 
         val (playerSession, identity) = registerAiSession(
             gameSession = gameSession,
             aiPlayerId = aiPlayerId,
             playerName = aiName,
             controller = controller,
+            controllerSpec = controllerSpec,
             onActionReady = onActionReady,
             onMulliganKeep = onMulliganKeep,
             onMulliganTake = onMulliganTake,
             onBottomCards = onBottomCards,
         )
 
-        // Deckless formats (Momir Basic) supply a fixed deck; otherwise quick games generate a
-        // sealed deck, using the same set as the human player when one was provided.
         val aiDeck = deckOverride
             ?: if (setCode != null) deckGenerator.generate(setCode) else deckGenerator.generate()
         gameSession.addPlayer(playerSession, aiDeck, commanderCardName = commanderCardName)
-
-        // Give the AI knowledge of its deck composition
         controller.setDeckList(aiDeck)
-
-        // Store persistence info
         gameSession.setPlayerPersistenceInfo(aiPlayerId, aiName, identity.token, isAi = true)
 
-        logger.info("Created AI opponent ({}) for game {} [mode={}]",
-            aiPlayerId.value, gameSession.sessionId, gameProperties.ai.mode)
+        logger.info("Created AI opponent ({}) for game {} [mode={}, profile={}]",
+            aiPlayerId.value, gameSession.sessionId, effectiveMode, controllerSpec?.profileId)
         return playerSession
     }
 
-    /**
-     * Wire an AI opponent into an existing dev-scenario seat.
-     *
-     * Unlike [createAiOpponent], this does NOT generate a fresh `ai-<uuid>` entity or call
-     * `gameSession.addPlayer(...)` — the player entity (with all its zones and life total) was
-     * already built by [com.wingedsheep.gameserver.controller.DevScenarioController]'s
-     * `ScenarioBuilder` and lives in the injected GameState under the supplied [aiPlayerId].
-     *
-     * Dev scenarios always use the in-process engine AI, never the LLM controller: scenarios
-     * have no deck list to ground prompts against, the engine AI reads zones straight from
-     * GameState, and we don't want test runs to need API keys or burn LLM tokens.
-     *
-     * @return the AI's [PlayerSession] (also added to [GameSession.players]).
-     */
     fun wireAiForDevScenario(
         gameSession: GameSession,
         aiPlayerId: EntityId,
@@ -399,17 +395,12 @@ class AiGameManager(
         onMulliganTake: (EntityId) -> Unit,
         onBottomCards: (EntityId, List<EntityId>) -> Unit
     ): PlayerSession {
-        // Only check the master toggle — engine AI doesn't need the LLM API key that
-        // [isEnabled] also gates on, so dev scenarios run even when the server is
-        // configured for LLM mode without a key.
         require(gameProperties.ai.enabled) { "AI is not enabled. Set game.ai.enabled=true." }
 
         val controller = EngineAiPlayerController(
             cardRegistry = cardRegistry,
             playerId = aiPlayerId,
             gameStateProvider = { gameSession.getStateSnapshot() },
-            // Scenarios are the sharpest use of the local testing mode — a hand-built position is
-            // exactly where you want to read what the AI made of it.
             insightSink = aiInsightService.sinkFor(gameSession.sessionId, aiPlayerId),
         )
 
@@ -424,8 +415,6 @@ class AiGameManager(
             onBottomCards = onBottomCards,
         )
 
-        // Add the AI to gameSession.players so player1/player2 accessors and broadcastStateUpdate see it.
-        // (No addPlayer — that requires a deck list, but the dev scenario already injected the full state.)
         gameSession.associatePlayer(playerSession)
         gameSession.setPlayerPersistenceInfo(aiPlayerId, playerName, identity.token, isAi = true)
 
@@ -435,37 +424,37 @@ class AiGameManager(
     }
 
     /**
-     * Create an AI PlayerIdentity for use in a tournament lobby.
-     * The AI session is created with no-op callbacks initially — they'll be wired
-     * when a tournament match starts via [wireAiForGame].
-     *
-     * @param modelOverride Optional LLM model override for this specific AI player.
-     * @return The AI PlayerIdentity, registered in SessionRegistry.
+     * Create an AI PlayerIdentity for use in a tournament/pod lobby.
+     * [controllerSpec] is the generic durable seat selection; [modelOverride] remains legacy input.
      */
-    fun createAiIdentity(modelOverride: String? = null): PlayerIdentity {
-        require(isEnabled) { "AI is not enabled. Set game.ai.enabled=true." }
-        requireCredentialedOverride(modelOverride)
+    fun createAiIdentity(
+        modelOverride: String? = null,
+        controllerSpec: AiControllerSpec? = null,
+    ): PlayerIdentity {
+        requireAvailableSelection(controllerSpec, modelOverride)
 
         val aiPlayerId = EntityId("ai-${UUID.randomUUID().toString().take(8)}")
         val aiProperties = gameProperties.ai
 
-        // Use a placeholder controller — will be replaced when match starts
-        val controller = createController(aiPlayerId, modelOverride = modelOverride)
-
-        // No game yet, so no callbacks and no step gate — [wireAiForGame] replaces this session
-        // wholesale once a match starts.
+        val controller = createController(
+            aiPlayerId = aiPlayerId,
+            modelOverride = modelOverride,
+            controllerSpec = controllerSpec,
+        )
         val aiSession = buildAiSession(aiPlayerId, controller, gameSession = null)
 
-        val effectiveModel = modelOverride ?: if (gameProperties.ai.isLlmMode) gameProperties.ai.model else null
+        val effectiveModel = modelOverride ?: if (controllerSpec == null && gameProperties.ai.isLlmMode) gameProperties.ai.model else null
         val modelSuffix = effectiveModel?.substringAfterLast('/')?.let { " ($it)" } ?: ""
-        val suffix = if (gameProperties.ai.mode.trim().equals("jev", ignoreCase = true) && modelOverride == null) " (Jev)" else modelSuffix
+        val effectiveMode = controllerSpec?.mode ?: gameProperties.ai.mode
+        val suffix = if (effectiveMode.trim().equals("jev", ignoreCase = true) && modelOverride == null) " (Jev)" else modelSuffix
         val aiName = randomAiName() + suffix
         val identity = PlayerIdentity(
             token = "ai-token-${UUID.randomUUID().toString().take(8)}",
             playerId = aiPlayerId,
             playerName = aiName,
             isAi = true,
-            aiModelOverride = modelOverride
+            aiModelOverride = modelOverride,
+            aiControllerSpec = controllerSpec,
         )
         identity.webSocketSession = aiSession
 
@@ -475,42 +464,48 @@ class AiGameManager(
             playerName = aiName
         )
         sessionRegistry.register(identity, aiSession, playerSession)
-
-        // Track this AI identity so we know which players are AI
         aiPlayerIds.add(aiPlayerId)
 
-        val modelInfo = if (modelOverride != null) "model=$modelOverride" else "model=${aiProperties.model}"
-        logger.info("Created AI identity: {} ({}) [mode={}, {}]", identity.playerName, aiPlayerId.value, aiProperties.mode, modelInfo)
+        logger.info(
+            "Created AI identity: {} ({}) [mode={}, profile={}, legacyModel={}]",
+            identity.playerName,
+            aiPlayerId.value,
+            effectiveMode,
+            controllerSpec?.profileId,
+            modelOverride ?: aiProperties.model,
+        )
         return identity
     }
 
     /**
-     * Re-establish in-memory AI tracking for a [PlayerIdentity] that was loaded from
-     * Redis on server startup. The persisted identity has `isAi = true` and (optionally)
-     * an `aiModelOverride`, but no live [AiWebSocketSession] (those aren't persisted).
-     *
-     * This adds the player back to [aiPlayerIds], creates a fresh placeholder
-     * [AiWebSocketSession] with no-op callbacks (real ones get wired by `wireAiForGame`
-     * when a match starts), and re-registers it in [SessionRegistry] so message routing
-     * and `identity.isConnected` work again.
+     * Re-establish in-memory AI tracking for a [PlayerIdentity] loaded from persistence.
+     * Explicit controller specs fail closed if their provider/profile is unavailable; legacy model
+     * overrides retain their historical degradation behavior.
      */
     fun rehydrateAiIdentity(identity: PlayerIdentity) {
         require(identity.isAi) { "rehydrateAiIdentity called on non-AI identity ${identity.playerName}" }
-        if (!isEnabled) {
-            logger.warn("AI is disabled but recovered AI identity {}; AI players will not act.",
-                identity.playerName)
+        if (!gameProperties.ai.enabled) {
+            logger.warn("AI is disabled but recovered AI identity {}; AI players will not act.", identity.playerName)
             return
         }
 
         val aiPlayerId = identity.playerId
-        val aiProperties = gameProperties.ai
+        val controllerSpec = identity.aiControllerSpec
+        if (controllerSpec != null) {
+            requireAvailableSelection(controllerSpec, modelOverride = null)
+        } else if (!isEnabled) {
+            logger.warn("Recovered AI identity {} uses server defaults, but the configured controller is unavailable.", identity.playerName)
+            return
+        }
 
-        val modelOverride = usableModelOverride(
-            identity.aiModelOverride,
-            "rehydrating AI identity ${identity.playerName}"
+        val modelOverride = if (controllerSpec == null) {
+            usableModelOverride(identity.aiModelOverride, "rehydrating AI identity ${identity.playerName}")
+        } else null
+        val controller = createController(
+            aiPlayerId = aiPlayerId,
+            modelOverride = modelOverride,
+            controllerSpec = controllerSpec,
         )
-        val controller = createController(aiPlayerId, modelOverride = modelOverride)
-        // Replaced when a match (or draft) wires this AI, so no callbacks and no step gate here.
         val aiSession = buildAiSession(aiPlayerId, controller, gameSession = null)
 
         identity.webSocketSession = aiSession
@@ -520,17 +515,16 @@ class AiGameManager(
             playerName = identity.playerName
         )
         sessionRegistry.register(identity, aiSession, playerSession)
-
         aiPlayerIds.add(aiPlayerId)
 
-        logger.info("Rehydrated AI identity: {} ({}) [model={}]",
-            identity.playerName, aiPlayerId.value, modelOverride ?: aiProperties.model)
+        logger.info("Rehydrated AI identity: {} ({}) [mode={}, profile={}]",
+            identity.playerName,
+            aiPlayerId.value,
+            controllerSpec?.mode ?: gameProperties.ai.mode,
+            controllerSpec?.profileId)
     }
 
-    /**
-     * Wire an AI player's session for a specific tournament match.
-     * Replaces the no-op callbacks with ones that feed actions into the given GameSession.
-     */
+    /** Wire an AI player's session for a specific tournament/pod match. */
     fun wireAiForGame(
         gameSession: GameSession,
         aiPlayerId: EntityId,
@@ -542,21 +536,24 @@ class AiGameManager(
     ) {
         val identity = sessionRegistry.getAllIdentities().find { it.playerId == aiPlayerId }
         val oldSession = identity?.webSocketSession as? AiWebSocketSession
-        if (oldSession != null) {
-            oldSession.shutdown()
-        }
+        if (oldSession != null) oldSession.shutdown()
 
-        val aiProperties = gameProperties.ai
-        val modelOverride = usableModelOverride(
-            lookupModelOverride(aiPlayerId),
-            "wiring AI ${aiPlayerId.value} for game ${gameSession.sessionId}"
+        val controllerSpec = identity?.aiControllerSpec
+        if (controllerSpec != null) requireAvailableSelection(controllerSpec, modelOverride = null)
+        val modelOverride = if (controllerSpec == null) {
+            usableModelOverride(
+                lookupModelOverride(aiPlayerId),
+                "wiring AI ${aiPlayerId.value} for game ${gameSession.sessionId}"
+            )
+        } else null
+        val controller = createController(
+            aiPlayerId = aiPlayerId,
+            gameSession = gameSession,
+            modelOverride = modelOverride,
+            controllerSpec = controllerSpec,
         )
-        val controller = createController(aiPlayerId, gameSession, modelOverride)
 
-        // Give the AI knowledge of its deck composition
-        if (deckList != null) {
-            controller.setDeckList(deckList)
-        }
+        if (deckList != null) controller.setDeckList(deckList)
 
         val newSession = buildAiSession(
             aiPlayerId = aiPlayerId,
@@ -568,7 +565,6 @@ class AiGameManager(
             onBottomCards = onBottomCards,
         )
 
-        // Update identity and registry to use the new session
         identity?.webSocketSession = newSession
         if (identity != null) {
             val playerSession = PlayerSession(
@@ -579,20 +575,15 @@ class AiGameManager(
             sessionRegistry.setPlayerSession(newSession.id, playerSession)
         }
 
-        // The transport delta cache belongs to the previous virtual session. A replacement
-        // AiWebSocketSession has no synchronized ClientGameState yet, so force its first update
-        // to be a full masked StateUpdate rather than a delta based on stale transport history.
         gameSession.clearLastSentState(aiPlayerId)
-
         trackSession(gameSession.sessionId, aiPlayerId, newSession)
-        logger.info("Wired AI {} for game {} [mode={}]", aiPlayerId.value, gameSession.sessionId, aiProperties.mode)
+        logger.info("Wired AI {} for game {} [mode={}, profile={}]",
+            aiPlayerId.value,
+            gameSession.sessionId,
+            controllerSpec?.mode ?: gameProperties.ai.mode,
+            controllerSpec?.profileId)
     }
 
-    /**
-     * Adjust the per-decision thinking delay of an AI player's live session. Used by the
-     * LLM-tournament pacing control to speed up / slow down an in-progress AI-vs-AI game.
-     * No-op if the player isn't an AI or has no live session.
-     */
     fun setThinkingDelay(aiPlayerId: EntityId, thinkingDelayMs: Long) {
         val ws = sessionRegistry.getAllIdentities()
             .firstOrNull { it.playerId == aiPlayerId }
@@ -600,27 +591,16 @@ class AiGameManager(
         ws?.thinkingDelayMs = thinkingDelayMs
     }
 
-    /** Set of all AI player IDs (persists across matches within a tournament). */
     private val aiPlayerIds = ConcurrentHashMap.newKeySet<EntityId>()
 
-    /**
-     * Check if a player is an AI.
-     */
     fun isAiPlayer(playerId: EntityId): Boolean = playerId in aiPlayerIds
 
-    /**
-     * Clean up AI resources when a game ends.
-     */
     fun cleanupGame(gameSessionId: String) {
         val sessions = activeSessions.remove(gameSessionId) ?: return
         sessions.values.forEach { it.shutdown() }
         logger.info("Cleaned up {} AI session(s) for game {}", sessions.size, gameSessionId)
     }
 
-    /**
-     * Check if a game has an AI player.
-     */
     fun hasAiPlayer(gameSessionId: String): Boolean =
         activeSessions[gameSessionId]?.isNotEmpty() == true
-
 }
