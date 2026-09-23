@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Bloodline Recollector // Ancestral Craving — Reality Fracture #49
@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.values.TurnTracker
  * Prepare: this creature does NOT enter prepared (no PREPARED keyword). Its end-step trigger fires
  * on *each* end step (yours and opponents') and is gated as an intervening-if (CR 603.4) on three
  * or more creatures having died this turn — a global count across all players, expressed as
- * `Compare(TurnTracking(Each, CREATURES_DIED) GTE 3)`. Becoming prepared creates a copy of its
+ * `creaturesDiedThisTurn(Player.Each) >= 3` (tokens count). Becoming prepared creates a copy of its
  * prepare spell ("Ancestral Craving") in exile that its controller may cast for {B}; casting that
  * copy unprepares the creature.
  */
@@ -42,7 +42,7 @@ val BloodlineRecollector = card("Bloodline Recollector") {
     triggeredAbility {
         trigger = Triggers.EachEndStep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmount.TurnTracking(Player.Each, TurnTracker.CREATURES_DIED),
+            DynamicAmounts.creaturesDiedThisTurn(Player.Each),
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(3),
         )
