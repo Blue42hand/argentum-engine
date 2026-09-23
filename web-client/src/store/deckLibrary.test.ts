@@ -1,10 +1,26 @@
 import { describe, expect, it } from 'vitest'
-import { buildDraftedDeckSave, type PoolCardPrinting } from './deckLibrary'
+import {
+  buildDraftedDeckSave,
+  mergeCommanderIntoCards,
+  stripCommanderFromCards,
+  type PoolCardPrinting,
+} from './deckLibrary'
 
 const card = (name: string, setCode?: string, collectorNumber?: string): PoolCardPrinting => ({
   name,
   setCode: setCode ?? null,
   collectorNumber: collectorNumber ?? null,
+})
+
+describe('Commander deck storage shape', () => {
+  it('round-trips a 99-card library through the full 100-card picker view', () => {
+    const library = { Mountain: 99 }
+    const full = mergeCommanderIntoCards(library, 'Krenko, Mob Boss')
+
+    expect(full).toEqual({ Mountain: 99, 'Krenko, Mob Boss': 1 })
+    expect(Object.values(full).reduce((sum, count) => sum + count, 0)).toBe(100)
+    expect(stripCommanderFromCards(full, 'Krenko, Mob Boss')).toEqual(library)
+  })
 })
 
 describe('buildDraftedDeckSave', () => {
