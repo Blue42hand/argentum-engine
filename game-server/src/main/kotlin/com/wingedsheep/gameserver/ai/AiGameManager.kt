@@ -82,6 +82,7 @@ class AiGameManager(
             "Thought Harvester",
             "The Stack Tyrant",
             "Mindripper Prime",
+            "Soulless Topdeckr",
             "The Unblinkable",
             "Dread Calculus",
             "Synapse Ravager",
