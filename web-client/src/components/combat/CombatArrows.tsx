@@ -292,11 +292,15 @@ export function CombatArrows() {
     pendingDecision?.context?.phase === 'COMBAT'
 
   // Hide all arrows during full-screen overlay decisions (e.g., ChooseColorDecision)
-  // But keep arrows visible for combat trigger YesNo decisions (e.g., Gustcloak Savior)
+  // But keep arrows visible for combat trigger YesNo decisions (e.g., Gustcloak Savior) — only
+  // while the triggering permanent is still on the battlefield. A defeated Siege's "cast it
+  // transformed" prompt is triggered by a battle already in exile, and its modal must not have
+  // attack chevrons drawn over it.
+  const yesNoTrigger = pendingDecision?.type === 'YesNoDecision' ? pendingDecision.context.triggeringEntityId : undefined
   const hasOverlayDecision = pendingDecision != null &&
     pendingDecision.type !== 'ChooseTargetsDecision' &&
     !(pendingDecision.type === 'SelectCardsDecision' && pendingDecision.useTargetingUI) &&
-    !(pendingDecision.type === 'YesNoDecision' && pendingDecision.context.triggeringEntityId)
+    !(yesNoTrigger != null && cards?.[yesNoTrigger]?.zone?.zoneType === ZoneType.BATTLEFIELD)
 
   // Track mouse/touch position during drag (blocker or attacker)
   useEffect(() => {
