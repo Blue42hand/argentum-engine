@@ -1985,6 +1985,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   colorless artifact with "When this token enters, it deals 2 damage to any target." and "{T}: Add
   one mana of any color." Roxanne creates them `tapped = true`.
 - `CreateMutavault(count?, tapped?, controller?)` — Mutavault tokens.
+- `CreateHeartwood(count?, tapped?, controller?)` — Heartwood tokens (Reality Fracture): a red and
+  green "Artifact — Heartwood" with "{T}: Add {R} or {G}."
 - `CreateEverywhere(count?, tapped?, controller?)` — Everywhere land tokens (Overlord of the Hauntwoods):
   a colorless land token with all five basic land subtypes (Plains/Island/Swamp/Mountain/Forest) that
   taps for any color — i.e. the mana ability of each basic land type, without the basic supertype. The
@@ -4599,6 +4601,9 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   projection / trigger matching / cost calculation report `false` (no X context). Underlying
   predicate: `CardPredicate.PowerAtLeastX`.
 - `.tapped()` / `.untapped()` — tap state.
+- `.prepared()` — `StatePredicate.IsPrepared`: the permanent is prepared (Secrets of Strixhaven
+  prepare — its `PreparedComponent` names a castable exile copy of its prepare spell). Only a card
+  with a prepare spell can be prepared, so it matches nothing else.
 - `.withCounter(type)` / `.withoutCounter(type)` / `.withAnyCounter()` / `.withoutCounters()` — counter presence: a specific kind,
   absence of one specific kind while permitting others, any kind, or no counters at all. The named
   negative form models clauses such as Oblivion Stone's “without a fate counter on it.”
@@ -10231,6 +10236,9 @@ that works in both resolution and static-ability (projection) contexts.
   strike as long as it's blocking or blocked by a Goblin or Orc."
 - `SourceIsTapped` — source is tapped.
 - `SourceIsUntapped` — source is untapped.
+- `SourceIsPrepared` — source is prepared (`SourceMatches(Any.prepared())`). `Not(SourceIsPrepared)`
+  is the intervening-if of "At the beginning of your upkeep, if this creature isn't prepared, it
+  becomes prepared" (Woodwork Prodigy, Paradox Shaper).
 - `SourceEnteredThisTurn` — source entered the battlefield this turn.
 - `SourceIsSaddled` — source is saddled (CR 702.171b). Gates Mount payoffs on "while saddled" /
   "as long as it's saddled"; evaluates identically at resolution and during projection.
