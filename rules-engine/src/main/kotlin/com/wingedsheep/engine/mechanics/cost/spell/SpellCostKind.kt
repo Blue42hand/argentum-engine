@@ -209,9 +209,6 @@ class SpellCostLedger(
     /** Pipeline storage populated by Behold / ChooseEntity, consumed by ExileFromStorage. */
     val costPipelineCollections = mutableMapOf<String, List<EntityId>>()
 
-    /** Generic mana taken off the spell's total cost by what was paid (Torgaar's sacrifices). */
-    var genericReduction = 0
-
     /**
      * Sacrifices [permId] as a cost: the sacrifice record (for "whenever you sacrifice"), the
      * sacrifice event, and the move to the graveyard with its leave-the-battlefield events.

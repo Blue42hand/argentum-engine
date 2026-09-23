@@ -199,7 +199,10 @@ internal object ExileVariableCardsCostKind : SpellCostKind<AdditionalCost.ExileV
     }
 }
 
-/** "You may sacrifice any number of creatures; this spell costs {2} less for each" (Torgaar). */
+/**
+ * "You may sacrifice any number of creatures; this spell costs {2} less for each" (Torgaar). The
+ * reduction is part of the total cost (`CastCostTotaller`), priced from the declared sacrifices.
+ */
 internal object SacrificeForCostReductionCostKind : SpellCostKind<AdditionalCost.SacrificeCreaturesForCostReduction> {
     // Always payable — sacrificing 0 creatures is valid.
     override fun canPay(state: GameState, payerId: EntityId, cost: AdditionalCost.SacrificeCreaturesForCostReduction, costHandler: CostHandler) = true
@@ -239,8 +242,6 @@ internal object SacrificeForCostReductionCostKind : SpellCostKind<AdditionalCost
             if (ledger.state.getEntity(permId) == null) continue
             ledger.sacrifice(permId)
         }
-        // The cost reduction is based on the number of creatures sacrificed.
-        ledger.genericReduction += sacrificed.size * cost.costReductionPerCreature
         return null
     }
 }
