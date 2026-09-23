@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 204 / 285
+**Implemented:** 215 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -46,7 +46,7 @@
 - [x] Charge the Sanctum
 - [ ] Clash of Elements
 - [ ] Codie, Ravenous Codex
-- [ ] Command the Stage
+- [x] Command the Stage
 - [ ] Compel Brutality
 - [ ] Countersculpt
 - [x] Craftwork Crusher
@@ -78,7 +78,7 @@
 - [x] Eye of Jace
 - [ ] Face Yourself
 - [x] Fatehold Annex
-- [ ] Fatehold Charm
+- [x] Fatehold Charm
 - [x] Fatehold Chronologist
 - [x] Fateshaper Aspirant
 - [ ] Fblthp, Impossibly Lost
@@ -91,7 +91,7 @@
 - [x] Frostbite Pyromental
 - [x] Fulminous Forte
 - [x] Gallia, Tragic Host
-- [ ] Gallia, the Merrymaker
+- [x] Gallia, the Merrymaker
 - [ ] Gardenize
 - [ ] Garruk, Curse Breaker
 - [ ] Garruk, Veiled Butcher
@@ -104,7 +104,7 @@
 - [ ] Gideon's Memorial
 - [x] Graft Surgeon
 - [x] Greenhouse Propagator
-- [ ] Grim Repriser
+- [x] Grim Repriser
 - [x] Guiding Hydra
 - [ ] Hall of Echoes
 - [x] Hallway Heckler
@@ -152,11 +152,11 @@
 - [x] Lyra, Archangel of Dawn
 - [ ] Lyra, Tolarian Archangel
 - [x] Mabel, Bitter Recluse
-- [ ] Mabel, Valley Hero
+- [x] Mabel, Valley Hero
 - [x] Marwyn, the Clearcutter
 - [x] Marwyn, the Preserver
 - [x] Massacre Girl, Most Wanted
-- [ ] Master of Barbs
+- [x] Master of Barbs
 - [x] Medic's Kitesail
 - [x] Memory Trap
 - [x] Meticulous Commons
@@ -179,7 +179,7 @@
 - [x] Pompous Battlemage
 - [x] Precise Redaction
 - [x] Predictive Preparations
-- [ ] Primal Witchstalker
+- [x] Primal Witchstalker
 - [x] Proctor of Potential
 - [x] Proft, Consulting Detective
 - [x] Proft, Sinister Mastermind
@@ -253,7 +253,7 @@
 - [x] Theorix Metamage
 - [x] Tinybones, Pocket Nuisance
 - [x] Titanbones, Towering Heart
-- [ ] Tomik, Izzet Sparkmage
+- [x] Tomik, Izzet Sparkmage
 - [ ] Tomik, Orzhov Lawmage
 - [x] Transformative Commons
 - [x] Traxos, Academy Guardian
@@ -278,16 +278,16 @@
 - [x] Vraska, the Cutting Glare
 - [ ] Warrior's Blades
 - [ ] Way of the Cryomancer
-- [ ] Way of the Deathbringer
+- [x] Way of the Deathbringer
 - [x] Way of the Healer
 - [x] Way of the Mentor
 - [ ] Way of the Mind Sculptor
 - [x] Way of the Necromancer
 - [x] Way of the Paradox
 - [x] Way of the Pyromancer
-- [ ] Way of the Warlord
+- [x] Way of the Warlord
 - [x] Way of the Wildspeaker
-- [ ] Whiplash Wordsmith
+- [x] Whiplash Wordsmith
 - [x] Winter, Team Player
 - [x] Winter, Tormented Loner
 - [x] Woodwork Prodigy
