@@ -180,6 +180,44 @@ class MoveToZoneEffectExecutor(
             )
         )
 
+        // A permanent put directly onto the battlefield still applies its own "as this enters,
+        // choose ..." replacement before ETB triggers are allowed to observe the entry. Reuse the
+        // same on-battlefield continuation as played lands and definition-minted tokens. The
+        // continuation owns ETB trigger detection, so omit this object's entry ZoneChangeEvent from
+        // carryEvents and pin the old/new object refs from that event across the decision pause.
+        if (actualDestZone == Zone.BATTLEFIELD &&
+            effect.faceDown == null &&
+            currentZone.zoneType != Zone.BATTLEFIELD
+        ) {
+            val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
+            val firstChoice = cardDef?.script?.replacementEffects
+                ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithChoice>()
+                ?.sortedBy { it.choiceType.ordinal }
+                ?.firstOrNull()
+            if (firstChoice != null) {
+                val entryEvent = transitionResult.events
+                    .filterIsInstance<com.wingedsheep.engine.core.ZoneChangeEvent>()
+                    .firstOrNull { it.entityId == targetId }
+                val paused = PermanentEntryReplacements.pauseForEntersWithChoice(
+                    state = resultState,
+                    entityId = targetId,
+                    controllerId = controllerId,
+                    cardComponent = cardComponent,
+                    choice = firstChoice,
+                    fromZone = currentZone.zoneType,
+                    entryOldObject = entryEvent?.oldObject,
+                    entryNewObject = entryEvent?.newObject,
+                    carryEvents = (transitionResult.events + extraEvents).filterNot {
+                        it is com.wingedsheep.engine.core.ZoneChangeEvent && it.entityId == targetId
+                    },
+                    cardNameOptions = if (firstChoice.choiceType == com.wingedsheep.sdk.scripting.ChoiceType.CARD_NAME) {
+                        cardRegistry.cardNamesIn(firstChoice.cardNamePool).toList()
+                    } else emptyList(),
+                )
+                if (paused != null) return EffectResult.from(paused)
+            }
+        }
+
         // "As this permanent enters, run [effect]" (OnEnterRunEffect) — the self-replacement
         // PlayLandHandler runs inline for a played land, applied here for every *other* way a card
         // reaches the battlefield: reanimation, a blink or earthbend return from exile. Without it
