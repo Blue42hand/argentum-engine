@@ -545,6 +545,13 @@ sealed interface ClientMessage {
          * (both seats logged in) at start.
          */
         val ranked: Boolean = false,
+        /**
+         * Optional explicit controller selection for the AI opponent. Null follows the server-wide
+         * `game.ai.mode` fallback. External [com.wingedsheep.gameserver.ai.AiControllerSpec.profileId]
+         * values stay opaque to game-server and are resolved fail-closed against the provider catalog.
+         * Only meaningful when [vsAi] is true.
+         */
+        val aiControllerSpec: com.wingedsheep.gameserver.ai.AiControllerSpec? = null,
     ) : ClientMessage
 
     /**
