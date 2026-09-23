@@ -40,6 +40,7 @@ import com.wingedsheep.sdk.scripting.PlayFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlotFromTopOfLibrary
 import com.wingedsheep.engine.mechanics.OnceOnlyActivationAllowance
+import com.wingedsheep.engine.mechanics.ActivationRestrictionKernel
 import com.wingedsheep.engine.mechanics.FlashTypeGrants
 import com.wingedsheep.sdk.scripting.ExtraOnceOnlyActivations
 import com.wingedsheep.sdk.scripting.PlayersCantActivateAbilities
@@ -83,54 +84,10 @@ class CastPermissionUtils(
         restriction: ActivationRestriction,
         sourceId: EntityId? = null,
         ability: ActivatedAbility
-    ): Boolean {
-        return when (restriction) {
-            is ActivationRestriction.AnyPlayerMay -> true
-            is ActivationRestriction.OnlyDuringYourTurn -> state.isActiveTurnFor(playerId)
-            is ActivationRestriction.BeforeStep -> state.step.ordinal < restriction.step.ordinal
-            is ActivationRestriction.DuringPhase -> state.phase == restriction.phase
-            is ActivationRestriction.DuringStep -> state.step == restriction.step
-            is ActivationRestriction.OnlyIfCondition -> {
-                val context = EffectContext(
-                    sourceId = sourceId,
-                    controllerId = playerId,
-                    targets = emptyList(),
-                    xValue = 0
-                )
-                conditionEvaluator.evaluate(state, restriction.condition, context)
-            }
-            is ActivationRestriction.OncePerTurn -> {
-                if (sourceId == null) true
-                else {
-                    val tracker = state.getEntity(sourceId)?.get<AbilityActivatedThisTurnComponent>()
-                    tracker == null || !tracker.hasActivated(ability.id)
-                }
-            }
-            is ActivationRestriction.MaxPerTurn -> {
-                if (sourceId == null) true
-                else {
-                    val tracker = state.getEntity(sourceId)?.get<AbilityActivatedThisTurnComponent>()
-                    (tracker?.activationCount(ability.id) ?: 0) < restriction.count
-                }
-            }
-            is ActivationRestriction.Once -> {
-                if (sourceId == null) true
-                else mayActivateOnceOnlyAbility(state, playerId, sourceId, ability)
-            }
-            is ActivationRestriction.ControlledSinceYourMostRecentTurn -> {
-                // "Controlled continuously since the beginning of your most recent turn" — the
-                // summoning-sickness condition (CR 302.6) generalized to any permanent. The engine
-                // re-stamps SummoningSicknessComponent on entry and on every control change and
-                // clears it at the controller's untap, so its absence is exactly this predicate.
-                if (sourceId == null) true
-                else state.getEntity(sourceId)
-                    ?.has<com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent>() != true
-            }
-            is ActivationRestriction.All -> restriction.restrictions.all {
-                checkActivationRestriction(state, playerId, it, sourceId, ability)
-            }
-        }
-    }
+    ): Boolean = activationRestrictionKernel.isSatisfied(state, playerId, restriction, sourceId, ability)
+
+    /** The shared [ActivationRestriction] evaluation; see [ActivationRestrictionKernel]. */
+    private val activationRestrictionKernel = ActivationRestrictionKernel(cardRegistry, conditionEvaluator)
 
     fun checkCastRestrictions(
         state: GameState,

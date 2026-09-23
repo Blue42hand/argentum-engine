@@ -28,8 +28,8 @@ import java.io.File
  * an escape hatch.
  *
  * **Known limit, stated plainly:** the allowlist is per *file*, not per line, so a new open-coded
- * tap gate added inside **any** of the eight [ALLOWED_FILES] would not be caught — not just the two
- * biggest (`ManaSolver.kt`, `ActivateAbilityHandler.kt`) but `CastPermissionUtils.kt` and
+ * tap gate added inside **any** of the seven [ALLOWED_FILES] would not be caught — not just the
+ * biggest (`ManaSolver.kt`) but `ActivationRestrictionKernel.kt` and
  * `SacrificeAndPayContinuationResumer.kt` equally. Every *other* file in
  * `rules-engine/src/main/kotlin` is covered. The scan also does not cover `ai/`, `game-server/`,
  * `gym/` or `mtg-sets/` at all; the reads there are attack-evaluation heuristics and scenario setup.
@@ -72,16 +72,16 @@ class SummoningSicknessGateEnforcementTest : FunSpec({
             // The *attack* half of CR 302.6 (CR 702.10b). Reads plain haste on purpose — an
             // "activate as though hasty" grant must never make a creature able to attack.
             "com/wingedsheep/engine/mechanics/combat/rules/AttackRestrictionRules.kt",
-            // Two non-gate reads: ManaSource.canAttack (an auto-tap preference that models
-            // attacking, so plain haste is correct) and ActivationRestriction
-            // .ControlledSinceYourMostRecentTurn. See the class KDoc's "known limit".
+            // ManaSource.canAttack — an auto-tap preference that models attacking, so plain haste
+            // is correct. See the class KDoc's "known limit".
             "com/wingedsheep/engine/mechanics/mana/ManaSolver.kt",
             // ActivationRestriction.ControlledSinceYourMostRecentTurn — a printed activation
             // restriction generalized beyond creatures; haste does not lift it (CR 702.10c covers
-            // only the tap/untap symbols). See the class KDoc's "known limit".
+            // only the tap/untap symbols). The one evaluation shared by the activation handler,
+            // the enumerators and the mana solver.
+            "com/wingedsheep/engine/mechanics/ActivationRestrictionKernel.kt",
+            // Same restriction, still evaluated by the handler's own restriction switch.
             "com/wingedsheep/engine/handlers/actions/ability/ActivateAbilityHandler.kt",
-            // Same restriction, evaluated during enumeration.
-            "com/wingedsheep/engine/legalactions/utils/CastPermissionUtils.kt",
             // The client's "summoning sick" badge, which reports attack-readiness.
             "com/wingedsheep/engine/view/ClientStateTransformer.kt",
         )
