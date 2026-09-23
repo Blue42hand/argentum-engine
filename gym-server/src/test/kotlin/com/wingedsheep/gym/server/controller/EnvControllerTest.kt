@@ -8,6 +8,7 @@ import com.wingedsheep.gym.service.PlayerSpec
 import com.wingedsheep.gym.server.dto.CreateEnvResponse
 import com.wingedsheep.gym.server.dto.DisposeBody
 import com.wingedsheep.gym.server.dto.SchemaHashResponse
+import com.wingedsheep.gym.server.dto.ServiceStatusResponse
 import com.wingedsheep.gym.server.dto.StepBody
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -35,7 +36,10 @@ import java.net.http.HttpResponse
  * rejection. Sealed-deck flows and structured decisions belong in
  * dedicated tests alongside the controllers.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["argentum.build-revision=test-build-revision"]
+)
 class EnvControllerTest : FunSpec() {
 
     @LocalServerPort
@@ -97,6 +101,16 @@ class EnvControllerTest : FunSpec() {
             response.statusCode() shouldBe 200
             response.body() shouldContain "\"status\""
             response.body() shouldContain "\"ok\""
+        }
+
+        test("GET /status returns service, schema, and configured build identity") {
+            val response = get("/status")
+            response.statusCode() shouldBe 200
+            val parsed = json.decodeFromString<ServiceStatusResponse>(response.body())
+            parsed.status shouldBe "ok"
+            parsed.service shouldBe "argentum-gym-server"
+            parsed.schemaHash.shouldNotBe("")
+            parsed.buildRevision shouldBe "test-build-revision"
         }
 
         test("GET /v3/api-docs serves the OpenAPI spec") {
