@@ -313,9 +313,11 @@ class LobbyHandler(
     fun createAiTournamentWithFixedDecks(
         decks: List<Map<String, Int>>,
         models: List<String>? = null,
+        gamesPerMatch: Int? = null,
     ): String {
         require(aiGameManager.isEnabled) { "AI opponent is not enabled on this server" }
         require(decks.size in 2..8) { "Player count must be between 2 and 8 (got ${decks.size} decks)" }
+        require(gamesPerMatch == null || gamesPerMatch in 1..9) { "Games per match must be between 1 and 9" }
 
         // Validate all decks against the registry up front so we surface bad card names before
         // creating the lobby.
@@ -334,7 +336,8 @@ class LobbyHandler(
             format = TournamentFormat.PREMADE_DECKS,
             boosterCount = 0,
             boosterDistribution = emptyMap(),
-            maxPlayers = decks.size
+            maxPlayers = decks.size,
+            gamesPerMatch = gamesPerMatch ?: 3,
         )
 
         val playerIds = mutableListOf<EntityId>()
