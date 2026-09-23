@@ -1,7 +1,9 @@
 server:
+  # Loopback by default: the gym API is unauthenticated. Set
+  # GYM_SERVER_BIND_ADDRESS=0.0.0.0 (e.g. inside a container) to expose it.
+  address: ${GYM_SERVER_BIND_ADDRESS:127.0.0.1}
   # Distinct port from game-server (8080) so both can run side-by-side
   # during development.
-  address: ${GYM_SERVER_BIND_ADDRESS:127.0.0.1}
   port: 8081
 
 spring:

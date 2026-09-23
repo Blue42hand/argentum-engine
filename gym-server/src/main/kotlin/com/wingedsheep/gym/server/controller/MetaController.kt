@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @Tag(name = "Meta", description = "Schema version + liveness + build identity — hit these at client startup.")
 class MetaController(
+    @Value("\${spring.application.name}")
+    private val serviceName: String,
     @Value("\${argentum.build-revision:unknown}")
     private val buildRevision: String
 ) {
@@ -38,6 +40,7 @@ class MetaController(
     @Operation(summary = "Service status and build identity")
     @GetMapping("/status")
     fun status(): ServiceStatusResponse = ServiceStatusResponse(
+        service = serviceName,
         schemaHash = SchemaHash.CURRENT,
         buildRevision = buildRevision
     )

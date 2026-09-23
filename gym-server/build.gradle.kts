@@ -26,11 +26,8 @@ dependencies {
     testImplementation(libs.kotestExtensionsSpring)
 }
 
+// Pin the entry point rather than relying on main-class discovery; this one setting feeds
+// bootRun, bootJar and resolveMainClassName alike.
 springBoot {
-    mainClass.set("com.wingedsheep.gym.server.GymServerApplicationKt")
-}
-
-// Spring Boot does not always infer the Kotlin top-level main class for bootRun.
-tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
     mainClass.set("com.wingedsheep.gym.server.GymServerApplicationKt")
 }

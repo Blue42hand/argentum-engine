@@ -1,5 +1,6 @@
 package com.wingedsheep.gym.server.controller
 
+import com.wingedsheep.gym.contract.SchemaHash
 import com.wingedsheep.gym.contract.TrainingObservation
 import com.wingedsheep.gym.service.DeckSpec
 import com.wingedsheep.gym.service.EnvConfig
@@ -109,8 +110,22 @@ class EnvControllerTest : FunSpec() {
             val parsed = json.decodeFromString<ServiceStatusResponse>(response.body())
             parsed.status shouldBe "ok"
             parsed.service shouldBe "argentum-gym-server"
-            parsed.schemaHash.shouldNotBe("")
+            parsed.schemaHash shouldBe SchemaHash.CURRENT
             parsed.buildRevision shouldBe "test-build-revision"
+        }
+
+        // Lives here rather than in its own @SpringBootTest so it shares this class's application
+        // context — a second one would register the whole card catalogue again.
+        test("GET /actuator/metrics/http.server.requests records completed requests with standard tags") {
+            get("/health").statusCode() shouldBe 200
+
+            val metrics = get("/actuator/metrics/http.server.requests")
+            metrics.statusCode() shouldBe 200
+            metrics.body() shouldContain "\"name\":\"http.server.requests\""
+            metrics.body() shouldContain "\"tag\":\"method\""
+            metrics.body() shouldContain "\"tag\":\"status\""
+            metrics.body() shouldContain "\"tag\":\"uri\""
+            metrics.body() shouldContain "/health"
         }
 
         test("GET /v3/api-docs serves the OpenAPI spec") {
