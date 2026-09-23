@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.PreventCycling
 import kotlin.reflect.KClass
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Handler for the CycleCard action.
@@ -264,7 +265,7 @@ class CycleCardHandler(
             replacementProcessor = replacementProcessor
         )
         val drawResult = drawExecutor.executeDraws(currentState, action.playerId, 1)
-        if (drawResult.isPaused) {
+        if (drawResult.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(
                 drawResult.state,
                 events + drawResult.events

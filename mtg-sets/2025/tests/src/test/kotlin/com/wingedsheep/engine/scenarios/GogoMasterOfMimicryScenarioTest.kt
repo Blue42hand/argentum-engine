@@ -16,6 +16,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Scenario tests for Gogo, Master of Mimicry — {2}{U} Legendary Creature — Wizard 2/4.
@@ -176,7 +177,7 @@ class GogoMasterOfMimicryScenarioTest : FunSpec({
         )
         val pyroOnStack = driver.getTopOfStack()!!
 
-        driver.submit(
+        (driver.submit(
             ActivateAbility(
                 playerId = me,
                 sourceId = gogo,
@@ -185,7 +186,7 @@ class GogoMasterOfMimicryScenarioTest : FunSpec({
                 xValue = 0,
                 paymentStrategy = PaymentStrategy.FromPool
             )
-        ).isSuccess.shouldBeFalse()
+        ).outcome is Outcome.Done).shouldBeFalse()
     }
 
     test("this ability can't be copied: a second Gogo makes no copy of the first's ability") {

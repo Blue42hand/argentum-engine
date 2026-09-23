@@ -105,16 +105,11 @@ class TriggerProcessor(
             val trigger = liveTriggers[index]
             val result = processSingleTrigger(currentState, trigger)
 
-            if (!result.isSuccess && !result.isPaused) {
-                // Error occurred - return it
-                return ExecutionResult(
-                    state = result.state,
-                    events = allEvents + result.events,
-                    error = result.error
-                )
+            if (result.outcome is Outcome.Rejected) {
+                return ExecutionResult(result.state, allEvents + result.events, result.outcome)
             }
 
-            if (result.isPaused) {
+            if (result.outcome is Outcome.Paused) {
                 // This trigger requires target selection
                 // Store the remaining triggers to process after the decision
                 val remainingTriggers = liveTriggers.drop(index + 1)
@@ -514,7 +509,7 @@ class TriggerProcessor(
             ),
         )
 
-        if (!decisionResult.isPaused || decisionResult.pendingDecision == null) {
+        if (decisionResult.outcome !is Outcome.Paused || decisionResult.pendingDecision == null) {
             return ExecutionResult.error(state, "Failed to create yes/no decision for may trigger")
         }
 
@@ -608,7 +603,7 @@ class TriggerProcessor(
             ),
         )
 
-        if (!decisionResult.isPaused || decisionResult.pendingDecision == null) {
+        if (decisionResult.outcome !is Outcome.Paused || decisionResult.pendingDecision == null) {
             return ExecutionResult.error(state, "Failed to create yes/no decision for may pay mana trigger")
         }
 
@@ -799,7 +794,7 @@ class TriggerProcessor(
             ),
         )
 
-        if (!decisionResult.isPaused || decisionResult.pendingDecision == null) {
+        if (decisionResult.outcome !is Outcome.Paused || decisionResult.pendingDecision == null) {
             return ExecutionResult.error(state, "Failed to create target decision")
         }
 

@@ -337,18 +337,27 @@ data class ProcessedAction(
 
 `ProcessedAction` pairs the core result with an undo checkpoint policy — the engine computes
 the policy based on game rules, and the server follows it mechanically. `ExecutionResult` itself
-captures the three possible outcomes of any action:
+records which of the three possible outcomes an action had, as a sealed type callers `when` over:
 
 ```kotlin
 data class ExecutionResult(
     val state: GameState,
     val events: List<GameEvent> = emptyList(),
-    val error: String? = null,
-    val pendingDecision: PendingDecision? = null
+    val outcome: Outcome = Outcome.Done
 )
+
+sealed interface Outcome {
+    data object Done : Outcome
+    data class Paused(val decision: PendingDecision) : Outcome
+    data class Rejected(val reason: Rejection) : Outcome   // IllegalAction | ExecutionFailed
+}
 ```
 
-The `PausedForDecision` case is central to how the engine handles player input mid-resolution — when a
+A pause is not a failure, and a rejection says whose fault it is. `IllegalAction` means validation
+refused the action (a stale or wrong client request). `ExecutionFailed` means the action passed
+validation and then failed partway, which points at a validator gap or an engine bug.
+
+The `Paused` case is central to how the engine handles player input mid-resolution — when a
 spell requires a choice (e.g., "search your library for a card"), the engine doesn't block. It returns a
 paused result with a `PendingDecision` describing what input is needed and a `ContinuationFrame` on the
 state's continuation stack describing how to resume (see [Section 2.4](#24-reentrant-continuations)).

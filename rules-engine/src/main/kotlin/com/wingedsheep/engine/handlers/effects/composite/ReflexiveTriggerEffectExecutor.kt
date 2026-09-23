@@ -77,7 +77,7 @@ class ReflexiveTriggerEffectExecutor(
         // the "you may [action]" prompt is meaningless (saying yes would no-op the action while
         // still firing the payoff), and a mandatory [action] would otherwise resolve vacuously —
         // a discard pipeline on an empty hand auto-selects nothing and reports success, which
-        // `executeActionThenEmit`'s `result.isSuccess` check can't distinguish from a real discard.
+        // `executeActionThenEmit`'s `Outcome.Done` check can't distinguish from a real discard.
         if (!isActionFeasible(state, effect.action, context)) {
             return EffectResult.success(state)
         }
@@ -399,7 +399,7 @@ class ReflexiveTriggerEffectExecutor(
         // Execute the action
         val result = effectExecutor(stateWithCont, effect.action, context)
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             // Action paused for a decision — our continuation sits underneath
             return result
         }
@@ -407,7 +407,7 @@ class ReflexiveTriggerEffectExecutor(
         // Pop our continuation now that the action has finished (success or failure)
         val (_, stateWithoutCont) = result.state.popContinuation()
 
-        if (!result.isSuccess) {
+        if (result.outcome !is Outcome.Done) {
             // Action failed — skip the reflexive trigger entirely
             return EffectResult.success(stateWithoutCont, result.events.toList())
         }

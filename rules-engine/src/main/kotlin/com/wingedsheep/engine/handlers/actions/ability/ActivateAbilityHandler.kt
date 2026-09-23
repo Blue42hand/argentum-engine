@@ -87,6 +87,7 @@ import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.core.Zone
 import kotlin.reflect.KClass
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Result of resolving an activated-ability id on an object.
@@ -672,7 +673,7 @@ class ActivateAbilityHandler(
             priorityPlayerId = state.priorityPlayerId,
             priorityPassedBy = state.priorityPassedBy
         )
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(restored, result.events)
         }
         return ManaPaymentWindow.resumeIfPending(restored, result.events, cardRegistry)
@@ -1724,10 +1725,10 @@ class ActivateAbilityHandler(
             // the activation's own events out with it, so the settle boundary queues the triggers
             // they cause (Wizard's Rockets' dies trigger, Ceaseless Searblades' activation trigger)
             // until the ability finishes resolving.
-            if (effectResult.isPaused) {
+            if (effectResult.outcome is Outcome.Paused) {
                 return ExecutionResult.propagatePause(effectResult.state, events + effectResult.events)
             }
-            if (!effectResult.isSuccess) {
+            if (effectResult.outcome !is Outcome.Done) {
                 return effectResult
             }
 
@@ -1856,7 +1857,7 @@ class ActivateAbilityHandler(
                 currentState, action.sourceId, cardComponent, action.playerId,
                 manaEvent, events + effectResult.events
             )
-            if (bonusResult.isPaused) return bonusResult
+            if (bonusResult.outcome is Outcome.Paused) return bonusResult
 
             // Triggered abilities from the activation go on the stack at the settle boundary: the
             // cost-side events (a sacrificed source's dies trigger, the {T} TappedEvent for an

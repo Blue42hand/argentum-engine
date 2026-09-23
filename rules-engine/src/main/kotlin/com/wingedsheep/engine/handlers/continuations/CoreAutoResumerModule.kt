@@ -47,7 +47,7 @@ class CoreAutoResumerModule(
                 continuation.remainingItems,
                 continuation.effectContext
             )
-            if (result.isPaused) {
+            if (result.outcome is Outcome.Paused) {
                 return@autoResumer ExecutionResult.propagatePause(
                     result.state, events + result.events
                 )
@@ -135,7 +135,7 @@ class CoreAutoResumerModule(
 
         autoResumer(EffectContinuation::class, canResume = { it.remainingEffects.isNotEmpty() }) { state, continuation, events, checkForMore ->
             val runResult = effectRunner.executeRemainingEffects(state, continuation.remainingEffects, continuation.effectContext)
-            if (runResult.isPaused) {
+            if (runResult.outcome is Outcome.Paused) {
                 return@autoResumer ExecutionResult.propagatePause(runResult.state, events + runResult.events)
             }
             // A drained composite hands its pipeline storage to the frame beneath — e.g. a DoAction

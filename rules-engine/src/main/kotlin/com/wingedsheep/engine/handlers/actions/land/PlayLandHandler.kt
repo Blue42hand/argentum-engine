@@ -40,6 +40,7 @@ import com.wingedsheep.engine.legalactions.utils.LandDropUtils
 import com.wingedsheep.sdk.scripting.PlayFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
 import kotlin.reflect.KClass
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Handler for the PlayLand action.
@@ -429,7 +430,7 @@ class PlayLandHandler(
                     ),
                 )
                 val effectResult = effectExecutor(newState, onEnter.effect, effectContext)
-                if (effectResult.isPaused) {
+                if (effectResult.outcome is Outcome.Paused) {
                     return ExecutionResult.propagatePause(
                         effectResult.state,
                         onEnterEvents + effectResult.events,

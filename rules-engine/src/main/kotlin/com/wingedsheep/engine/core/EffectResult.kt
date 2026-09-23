@@ -15,8 +15,7 @@ import com.wingedsheep.sdk.model.EntityId
 data class EffectResult(
     val state: GameState,
     val events: List<GameEvent> = emptyList(),
-    val error: String? = null,
-    val pendingDecision: PendingDecision? = null,
+    val outcome: Outcome = Outcome.Done,
     /** Card collections produced by pipeline effects (GatherCards, SelectFromCollection, etc.) */
     val updatedCollections: Map<String, List<EntityId>> = emptyMap(),
     /** Subtype-group lists produced by pipeline effects (GatherSubtypes, etc.) */
@@ -34,18 +33,19 @@ data class EffectResult(
      */
     val updatedSacrificedPermanents: List<EntitySnapshot> = emptyList(),
 ) {
-    val isSuccess: Boolean get() = error == null && pendingDecision == null
-    val isPaused: Boolean get() = pendingDecision != null
+    /** The rejection's message, or null when the effect was not rejected. */
+    val error: String? get() = (outcome as? Outcome.Rejected)?.reason?.message
+
+    /** The question the effect stopped on, or null when it did not pause. */
+    val pendingDecision: PendingDecision? get() = (outcome as? Outcome.Paused)?.decision
     val newState: GameState get() = state
 
     fun toExecutionResult() =
-        ExecutionResult(state, events, error, pendingDecision)
+        ExecutionResult(state, events, outcome)
 
     companion object {
         /** Wrap an [ExecutionResult] from a non-effect subsystem (e.g., StackResolver). */
-        fun from(result: ExecutionResult) = EffectResult(
-            result.state, result.events, result.error, result.pendingDecision,
-        )
+        fun from(result: ExecutionResult) = EffectResult(result.state, result.events, result.outcome)
 
         fun success(state: GameState): EffectResult =
             EffectResult(state)
@@ -53,8 +53,9 @@ data class EffectResult(
         fun success(state: GameState, events: List<GameEvent>): EffectResult =
             EffectResult(state, events)
 
+        /** See [ExecutionResult.error]. */
         fun error(state: GameState, message: String): EffectResult =
-            EffectResult(state, error = message)
+            EffectResult(state, outcome = Outcome.Rejected(Rejection.ExecutionFailed(message)))
 
         /** Propagate an existing suspension without allocating or installing another question. */
         fun propagatePause(state: GameState, events: List<GameEvent> = emptyList()): EffectResult =

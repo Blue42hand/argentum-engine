@@ -129,6 +129,7 @@ import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
 import kotlin.reflect.KClass
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Handler for the CastSpell action.
@@ -3743,7 +3744,7 @@ class CastSpellHandler(
             castOriginState = state
         )
 
-        if (!castResult.isSuccess) {
+        if (castResult.outcome !is Outcome.Done) {
             return castResult
         }
 
@@ -4067,7 +4068,7 @@ class CastSpellHandler(
                         description = "Copy ${cardComponent.name} $totalCopies time(s)"
                     )
                     val copyResult = stackResolver.putTriggeredAbility(currentCastState, copyAbility)
-                    if (!copyResult.isSuccess) return copyResult
+                    if (copyResult.outcome !is Outcome.Done) return copyResult
                     currentCastState = copyResult.newState
                     allEvents = allEvents + copyResult.events
                 }

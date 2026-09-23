@@ -47,14 +47,14 @@ class Settler(
 ) {
 
     fun settle(executed: ExecutionResult): ExecutionResult {
-        if (executed.error != null) return executed
+        if (executed.outcome is Outcome.Rejected) return executed
         if (executed.state.gameOver) return executed.copy(state = executed.state.withoutPendingTriggers())
         // Nothing has happened yet before the first turn begins: mulligans draw and shuffle, but
         // no one receives priority, and no permanent can have triggered.
         if (mulligansInProgress(executed.state)) return executed
 
         val result = endTheTurnIfRequested(executed)
-        if (result.error != null) return result
+        if (result.outcome is Outcome.Rejected) return result
         val state = result.state
         // A lone priority pass changes nothing on the board, so there is nothing to detect,
         // check, or put on the stack. Skip the full SBA and poll sweep on the engine's most
@@ -143,7 +143,7 @@ class Settler(
             val waiting = apnapOrder(state, state.pendingTriggers)
             val placed = triggerProcessor.processTriggers(state.withoutPendingTriggers(), waiting)
             events += placed.events
-            if (placed.error != null) return ExecutionResult(placed.state, events, error = placed.error)
+            if (placed.outcome is Outcome.Rejected) return ExecutionResult(placed.state, events, placed.outcome)
             placedAny = true
             state = placed.state
 

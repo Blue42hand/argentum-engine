@@ -1012,7 +1012,7 @@ class StackResolver(
         if (isPermanent) {
             // Put permanent on battlefield
             val permanentResult = resolvePermanentSpell(newState, spellId, spellComponent, cardComponent)
-            if (permanentResult.isPaused) {
+            if (permanentResult.outcome is Outcome.Paused) {
                 return ExecutionResult.propagatePause(
                     permanentResult.state,
                     events + permanentResult.events
@@ -1037,7 +1037,7 @@ class StackResolver(
                 resolvedTargets,
                 alignedResolvedTargets
             )
-            if (effectResult.isPaused) {
+            if (effectResult.outcome is Outcome.Paused) {
                 // The spell remains on the stack until its final continuation completes.
                 val allEvents = events + effectResult.events
                 return ExecutionResult.propagatePause(
@@ -2202,7 +2202,7 @@ class StackResolver(
 
             // Main spell done and nothing paused — pop the pre-pushed frame and run the spliced text
             // inline, so the whole resolution stays one ExecutionResult.
-            if (spliceEntries.isNotEmpty() && !effectResult.isPaused && effectResult.error == null) {
+            if (spliceEntries.isNotEmpty() && effectResult.outcome !is Outcome.Paused && effectResult.error == null) {
                 val (_, afterPop) = effectResult.state.popContinuation()
                 val tail = processPreTargetedEffectQueue(
                     state = afterPop,
@@ -2222,7 +2222,7 @@ class StackResolver(
                 effectResult = tail
             }
 
-            if (effectResult.isPaused) {
+            if (effectResult.outcome is Outcome.Paused) {
                 // The finalizer is below all effect and splice frames; no zone change yet.
                 return ExecutionResult.propagatePause(effectResult.state, events + effectResult.events)
             }
@@ -2752,7 +2752,7 @@ class StackResolver(
 
         // If effect is paused awaiting a decision, return paused state
         // The ability entity stays removed (it's off the stack), but the decision must resolve
-        if (effectResult.isPaused) {
+        if (effectResult.outcome is Outcome.Paused) {
             val pausedState = effectResult.state.removeEntity(abilityId)
             return ExecutionResult.propagatePause(
                 pausedState,
@@ -2878,7 +2878,7 @@ class StackResolver(
 
         // If effect is paused awaiting a decision, return paused state
         // The ability entity stays removed (it's off the stack), but the decision must resolve
-        if (effectResult.isPaused) {
+        if (effectResult.outcome is Outcome.Paused) {
             val pausedState = effectResult.state.removeEntity(abilityId)
             return ExecutionResult.propagatePause(
                 pausedState,

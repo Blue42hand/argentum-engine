@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventCycling
 import kotlin.reflect.KClass
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Handler for the TypecycleCard action.
@@ -211,7 +212,7 @@ class TypecycleCardHandler(
         )
 
         val searchResult = effectExecutorRegistry.execute(currentState, searchEffect, effectContext)
-        if (searchResult.isPaused) {
+        if (searchResult.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(
                 searchResult.state,
                 events + searchResult.events

@@ -138,7 +138,7 @@ class EffectAndTriggerContinuationResumer(
                 interveningIf = continuation.interveningIf
             )
             val stackResult = services.stackResolver.putTriggeredAbility(state, elseComponent, emptyList())
-            if (!stackResult.isSuccess) return stackResult
+            if (stackResult.outcome !is Outcome.Done) return stackResult
             return checkForMore(stackResult.newState, stackResult.events.toList())
         }
 
@@ -185,7 +185,7 @@ class EffectAndTriggerContinuationResumer(
             state, abilityComponent, selectedTargets, alignedRequirements
         )
 
-        if (!stackResult.isSuccess) {
+        if (stackResult.outcome !is Outcome.Done) {
             return stackResult
         }
 
@@ -281,7 +281,7 @@ class EffectAndTriggerContinuationResumer(
             state, abilityComponent, continuation.selectedTargets, continuation.targetRequirements
         )
 
-        if (!stackResult.isSuccess) {
+        if (stackResult.outcome !is Outcome.Done) {
             return stackResult
         }
 
@@ -320,7 +320,7 @@ class EffectAndTriggerContinuationResumer(
             continuation.targetRequirement
         )
 
-        if (result.isPaused || !result.isSuccess) return result
+        if (result.outcome is Outcome.Paused || result.outcome !is Outcome.Done) return result
         return checkForMore(result.newState, result.events.toList())
     }
 
@@ -347,11 +347,11 @@ class EffectAndTriggerContinuationResumer(
 
         val result = services.triggerProcessor.processTargetedTrigger(state, unwrappedTrigger, continuation.targetRequirement)
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
 
-        if (!result.isSuccess) {
+        if (result.outcome !is Outcome.Done) {
             return result
         }
 
@@ -391,7 +391,7 @@ class EffectAndTriggerContinuationResumer(
             // Yes to all — unwrap each may and let the standard pipeline target them one by one.
             val unwrapped = run.mapNotNull(::unwrapMayTrigger)
             val result = services.triggerProcessor.processTriggers(state, unwrapped)
-            if (result.isPaused || !result.isSuccess) return result
+            if (result.outcome is Outcome.Paused || result.outcome !is Outcome.Done) return result
             return checkForMore(result.newState, result.events.toList())
         }
 
@@ -415,7 +415,7 @@ class EffectAndTriggerContinuationResumer(
         val unwrapped = unwrapMayTrigger(first)
             ?: return ExecutionResult.error(state, "Batch may continuation resumed on a non-may trigger")
         val result = services.triggerProcessor.processTriggers(workingState, listOf(unwrapped))
-        if (result.isPaused || !result.isSuccess) return result
+        if (result.outcome is Outcome.Paused || result.outcome !is Outcome.Done) return result
         return checkForMore(result.newState, result.events.toList())
     }
 
@@ -454,7 +454,7 @@ class EffectAndTriggerContinuationResumer(
 
         val result = services.effectExecutorRegistry.execute(state, effectToExecute, context).toExecutionResult()
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
 
@@ -506,7 +506,7 @@ class EffectAndTriggerContinuationResumer(
             .execute(state, effectToExecute, continuation.effectContext)
         val result = branchResult.toExecutionResult()
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return result
         }
 
@@ -546,7 +546,7 @@ class EffectAndTriggerContinuationResumer(
             val result = services.effectExecutorRegistry
                 .execute(state, otherwise, continuation.effectContext)
                 .toExecutionResult()
-            return if (result.isPaused) result
+            return if (result.outcome is Outcome.Paused) result
             else checkForMore(result.state, result.events.toList())
         }
 
@@ -594,7 +594,7 @@ class EffectAndTriggerContinuationResumer(
         val result = services.effectExecutorRegistry
             .execute(currentState, ifBeheld, continuation.effectContext)
             .toExecutionResult()
-        if (result.isPaused) return result
+        if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, events + result.events.toList())
     }
 

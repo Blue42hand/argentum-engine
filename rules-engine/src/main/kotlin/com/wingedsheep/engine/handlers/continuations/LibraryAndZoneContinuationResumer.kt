@@ -629,7 +629,7 @@ class LibraryAndZoneContinuationResumer(
             objectReferences = continuation.objectReferences
         )
 
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(result.state, result.events)
         }
 
@@ -996,7 +996,7 @@ class LibraryAndZoneContinuationResumer(
             val moveResult = ZoneMovementUtils.moveCardToZone(afterBottom, discovered, Zone.HAND)
             var afterHand = afterBottom
             val leadingEvents = bottomEvents.toMutableList()
-            if (moveResult.isSuccess) {
+            if (moveResult.outcome is Outcome.Done) {
                 afterHand = moveResult.state
                 leadingEvents.addAll(moveResult.events)
             }
@@ -1021,7 +1021,7 @@ class LibraryAndZoneContinuationResumer(
             val moveResult = ZoneMovementUtils.moveCardToZone(afterBottom, discovered, Zone.HAND)
             var afterHand = afterBottom
             val handEvents = bottomEvents.toMutableList()
-            if (moveResult.isSuccess) {
+            if (moveResult.outcome is Outcome.Done) {
                 afterHand = moveResult.state
                 handEvents.addAll(moveResult.events)
             }
@@ -1085,7 +1085,7 @@ class LibraryAndZoneContinuationResumer(
             val moveResult = ZoneMovementUtils.moveCardToZone(withoutThen, discovered, Zone.HAND)
             var afterHand = withoutThen
             val handEvents = bottomEvents.toMutableList()
-            if (moveResult.isSuccess) {
+            if (moveResult.outcome is Outcome.Done) {
                 afterHand = moveResult.state
                 handEvents.addAll(moveResult.events)
             }
@@ -1119,7 +1119,7 @@ class LibraryAndZoneContinuationResumer(
             pipeline = PipelineState.EMPTY.copy(storedCollections = discoveredCollections)
         )
         val result = effectRunner.executeRemainingEffects(state, listOf(thenEffect), ctx)
-        if (result.isPaused) {
+        if (result.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(result.state, leadingEvents + result.events)
         }
         return checkForMore(result.state, leadingEvents + result.events)
@@ -1172,7 +1172,7 @@ class LibraryAndZoneContinuationResumer(
                 FreeCastFallback.LEAVE -> {}
                 FreeCastFallback.HAND -> {
                     val moveResult = ZoneMovementUtils.moveCardToZone(cleaned, continuation.cardId, Zone.HAND)
-                    if (moveResult.isSuccess) {
+                    if (moveResult.outcome is Outcome.Done) {
                         cleaned = moveResult.state
                         fallbackEvents.addAll(moveResult.events)
                     }
@@ -1290,7 +1290,7 @@ class LibraryAndZoneContinuationResumer(
             ),
         )
         val result = effectRunner.executeRemainingEffects(state, effects, loopContext)
-        if (result.isPaused) return result.toExecutionResult()
+        if (result.outcome is Outcome.Paused) return result.toExecutionResult()
         return checkForMore(result.state, result.events.toList())
     }
 }

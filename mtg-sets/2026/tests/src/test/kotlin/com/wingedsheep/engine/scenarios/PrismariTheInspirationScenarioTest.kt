@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.effects.StormCopyEffect
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Prismari, the Inspiration: "Instant and sorcery spells you cast have storm." The grant is a
@@ -37,7 +38,7 @@ class PrismariTheInspirationScenarioTest : FunSpec({
         driver.putLandOnBattlefield(caster, "Mountain")
         val bolt = driver.putCardInHand(caster, "Lightning Bolt")
 
-        driver.castSpell(caster, bolt, listOf(opponent)).isSuccess shouldBe true
+        driver.castSpell(caster, bolt, listOf(opponent)).outcome shouldBe Outcome.Done
 
         val triggers = stormTriggers(driver)
         triggers.size shouldBe 1
@@ -62,7 +63,7 @@ class PrismariTheInspirationScenarioTest : FunSpec({
         driver.putLandOnBattlefield(caster, "Mountain")
         val bolt = driver.putCardInHand(caster, "Lightning Bolt")
 
-        driver.castSpell(caster, bolt, listOf(opponent)).isSuccess shouldBe true
+        driver.castSpell(caster, bolt, listOf(opponent)).outcome shouldBe Outcome.Done
 
         stormTriggers(driver).size shouldBe 2
     }
@@ -80,7 +81,7 @@ class PrismariTheInspirationScenarioTest : FunSpec({
         driver.putLandOnBattlefield(caster, "Mountain")
         val bolt = driver.putCardInHand(caster, "Lightning Bolt")
 
-        driver.castSpell(caster, bolt, listOf(opponent)).isSuccess shouldBe true
+        driver.castSpell(caster, bolt, listOf(opponent)).outcome shouldBe Outcome.Done
 
         stormTriggers(driver).size shouldBe 0
     }

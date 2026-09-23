@@ -508,7 +508,7 @@ class TurnManager(
             // stay in combat for the rest of the turn.
             if (nextStep == Step.POSTCOMBAT_MAIN) {
                 val endCombatResult = combatManager.endCombat(skipped)
-                if (!endCombatResult.isSuccess) return endCombatResult
+                if (endCombatResult.outcome !is Outcome.Done) return endCombatResult
                 skipped = endCombatResult.newState
                 skipEvents.addAll(endCombatResult.events)
             }
@@ -538,7 +538,7 @@ class TurnManager(
             Step.UNTAP -> {
                 val untapResult = beginningPhaseManager.performUntapStep(newState)
                 if (untapResult.error != null) return untapResult
-                if (untapResult.isPaused) {
+                if (untapResult.outcome is Outcome.Paused) {
                     return parkRestOfTurn(untapResult, newState, AdvanceStepContinuation, events + untapResult.events)
                 }
                 newState = untapResult.newState
@@ -562,18 +562,18 @@ class TurnManager(
 
             Step.DRAW -> {
                 val drawResult = drawPhaseManager.performDrawStep(newState)
-                if (drawResult.isPaused) {
+                if (drawResult.outcome is Outcome.Paused) {
                     return ExecutionResult.propagatePause(
                         drawResult.state,
                         events + drawResult.events
                     )
                 }
-                if (!drawResult.isSuccess) return drawResult
+                if (drawResult.outcome !is Outcome.Done) return drawResult
                 newState = drawResult.newState
                 events.addAll(drawResult.events)
                 // Check state-based actions after draw (Rule 704.3)
                 val sbaResult = sbaChecker.checkAndApply(newState)
-                if (sbaResult.isPaused) {
+                if (sbaResult.outcome is Outcome.Paused) {
                     return ExecutionResult.propagatePause(
                         sbaResult.state,
                         events + sbaResult.events
@@ -598,7 +598,7 @@ class TurnManager(
                 // attacking/blocking and related components). Deferred from the end of combat step
                 // so end-of-combat abilities resolve while their attacking targets are still legal.
                 val endCombatResult = combatManager.endCombat(newState)
-                if (!endCombatResult.isSuccess) return endCombatResult
+                if (endCombatResult.outcome !is Outcome.Done) return endCombatResult
                 newState = endCombatResult.newState
                 events.addAll(endCombatResult.events)
 
@@ -683,11 +683,11 @@ class TurnManager(
                     return advanceStep(newState.copy(step = Step.FIRST_STRIKE_COMBAT_DAMAGE))
                 }
                 val damageResult = combatManager.applyCombatDamage(newState, firstStrike = true)
-                if (!damageResult.isSuccess) return damageResult
+                if (damageResult.outcome !is Outcome.Done) return damageResult
                 newState = damageResult.newState
                 events.addAll(damageResult.events)
                 val sbaHelperResult = StepActionHelper.applySbasAndCheckGameOver(newState, activePlayer, sbaChecker, events)
-                if (sbaHelperResult.isPaused) return sbaHelperResult
+                if (sbaHelperResult.outcome is Outcome.Paused) return sbaHelperResult
                 newState = sbaHelperResult.newState
                 // events already updated by helper
                 if (!newState.gameOver) {
@@ -705,11 +705,11 @@ class TurnManager(
                 // double striker re-divides among the blockers still blocking it.
                 newState = combatManager.clearDamageAssignmentsForNewDamageStep(newState)
                 val damageResult = combatManager.applyCombatDamage(newState, firstStrike = false)
-                if (!damageResult.isSuccess) return damageResult
+                if (damageResult.outcome !is Outcome.Done) return damageResult
                 newState = damageResult.newState
                 events.addAll(damageResult.events)
                 val sbaHelperResult = StepActionHelper.applySbasAndCheckGameOver(newState, activePlayer, sbaChecker, events)
-                if (sbaHelperResult.isPaused) return sbaHelperResult
+                if (sbaHelperResult.outcome is Outcome.Paused) return sbaHelperResult
                 newState = sbaHelperResult.newState
                 if (!newState.gameOver) {
                     newState = newState.withPriority(activePlayer)
@@ -764,7 +764,7 @@ class TurnManager(
                         }
                         events.add(PlayerLostEvent(member, GameEndReason.CARD_EFFECT, loseComponent.message))
                         val sbaResult = sbaChecker.checkAndApply(newState)
-                        if (sbaResult.isPaused) {
+                        if (sbaResult.outcome is Outcome.Paused) {
                             return ExecutionResult.propagatePause(
                                 sbaResult.state,
                                 events + sbaResult.events
@@ -789,7 +789,7 @@ class TurnManager(
             Step.CLEANUP -> {
                 val cleanupResult = cleanupPhaseManager.performCleanupStep(newState)
                 if (cleanupResult.error != null) return cleanupResult
-                if (cleanupResult.isPaused) {
+                if (cleanupResult.outcome is Outcome.Paused) {
                     return parkRestOfTurn(cleanupResult, newState, AdvanceStepContinuation, events + cleanupResult.events)
                 }
                 newState = cleanupResult.newState
@@ -850,12 +850,12 @@ class TurnManager(
 
         // Start the new turn (sets step to UNTAP with no priority)
         val turnResult = startTurn(cleanedState, nextPlayer)
-        if (!turnResult.isSuccess) return turnResult
+        if (turnResult.outcome !is Outcome.Done) return turnResult
 
         // Perform the untap step
         val untapResult = beginningPhaseManager.performUntapStep(turnResult.newState)
         if (untapResult.error != null) return untapResult
-        if (untapResult.isPaused) {
+        if (untapResult.outcome is Outcome.Paused) {
             return parkRestOfTurn(
                 untapResult, turnResult.newState, FinishUntapStepContinuation(nextPlayer),
                 turnResult.events + untapResult.events
@@ -994,7 +994,7 @@ class TurnManager(
         // CR 724.1c: state-based actions are checked. (Creatures destroyed by a preceding board
         // wipe are already handled by that effect; this catches any other pending SBA.)
         val sbaResult = sbaChecker.checkAndApply(newState)
-        if (sbaResult.isPaused) {
+        if (sbaResult.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(sbaResult.newState, events + sbaResult.events)
         }
         newState = sbaResult.newState
@@ -1015,7 +1015,7 @@ class TurnManager(
                 // Triggered / activated abilities on the stack simply cease to exist.
                 resolver.counterAbility(newState, entityId)
             }
-            if (result.isSuccess) {
+            if (result.outcome is Outcome.Done) {
                 newState = result.newState
                 events.addAll(result.events)
             }
@@ -1032,7 +1032,7 @@ class TurnManager(
         // CR 724.1d: remove all creatures from combat.
         if (newState.phase == Phase.COMBAT) {
             val endCombatResult = combatManager.endCombat(newState)
-            if (endCombatResult.isSuccess) {
+            if (endCombatResult.outcome is Outcome.Done) {
                 newState = endCombatResult.newState
                 events.addAll(endCombatResult.events)
             }
@@ -1052,19 +1052,17 @@ class TurnManager(
         events.add(StepChangedEvent(Step.CLEANUP))
 
         val cleanupResult = cleanupPhaseManager.performCleanupStep(newState)
-        if (cleanupResult.isPaused) {
+        if (cleanupResult.outcome is Outcome.Paused) {
             // Over max hand size: pause for the discard. The HandSizeDiscardContinuation finishes the
             // cleanup turn-based actions, then the parked frame advances CLEANUP → next turn.
             return parkRestOfTurn(cleanupResult, newState, AdvanceStepContinuation, events + cleanupResult.events)
         }
-        if (cleanupResult.error != null) {
-            return ExecutionResult.error(cleanupResult.newState, cleanupResult.error)
-        }
+        if (cleanupResult.outcome is Outcome.Rejected) return cleanupResult
         newState = cleanupResult.newState
         events.addAll(cleanupResult.events)
 
         val endTurnResult = endTurn(newState)
-        if (endTurnResult.isPaused) {
+        if (endTurnResult.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(
                 endTurnResult.newState,
                 events + endTurnResult.events

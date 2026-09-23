@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Wizard's Rockets (LTR) — "{X}, {T}, Sacrifice this artifact: Add X mana in any combination of
@@ -47,7 +48,7 @@ class WizardsRocketsXChoiceScenarioTest : FunSpec({
 
         // Bare activation (no xValue) — the legal-actions/UI path.
         val res = d.submit(ActivateAbility(playerId = active, sourceId = rockets, abilityId = abilityId))
-        res.isPaused shouldBe true
+        (res.outcome is Outcome.Paused) shouldBe true
         // It must pause asking for X (not silently resolve at X=0).
         d.pendingDecision.shouldBeInstanceOf<ChooseNumberDecision>()
 

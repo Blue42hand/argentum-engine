@@ -628,7 +628,7 @@ class ModalAndCloneContinuationResumer(
                         syntheticRiot = true,
                         syntheticRiotRemaining = continuation.syntheticRiotRemaining - 1
                     )
-                    if (repause != null && repause.isPaused) {
+                    if (repause != null && repause.outcome is Outcome.Paused) {
                         return ExecutionResult.propagatePause(
                             repause.state, syntheticRiotEvents + repause.events
                         )
@@ -687,7 +687,7 @@ class ModalAndCloneContinuationResumer(
         if (onEnterResult != null) {
             // A pause carries the entry events with it so the ETB triggers are deferred to the
             // resume path rather than lost — exactly as the spell path documents.
-            if (onEnterResult.isPaused) {
+            if (onEnterResult.outcome is Outcome.Paused) {
                 return ExecutionResult.propagatePause(
                     onEnterResult.state, events + onEnterResult.events
                 )
@@ -992,7 +992,7 @@ class ModalAndCloneContinuationResumer(
             chosenCreatureType = chosenType
         )
 
-        if (!castResult.isSuccess) {
+        if (castResult.outcome !is Outcome.Done) {
             return castResult
         }
 
@@ -1303,7 +1303,7 @@ class ModalAndCloneContinuationResumer(
 
         // The mint can pause again (a devour creature that also has an as-enters choice); carry the
         // sacrifice events across that pause so they are not lost.
-        if (minted.isPaused) {
+        if (minted.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(
                 minted.state,
                 sacrificeEvents + minted.events
@@ -1374,7 +1374,7 @@ class ModalAndCloneContinuationResumer(
         )
 
         val result = services.effectExecutorRegistry.execute(state, CompositeEffect(effects), context).toExecutionResult()
-        if (result.isPaused) return result
+        if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, result.events.toList())
     }
 
@@ -1401,7 +1401,7 @@ class ModalAndCloneContinuationResumer(
             state, chosenId, continuation.controllerId,
             staticAbilityHandler, services.cardRegistry
         ).toExecutionResult()
-        if (result.isPaused) return result
+        if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, result.events.toList())
     }
 
@@ -1451,7 +1451,7 @@ class ModalAndCloneContinuationResumer(
         // host prompt cannot be stacked on top of it; asking anyway trips the guard in
         // `suspendForDecision`. Report it rather than throwing out of the action processor.
         // Chaining the remaining prompts underneath that choice needs a continuation of its own.
-        if (created.isPaused) {
+        if (created.outcome is Outcome.Paused) {
             return ExecutionResult.error(
                 created.state,
                 "Cannot ask for the next Aura token host while the previous copy owes an as-enters choice"
@@ -1551,7 +1551,7 @@ class ModalAndCloneContinuationResumer(
 
         val result = services.effectExecutorRegistry.execute(state, chosenEffect, context).toExecutionResult()
 
-        return if (result.isPaused) {
+        return if (result.outcome is Outcome.Paused) {
             result
         } else {
             checkForMore(result.state, result.events.toList())
@@ -1760,7 +1760,7 @@ private fun executeChosenModeWithTail(
     val result = services.effectExecutorRegistry.execute(stateForExecution, effect, context).toExecutionResult()
     val events = accumulatedEvents + result.events
 
-    if (result.isPaused) {
+    if (result.outcome is Outcome.Paused) {
         return ExecutionResult.propagatePause(result.state, events)
     }
     if (result.error != null) {
