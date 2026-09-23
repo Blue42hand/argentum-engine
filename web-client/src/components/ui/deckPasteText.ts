@@ -9,7 +9,13 @@
 import { parseArenaDeckList } from '@/components/deckbuilder/parseArenaDeck'
 
 export interface ParsedPaste {
+  /**
+   * Full submitted deck for display/editing. For a Commander-formatted paste this includes the
+   * commander card; the picker strips that one copy only at the server boundary.
+   */
   cards: Record<string, number>
+  /** First entry under a `Commander` / `Commanders` / `EDH` header, when present. */
+  commander?: string
   /**
    * The `Sideboard` / `SB:` section, card name → copies. The constructed sideboard lives
    * "outside the game" (CR 400.11a) and is only reachable through wish effects, so it is kept
@@ -27,7 +33,9 @@ export function parseDeckText(text: string): ParsedPaste {
   const parsed = parseArenaDeckList(text)
   const cards: Record<string, number> = {}
   const sideboard: Record<string, number> = {}
-  for (const entry of parsed.entries) {
+  // Match the deckbuilder import path: the commander is a card in the full 100-card deck shown to
+  // the user, while its designation rides separately so the lobby can move it to the command zone.
+  for (const entry of [...parsed.commander, ...parsed.entries]) {
     cards[entry.name] = (cards[entry.name] ?? 0) + entry.count
   }
   for (const entry of parsed.sideboard) {
@@ -44,9 +52,13 @@ export function parseDeckText(text: string): ParsedPaste {
     const board = err.section === 'side' ? sideboard : cards
     board[name] = (board[name] ?? 0) + 1
   }
-  return parsed.deckName !== undefined
-    ? { cards, sideboard, deckName: parsed.deckName }
-    : { cards, sideboard }
+  const commander = parsed.commander[0]?.name
+  return {
+    cards,
+    sideboard,
+    ...(commander ? { commander } : {}),
+    ...(parsed.deckName !== undefined ? { deckName: parsed.deckName } : {}),
+  }
 }
 
 function formatDeckLines(cards: Record<string, number>): string {
