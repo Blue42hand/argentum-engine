@@ -7794,10 +7794,9 @@ staticAbility {
   hardcodes "permanents you control" because both printed cards want that scope.
   Scoped to the activating player being this permanent's controller (there is no "who" axis — you can only
   activate abilities of permanents you control) and gated by `condition`, evaluated in the controller's
-  context; `null` = always. Resolved by `OnceOnlyActivationAllowance`, which all three activation-legality
-  paths consult (the enumerators and the activate handler via
-  `CastPermissionUtils.mayActivateOnceOnlyAbility`, plus `ManaSolver`'s inlined check for auto-tapping) so
-  they can't drift. It never reaches a plain `Once`/`OncePerTurn` restriction an ordinary ability printed
+  context; `null` = always. Resolved by `OnceOnlyActivationAllowance`, which `LegalityKernel`'s `Once`
+  branch consults — the one check the enumerators, the activate handler and `ManaSolver`'s auto-tap all
+  share — so they can't drift. It never reaches a plain `Once`/`OncePerTurn` restriction an ordinary ability printed
   for itself, nor the other `kind`.
   - **Waive** — Elvish Refueler = `ExtraOnceOnlyActivations(EXHAUST, extraActivations = null,
     condition = Conditions.All(Conditions.IsYourTurn,
@@ -8416,6 +8415,14 @@ ability — feed the matching count `DynamicAmount` to `genericCostReduction`.
 - `OnlyIfCondition(c)` — condition gate.
 - `OnlyDuringYourTurn` / `DuringPhase(p)` / `DuringStep(s)` / `BeforeStep(s)` — timing gates (compose
   via `All(...)`, e.g. `All(DuringStep(UPKEEP), OnlyDuringYourTurn)` for "only during your upkeep").
+
+Every restriction is decided in one place, `LegalityKernel` (`rules-engine/.../legality/`): the
+activation handler's `validate`, every ability enumerator and the auto-tap `ManaSolver` ask it, and
+`LegalityKernelBoundaryTest` fails the build on an `is ActivationRestriction.…` / `is CastRestriction.…`
+anywhere else. A new restriction is one branch there. The same kernel decides spells'
+`castRestrictions` and the `GrantMayCastFromLinkedExile` permission (from projected control and the
+granter's functioning abilities), and `LegalActionsPassValidateTest` plays seeded random games to check
+that every complete offer the enumerators make is one `validate` accepts.
 
 **`trackActivations`** — a flag on the `activatedAbility { }` block, *not* a restriction: count this
 ability's activations for the turn even though nothing limits them. The engine bookkeeps activations

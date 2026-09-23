@@ -35,6 +35,7 @@ import com.wingedsheep.engine.mechanics.mana.buildAbilityPaymentContext
 import com.wingedsheep.engine.mechanics.stack.StackResolver
 import com.wingedsheep.engine.mechanics.targeting.TargetValidator
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.nameVisibleToAll
 import com.wingedsheep.engine.state.GameState
@@ -63,7 +64,6 @@ import com.wingedsheep.sdk.scripting.costs.manaCostOrNull
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.AbilityIdentity
 import com.wingedsheep.sdk.scripting.ActivatedAbility
-import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation
 import com.wingedsheep.sdk.scripting.targets.TargetChooser
 import com.wingedsheep.sdk.scripting.TimingRule
@@ -152,6 +152,7 @@ class ActivateAbilityHandler(
     private val targetValidator: TargetValidator,
     private val conditionEvaluator: ConditionEvaluator,
     private val castPermissionUtils: CastPermissionUtils,
+    private val legality: LegalityKernel,
     private val manaAbilitySideEffectExecutor:
         com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
 ) : ActionHandler<ActivateAbility> {
@@ -251,11 +252,8 @@ class ActivateAbilityHandler(
             if (!inZone) return "This ability can only be activated from the ${ability.activateFromZone.name.lowercase()}"
             if (ownerId != action.playerId) return "You don't own this card"
         } else {
-            // Check if any player may activate this ability (e.g., Lethal Vapors). Recursive
-            // through `All`, because the permission is routinely *narrowed* by a companion
-            // restriction rather than standing alone — Merseine's "only the controller of the
-            // enchanted creature may activate this ability" is AnyPlayerMay + a condition.
-            val anyPlayerMay = ability.restrictions.any { anyPlayerMayIn(it) }
+            // Check if any player may activate this ability (e.g., Lethal Vapors, Merseine).
+            val anyPlayerMay = LegalityKernel.anyPlayerMay(ability)
 
             if (!anyPlayerMay) {
                 // Use projected controller to account for control-changing effects (e.g., Annex)
@@ -556,12 +554,8 @@ class ActivateAbilityHandler(
         }
 
         // Check activation restrictions
-        for (restriction in ability.restrictions) {
-            val error = checkActivationRestriction(
-                state, action.playerId, action.sourceId, restriction, ability
-            )
-            if (error != null) return error
-        }
+        legality.activationRestrictionsFailure(state, action.playerId, action.sourceId, ability)
+            ?.let { return it }
 
         // Validate targets. Only the controller-chosen requirements are validated here — any
         // "… of an opponent's choice" requirement (Cuombajj Witches) is picked by an opponent in
@@ -1559,13 +1553,10 @@ class ActivateAbilityHandler(
         // events name are the ones the resolving ability may refer back to.
         val activationCostEvents = events.toList()
 
-        // Track per-turn activation if the ability has an OncePerTurn or MaxPerTurn restriction
-        fun isPerTurnTracked(r: ActivationRestriction): Boolean =
-            r is ActivationRestriction.OncePerTurn || r is ActivationRestriction.MaxPerTurn ||
-                (r is ActivationRestriction.All && r.restrictions.any { isPerTurnTracked(it) })
+        // Track per-turn activation if the ability has an OncePerTurn or MaxPerTurn restriction.
         // `trackActivations` opts an unrestricted ability into the same tally so its own effect can
         // read the count back (Farrelite Priest's burnout clause).
-        if (ability.trackActivations || ability.restrictions.any { isPerTurnTracked(it) }) {
+        if (ability.trackActivations || LegalityKernel.tracksActivationsPerTurn(ability)) {
             // Only track if source is still on the battlefield (it might have been bounced as cost)
             if (currentState.getEntity(action.sourceId) != null) {
                 currentState = currentState.updateEntity(action.sourceId) { c ->
@@ -1576,7 +1567,7 @@ class ActivateAbilityHandler(
         }
 
         // Track once-ever activation if the ability has an Once restriction
-        if (ability.restrictions.any { it is ActivationRestriction.Once || (it is ActivationRestriction.All && it.restrictions.any { r -> r is ActivationRestriction.Once }) }) {
+        if (LegalityKernel.tracksActivationsEver(ability)) {
             if (currentState.getEntity(action.sourceId) != null) {
                 currentState = currentState.updateEntity(action.sourceId) { c ->
                     val tracker = c.get<AbilityActivatedEverComponent>() ?: AbilityActivatedEverComponent()
@@ -2444,91 +2435,6 @@ class ActivateAbilityHandler(
         else -> cost
     }
 
-    /** Whether [restriction] opens the ability to players other than the source's controller. */
-    private fun anyPlayerMayIn(restriction: ActivationRestriction): Boolean = when (restriction) {
-        is ActivationRestriction.AnyPlayerMay -> true
-        is ActivationRestriction.All -> restriction.restrictions.any { anyPlayerMayIn(it) }
-        else -> false
-    }
-
-    private fun checkActivationRestriction(
-        state: GameState,
-        playerId: com.wingedsheep.sdk.model.EntityId,
-        sourceId: com.wingedsheep.sdk.model.EntityId,
-        restriction: ActivationRestriction,
-        // Required, with no default: a defaulted `ability` would let a forgetful call site silently
-        // disable the ExtraOnceOnlyActivations permission on this path while the enumerators kept
-        // honouring it. Omission must be a compile error, not a behaviour difference. It is also
-        // the only source of the ability id the turn trackers key on, so that id can't disagree
-        // with the ability whose flags the `Once` branch reads.
-        ability: com.wingedsheep.sdk.scripting.ActivatedAbility
-    ): String? {
-        return when (restriction) {
-            is ActivationRestriction.AnyPlayerMay -> null // Not a restriction; handled in validate()
-            is ActivationRestriction.OnlyDuringYourTurn -> {
-                // CR 805.5a — "your turn" is the active team's turn in Two-Headed Giant.
-                if (!state.isActiveTurnFor(playerId)) "This ability can only be activated during your turn"
-                else null
-            }
-            is ActivationRestriction.BeforeStep -> {
-                if (state.step.ordinal >= restriction.step.ordinal)
-                    "This ability can only be activated before ${restriction.step.displayName}"
-                else null
-            }
-            is ActivationRestriction.DuringPhase -> {
-                if (state.phase != restriction.phase)
-                    "This ability can only be activated during ${restriction.phase.displayName}"
-                else null
-            }
-            is ActivationRestriction.DuringStep -> {
-                if (state.step != restriction.step)
-                    "This ability can only be activated during ${restriction.step.displayName}"
-                else null
-            }
-            is ActivationRestriction.OnlyIfCondition -> {
-                val context = EffectContext(
-                    sourceId = sourceId,
-                    controllerId = playerId,
-                    targets = emptyList(),
-                    xValue = 0
-                )
-                if (!conditionEvaluator.evaluate(state, restriction.condition, context))
-                    "Activation condition not met"
-                else null
-            }
-            is ActivationRestriction.OncePerTurn -> {
-                val tracker = state.getEntity(sourceId)?.get<AbilityActivatedThisTurnComponent>()
-                if (tracker != null && tracker.hasActivated(ability.id)) {
-                    "This ability can only be activated once each turn"
-                } else null
-            }
-            is ActivationRestriction.MaxPerTurn -> {
-                val tracker = state.getEntity(sourceId)?.get<AbilityActivatedThisTurnComponent>()
-                if ((tracker?.activationCount(ability.id) ?: 0) >= restriction.count) {
-                    "This ability can't be activated more than ${restriction.count} times each turn"
-                } else null
-            }
-            is ActivationRestriction.Once -> {
-                // An exhaust or power-up ability's once-only memory can be raised or waived by an
-                // ExtraOnceOnlyActivations permission (Elvish Refueler, Wonder Man); a plain Once
-                // restriction on an ordinary ability never is.
-                val allowed = castPermissionUtils.mayActivateOnceOnlyAbility(state, playerId, sourceId, ability)
-                if (!allowed) "This ability can only be activated once" else null
-            }
-            is ActivationRestriction.ControlledSinceYourMostRecentTurn -> {
-                if (state.getEntity(sourceId)
-                        ?.has<com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent>() == true
-                ) "You must have controlled this permanent continuously since your most recent turn began"
-                else null
-            }
-            is ActivationRestriction.All -> {
-                restriction.restrictions.firstNotNullOfOrNull {
-                    checkActivationRestriction(state, playerId, sourceId, it, ability)
-                }
-            }
-        }
-    }
-
     private val dynamicAmountEvaluator = DynamicAmountEvaluator()
     private val predicateEvaluator = PredicateEvaluator()
 
@@ -2797,6 +2703,7 @@ class ActivateAbilityHandler(
                 services.targetValidator,
                 services.conditionEvaluator,
                 services.castPermissionUtils,
+                services.legalityKernel,
                 services.manaAbilitySideEffectExecutor
             )
         }

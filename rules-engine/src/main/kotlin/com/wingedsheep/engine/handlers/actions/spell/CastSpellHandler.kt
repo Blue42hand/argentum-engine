@@ -98,10 +98,10 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.TapReason
 import com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PermanentCostAction
 import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.CastRestriction
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern as SdkGameEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -192,12 +192,13 @@ class CastSpellHandler(
     private val targetValidator: TargetValidator,
     private val conditionEvaluator: ConditionEvaluator,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
+    private val legality: LegalityKernel,
     private val targetFinder: com.wingedsheep.engine.handlers.TargetFinder = com.wingedsheep.engine.handlers.TargetFinder(),
 ) : ActionHandler<CastSpell> {
     override val actionType: KClass<CastSpell> = CastSpell::class
 
     private val predicateEvaluator = PredicateEvaluator()
-    private val zoneResolver = CastZoneResolver(cardRegistry, conditionEvaluator)
+    private val zoneResolver = CastZoneResolver(cardRegistry, conditionEvaluator, legality)
     private val castPermissionUtils = com.wingedsheep.engine.legalactions.utils.CastPermissionUtils(
         cardRegistry, predicateEvaluator, conditionEvaluator
     )
@@ -481,7 +482,7 @@ class CastSpellHandler(
 
         // Check cast restrictions
         if (cardDef != null && cardDef.script.castRestrictions.isNotEmpty()) {
-            val restrictionError = validateCastRestrictions(state, cardDef.script.castRestrictions, action.playerId)
+            val restrictionError = legality.castRestrictionsFailure(state, action.playerId, cardDef.script.castRestrictions)
             if (restrictionError != null) {
                 return restrictionError
             }
@@ -1529,57 +1530,6 @@ class CastSpellHandler(
             }
         }
         return null
-    }
-
-    private fun validateCastRestrictions(
-        state: GameState,
-        restrictions: List<CastRestriction>,
-        playerId: EntityId
-    ): String? {
-        val context = EffectContext(
-            sourceId = null,
-            controllerId = playerId,
-            targets = emptyList(),
-            xValue = 0
-        )
-
-        for (restriction in restrictions) {
-            val error = validateSingleRestriction(state, restriction, context)
-            if (error != null) return error
-        }
-        return null
-    }
-
-    private fun validateSingleRestriction(
-        state: GameState,
-        restriction: CastRestriction,
-        context: EffectContext
-    ): String? {
-        return when (restriction) {
-            is CastRestriction.OnlyDuringStep -> {
-                if (state.step != restriction.step) {
-                    "Can only be cast during the ${restriction.step.name.lowercase().replace('_', ' ')} step"
-                } else null
-            }
-            is CastRestriction.OnlyDuringPhase -> {
-                if (state.phase != restriction.phase) {
-                    "Can only be cast during the ${restriction.phase.name.lowercase().replace('_', ' ')} phase"
-                } else null
-            }
-            is CastRestriction.OnlyIfCondition -> {
-                if (!conditionEvaluator.evaluate(state, restriction.condition, context)) {
-                    "Casting condition not met"
-                } else null
-            }
-            is CastRestriction.TimingRequirement -> null
-            is CastRestriction.All -> {
-                for (subRestriction in restriction.restrictions) {
-                    val error = validateSingleRestriction(state, subRestriction, context)
-                    if (error != null) return error
-                }
-                null
-            }
-        }
     }
 
     /**
@@ -4976,6 +4926,7 @@ class CastSpellHandler(
                 services.targetValidator,
                 services.conditionEvaluator,
                 services.manaAbilitySideEffectExecutor,
+                services.legalityKernel,
                 services.targetFinder
             )
         }

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.land
 
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.PlayLand
@@ -55,6 +56,7 @@ class PlayLandHandler(
                                  com.wingedsheep.sdk.scripting.effects.Effect,
                                  com.wingedsheep.engine.handlers.EffectContext) ->
         com.wingedsheep.engine.core.EffectResult,
+    private val legality: LegalityKernel,
 ) : ActionHandler<PlayLand> {
     override val actionType: KClass<PlayLand> = PlayLand::class
 
@@ -129,7 +131,7 @@ class PlayLandHandler(
         // Lands exiled with a permanent granting "you may play cards exiled with this" (Valgavoth).
         val mayPlayFromLinkedExile = !inHand && !onTopOfLibrary && !mayPlayFromExile &&
             com.wingedsheep.engine.handlers.effects.linkedexile.LinkedExilePlayUtils
-                .canPlayLand(state, action.playerId, action.cardId, cardRegistry)
+                .canPlayLand(state, action.playerId, action.cardId, legality)
         val mayPlayFromGraveyard = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayPlayFromLinkedExile &&
             isInGraveyardWithPlayPermission(state, action.playerId, action.cardId)
         if (!inHand && !onTopOfLibrary && !mayPlayFromExile && !mayPlayFromLinkedExile && !mayPlayFromGraveyard) {
@@ -344,7 +346,7 @@ class PlayLandHandler(
             // which nothing connects the two. The marker is the same one `CastSpellHandler`
             // stamps, which is what makes the land and the spell share one allowance.
             val linkedGranter = com.wingedsheep.engine.handlers.effects.linkedexile.LinkedExilePlayUtils
-                .landGranterFor(state, action.playerId, action.cardId, cardRegistry)
+                .landGranterFor(state, action.playerId, action.cardId, legality)
             if (linkedGranter?.ability?.oncePerTurn == true) {
                 newState = newState.updateEntity(linkedGranter.sourceId) { c ->
                     c.with(
@@ -833,6 +835,7 @@ class PlayLandHandler(
                 services.cardRegistry,
                 services.conditionEvaluator,
                 services.effectExecutorRegistry::execute,
+                services.legalityKernel,
             )
         }
     }
