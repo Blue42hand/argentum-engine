@@ -13,6 +13,7 @@ import com.wingedsheep.engine.view.ClientGameState
 import com.wingedsheep.engine.view.LegalActionInfo
 import com.wingedsheep.gameserver.config.AiProperties
 import com.wingedsheep.gameserver.config.GameProperties
+import com.wingedsheep.gameserver.lobby.AiDeckSpec
 import com.wingedsheep.gameserver.replay.ReplaySetup
 import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.gameserver.session.PlayerIdentity
@@ -33,6 +34,61 @@ class AiControllerProviderTest : FunSpec({
         registry["search-teacher"] shouldBe provider
         registry["SEARCH-TEACHER"] shouldBe provider
         registry.supportedModes() shouldBe setOf("engine", "llm", "search-teacher")
+    }
+
+    test("provider profiles preserve opaque ids and optional deck presets") {
+        val expected = AiControllerProfile(
+            id = "strict-v1/Blue",
+            displayName = "Strict Blue",
+            description = "Deterministic test profile",
+            deckSpec = AiDeckSpec.Auto,
+        )
+        val provider = ProfiledProvider("search-teacher", listOf(expected))
+        val registry = AiControllerProviderRegistry(listOf(provider))
+
+        registry.profiles("SEARCH-TEACHER") shouldBe listOf(expected)
+        registry.requireProfile(" search-teacher ", "strict-v1/Blue") shouldBe expected
+        shouldThrow<IllegalArgumentException> {
+            registry.requireProfile("search-teacher", "STRICT-V1/BLUE")
+        }.message shouldBe "Unknown AI controller profile 'STRICT-V1/BLUE' for mode 'search-teacher'"
+    }
+
+    test("an explicit profile selection fails closed for an unknown provider") {
+        val registry = AiControllerProviderRegistry(listOf(ProfiledProvider("search-teacher", emptyList())))
+
+        shouldThrow<IllegalArgumentException> {
+            registry.requireProfile("missing-provider", "default")
+        }.message shouldBe "Unknown AI controller mode 'missing-provider'; expected engine, llm, search-teacher"
+    }
+
+    test("blank or duplicate provider profile ids fail during registry construction") {
+        shouldThrow<IllegalArgumentException> {
+            AiControllerProviderRegistry(
+                listOf(ProfiledProvider("custom", listOf(AiControllerProfile(" ", "Blank"))))
+            )
+        }.message shouldBe "AI controller provider 'custom' has a blank profile id"
+
+        shouldThrow<IllegalArgumentException> {
+            AiControllerProviderRegistry(
+                listOf(
+                    ProfiledProvider(
+                        "custom",
+                        listOf(
+                            AiControllerProfile("same", "First"),
+                            AiControllerProfile("same", "Second"),
+                        )
+                    )
+                )
+            )
+        }.message shouldBe "AI controller provider 'custom' has duplicate profile id 'same'"
+    }
+
+    test("blank provider profile display names fail during registry construction") {
+        shouldThrow<IllegalArgumentException> {
+            AiControllerProviderRegistry(
+                listOf(ProfiledProvider("custom", listOf(AiControllerProfile("valid", " "))))
+            )
+        }.message shouldBe "AI controller provider 'custom' profile 'valid' has a blank display name"
     }
 
     test("blank provider modes fail during registry construction") {
@@ -63,6 +119,7 @@ class AiControllerProviderTest : FunSpec({
 
         provider.contexts.size shouldBe 1
         provider.contexts.single().gameSessionId shouldBe null
+        provider.contexts.single().profileId shouldBe null
         provider.contexts.single().snapshot() shouldBe null
         sessions.destroy()
     }
@@ -97,6 +154,7 @@ class AiControllerProviderTest : FunSpec({
 
         provider.contexts.size shouldBe 1
         provider.contexts.single().gameSessionId shouldBe "game-1"
+        provider.contexts.single().profileId shouldBe null
         provider.contexts.single().snapshot() shouldBe expected
         provider.controller.lastDeck shouldBe mapOf("Mountain" to 40)
         sessions.destroy()
@@ -226,6 +284,13 @@ private fun manager(
 }
 
 private class StubProvider(override val mode: String) : AiControllerProvider {
+    override fun create(context: AiControllerContext): AiPlayerController = StubController
+}
+
+private class ProfiledProvider(
+    override val mode: String,
+    override val profiles: List<AiControllerProfile>,
+) : AiControllerProvider {
     override fun create(context: AiControllerContext): AiPlayerController = StubController
 }
 
