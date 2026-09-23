@@ -306,6 +306,9 @@ class LegacySuspensionMigrationTest : ScenarioTestBase() {
         private const val CORE = "com.wingedsheep.engine.core."
 
         /** Fields introduced after these captures; decoding supplies their defaults. */
-        private val POST_CAPTURE_FIELDS = setOf("objectIdentities", "nextObjectGeneration", "zoneReturns", "pendingTriggers")
+        private val POST_CAPTURE_FIELDS = setOf(
+            "objectIdentities", "nextObjectGeneration", "zoneReturns", "pendingTriggers",
+            "playersDealtNoncombatDamageThisTurn", "playersDealtNoncombatDamageLastTurn",
+        )
     }
 }
