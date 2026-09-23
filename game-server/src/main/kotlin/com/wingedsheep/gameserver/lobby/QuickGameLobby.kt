@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.lobby
 
+import com.wingedsheep.gameserver.ai.AiControllerSpec
 import com.wingedsheep.sdk.core.DeckFormat
 import com.wingedsheep.sdk.model.EntityId
 import java.util.UUID
@@ -91,6 +92,14 @@ class QuickGameLobby(
      */
     @Volatile
     var aiDeckSpec: AiDeckSpec = AiDeckSpec.Auto
+
+    /**
+     * Optional explicit controller selection for the quick-game AI seat. Null follows the legacy
+     * server-wide controller mode. A provider profile and its optional [aiDeckSpec] are committed
+     * together by the lobby handler only after both have been validated.
+     */
+    @Volatile
+    var aiControllerSpec: AiControllerSpec? = null
 
     @Volatile
     var started: Boolean = false

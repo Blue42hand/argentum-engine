@@ -114,6 +114,19 @@ class AiGameManager(
     val aiEnabledToggle: Boolean get() = gameProperties.ai.enabled
 
     /**
+     * Resolve a newly selected seat preset before any lobby or identity state is mutated.
+     *
+     * This applies the same availability/credential/fail-closed checks used by controller creation,
+     * then returns the provider-advertised optional deck preset together with the exact opaque
+     * controller selection. Lobby handlers can validate that deck for their format first and commit
+     * both values only after every check has succeeded.
+     */
+    fun resolveSeatPreset(controllerSpec: AiControllerSpec): ResolvedAiSeatPreset {
+        requireAvailableSelection(controllerSpec, modelOverride = null)
+        return controllerProviders.resolveSeatPreset(controllerSpec)
+    }
+
+    /**
      * Look up the legacy LLM model override for an AI player by querying its identity.
      * New per-seat controller selection lives in [PlayerIdentity.aiControllerSpec]; the legacy
      * override remains readable so persisted pre-spec lobbies keep working during migration.
