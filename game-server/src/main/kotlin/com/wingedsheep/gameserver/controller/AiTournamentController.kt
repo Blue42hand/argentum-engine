@@ -74,7 +74,11 @@ class AiTournamentController(
                         message = "At least 2 decks are required for a fixed-deck AI tournament"
                     ))
                 }
-                lobbyHandler.createAiTournamentWithFixedDecks(decks, request.models)
+                lobbyHandler.createAiTournamentWithFixedDecks(
+                    decks,
+                    request.models,
+                    request.gamesPerMatch?.coerceIn(1, 9),
+                )
             } else {
                 // Auto-pick a random *fully implemented* set (partial sets aren't reliable enough
                 // for an unattended AI tournament); fall back to any set if none qualify.
