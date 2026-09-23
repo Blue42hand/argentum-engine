@@ -6075,11 +6075,12 @@ Triggers.youCastSpell(
   direction (`null` = either).
 - `YouCycleThis` — you cycle source.
 - `AnyPlayerCycles` — anyone cycles.
-- `AnyPlayerTapsLandForMana` — whenever any player taps a land for mana. Use
-  `landTappedForMana(player, landFilter, binding)` for "an opponent"/"you" variants or a land-type
-  restriction. Fires on the manual mana-ability path only (auto-pay adds mana via the solver without
-  emitting the event). Backs the "whenever a player taps a land for mana" family (Mana Flare, Heartbeat
-  of Spring); the inline-static cards (Overabundance, Pulse) use the mana statics in §9 instead.
+- `AnyPlayerTapsLandForMana` / `landTappedForMana(player, landFilter, binding)` — **not wired: a
+  trigger authored with these never fires.** `TriggerIndex` gives the pattern no category, because
+  the engine event is emitted on the manual mana-ability path only (auto-pay adds mana via the solver
+  without it), so indexing it would fire inconsistently. No card uses it. The mana-adding family
+  (Mana Flare, Heartbeat of Spring, Groundchuck & Dirtbag) is a triggered mana ability (CR 605.1b)
+  and uses `AdditionalManaOnSourceTap` or the other mana statics in §9.
 - `YouCommitCrime` — MKM crime mechanic.
 - `YouGiveAGift` — Gift mechanic.
 - `WheneverYouForage` — Bloomburrow forage (CR 701.59a). Observes **any** forage by the player, in any
