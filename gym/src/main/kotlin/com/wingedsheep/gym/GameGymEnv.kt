@@ -26,8 +26,8 @@ import com.wingedsheep.sdk.model.EntityId
  */
 class GameGymEnv(
     val environment: GameEnvironment,
-    private val perspectivePlayerIndex: Int,
-    private val defaultRevealAll: Boolean,
+    private var perspectivePlayerIndex: Int,
+    private var defaultRevealAll: Boolean,
     private val observationBuilder: ObservationBuilder = ObservationBuilder(environment.cardRegistry)
 ) : GymEnv {
 
@@ -61,9 +61,19 @@ class GameGymEnv(
 
     // --- game-only operations (used by MultiEnvService via cast) -------------
 
-    /** Re-initialise the underlying game in place. */
-    fun reset(gameConfig: GameConfig): ObservationResult {
+    /**
+     * Re-initialise the underlying game in place and replace the defaults used by subsequent
+     * observations. A reset starts a new episode, so retaining the previous episode's information
+     * perspective or debug-reveal setting would make the supplied EnvConfig only partially apply.
+     */
+    fun reset(
+        gameConfig: GameConfig,
+        perspectivePlayerIndex: Int,
+        defaultRevealAll: Boolean,
+    ): ObservationResult {
         environment.reset(gameConfig)
+        this.perspectivePlayerIndex = perspectivePlayerIndex
+        this.defaultRevealAll = defaultRevealAll
         return build(defaultRevealAll)
     }
 
