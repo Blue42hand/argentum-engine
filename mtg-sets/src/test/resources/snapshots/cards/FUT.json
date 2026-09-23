@@ -36,6 +36,63 @@
     ]
 }
 
+// Cloud Key
+{
+    "name": "Cloud Key",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "As this artifact enters, choose artifact, creature, enchantment, instant, or sorcery.\nSpells you cast of the chosen type cost {1} less to cast.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": {
+                        "cardPredicates": [
+                            "CardTypeEqualsChosenComponent"
+                        ]
+                    }
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "CARD_TYPE",
+                "allowedCardTypes": [
+                    "ARTIFACT",
+                    "CREATURE",
+                    "ENCHANTMENT",
+                    "INSTANT",
+                    "SORCERY"
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "160",
+        "rarity": "RARE",
+        "artist": "Trevor Hairsine",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b893ab56-44a6-4b3c-bb3e-6deec298cbce.jpg?1783943092",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "The cost reduction applies only to generic mana in the cost of spells of the chosen type you cast."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying (such as a flashback cost), add any cost increases (such as kicker costs), then apply any cost reductions (such as that of Cloud Key's ability). The mana value of the spell is determined by only its mana cost, no matter what the total cost to cast that spell was."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Coalition Relic
 {
     "name": "Coalition Relic",
