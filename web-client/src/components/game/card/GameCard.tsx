@@ -1698,7 +1698,9 @@ function GameCardImpl({
           title={battleTooltip}
           style={{
             ...styles.ptOverlay,
-            ...(isLandscapePrint ? { bottom: undefined, top: 4 } : {}),
+            // Element-space offsets for the turned card: `top` becomes the gap to the printed
+            // right edge and `right` the gap to the printed bottom, putting the badge on the shield.
+            ...(isLandscapePrint ? { bottom: undefined, top: 3, right: -5 } : {}),
             display: 'flex',
             alignItems: 'center',
             gap: 2,
@@ -2521,16 +2523,15 @@ function GameCardImpl({
         </>
       )}
 
-      {/* DFC (double-faced card) indicator badge. It sits on the printed card's bottom edge: for a
-          landscape print (a battle's Siege front) the element is turned +90°, so that edge is the
-          element's right side — anchoring to the element's bottom would land it mid-card, over
-          the type line and rules text. */}
-      {!faceDown && battlefield && card.isDoubleFaced && (
+      {/* DFC (double-faced card) indicator badge. Not on a landscape print (a battle's Siege
+          front): its frame already prints the transform marker beside the name, and the turned
+          card has no bottom-edge strip clear of the rules text for a badge to sit on. */}
+      {!faceDown && battlefield && card.isDoubleFaced && !isLandscapePrint && (
         <div style={{
           position: 'absolute',
-          ...(isLandscapePrint
-            ? { right: 4, top: '50%', transform: 'translateY(-50%) rotate(-90deg)' }
-            : { bottom: 4, left: '50%', transform: 'translateX(-50%)' }),
+          bottom: 4,
+          left: '50%',
+          transform: 'translateX(-50%)',
           backgroundColor: 'rgba(20, 20, 40, 0.9)',
           color: card.currentFace === 'BACK' ? '#b0b8d0' : '#f0d060',
           fontSize: responsive.badges.manaCostFontSize,

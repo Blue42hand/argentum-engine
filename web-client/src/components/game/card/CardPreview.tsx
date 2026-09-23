@@ -221,9 +221,11 @@ export function CardPreview() {
       {isDfc && (
         <div style={{
           position: 'absolute',
-          bottom: 10,
-          left: '50%',
-          transform: 'translateX(-50%)',
+          // A landscape face (a battle's Siege front) runs its rules text right down to the bottom
+          // edge, so the hint moves up onto the art, clear of the name bar.
+          ...(isLandscapePrint
+            ? { top: '14%', right: 12 }
+            : { bottom: 10, left: '50%', transform: 'translateX(-50%)' }),
           backgroundColor: 'rgba(0, 0, 0, 0.88)',
           color: '#d0d4e0',
           fontSize: 13,
