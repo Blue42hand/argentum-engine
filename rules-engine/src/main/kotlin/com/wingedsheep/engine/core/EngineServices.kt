@@ -104,6 +104,7 @@ class EngineServices(
     val targetFinder = TargetFinder()
     val predicateEvaluator = PredicateEvaluator()
     val castPermissionUtils = CastPermissionUtils(cardRegistry, predicateEvaluator, conditionEvaluator)
+    val legalityKernel = com.wingedsheep.engine.legality.LegalityKernel(cardRegistry, conditionEvaluator)
     val sbaChecker = StateBasedActionChecker(cardRegistry = cardRegistry)
     val turnManager = TurnManager(
         cardRegistry = cardRegistry,

@@ -58,6 +58,8 @@ class EnumerationContext(
     val targetUtils by lazy { TargetEnumerationUtils(predicateEvaluator) }
     val costUtils by lazy { CostEnumerationUtils(manaSolver, costCalculator, predicateEvaluator, cardRegistry) }
     val castPermissionUtils by lazy { CastPermissionUtils(cardRegistry, predicateEvaluator, conditionEvaluator) }
+    // The one legality kernel the handlers' `validate` also asks, so what is offered is what is accepted.
+    val legality by lazy { com.wingedsheep.engine.legality.LegalityKernel(cardRegistry, conditionEvaluator) }
     // Plot (CR 718) cost reduction — Doc Aurlock-style "plotting cards costs {N} less".
     val plotCostReducer by lazy { com.wingedsheep.engine.mechanics.mana.PlotCostReducer(cardRegistry) }
 
