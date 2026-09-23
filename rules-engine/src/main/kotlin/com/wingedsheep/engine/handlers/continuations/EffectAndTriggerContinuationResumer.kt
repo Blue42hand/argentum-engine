@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.handlers.DependentTargetSelection
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
@@ -54,10 +55,15 @@ class EffectAndTriggerContinuationResumer(
         }
 
         continuation.sequentialTargets?.let { prefix ->
+            val requirements = continuation.targetRequirements
             val selected = response.selectedTargets[0]?.singleOrNull()
-                ?: return ExecutionResult.error(state, "Choose one target")
-            val chosen = prefix + selected
-            if (chosen.size < continuation.targetRequirements.size) {
+            // Declining an "up to one" slot ends the selection; `canStopAt` guarantees every
+            // later slot is optional too, so no later target shifts into its position.
+            if (selected == null && !DependentTargetSelection.canStopAt(requirements, prefix.size)) {
+                return ExecutionResult.error(state, "Choose one target")
+            }
+            val chosen = if (selected == null) prefix else prefix + selected
+            if (selected != null && chosen.size < requirements.size) {
                 val pipeline = continuation.carriedPipeline
                 val context = com.wingedsheep.engine.handlers.PredicateContext(
                     controllerId = continuation.controllerId,
@@ -70,15 +76,13 @@ class EffectAndTriggerContinuationResumer(
                     storedStringLists = pipeline?.storedStringLists ?: emptyMap(),
                     storedSubtypeGroups = pipeline?.storedSubtypeGroups ?: emptyMap(),
                 )
-                val legal = com.wingedsheep.engine.handlers.DependentTargetSelection.legalNext(
-                    state, continuation.targetRequirements, chosen, context
-                )
+                val legal = DependentTargetSelection.legalNext(state, requirements, chosen, context)
                 return com.wingedsheep.engine.handlers.DecisionHandler().createTargetDecision(
                     state, continuation.controllerId, continuation.sourceId, continuation.sourceName,
                     requirements = listOf(TargetRequirementInfo(
                         index = 0,
-                        description = continuation.targetRequirements[chosen.size].description,
-                        minTargets = 1,
+                        description = requirements[chosen.size].description,
+                        minTargets = if (DependentTargetSelection.canStopAt(requirements, chosen.size)) 0 else 1,
                         maxTargets = 1,
                     )),
                     legalTargets = mapOf(0 to legal),
