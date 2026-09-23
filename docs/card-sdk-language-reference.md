@@ -7147,9 +7147,11 @@ staticAbility {
   `CantBeBlockedByCreaturesWithLessPowerRule`; both sides use projected power, so a P/T buff raises the
   threshold.
 - `Effects.CreatePermanentEmblem(...)` — emblem with static abilities (planeswalker ultimates).
-- `AttackTax(amountPerAttacker: DynamicAmount, condition: Condition? = null)` — Propaganda / Ghostly
-  Prison / Windborn Muse / Collective Restraint. Per-attacker generic-mana tax for attacking the
-  source's controller (and their planeswalkers); the amount is a `DynamicAmount` so it can scale with
+- `AttackTax(amountPerAttacker: DynamicAmount, condition: Condition? = null, coversPlaneswalkers: Boolean = false)`
+  — Propaganda / Ghostly Prison / Windborn Muse / Collective Restraint. Per-attacker generic-mana tax
+  for attacking the source's controller ("creatures can't attack you"). `coversPlaneswalkers = true`
+  widens it to "you or planeswalkers you control" (Archangel of Tithes, Baird). An attack on a battle
+  is never taxed — no printed tax names battles. The amount is a `DynamicAmount` so it can scale with
   state (e.g., `DynamicAmounts.domain()` for "{X} where X is your domain"). Evaluated with the source
   permanent's controller as "you". The optional `condition` gates the whole tax on the source's own
   state, evaluated with the source as "you"/source — e.g. Archangel of Tithes

@@ -61,7 +61,11 @@ class Settler(
         // frequent action.
         if (state.pendingTriggers.isEmpty() && result.events.all { it is PriorityChangedEvent }) return result
 
-        val detected = detect(state, triggeringEvents(result.events))
+        // Once the triggers are queued, a Siege's defeat trigger spares it on its own (CR 704.5v);
+        // the pre-detection marker combat damage armed is spent.
+        val detected = com.wingedsheep.engine.mechanics.battle.Battles.disarmDefeatTriggers(
+            detect(state, triggeringEvents(result.events))
+        )
         if (detected.pendingDecision != null) {
             return ExecutionResult.propagatePause(detected, result.events)
         }
