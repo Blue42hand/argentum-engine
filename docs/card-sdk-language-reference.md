@@ -9877,6 +9877,14 @@ answer it and would silently return `false`.
   battlefield when the condition is checked — true of a land testing lands, and of nothing the
   signature promises. Self-exclusion is a property of the *count*, not a predicate on the filter,
   which is why it is a separate entry and not a `GameObjectFilter` modifier.
+- `YouControlAtLeastOtherThanTriggering(count, filter)` — the same tally with the trigger's
+  **triggering entity** left out instead of the source, i.e. `AggregateBattlefield(...,
+  excludeTriggeringEntity = true)` (reads `EffectContext.triggeringEntityId`; no effect outside a
+  trigger). The "other" of an intervening "if" that refers back to the permanent that entered —
+  Roiling Canopy's "Whenever a Forest you control enters, if you control at least five other Forests"
+  → `YouControlAtLeastOtherThanTriggering(5, Filters.ForestCard)`. Not the same as counting the
+  whole group against six: at the resolution recheck (CR 603.4) the entering Forest may have left,
+  and then all remaining Forests are "other" ones.
 - `ControlCreature` — you control any creature.
 - `AnyPlayerControls(filter, negate = false, excludeSelf = false)` — at least one permanent matching
   `filter` is on the battlefield **under anyone's control**; the controller-blind sibling of
