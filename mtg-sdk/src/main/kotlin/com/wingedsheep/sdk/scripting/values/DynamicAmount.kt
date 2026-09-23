@@ -66,6 +66,18 @@ enum class TurnTracker {
      * "if an opponent was dealt combat damage by a legendary creature this turn" (Blitzball).
      */
     DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE,
+    /**
+     * Indicator (0 or 1) that the player was dealt noncombat damage this turn — any source, any
+     * amount above zero after prevention. Powers "as long as an opponent was dealt noncombat damage
+     * this turn" (Whiplash Wordsmith, Grim Repriser).
+     */
+    DEALT_NONCOMBAT_DAMAGE,
+    /**
+     * [DEALT_NONCOMBAT_DAMAGE] one turn back: whether the player was dealt noncombat damage during
+     * the previous turn, whoever's turn that was. Rolled over at the turn boundary. Powers "if an
+     * opponent was dealt noncombat damage last turn" (Command the Stage).
+     */
+    DEALT_NONCOMBAT_DAMAGE_LAST_TURN,
     /** Indicator (0 or 1) that the player put one or more counters on a creature this turn. */
     COUNTERS_PUT_ON_CREATURE,
     /** Number of land cards the player played this turn (derived from `LandDropsComponent`). */
@@ -249,6 +261,8 @@ enum class TurnTracker {
         DEALT_COMBAT_DAMAGE -> "whether ${player.description} were dealt combat damage this turn"
         DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE ->
             "whether ${player.description} were dealt combat damage by a legendary creature this turn"
+        DEALT_NONCOMBAT_DAMAGE -> "whether ${player.description} were dealt noncombat damage this turn"
+        DEALT_NONCOMBAT_DAMAGE_LAST_TURN -> "whether ${player.description} were dealt noncombat damage last turn"
         COUNTERS_PUT_ON_CREATURE -> "whether ${player.description} put a counter on a creature this turn"
         LANDS_PLAYED -> "the number of lands ${player.description} played this turn"
         LANDS_ENTERED_UNDER_CONTROL -> "the number of lands that entered the battlefield under ${player.possessive} control this turn"

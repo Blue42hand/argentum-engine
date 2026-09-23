@@ -10128,6 +10128,9 @@ answer it and would silently return `false`.
   counts). Used by Ragged Recluse's end-step flip. Counts **cards**, not discard events — one discard
   of two cards satisfies it exactly as two discards of one do. Not `YouDiscardedThisCardThisTurn`,
   which is Mayhem's per-*card* question and reads a different record.
+- `OpponentWasDealtNoncombatDamageThisTurn` / `OpponentWasDealtNoncombatDamageLastTurn` — an
+  opponent was dealt noncombat damage this turn / during the previous turn (Whiplash Wordsmith,
+  Command the Stage). Backed by `TurnTracker.DEALT_NONCOMBAT_DAMAGE(_LAST_TURN)`.
 - `ScriedOrSurveiledThisTurn` — you scried or surveilled this turn (Surveillance Phantasm, Desperate
   Futurescribe, Proctor of Potential), read through the `SCRIED_OR_SURVEILED` turn tracker.
 - `PutCounterOnCreatureThisTurn` — you put ≥1 counter of *any* kind on a creature this turn (Lasting
@@ -11633,6 +11636,13 @@ of `AddMana`. The engine empties pools at end of turn, so:
   turn). Powers "an opponent was dealt combat damage by a legendary creature this turn" — Blitzball —
   via `Compare(TurnTracking(EachOpponent, DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE), GTE, 1)`
   (facade `Conditions.AnOpponentWasDealtCombatDamageByLegendaryCreatureThisTurn`).
+- `DEALT_NONCOMBAT_DAMAGE` — indicator (0/1) that the player was dealt noncombat damage this turn
+  (more than zero after prevention, any source; recorded in `DamageUtils.dealDamageToTarget` on
+  `GameState.playersDealtNoncombatDamageThisTurn`). Facade
+  `Conditions.OpponentWasDealtNoncombatDamageThisTurn` (Whiplash Wordsmith, Grim Repriser).
+- `DEALT_NONCOMBAT_DAMAGE_LAST_TURN` — the same record one turn back: the previous turn in the game,
+  whoever's it was, rolled over by `TurnManager.startTurn`. Facade
+  `Conditions.OpponentWasDealtNoncombatDamageLastTurn` (Command the Stage).
 
 For a *combat-damage-amount threshold* that is existential over players — "a player was dealt N or
 more combat damage this turn" — use the dedicated condition

@@ -304,6 +304,18 @@ data class GameState(
      * the `PlayerCommittedCrimeThisTurn` condition (e.g. Seize the Secrets' cost reduction).
      */
     val playersWhoCommittedCrimeThisTurn: Set<EntityId> = emptySet(),
+    /**
+     * Players (by entity id) who were dealt noncombat damage this turn — more than zero damage
+     * after prevention, from any source. Populated in `DamageUtils.dealDamageToTarget` and cleared
+     * at every turn boundary. Backs `TurnTracker.DEALT_NONCOMBAT_DAMAGE`.
+     */
+    val playersDealtNoncombatDamageThisTurn: Set<EntityId> = emptySet(),
+    /**
+     * [playersDealtNoncombatDamageThisTurn] as it stood when the previous turn ended, rolled over by
+     * `TurnManager.startTurn`. "Last turn" is the previous turn in the game, not the reader's own
+     * last turn. Backs `TurnTracker.DEALT_NONCOMBAT_DAMAGE_LAST_TURN` (Command the Stage).
+     */
+    val playersDealtNoncombatDamageLastTurn: Set<EntityId> = emptySet(),
 
     /**
      * Colors of the spell most recently cast this turn (by any player), or null if no spell has
