@@ -98,6 +98,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.TapReason
 import com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PermanentCostAction
 import com.wingedsheep.sdk.scripting.AbilityId
@@ -191,16 +192,16 @@ class CastSpellHandler(
     private val targetValidator: TargetValidator,
     private val conditionEvaluator: ConditionEvaluator,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
+    private val legality: LegalityKernel,
     private val targetFinder: com.wingedsheep.engine.handlers.TargetFinder = com.wingedsheep.engine.handlers.TargetFinder(),
 ) : ActionHandler<CastSpell> {
     override val actionType: KClass<CastSpell> = CastSpell::class
 
     private val predicateEvaluator = PredicateEvaluator()
-    private val zoneResolver = CastZoneResolver(cardRegistry, conditionEvaluator)
+    private val zoneResolver = CastZoneResolver(cardRegistry, conditionEvaluator, legality)
     private val castPermissionUtils = com.wingedsheep.engine.legalactions.utils.CastPermissionUtils(
         cardRegistry, predicateEvaluator, conditionEvaluator
     )
-    private val legality = com.wingedsheep.engine.legality.LegalityKernel(cardRegistry, conditionEvaluator)
     private val paymentProcessor = CastPaymentProcessor(manaSolver, costHandler, manaAbilitySideEffectExecutor)
     private val grantedKeywordResolver = com.wingedsheep.engine.mechanics.mana.GrantedKeywordResolver(cardRegistry)
     private val costEnumerationUtils = com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils(
@@ -4925,6 +4926,7 @@ class CastSpellHandler(
                 services.targetValidator,
                 services.conditionEvaluator,
                 services.manaAbilitySideEffectExecutor,
+                services.legalityKernel,
                 services.targetFinder
             )
         }

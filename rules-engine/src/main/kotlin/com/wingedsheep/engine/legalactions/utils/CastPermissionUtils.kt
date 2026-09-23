@@ -37,9 +37,7 @@ import com.wingedsheep.sdk.scripting.MayPlayPermanentsFromGraveyard
 import com.wingedsheep.sdk.scripting.PlayFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlotFromTopOfLibrary
-import com.wingedsheep.engine.mechanics.OnceOnlyActivationAllowance
 import com.wingedsheep.engine.mechanics.FlashTypeGrants
-import com.wingedsheep.sdk.scripting.ExtraOnceOnlyActivations
 import com.wingedsheep.sdk.scripting.PlayersCantActivateAbilities
 import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
 import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
@@ -547,29 +545,6 @@ class CastPermissionUtils(
         }
         return false
     }
-
-    /**
-     * True when [playerId] may activate [ability] of [sourceId] despite its
-     * [ActivationRestriction.Once] — because the object hasn't used it up yet, or because an
-     * [ExtraOnceOnlyActivations] permission on [playerId]'s battlefield raises or waives the
-     * keyword's limit (Elvish Refueler for exhaust, Wonder Man for power-up).
-     *
-     * Scans printed and granted permissions and evaluates each one's condition in the granting
-     * permanent's controller's context, so Elvish Refueler's "During your turn, as long as you
-     * haven't activated an exhaust ability this turn" gate is re-checked every frame — the waiver
-     * disappears the moment the turn's first exhaust ability is activated. Consulted by both this
-     * class's restriction check (the enumerators' offered actions) and [ActivateAbilityHandler]'s
-     * (the executed action), so the two can't drift.
-     */
-    fun mayActivateOnceOnlyAbility(
-        state: GameState,
-        playerId: EntityId,
-        sourceId: EntityId,
-        ability: ActivatedAbility
-    ): Boolean =
-        OnceOnlyActivationAllowance.mayActivate(
-            state, playerId, sourceId, ability, cardRegistry, conditionEvaluator
-        )
 
     /**
      * Sum the [ReduceEquipCost] amounts across [playerId]'s battlefield, unwrapping a

@@ -1,8 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.linkedexile
 
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.legality.LegalityKernel
-import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -44,8 +42,8 @@ object LinkedExilePlayUtils {
      * Dinosaur-only pile ended up offering its lands. [landGranterFor] asks the filter about the
      * actual card instead, through [LegalityKernel.linkedExileAdmits] as the cast path does.
      */
-    fun landGranters(state: GameState, playerId: EntityId, cardRegistry: CardRegistry): List<LandGranter> =
-        kernel(cardRegistry).linkedExileGranters(state, playerId)
+    fun landGranters(state: GameState, playerId: EntityId, legality: LegalityKernel): List<LandGranter> =
+        legality.linkedExileGranters(state, playerId)
             .map { LandGranter(it.granterId, it.ability, it.exiledIds) }
 
     /**
@@ -67,21 +65,18 @@ object LinkedExilePlayUtils {
         state: GameState,
         playerId: EntityId,
         landCardId: EntityId,
-        cardRegistry: CardRegistry,
+        legality: LegalityKernel,
     ): LandGranter? {
         val card = state.getEntity(landCardId)?.get<CardComponent>() ?: return null
         if (!card.typeLine.isLand) return null
         val inExile = state.turnOrder.any { pid -> landCardId in state.getZone(ZoneKey(pid, Zone.EXILE)) }
         if (!inExile) return null
-        val legality = kernel(cardRegistry)
         return legality.linkedExileGranters(state, playerId)
             .firstOrNull { legality.linkedExileAdmits(state, playerId, it, landCardId) }
             ?.let { LandGranter(it.granterId, it.ability, it.exiledIds) }
     }
 
-    private fun kernel(cardRegistry: CardRegistry) = LegalityKernel(cardRegistry, ConditionEvaluator())
-
     /** True if [landCardId] is a land currently in exile that [playerId] may play via a linked-exile grant. */
-    fun canPlayLand(state: GameState, playerId: EntityId, landCardId: EntityId, cardRegistry: CardRegistry): Boolean =
-        landGranterFor(state, playerId, landCardId, cardRegistry) != null
+    fun canPlayLand(state: GameState, playerId: EntityId, landCardId: EntityId, legality: LegalityKernel): Boolean =
+        landGranterFor(state, playerId, landCardId, legality) != null
 }

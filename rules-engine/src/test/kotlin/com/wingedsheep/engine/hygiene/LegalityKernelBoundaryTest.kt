@@ -20,7 +20,11 @@ import java.io.File
 class LegalityKernelBoundaryTest : FunSpec({
 
     test("only the legality kernel dispatches on activation and cast restrictions") {
-        val offenders = findUses(Regex("""\bis\s+(ActivationRestriction|CastRestriction)\.""")) { it != KERNEL }
+        // `is X.Y`, a bare `X.Y ->` branch (data objects need no `is`), and `== X.Y` / `!= X.Y`.
+        val restriction = """(ActivationRestriction|CastRestriction)\.\w+"""
+        val offenders = findUses(
+            Regex("""\bis\s+$restriction|\b$restriction\s*->|[!=]=\s*(\w+\.)*$restriction""")
+        ) { it != KERNEL }
         offenders.shouldBeEmpty()
     }
 

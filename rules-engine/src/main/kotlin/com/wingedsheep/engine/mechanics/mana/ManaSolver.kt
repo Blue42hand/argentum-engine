@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.mechanics.mana
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
@@ -306,7 +307,7 @@ class ManaSolver(
 
     // Auto-tap asks the same kernel the enumerators and ActivateAbilityHandler do, so it never taps
     // a mana ability they would refuse (or skips one they would allow).
-    private val legality = com.wingedsheep.engine.legality.LegalityKernel(cardRegistry, conditionEvaluator)
+    private val legality = LegalityKernel(cardRegistry, conditionEvaluator)
 
     /** The five subtypes that grant a land its intrinsic `{T}: Add …` mana ability (CR 305.6). */
     private val basicLandSubtypeNames = setOf("Plains", "Island", "Swamp", "Mountain", "Forest")

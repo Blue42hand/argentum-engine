@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.core
 
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.event.TriggerDetector
 import com.wingedsheep.engine.event.TriggerProcessor
 import com.wingedsheep.engine.handlers.ConditionEvaluator
@@ -104,7 +105,7 @@ class EngineServices(
     val targetFinder = TargetFinder()
     val predicateEvaluator = PredicateEvaluator()
     val castPermissionUtils = CastPermissionUtils(cardRegistry, predicateEvaluator, conditionEvaluator)
-    val legalityKernel = com.wingedsheep.engine.legality.LegalityKernel(cardRegistry, conditionEvaluator)
+    val legalityKernel = LegalityKernel(cardRegistry, conditionEvaluator)
     val sbaChecker = StateBasedActionChecker(cardRegistry = cardRegistry)
     val turnManager = TurnManager(
         cardRegistry = cardRegistry,

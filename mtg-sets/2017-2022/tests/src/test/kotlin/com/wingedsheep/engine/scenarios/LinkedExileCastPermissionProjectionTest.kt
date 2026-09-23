@@ -7,6 +7,7 @@ import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
+import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.engine.view.ClientStateTransformer
@@ -58,6 +59,17 @@ class LinkedExileCastPermissionProjectionTest : FunSpec({
     fun GameTestDriver.accepted(player: EntityId, card: EntityId): String? =
         ActionProcessor(cardRegistry).validate(state, CastSpell(player, card))
 
+    /** Hands [rona] to [newController] for the turn through a layer-2 control effect. */
+    fun GameTestDriver.giveControl(rona: EntityId, newController: EntityId) = replaceState(
+        state.addFloatingEffect(
+            layer = Layer.CONTROL,
+            modification = SerializableModification.ChangeController(newController),
+            affectedEntities = setOf(rona),
+            duration = Duration.EndOfTurn,
+            context = EffectContext(sourceId = rona, controllerId = newController),
+        )
+    )
+
     fun GameTestDriver.shownCastable(viewer: EntityId, card: EntityId): Boolean =
         ClientStateTransformer(cardRegistry).transform(state, viewer).cards[card]?.playableFromExile == true
 
@@ -89,15 +101,7 @@ class LinkedExileCastPermissionProjectionTest : FunSpec({
     test("the permission follows projected control, not the base controller") {
         val d = driver()
         val (rona, bears) = d.ronaWithExiledBears(d.player2)
-        d.replaceState(
-            d.state.addFloatingEffect(
-                layer = Layer.CONTROL,
-                modification = SerializableModification.ChangeController(d.player1),
-                affectedEntities = setOf(rona),
-                duration = Duration.EndOfTurn,
-                context = EffectContext(sourceId = rona, controllerId = d.player1),
-            )
-        )
+        d.giveControl(rona, d.player1)
 
         withClue("the player who controls Rona now") {
             d.offered(d.player1, bears) shouldBe true
@@ -107,5 +111,28 @@ class LinkedExileCastPermissionProjectionTest : FunSpec({
         withClue("Rona's base controller, who no longer controls it") {
             d.shownCastable(d.player2, bears) shouldBe false
         }
+    }
+
+    // The mirror of the test above, with the old controller holding priority: player 1 owns Rona
+    // and is the active player, but player 2 controls it now, so player 1 may no longer cast from
+    // its pile on any path.
+    test("a player whose Rona was taken no longer has the permission") {
+        val d = driver()
+        val (rona, bears) = d.ronaWithExiledBears(d.player1)
+        d.giveControl(rona, d.player2)
+
+        withClue("the enumerator must not offer it") { d.offered(d.player1, bears) shouldBe false }
+        withClue("the handler must refuse it") { d.accepted(d.player1, bears) shouldNotBe null }
+        withClue("the view must not flag it") { d.shownCastable(d.player1, bears) shouldBe false }
+    }
+
+    test("a face-down Rona grants nothing — to the offer, the handler or the view") {
+        val d = driver()
+        val (rona, bears) = d.ronaWithExiledBears(d.player1)
+        d.replaceState(d.state.updateEntity(rona) { it.with(FaceDownComponent) })
+
+        withClue("the enumerator must not offer it") { d.offered(d.player1, bears) shouldBe false }
+        withClue("the handler must refuse it") { d.accepted(d.player1, bears) shouldNotBe null }
+        withClue("the view must not flag it") { d.shownCastable(d.player1, bears) shouldBe false }
     }
 })

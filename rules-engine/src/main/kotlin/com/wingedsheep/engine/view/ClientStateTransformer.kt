@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.view
 
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
@@ -98,7 +99,7 @@ class ClientStateTransformer(
         cardRegistry, com.wingedsheep.engine.handlers.PredicateEvaluator(), conditionEvaluator
     )
     // Answers "may the viewer cast this exiled card?" the way the cast handler does.
-    private val legality = com.wingedsheep.engine.legality.LegalityKernel(cardRegistry, conditionEvaluator)
+    private val legality = LegalityKernel(cardRegistry, conditionEvaluator)
 
 
     /**

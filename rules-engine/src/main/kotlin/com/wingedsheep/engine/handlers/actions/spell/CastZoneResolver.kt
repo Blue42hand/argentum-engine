@@ -49,10 +49,10 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 class CastZoneResolver(
     private val cardRegistry: CardRegistry,
-    private val conditionEvaluator: ConditionEvaluator
+    private val conditionEvaluator: ConditionEvaluator,
+    private val legality: LegalityKernel,
 ) {
     private val predicateEvaluator = PredicateEvaluator()
-    private val legality = LegalityKernel(cardRegistry, conditionEvaluator)
 
     /**
      * Check if a card is on top of the player's library and the player controls
