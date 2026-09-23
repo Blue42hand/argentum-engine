@@ -123,8 +123,10 @@ scaffolding the earlier set is out of scope.
   hold; never `toMutableSet()` `ContinuousEffect` lists (dedupes equal lord effects).
 - **Events, not silent mutations.** Every state change emits a `GameEvent`. Flag bypasses.
 - **Trigger detection paths.** Battlefield → `detectTriggers`; phase/step →
-  `detectPhaseStepTriggers` (called by `PassPriorityHandler`, NOT `matchesTrigger`);
-  leaves-the-battlefield → `detectLeavesBattlefieldTriggers`.
+  `detectPhaseStepTriggers` (called by the settle boundary, NOT `matchesTrigger`);
+  leaves-the-battlefield → `detectLeavesBattlefieldTriggers`. Only `Settler` calls detection.
+  Flag any handler, resumer or executor that detects or places triggers from its own events: it
+  should emit the events and let the boundary queue them (`GameState.pendingTriggers`).
 - **Last-known information.** Dies/leaves triggers must read `triggerLastKnownPower`,
   `lastKnownCardDefinitionId`, `lastKnownCounters` from `ZoneChangeEvent` (tokens
   disappear in the same SBA pass).

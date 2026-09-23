@@ -1140,10 +1140,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   scoped to the extra turn *this* effect creates, so neither applies when the `PreventExtraTurns` replacement
   (Ugin's Nexus) stops the extra turn from happening; that is why they are parameters here rather than separate
   effects sequenced after it in a `Composite`.
-- `EndTheTurn` — end the current turn (CR 720): Ultima ("Destroy all artifacts and creatures. End the turn."),
+- `EndTheTurn` — end the current turn (CR 724.1): Ultima ("Destroy all artifacts and creatures. End the turn."),
   Time Stop, Sundial of the Infinite, Discontinuity. When it resolves the whole stack is exiled (including the
   source and any triggered abilities the resolution queued — even ones that can't be countered — so those never
-  reach the stack, CR 720.1c), creatures are removed from combat, and the game skips straight to the cleanup step
+  reach the stack, CR 724.1a), creatures are removed from combat, and the game skips straight to the cleanup step
   (discard to maximum hand size, marked damage wears off, "this turn" / "until end of turn" effects end) before the
   next turn begins. Takes no target — it always ends the active player's turn. Modeled as a two-step effect: the
   executor records an `EndTheTurnRequestedComponent` on the active player, and `PassPriorityHandler` runs the

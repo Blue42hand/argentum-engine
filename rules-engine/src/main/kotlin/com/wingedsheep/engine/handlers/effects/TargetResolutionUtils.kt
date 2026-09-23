@@ -112,7 +112,7 @@ object TargetResolutionUtils {
             // equipping the attachment elsewhere, pointing at the *new* host. Scoped to the
             // battlefield so a former host that has itself left resolves to nothing, which is
             // Stitcher's Graft's "the triggered ability won't do anything in that case".
-            context.triggerUnattachedFromEntityId?.let {
+            context.triggerContext?.unattachedFromEntityId?.let {
                 return it.takeIf { id -> id in state.getBattlefield() }
             }
             // "Becomes attached": the triggering entity is the attachment, and the host is its
@@ -222,7 +222,7 @@ object TargetResolutionUtils {
             // that did the targeting (Fractured Loyalty). The trigger context carries the
             // targeting stack object; [stackObjectController] reads it while it is still on the
             // stack, and [controllerOf] supplies last-known information once it has left.
-            Player.ControllerOfTargetingSource -> context.targetingSourceEntityId
+            Player.ControllerOfTargetingSource -> context.triggerContext?.targetingSourceEntityId
                 ?.let { stackObjectController(state, it) ?: controllerOf(state, it) }
             // "That source's controller", for the pipelines that are keyed by Player rather than
             // EffectTarget (Belltower Sphinx's mill). Same entity the EffectTarget form reads, and

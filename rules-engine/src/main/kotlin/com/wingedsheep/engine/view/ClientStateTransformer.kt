@@ -551,7 +551,7 @@ class ClientStateTransformer(
             val targets = transformTargets(targetsComponent)
 
             // Triggering entity ID for visual source arrow (separate from targeting arrows)
-            val triggeringId = triggeredAbility.triggeringEntityId?.takeIf { id ->
+            val triggeringId = triggeredAbility.triggerContext?.triggeringEntityId?.takeIf { id ->
                 state.getBattlefield().contains(id)
             }
 
@@ -1927,27 +1927,9 @@ class ClientStateTransformer(
         controllerId = triggered.controllerId,
         targets = chosenTargetsOf(state, abilityEntityId),
         xValue = triggered.xValue,
-        triggerDamageAmount = triggered.triggerDamageAmount,
-        triggerCounterCount = triggered.triggerCounterCount,
-        triggerTotalCounterCount = triggered.triggerTotalCounterCount,
-        triggerLastKnownCounters = triggered.triggerLastKnownCounters,
-        triggerLastKnownDamageDealtByPlayers = triggered.triggerLastKnownDamageDealtByPlayers,
-        triggeringEntityId = triggered.triggeringEntityId,
-        triggeringPlayerId = triggered.triggeringPlayerId,
-        targetingSourceEntityId = triggered.targetingSourceEntityId,
-        triggerLastKnownPower = triggered.lastKnownPower,
-        triggerLastKnownToughness = triggered.lastKnownToughness,
-        triggerDiedBatchTotalPower = triggered.diedBatchTotalPower,
-        triggerScryCount = triggered.triggerScryCount,
-        triggerClashWon = triggered.triggerClashWon,
-        triggerDiscardCount = triggered.triggerDiscardCount,
-        triggerDiscoverValue = triggered.triggerDiscoverValue,
-        triggerExcessDamageAmount = triggered.triggerExcessDamageAmount,
-        triggerRecipientToughness = triggered.triggerRecipientToughness,
-        triggerManaSpentOnTriggeringSpell = triggered.triggerManaSpentOnTriggeringSpell,
-        triggerColorsSpentOnTriggeringSpell = triggered.triggerColorsSpentOnTriggeringSpell,
-        triggerManaValueOfTriggeringSpell = triggered.triggerManaValueOfTriggeringSpell,
-        triggerXValueOfTriggeringSpell = triggered.triggerXValueOfTriggeringSpell
+        triggerContext = triggered.triggerContext,
+        triggeringEntityId = triggered.triggerContext?.triggeringEntityId,
+        triggeringPlayerId = triggered.triggerContext?.triggeringPlayerId
     )
 
     /**

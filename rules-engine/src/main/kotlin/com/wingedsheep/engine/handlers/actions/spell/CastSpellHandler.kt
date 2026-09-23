@@ -43,8 +43,6 @@ import com.wingedsheep.engine.core.TurnManager
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.event.PendingTrigger
 import com.wingedsheep.engine.event.TriggerContext
-import com.wingedsheep.engine.event.TriggerDetector
-import com.wingedsheep.engine.event.TriggerProcessor
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
@@ -131,6 +129,7 @@ import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
 import kotlin.reflect.KClass
+import com.wingedsheep.engine.core.Outcome
 
 /**
  * Handler for the CastSpell action.
@@ -192,8 +191,6 @@ class CastSpellHandler(
     private val stackResolver: StackResolver,
     private val targetValidator: TargetValidator,
     private val conditionEvaluator: ConditionEvaluator,
-    private val triggerDetector: TriggerDetector,
-    private val triggerProcessor: TriggerProcessor,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
     private val targetFinder: com.wingedsheep.engine.handlers.TargetFinder = com.wingedsheep.engine.handlers.TargetFinder(),
 ) : ActionHandler<CastSpell> {
@@ -3747,7 +3744,7 @@ class CastSpellHandler(
             castOriginState = state
         )
 
-        if (!castResult.isSuccess) {
+        if (castResult.outcome !is Outcome.Done) {
             return castResult
         }
 
@@ -4071,7 +4068,7 @@ class CastSpellHandler(
                         description = "Copy ${cardComponent.name} $totalCopies time(s)"
                     )
                     val copyResult = stackResolver.putTriggeredAbility(currentCastState, copyAbility)
-                    if (!copyResult.isSuccess) return copyResult
+                    if (copyResult.outcome !is Outcome.Done) return copyResult
                     currentCastState = copyResult.newState
                     allEvents = allEvents + copyResult.events
                 }
@@ -4154,36 +4151,21 @@ class CastSpellHandler(
             }
         }
 
-        // Detect and process triggers from casting (including additional cost events like sacrifice).
-        // Storm pending triggers (built above) are prepended so they go on the stack just above the
-        // spell itself — per CR 603.3b Storm goes on top of the spell that caused it to trigger.
-        // Other AP spell-cast triggers follow (placed higher on the stack), then NAP triggers on top,
-        // matching APNAP ordering within processTriggers.
-        val detectedTriggers = triggerDetector.detectTriggers(currentCastState, allEvents)
-        val triggers = riderPendingTriggers + conspirePendingTriggers + casualtyPendingTriggers + stormPendingTriggers + detectedTriggers
-        if (triggers.isNotEmpty()) {
-            val triggerResult = triggerProcessor.processTriggers(currentCastState, triggers)
-
-            if (triggerResult.isPaused) {
-                return ExecutionResult.propagatePause(
-                    triggerResult.state.withPriority(action.playerId),
-                    allEvents + triggerResult.events
-                ).copy(triggersAlreadyProcessed = true)
-            }
-
-            allEvents = allEvents + triggerResult.events
-            return ExecutionResult.success(
-                triggerResult.newState.withPriority(action.playerId),
-                allEvents
-            ).copy(triggersAlreadyProcessed = true)
+        // Storm, conspire, casualty and rider triggers are known here rather than detected from an
+        // event. They join the waiting queue ahead of the triggers the settle boundary detects from
+        // the cast events (including additional-cost events like a sacrifice). Within a player's
+        // own triggers that order is kept, so Storm goes on the stack just above the spell that
+        // caused it (CR 702.40a), and APNAP order puts non-active players' triggers above.
+        val synthesizedTriggers = riderPendingTriggers + conspirePendingTriggers + casualtyPendingTriggers + stormPendingTriggers
+        if (synthesizedTriggers.isNotEmpty()) {
+            currentCastState = currentCastState.copy(
+                pendingTriggers = currentCastState.pendingTriggers + synthesizedTriggers
+            )
         }
-
-        // detectTriggers ran above (no matches) — flag the result so resumers don't
-        // re-scan the cast events.
         return ExecutionResult.success(
             currentCastState.withPriority(action.playerId),
             allEvents
-        ).copy(triggersAlreadyProcessed = true)
+        )
     }
 
     /**
@@ -4993,8 +4975,6 @@ class CastSpellHandler(
                 services.stackResolver,
                 services.targetValidator,
                 services.conditionEvaluator,
-                services.triggerDetector,
-                services.triggerProcessor,
                 services.manaAbilitySideEffectExecutor,
                 services.targetFinder
             )

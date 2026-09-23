@@ -1122,6 +1122,18 @@ data class StepChangedEvent(
 ) : GameEvent
 
 /**
+ * An effect ended the turn (CR 724.1 — Ultima, Time Stop). Emitted once the expedited process has
+ * reached the cleanup step, just before the next turn begins. Triggered abilities that triggered
+ * before this point never go on the stack (CR 724.1a), so [com.wingedsheep.engine.core.Settler]
+ * detects triggers only from the events after the last one of these.
+ */
+@Serializable
+@SerialName("TurnEndedByEffectEvent")
+data class TurnEndedByEffectEvent(
+    val activePlayerId: EntityId
+) : GameEvent
+
+/**
  * The turn changed.
  */
 @Serializable
