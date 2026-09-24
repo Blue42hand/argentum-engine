@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -188,18 +189,23 @@ class TargetValidator {
                 }
             }
 
-            // "... that share a creature type" — every chosen permanent target must hold at least
-            // one creature type in common with all the others (Secret Tunnel). Uses projected
-            // subtypes so granted/changed types count. No-op for single-target requirements; a
-            // target with no creature types (or one off the battlefield) can never share, so the
-            // set is rejected.
+            // "... that share a creature type" — every chosen target must hold at least one
+            // creature type in common with all the others. A permanent (Secret Tunnel) reads its
+            // projected subtypes, so granted/changed types count; a card in another zone (Unbury's
+            // "two target creature cards that share a creature type", Aphetto Dredging) reads its
+            // printed creature types, and a changeling card has every one of them (CR 702.73a).
+            // No-op for single-target requirements; a target with no creature types can never
+            // share, so the set is rejected.
             if (requirement is TargetObject && requirement.sameCreatureType && targetsForReq.size > 1) {
                 val projected = state.projectedState
                 val subtypeSets = targetsForReq.map { target ->
-                    (target as? ChosenTarget.Permanent)
-                        ?.takeIf { it.entityId in state.getBattlefield() }
-                        ?.let { projected.getSubtypes(it.entityId) }
-                        ?: emptySet()
+                    when (target) {
+                        is ChosenTarget.Permanent -> target.takeIf { it.entityId in state.getBattlefield() }
+                            ?.let { projected.getSubtypes(it.entityId) }
+                        is ChosenTarget.Card -> state.getEntity(target.cardId)?.get<CardComponent>()
+                            ?.let(::printedCreatureTypes)
+                        else -> null
+                    } ?: emptySet()
                 }
                 val shared = subtypeSets.reduce { acc, next -> acc intersect next }
                 if (shared.isEmpty()) {
@@ -286,6 +292,11 @@ class TargetValidator {
 
         return null
     }
+
+    /** A card's printed creature types; a changeling card has every creature type (CR 702.73a). */
+    private fun printedCreatureTypes(card: CardComponent): Set<String> =
+        if (Keyword.CHANGELING in card.baseKeywords) Subtype.ALL_CREATURE_TYPES.toSet()
+        else card.typeLine.subtypes.map { it.value }.filterTo(mutableSetOf()) { it in Subtype.ALL_CREATURE_TYPES }
 
     /**
      * Validate a single target against a requirement.

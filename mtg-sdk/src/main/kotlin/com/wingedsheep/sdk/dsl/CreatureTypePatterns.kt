@@ -60,27 +60,6 @@ object CreatureTypePatterns {
         )
     )
 
-    fun chooseCreatureTypeReturnFromGraveyard(
-        count: Int
-    ): CompositeEffect = CompositeEffect(
-        listOf(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature),
-                storeAs = "graveyardCreatures"
-            ),
-            SelectFromCollectionEffect(
-                from = "graveyardCreatures",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(count)),
-                matchChosenCreatureType = true,
-                storeSelected = "chosen"
-            ),
-            MoveCollectionEffect(
-                from = "chosen",
-                destination = CardDestination.ToZone(Zone.HAND)
-            )
-        )
-    )
-
     fun chooseCreatureTypeModifyStats(
         powerModifier: DynamicAmount,
         toughnessModifier: DynamicAmount,
