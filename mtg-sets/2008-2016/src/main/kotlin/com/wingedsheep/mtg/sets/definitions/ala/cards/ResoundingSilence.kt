@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -47,8 +46,8 @@ val ResoundingSilence = card("Resounding Silence") {
             "target",
             TargetCreature(count = 2, optional = true, filter = TargetFilter.AttackingCreature)
         )
-        effect = ForEachTargetEffect(
-            effects = listOf(Effects.Exile(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.Exile(EffectTarget.ContextTarget(0))
         )
     }
 

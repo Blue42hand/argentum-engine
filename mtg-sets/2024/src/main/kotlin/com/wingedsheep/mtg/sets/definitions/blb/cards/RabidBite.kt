@@ -1,12 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Rabid Bite
@@ -25,7 +23,7 @@ val RabidBite = card("Rabid Bite") {
         val myCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+            amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,
             damageSource = myCreature
         )

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,9 +25,9 @@ val EyeOfJace = card("Eye of Jace") {
         trigger = Triggers.YourUpkeep
         effect = Effects.Composite(
             Patterns.Library.surveil(1),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CardsInGraveyardAtLeast(7),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.SacrificeTarget(EffectTarget.Self),
                     Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
                     Effects.GainLife(2)

@@ -22,8 +22,8 @@ val VodalianMage = card("Vodalian Mage") {
     toughness = 1
 
     activatedAbility {
+        val spell = target("target spell", TargetSpell())
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.Tap)
-        target = TargetSpell()
         effect = Effects.CounterUnlessPays("{1}")
     }
 

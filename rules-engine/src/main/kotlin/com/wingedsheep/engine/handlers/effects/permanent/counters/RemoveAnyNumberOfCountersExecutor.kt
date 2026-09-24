@@ -50,7 +50,7 @@ class RemoveAnyNumberOfCountersExecutor(
         val counters = targetEntity.get<CountersComponent>() ?: return EffectResult.success(state, emptyList())
         val present = counters.counters.entries
             .filter { it.value > 0 }
-            .map { counterTypeToString(it.key) }
+            .map { it.key }
 
         if (present.isEmpty()) return EffectResult.success(state, emptyList())
 

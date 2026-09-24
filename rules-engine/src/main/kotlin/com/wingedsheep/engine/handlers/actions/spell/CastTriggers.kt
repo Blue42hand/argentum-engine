@@ -363,7 +363,7 @@ internal class CastTriggers(
         return state.copy(pendingFreeCastSpells = state.pendingFreeCastSpells.filter { it !in matching })
     }
 
-    /** The rider's own sourceId goes into the context so `EntityReference.Source` resolves to it. */
+    /** The rider's own sourceId goes into the context so `EffectTarget.Self` resolves to it. */
     private fun spellMatchesRider(
         state: GameState,
         spell: CastSpellOnStack,

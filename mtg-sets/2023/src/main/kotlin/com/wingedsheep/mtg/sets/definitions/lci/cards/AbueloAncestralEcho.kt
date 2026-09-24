@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -44,7 +43,7 @@ val AbueloAncestralEcho = card("Abuelo, Ancestral Echo") {
         )
         effect = Effects.Composite(
             Effects.Exile(t),
-            CreateDelayedTriggerEffect(step = Step.END, effect = Effects.Move(t, Zone.BATTLEFIELD))
+            Effects.CreateDelayedTrigger(step = Step.END, effect = Effects.Move(t, Zone.BATTLEFIELD))
         )
     }
     metadata {

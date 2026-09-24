@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Reckless Ransacking
@@ -21,7 +20,7 @@ val RecklessRansacking = card("Reckless Ransacking") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        effect = Effects.ModifyStats(3, 2, EffectTarget.ContextTarget(0))
+        effect = Effects.ModifyStats(3, 2, creature)
             .then(Effects.CreateTreasure())
     }
 

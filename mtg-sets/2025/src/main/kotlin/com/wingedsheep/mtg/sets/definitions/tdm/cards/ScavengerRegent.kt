@@ -2,13 +2,14 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scavenger Regent // Exude Toxin
@@ -49,8 +50,8 @@ val ScavengerRegent = card("Scavenger Regent") {
             "(Then shuffle this card into its owner's library.)"
         spell {
             effect = Patterns.Group.modifyStatsForAll(
-                power = DynamicAmount.Multiply(DynamicAmount.XValue, -1),
-                toughness = DynamicAmount.Multiply(DynamicAmount.XValue, -1),
+                power = -DynamicAmounts.xValue(),
+                toughness = -DynamicAmounts.xValue(),
                 filter = GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.DRAGON))
             )
         }

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,9 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Hamletback Goliath
@@ -40,8 +38,8 @@ val HamletbackGoliath = card("Hamletback Goliath") {
         )
         optional = true
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
+            CounterType.PLUS_ONE_PLUS_ONE,
+            DynamicAmounts.triggeringPower(),
             EffectTarget.Self
         )
         description = "you may put X +1/+1 counters on this creature, where X is that creature's power."

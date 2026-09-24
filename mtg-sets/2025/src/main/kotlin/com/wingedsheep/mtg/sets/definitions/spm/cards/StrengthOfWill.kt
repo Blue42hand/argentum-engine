@@ -1,18 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Strength of Will
@@ -40,13 +38,13 @@ val StrengthOfWill = card("Strength of Will") {
         )
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),
-            GrantTriggeredAbilityEffect(
+            Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.TakesDamage.event,
                     binding = Triggers.TakesDamage.binding,
                     effect = Effects.AddDynamicCounters(
-                        Counters.PLUS_ONE_PLUS_ONE,
-                        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+                        CounterType.PLUS_ONE_PLUS_ONE,
+                        DynamicAmounts.triggerDamageAmount(),
                         EffectTarget.Self
                     ),
                 ),

@@ -9,13 +9,10 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Warren Warleader
@@ -54,8 +51,8 @@ val WarrenWarleader = card("Warren Warleader") {
         effect = ModalEffect.chooseOne(
             // Create a 1/1 white Rabbit creature token that's tapped and attacking
             Mode.noTarget(
-                CreateTokenEffect(
-                    count = DynamicAmount.Fixed(1),
+                Effects.CreateToken(
+                    count = 1,
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.WHITE),
@@ -70,10 +67,10 @@ val WarrenWarleader = card("Warren Warleader") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl.attacking(),
-                    effect = ModifyStatsEffect(
-                        powerModifier = 1,
-                        toughnessModifier = 1,
-                        target = EffectTarget.Self,
+                    effect = Effects.ModifyStats(
+                        power = 1,
+                        toughness = 1,
+                        target = EffectTarget.IterationEntity,
                         duration = Duration.EndOfTurn
                     )
                 ),

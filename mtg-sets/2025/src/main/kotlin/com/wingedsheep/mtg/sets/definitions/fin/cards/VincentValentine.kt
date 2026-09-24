@@ -1,8 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,12 +11,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Vincent Valentine // Galian Beast
@@ -31,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *   When Galian Beast dies, return it to the battlefield tapped (front face up).
  *
  * The counter trigger reads the dying creature's power via
- * `DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power)`, which
+ * `DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power)`, which
  * resolves with last-known information once the creature has left the battlefield (CR 112.7a) —
  * matching the official ruling "Use the creature's power as it last existed on the battlefield."
  * Galian Beast's death trigger is a plain `Effects.PutOntoBattlefield(Self, tapped = true)`: a
@@ -85,8 +81,8 @@ private val VincentValentineFront = card("Vincent Valentine") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
+            CounterType.PLUS_ONE_PLUS_ONE,
+            DynamicAmounts.triggeringPower(),
             EffectTarget.Self
         )
     }
@@ -94,7 +90,7 @@ private val VincentValentineFront = card("Vincent Valentine") {
     // Whenever Vincent Valentine attacks, you may transform it.
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(effect = TransformEffect(EffectTarget.Self))
+        effect = Effects.May(effect = Effects.Transform(EffectTarget.Self))
     }
 
     metadata {

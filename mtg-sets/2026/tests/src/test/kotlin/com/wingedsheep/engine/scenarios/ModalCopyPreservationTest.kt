@@ -15,6 +15,7 @@ import com.wingedsheep.engine.state.components.identity.CopyOfComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.matchers.types.shouldBeInstanceOf
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -63,7 +64,7 @@ class ModalCopyPreservationTest : FunSpec({
         typeLine = TypeLine.instant(),
         oracleText = "Copy target instant or sorcery spell.",
         script = CardScript.spell(
-            effect = Effects.CopyTargetSpell(),
+            effect = Effects.CopyTargetSpell(target = EffectTarget.ContextTarget(0)),
             Targets.InstantOrSorcerySpell
         )
     )

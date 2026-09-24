@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 /**
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  * [CreateTokenEffect] rather than the `Effects.CreateToken` facade — the facade names tokens
  * "<Type> Token" and can't express "Stone Boulder".
  */
-private fun stoneBoulderToken() = CreateTokenEffect(
+private fun stoneBoulderToken() = Effects.CreateToken(
     power = 3,
     toughness = 1,
     colors = emptySet(),

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Bound by Moonsilver
@@ -62,9 +61,9 @@ val BoundByMoonsilver = card("Bound by Moonsilver") {
     }
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.SacrificeAnother()
-        target = Targets.Creature
-        effect = Effects.AttachEquipment(EffectTarget.ContextTarget(0))
+        effect = Effects.AttachEquipment(creature)
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(ActivationRestriction.OncePerTurn)
         description = "Sacrifice another permanent: Attach this Aura to target creature"

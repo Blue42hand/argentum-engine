@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -44,7 +44,7 @@ val GalvanicGiant = card("Galvanic Giant") {
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())
         )
-        effect = Effects.Tap(t) then Effects.AddCounters(Counters.STUN, 1, t)
+        effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
     }
 
     adventure("Storm Reading") {

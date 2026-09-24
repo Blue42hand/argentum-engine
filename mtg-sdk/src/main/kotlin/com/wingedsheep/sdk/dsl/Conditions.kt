@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.core.Speed
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.conditions.AllConditions
 import com.wingedsheep.sdk.scripting.conditions.AnyCondition
 import com.wingedsheep.sdk.scripting.conditions.Compare
@@ -51,7 +51,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.conditions.Condition as ConditionInterface
 
 /**
@@ -89,7 +88,7 @@ object Conditions {
      * Narrow it when the printed text does. [counterType] scopes it to one kind, and [placedByYou]
      * to counters *you* put on — Beast, Erudite Aerialist ("as long as you've put one or more +1/+1
      * counters on Beast this turn") needs both:
-     * `SourceReceivedCounterThisTurn(Counters.PLUS_ONE_PLUS_ONE, placedByYou = true)`.
+     * `SourceReceivedCounterThisTurn(CounterType.PLUS_ONE_PLUS_ONE, placedByYou = true)`.
      *
      * The self-scoped view of the general [StatePredicate.ReceivedCounterThisTurn]: this is
      * [SourceMatches] over that predicate, so the source-scoped and filter-scoped readings ("each
@@ -97,7 +96,7 @@ object Conditions {
      * as parallel paths.
      */
     fun SourceReceivedCounterThisTurn(
-        counterType: String? = null,
+        counterType: CounterType? = null,
         placedByYou: Boolean = false
     ): ConditionInterface =
         SourceMatches(
@@ -150,6 +149,10 @@ object Conditions {
         operator: ComparisonOperator,
         right: DynamicAmount,
     ): ConditionInterface = Compare(left, operator, right)
+
+    /** [CompareAmounts] against a constant ("if you have seven or more cards in your graveyard"). */
+    fun CompareAmounts(left: DynamicAmount, operator: ComparisonOperator, right: Int): ConditionInterface =
+        Compare(left, operator, DynamicAmount.Fixed(right))
 
     /**
      * If [amount] is a prime number (2, 3, 5, 7, …). 0 and 1 are not prime.
@@ -476,11 +479,11 @@ object Conditions {
      * If the total number of [counterType] counters among permanents you control matching [filter]
      * is at least [count]. Sums that counter kind across the whole group — three Sagas with one,
      * two, and one lore counter total four. Used for Tom Bombadil ("As long as there are four or
-     * more lore counters among Sagas you control"). Pass [CounterTypeFilter.Any] to total every kind.
+     * more lore counters among Sagas you control"). Pass `null` to total every kind.
      */
     fun CounterKindAmongYouControlAtLeast(
         count: Int,
-        counterType: CounterTypeFilter,
+        counterType: CounterType?,
         filter: GameObjectFilter
     ): ConditionInterface =
         Compare(
@@ -527,21 +530,33 @@ object Conditions {
      * Used for cards like Unified Strike.
      */
     fun TargetPowerAtMost(amount: DynamicAmount, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EntityReference.Target(targetIndex), EntityNumericProperty.Power), ComparisonOperator.LTE, amount)
+        TargetPowerAtMost(amount, EffectTarget.ContextTarget(targetIndex))
+
+    /** [target]'s power is at most [amount]. */
+    fun TargetPowerAtMost(amount: DynamicAmount, target: EffectTarget.SingleEntity): ConditionInterface =
+        Compare(DynamicAmount.EntityProperty(target, EntityNumericProperty.Power), ComparisonOperator.LTE, amount)
 
     /**
      * If the target spell's mana value is at most the given dynamic amount.
      * Used for conditional counterspells like Dispersal Shield.
      */
     fun TargetSpellManaValueAtMost(amount: DynamicAmount, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EntityReference.Target(targetIndex), EntityNumericProperty.ManaValue), ComparisonOperator.LTE, amount)
+        TargetSpellManaValueAtMost(amount, EffectTarget.ContextTarget(targetIndex))
+
+    /** [target] (a spell handle)'s mana value is at most [amount]. */
+    fun TargetSpellManaValueAtMost(amount: DynamicAmount, target: EffectTarget.SingleEntity): ConditionInterface =
+        Compare(DynamicAmount.EntityProperty(target, EntityNumericProperty.ManaValue), ComparisonOperator.LTE, amount)
 
     /**
      * If the target permanent has at least one counter of the given type.
      * Used for cards like Bring Low: "If that creature has a +1/+1 counter on it"
      */
-    fun TargetHasCounter(counterType: CounterTypeFilter, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EntityReference.Target(targetIndex), EntityNumericProperty.CounterCount(counterType)), ComparisonOperator.GTE, DynamicAmount.Fixed(1))
+    fun TargetHasCounter(counterType: CounterType, targetIndex: Int = 0): ConditionInterface =
+        TargetHasCounter(counterType, EffectTarget.ContextTarget(targetIndex))
+
+    /** [target] (a target handle) has at least one [counterType] counter on it. */
+    fun TargetHasCounter(counterType: CounterType, target: EffectTarget.SingleEntity): ConditionInterface =
+        Compare(DynamicAmount.EntityProperty(target, EntityNumericProperty.CounterCount(counterType)), ComparisonOperator.GTE, DynamicAmount.Fixed(1))
 
     /**
      * If the chosen target at [targetIndex] matches a GameObjectFilter. Resolution-only; a player
@@ -550,6 +565,10 @@ object Conditions {
      */
     fun TargetMatchesFilter(filter: GameObjectFilter, targetIndex: Int = 0): ConditionInterface =
         EntityMatches(EffectTarget.ContextTarget(targetIndex), filter)
+
+    /** [target] (a target handle) matches [filter] as this resolves — "if that creature is legendary". */
+    fun TargetMatchesFilter(filter: GameObjectFilter, target: EffectTarget): ConditionInterface =
+        EntityMatches(target, filter)
 
     /**
      * If the chosen target at [targetIndex] is a creature *card*, tested by the underlying card's
@@ -602,7 +621,7 @@ object Conditions {
      * a binary comparison can't express. Counts come from the projected battlefield.
      *
      * Wrap it in a per-player loop for "each player who controls the most X" (No Witnesses):
-     * `ForEachPlayerEffect(Player.Each, ConditionalEffect(PlayerControlsMostPermanents(Player.You,
+     * `ForEachPlayerEffect(Player.Each, Effects.If(PlayerControlsMostPermanents(Player.You,
      * GameObjectFilter.Creature), …))` — inside the loop `Player.You` is the iterated player.
      */
     fun PlayerControlsMostPermanents(
@@ -891,7 +910,7 @@ object Conditions {
      * [NoManaSpentToCast]. True iff **every** permanent a batch trigger captured (the
      * `Triggers.OneOrMorePermanentsEnter` batch, exposed at resolution as the `trigger.captured`
      * collection) had no mana spent to cast it; an empty capture is vacuously true. Use as a
-     * resolution-time [com.wingedsheep.sdk.dsl.Effects] `ConditionalEffect` gate on the payoff —
+     * resolution-time [com.wingedsheep.sdk.dsl.Effects] `Effects.If` gate on the payoff —
      * Satoru, the Infiltrator.
      */
     val NoManaSpentToCastEntered: ConditionInterface =
@@ -1337,28 +1356,17 @@ object Conditions {
         SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.withKeyword(keyword))
 
     /**
-     * While this creature has a counter of the given type on it.
-     * Used for intervening-if triggers like Moonshadow.
+     * While this creature has a counter of the given type on it — of any kind when [counterType] is
+     * `null`. Used for intervening-if triggers like Moonshadow.
      */
-    fun SourceHasCounter(counterType: CounterTypeFilter): ConditionInterface {
-        val predicate: StatePredicate = when (counterType) {
-            is CounterTypeFilter.Any -> StatePredicate.HasAnyCounter
-            is CounterTypeFilter.PlusOnePlusOne -> StatePredicate.HasCounter("PLUS_ONE_PLUS_ONE")
-            is CounterTypeFilter.MinusOneMinusOne -> StatePredicate.HasCounter("MINUS_ONE_MINUS_ONE")
-            is CounterTypeFilter.PlusOnePlusZero -> StatePredicate.HasCounter("PLUS_ONE_PLUS_ZERO")
-            is CounterTypeFilter.PlusZeroPlusOne -> StatePredicate.HasCounter("PLUS_ZERO_PLUS_ONE")
-            is CounterTypeFilter.MinusOneMinusZero -> StatePredicate.HasCounter("MINUS_ONE_MINUS_ZERO")
-            is CounterTypeFilter.MinusZeroMinusOne -> StatePredicate.HasCounter("MINUS_ZERO_MINUS_ONE")
-            is CounterTypeFilter.Loyalty -> StatePredicate.HasCounter("LOYALTY")
-            is CounterTypeFilter.Named -> StatePredicate.HasCounter(
-                counterType.name.uppercase().replace(' ', '_')
+    fun SourceHasCounter(counterType: CounterType?): ConditionInterface =
+        SourceMatches(
+            com.wingedsheep.sdk.scripting.GameObjectFilter.Any.copy(
+                statePredicates = listOf(
+                    counterType?.let(StatePredicate::HasCounter) ?: StatePredicate.HasAnyCounter
+                )
             )
-        }
-        return SourceMatches(
-            com.wingedsheep.sdk.scripting.GameObjectFilter.Any
-                .copy(statePredicates = listOf(predicate))
         )
-    }
 
     /**
      * While this permanent has [count] or more counters of [counterType] on it.
@@ -1369,22 +1377,13 @@ object Conditions {
      * `staticAbility { }` row, or wrapped in `ActivationRestriction.OnlyIfCondition(...)` for a
      * threshold-gated activated ability. Generic over counter type, so it also serves any other
      * "N+ counters of a kind" gate. Reads the source's counters live, so it tracks counters added
-     * or removed after the permanent entered.
+     * or removed after the permanent entered. A `null` [counterType] sums every kind (Warden of the
+     * Inner Sky's "three or more counters on it").
      */
-    fun SourceCounterCountAtLeast(counterType: String, count: Int): ConditionInterface =
-        SourceCounterCountAtLeast(CounterTypeFilter.Named(counterType), count)
-
-    /**
-     * While this permanent has [count] or more counters matching [counterType] on it.
-     *
-     * The [CounterTypeFilter] form of [SourceCounterCountAtLeast]; pass [CounterTypeFilter.Any]
-     * for "N or more counters of any kind" gates (Warden of the Inner Sky's "three or more
-     * counters on it"), which sums every counter kind on the source.
-     */
-    fun SourceCounterCountAtLeast(counterType: CounterTypeFilter, count: Int): ConditionInterface =
+    fun SourceCounterCountAtLeast(counterType: CounterType?, count: Int): ConditionInterface =
         Compare(
             DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.CounterCount(counterType)
             ),
             ComparisonOperator.GTE,
@@ -1398,21 +1397,12 @@ object Conditions {
      * threshold. `count = 0` is the "if it has no [kind] counters on it" clause that follows a
      * remove-a-counter step (Thing in the Ice: "remove an ice counter from this creature. Then if
      * it has no ice counters on it, transform it"), which is why it reads the source live rather
-     * than off the entry state.
+     * than off the entry state. A `null` [counterType] totals every kind.
      */
-    fun SourceCounterCountAtMost(counterType: String, count: Int): ConditionInterface =
-        SourceCounterCountAtMost(CounterTypeFilter.Named(counterType), count)
-
-    /**
-     * While this permanent has at most [count] counters matching [counterType] on it.
-     *
-     * The [CounterTypeFilter] form of [SourceCounterCountAtMost]; pass [CounterTypeFilter.Any] to
-     * total every kind.
-     */
-    fun SourceCounterCountAtMost(counterType: CounterTypeFilter, count: Int): ConditionInterface =
+    fun SourceCounterCountAtMost(counterType: CounterType?, count: Int): ConditionInterface =
         Compare(
             DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.CounterCount(counterType)
             ),
             ComparisonOperator.LTE,
@@ -2029,7 +2019,7 @@ object Conditions {
      * per-permanent wording ("on **~** this turn").
      */
     fun PutCounterKindOnCreatureThisTurn(
-        counterType: String,
+        counterType: CounterType,
         player: Player = Player.You
     ): ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.PutCounterKindOnCreatureThisTurn(counterType, player)
@@ -2408,6 +2398,14 @@ object Conditions {
      */
     fun CollectionSharesCardType(collection: String): ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.CollectionSharesCardType(collection)
+
+    /** [CollectionContainsMatch] over a pipeline handle (a pattern's output, e.g. `Patterns.Library.milled`). */
+    fun CollectionContainsMatch(collection: CollectionSlot, filter: GameObjectFilter = GameObjectFilter.Any): ConditionInterface =
+        CollectionContainsMatch(collection.key, filter)
+
+    /** [CollectionSharesCardType] over a pipeline handle. */
+    fun CollectionSharesCardType(collection: CollectionSlot): ConditionInterface =
+        CollectionSharesCardType(collection.key)
 
     // =========================================================================
     // Composite Conditions

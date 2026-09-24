@@ -4,7 +4,6 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
@@ -75,7 +74,7 @@ class EffectOncePerTurnLoweringTest : DescribeSpec({
 
     describe("the guard itself") {
 
-        val payoff = MayEffect(Effects.DrawCards(1))
+        val payoff = Effects.May(Effects.DrawCards(1))
 
         it("accepts a consent gate at the top of the effect") {
             TriggerProcessor.consentGateIsMisplaced(payoff) shouldBe false

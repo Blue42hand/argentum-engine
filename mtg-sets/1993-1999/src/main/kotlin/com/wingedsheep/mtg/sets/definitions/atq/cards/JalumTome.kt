@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -26,7 +25,7 @@ val JalumTome = card("Jalum Tome") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         effect = Effects.Composite(
-            DrawCardsEffect(1),
+            Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)
         )
     }

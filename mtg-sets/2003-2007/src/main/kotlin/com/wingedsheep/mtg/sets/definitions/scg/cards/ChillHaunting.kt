@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostZone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Costs
 
 /**
@@ -31,7 +31,7 @@ val ChillHaunting = card("Chill Haunting") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        val negX = DynamicAmount.Multiply(DynamicAmount.ContextProperty(ContextPropertyKey.ADDITIONAL_COST_EXILED_COUNT), -1)
+        val negX = -DynamicAmounts.additionalCostExiledCount()
         effect = Effects.ModifyStats(negX, negX, creature)
     }
 

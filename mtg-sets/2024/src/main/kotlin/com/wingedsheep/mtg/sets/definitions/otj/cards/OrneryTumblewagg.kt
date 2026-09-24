@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -40,14 +41,14 @@ val OrneryTumblewagg = card("Ornery Tumblewagg") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         val creature = target("target creature", TargetCreature())
-        effect = Effects.AddCounters("+1/+1", 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     triggeredAbility {
         trigger = Triggers.Attacks
         triggerRestriction = Conditions.SourceIsSaddled
         val creature = target("target creature", TargetCreature())
-        effect = Effects.DoubleCounters("+1/+1", creature)
+        effect = Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, creature)
     }
 
     metadata {

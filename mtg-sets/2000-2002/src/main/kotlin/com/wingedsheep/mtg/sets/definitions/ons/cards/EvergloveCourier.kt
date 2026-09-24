@@ -3,12 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -35,8 +34,8 @@ val EvergloveCourier = card("Everglove Courier") {
         val t = target("target", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Elf"))
         ))
-        effect = ModifyStatsEffect(2, 2, t, Duration.WhileSourceTapped()) then
-                GrantKeywordEffect(Keyword.TRAMPLE, t, Duration.WhileSourceTapped())
+        effect = Effects.ModifyStats(2, 2, t, Duration.WhileSourceTapped()) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, t, Duration.WhileSourceTapped())
     }
 
     metadata {

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -46,7 +45,7 @@ val TheWatcherInTheWater = card("The Watcher in the Water") {
     replacementEffect(EntersTapped())
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.Named(Counters.STUN),
+            counterType = CounterType.STUN,
             count = 9,
             selfOnly = true
         )
@@ -90,7 +89,7 @@ val TheWatcherInTheWater = card("The Watcher in the Water") {
             )
         )
         effect = Effects.Untap(kraken)
-            .then(Effects.AddCounters(Counters.STUN, 1, permanent))
+            .then(Effects.AddCounters(CounterType.STUN, 1, permanent))
         description = "Whenever a Tentacle you control dies, untap up to one target Kraken and put a stun counter on up to one target nonland permanent."
     }
 

@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -25,7 +25,7 @@ val RodOfRuin = card("Rod of Ruin") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

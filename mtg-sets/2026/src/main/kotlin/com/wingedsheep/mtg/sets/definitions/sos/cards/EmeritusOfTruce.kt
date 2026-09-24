@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -63,9 +62,9 @@ val EmeritusOfTruce = card("Emeritus of Truce") {
             keywords = setOf(Keyword.FLYING),
             controller = recipient,
             imageUri = "https://cards.scryfall.io/display/front/b/a/bab52920-9d67-4cd4-9015-6e645ff9764f.webp?1782723480"
-        ) then ConditionalEffect(
+        ) then Effects.If(
             condition = Conditions.OpponentControlsMoreCreatures,
-            effect = Effects.BecomePrepared(EffectTarget.Self),
+            then = Effects.BecomePrepared(EffectTarget.Self),
         )
     }
 

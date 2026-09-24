@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Fallowsage
@@ -26,7 +25,7 @@ val Fallowsage = card("Fallowsage") {
 
     triggeredAbility {
         trigger = Triggers.BecomesTapped
-        effect = MayEffect(Effects.DrawCards(1))
+        effect = Effects.May(Effects.DrawCards(1))
         description = "Whenever this creature becomes tapped, you may draw a card."
     }
 

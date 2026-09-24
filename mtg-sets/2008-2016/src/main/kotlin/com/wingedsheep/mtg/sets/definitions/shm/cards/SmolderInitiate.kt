@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Smolder Initiate
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  *   [Triggers.anyPlayerCasts] (ANY binding) rather than a "whenever you cast" trigger.
  * - "Target player" is unrestricted ([Targets.Player]) — you may point it at yourself. It is chosen
  *   when the ability goes on the stack, before the optional {1} is paid.
- * - "You may pay {1}. If you do, …" is the [MayPayManaEffect] gate; the life loss is the gate's
+ * - "You may pay {1}. If you do, …" is the [Effects.MayPay] gate; the life loss is the gate's
  *   `then`, so declining does nothing.
  */
 val SmolderInitiate = card("Smolder Initiate") {
@@ -35,9 +34,9 @@ val SmolderInitiate = card("Smolder Initiate") {
     triggeredAbility {
         trigger = Triggers.anyPlayerCasts(GameObjectFilter.Any.withColor(Color.BLACK))
         val player = target("target", Targets.Player)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.LoseLife(1, player)
+            then = Effects.LoseLife(1, player)
         )
         description = "Whenever a player casts a black spell, you may pay {1}. If you do, " +
             "target player loses 1 life."

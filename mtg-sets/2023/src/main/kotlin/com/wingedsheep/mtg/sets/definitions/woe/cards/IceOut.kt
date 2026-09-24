@@ -49,7 +49,7 @@ val IceOut = card("Ice Out") {
     }
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
     }
 

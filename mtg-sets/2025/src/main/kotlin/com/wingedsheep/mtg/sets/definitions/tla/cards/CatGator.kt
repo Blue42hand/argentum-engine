@@ -6,14 +6,14 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -35,8 +35,8 @@ val CatGator = card("Cat-Gator") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.SWAMP)),
+        effect = Effects.DealDamage(
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.SWAMP)).count(),
             t
         )
     }

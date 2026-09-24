@@ -11,20 +11,9 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Concealing Curtains // Revealing Eye (Innistrad: Crimson Vow)
@@ -62,7 +51,7 @@ private val ConcealingCurtainsFront = card("Concealing Curtains") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{B}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform this creature. Activate only as a sorcery."
     }
@@ -91,34 +80,23 @@ private val RevealingEye = card("Revealing Eye") {
     triggeredAbility {
         trigger = Triggers.TransformsToBack
         val opponent = target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            RevealHandEffect(opponent),
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
-                storeAs = "revealedHand",
-            ),
-            SelectFromCollectionEffect(
-                from = "revealedHand",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
+        effect = Effects.Pipeline {
+            run(Effects.RevealHand(opponent))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
+            val chosenCard = chooseUpTo(
+                1,
+                from = revealedHand,
                 chooser = Chooser.Controller,
                 filter = GameObjectFilter.Nonland,
-                storeSelected = "chosenCard",
                 prompt = "You may choose a nonland card for that player to discard",
                 alwaysPrompt = true,
-                showAllCards = true,
-            ),
-            ConditionalOnCollectionEffect(
-                collection = "chosenCard",
-                ifNotEmpty = Effects.Composite(
-                    MoveCollectionEffect(
-                        from = "chosenCard",
-                        destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                        moveType = MoveType.Discard,
-                    ),
-                    Effects.DrawCards(1, opponent),
-                ),
-            ),
-        )
+                showAllCards = true
+            )
+            ifNotEmpty(chosenCard) {
+                discard(chosenCard, opponent.asPlayer)
+                run(Effects.DrawCards(1, opponent))
+            }
+        }
         description = "When this creature transforms into Revealing Eye, target opponent reveals " +
             "their hand. You may choose a nonland card from it. If you do, that player discards that " +
             "card, then draws a card."

@@ -5,10 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.ody.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
 
@@ -28,7 +28,7 @@ val MinotaurExplorer = card("Minotaur Explorer") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = PayOrSufferEffect(cost = Costs.pay.Discard(random = true), suffer = SacrificeSelfEffect)
+        effect = Effects.PayOrSuffer(cost = Costs.pay.Discard(random = true), suffer = SacrificeSelfEffect)
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -37,7 +36,7 @@ val MarkovWaltzer = card("Markov Waltzer") {
             "target",
             TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature.youControl())
         )
-        effect = ForEachTargetEffect(listOf(Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0))))
+        effect = Effects.ForEachTarget(Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)))
     }
     metadata {
         rarity = Rarity.UNCOMMON

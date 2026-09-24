@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Mishra's Self-Replicator
@@ -25,9 +24,9 @@ val MishrasSelfReplicator = card("Mishra's Self-Replicator") {
 
     triggeredAbility {
         trigger = Triggers.YouCastHistoric
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.CreateTokenCopyOfSelf()
+            then = Effects.CreateTokenCopyOfSelf()
         )
     }
 

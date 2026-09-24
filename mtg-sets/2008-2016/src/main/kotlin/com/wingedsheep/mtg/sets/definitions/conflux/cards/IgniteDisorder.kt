@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.conflux.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -40,8 +40,8 @@ val IgniteDisorder = card("Ignite Disorder") {
                 )
             )
         )
-        effect = DividedDamageEffect(
-            totalDamage = 3,
+        effect = Effects.DividedDamage(
+            total = 3,
             minTargets = 1,
             maxTargets = 3
         )

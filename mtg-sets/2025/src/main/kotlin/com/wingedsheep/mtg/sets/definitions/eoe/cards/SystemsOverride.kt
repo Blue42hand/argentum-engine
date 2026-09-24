@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -9,9 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -33,14 +30,14 @@ val SystemsOverride = card("Systems Override") {
                 Effects.GainControl(target, Duration.EndOfTurn),
                 Effects.Untap(target),
                 Effects.GrantKeyword(Keyword.HASTE, target),
-                ConditionalEffect(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Spacecraft")),
-                    effect = Effects.Composite(
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Spacecraft"), target),
+                    then = Effects.Composite(
                         listOf(
-                            AddCountersEffect(Counters.CHARGE, 10, target),
-                            CreateDelayedTriggerEffect(
+                            Effects.AddCounters(CounterType.CHARGE, 10, target),
+                            Effects.CreateDelayedTrigger(
                                 step = Step.END,
-                                effect = Effects.RemoveCounters(Counters.CHARGE, 10, target)
+                                effect = Effects.RemoveCounters(CounterType.CHARGE, 10, target)
                             )
                         )
                     )

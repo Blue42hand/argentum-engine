@@ -5,10 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.apc.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
@@ -31,7 +31,7 @@ val MysticSnake = card("Mystic Snake") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetSpell())
-        effect = CounterEffect()
+        effect = Effects.CounterSpell()
     }
     metadata {
         rarity = Rarity.RARE

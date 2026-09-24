@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -43,14 +41,14 @@ val ManaSculpt = card("Mana Sculpt") {
         "amount of mana spent to cast that spell at the beginning of your next main phase."
 
     spell {
-        target = Targets.Spell
-        effect = ConditionalEffect(
+        val spell = target("target spell", Targets.Spell)
+        effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Wizard")),
-            effect = CreateDelayedTriggerEffect(
+            then = Effects.CreateDelayedTrigger(
                 step = Step.PRECOMBAT_MAIN,
                 fireOnPlayer = EffectTarget.PlayerRef(Player.You),
                 timing = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
-                effect = Effects.AddColorlessMana(DynamicAmounts.targetManaSpent(0)),
+                effect = Effects.AddColorlessMana(DynamicAmounts.manaSpentToCast(spell)),
             ),
         ) then Effects.CounterSpell()
     }

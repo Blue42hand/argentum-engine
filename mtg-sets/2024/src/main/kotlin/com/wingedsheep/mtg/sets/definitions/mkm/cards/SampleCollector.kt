@@ -4,8 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.core.Counters
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -44,16 +43,10 @@ val SampleCollector = card("Sample Collector") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ReflexiveTriggerEffect(
-            action = Effects.CollectEvidence(3),
-            optional = true,
-            reflexiveEffect = Effects.AddCounters(
-                Counters.PLUS_ONE_PLUS_ONE, 1, com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget(0)
-            ),
-            reflexiveTargetRequirements = listOf(
-                TargetCreature(filter = TargetFilter.Creature.youControl())
-            ),
-        )
+        effect = Effects.ReflexiveTrigger(action = Effects.CollectEvidence(3), optional = true) {
+            val creature = target("target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl()))
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
+        }
         description = "Whenever this creature attacks, you may collect evidence 3. When you do, " +
             "put a +1/+1 counter on target creature you control."
     }

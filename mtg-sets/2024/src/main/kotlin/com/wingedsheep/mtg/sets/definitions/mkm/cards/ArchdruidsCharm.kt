@@ -1,7 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -10,14 +11,10 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Archdruid's Charm — Murders at Karlov Manor #151
@@ -48,7 +45,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * their own library, so only the opponents need to be shown it.
  *
  * **Mode 2** is [BiteDownOnCrime]'s shape exactly: two targets in one mode, and the damage reads
- * `EntityProperty(Target(0), Power)` with `damageSource = yours`, so the +1/+1 counter placed by
+ * `EntityProperty(ContextTarget(0), Power)` with `damageSource = yours`, so the +1/+1 counter placed by
  * the first half is already on the creature when the power is read. Per the printed rulings, if the
  * opposing creature has become an illegal target by resolution the counter is still placed; if
  * *your* creature is gone, neither half happens. Both fall out of ordinary per-target legality
@@ -94,7 +91,7 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
                         CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped),
                     )
                     toHand(others)
-                    run(ShuffleLibraryEffect())
+                    run(Effects.ShuffleLibrary())
                     run(EmitLibrarySearchedEventEffect)
                 }
             }
@@ -112,12 +109,9 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
                     TargetCreature(filter = TargetFilter.Creature.opponentControls()),
                 )
                 effect = Effects.Composite(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, yours),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours),
                     Effects.DealDamage(
-                        amount = DynamicAmount.EntityProperty(
-                            EntityReference.Target(0),
-                            EntityNumericProperty.Power,
-                        ),
+                        amount = DynamicAmounts.powerOf(yours),
                         target = theirs,
                         damageSource = yours,
                     ),

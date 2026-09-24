@@ -30,11 +30,10 @@ val MaelstromPulse = card("Maelstrom Pulse") {
     spell {
         target("target nonland permanent", Targets.NonlandPermanent)
         effect = Effects.Pipeline {
-            val chosen = gather(CardSource.ChosenTargets, name = "target")
-            val chosenName = storeCardName(chosen, name = "name")
+            val chosen = gather(CardSource.ChosenTargets)
+            val chosenName = storeCardName(chosen)
             val sameNamed = gather(
-                GameObjectFilter.Any.namedFromVariable(chosenName),
-                name = "sameNamed"
+                GameObjectFilter.Any.namedFromVariable(chosenName)
             )
             destroy(sameNamed)
         }

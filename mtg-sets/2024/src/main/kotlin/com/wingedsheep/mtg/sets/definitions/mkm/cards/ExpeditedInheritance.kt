@@ -1,16 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Expedited Inheritance
@@ -28,16 +26,15 @@ val ExpeditedInheritance = card("Expedited Inheritance") {
 
     triggeredAbility {
         trigger = Triggers.dealsDamage(
-            recipient = RecipientFilter.AnyCreature,
+            recipient = Recipient.AnyCreature,
             binding = TriggerBinding.ANY,
         )
         // Damage triggers bind the recipient as the triggering entity, so this makes the damaged
         // creature's controller own both the trigger and the ensuing may decision.
         controlledByTriggeringEntityController = true
-        effect = GatedEffect(
-            gate = Gate.MayDecide(),
-            then = Patterns.Exile.impulse(
-                count = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+        effect = Effects.May(
+            effect = Patterns.Exile.impulse(
+                count = DynamicAmounts.triggerDamageAmount(),
                 expiry = MayPlayExpiry.UntilEndOfNextTurn,
             ),
             descriptionOverride = "You may exile that many cards from the top of your library. " +

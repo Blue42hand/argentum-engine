@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -29,7 +29,7 @@ val DiveBomber = card("Dive Bomber") {
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
         val t = target("target", TargetPermanent(filter = TargetFilter.AttackingOrBlockingCreature))
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
 
     metadata {

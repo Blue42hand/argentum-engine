@@ -493,7 +493,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": "Self"
                         },
@@ -592,14 +592,14 @@
                                     "effects": [
                                         {
                                             "type": "AddCounters",
-                                            "counterType": "+1/+1",
+                                            "counterType": "PLUS_ONE_PLUS_ONE",
                                             "count": 1,
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         },
                                         {
                                             "type": "GrantKeyword",
                                             "keyword": "VIGILANCE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     ]
                                 }
@@ -662,7 +662,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -731,18 +731,19 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 }
             }
         ]
@@ -966,7 +967,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },

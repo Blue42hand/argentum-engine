@@ -11,18 +11,8 @@ import com.wingedsheep.sdk.dsl.craft
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Visage of Dread // Dread Osseosaur (CR 702.167, The Lost Caverns of Ixalan)
@@ -50,7 +40,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - "Whenever this creature enters or attacks" on the back face follows the repo's
  *    established idiom for that wording (Sentinel of the Nameless City, Queen's Bay
  *    Paladin): TWO triggered abilities — [Triggers.EntersBattlefield] and
- *    [Triggers.Attacks] — sharing the same `MayEffect(Patterns.Library.mill(2))`
+ *    [Triggers.Attacks] — sharing the same `Effects.May(Patterns.Library.mill(2))`
  *    effect, which is functionally equivalent to a single or-trigger (there is no
  *    single enters-or-attacks TriggerSpec in the SDK).
  */
@@ -67,28 +57,18 @@ private val VisageOfDreadFront = card("Visage of Dread") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val opponent = target("opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            listOf(
-                RevealHandEffect(opponent),
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
-                    storeAs = "revealedHand"
-                ),
-                SelectFromCollectionEffect(
-                    from = "revealedHand",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    chooser = Chooser.Controller,
-                    filter = GameObjectFilter.CreatureOrArtifact,
-                    storeSelected = "chosenCard",
-                    prompt = "Choose an artifact or creature card to discard"
-                ),
-                MoveCollectionEffect(
-                    from = "chosenCard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                    moveType = MoveType.Discard
-                )
+        effect = Effects.Pipeline {
+            run(Effects.RevealHand(opponent))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
+            val chosenCard = chooseExactly(
+                1,
+                from = revealedHand,
+                chooser = Chooser.Controller,
+                filter = GameObjectFilter.CreatureOrArtifact,
+                prompt = "Choose an artifact or creature card to discard"
             )
-        )
+            discard(chosenCard, opponent.asPlayer)
+        }
     }
 
     craft(
@@ -121,12 +101,12 @@ private val DreadOsseosaur = card("Dread Osseosaur") {
     // same effect (the repo's established idiom for this wording).
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(Patterns.Library.mill(2))
+        effect = Effects.May(Patterns.Library.mill(2))
     }
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(Patterns.Library.mill(2))
+        effect = Effects.May(Patterns.Library.mill(2))
     }
 
     metadata {

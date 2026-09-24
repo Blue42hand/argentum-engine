@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Surge of Zeal
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * until end of turn.
  *
  * Radiance: the target gains haste directly; every *other* creature sharing a color with it
- * (`sharingColorWith(EntityReference.Target(0))`, `otherThanTarget()`) is found as the spell
+ * (`sharingColorWith(EffectTarget.ContextTarget(0))`, `otherThanTarget()`) is found as the spell
  * resolves and gains haste too. A colorless target shares a color with nothing, so only it is
  * affected.
  */
@@ -36,7 +35,7 @@ val SurgeOfZeal = card("Surge of Zeal") {
             Patterns.Group.grantKeywordToAll(
                 Keyword.HASTE,
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EntityReference.Target(0))
+                    GameObjectFilter.Creature.sharingColorWith(radiant)
                 ).otherThanTarget()
             )
     }

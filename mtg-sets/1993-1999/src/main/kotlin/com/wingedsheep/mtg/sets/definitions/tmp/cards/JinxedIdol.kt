@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -33,7 +32,7 @@ val JinxedIdol = card("Jinxed Idol") {
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Creature)
         val opponent = target("opponent", TargetOpponent())
-        effect = GiveControlToTargetPlayerEffect(
+        effect = Effects.GiveControl(
             permanent = EffectTarget.Self,
             newController = opponent
         )

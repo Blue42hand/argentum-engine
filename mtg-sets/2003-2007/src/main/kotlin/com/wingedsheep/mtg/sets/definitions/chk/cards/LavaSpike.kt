@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.chk.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
 
 
@@ -23,7 +23,7 @@ val LavaSpike = card("Lava Spike") {
     oracleText = "Lava Spike deals 3 damage to target player or planeswalker."
     spell {
         val t = target("target", TargetPlayerOrPlaneswalker())
-        effect = DealDamageEffect(3, t)
+        effect = Effects.DealDamage(3, t)
     }
     metadata {
         rarity = Rarity.COMMON

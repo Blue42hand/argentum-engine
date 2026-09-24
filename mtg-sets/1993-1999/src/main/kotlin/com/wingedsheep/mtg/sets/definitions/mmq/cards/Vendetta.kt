@@ -48,7 +48,7 @@ val Vendetta = card("Vendetta") {
             TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK))
         )
         effect = Effects.CantBeRegenerated(creature)
-            .then(Effects.LoseLife(DynamicAmounts.targetToughness(0), EffectTarget.Controller))
+            .then(Effects.LoseLife(DynamicAmounts.toughnessOf(creature), EffectTarget.Controller))
             .then(Effects.Destroy(creature))
     }
 

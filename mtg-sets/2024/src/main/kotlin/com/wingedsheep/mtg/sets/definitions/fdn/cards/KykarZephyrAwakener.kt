@@ -11,12 +11,11 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
@@ -41,17 +40,19 @@ val KykarZephyrAwakener = card("Kykar, Zephyr Awakener") {
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.Composite(
-                    Effects.Exile(EffectTarget.ContextTarget(0)),
-                    CreateDelayedTriggerEffect(
+            mode("Exile another target creature you control. Return that card to the battlefield under its owner's control at the beginning of the next end step") {
+                val otherCreatureYouControl = target(
+                    "target other creature you control",
+                    TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
+                )
+                effect = Effects.Composite(
+                    Effects.Exile(otherCreatureYouControl),
+                    Effects.CreateDelayedTrigger(
                         step = Step.END,
-                        effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD)
+                        effect = Effects.Move(otherCreatureYouControl, Zone.BATTLEFIELD)
                     )
-                ),
-                TargetCreature(filter = TargetFilter.OtherCreatureYouControl),
-                "Exile another target creature you control. Return that card to the battlefield under its owner's control at the beginning of the next end step"
-            ),
+                )
+            },
             Mode.noTarget(
                 Effects.CreateToken(
                     power = 1,

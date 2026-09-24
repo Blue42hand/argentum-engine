@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -45,15 +44,12 @@ val EyeOfTheStorm = card("Eye of the Storm") {
             Effects.ExileTriggeringSpell(linkToSource = true),
             Effects.ForEachPlayer(
                 Player.TriggeringPlayer,
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.FromLinkedExile(),
-                        storeAs = "eyeExiled"
-                    ),
+                Effects.Pipeline {
+                    val eyeExiled = gather(CardSource.FromLinkedExile())
                     // Only instants and sorceries ever enter this pile, so no type filter.
-                    Effects.CopyCollectionIntoCollection(from = "eyeExiled", storeAs = "eyeCopies"),
-                    Effects.CastAnyNumberFromCollectionWithoutPayingCost(from = "eyeCopies")
-                )
+                    val eyeCopies = copyCards(eyeExiled)
+                    run(Effects.CastAnyNumberFromCollectionWithoutPayingCost(from = eyeCopies))
+                }
             )
         )
     }

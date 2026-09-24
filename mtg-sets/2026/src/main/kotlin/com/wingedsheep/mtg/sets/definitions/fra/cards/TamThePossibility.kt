@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 
 /**
  * Tam, the Possibility — Reality Fracture #276
@@ -44,7 +43,7 @@ val TamThePossibility = card("Tam, the Possibility") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}{U}{B}{R}{G}"), Costs.Tap)
-        effect = RepeatDynamicTimesEffect(
+        effect = Effects.Repeat(
             amount = DynamicAmounts.planeswalkerTypes(),
             body = Effects.Proliferate()
         )

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -58,7 +58,7 @@ val QuestingDruid = card("Questing Druid") {
                 ),
             ),
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     adventure("Seek the Beast") {
@@ -71,7 +71,6 @@ val QuestingDruid = card("Questing Druid") {
             effect = Patterns.Exile.impulse(
                 count = 2,
                 expiry = MayPlayExpiry.UntilNextEndStep,
-                storeAs = "seek_the_beast_exiled",
             )
         }
     }

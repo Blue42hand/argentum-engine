@@ -42,23 +42,19 @@ val OverlordOfTheBoilerbilges = card("Overlord of the Boilerbilges") {
     impending(4, "{2}{R}{R}")
 
     // "It deals 4 damage to any target." Shared by the enters and attacks triggers.
-    val dealFour: Effect = Effects.DealDamage(
-        4,
-        EffectTarget.ContextTarget(0),
-        damageSource = EffectTarget.Self
-    )
+    fun dealFour(anyTarget: EffectTarget): Effect = Effects.DealDamage(4, anyTarget, damageSource = EffectTarget.Self)
 
     triggeredAbility {
+        val anyTarget = target("any target", Targets.Any)
         trigger = Triggers.EntersBattlefield
-        target = Targets.Any
-        effect = dealFour
+        effect = dealFour(anyTarget)
         description = "Whenever this permanent enters, it deals 4 damage to any target."
     }
 
     triggeredAbility {
+        val anyTarget = target("any target", Targets.Any)
         trigger = Triggers.Attacks
-        target = Targets.Any
-        effect = dealFour
+        effect = dealFour(anyTarget)
         description = "Whenever this permanent attacks, it deals 4 damage to any target."
     }
 

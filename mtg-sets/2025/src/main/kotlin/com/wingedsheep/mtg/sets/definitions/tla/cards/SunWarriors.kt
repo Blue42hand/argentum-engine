@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 
 /**
@@ -40,7 +39,7 @@ val SunWarriors = card("Sun Warriors") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = AddManaEffect(
+        effect = Effects.AddMana(
             Color.RED,
             DynamicAmounts.creaturesYouControl(),
             expiry = ManaExpiry.END_OF_COMBAT

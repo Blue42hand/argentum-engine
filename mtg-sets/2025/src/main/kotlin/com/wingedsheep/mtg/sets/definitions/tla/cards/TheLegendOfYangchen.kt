@@ -1,28 +1,19 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Legend of Yangchen // Avatar Yangchen (TLA #27)
@@ -55,7 +46,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * picks are exiled after all choosing is done. (2-player scope — TLA is a 2-player set; `Chooser.Opponent`
  * routes to the single opponent.)
  *
- * **Chapter II** — a plain [MayEffect] over "target opponent draws 3, then you draw 3": one yes/no gates
+ * **Chapter II** — a plain [Effects.May] over "target opponent draws 3, then you draw 3": one yes/no gates
  * the whole clause (the printed "If you do" — accept and both draw, decline and neither does).
  *
  * **Chapter III** — the standard transforming-Saga final chapter ([Effects.ExileAndReturnTransformed],
@@ -120,60 +111,48 @@ private val TheLegendOfYangchenFront = card("The Legend of Yangchen") {
     // I — Starting with you, each player chooses up to one permanent with mana value 3 or greater
     // from among permanents your opponents control. Exile those permanents.
     sagaChapter(1) {
-        effect = Effects.Composite(
-            listOf(
-                // The shared pool: permanents your opponents control with mana value 3 or greater.
-                // Gathered once in the (unrebound) Saga-controller context, so opponentControls()
-                // resolves against the Saga controller — the same pool for every chooser.
-                GatherCardsEffect(
-                    source = CardSource.BattlefieldMatching(
-                        filter = GameObjectFilter.Permanent.opponentControls().manaValueAtLeast(3),
-                        player = Player.Each
-                    ),
-                    storeAs = "yangchenPool"
-                ),
-                // Starting with you: you choose up to one of them.
-                SelectFromCollectionEffect(
-                    from = "yangchenPool",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    chooser = Chooser.Controller,
-                    storeSelected = "yangchenControllerPick",
-                    storeRemainder = "yangchenRemaining",
-                    prompt = "Choose up to one permanent with mana value 3 or greater from among " +
-                        "permanents your opponents control",
-                    selectedLabel = "Exile",
-                    useTargetingUI = true
-                ),
-                // Then the opponent chooses up to one of what's left (can't repeat your pick).
-                SelectFromCollectionEffect(
-                    from = "yangchenRemaining",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    chooser = Chooser.Opponent,
-                    storeSelected = "yangchenOpponentPick",
-                    prompt = "Choose up to one permanent with mana value 3 or greater from among " +
-                        "permanents your opponents control",
-                    selectedLabel = "Exile",
-                    useTargetingUI = true
-                ),
-                // Exile all the chosen permanents.
-                MoveCollectionEffect(
-                    from = "yangchenControllerPick",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                ),
-                MoveCollectionEffect(
-                    from = "yangchenOpponentPick",
-                    destination = CardDestination.ToZone(Zone.EXILE)
+        effect = Effects.Pipeline {
+            // The shared pool: permanents your opponents control with mana value 3 or greater.
+            // Gathered once in the (unrebound) Saga-controller context, so opponentControls()
+            // resolves against the Saga controller — the same pool for every chooser.
+            val yangchenPool = gather(
+                CardSource.BattlefieldMatching(
+                    filter = GameObjectFilter.Permanent.opponentControls().manaValueAtLeast(3),
+                    player = Player.Each
                 )
             )
-        )
+            // Starting with you: you choose up to one of them.
+            val (yangchenControllerPick, yangchenRemaining) = chooseUpToSplit(
+                1,
+                from = yangchenPool,
+                chooser = Chooser.Controller,
+                prompt = "Choose up to one permanent with mana value 3 or greater from among " +
+                    "permanents your opponents control",
+                selectedLabel = "Exile",
+                useTargetingUI = true
+            )
+            // Then the opponent chooses up to one of what's left (can't repeat your pick).
+            val yangchenOpponentPick = chooseUpTo(
+                1,
+                from = yangchenRemaining,
+                chooser = Chooser.Opponent,
+                prompt = "Choose up to one permanent with mana value 3 or greater from among " +
+                    "permanents your opponents control",
+                selectedLabel = "Exile",
+                useTargetingUI = true
+            )
+            // Exile all the chosen permanents.
+            exile(yangchenControllerPick)
+            exile(yangchenOpponentPick)
+        }
     }
 
     // II — You may have target opponent draw three cards. If you do, draw three cards.
     sagaChapter(2) {
-        target("target opponent", TargetOpponent())
-        effect = MayEffect(
+        val opponent = target("target opponent", TargetOpponent())
+        effect = Effects.May(
             Effects.Composite(
-                Effects.DrawCards(3, EffectTarget.ContextTarget(0)),
+                Effects.DrawCards(3, opponent),
                 Effects.DrawCards(3)
             )
         )

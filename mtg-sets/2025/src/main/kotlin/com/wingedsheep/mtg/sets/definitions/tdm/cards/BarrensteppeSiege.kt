@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -70,10 +68,10 @@ val BarrensteppeSiege = card("Barrensteppe Siege") {
         triggerRestriction = SourceChosenModeIs("abzan")
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+            effect = Effects.AddCounters(
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }
@@ -83,9 +81,9 @@ val BarrensteppeSiege = card("Barrensteppe Siege") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = SourceChosenModeIs("mardu")
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.ControlledCreatureDiedThisTurn,
-            effect = Effects.Sacrifice(
+            then = Effects.Sacrifice(
                 filter = GameObjectFilter.Creature,
                 count = 1,
                 target = EffectTarget.PlayerRef(com.wingedsheep.sdk.scripting.references.Player.EachOpponent)

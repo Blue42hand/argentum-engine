@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.ori.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AttackTax
 import com.wingedsheep.sdk.scripting.BlockTax
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Archangel of Tithes
@@ -38,7 +38,7 @@ val ArchangelOfTithes = card("Archangel of Tithes") {
 
     staticAbility {
         ability = AttackTax(
-            amountPerAttacker = DynamicAmount.Fixed(1),
+            amountPerAttacker = DynamicAmounts.fixed(1),
             condition = Conditions.SourceIsUntapped,
             coversPlaneswalkers = true,
         )
@@ -46,7 +46,7 @@ val ArchangelOfTithes = card("Archangel of Tithes") {
 
     staticAbility {
         ability = BlockTax(
-            amountPerBlocker = DynamicAmount.Fixed(1),
+            amountPerBlocker = DynamicAmounts.fixed(1),
             condition = Conditions.SourceIsAttacking,
         )
     }

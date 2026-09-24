@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -79,7 +79,7 @@ val NevaStalkedByNightmares = card("Neva, Stalked by Nightmares") {
             binding = TriggerBinding.ANY,
         )
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Patterns.Library.scry(1),
         )
         description = "Whenever an enchantment you control is put into a graveyard from the " +

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Dross Skullbomb
@@ -29,10 +28,10 @@ val DrossSkullbomb = card("Dross Skullbomb") {
     }
 
     activatedAbility {
+        val creatureCardInYourGraveyard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.SacrificeSelf)
-        target = Targets.CreatureCardInYourGraveyard
         effect = Effects.Composite(
-            Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
+            Effects.ReturnToHand(creatureCardInYourGraveyard),
             Effects.DrawCards(1)
         )
         timing = TimingRule.SorcerySpeed

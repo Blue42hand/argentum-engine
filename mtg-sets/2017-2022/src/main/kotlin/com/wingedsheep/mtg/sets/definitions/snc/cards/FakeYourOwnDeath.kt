@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -42,7 +41,7 @@ val FakeYourOwnDeath = card("Fake Your Own Death") {
         val t = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, t),
-            GrantTriggeredAbilityEffect(
+            Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.Dies.event,
                     binding = Triggers.Dies.binding,

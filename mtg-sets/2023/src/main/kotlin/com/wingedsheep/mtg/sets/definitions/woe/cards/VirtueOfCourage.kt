@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -8,12 +9,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Virtue of Courage // Embereth Blaze
@@ -50,14 +47,13 @@ val VirtueOfCourage = card("Virtue of Courage") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.NonCombat,
-            recipient = RecipientFilter.Opponent,
+            recipient = Recipient.Opponent,
             sourceFilter = GameObjectFilter.Any.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = GatedEffect(
-            gate = Gate.MayDecide(),
-            then = Patterns.Exile.impulse(
-                DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+        effect = Effects.May(
+            effect = Patterns.Exile.impulse(
+                DynamicAmounts.triggerDamageAmount()
             ),
             // Becomes the yes/no prompt text — the pipeline's auto-description would read as
             // gather/move/grant plumbing.

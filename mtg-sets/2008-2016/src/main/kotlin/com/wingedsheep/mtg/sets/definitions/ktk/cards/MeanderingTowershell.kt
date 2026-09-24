@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -39,7 +38,7 @@ val MeanderingTowershell = card("Meandering Towershell") {
         effect = Effects.Composite(
             listOf(
                 Effects.Move(EffectTarget.Self, Zone.EXILE),
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     step = Step.BEGIN_COMBAT,
                     effect = Effects.Move(
                         target = EffectTarget.Self,

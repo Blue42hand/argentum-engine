@@ -54,7 +54,7 @@ class DistributeCountersAmongFilteredExecutor : EffectExecutor<DistributeCounter
         val decision = { decisionId: String -> DistributeDecision(
             id = decisionId,
             playerId = context.controllerId,
-            prompt = "Distribute ${effect.totalCounters} ${effect.counterType} " +
+            prompt = "Distribute ${effect.totalCounters} ${effect.counterType.printed} " +
                 "counter${if (effect.totalCounters != 1) "s" else ""} among ${effect.filter.description}s",
             context = DecisionContext(
                 sourceId = sourceId,

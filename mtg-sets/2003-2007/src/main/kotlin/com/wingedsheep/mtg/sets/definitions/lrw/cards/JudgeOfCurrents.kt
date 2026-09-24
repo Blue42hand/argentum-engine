@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
@@ -33,7 +32,7 @@ val JudgeOfCurrents = card("Judge of Currents") {
             binding = TriggerBinding.ANY,
             filter = GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()
         )
-        effect = MayEffect(Effects.GainLife(1))
+        effect = Effects.May(Effects.GainLife(1))
         description = "Whenever a Merfolk you control becomes tapped, you may gain 1 life."
     }
 

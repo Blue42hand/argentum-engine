@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -37,9 +35,9 @@ val GaeasBlessing = card("Gaea's Blessing") {
             optional = true,
             filter = TargetFilter.CardInGraveyard
         )
-        effect = ForEachTargetEffect(
-            effects = listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY))
-        ).then(ShuffleLibraryEffect())
+        effect = Effects.ForEachTarget(
+            Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY)
+        ).then(Effects.ShuffleLibrary())
             .then(Effects.DrawCards(1))
     }
 

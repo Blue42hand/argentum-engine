@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -38,15 +38,15 @@ val DawnsireSunstarDreadnought = card("Dawnsire, Sunstar Dreadnought") {
     triggeredAbility {
         trigger = Triggers.YouAttack
         val target = target("up to one target creature or planeswalker", TargetCreatureOrPlaneswalker(optional = true))
-        effect = com.wingedsheep.sdk.scripting.effects.ConditionalEffect(
-            condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 10),
-            effect = Effects.DealDamage(100, target)
+        effect = Effects.If(
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10),
+            then = Effects.DealDamage(100, target)
         )
         description = "Whenever you attack, Dawnsire deals 100 damage to up to one target creature or planeswalker."
     }
 
     // 20+ charge counters
-    val charge20 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 20)
+    val charge20 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 20)
 
     staticAbility {
         condition = charge20

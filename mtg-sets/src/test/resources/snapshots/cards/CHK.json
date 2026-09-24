@@ -89,7 +89,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -381,7 +381,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 },
@@ -403,7 +403,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -481,11 +481,11 @@
                             "amount": 5
                         }
                     },
-                    "storeAs": "looked"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "looked",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -494,8 +494,8 @@
                         }
                     },
                     "filter": "creature",
-                    "storeSelected": "kept",
-                    "storeRemainder": "rest",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "prompt": "You may reveal a creature card to put into your hand",
                     "selectedLabel": "Put in hand",
                     "remainderLabel": "Put on bottom",
@@ -503,7 +503,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "kept",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -512,7 +512,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "rest",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -771,8 +771,8 @@
                             "amount": 4
                         },
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "isMill": true
                     },
@@ -785,8 +785,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     }
                 }
@@ -838,12 +838,12 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "FEAR",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -1022,7 +1022,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1182,10 +1182,8 @@
             "type": "PreventDamageShield",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
-                "filter": {
-                    "baseFilter": "creature"
-                }
+                "type": "PreventFromMatching",
+                "filter": "creature"
             }
         }
     },
@@ -1317,7 +1315,7 @@
                     "type": "Fixed",
                     "amount": 5
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1500,8 +1498,8 @@
                                     "amount": 1
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -1514,8 +1512,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -1698,7 +1696,7 @@
                     "type": "Fixed",
                     "amount": -2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1738,7 +1736,7 @@
                     "type": "Fixed",
                     "amount": 7
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3405,7 +3403,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "divinity",
+                        "counterType": "DIVINITY",
                         "self": true
                     }
                 },
@@ -3483,10 +3481,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "divinity"
-                },
+                "counterType": "DIVINITY",
                 "count": 1,
                 "selfOnly": true,
                 "condition": "WasCastFromHand"
@@ -3587,7 +3582,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Nagao attacks, Samurai creatures you control get +1/+1 until end of turn."
@@ -3647,8 +3642,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "storeAs": "hand"
@@ -3674,8 +3669,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "moveType": "Discard"
@@ -4686,7 +4681,7 @@
                             "type": "Fixed",
                             "amount": 5
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When Ryusei dies, it deals 5 damage to each creature without flying."
@@ -5001,7 +4996,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "Gated",
@@ -5520,7 +5518,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyCreature"
+                        "recipient": {
+                            "type": "RecipientObject",
+                            "filter": "creature"
+                        }
                     },
                     "effect": {
                         "type": "CreateDelayedTrigger",
@@ -5907,7 +5908,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -6002,11 +6006,11 @@
                         "zone": "Hand",
                         "filter": "creature"
                     },
-                    "storeAs": "put_candidates"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "put_candidates",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -6014,11 +6018,11 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "putting"
+                    "storeSelected": "selected1"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "putting",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"
@@ -6026,7 +6030,7 @@
                 },
                 {
                     "type": "ConditionalOnCollection",
-                    "collection": "putting",
+                    "collection": "selected1",
                     "ifNotEmpty": {
                         "type": "Composite",
                         "effects": [
@@ -6035,7 +6039,7 @@
                                 "keyword": "HASTE",
                                 "target": {
                                     "type": "PipelineTarget",
-                                    "collectionName": "putting"
+                                    "collectionName": "selected1"
                                 },
                                 "duration": "Permanent"
                             },
@@ -6046,7 +6050,7 @@
                                     "type": "SacrificeTarget",
                                     "target": {
                                         "type": "PipelineTarget",
-                                        "collectionName": "putting"
+                                        "collectionName": "selected1"
                                     }
                                 }
                             }
@@ -6358,8 +6362,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "storeAs": "hand"
@@ -6385,8 +6389,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "moveType": "Discard"

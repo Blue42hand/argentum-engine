@@ -6,9 +6,8 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Gaze of the Gorgon — Ravnica: City of Guilds #246
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * combat", so cast after the last combat of the turn it is simply dropped at end of turn. Its
  * `watchedTarget` bakes in the targeted creature, which the fired trigger exposes as its triggering
  * entity; the destroy filter then reads every creature's turn-scoped combat-partner record for it
- * ([GameObjectFilter.blockedOrWasBlockedByThisTurn] over [EntityReference.Triggering]). That record
+ * ([GameObjectFilter.blockedOrWasBlockedByThisTurn] over [EffectTarget.TriggeringEntity]). That record
  * is written at block declaration on both sides and kept until the turn ends, so — per the ruling —
  * creatures that blocked it before the Gaze was cast are included, and it does not matter whether
  * the targeted creature is still on the battlefield when the trigger resolves.
@@ -39,12 +38,12 @@ val GazeOfTheGorgon = card("Gaze of the Gorgon") {
         val gazer = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.Regenerate(gazer),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END_COMBAT,
                 timing = DelayedTriggerTiming.THIS_TURN_ONLY,
                 watchedTarget = gazer,
                 effect = Effects.DestroyAll(
-                    GameObjectFilter.Creature.blockedOrWasBlockedByThisTurn(EntityReference.Triggering)
+                    GameObjectFilter.Creature.blockedOrWasBlockedByThisTurn(EffectTarget.TriggeringEntity)
                 )
             )
         )

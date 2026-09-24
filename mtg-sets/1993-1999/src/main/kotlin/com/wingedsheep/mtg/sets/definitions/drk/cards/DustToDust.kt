@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -17,7 +16,7 @@ val DustToDust = card("Dust to Dust") {
 
     spell {
         target = TargetPermanent(count = 2, filter = TargetFilter.Artifact)
-        effect = ForEachTargetEffect(listOf(Effects.Exile(EffectTarget.ContextTarget(0))))
+        effect = Effects.ForEachTarget(Effects.Exile(EffectTarget.ContextTarget(0)))
     }
 
     metadata {

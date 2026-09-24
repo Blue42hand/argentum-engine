@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.exploit
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Diver Skaab
@@ -31,10 +30,10 @@ val DiverSkaab = card("Diver Skaab") {
         "When this creature exploits a creature, target creature's owner puts it on their choice " +
         "of the top or bottom of their library."
 
-    exploit(
-        onExploit = Effects.PutOnTopOrBottomOfLibrary(EffectTarget.ContextTarget(0)),
-        onExploitTargets = listOf(Targets.Creature)
-    )
+    exploit {
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.PutOnTopOrBottomOfLibrary(creature)
+    }
 
     metadata {
         rarity = Rarity.UNCOMMON

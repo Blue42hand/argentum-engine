@@ -13,7 +13,7 @@ This document outlines a hierarchy of strategies, ranging from simple compositio
 Most "complex" abilities are actually specific combinations of simple, existing actions. Instead of creating a new
 effect class for every variation, compose them using structural effects.
 
-* **Strategy:** Use `CompositeEffect` (sequence) and `ConditionalEffect` (branching) to chain existing primitives.
+* **Strategy:** Use `CompositeEffect` (sequence) and `Effects.If` (branching) to chain existing primitives.
 * **Best For:** Abilities with multiple steps or simple conditions.
 
 ### Example: *Cryptic Command* (Simplified Mode)
@@ -37,7 +37,7 @@ CompositeEffect(
 *"Destroy target creature if it's black. Otherwise, tap it."*
 
 ```kotlin
-ConditionalEffect(
+Effects.If(
     condition = TargetHasColor(Color.BLACK),
     effect = MoveToZoneEffect(EffectTarget.ContextTarget(0), Zone.Graveyard, byDestruction = true),
     elseEffect = TapEffect(EffectTarget.ContextTarget(0))

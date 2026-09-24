@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -31,8 +30,8 @@ val PrismariCharm = card("Prismari Charm") {
             }
             mode("Prismari Charm deals 1 damage to each of one or two targets") {
                 target = AnyTarget(count = 2, minCount = 1)
-                effect = ForEachTargetEffect(
-                    effects = listOf(Effects.DealDamage(1, EffectTarget.ContextTarget(0)))
+                effect = Effects.ForEachTarget(
+                    Effects.DealDamage(1, EffectTarget.ContextTarget(0))
                 )
             }
             mode("Return target nonland permanent to its owner's hand") {

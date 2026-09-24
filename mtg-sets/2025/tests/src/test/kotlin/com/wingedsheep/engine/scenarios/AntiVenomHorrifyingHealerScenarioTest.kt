@@ -24,7 +24,7 @@ import com.wingedsheep.engine.core.Outcome
  *  - "When Anti-Venom enters, if he was cast, return target creature card from your graveyard to
  *    the battlefield." (an intervening-"if" `Conditions.WasCast` ETB reanimation), and
  *  - "If damage would be dealt to Anti-Venom, prevent that damage and put that many +1/+1 counters
- *    on him." — the `RecipientFilter.Self` `ReplaceDamageWithCounters` wired on both creature-damage
+ *    on him." — the `Recipient.Self` `ReplaceDamageWithCounters` wired on both creature-damage
  *    paths: `DamageUtils.applyDamage` (noncombat) and `CombatDamageManager.applyDamageToCreature`
  *    (combat).
  */

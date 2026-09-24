@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * but so does the Wall, meaning the ability can only be used every other turn. Declining is often
  * right, which is why the "may" is real and not decorative.
  *
- * Modelled as `Tap` followed by a `MayEffect` over both counter placements. The two counters go
+ * Modelled as `Tap` followed by a `Effects.May` over both counter placements. The two counters go
  * together — the printed "if you do" only comes apart in the corner case where the target genuinely
  * can't receive the counter (an effect like Solemnity, or a permanent that can't have counters put
  * on it): the rules would then skip the Wall's counter too, while this script places it. There is no
@@ -57,10 +56,10 @@ val SanctuaryWall = card("Sanctuary Wall") {
         )
         effect = Effects.Composite(
             Effects.Tap(creature),
-            MayEffect(
+            Effects.May(
                 Effects.Composite(
-                    Effects.AddCounters(Counters.STUN, 1, creature),
-                    Effects.AddCounters(Counters.STUN, 1, EffectTarget.Self)
+                    Effects.AddCounters(CounterType.STUN, 1, creature),
+                    Effects.AddCounters(CounterType.STUN, 1, EffectTarget.Self)
                 ),
                 descriptionOverride = "Put a stun counter on it? (Sanctuary Wall also gets one.)"
             )

@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Sundering Archaic
@@ -47,7 +47,7 @@ val SunderingArchaic = card("Sundering Archaic") {
                 filter = TargetFilter(
                     GameObjectFilter.NonlandPermanent
                         .opponentControls()
-                        .manaValueAtMostColorsSpent(EntityReference.Source)
+                        .manaValueAtMostColorsSpent(EffectTarget.Self)
                 )
             )
         )

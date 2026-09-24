@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.soi.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
 /**
@@ -34,7 +34,7 @@ val RunawayCarriage = card("Runaway Carriage") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,
             effect = SacrificeSelfEffect
         )
@@ -42,7 +42,7 @@ val RunawayCarriage = card("Runaway Carriage") {
 
     triggeredAbility {
         trigger = Triggers.Blocks
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,
             effect = SacrificeSelfEffect
         )

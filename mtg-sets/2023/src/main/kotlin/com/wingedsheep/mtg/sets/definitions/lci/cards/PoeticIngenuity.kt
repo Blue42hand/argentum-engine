@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Poetic Ingenuity
@@ -47,10 +47,10 @@ val PoeticIngenuity = card("Poetic Ingenuity") {
     triggeredAbility {
         trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.withSubtype(Subtype.DINOSAUR))
         effect = Effects.CreateTreasure(
-            count = DynamicAmount.AggregateBattlefield(
+            count = DynamicAmounts.battlefield(
                 Player.You,
                 GameObjectFilter.Creature.withSubtype(Subtype.DINOSAUR).attacking()
-            ),
+            ).count(),
         )
     }
 

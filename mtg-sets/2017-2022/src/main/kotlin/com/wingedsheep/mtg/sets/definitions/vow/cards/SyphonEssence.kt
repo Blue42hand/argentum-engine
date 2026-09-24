@@ -23,9 +23,9 @@ val SyphonEssence = card("Syphon Essence") {
         "artifact with \"{1}, {T}, Discard a card, Sacrifice this token: Draw a card.\")"
 
     spell {
-        target = TargetSpell(
+        val spell = target("target spell", TargetSpell(
             filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker, zone = Zone.STACK)
-        )
+        ))
         effect = Effects.CounterSpell() then Effects.CreateBlood(1)
     }
 

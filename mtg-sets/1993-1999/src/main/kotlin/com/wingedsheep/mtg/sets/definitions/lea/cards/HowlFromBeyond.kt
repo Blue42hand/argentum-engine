@@ -4,12 +4,12 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -25,7 +25,7 @@ val HowlFromBeyond = card("Howl from Beyond") {
     oracleText = "Target creature gets +X/+0 until end of turn."
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.ModifyStats(DynamicAmount.XValue, DynamicAmount.Fixed(0), t)
+        effect = Effects.ModifyStats(DynamicAmounts.xValue(), DynamicAmounts.fixed(0), t)
     }
     metadata {
         rarity = Rarity.COMMON

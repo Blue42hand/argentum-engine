@@ -19,7 +19,7 @@ val Undermine = card("Undermine") {
     oracleText = "Counter target spell. Its controller loses 3 life."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         // Resolve the life loss while the spell is still on the stack so `TargetController`
         // can read its controller; countering first moves the spell to the graveyard and the
         // controller lookup silently fails. Both happen in one resolution, so the order is

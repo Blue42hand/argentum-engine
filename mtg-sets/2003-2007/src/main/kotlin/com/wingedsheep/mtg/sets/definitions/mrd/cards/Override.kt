@@ -27,7 +27,7 @@ val Override = card("Override") {
     oracleText = "Counter target spell unless its controller pays {1} for each artifact you control."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessDynamicPays(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
         )

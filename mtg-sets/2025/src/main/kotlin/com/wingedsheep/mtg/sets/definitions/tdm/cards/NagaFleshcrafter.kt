@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.renew
@@ -50,7 +50,7 @@ val NagaFleshcrafter = card("Naga Fleshcrafter") {
                 filter = TargetFilter(GameObjectFilter.Creature.youControl().nonlegendary())
             )
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
             .then(
                 Effects.EachPermanentBecomesCopyOfTarget(
                     target = creature,

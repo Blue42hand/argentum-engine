@@ -21,7 +21,7 @@ import com.wingedsheep.engine.core.Outcome
  *  The creature you control deals damage equal to its power to the creature an opponent controls."
  *
  * A one-sided "fight": only the controlled creature deals damage. The Delirium counters are placed
- * before the damage step, so the buffed power decides the result. Composes ConditionalEffect
+ * before the damage step, so the buffed power decides the result. Composes Effects.If
  * (Delirium-gated AddCounters) + DealDamage(targetPower(0), source = controlled creature); no new SDK.
  */
 class BeastieBeatdownScenarioTest : FunSpec({

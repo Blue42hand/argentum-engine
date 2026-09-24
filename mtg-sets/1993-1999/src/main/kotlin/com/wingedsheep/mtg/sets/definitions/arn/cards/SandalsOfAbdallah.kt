@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -28,7 +27,7 @@ val SandalsOfAbdallah = card("Sandals of Abdallah") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         val creature = target("target creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.ISLANDWALK, creature, Duration.EndOfTurn).then(
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 trigger = Triggers.Dies,
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn,

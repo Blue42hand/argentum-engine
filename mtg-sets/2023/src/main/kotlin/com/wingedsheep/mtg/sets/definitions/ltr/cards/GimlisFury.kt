@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Gimli's Fury
@@ -27,9 +26,9 @@ val GimlisFury = card("Gimli's Fury") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(+3, +2, creature)
             .then(
-                ConditionalEffect(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary()),
-                    effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creature),
+                    then = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
                 )
             )
     }

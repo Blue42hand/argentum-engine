@@ -1,15 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -39,16 +35,14 @@ val Homesickness = card("Homesickness") {
         "it instead.)"
 
     spell {
-        target("target player", TargetPlayer())
+        val player = target("target player", TargetPlayer())
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = DrawCardsEffect(2, EffectTarget.ContextTarget(0)).then(
-            ForEachTargetEffect(
-                listOf(
-                    ConditionalEffect(
-                        condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
-                        effect = Effects.Tap(EffectTarget.ContextTarget(0))
-                            .then(AddCountersEffect(Counters.STUN, 1, EffectTarget.ContextTarget(0))),
-                    )
+        effect = Effects.DrawCards(2, player).then(
+            Effects.ForEachTarget(
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
+                    then = Effects.Tap(EffectTarget.ContextTarget(0))
+                        .then(Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))),
                 )
             )
         )

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PlayAdditionalLandsEffect
 
 val WayOfTheParadox = card("Way of the Paradox") {
     manaCost = "{2}{G}"
@@ -23,7 +22,7 @@ val WayOfTheParadox = card("Way of the Paradox") {
         trigger = Triggers.YouActivateLoyaltyAbility
         effect = Effects.Composite(
             Effects.GainLife(1),
-            PlayAdditionalLandsEffect(count = 1),
+            Effects.PlayAdditionalLands(count = 1),
         )
     }
 

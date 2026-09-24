@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -11,10 +11,8 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
-import com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect
+import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -52,9 +50,9 @@ val TheDarknessCrystal = card("The Darkness Crystal") {
     // this permanent so ability 3 can retrieve it) and you gain 2 life. The rider gains 2 life per
     // creature redirected, matching "you'll gain 2 life for each of them".
     replacementEffect(
-        RedirectZoneChangeWithEffect(
+        RedirectZoneChangeWith(
             newDestination = Zone.EXILE,
-            additionalEffect = GainLifeEffect(2),
+            additionalEffect = Effects.GainLife(2),
             selfOnly = false,
             linkToSource = true,
             appliesTo = EventPattern.ZoneChangeEvent(
@@ -84,7 +82,7 @@ val TheDarknessCrystal = card("The Darkness Crystal") {
             placement = ZonePlacement.Tapped,
             controllerOverride = EffectTarget.Controller,
             fromZone = Zone.EXILE,
-        ).then(AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 2, t))
+        ).then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
     }
 
     metadata {

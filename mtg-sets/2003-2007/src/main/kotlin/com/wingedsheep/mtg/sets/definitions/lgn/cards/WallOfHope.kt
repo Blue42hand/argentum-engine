@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wall of Hope
@@ -29,8 +28,8 @@ val WallOfHope = card("Wall of Hope") {
 
     triggeredAbility {
         trigger = Triggers.TakesDamage
-        effect = GainLifeEffect(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+        effect = Effects.GainLife(
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.Controller
         )
     }

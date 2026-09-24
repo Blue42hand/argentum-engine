@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -33,8 +31,8 @@ val SaltRoadSkirmish = card("Salt Road Skirmish") {
         val t = target("target creature", Targets.Creature)
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
             .then(
-                CreateTokenEffect(
-                    count = DynamicAmount.Fixed(2),
+                Effects.CreateToken(
+                    count = 2,
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.RED),

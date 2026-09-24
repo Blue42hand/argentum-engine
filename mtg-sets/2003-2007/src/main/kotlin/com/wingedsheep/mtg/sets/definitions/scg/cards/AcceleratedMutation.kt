@@ -21,10 +21,10 @@ val AcceleratedMutation = card("Accelerated Mutation") {
     oracleText = "Target creature gets +X/+X until end of turn, where X is the highest mana value among permanents you control."
 
     spell {
-        target = Targets.Creature
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(
             power = DynamicAmounts.battlefield(Player.You).maxManaValue(),
-            toughness = DynamicAmounts.battlefield(Player.You).maxManaValue()
+            toughness = DynamicAmounts.battlefield(Player.You).maxManaValue(), target = creature
         )
     }
 

@@ -1,16 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Frontline War-Rager
@@ -32,12 +32,12 @@ val FrontlineWarRager = card("Frontline War-Rager") {
 
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        interveningIf = Compare(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.tapped()),
+        interveningIf = Conditions.CompareAmounts(
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.tapped()).count(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(2)
+            2
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

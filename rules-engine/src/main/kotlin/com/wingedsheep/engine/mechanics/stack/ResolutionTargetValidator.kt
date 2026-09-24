@@ -56,7 +56,7 @@ internal class ResolutionTargetValidator(
         targetEntryStamps: Map<EntityId, Long> = emptyMap(),
         /**
          * Pipeline collections available at resolution time (e.g. the amassed Army under
-         * `EntityReference.AmassedArmy`, from a `ReflexiveTriggerEffect`'s carried pipeline) — the
+         * `EffectTarget.AmassedArmy`, from a `ReflexiveTriggerEffect`'s carried pipeline) — the
          * CR 608.2b re-validation below re-checks the target filter, and a filter like Grishnákh's
          * "power <= the amassed Army's power" needs this to resolve the referenced entity, or every
          * target wrongly fails re-validation as unresolvable.

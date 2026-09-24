@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * a Squirrel land) would be pumped by the printed text, and the creature form is what the
  * differential gate flags as a defect.
  *
- * A pump-a-group effect is [Effects.ForEachInGroup] with [EffectTarget.Self] naming the *iterated*
+ * A pump-a-group effect is [Effects.ForEachInGroup] with [EffectTarget.IterationEntity] naming the *iterated*
  * permanent, and the two clauses ("get +1/+0" and "gain menace") are one composite body applied
  * per Squirrel — the group is snapshotted before iteration, so a Squirrel created afterwards this
  * turn is untouched, exactly as the one-shot resolution should behave.
@@ -58,8 +58,8 @@ val DreyKeeper = card("Drey Keeper") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Permanent.withSubtype(Subtype.SQUIRREL).youControl()),
             Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)
+                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity)
             )
         )
     }

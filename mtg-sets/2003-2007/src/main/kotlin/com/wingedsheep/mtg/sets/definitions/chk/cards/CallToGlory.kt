@@ -28,11 +28,11 @@ val CallToGlory = card("Call to Glory") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.Self)
+                Effects.Untap(EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.SAMURAI).youControl()),
-                Effects.ModifyStats(1, 1, EffectTarget.Self)
+                Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
             )
         )
     }

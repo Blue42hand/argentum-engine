@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *
  * "Enters or attacks" is two triggered abilities sharing one effect (CR 603.2 — the two events
  * trigger independently), each a `may sacrifice another creature or artifact -> two +1/+1 counters`
- * (the Comet Crawler / Swarm Culler shape: a `MayEffect` over `SacrificeTarget then AddCounters`).
+ * (the Comet Crawler / Swarm Culler shape: a `Effects.May` over `SacrificeTarget then AddCounters`).
  * The leaves-the-battlefield trigger reuses the shared `MoveAllLastKnownCounters` pattern (cf.
  * Dockworker Drone, Servant of the Scale); since Hei Bai only ever bears +1/+1 counters, moving all
  * last-known counters matches "put its counters on target creature you control".
@@ -50,9 +49,9 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
                 ).other()
             )
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget)
-                then Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         )
         description = "Whenever Hei Bai enters, you may sacrifice another creature or artifact. " +
             "If you do, put two +1/+1 counters on Hei Bai."
@@ -69,9 +68,9 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
                 ).other()
             )
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget)
-                then Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         )
         description = "Whenever Hei Bai attacks, you may sacrifice another creature or artifact. " +
             "If you do, put two +1/+1 counters on Hei Bai."
@@ -79,9 +78,9 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
 
     // When Hei Bai leaves the battlefield, put its counters on target creature you control.
     triggeredAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         trigger = Triggers.LeavesBattlefield
-        target = Targets.CreatureYouControl
-        effect = Effects.MoveAllLastKnownCounters(EffectTarget.ContextTarget(0))
+        effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
         description = "When Hei Bai leaves the battlefield, put its counters on target creature you control."
     }
 

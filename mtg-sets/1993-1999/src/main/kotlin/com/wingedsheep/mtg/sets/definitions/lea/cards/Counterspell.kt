@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
@@ -23,7 +23,7 @@ val Counterspell = card("Counterspell") {
     oracleText = "Counter target spell."
     spell {
         val t = target("target", TargetSpell())
-        effect = CounterEffect()
+        effect = Effects.CounterSpell()
     }
     metadata {
         rarity = Rarity.UNCOMMON

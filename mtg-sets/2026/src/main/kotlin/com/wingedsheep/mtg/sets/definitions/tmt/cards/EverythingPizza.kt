@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -55,7 +55,7 @@ val EverythingPizza = card("Everything Pizza") {
             Effects.DrawCards(1, player),
             Effects.EachOpponentDiscards(1),
             Effects.DealDamage(3, anyTarget, damageSource = EffectTarget.Self),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, creature)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, creature)
         )
     }
 

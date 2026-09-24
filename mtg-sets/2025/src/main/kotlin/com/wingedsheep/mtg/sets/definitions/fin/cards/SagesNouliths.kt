@@ -5,13 +5,12 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.dsl.jobSelect
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantSubtype
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Sage's Nouliths
@@ -44,12 +43,11 @@ val SagesNouliths = card("Sage's Nouliths") {
     }
     staticAbility {
         ability = GrantTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
-                effect = Effects.Untap(EffectTarget.ContextTarget(0)),
-                targetRequirement = Targets.AttackingCreature,
-            ),
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.Attacks
+                val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
+                effect = Effects.Untap(attackingCreature)
+            },
             filter = Filters.EquippedCreature,
         )
     }

@@ -1,10 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
@@ -31,8 +30,8 @@ val DoomCannon = card("Doom Cannon") {
             Costs.SacrificeChosenCreatureType
         )
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(
-            amount = DynamicAmount.Fixed(3),
+        effect = Effects.DealDamage(
+            amount = 3,
             target = t
         )
     }

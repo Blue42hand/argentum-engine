@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -27,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *  - "One or more creatures you control become tapped" is the batching [Triggers.OneOrMoreBecomeTapped]
  *    (CR 603.2c): tapping several creatures at once (attacking, convoke, crew) fires it exactly once.
  *  - "When the **fourth** plan counter is put on this enchantment" composes from existing
- *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [Counters.PLAN] gated by
+ *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [CounterType.PLAN] gated by
  *    `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN, 4)`. The at-least gate is
  *    behaviourally exact here because the payoff **sacrifices its own source**, so the enchantment
  *    is gone before a fifth counter could ever land — the threshold can never fire twice. No
@@ -50,7 +48,7 @@ val RewriteHistory = card("Rewrite History") {
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Effects.Discard(1),
-            Effects.AddCounters(Counters.PLAN, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
         )
         description = "Whenever one or more creatures you control become tapped, draw a card, " +
             "then discard a card and put a plan counter on this enchantment."
@@ -59,16 +57,16 @@ val RewriteHistory = card("Rewrite History") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Any,
-            counterType = Counters.PLAN,
+            counterType = CounterType.PLAN,
             firstTimeEachTurn = false,
             binding = TriggerBinding.SELF,
         )
-        triggerRestriction = Conditions.SourceCounterCountAtLeast(Counters.PLAN, 4)
-        effect = ReflexiveTriggerEffect(
+        triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 4)
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = ForEachTargetEffect(
-                effects = listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0))),
+            reflexiveEffect = Effects.ForEachTarget(
+                Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
             ),
             reflexiveTargetRequirements = listOf(
                 TargetObject(

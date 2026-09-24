@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,14 +26,12 @@ val Nefashu = card("Nefashu") {
     triggeredAbility {
         trigger = Triggers.Attacks
         target = Targets.UpToCreatures(5)
-        effect = ForEachTargetEffect(
-            listOf(
-                ModifyStatsEffect(
-                    powerModifier = -1,
-                    toughnessModifier = -1,
-                    target = EffectTarget.ContextTarget(0),
-                    duration = Duration.EndOfTurn
-                )
+        effect = Effects.ForEachTarget(
+            Effects.ModifyStats(
+                power = -1,
+                toughness = -1,
+                target = EffectTarget.ContextTarget(0),
+                duration = Duration.EndOfTurn
             )
         )
     }

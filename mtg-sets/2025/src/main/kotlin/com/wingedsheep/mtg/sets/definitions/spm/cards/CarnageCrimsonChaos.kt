@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.MustAttack
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantStaticAbilityEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -49,8 +47,8 @@ val CarnageCrimsonChaos = card("Carnage, Crimson Chaos") {
         )
         effect = Effects.Composite(
             Effects.Move(creature, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            GrantStaticAbilityEffect(MustAttack(), creature, Duration.Permanent),
-            GrantTriggeredAbilityEffect(
+            Effects.GrantStaticAbility(MustAttack(), creature, Duration.Permanent),
+            Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.DealsCombatDamageToPlayer.event,
                     binding = Triggers.DealsCombatDamageToPlayer.binding,

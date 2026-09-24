@@ -7,7 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.jud.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -28,7 +27,7 @@ val SuddenStrength = card("Sudden Strength") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.ModifyStats(3, 3, t),
-            DrawCardsEffect(1)
+            Effects.DrawCards(1)
         )
     }
     metadata {

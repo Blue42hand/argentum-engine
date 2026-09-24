@@ -6,9 +6,9 @@ package com.wingedsheep.mtg.sets.definitions.m21.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 
 
@@ -31,7 +31,7 @@ val HeartfireImmolator = card("Heartfire Immolator") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
         val t = target("target", TargetCreatureOrPlaneswalker())
-        effect = DealDamageEffect(DynamicAmounts.sourcePower(), t)
+        effect = Effects.DealDamage(DynamicAmounts.sourcePower(), t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

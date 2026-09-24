@@ -847,7 +847,7 @@ internal fun EmitCtx.deliriumConditionDsl(condNode: JsonElement?): String? {
  * "this permanent has N or more +1/+1 counters on it"
  * (`PermanentPassesFilter(ThisPermanent, HasNumberCountersOfType(GreaterThanOrEqualTo Integer N,
  * PTCounter(1,1)))`, Vadmir, New Blood) -> the `Conditions.SourceCounterCountAtLeast(
- * Counters.PLUS_ONE_PLUS_ONE, N)` DSL string, or null when the subject isn't ThisPermanent, the
+ * CounterType.PLUS_ONE_PLUS_ONE, N)` DSL string, or null when the subject isn't ThisPermanent, the
  * comparison isn't `>= N`, or the counter isn't the bare ±1/±1 counter. Used by the [ifRuleBlock]
  * static gates (Vadmir's "menace and lifelink at 4+ counters"). The predicate reads the source's
  * counter map under projection, so the gated keywords appear/vanish as counters cross the threshold.
@@ -1061,7 +1061,7 @@ internal fun EmitCtx.ifRuleBlock(rule: JsonObject): List<Stmt>? {
     //   creatures you control get +3/+3."
     //   If(PermanentPassesFilter(ThisPermanent, HasNumberCountersOfType(>= 5, GrowthCounter)))
     //     [ EachPermanentLayerEffect(creatures you control, [AdjustPT(3,3)]) ]
-    // -> the same gated lord, gated on Conditions.SourceCounterCountAtLeast(Counters.GROWTH, 5).
+    // -> the same gated lord, gated on Conditions.SourceCounterCountAtLeast(CounterType.GROWTH, 5).
     // Only the "during YOUR turn", "you gained life this turn", or "N+ counters on this permanent"
     // gates render; any other condition declines (-> SCAFFOLD). The lord renderer itself still
     // declines any group/ability it can't reproduce exactly.
@@ -1248,7 +1248,7 @@ private fun castCaptureFlagName(cond: JsonObject): String {
  * `SpellActions { Modal_IfElse(PlayerPassesFilter(You, ControlsA(filter)), <then Targeted>, <else
  * Targeted>) }`. In this corpus that envelope is *always* an "as you cast this spell" capture (Steer
  * Clear / Faerie Fencing / Flame Discharge), so it renders to the engine's cast-time capture
- * (`captureAtCast` + `Conditions.CapturedAtCast`) — NOT a resolution-time `ConditionalEffect` over the
+ * (`captureAtCast` + `Conditions.CapturedAtCast`) — NOT a resolution-time `Effects.If` over the
  * current board, which would resolve the Mount/Faerie/modified test at the wrong time.
  *
  * Renders only the shapes we can express exactly: a `You + ControlsA(filter)` condition, one shared
@@ -1284,10 +1284,10 @@ private fun EmitCtx.castTimeCaptureSpell(card: JsonObject): List<Stmt>? {
     stmts.add(RawLine("        captureAtCast(\"$flag\", $condDsl)"))
     stmts.add(targetLocal(tnode))
     stmts.add(Assign("effect", call(
-        "ConditionalEffect",
+        "Effects.If",
         arg("condition", Lit("Conditions.CapturedAtCast(\"$flag\")")),
-        arg("effect", thenEffect),
-        arg("elseEffect", elseEffect),
+        arg("then", thenEffect),
+        arg("otherwise", elseEffect),
     )))
     return listOf(Sub(Block("spell", stmts)))
 }
@@ -1704,10 +1704,10 @@ private fun spellOf(effect: Dsl): List<Stmt> = listOf(Sub(Block("spell", listOf(
  *  MayAction must NOT also set the ability's `optional = true`). */
 private val SELF_OPTIONAL_ACTIONS = setOf("PutACardFromHandOnBattlefield")
 
-/** The IR "<Keyword>Counter" kinds the emitter renders as a Named CounterTypeFilter, each mapped to its
- *  `Counters` string constant. Restricted to the keyword counters the engine grants as a keyword
+/** The IR "<Keyword>Counter" kinds the emitter renders as a counter type, each mapped to its
+ *  `CounterType` constant. Restricted to the keyword counters the engine grants as a keyword
  *  (mirrors StateProjector.KEYWORD_COUNTER_MAP), which all have a known constant. Any other counter kind
- *  declines -> SCAFFOLD rather than emit a non-compiling `Counters.X`. */
+ *  declines -> SCAFFOLD rather than emit a non-compiling `CounterType.X`. */
 private val KEYWORD_COUNTER_CONSTANT = mapOf(
     "FlyingCounter" to "FLYING",
     "FirstStrikeCounter" to "FIRST_STRIKE",
@@ -1766,7 +1766,7 @@ private fun EmitCtx.modalTriggerBlock(rule: JsonObject, oncePerTurn: Boolean, tr
  * word (CR 207.2c) with **no IR signal**, so the mechanic is recognised purely from its structural
  * shape: a `WhenAPlayerCastsASpell(You, Instant|Sorcery)` trigger whose sole action is an
  * `IfElse(SpellPassesFilter(ThatSpell, AnAmountOfManaWasSpentToCastIt >= 5), <then>, <else>)`. The
- * builder lowers to exactly the `ConditionalEffect(5+ -> then, otherwise -> else)` gameplay tree this
+ * builder lowers to exactly the `Effects.If(5+ -> then, otherwise -> else)` gameplay tree this
  * recognises, so the emit is gameplay-tree-identical (Deluge Virtuoso's +2/+2 instead of +1/+1).
  *
  * Only the "replaces" tier (`IfElse` with both arms present) maps to `insteadIfFiveOrMore`; the
@@ -1898,7 +1898,7 @@ internal fun EmitCtx.triggerBlock(
     /**
      * Rendered condition to gate the whole effect on, supplying CR 603.4's resolution-time re-check
      * for an ability whose intervening-"if" must hold *again* as it resolves. Wraps the effect in a
-     * `ConditionalEffect`, which is what the hand-authored eminence idiom does.
+     * `Effects.If`, which is what the hand-authored eminence idiom does.
      */
     gateEffectOn: String? = null,
 ): List<Stmt>? {
@@ -1943,7 +1943,7 @@ internal fun EmitCtx.triggerBlock(
     val (tnode, tvar) = spellTargetExpr(targets, actions) ?: return null
 
     // "you may [do X]" on a triggered ability is an OPTIONAL ability (declined at announcement /
-    // by choosing no targets), not a resolution-time MayEffect. Unwrap a lone MayAction so the
+    // by choosing no targets), not a resolution-time Effects.May. Unwrap a lone MayAction so the
     // ability carries `optional = true` and a plain effect — the engine's idiom for "may [target]".
     val mayWrapped = actions.singleOrNull()?.strField("_Action") == "MayAction"
     val mayInner = if (mayWrapped) innerAction(actions.single()) ?: return null else null
@@ -1956,7 +1956,7 @@ internal fun EmitCtx.triggerBlock(
     // A triggered ability that returns its own source from the graveyard (Eerie recursion — Fear of
     // Infinity's "Whenever an enchantment you control enters …, you may return this card from your
     // graveyard to your hand") must function from the graveyard: the hand-authored idiom is
-    // `triggerZone = Zone.GRAVEYARD` plus a resolution-time `MayEffect`. This envelope emits neither
+    // `triggerZone = Zone.GRAVEYARD` plus a resolution-time `Effects.May`. This envelope emits neither
     // (it would wrongly render a battlefield-zone `optional = true` trigger), so decline to SCAFFOLD
     // rather than emit a trigger that never fires from the graveyard.
     if (effectActions.any { jsonContains(it, "_CardInGraveyards", "ThisGraveyardCard") }) {
@@ -2004,7 +2004,7 @@ internal fun EmitCtx.triggerBlock(
         Assign(
             "effect",
             if (gateEffectOn != null) {
-                call("ConditionalEffect", arg("condition", Lit(gateEffectOn)), arg("effect", edsl))
+                call("Effects.If", arg("condition", Lit(gateEffectOn)), arg("then", edsl))
             } else edsl
         )
     )
@@ -2280,7 +2280,7 @@ private fun EmitCtx.liftUnlessAction(actions: List<JsonObject>): Pair<String, Li
  *
  * The IR's once-each-turn tag bakes in BOTH the once-per-turn cap (CR 603.3b) AND the "you may" framing
  * over its `MustCost(...) + If(CostWasPaid)[...]` action body. So the body's forced `MustCost` becomes a
- * *resolution-time* MayEffect: `MayEffect(IfYouDoEffect(action = <cost-as-effect>, ifYouDo = <then>))`,
+ * *resolution-time* Effects.May: `Effects.May(Effects.IfYouDo(action = <cost-as-effect>, ifYouDo = <then>))`,
  * exactly the engine's loot idiom — and the ability carries `oncePerTurn = true`. The trigger spec is
  * recovered by the shared [triggerSpecFor] (so the "another creature you control with power 2 or less"
  * ETB filter round-trips through gameObjectFilterDsl, declining if it can't).
@@ -2312,8 +2312,8 @@ internal fun EmitCtx.triggerMayOnceEachTurnBlock(rule: JsonObject): List<Stmt>? 
     val thenEffect = renderEffectList(thenActions, null) ?: run { reasons.add("TriggerMayOnceEachTurn"); return null }
 
     val effect = call(
-        "MayEffect",
-        arg("effect", call("IfYouDoEffect", arg("action", costAction), arg("ifYouDo", thenEffect))),
+        "Effects.May",
+        arg("effect", call("Effects.IfYouDo", arg("action", costAction), arg("then", thenEffect))),
     )
     return listOf(Sub(Block("triggeredAbility", listOf(
         Assign("trigger", Lit(spec)),
@@ -2331,7 +2331,7 @@ internal fun EmitCtx.triggerMayOnceEachTurnBlock(rule: JsonObject): List<Stmt>? 
  *    spell from your hand this turn") -> `Conditions.Not(Conditions.YouCastSpellsThisTurn(1, fromZone = Zone.HAND))`
  *    (Canyon Crab).
  *  - `PermanentPassesFilter(ThisPermanent, HasNoCountersOfType(<counter>))` ("this creature doesn't
- *    have a <counter> counter on it") -> `Conditions.Not(Conditions.SourceHasCounter(CounterTypeFilter.Named("<counter>")))`
+ *    have a <counter> counter on it") -> `Conditions.Not(Conditions.SourceHasCounter(CounterType.<COUNTER>))`
  *    (Inventive Wingsmith).
  *  - `PlayerPassesFilter(You, ControlsA(And(Other(ThatEnteringPermanent), IsAnOutlaw)))` ("you
  *    control another outlaw") -> `Conditions.YouControlAtLeast(2, <outlaw filter>)` — the entering
@@ -2499,7 +2499,7 @@ private fun EmitCtx.singleInterveningIfDsl(cond: JsonObject): String? {
         jsonContains(cond, "_Permanents", "HasNoCountersOfType")
     ) {
         val counter = counterNameForFilter(cond) ?: return null
-        return "Conditions.Not(Conditions.SourceHasCounter(CounterTypeFilter.Named(\"$counter\")))"
+        return "Conditions.Not(Conditions.SourceHasCounter($counter))"
     }
     // "this enchantment isn't a creature" — PermanentPassesFilter(ThisPermanent, IsNonCardtype Creature)
     // (Emergent Haunting's end-step "becomes a creature" gate, which self-disables once animated).
@@ -2687,12 +2687,12 @@ private fun EmitCtx.youCastNumSpellsThisTurnDsl(cond: JsonObject): String? {
     return "Conditions.YouCastSpellsThisTurn($n)"
 }
 
-/** The "<counter> counter" name for a `HasNoCountersOfType(<CounterType>)` node, mapped to the engine's
- *  `CounterTypeFilter.Named` string, or null for a counter kind we don't name. */
+/** The "<counter> counter" kind for a `HasNoCountersOfType(<CounterType>)` node, as the `CounterType`
+ *  constant the DSL names it by, or null for a counter kind we don't name. */
 private fun counterNameForFilter(cond: JsonObject): String? {
     val noCounters = cond.nodesTagged("HasNoCountersOfType").firstOrNull() ?: return null
     return when ((noCounters["args"] as? JsonObject)?.strField("_CounterType")) {
-        "FlyingCounter" -> "flying"
+        "FlyingCounter" -> "CounterType.FLYING"
         else -> null
     }
 }
@@ -3046,7 +3046,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     if (jsonContains(trig, "_Trigger", "WhenACreatureDealsCombatDamageToAPlayer") && isHost(trig) &&
         jsonContains(trig, "_Players", "AnyPlayer")
     ) {
-        return "Triggers.dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer, " +
+        return "Triggers.dealsDamage(DamageType.Combat, Recipient.AnyPlayer, " +
             "binding = TriggerBinding.ATTACHED)"
     }
 
@@ -3062,7 +3062,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val bareSubtype = subtype != null && "ControlledByAPlayer" !in blob &&
             "_Color" !in blob && "_Comparison" !in blob && "\"Other\"" !in blob
         if (bareSubtype) return "TriggerSpec(EventPattern.DealsDamageEvent(damageType = DamageType.Combat, " +
-            "recipient = RecipientFilter.AnyPlayer, sourceFilter = GameObjectFilter.Creature.withSubtype(${subtypeArg(subtype)})), " +
+            "recipient = Recipient.AnyPlayer, sourceFilter = GameObjectFilter.Creature.withSubtype(${subtypeArg(subtype)})), " +
             "TriggerBinding.ANY)"
         // "Whenever a [filtered] creature you control deals combat damage to a player, …" — a
         // controller/supertype-scoped source filter beyond a bare subtype (Vraska Joins Up's
@@ -3071,7 +3071,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         // source. Only a creature filter renders — the trigger's source is always a creature here.
         val srcFilter = (trig["args"].asArr?.getOrNull(0) as? JsonObject)?.let { gameObjectFilterDsl(it) }
         if (srcFilter != null && srcFilter.startsWith("GameObjectFilter.Creature"))
-            return "Triggers.dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer, " +
+            return "Triggers.dealsDamage(DamageType.Combat, Recipient.AnyPlayer, " +
                 "sourceFilter = $srcFilter, binding = TriggerBinding.ANY)"
     }
 
@@ -3591,7 +3591,7 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject, condition: String? = null):
                     arg("filter", "GameObjectFilter.Creature"),
                     arg("sourceZone", "Zone.GRAVEYARD"),
                     arg("maxCards", "DynamicAmount.XValue"),
-                    arg("counterType", "CounterTypeFilter.PlusOnePlusOne"),
+                    arg("counterType", "CounterType.PLUS_ONE_PLUS_ONE"),
                     arg("countersPerCard", "3"),
                 )))
             )))
@@ -3645,13 +3645,13 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject, condition: String? = null):
                         if (pt?.getOrNull(0).asInt() != 1 || pt?.getOrNull(1).asInt() != 1) { reasons.add("AsPermanentEnters"); return null }
                     }
                     // A keyword counter (e.g. a lifelink counter, Dust Animus). The IR names it
-                    // "<Keyword>Counter"; map to a Named CounterTypeFilter via the Counters string constant.
+                    // "<Keyword>Counter"; map to its CounterType constant.
                     // Restricted to the keyword counters the engine grants as a keyword
-                    // (StateProjector.KEYWORD_COUNTER_MAP) — these have a known `Counters` constant. Any
+                    // (StateProjector.KEYWORD_COUNTER_MAP) — these have a known `CounterType` constant. Any
                     // other "*Counter" kind (a ShieldCounter, a homebrew marker) has no validated constant,
-                    // so it declines -> SCAFFOLD rather than emit a non-compiling `Counters.X`.
+                    // so it declines -> SCAFFOLD rather than emit a non-compiling `CounterType.X`.
                     kind in KEYWORD_COUNTER_CONSTANT -> {
-                        ewArgs.add(arg("counterType", "CounterTypeFilter.Named(Counters.${KEYWORD_COUNTER_CONSTANT[kind]})"))
+                        ewArgs.add(arg("counterType", "CounterType.${KEYWORD_COUNTER_CONSTANT[kind]}"))
                     }
                     else -> { reasons.add("AsPermanentEnters"); return null }
                 }
@@ -3676,7 +3676,7 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject, condition: String? = null):
                     // +1/+1 -> default-filter EntersWithCounters (the PlusOnePlusOne default), no explicit arg.
                     px == 1 && py == 1 -> null
                     // -1/-1 (Patched Plaything) -> explicit MinusOneMinusOne filter.
-                    px == -1 && py == -1 -> arg("counterType", "CounterTypeFilter.MinusOneMinusOne")
+                    px == -1 && py == -1 -> arg("counterType", "CounterType.MINUS_ONE_MINUS_ONE")
                     else -> { reasons.add("AsPermanentEnters"); return null }
                 }
                 val countNode = a.getOrNull(0) as? JsonObject
@@ -3814,7 +3814,7 @@ internal fun EmitCtx.fromGraveyardBlock(rule: JsonObject): List<Stmt>? {
  * triggeredAbility {
  *     trigger = Triggers.YouCastSubtype(Subtype.VAMPIRE)
  *     triggerZones = setOf(Zone.BATTLEFIELD, Zone.COMMAND)
- *     effect = ConditionalEffect(
+ *     effect = Effects.If(
  *         condition = Conditions.SourceInZone(Zone.BATTLEFIELD, Zone.COMMAND),
  *         effect = Effects.CreateToken(…))
  * }
@@ -3823,7 +3823,7 @@ internal fun EmitCtx.fromGraveyardBlock(rule: JsonObject): List<Stmt>? {
  * Two halves, because the printed zone clause does two jobs. As a CR 113.6b zone statement it makes
  * the trigger *function* from the command zone — `triggerZones`. As an intervening-"if" (CR 603.4) it
  * is checked again on resolution, which the engine does not do for `triggerCondition`, so it is also
- * rendered as a `ConditionalEffect` gate over the body. Dropping either half would be lossy: without
+ * rendered as a `Effects.If` gate over the body. Dropping either half would be lossy: without
  * the first the ability never fires from the command zone, and without the second a source that left
  * both zones still produces its effect.
  *
@@ -4196,10 +4196,10 @@ internal fun EmitCtx.abilityCostDsl(node: JsonElement?): String? {
                     // hand-authored golden's bare filter. Strip it.
                     val filter = (costFilterDsl(subArgs.getOrNull(2)) ?: "GameObjectFilter.Any")
                         .removeSuffix(".youControl()")
-                    // [counter] is already the qualified `Counters.X` constant (its value is the
-                    // counter-type string, e.g. Counters.PLUS_ONE_PLUS_ONE == "+1/+1"); pass it
+                    // [counter] is already the qualified `CounterType.X` constant (its value is the
+                    // counter-type string, e.g. CounterType.PLUS_ONE_PLUS_ONE == "+1/+1"); pass it
                     // unquoted like the RemoveCounterFromSelf sibling above. Quoting it would emit the
-                    // literal string "Counters.PLUS_ONE_PLUS_ONE" as the counter type — a card whose
+                    // literal string "CounterType.PLUS_ONE_PLUS_ONE" as the counter type — a card whose
                     // cost removes a counter kind that never exists.
                     "Costs.RemoveCounters($n, $counter, $filter)"
                 }
@@ -4392,7 +4392,7 @@ private fun EmitCtx.activationRestrictionLines(rule: JsonObject): List<String>? 
  *
  * The only shape rendered is the per-counter self-reduction: a single `CostReduceGeneric 1` reduction
  * scaled by `TheTotalNumberOfCountersOfTypeAmongPermanents(<named passive counter>, ThisPermanent)`, which maps to
- * `genericCostReduction = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.X))`. Any other
+ * `genericCostReduction = DynamicAmounts.countersOnSelf(CounterType.X)`. Any other
  * reduction symbol, amount, game-number source, or subject declines rather than guess.
  */
 private fun EmitCtx.activationCostReductionLines(rule: JsonObject): List<String>? {
@@ -4416,19 +4416,19 @@ private fun EmitCtx.activationCostReductionLines(rule: JsonObject): List<String>
     val constant = passiveCounterConstant(gnArgs.getOrNull(0)) ?: run { reasons.add("activated-modifiers"); return null }
     if (!jsonContains(gnArgs.getOrNull(1), "_Permanent", "ThisPermanent")) { reasons.add("activated-modifiers"); return null }
     return listOf(
-        "        genericCostReduction = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named($constant))",
+        "        genericCostReduction = DynamicAmounts.countersOnSelf($constant)",
     )
 }
 
-/** A mtgish `_CounterType` node for a passive storage counter -> the `Counters.*` string constant the
- *  count-reading sites (`DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(...))`) take, or null for a
+/** A mtgish `_CounterType` node for a passive storage counter -> the `CounterType` constant the
+ *  count-reading sites (`DynamicAmounts.countersOnSelf(...)`) take, or null for a
  *  counter kind we don't name. Mirrors the passive-counter rows in [counterTypeDsl]. */
 private fun passiveCounterConstant(counterNode: JsonElement?): String? =
     when ((counterNode as? JsonObject)?.strField("_CounterType")) {
-        "LootCounter" -> "Counters.LOOT"
-        "GrowthCounter" -> "Counters.GROWTH"
-        "NestCounter" -> "Counters.NEST"
-        "PageCounter" -> "Counters.PAGE"
+        "LootCounter" -> "CounterType.LOOT"
+        "GrowthCounter" -> "CounterType.GROWTH"
+        "NestCounter" -> "CounterType.NEST"
+        "PageCounter" -> "CounterType.PAGE"
         else -> null
     }
 

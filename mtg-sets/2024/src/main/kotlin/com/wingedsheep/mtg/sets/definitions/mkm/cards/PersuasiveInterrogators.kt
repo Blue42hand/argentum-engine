@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -50,7 +50,7 @@ val PersuasiveInterrogators = card("Persuasive Interrogators") {
     triggeredAbility {
         trigger = Triggers.YouSacrificeA(GameObjectFilter.Artifact.withSubtype("Clue"))
         val opponent = target("target opponent", Targets.Opponent)
-        effect = Effects.AddCounters(Counters.POISON, 2, opponent)
+        effect = Effects.AddCounters(CounterType.POISON, 2, opponent)
         description = "Whenever you sacrifice a Clue, target opponent gets two poison counters."
     }
 

@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect
+import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -216,7 +216,7 @@ class ObjectIdentityTest : FunSpec({
     test("replacement additional token creation is separately attributed") {
         val replacementId = EntityId.generate()
         val initial = inZone(Zone.BATTLEFIELD).withEntity(replacementId,
-            card().with(ReplacementEffectSourceComponent(listOf(RedirectZoneChangeWithEffect(
+            card().with(ReplacementEffectSourceComponent(listOf(RedirectZoneChangeWith(
                 newDestination = Zone.EXILE,
                 appliesTo = EventPattern.ZoneChangeEvent(from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD),
                 additionalEffect = CreateTokenEffect(power = 1, toughness = 1,
@@ -403,7 +403,7 @@ class ObjectIdentityTest : FunSpec({
             name = "Entry Identity Root", manaCost = ManaCost.parse("{1}"), subtypes = emptySet(),
             power = 1, toughness = 1,
             script = com.wingedsheep.sdk.model.CardScript(replacementEffects = listOf(
-                com.wingedsheep.sdk.scripting.OnEnterRunEffect(com.wingedsheep.sdk.dsl.Effects.GainLife(1))
+                com.wingedsheep.sdk.scripting.OnEnterRun(com.wingedsheep.sdk.dsl.Effects.GainLife(1))
             )))
         val registry = CardRegistry().also { it.register(definition) }
         val initial = inZone(Zone.BATTLEFIELD).withEntity(cardId,

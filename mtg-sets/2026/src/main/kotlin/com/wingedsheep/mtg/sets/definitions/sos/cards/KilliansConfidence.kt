@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPlayerEvent
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *
  * The recursion ability functions only while this card is in the graveyard
  * ([activeZones] = {[Zone.GRAVEYARD]}, CR 113.6b). The optional hybrid payment is modeled with
- * [MayPayManaEffect]; on payment the card returns itself ([EffectTarget.Self]) to its owner's hand.
+ * [Effects.MayPay]; on payment the card returns itself ([EffectTarget.Self]) to its owner's hand.
  */
 val KilliansConfidence = card("Killian's Confidence") {
     manaCost = "{W}{B}"
@@ -45,9 +44,9 @@ val KilliansConfidence = card("Killian's Confidence") {
         // reads "one or more creatures matching sourceFilter **you control**", so a controller
         // predicate here would say it twice.
         trigger = TriggerSpec(OneOrMoreDealCombatDamageToPlayerEvent(), TriggerBinding.ANY)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{W/B}"),
-            effect = Effects.ReturnToHandFromGraveyard(EffectTarget.Self)
+            then = Effects.ReturnToHandFromGraveyard(EffectTarget.Self)
         )
         description = "Whenever one or more creatures you control deal combat damage to a player, " +
             "you may pay {W/B}. If you do, return this card from your graveyard to your hand."

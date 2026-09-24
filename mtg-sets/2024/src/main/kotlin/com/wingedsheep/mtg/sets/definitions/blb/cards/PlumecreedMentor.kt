@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -52,7 +52,7 @@ val PlumecreedMentor = card("Plumecreed Mentor") {
                 )
             )
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creatureWithoutFlying)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureWithoutFlying)
     }
 
     metadata {

@@ -1,16 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Galuf's Final Act
@@ -28,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * "Its power" reads the dying creature's *last-known* power via [DynamicAmounts.sourcePower]
  * (the granted ability's source is the creature it was granted to). The same
- * `EntityProperty(Source, Power)` resolution backs Heartfire Hero's "deals damage equal to
+ * `EntityProperty(Self, Power)` resolution backs Heartfire Hero's "deals damage equal to
  * its power" dies trigger — the DynamicAmountEvaluator falls back to the leave-battlefield
  * power snapshot once the source is in the graveyard, so the printed base power is never used.
  *
@@ -46,22 +44,21 @@ val GalufsFinalAct = card("Galuf's Final Act") {
     spell {
         val t = target("target", Targets.Creature)
 
-        val diesGrantCounters = TriggeredAbility.create(
-            trigger = Triggers.Dies.event,
-            binding = Triggers.Dies.binding,
+        val diesGrantCounters = grantedTriggeredAbility {
+            trigger = Triggers.Dies
+            val upToCreatures = target("target up to creatures", Targets.UpToCreatures(1))
             effect = Effects.AddDynamicCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmounts.sourcePower(),
-                EffectTarget.ContextTarget(0)
-            ),
-            targetRequirement = Targets.UpToCreatures(1),
-            descriptionOverride = "When this creature dies, put a number of +1/+1 counters " +
+                upToCreatures
+            )
+            description = "When this creature dies, put a number of +1/+1 counters " +
                 "equal to its power on up to one target creature."
-        )
+        }
 
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, t, Duration.EndOfTurn),
-            GrantTriggeredAbilityEffect(diesGrantCounters, t, Duration.EndOfTurn)
+            Effects.GrantTriggeredAbility(diesGrantCounters, t, Duration.EndOfTurn)
         )
     }
 

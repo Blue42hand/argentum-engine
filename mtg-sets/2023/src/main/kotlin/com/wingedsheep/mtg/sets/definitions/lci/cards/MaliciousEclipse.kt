@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -47,7 +46,7 @@ val MaliciousEclipse = card("Malicious Eclipse") {
                 ),
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreatures,
-                    effect = ModifyStatsEffect(-2, -2, EffectTarget.Self)
+                    effect = Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
                 )
             )
         )

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GrantSubtype
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessStatic
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -55,12 +54,12 @@ val CaseOfTheGorgonsKiss = card("Case of the Gorgon's Kiss") {
         "its other types."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetCreature(
+        val creature = target("target creature", TargetCreature(
             optional = true,
             filter = TargetFilter(GameObjectFilter.Creature.wasDealtDamageThisTurn())
-        )
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        ))
+        trigger = Triggers.EntersBattlefield
+        effect = Effects.Destroy(creature)
     }
 
     toSolve(Conditions.CreatureCardsPutIntoGraveyardsThisTurn(3))

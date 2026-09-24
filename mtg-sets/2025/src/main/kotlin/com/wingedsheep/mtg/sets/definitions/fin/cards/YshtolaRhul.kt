@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Y'shtola Rhul
@@ -42,9 +41,9 @@ val YshtolaRhul = card("Y'shtola Rhul") {
         effect = Effects.Move(creature, Zone.EXILE)
             .then(Effects.Move(creature, Zone.BATTLEFIELD))
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.IsFirstEndStepOfTurn,
-                    effect = Effects.AddAdditionalEndSteps(1)
+                    then = Effects.AddAdditionalEndSteps(1)
                 )
             )
         description = "At the beginning of your end step, exile target creature you control, then " +

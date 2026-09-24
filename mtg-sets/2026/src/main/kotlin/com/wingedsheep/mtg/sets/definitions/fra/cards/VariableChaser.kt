@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,15 +31,13 @@ val VariableChaser = card("Variable Chaser") {
         typeLine = "Sorcery"
         oracleText = "Each player may discard their hand and draw seven cards."
         spell {
-            effect = ForEachPlayerEffect(
+            effect = Effects.ForEachPlayer(
                 players = Player.Each,
-                effects = listOf(
-                    MayEffect(
-                        decisionMaker = EffectTarget.Controller,
-                        effect = Effects.Composite(
-                            Patterns.Hand.discardHand(EffectTarget.Controller),
-                            Effects.DrawCards(7)
-                        )
+                effect = Effects.May(
+                    decisionMaker = EffectTarget.Controller,
+                    effect = Effects.Composite(
+                        Patterns.Hand.discardHand(EffectTarget.Controller),
+                        Effects.DrawCards(7)
                     )
                 )
             )

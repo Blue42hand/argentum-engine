@@ -1,17 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,7 +45,7 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
             filter = GameObjectFilter.Artifact.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = Effects.AddCounters(Counters.LOYALTY, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
     }
 
     // 0: Untap target artifact or creature. If it's an artifact creature, put a +1/+1 counter on it.
@@ -57,9 +56,9 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
         )
         effect = Effects.Untap(target)
             .then(
-                ConditionalEffect(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature),
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target)
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature, target),
+                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
                 )
             )
     }
@@ -81,29 +80,28 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
     //     Robot artifact creature."
     loyaltyAbility(-7) {
         effect = Effects.CreateGlobalTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.BeginCombat.event,
-                binding = Triggers.BeginCombat.binding,
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.BeginCombat
+                val artifact = target("target artifact", TargetPermanent(
+                    filter = TargetFilter(GameObjectFilter.Artifact.youControl())
+                ))
                 effect = Effects.AddCounters(
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     3,
-                    EffectTarget.ContextTarget(0)
+                    artifact
                 ).then(
-                    ConditionalEffect(
-                        condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature),
-                        effect = Effects.BecomeCreature(
-                            target = EffectTarget.ContextTarget(0),
+                    Effects.If(
+                        condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature, artifact),
+                        then = Effects.BecomeCreature(
+                            target = artifact,
                             power = 0,
                             toughness = 0,
                             creatureTypes = setOf("Robot"),
                             duration = Duration.Permanent
                         )
                     )
-                ),
-                targetRequirement = TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.Artifact.youControl())
                 )
-            ),
+            },
             descriptionOverride = "At the beginning of combat on your turn, put three +1/+1 " +
                 "counters on target artifact you control. If it's not a creature, it becomes " +
                 "a 0/0 Robot artifact creature."

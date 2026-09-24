@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -32,7 +32,7 @@ val CabalSlaver = card("Cabal Slaver") {
         trigger = TriggerSpec(
                 DealsDamageEvent(
                     damageType = DamageType.Combat,
-                    recipient = RecipientFilter.AnyPlayer,
+                    recipient = Recipient.AnyPlayer,
                     sourceFilter = GameObjectFilter.Creature.withSubtype(Subtype("Goblin"))
                 ),
                 TriggerBinding.ANY

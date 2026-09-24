@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 val PiaAetherAscetic = card("Pia, Aether Ascetic") {
@@ -20,10 +19,10 @@ val PiaAetherAscetic = card("Pia, Aether Ascetic") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Patterns.Library.searchLibrary(
+                then = Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.Enchantment,
                     count = 1,
                     destination = SearchDestination.HAND,

@@ -316,7 +316,10 @@
             }
         },
         "targetRequirements": [
-            "TargetOpponent"
+            {
+                "type": "TargetOpponent",
+                "id": "target opponent"
+            }
         ]
     },
     "metadata": {
@@ -1230,11 +1233,11 @@
                         },
                         "player": "TargetOpponent"
                     },
-                    "storeAs": "looked"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "looked",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -1242,14 +1245,14 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "toGraveyard",
-                    "storeRemainder": "toTop",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "selectedLabel": "Put in graveyard",
                     "remainderLabel": "Put on top"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toGraveyard",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard",
@@ -1258,7 +1261,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toTop",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -1366,7 +1369,11 @@
     "script": {
         "spellEffect": {
             "type": "PreventDamageShield",
-            "sourceFilter": "AttackingCreatures"
+            "recipientGroupIncludesController": true,
+            "sourceFilter": {
+                "type": "PreventFromMatching",
+                "filter": "creature attacking"
+            }
         },
         "castRestrictions": [
             {
@@ -1743,8 +1750,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -1770,8 +1777,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -1934,7 +1941,7 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Sacrificed",
+                "entity": "SacrificedAsCost",
                 "numericProperty": "Power"
             },
             "target": {
@@ -2146,7 +2153,7 @@
                             "type": "Fixed",
                             "amount": 6
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -3094,8 +3101,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "storeAs": "hand"
@@ -3119,8 +3126,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "moveType": "Discard"
@@ -3161,8 +3168,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "storeAs": "hand"
@@ -3188,8 +3195,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "moveType": "Discard"
@@ -3250,7 +3257,7 @@
             },
             "body": {
                 "type": "TapUntap",
-                "target": "Self",
+                "target": "IterationEntity",
                 "tap": false
             }
         }
@@ -3439,7 +3446,7 @@
             "body": {
                 "type": "GrantKeyword",
                 "keyword": "FORESTWALK",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3517,7 +3524,7 @@
                     "type": "Fixed",
                     "amount": 4
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4387,7 +4394,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "castRestrictions": [
@@ -4897,7 +4904,7 @@
                     "type": "Fixed",
                     "amount": 3
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5307,7 +5314,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -5454,7 +5461,7 @@
             "body": {
                 "type": "GrantKeyword",
                 "keyword": "REACH",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "castRestrictions": [
@@ -5542,7 +5549,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5861,7 +5868,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },

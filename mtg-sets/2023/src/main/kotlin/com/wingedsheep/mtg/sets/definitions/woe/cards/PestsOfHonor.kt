@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -34,7 +34,7 @@ val PestsOfHonor = card("Pests of Honor") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         interveningIf = Conditions.Celebration
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "At the beginning of combat on your turn, if two or more nonland " +
             "permanents entered the battlefield under your control this turn, put a +1/+1 " +
             "counter on this creature."

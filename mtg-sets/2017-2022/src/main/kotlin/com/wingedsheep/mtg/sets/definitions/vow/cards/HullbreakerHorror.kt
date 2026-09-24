@@ -5,10 +5,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Hullbreaker Horror
@@ -39,18 +38,17 @@ val HullbreakerHorror = card("Hullbreaker Horror") {
 
     triggeredAbility {
         trigger = Triggers.YouCastSpell
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.withTarget(
                     Effects.ReturnSpellToOwnersHand(),
                     Targets.SpellYouDontControl,
                     "Return target spell you don't control to its owner's hand"
                 ),
-                Mode.withTarget(
-                    Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
-                    Targets.NonlandPermanent,
-                    "Return target nonland permanent to its owner's hand"
-                )
+                mode("Return target nonland permanent to its owner's hand") {
+                    val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+                    effect = Effects.ReturnToHand(nonlandPermanent)
+                }
             ),
             chooseCount = 1,
             minChooseCount = 0

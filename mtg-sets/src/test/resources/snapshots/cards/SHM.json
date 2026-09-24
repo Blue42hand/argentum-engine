@@ -630,7 +630,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1312,11 +1312,11 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirements": [
@@ -1324,7 +1324,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -2027,7 +2028,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "self": true
                     }
                 },
@@ -2039,7 +2040,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -2693,8 +2694,8 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirements": [
@@ -2702,7 +2703,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -2965,7 +2967,7 @@
     "script": {
         "spellEffect": {
             "type": "AddCounters",
-            "counterType": "-1/-1",
+            "counterType": "MINUS_ONE_MINUS_ONE",
             "count": 1,
             "target": {
                 "type": "BoundVariable",
@@ -3656,8 +3658,8 @@
                 "effect": {
                     "type": "TapUntap",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirements": [
@@ -3665,7 +3667,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -4005,8 +4008,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -4015,7 +4018,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "noncreature permanent"
-                    }
+                    },
+                    "id": "target permanent"
                 },
                 "descriptionOverride": "When this creature enters, destroy target noncreature permanent."
             }

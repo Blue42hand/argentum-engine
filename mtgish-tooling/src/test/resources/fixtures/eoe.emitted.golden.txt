@@ -370,7 +370,7 @@ val AstelliReclaimer = card("Astelli Reclaimer") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -403,20 +403,20 @@ val AtmosphericGreenhouse = card("Atmospheric Greenhouse") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantKeyword(Keyword.TRAMPLE.name, GroupFilter.source())
     }
     metadata {
@@ -722,7 +722,7 @@ val BiomechanEngineer = card("Biomechan Engineer") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -746,7 +746,7 @@ val BiosynthicBurst = card("Biosynthic Burst") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
             Effects.GrantKeyword(Keyword.REACH, t),
             Effects.GrantKeyword(Keyword.TRAMPLE, t),
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t),
@@ -1456,7 +1456,7 @@ val Cosmogoyf = card("Cosmogoyf") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -1502,7 +1502,7 @@ val CosmograndZenith = card("Cosmogrand Zenith") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                 ),
                 "Put a +1/+1 counter on each creature you control"
             )
@@ -1760,7 +1760,7 @@ val DawnsireSunstarDreadnought = card("Dawnsire, Sunstar Dreadnought") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -1794,7 +1794,7 @@ val DawnstrikeVanguard = card("Dawnstrike Vanguard") {
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -2152,7 +2152,7 @@ val DrillTooDeep = card("Drill Too Deep") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -2184,12 +2184,12 @@ val DrixFatemaker = card("Drix Fatemaker") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     staticAbility {
         ability = GrantKeyword(
             Keyword.TRAMPLE,
-            GroupFilter(GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE).youControl())
+            GroupFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl())
         )
     }
     // STRUCTURE needs human wiring: Warp
@@ -2238,7 +2238,7 @@ val DualSunAdepts = card("Dual-Sun Adepts") {
         cost = Costs.Mana("{5}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -3108,7 +3108,7 @@ val FrenziedBaloth = card("Frenzied Baloth") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -3135,7 +3135,7 @@ val FrontlineWarRager = card("Frontline War-Rager") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -3258,7 +3258,7 @@ val GalacticWayfarer = card("Galactic Wayfarer") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.card
@@ -3283,15 +3283,15 @@ val GalvanizingSawship = card("Galvanizing Sawship") {
     oracleText = "Station (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 3+.)\n3+ | Flying, haste"
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 3)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 3)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 3)
         ability = GrantKeyword(Keyword.HASTE.name, GroupFilter.source())
     }
     metadata {
@@ -3354,7 +3354,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -3378,10 +3377,10 @@ val GenemorphImago = card("Genemorph Imago") {
     triggeredAbility {
         trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.YouControlAtLeast(6, GameObjectFilter.Land),
-            effect = Effects.SetBasePowerAndToughness(6, 6, t, Duration.EndOfTurn),
-            elseEffect = Effects.SetBasePowerAndToughness(3, 3, t, Duration.EndOfTurn)
+            then = Effects.SetBasePowerAndToughness(6, 6, t, Duration.EndOfTurn),
+            otherwise = Effects.SetBasePowerAndToughness(3, 3, t, Duration.EndOfTurn)
         )
     }
     metadata {
@@ -3669,7 +3668,7 @@ val GravpackMonoist = card("Gravpack Monoist") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -3696,12 +3695,12 @@ val HaliyaAscendantCadet = card("Haliya, Ascendant Cadet") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     triggeredAbility {
         trigger = Triggers.Attacks
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     // STRUCTURE needs human wiring: trigger-shape
     metadata {
@@ -3896,7 +3895,7 @@ val HemosymbicMite = card("Hemosymbic Mite") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -3921,7 +3920,7 @@ val Honor = card("Honor") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
             DrawCardsEffect(1)
         )
     }
@@ -4315,7 +4314,7 @@ val IllvoiLightJammer = card("Illvoi Light Jammer") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -4340,7 +4339,7 @@ val IllvoiOperative = card("Illvoi Operative") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -4508,7 +4507,7 @@ val InterceptorMechan = card("Interceptor Mechan") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -4533,7 +4532,7 @@ val IntrepidTenderfoot = card("Intrepid Tenderfoot") {
     toughness = 2
     activatedAbility {
         cost = Costs.Mana("{3}")
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
     }
     metadata {
@@ -5337,7 +5336,7 @@ val MechanShieldmate = card("Mechan Shieldmate") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -5371,7 +5370,7 @@ val Mechanozoa = card("Mechanozoa") {
         )
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
+            AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t)
         )
     }
     // STRUCTURE needs human wiring: Warp
@@ -5391,14 +5390,13 @@ val Mechanozoa = card("Mechanozoa") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 
 /**
@@ -5415,7 +5413,9 @@ val MeldedMoxite = card("Melded Moxite") {
     oracleText = "When this artifact enters, you may discard a card. If you do, draw two cards.\n{3}, Sacrifice this artifact: Create a tapped 2/2 colorless Robot artifact creature token."
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(effect = IfYouDoEffect(action = Patterns.Hand.discardCards(1), ifYouDo = DrawCardsEffect(2)))
+        effect = Effects.May(
+            effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(2))
+        )
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.SacrificeSelf)
@@ -5718,7 +5718,7 @@ val MightformHarmonizer = card("Mightform Harmonizer") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -5752,7 +5752,7 @@ val MmmenonUthrosExile = card("Mm'menon, Uthros Exile") {
             binding = TriggerBinding.ANY
         )
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -6034,7 +6034,7 @@ val MouthOfTheStorm = card("Mouth of the Storm") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
-            ModifyStatsEffect(-3, 0, EffectTarget.Self, Duration.UntilYourNextTurn)
+            ModifyStatsEffect(-3, 0, EffectTarget.IterationEntity, Duration.UntilYourNextTurn)
         )
     }
     metadata {
@@ -6330,7 +6330,7 @@ val OreplatePangolin = card("Oreplate Pangolin") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -6360,9 +6360,9 @@ val Ouroboroid = card("Ouroboroid") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmounts.sourcePower(),
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }
@@ -6489,7 +6489,7 @@ val PinnacleEmissary = card("Pinnacle Emissary") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
@@ -6524,11 +6524,11 @@ val PinnacleKillShip = card("Pinnacle Kill-Ship") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -6873,7 +6873,7 @@ val RagostDeftGastronaut = card("Ragost, Deft Gastronaut") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -6901,7 +6901,7 @@ val RaybladeTrooper = card("Rayblade Trooper") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     // STRUCTURE needs human wiring: trigger-shape
     metadata {
@@ -7039,6 +7039,7 @@ package com.wingedsheep.mtg.sets.generated.demo.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -7088,7 +7089,7 @@ val RerouteSystems = card("Reroute Systems") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -7133,11 +7134,11 @@ val RescueSkiff = card("Rescue Skiff") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 10)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 10)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -8399,7 +8400,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -8422,7 +8423,7 @@ val Starwinder = card("Starwinder") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             DamageType.Combat,
-            RecipientFilter.AnyPlayer,
+            Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY
         )
@@ -8554,7 +8555,7 @@ val StompingGround = card("Stomping Ground") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8586,7 +8587,7 @@ val SunsetSaboteur = card("Sunset Saboteur") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.RARE
@@ -8605,7 +8606,7 @@ val SunsetSaboteur = card("Sunset Saboteur") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8635,7 +8636,7 @@ val SunstarChaplain = card("Sunstar Chaplain") {
         trigger = Triggers.YourEndStep
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     // STRUCTURE needs human wiring: activated-cost
     metadata {
@@ -8689,7 +8690,7 @@ val SunstarExpansionist = card("Sunstar Expansionist") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8717,7 +8718,7 @@ val SunstarLightsmith = card("Sunstar Lightsmith") {
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
             DrawCardsEffect(1)
         )
     }
@@ -8824,7 +8825,7 @@ val SusurSecundiVoidAltar = card("Susur Secundi, Void Altar") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -8862,11 +8863,11 @@ val SusurianDirgecraft = card("Susurian Dirgecraft") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -9094,8 +9095,8 @@ val SyrVondamTheLucent = card("Syr Vondam, the Lucent") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self)
+                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
             )
         )
     }
@@ -9104,8 +9105,8 @@ val SyrVondamTheLucent = card("Syr Vondam, the Lucent") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self)
+                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
             )
         )
     }
@@ -10019,7 +10020,7 @@ val UthrosPsionicist = card("Uthros Psionicist") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -10056,11 +10057,11 @@ val UthrosScanship = card("Uthros Scanship") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -10308,7 +10309,7 @@ val VoteOut = card("Vote Out") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10346,11 +10347,11 @@ val WarmakerGunship = card("Warmaker Gunship") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 6)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 6)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 6)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 6)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -10434,7 +10435,7 @@ val WeaponsManufacturing = card("Weapons Manufacturing") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -10466,15 +10467,15 @@ val WedgelightRammer = card("Wedgelight Rammer") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
         ability = GrantKeyword(Keyword.FIRST_STRIKE.name, GroupFilter.source())
     }
     metadata {
@@ -10493,7 +10494,7 @@ val WedgelightRammer = card("Wedgelight Rammer") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10523,7 +10524,7 @@ val WeftbladeEnhancer = card("Weftblade Enhancer") {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
         effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
         )
     }
     // STRUCTURE needs human wiring: Warp
@@ -10625,7 +10626,7 @@ val Weftwalking = card("Weftwalking") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Patterns
@@ -10657,11 +10658,11 @@ val WurmwallSweeper = card("Wurmwall Sweeper") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 4)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 4)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 4)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 4)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {

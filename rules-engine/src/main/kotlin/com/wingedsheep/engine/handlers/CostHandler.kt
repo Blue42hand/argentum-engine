@@ -6,7 +6,6 @@ import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.library.MillAmountModifier
 import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
-import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
 import com.wingedsheep.engine.mechanics.SummoningSicknessRules
 import com.wingedsheep.engine.mechanics.cost.CostPaymentService
 import com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
@@ -20,7 +19,6 @@ import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -522,13 +520,13 @@ class CostHandler(private val zones: ZoneTransitionService) {
                 }
                 val newState = DamageUtils
                     .markCounterPlacedOnCreature(
-                        withCounters, controllerId, targetId, Counters.MINUS_ONE_MINUS_ONE
+                        withCounters, controllerId, targetId, CounterType.MINUS_ONE_MINUS_ONE
                     )
                 val targetName = targetContainer.get<CardComponent>()?.name ?: "Creature"
                 val events = listOf<GameEvent>(
                     CountersAddedEvent(
                         entityId = targetId,
-                        counterType = Counters.MINUS_ONE_MINUS_ONE,
+                        counterType = CounterType.MINUS_ONE_MINUS_ONE,
                         amount = cost.amount,
                         entityName = targetName,
                         firstThisTurn = firstThisTurn,
@@ -691,13 +689,13 @@ class CostHandler(private val zones: ZoneTransitionService) {
         is CostAtom.RemoveCounters -> {
             if (atom.self) {
                 val counters = state.getEntity(sourceId)?.get<CountersComponent>() ?: return false
-                val ct = atom.counterType?.let { resolveNamedCounterType(it) }
+                val ct = atom.counterType
                 val needed = getAtomCount(atom.count)
                 if (needed <= 0) return true
                 if (ct != null) counters.getCount(ct) >= needed
                 else counters.counters.values.sum() >= needed
             } else {
-                val counterType = atom.counterType?.let { resolveNamedCounterType(it) }
+                val counterType = atom.counterType
                 val projected = state.projectedState
                 val ctx = PredicateContext(controllerId = controllerId)
                 val needed = getAtomCount(atom.count)
@@ -909,7 +907,7 @@ class CostHandler(private val zones: ZoneTransitionService) {
             // on it" gate (CR 614.1 / Solemnity), the placement replacements (Hardened Scales,
             // Doubling Season), and the first-placement-this-turn marker. A permanent that can't
             // receive counters still pays the cost — nothing is owed and the activation stands.
-            val counterType = resolveNamedCounterType(atom.counterType)
+            val counterType = atom.counterType
             if (!state.projectedState.canReceiveCounters(sourceId)) {
                 CostPaymentResult.success(state, manaPool)
             } else {
@@ -922,8 +920,7 @@ class CostHandler(private val zones: ZoneTransitionService) {
                     c.with(current.withAdded(counterType, modifiedCount))
                 }.let {
                     DamageUtils.markCounterPlacedOnCreature(
-                        it, controllerId, sourceId,
-                        com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(counterType)
+                        it, controllerId, sourceId, counterType
                     )
                 }
                 val entityName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: ""
@@ -932,7 +929,7 @@ class CostHandler(private val zones: ZoneTransitionService) {
                     manaPool,
                     events = listOf(
                         CountersAddedEvent(
-                            sourceId, atom.counterType, modifiedCount, entityName,
+                            sourceId, counterType, modifiedCount, entityName,
                             firstThisTurn, placedBy = controllerId,
                         )
                     ),
@@ -940,7 +937,7 @@ class CostHandler(private val zones: ZoneTransitionService) {
             }
         }
         is CostAtom.RemoveCounters -> {
-            val counterType = atom.counterType?.let { resolveNamedCounterType(it) }
+            val counterType = atom.counterType
             val requiredCount = getAtomCount(atom.count, choices)
             var newState = state
             val events = mutableListOf<GameEvent>()
@@ -955,23 +952,23 @@ class CostHandler(private val zones: ZoneTransitionService) {
                 if (counterType != null) {
                     val current = counters.getCount(counterType)
                     if (current < requiredCount) {
-                        return CostPaymentResult.failure("Source has only $current ${atom.counterType} counters, need $requiredCount")
+                        return CostPaymentResult.failure("Source has only $current ${counterType.printed} counters, need $requiredCount")
                     }
                     newState = newState.updateEntity(sourceId) { c ->
                         c.with(counters.withRemoved(counterType, requiredCount))
                     }
-                    events.add(CountersRemovedEvent(sourceId, atom.counterType!!, requiredCount, sourceName))
+                    events.add(CountersRemovedEvent(sourceId, counterType, requiredCount, sourceName))
                 } else {
                     // Self with any-type: use distributedCounterRemovals
                     val removals = choices.distributedCounterRemovals
                     for (removal in removals) {
                         if (removal.count <= 0) continue
-                        val resolvedType = resolveNamedCounterType(removal.counterType)
+                        val resolvedType = CounterType.of(removal.counterType)
                         val source = state.getEntity(sourceId)?.get<CountersComponent>() ?: continue
                         newState = newState.updateEntity(sourceId) { c ->
                             c.with(source.withRemoved(resolvedType, removal.count))
                         }
-                        events.add(CountersRemovedEvent(sourceId, removal.counterType, removal.count, sourceName))
+                        events.add(CountersRemovedEvent(sourceId, resolvedType, removal.count, sourceName))
                     }
                 }
             } else {
@@ -1685,10 +1682,6 @@ class CostHandler(private val zones: ZoneTransitionService) {
         is DynamicAmount.Fixed -> amount.amount
         is DynamicAmount.XValue -> choices?.xValue ?: 0
         else -> 0
-    }
-
-    private fun resolveNamedCounterType(name: String): CounterType {
-        return resolveCounterType(name)
     }
 }
 

@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Extra Arms
@@ -27,8 +26,8 @@ val ExtraArms = card("Extra Arms") {
     triggeredAbility {
         trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
         val any = target("any target", Targets.Any)
-        effect = DealDamageEffect(
-            amount = DynamicAmount.Fixed(2),
+        effect = Effects.DealDamage(
+            amount = 2,
             target = any,
             damageSource = EffectTarget.EnchantedCreature
         )

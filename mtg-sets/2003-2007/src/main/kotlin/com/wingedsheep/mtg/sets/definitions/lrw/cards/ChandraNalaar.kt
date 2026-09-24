@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 // Current Oracle targets players or planeswalkers directly for +1 and −8.
 val ChandraNalaar = card("Chandra Nalaar") {
@@ -25,7 +25,7 @@ val ChandraNalaar = card("Chandra Nalaar") {
 
     loyaltyAbilityX {
         val creature = target("target creature", Targets.Creature)
-        effect = Effects.DealDamage(DynamicAmount.XValue, creature)
+        effect = Effects.DealDamage(DynamicAmounts.xValue(), creature)
     }
 
     loyaltyAbility(-8) {

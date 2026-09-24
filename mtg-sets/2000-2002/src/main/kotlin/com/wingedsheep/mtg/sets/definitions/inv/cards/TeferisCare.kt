@@ -31,8 +31,8 @@ val TeferisCare = card("Teferi's Care") {
     }
 
     activatedAbility {
+        val spell = target("target spell", TargetSpell(filter = TargetFilter(GameObjectFilter.Enchantment, zone = Zone.STACK)))
         cost = Costs.Mana("{3}{U}{U}")
-        target = TargetSpell(filter = TargetFilter(GameObjectFilter.Enchantment, zone = Zone.STACK))
         effect = Effects.CounterSpell()
     }
 

@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -30,9 +28,9 @@ val ForceAway = card("Force Away") {
         val creature = target("creature", Targets.Creature)
 
         effect = Effects.ReturnToHand(creature)
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
-                effect = MayEffect(Patterns.Hand.loot())
+                then = Effects.May(Patterns.Hand.loot())
             ))
     }
 

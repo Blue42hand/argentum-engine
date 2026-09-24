@@ -323,7 +323,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -630,7 +630,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -948,8 +948,8 @@
                                             "amount": 4
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target any"
                                         },
                                         "damageSource": "Self"
                                     },
@@ -963,7 +963,10 @@
                                 ]
                             },
                             "targetRequirements": [
-                                "AnyTarget"
+                                {
+                                    "type": "AnyTarget",
+                                    "id": "target any"
+                                }
                             ],
                             "description": "This enchantment deals 4 damage to any target and you gain 4 life"
                         },
@@ -977,8 +980,8 @@
                                             "type": "FromZone",
                                             "zone": "Hand",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target opponent"
                                             }
                                         },
                                         "storeAs": "hand"
@@ -1004,8 +1007,8 @@
                                             "type": "ToZone",
                                             "zone": "Graveyard",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target opponent"
                                             }
                                         },
                                         "moveType": "Discard"
@@ -1013,7 +1016,10 @@
                                 ]
                             },
                             "targetRequirements": [
-                                "TargetOpponent"
+                                {
+                                    "type": "TargetOpponent",
+                                    "id": "target opponent"
+                                }
                             ],
                             "description": "Target opponent discards two cards"
                         },
@@ -1355,7 +1361,7 @@
                     "type": "Fixed",
                     "amount": -2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1894,7 +1900,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -1946,11 +1955,11 @@
                             "type": "Fixed",
                             "amount": 3
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "MustBeBlocked",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "allCreatures": false
                     }
                 ]
@@ -2087,7 +2096,7 @@
                     "type": "Fixed",
                     "amount": -4
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -2208,7 +2217,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2978,7 +2987,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3230,7 +3239,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Creatures you control get +1/+1 until end of turn."
@@ -3322,10 +3331,8 @@
             "scope": "CombatOnly",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
-                "filter": {
-                    "baseFilter": "creature pow<=4"
-                }
+                "type": "PreventFromMatching",
+                "filter": "creature pow<=4"
             }
         }
     },

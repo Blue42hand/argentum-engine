@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -44,7 +43,7 @@ class BatchMayQuestionTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.OtherCreatureEnters
             val t = target("target", Targets.Any)
-            effect = MayEffect(Effects.DealDamage(1, t))
+            effect = Effects.May(Effects.DealDamage(1, t))
         }
     }
 

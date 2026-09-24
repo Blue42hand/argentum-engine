@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.iko.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -41,7 +41,7 @@ val VoidBeckoner = card("Void Beckoner") {
     triggeredAbility {
         trigger = Triggers.YouCycleThis
         val t = target("target", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.DEATHTOUCH, 1, t)
+        effect = Effects.AddCounters(CounterType.DEATHTOUCH, 1, t)
     }
 
     metadata {

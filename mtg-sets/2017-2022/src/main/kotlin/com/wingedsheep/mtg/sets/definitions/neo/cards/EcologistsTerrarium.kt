@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.neo.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -47,7 +48,7 @@ val EcologistsTerrarium = card("Ecologist's Terrarium") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target("creature to grow", TargetCreature())
-        effect = Effects.AddCounters(counterType = "+1/+1", count = 1, target = t)
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         timing = TimingRule.SorcerySpeed
         description = "{2}, {T}, Sacrifice this artifact: Put a +1/+1 counter on target creature. " +
             "Activate only as a sorcery."

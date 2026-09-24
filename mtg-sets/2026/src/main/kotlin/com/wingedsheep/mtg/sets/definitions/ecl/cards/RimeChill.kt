@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.vividCostReduction
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -30,11 +30,9 @@ val RimeChill = card("Rime Chill") {
 
     spell {
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = ForEachTargetEffect(
-            listOf(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters("STUN", 1, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.Tap(EffectTarget.ContextTarget(0)),
+            Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
         ).then(Effects.DrawCards(1))
     }
 

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Wax // Wane (INV 296) — split-layout spell (CR 709).
@@ -28,8 +27,8 @@ val WaxWane = card("Wax // Wane") {
         oracleText = "Target creature gets +2/+2 until end of turn."
 
         spell {
-            target("target creature", Targets.Creature)
-            effect = Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.ModifyStats(2, 2, creature)
         }
     }
 
@@ -39,8 +38,8 @@ val WaxWane = card("Wax // Wane") {
         oracleText = "Destroy target enchantment."
 
         spell {
-            target("target enchantment", Targets.Enchantment)
-            effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+            val enchantment = target("target enchantment", Targets.Enchantment)
+            effect = Effects.Destroy(enchantment)
         }
     }
 

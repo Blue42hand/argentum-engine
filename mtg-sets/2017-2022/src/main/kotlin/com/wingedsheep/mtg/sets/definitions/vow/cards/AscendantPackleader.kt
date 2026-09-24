@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -39,7 +38,7 @@ val AscendantPackleader = card("Ascendant Packleader") {
 
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.PlusOnePlusOne,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             selfOnly = true,
             condition = Conditions.YouControl(GameObjectFilter.Permanent.manaValueAtLeast(4))
@@ -48,8 +47,8 @@ val AscendantPackleader = card("Ascendant Packleader") {
 
     triggeredAbility {
         trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.manaValueAtLeast(4))
-        effect = AddCountersEffect(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+        effect = Effects.AddCounters(
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = EffectTarget.Self
         )

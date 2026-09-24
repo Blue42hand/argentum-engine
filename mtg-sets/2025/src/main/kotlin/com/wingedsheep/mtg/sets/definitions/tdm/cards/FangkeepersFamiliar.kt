@@ -6,10 +6,10 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Fangkeeper's Familiar
@@ -48,11 +48,10 @@ val FangkeepersFamiliar = card("Fangkeeper's Familiar") {
                 Effects.GainLife(3).then(Patterns.Library.surveil(3)),
                 "You gain 3 life and surveil 3"
             ),
-            Mode.withTarget(
-                Effects.Destroy(EffectTarget.ContextTarget(0)),
-                Targets.Enchantment,
-                "Destroy target enchantment"
-            ),
+            mode("Destroy target enchantment") {
+                val enchantment = target("target enchantment", Targets.Enchantment)
+                effect = Effects.Destroy(enchantment)
+            },
             Mode.withTarget(
                 Effects.CounterSpell(),
                 Targets.CreatureSpell,

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -40,7 +37,7 @@ val SandstormSalvager = card("Sandstorm Salvager") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 3,
             toughness = 3,
             colors = emptySet(),
@@ -59,11 +56,11 @@ val SandstormSalvager = card("Sandstorm Salvager") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = creatureTokensYouControl,
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 filter = creatureTokensYouControl,
-                effect = GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.Self)
+                effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
         )
     }

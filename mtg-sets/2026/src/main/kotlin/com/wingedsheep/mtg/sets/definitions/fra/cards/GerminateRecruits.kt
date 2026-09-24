@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Germinate Recruits — X reads the LIFE_GAINED turn tracker for the caster
@@ -18,7 +18,7 @@ val GerminateRecruits = card("Germinate Recruits") {
     oracleText = "Create X 2/2 colorless Wizard Soldier creature tokens named Cadet, where X is the amount of life you gained this turn."
 
     spell {
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmounts.lifeGainedThisTurn(),
             power = 2,
             toughness = 2,

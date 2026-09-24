@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 
 /**
  * Baron Helmut Zemo
@@ -82,11 +81,11 @@ val BaronHelmutZemo = card("Baron Helmut Zemo") {
     activatedAbility {
         isBoast = true
         cost = Costs.ExileFromGraveyardForColoredSymbols(15, Color.BLACK)
-        effect = Effects.Composite(
-            GatherCardsEffect(source = CardSource.ExiledAsCost, storeAs = "zemoExiled"),
-            Effects.CopyCollectionIntoCollection(from = "zemoExiled", storeAs = "zemoCopies"),
-            Effects.CastUpToNFromCollectionWithoutPayingCost(from = "zemoCopies", maxCasts = 3),
-        )
+        effect = Effects.Pipeline {
+            val zemoExiled = gather(CardSource.ExiledAsCost)
+            val zemoCopies = copyCards(zemoExiled)
+            run(Effects.CastUpToNFromCollectionWithoutPayingCost(from = zemoCopies, maxCasts = 3))
+        }
     }
 
     metadata {

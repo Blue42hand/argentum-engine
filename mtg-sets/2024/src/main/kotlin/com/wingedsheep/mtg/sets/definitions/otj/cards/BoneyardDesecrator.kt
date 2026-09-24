@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -46,15 +46,15 @@ val BoneyardDesecrator = card("Boneyard Desecrator") {
             Costs.Mana("{1}{B}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
-        effect = Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Any(
                         *Subtype.OUTLAW_TYPES
                             .map { Conditions.SacrificedHadSubtype(it.value) }
                             .toTypedArray()
                     ),
-                    effect = Effects.CreateTreasure(1)
+                    then = Effects.CreateTreasure(1)
                 )
             )
     }

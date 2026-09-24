@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -34,7 +34,7 @@ val PileatedProvisioner = card("Pileated Provisioner") {
         val t = target("creature without flying", TargetObject(
             filter = TargetFilter.CreatureYouControl.withoutKeyword(Keyword.FLYING)
         ))
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 
     metadata {

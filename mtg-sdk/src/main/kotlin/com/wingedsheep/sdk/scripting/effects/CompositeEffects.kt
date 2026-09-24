@@ -356,54 +356,12 @@ data class ModalEffect(
 }
 
 /**
- * "[action]. If you do, [ifYouDo]." — conditional execution gated on whether [action] actually
- * accomplished its work, not on a yes/no decision. The classic case: "You may discard a card. If
- * you do, draw a card" — when the player declines or the hand is empty, no discard happens, so no
- * draw happens.
- *
- * Backwards-compatible facade preserved for the cards (and the `Effects.IfYouDo` facade) that
- * authored against the former `IfYouDoEffect` data class. It now lowers to a [GatedEffect] with a
- * [Gate.DoAction] gate — one frame, one executor, one resumer — so there is no bespoke `IfYouDo`
- * executor or continuation type of its own. Card source is unchanged; only the compiled/serialized
- * representation moved to `Gated`.
- *
- * Differences from related gates:
- * - [MayEffect] / [Gate.MayDecide] gates on the *decision* (yes/no), not the *outcome*. A "yes"
- *   with nothing to discard still passes through. Wrap with `MayEffect` for "You may [action]. If
- *   you do, [effect]": `MayEffect(IfYouDoEffect(action, then))`.
- * - [OptionalCostEffect] / [Gate.MayPay] gates on *paying a recognized cost primitive* (mana /
- *   life) via a payability check before prompting; it does not handle discard / sacrifice / mill /
- *   etc. where success is data-driven.
- * - [CompositeEffect].`stopOnError` aborts on raised errors only — silent zero-progress actions
- *   (empty hand, no legal sacrifice) still let downstream effects run.
- *
- * @param action The action whose outcome gates [ifYouDo] (becomes [Gate.DoAction.action]).
- * @param ifYouDo Effect that runs only if [action] performed its work (becomes [GatedEffect.then]).
- * @param ifYouDont Optional effect that runs if [action] did nothing (becomes [GatedEffect.otherwise]).
- * @param successCriterion How to determine "did it happen". Defaults to [SuccessCriterion.Auto],
- *   which infers from the action shape (pipeline ending in a move → destination zone grew).
- */
-@Suppress("FunctionName")
-fun IfYouDoEffect(
-    action: Effect,
-    ifYouDo: Effect,
-    ifYouDont: Effect? = null,
-    successCriterion: SuccessCriterion = SuccessCriterion.Auto,
-    descriptionOverride: String? = null
-): GatedEffect = GatedEffect(
-    gate = Gate.DoAction(action, successCriterion),
-    then = ifYouDo,
-    otherwise = ifYouDont,
-    descriptionOverride = descriptionOverride
-)
-
-/**
- * How to determine whether an [IfYouDoEffect] action accomplished its work.
+ * How to determine whether an [Effects.IfYouDo] action accomplished its work.
  */
 @Serializable
 sealed interface SuccessCriterion {
     /**
-     * Infer success from the action's shape. The executor walks [IfYouDoEffect.action]
+     * Infer success from the action's shape. The executor walks [Effects.IfYouDo.action]
      * for a terminal zone move — either a pipeline [MoveCollectionEffect] or a
      * single-target `MoveToZoneEffect` whose target is the source itself; if found, the
      * destination zone is snapshot pre-execution and counted as "succeeded" iff it grew
@@ -802,7 +760,7 @@ data class CreateDelayedTriggerEffect(
      *
      * For step-based delayed triggers (no [trigger]) there is no event to scope, so the baked
      * entity instead becomes the fired trigger's *triggering entity* — reachable from the effect
-     * as `EffectTarget.TriggeringEntity` or, inside a filter, `EntityReference.Triggering`. That is
+     * as `EffectTarget.TriggeringEntity`, in an effect and in a filter alike. That is
      * how "at end of combat, destroy all creatures that blocked or were blocked by **it** this
      * turn" (Gaze of the Gorgon) remembers which creature "it" was. Ignored when [fireOnPlayer]
      * is set, which already names the triggering player.
@@ -950,49 +908,6 @@ sealed interface DelayedTriggerExpiry {
     @Serializable
     data object EndOfCombat : DelayedTriggerExpiry
 }
-
-/**
- * "You may pay [cost]. If you do, [effect]."
- *
- * Optional mana payment offered to the controller. Backwards-compatible facade preserved for the
- * cards that authored against the former `MayPayManaEffect` data class. It now lowers to a
- * [GatedEffect] with a [Gate.MayPay] over a [PayManaCostEffect], so there is no bespoke MayPayMana
- * executor or continuation type — the gated frame owns the resolution order. Card source is
- * unchanged; only the compiled/serialized representation moved to `Gated`.
- *
- * The engine recognizes this exact shape — a flat mana [Gate.MayPay] with no `otherwise` and the
- * default decision-maker — to keep the optional-mana-payment UX the wrapper used to own: manual
- * mana-source selection at resolution, and, for a triggered ability that *also* requires a target
- * (the Onslaught "Words of ..." cycle, Lightning Rift), the deliberate pay-then-choose-target
- * order. Composite / life-gated / `otherwise`-bearing MayPay gates intentionally fall through to
- * the generic gated yes/no instead.
- *
- * Example: Lightning Rift — "you may pay {1}. If you do, Lightning Rift deals 2 damage to any target."
- */
-@Suppress("FunctionName")
-fun MayPayManaEffect(cost: ManaCost, effect: Effect): GatedEffect =
-    GatedEffect(gate = Gate.MayPay(PayManaCostEffect(cost)), then = effect)
-
-/**
- * "You may pay {X}. If you do, [effect]."
- *
- * Presents the player with a number chooser (0 to max affordable mana). If X > 0, pays X mana
- * (auto-tapping lands) and executes the inner effect with the chosen X value set in the effect
- * context (read via `DynamicAmount.XValue`).
- *
- * Backwards-compatible facade preserved for the cards that authored against the former
- * `MayPayXForEffect` data class. It now lowers to a [GatedEffect] with a [Gate.MayPayX] gate — one
- * frame, one executor — so there is no bespoke MayPayX executor. Card source is unchanged; only the
- * compiled/serialized representation moved to `Gated`.
- *
- * Example: Decree of Justice cycling trigger — "you may pay {X}. If you do, create X 1/1 white
- * Soldier creature tokens."
- *
- * @param effect The effect that happens if the player pays (uses `DynamicAmount.XValue`).
- */
-@Suppress("FunctionName")
-fun MayPayXForEffect(effect: Effect): GatedEffect =
-    GatedEffect(gate = Gate.MayPayX, then = effect)
 
 /**
  * "Any player may [cost]." with branching outcomes based on whether anyone paid.
@@ -1363,7 +1278,7 @@ data class RepeatWhileEffect(
  * Example (Rottenmouth Viper - for each blight counter):
  * ```kotlin
  * RepeatDynamicTimesEffect(
- *     amount = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named("blight")),
+ *     amount = DynamicAmounts.countersOnSelf(CounterType.BLIGHT),
  *     body = ForEachPlayerEffect(
  *         players = Player.EachOpponent,
  *         effects = listOf(chooseAction)

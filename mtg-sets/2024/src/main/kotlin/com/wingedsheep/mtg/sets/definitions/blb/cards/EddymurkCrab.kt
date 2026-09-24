@@ -54,12 +54,12 @@ val EddymurkCrab = card("Eddymurk Crab") {
 
     // ETB: tap up to two target creatures
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetCreature(
+        val creature = target("target creature", TargetCreature(
             count = 2,
             optional = true,
             filter = TargetFilter.Creature
-        )
+        ))
+        trigger = Triggers.EntersBattlefield
         effect = Effects.TapEachTarget()
     }
 

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -40,7 +40,7 @@ val HogMonkey = card("Hog-Monkey") {
         trigger = Triggers.BeginCombat
         val creature = target(
             "target creature you control with a +1/+1 counter on it",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl().withCounter(Counters.PLUS_ONE_PLUS_ONE)))
+            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)))
         )
         effect = Effects.GrantKeyword(Keyword.MENACE, creature)
         description = "At the beginning of combat on your turn, target creature you control with a +1/+1 counter on it gains menace until end of turn."
@@ -49,7 +49,7 @@ val HogMonkey = card("Hog-Monkey") {
     activatedAbility {
         isExhaust = true
         cost = Costs.Mana("{5}")
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
     }
 
     metadata {

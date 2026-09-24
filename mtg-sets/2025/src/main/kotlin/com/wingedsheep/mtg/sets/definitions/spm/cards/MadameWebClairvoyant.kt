@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CastSpellTypesFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Madame Web, Clairvoyant
@@ -46,7 +46,7 @@ val MadameWebClairvoyant = card("Madame Web, Clairvoyant") {
 
     triggeredAbility {
         trigger = Triggers.YouAttack
-        effect = MayEffect(Patterns.Library.mill(1))
+        effect = Effects.May(Patterns.Library.mill(1))
     }
 
     metadata {

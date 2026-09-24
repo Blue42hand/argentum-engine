@@ -1,12 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   clause a second time as an `interveningIf` would be redundant, and worse, would re-check it on
  *   resolution where the printed clause never does.
  * - **The {2} is a resolution-time optional cost, not an additional cost of the trigger.**
- *   [OptionalCostEffect] (a `Gate.MayPay` over [PayManaCostEffect]) is the "you may pay … If you
+ *   [Effects.MayPay] (a `Gate.MayPay` over [PayManaCostEffect]) is the "you may pay … If you
  *   do, …" shape, and its one-yes-per-resolution nature is exactly the 2020-11-10 ruling: "You
  *   can't pay {2} more than once for each time the triggered ability of Rings of Brighthearth
  *   resolves."
@@ -53,9 +50,9 @@ val RingsOfBrighthearth = card("Rings of Brighthearth") {
 
     triggeredAbility {
         trigger = Triggers.YouActivateAbility
-        effect = OptionalCostEffect(
-            cost = PayManaCostEffect(ManaCost.parse("{2}")),
-            ifPaid = Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity),
+        effect = Effects.MayPay(
+            cost = Effects.PayMana("{2}"),
+            then = Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity),
             descriptionOverride = "Pay {2}? If you do, copy that ability. You may choose new " +
                 "targets for the copy."
         )

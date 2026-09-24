@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gumdrop Poisoner // Tempt with Treats
@@ -47,8 +47,8 @@ val GumdropPoisoner = card("Gumdrop Poisoner") {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(optional = true, filter = TargetFilter.Creature))
         effect = Effects.ModifyStats(
-            DynamicAmount.Multiply(DynamicAmounts.lifeGainedThisTurn(), -1),
-            DynamicAmount.Multiply(DynamicAmounts.lifeGainedThisTurn(), -1),
+            -DynamicAmounts.lifeGainedThisTurn(),
+            -DynamicAmounts.lifeGainedThisTurn(),
             t
         )
     }

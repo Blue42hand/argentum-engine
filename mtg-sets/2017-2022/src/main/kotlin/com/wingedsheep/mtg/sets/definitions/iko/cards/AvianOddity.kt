@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.iko.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -39,7 +39,7 @@ val AvianOddity = card("Avian Oddity") {
     triggeredAbility {
         trigger = Triggers.YouCycleThis
         val creature = target("target", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.FLYING, 1, creature)
+        effect = Effects.AddCounters(CounterType.FLYING, 1, creature)
     }
 
     metadata {

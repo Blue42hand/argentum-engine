@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.isd.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -43,7 +43,7 @@ val GrimgrinCorpseBorn = card("Grimgrin, Corpse-Born") {
         effect = Effects.Composite(
             listOf(
                 Effects.Untap(EffectTarget.Self),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
         )
         description = "Sacrifice another creature: Untap Grimgrin and put a +1/+1 counter on it."
@@ -55,7 +55,7 @@ val GrimgrinCorpseBorn = card("Grimgrin, Corpse-Born") {
         effect = Effects.Composite(
             listOf(
                 Effects.Destroy(creature),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
         )
     }

@@ -7,8 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.uds.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -26,8 +24,8 @@ val SoulFeast = card("Soul Feast") {
     spell {
         val t = target("target", TargetPlayer())
         effect = Effects.Composite(
-            LoseLifeEffect(4, t),
-            GainLifeEffect(4)
+            Effects.LoseLife(4, t),
+            Effects.GainLife(4)
         )
     }
     metadata {

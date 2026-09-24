@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -32,7 +32,7 @@ val OllenbockEscort = card("Ollenbock Escort") {
         val t = target(
             "target",
             TargetCreature(
-                filter = TargetFilter(GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE).youControl())
+                filter = TargetFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl())
             )
         )
         effect = Effects.Composite(

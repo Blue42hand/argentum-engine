@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.m19.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -34,14 +34,14 @@ val DragonsHoard = card("Dragon's Hoard") {
             filter = GameObjectFilter.Permanent.youControl().withSubtype(Subtype.DRAGON),
             binding = TriggerBinding.ANY
         )
-        effect = Effects.AddCounters(Counters.GOLD, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.GOLD, 1, EffectTarget.Self)
         description = "Whenever a Dragon you control enters, put a gold counter on this artifact."
     }
 
     activatedAbility {
         cost = Costs.Composite(
             Costs.Tap,
-            Costs.RemoveCounterFromSelf(Counters.GOLD, 1)
+            Costs.RemoveCounterFromSelf(CounterType.GOLD, 1)
         )
         effect = Effects.DrawCards(1)
         description = "{T}, Remove a gold counter from this artifact: Draw a card."

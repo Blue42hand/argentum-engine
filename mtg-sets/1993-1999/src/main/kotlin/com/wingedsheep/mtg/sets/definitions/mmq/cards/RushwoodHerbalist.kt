@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.mmq.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 
 /**
  * Rushwood Herbalist
@@ -23,7 +23,7 @@ val RushwoodHerbalist = card("Rushwood Herbalist") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}"), Costs.Tap, Costs.DiscardCard)
         val t = target("target", Targets.Creature)
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
     }
 
     metadata {

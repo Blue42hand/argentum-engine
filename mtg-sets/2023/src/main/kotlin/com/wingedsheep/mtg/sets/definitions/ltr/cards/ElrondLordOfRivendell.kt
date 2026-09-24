@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 
 /**
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffe
  * ability has resolved this turn, the Ring tempts you.
  *
  * Composable: scry + `IncrementAbilityResolutionCountEffect` +
- * `ConditionalEffect(Conditions.SourceAbilityResolvedNTimes(2), TheRingTemptsYou())`. The increment
+ * `Effects.If(Conditions.SourceAbilityResolvedNTimes(2), TheRingTemptsYou())`. The increment
  * must run before the conditional reads the per-ability resolution count, or `count == 2` is never
  * met and the Ring never tempts (cf. Tannuk Memorial Ensign, Harvestrite Host).
  */
@@ -42,9 +41,9 @@ val ElrondLordOfRivendell = card("Elrond, Lord of Rivendell") {
         effect = Patterns.Library.scry(1)
             .then(IncrementAbilityResolutionCountEffect)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    effect = Effects.TheRingTemptsYou()
+                    then = Effects.TheRingTemptsYou()
                 )
             )
     }

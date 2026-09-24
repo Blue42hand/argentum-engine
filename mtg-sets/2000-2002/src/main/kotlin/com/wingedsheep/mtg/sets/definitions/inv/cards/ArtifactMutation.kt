@@ -1,14 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Artifact Mutation (INV 231)
@@ -37,11 +34,8 @@ val ArtifactMutation = card("Artifact Mutation") {
 
     spell {
         val t = target("target artifact", Targets.Artifact)
-        effect = Effects.Destroy(t) then CreateTokenEffect(
-            count = DynamicAmount.EntityProperty(
-                entity = EntityReference.Target(0),
-                numericProperty = EntityNumericProperty.ManaValue
-            ),
+        effect = Effects.Destroy(t) then Effects.CreateToken(
+            count = DynamicAmounts.manaValueOf(t),
             power = 1,
             toughness = 1,
             colors = setOf(Color.GREEN),

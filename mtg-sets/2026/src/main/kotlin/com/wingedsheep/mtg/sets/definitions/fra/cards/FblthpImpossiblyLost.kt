@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -43,9 +42,9 @@ val FblthpImpossiblyLost = card("Fblthp, Impossibly Lost") {
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.Composite(
             Effects.DrawCards(2),
-            ConditionalEffect(
+            Effects.If(
                 condition = Exists(player = Player.You, zone = Zone.LIBRARY, negate = true),
-                effect = Effects.WinGame(message = "Fblthp, Impossibly Lost: your library has no cards in it.")
+                then = Effects.WinGame(message = "Fblthp, Impossibly Lost: your library has no cards in it.")
             ),
             Effects.ShuffleIntoLibrary(EffectTarget.Self)
         )

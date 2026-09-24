@@ -114,7 +114,8 @@
                         ]
                     },
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },

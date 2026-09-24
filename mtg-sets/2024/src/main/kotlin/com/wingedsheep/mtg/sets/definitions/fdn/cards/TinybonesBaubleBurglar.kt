@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -68,7 +67,7 @@ val TinybonesBaubleBurglar = card("Tinybones, Bauble Burglar") {
 
     staticAbility {
         ability = MayPlayCardsFromExile(
-            filter = GameObjectFilter.Any.ownedByOpponent().withCounter(Counters.STASH),
+            filter = GameObjectFilter.Any.ownedByOpponent().withCounter(CounterType.STASH),
             condition = Conditions.IsYourTurn,
             withAnyManaType = true,
         )

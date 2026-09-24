@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -37,7 +36,7 @@ val EnergyFlux = card("Energy Flux") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.YourUpkeep.event,
                 binding = Triggers.YourUpkeep.binding,
-                effect = PayOrSufferEffect(
+                effect = Effects.PayOrSuffer(
                     cost = Costs.pay.Mana("{2}"),
                     suffer = Effects.SacrificeTarget(EffectTarget.Self)
                 )

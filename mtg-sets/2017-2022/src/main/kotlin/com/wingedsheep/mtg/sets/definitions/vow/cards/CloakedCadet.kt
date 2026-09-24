@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -45,7 +45,7 @@ val CloakedCadet = card("Cloaked Cadet") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(),
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             firstTimeEachTurn = false,
         )
         oncePerTurn = true

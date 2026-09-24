@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseOptionEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.GainControlEffect
@@ -61,27 +60,6 @@ object CreatureTypePatterns {
         )
     )
 
-    fun chooseCreatureTypeReturnFromGraveyard(
-        count: Int
-    ): CompositeEffect = CompositeEffect(
-        listOf(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature),
-                storeAs = "graveyardCreatures"
-            ),
-            SelectFromCollectionEffect(
-                from = "graveyardCreatures",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(count)),
-                matchChosenCreatureType = true,
-                storeSelected = "chosen"
-            ),
-            MoveCollectionEffect(
-                from = "chosen",
-                destination = CardDestination.ToZone(Zone.HAND)
-            )
-        )
-    )
-
     fun chooseCreatureTypeModifyStats(
         powerModifier: DynamicAmount,
         toughnessModifier: DynamicAmount,
@@ -92,13 +70,13 @@ object CreatureTypePatterns {
         val modifyStats = ModifyStatsEffect(
             powerModifier = powerModifier,
             toughnessModifier = toughnessModifier,
-            target = EffectTarget.Self,
+            target = EffectTarget.IterationEntity,
             duration = duration
         )
         val innerEffect: Effect = if (grantKeyword != null) {
             CompositeEffect(listOf(
                 modifyStats,
-                GrantKeywordEffect(grantKeyword.name, EffectTarget.Self, duration)
+                GrantKeywordEffect(grantKeyword.name, EffectTarget.IterationEntity, duration)
             ))
         } else {
             modifyStats
@@ -125,7 +103,7 @@ object CreatureTypePatterns {
                 filter = GroupFilter(
                     baseFilter = GameObjectFilter.Creature.withSubtypeFromVariable("chosenType")
                 ),
-                effect = TapUntapEffect(EffectTarget.Self, tap = false)
+                effect = TapUntapEffect(EffectTarget.IterationEntity, tap = false)
             )
         )
     )
@@ -147,7 +125,7 @@ object CreatureTypePatterns {
                 filter = filter,
                 effect = SetCreatureSubtypesEffect(
                     fromChosenValueKey = key,
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                     duration = duration
                 )
             )
@@ -163,12 +141,12 @@ object CreatureTypePatterns {
                 optionType = OptionType.CREATURE_TYPE,
                 storeAs = key
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = YouControlMostOfChosenType(key),
-                effect = ForEachInGroupEffect(
+                then = ForEachInGroupEffect(
                     filter = GroupFilter.ChosenSubtypeCreatures(key),
                     effect = GainControlEffect(
-                        target = EffectTarget.Self,
+                        target = EffectTarget.IterationEntity,
                         duration = duration
                     )
                 )
@@ -185,7 +163,7 @@ object CreatureTypePatterns {
         ),
         com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect(
             from = "sharingType_gathered",
-            filter = com.wingedsheep.sdk.scripting.effects.CollectionFilter.SharesSubtypeWithSacrificed,
+            collectionFilter = com.wingedsheep.sdk.scripting.effects.CollectionFilter.SharesSubtypeWithSacrificed,
             storeMatching = "sharingType_filtered"
         ),
         MoveCollectionEffect(

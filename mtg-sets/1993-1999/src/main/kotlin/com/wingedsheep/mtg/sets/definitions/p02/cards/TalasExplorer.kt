@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.p02.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 
 /**
  * Talas Explorer
@@ -35,7 +35,7 @@ val TalasExplorer = card("Talas Explorer") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val opponent = target("target", Targets.Opponent)
-        effect = LookAtTargetHandEffect(opponent)
+        effect = Effects.LookAtHand(opponent)
     }
 
     metadata {

@@ -6,12 +6,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Wanted Griffin
@@ -40,18 +38,18 @@ val WantedGriffin = card("Wanted Griffin") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(Color.RED),
             creatureTypes = setOf("Mercenary"),
             activatedAbilities = listOf(
-                ActivatedAbility(
-                    cost = AbilityCost.Tap,
-                    effect = Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(Targets.CreatureYouControl),
+                grantedActivatedAbility {
+                    cost = AbilityCost.Tap
+                    val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                    effect = Effects.ModifyStats(1, 0, creatureYouControl)
                     timing = TimingRule.SorcerySpeed
-                )
+                }
             ),
             imageUri = "https://cards.scryfall.io/normal/front/5/f/5f04607f-eed2-462e-897f-82e41e5f7049.jpg?1712316319"
         )

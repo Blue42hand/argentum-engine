@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.GraveyardCardsHaveMayhem
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -68,7 +67,7 @@ private val NormanOsbornFront = card("Norman Osborn") {
     // {1}{U}{B}{R}: Transform Norman Osborn. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Mana("{1}{U}{B}{R}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform Norman Osborn. Activate only as a sorcery."
     }

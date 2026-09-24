@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -45,7 +44,7 @@ val SanguineStatuette = card("Sanguine Statuette") {
 
     triggeredAbility {
         trigger = Triggers.YouSacrificeA(GameObjectFilter.Artifact.withSubtype("Blood"))
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.BecomeCreature(
                 target = EffectTarget.Self,
                 power = 3,

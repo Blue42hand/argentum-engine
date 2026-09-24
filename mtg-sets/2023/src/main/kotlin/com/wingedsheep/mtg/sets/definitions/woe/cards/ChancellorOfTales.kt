@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -39,7 +38,7 @@ val ChancellorOfTales = card("Chancellor of Tales") {
 
     triggeredAbility {
         trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.CastAsAdventure))
-        effect = MayEffect(Effects.CopyTargetSpell(EffectTarget.TriggeringEntity))
+        effect = Effects.May(Effects.CopyTargetSpell(EffectTarget.TriggeringEntity))
     }
 
     metadata {

@@ -7,11 +7,9 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Azog, Moria's Ruin — The Hobbit #61
@@ -42,24 +40,16 @@ val AzogMoriasRuin = card("Azog, Moria's Ruin") {
             TargetCreature(optional = true, filter = TargetFilter.OtherCreature),
         )
 
-        val resolveForItsController = Effects.StoreNumber(
-            name = "azogTargetPower",
-            amount = DynamicAmounts.targetPower(),
-        ).then(
-            Effects.Destroy(creature),
-        ).then(
-            Effects.ForEachPlayer(
-                Player.ControllerOf("that creature"),
-                listOf(
-                    Effects.Amass(DynamicAmount.VariableReference("azogTargetPower"), "Goblin"),
-                ),
-            ),
-        )
+        val resolveForItsController = Effects.Pipeline {
+            val targetPower = storeNumber(DynamicAmounts.powerOf(creature))
+            run(Effects.Destroy(creature))
+            run(Effects.ForEachPlayer(Player.ControllerOf("that creature"), Effects.Amass(targetPower.amount, "Goblin")))
+        }
 
-        effect = ConditionalEffect(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl()),
-            effect = resolveForItsController.then(Effects.DrawCards(1)),
-            elseEffect = resolveForItsController,
+        effect = Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), creature),
+            then = resolveForItsController.then(Effects.DrawCards(1)),
+            otherwise = resolveForItsController,
         )
     }
 

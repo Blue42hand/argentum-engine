@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * effect fans out via [Effects.ForEachInGroup] over every creature you control whose
  * subtype is one of the five tribes ([GameObjectFilter.withAnySubtype]) — including
  * Blech itself, who is a Pest. Inside the per-creature iteration the counter targets
- * [EffectTarget.Self] (the current iteration entity), not a context target.
+ * [EffectTarget.IterationEntity] (the current iteration entity), not a context target.
  */
 val BlechLoafingPest = card("Blech, Loafing Pest") {
     manaCost = "{1}{B}{G}"
@@ -43,10 +42,10 @@ val BlechLoafingPest = card("Blech, Loafing Pest") {
                     )
                     .youControl()
             ),
-            effect = AddCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+            effect = Effects.AddCounters(
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

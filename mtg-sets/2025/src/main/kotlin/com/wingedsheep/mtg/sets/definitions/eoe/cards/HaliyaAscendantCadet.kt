@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -37,14 +37,14 @@ val HaliyaAscendantCadet = card("Haliya, Ascendant Cadet") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = counterDescription
     }
 
     triggeredAbility {
         trigger = Triggers.Attacks
         val t = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = counterDescription
     }
 
@@ -55,7 +55,7 @@ val HaliyaAscendantCadet = card("Haliya, Ascendant Cadet") {
         trigger = TriggerSpec(
             OneOrMoreDealCombatDamageToPlayerEvent(
                 sourceFilter = GameObjectFilter.Creature.youControl()
-                    .withCounter(Counters.PLUS_ONE_PLUS_ONE)
+                    .withCounter(CounterType.PLUS_ONE_PLUS_ONE)
             ),
             TriggerBinding.ANY
         )

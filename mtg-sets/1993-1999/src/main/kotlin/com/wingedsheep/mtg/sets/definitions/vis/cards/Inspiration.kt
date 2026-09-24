@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.vis.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -23,7 +23,7 @@ val Inspiration = card("Inspiration") {
     oracleText = "Target player draws two cards."
     spell {
         val t = target("target", TargetPlayer())
-        effect = DrawCardsEffect(2, t)
+        effect = Effects.DrawCards(2, t)
     }
     metadata {
         rarity = Rarity.COMMON

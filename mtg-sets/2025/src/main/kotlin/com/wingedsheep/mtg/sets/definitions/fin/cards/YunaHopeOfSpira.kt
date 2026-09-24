@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantWard
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -34,7 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *
  * Clause 2 is the Rydia "return … with a finality counter" idiom: an end-step trigger with an
  * optional ("up to one") graveyard target, moved GRAVEYARD → BATTLEFIELD then given a
- * [Counters.FINALITY] counter (whose die→exile replacement is engine-intrinsic).
+ * [CounterType.FINALITY] counter (whose die→exile replacement is engine-intrinsic).
  */
 val YunaHopeOfSpira = card("Yuna, Hope of Spira") {
     manaCost = "{3}{G}{W}"
@@ -71,7 +70,7 @@ val YunaHopeOfSpira = card("Yuna, Hope of Spira") {
             )
         )
         effect = Effects.Move(enchantment, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(AddCountersEffect(Counters.FINALITY, 1, enchantment))
+            .then(Effects.AddCounters(CounterType.FINALITY, 1, enchantment))
         description = "At the beginning of your end step, return up to one target enchantment card " +
             "from your graveyard to the battlefield with a finality counter on it."
     }

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -39,11 +39,11 @@ val InspiredTethermage = card("Inspired Tethermage") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Planeswalker,
-            counterType = Counters.LOYALTY,
+            counterType = CounterType.LOYALTY,
             firstTimeEachTurn = false,
             placedBy = Player.You
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you put one or more loyalty counters on a planeswalker, put a +1/+1 " +
             "counter on this creature."
     }

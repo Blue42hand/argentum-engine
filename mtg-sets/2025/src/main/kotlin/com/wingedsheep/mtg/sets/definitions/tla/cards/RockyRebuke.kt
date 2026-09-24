@@ -1,12 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Rocky Rebuke
@@ -25,7 +23,7 @@ val RockyRebuke = card("Rocky Rebuke") {
         val myCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+            amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,
             damageSource = myCreature
         )

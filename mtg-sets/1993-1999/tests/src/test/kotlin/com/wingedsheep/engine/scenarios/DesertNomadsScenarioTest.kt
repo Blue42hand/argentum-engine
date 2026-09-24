@@ -17,7 +17,7 @@ import io.kotest.matchers.shouldNotBe
  *     (CR 702.14 landwalk variant, keyed off [com.wingedsheep.sdk.core.Subtype.DESERT].)
  *  2. Damage prevention — prevent all damage that would be dealt to Desert Nomads by Deserts.
  *     Implemented as a continuous `PreventDamage` replacement (CR 615) with source filter
- *     `Land.withSubtype("Desert")` and recipient `RecipientFilter.Self`.
+ *     `Land.withSubtype("Desert")` and recipient `Recipient.Self`.
  */
 class DesertNomadsScenarioTest : ScenarioTestBase() {
 

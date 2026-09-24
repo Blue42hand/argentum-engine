@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -59,7 +58,7 @@ val NumaiOutcast = card("Numai Outcast") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.PayLife(5))
-        effect = RegenerateEffect(EffectTarget.Self)
+        effect = Effects.Regenerate(EffectTarget.Self)
         description = "{B}, Pay 5 life: Regenerate this creature."
     }
 

@@ -15,8 +15,8 @@
                         "amount": 3
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
                 {
@@ -29,7 +29,10 @@
             ]
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ]
     },
     "metadata": {
@@ -123,7 +126,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -336,8 +339,8 @@
                                 "amount": 4
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "any target"
                             }
                         },
                         {
@@ -347,8 +350,8 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "up to two other targets[0]"
                             }
                         },
                         {
@@ -358,8 +361,8 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 2
+                                "type": "BoundVariable",
+                                "name": "up to two other targets[1]"
                             }
                         }
                     ]
@@ -414,11 +417,11 @@
                             "amount": 7
                         }
                     },
-                    "storeAs": "looked"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "looked",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -426,14 +429,14 @@
                             "amount": 2
                         }
                     },
-                    "storeSelected": "kept",
-                    "storeRemainder": "rest",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "selectedLabel": "Put in hand",
                     "remainderLabel": "Put on bottom"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "kept",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -441,7 +444,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "rest",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -986,12 +989,15 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target player"
                     }
                 },
                 "targetRequirements": [
-                    "TargetPlayer"
+                    {
+                        "type": "TargetPlayer",
+                        "id": "target player"
+                    }
                 ],
                 "descriptionOverride": "{1}{R}{R}: This creature deals 1 damage to target player."
             }
@@ -1173,15 +1179,15 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature you control"
                                     },
                                     "filter": "creature Vampire"
                                 }
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
@@ -1222,13 +1228,13 @@
                                         "baseFilter": "creature Vampire ctrl:you"
                                     }
                                 },
-                                "storeAs": "vampireToSacrifice"
+                                "storeAs": "target0"
                             },
                             {
                                 "type": "SacrificeTarget",
                                 "target": {
                                     "type": "PipelineTarget",
-                                    "collectionName": "vampireToSacrifice"
+                                    "collectionName": "target0"
                                 }
                             }
                         ]
@@ -1243,8 +1249,8 @@
                                     "amount": 3
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target any"
                                 }
                             },
                             {
@@ -1257,7 +1263,10 @@
                         ]
                     },
                     "reflexiveTargetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ],
                     "descriptionOverride": "You may sacrifice a Vampire. When you do, Sorin deals 3 damage to any target and you gain 3 life."
                 },
@@ -1423,7 +1432,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },

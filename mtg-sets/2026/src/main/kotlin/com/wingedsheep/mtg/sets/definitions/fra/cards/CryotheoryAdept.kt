@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -23,7 +23,7 @@ val CryotheoryAdept = card("Cryotheory Adept") {
         activateFromZone = Zone.GRAVEYARD
         timing = TimingRule.SorcerySpeed
         val creature = target("creature", TargetCreature())
-        effect = Effects.Composite(Effects.Tap(creature), Effects.AddCounters(Counters.STUN, 1, creature))
+        effect = Effects.Composite(Effects.Tap(creature), Effects.AddCounters(CounterType.STUN, 1, creature))
         description = "Tap target creature and put a stun counter on it."
     }
 

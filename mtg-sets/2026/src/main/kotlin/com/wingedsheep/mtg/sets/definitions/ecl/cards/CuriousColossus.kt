@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.effects.RemoveAllAbilitiesEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -41,9 +39,9 @@ val CuriousColossus = card("Curious Colossus") {
             filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(opponent)),
             effect = Effects.Composite(
                 listOf(
-                    RemoveAllAbilitiesEffect(EffectTarget.Self, Duration.Permanent),
-                    AddCreatureTypeEffect("Coward", EffectTarget.Self, Duration.Permanent),
-                    Effects.SetBasePowerAndToughness(1, 1, EffectTarget.Self, Duration.Permanent)
+                    Effects.RemoveAllAbilities(EffectTarget.IterationEntity, Duration.Permanent),
+                    Effects.AddCreatureType("Coward", EffectTarget.IterationEntity, Duration.Permanent),
+                    Effects.SetBasePowerAndToughness(1, 1, EffectTarget.IterationEntity, Duration.Permanent)
                 )
             )
         )

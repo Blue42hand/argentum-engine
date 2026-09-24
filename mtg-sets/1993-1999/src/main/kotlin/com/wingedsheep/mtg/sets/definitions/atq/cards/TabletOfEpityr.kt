@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Tablet of Epityr
@@ -31,7 +30,7 @@ val TabletOfEpityr = card("Tablet of Epityr") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY,
         )
-        effect = MayPayManaEffect(ManaCost.parse("{1}"), Effects.GainLife(1))
+        effect = Effects.MayPay(ManaCost.parse("{1}"), Effects.GainLife(1))
     }
 
     metadata {

@@ -4,11 +4,11 @@
 
 package com.wingedsheep.mtg.sets.definitions.pcy.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 
 /**
@@ -27,11 +27,11 @@ val LesserGargadon = card("Lesser Gargadon") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = SacrificeEffect(GameObjectFilter.Land)
+        effect = Effects.SacrificeOwn(GameObjectFilter.Land)
     }
     triggeredAbility {
         trigger = Triggers.Blocks
-        effect = SacrificeEffect(GameObjectFilter.Land)
+        effect = Effects.SacrificeOwn(GameObjectFilter.Land)
     }
     metadata {
         rarity = Rarity.UNCOMMON

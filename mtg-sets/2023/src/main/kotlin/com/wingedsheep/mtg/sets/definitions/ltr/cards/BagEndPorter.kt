@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -7,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bag End Porter
@@ -28,10 +28,7 @@ val BagEndPorter = card("Bag End Porter") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        val x = DynamicAmount.AggregateBattlefield(
-            player = Player.You,
-            filter = GameObjectFilter.Creature.legendary()
-        )
+        val x = DynamicAmounts.legendaryCreaturesYouControl()
         effect = Effects.ModifyStats(x, x, EffectTarget.Self)
     }
 

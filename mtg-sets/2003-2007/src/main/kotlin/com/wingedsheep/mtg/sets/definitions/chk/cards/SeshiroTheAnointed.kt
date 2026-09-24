@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -57,9 +55,8 @@ val SeshiroTheAnointed = card("Seshiro the Anointed") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsCombatDamageToPlayer.event,
                 binding = Triggers.DealsCombatDamageToPlayer.binding,
-                effect = GatedEffect(
-                    gate = Gate.MayDecide(),
-                    then = Effects.DrawCards(1)
+                effect = Effects.May(
+                    effect = Effects.DrawCards(1)
                 )
             ),
             filter = GroupFilter(GameObjectFilter.Permanent.withSubtype(Subtype.SNAKE).youControl())

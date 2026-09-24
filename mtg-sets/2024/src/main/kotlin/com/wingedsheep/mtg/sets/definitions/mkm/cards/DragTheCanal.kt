@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Drag the Canal — Murders at Karlov Manor #199
@@ -42,9 +41,9 @@ val DragTheCanal = card("Drag the Canal") {
                 colors = setOf(Color.WHITE, Color.BLUE),
                 creatureTypes = setOf("Detective")
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CreatureDiedThisTurn,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.GainLife(2),
                     Effects.Surveil(2),
                     Effects.Investigate()

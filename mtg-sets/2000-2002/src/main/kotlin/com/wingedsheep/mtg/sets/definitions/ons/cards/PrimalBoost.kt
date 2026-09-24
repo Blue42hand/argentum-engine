@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -24,9 +23,9 @@ val PrimalBoost = card("Primal Boost") {
 
     spell {
         val t = target("target", Targets.Creature)
-        effect = ModifyStatsEffect(
-            powerModifier = 4,
-            toughnessModifier = 4,
+        effect = Effects.ModifyStats(
+            power = 4,
+            toughness = 4,
             target = t
         )
     }
@@ -36,10 +35,10 @@ val PrimalBoost = card("Primal Boost") {
     triggeredAbility {
         trigger = Triggers.YouCycleThis
         val t = target("target", Targets.Creature)
-        effect = MayEffect(
-            ModifyStatsEffect(
-                powerModifier = 1,
-                toughnessModifier = 1,
+        effect = Effects.May(
+            Effects.ModifyStats(
+                power = 1,
+                toughness = 1,
                 target = t
             )
         )

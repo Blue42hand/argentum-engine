@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -32,7 +32,7 @@ val SunsetSaboteur = card("Sunset Saboteur") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val target = target("target creature an opponent controls", Targets.CreatureOpponentControls)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
         description = "Whenever this creature attacks, put a +1/+1 counter on target creature an opponent controls."
     }
 

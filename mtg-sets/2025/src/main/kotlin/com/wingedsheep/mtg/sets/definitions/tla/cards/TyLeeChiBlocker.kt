@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 
 /**
  * Ty Lee, Chi Blocker
@@ -38,8 +37,8 @@ val TyLeeChiBlocker = card("Ty Lee, Chi Blocker") {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature", Targets.UpToCreatures(1))
         effect = Effects.Tap(creature) then
-            GrantKeywordEffect(
-                AbilityFlag.DOESNT_UNTAP.name,
+            Effects.GrantKeyword(
+                AbilityFlag.DOESNT_UNTAP,
                 creature,
                 Duration.WhileYouControlSource("Ty Lee"),
             )

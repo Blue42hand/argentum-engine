@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -30,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * The activated ability targets *any* face-down permanent (any controller). It reveals the hidden
  * card, then — gated on the underlying card actually being a creature card via
  * [Conditions.TargetIsCreatureCard] (which reads the base card type, not the face-down 2/2
- * projection) — offers an optional ([MayEffect]) free flip via [TurnFaceUpEffect]. The reveal and
+ * projection) — offers an optional ([Effects.May]) free flip via [TurnFaceUpEffect]. The reveal and
  * the flip are decoupled: a non-creature card is revealed but never flipped.
  */
 val HauntwoodsShrieker = card("Hauntwoods Shrieker") {
@@ -58,9 +55,9 @@ val HauntwoodsShrieker = card("Hauntwoods Shrieker") {
         )
         effect = Effects.Composite(
             Effects.RevealFaceDownPermanent(t),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                effect = MayEffect(TurnFaceUpEffect(t)),
+                then = Effects.May(Effects.TurnFaceUp(t)),
             ),
         )
         description = "{1}{G}: Reveal target face-down permanent. If it's a creature card, you may " +

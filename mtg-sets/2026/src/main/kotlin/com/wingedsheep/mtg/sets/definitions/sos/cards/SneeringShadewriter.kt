@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,7 +33,7 @@ val SneeringShadewriter = card("Sneering Shadewriter") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
             Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-            GainLifeEffect(2)
+            Effects.GainLife(2)
         )
     }
     metadata {

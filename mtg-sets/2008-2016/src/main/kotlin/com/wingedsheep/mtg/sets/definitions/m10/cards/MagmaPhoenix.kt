@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * - "each creature and each player" is two iterations, not one: a group iteration over every
  *   creature on the battlefield, then a player iteration over every player (Volcanic Fallout's
- *   shape). Inside a group iteration `EffectTarget.Self` is the iterated permanent; inside a
+ *   shape). Inside a group iteration `EffectTarget.IterationEntity` is the iterated permanent; inside a
  *   player iteration `EffectTarget.Controller` is the iterated player.
  * - The recursion ability is activated from the *graveyard* — `activateFromZone` is what makes it
  *   legal there, and [Effects.ReturnToHandFromGraveyard] carries the `fromZone` guard that stops
@@ -46,7 +46,7 @@ val MagmaPhoenix = card("Magma Phoenix") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreatures,
-                Effects.DealDamage(3, EffectTarget.Self),
+                Effects.DealDamage(3, EffectTarget.IterationEntity),
             ),
             Effects.ForEachPlayer(
                 Player.Each,

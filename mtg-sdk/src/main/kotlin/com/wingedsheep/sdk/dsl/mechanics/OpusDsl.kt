@@ -3,7 +3,6 @@ package com.wingedsheep.sdk.dsl
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
@@ -29,10 +28,10 @@ private const val OPUS_THRESHOLD = 5
  * The set's Opus cards come in two shapes; pick exactly one bonus setter:
  *  - [insteadIfFiveOrMore] — the bonus **replaces** [effect] when 5+ mana was spent ("… mills three
  *    cards. If five or more mana was spent to cast that spell, that player mills ten cards instead.").
- *    Lowers to `ConditionalEffect(5+ → bonus, otherwise → base)`.
+ *    Lowers to `Effects.If(5+ → bonus, otherwise → base)`.
  *  - [alsoIfFiveOrMore] — the bonus runs **in addition** to [effect] ("… gets +1/+1 until end of
  *    turn. If five or more mana was spent to cast that spell, this creature also gains double
- *    strike …"). Lowers to `base then ConditionalEffect(5+ → bonus)`.
+ *    strike …"). Lowers to `base then Effects.If(5+ → bonus)`.
  *
  * Declare a [target] inside the block (like `triggeredAbility { }`) and reference the returned
  * handle from *both* the base and bonus effects so the single chosen target carries across the tier
@@ -86,9 +85,9 @@ class OpusBuilder {
             right = DynamicAmount.Fixed(OPUS_THRESHOLD),
         )
         val combined = if (replaces) {
-            ConditionalEffect(condition = fiveOrMoreManaSpent, effect = bonus, elseEffect = base)
+            Effects.If(condition = fiveOrMoreManaSpent, then = bonus, otherwise = base)
         } else {
-            base then ConditionalEffect(condition = fiveOrMoreManaSpent, effect = bonus)
+            base then Effects.If(condition = fiveOrMoreManaSpent, then = bonus)
         }
 
         val targets = namedTargets.map { it.second }

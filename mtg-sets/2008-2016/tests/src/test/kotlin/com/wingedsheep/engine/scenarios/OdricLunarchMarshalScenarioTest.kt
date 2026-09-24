@@ -25,7 +25,7 @@ import io.kotest.matchers.shouldBe
  *  - and the grant must be a resolution-time snapshot, not a continuously re-evaluated condition —
  *    the printed ruling says the granted abilities "won't change even if every creature that
  *    normally had the abilities leaves the battlefield". Wiring this through `GrantKeyword`'s
- *    `condition` parameter instead of a `ConditionalEffect` would pass the first two tests and fail
+ *    `condition` parameter instead of a `Effects.If` would pass the first two tests and fail
  *    the third, which is why the third one exists.
  *
  * Also pinned: the trigger is "each combat", so it fires on the opponent's turn too.

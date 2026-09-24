@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.m14.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 
 /**
  * Celestial Flare
@@ -25,7 +25,7 @@ val CelestialFlare = card("Celestial Flare") {
 
     spell {
         val p = target("target player", Targets.Player)
-        effect = ForceSacrificeEffect(
+        effect = Effects.Sacrifice(
             GameObjectFilter.Creature.attackingOrBlocking(),
             1,
             p

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   nothing here re-reads the Aura at resolution.
  *
  * "Sacrifice … **unless** it attacked this turn" is a resolution-time test, not an intervening "if"
- * (CR 603.4 vs 608.2), so it is a [ConditionalEffect] inside the effect rather than an
+ * (CR 603.4 vs 608.2), so it is a [Effects.If] inside the effect rather than an
  * `interveningIf` on the trigger: the ability always triggers and always goes on the stack, and the
  * attack check happens as it resolves. `Conditions.SourceAttackedThisTurn` reads the *granted*
  * ability's source, which is the enchanted creature, exactly as the printed "it" demands.
@@ -53,9 +52,9 @@ val InstillFuror = card("Instill Furor") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.YourEndStep.event,
                 binding = Triggers.YourEndStep.binding,
-                effect = ConditionalEffect(
+                effect = Effects.If(
                     condition = Conditions.Not(Conditions.SourceAttackedThisTurn),
-                    effect = Effects.SacrificeTarget(EffectTarget.Self),
+                    then = Effects.SacrificeTarget(EffectTarget.Self),
                 ),
                 descriptionOverride = "At the beginning of your end step, sacrifice this creature " +
                     "unless it attacked this turn.",

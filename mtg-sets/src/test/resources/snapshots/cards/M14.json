@@ -43,7 +43,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -108,12 +108,15 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
                 "targetRequirements": [
-                    "AnyTarget"
+                    {
+                        "type": "AnyTarget",
+                        "id": "any target"
+                    }
                 ],
                 "descriptionOverride": "{R}, Sacrifice a creature: This enchantment deals 1 damage to any target."
             }
@@ -1136,7 +1139,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -1246,7 +1249,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",
@@ -1334,11 +1337,11 @@
                         "player": "Each",
                         "filter": "creature"
                     },
-                    "storeAs": "creatureCardsInAllGraveyards"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "creatureCardsInAllGraveyards",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"

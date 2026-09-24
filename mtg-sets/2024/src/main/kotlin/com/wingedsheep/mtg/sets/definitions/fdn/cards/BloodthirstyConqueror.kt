@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bloodthirsty Conqueror
@@ -34,7 +33,7 @@ val BloodthirstyConqueror = card("Bloodthirsty Conqueror") {
 
     triggeredAbility {
         trigger = Triggers.AnOpponentLosesLife
-        effect = Effects.GainLife(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST))
+        effect = Effects.GainLife(DynamicAmounts.triggerLifeLost())
         description = "Whenever an opponent loses life, you gain that much life."
     }
 

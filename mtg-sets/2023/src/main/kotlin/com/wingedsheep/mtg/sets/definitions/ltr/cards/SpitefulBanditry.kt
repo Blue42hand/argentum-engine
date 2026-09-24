@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Spiteful Banditry
@@ -30,7 +29,7 @@ val SpitefulBanditry = card("Spiteful Banditry") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
-            effect = DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self)
+            effect = Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.IterationEntity)
         )
     }
 

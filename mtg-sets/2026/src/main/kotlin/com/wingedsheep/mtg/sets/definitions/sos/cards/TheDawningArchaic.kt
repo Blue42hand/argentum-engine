@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -56,12 +55,12 @@ val TheDawningArchaic = card("The Dawning Archaic") {
 
     // On attack: cast a target instant/sorcery from your graveyard for free, exiling it after.
     triggeredAbility {
+        val target = target("target", TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()))
         trigger = Triggers.Attacks
-        target = TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
         effect = Effects.Composite(
-            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
+            Effects.Move(target, Zone.EXILE),
             Effects.GrantFreeCastTargetFromExile(
-                target = EffectTarget.ContextTarget(0),
+                target = target,
                 exileAfterResolve = true,
             ),
         )

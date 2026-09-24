@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.AdditionalManaOnSourceTap
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Extraplanar Lens — Mirrodin #169 (canonical printing)
@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * Modelling notes:
  * - The two halves are a *linked* pair (CR 607): the static reads only what this artifact's own ETB
  *   trigger exiled, via `Effects.ExileLinkedToSource` writing the pile and
- *   [EntityReference.LinkedExiledCard] naming its card. A "cards in exile" scan would pick up every
+ *   [EffectTarget.LinkedExiledCard] naming its card. A "cards in exile" scan would pick up every
  *   other exiled land in the game.
  * - The doubling half is *not* a new primitive. "Its controller adds one mana of any type that land
  *   produced" is Lavaleaper's printed wording, and [AdditionalManaOnSourceTap] with `color = null`
@@ -66,7 +66,7 @@ val ExtraplanarLens = card("Extraplanar Lens") {
         ability = AdditionalManaOnSourceTap(
             sourceFilter = GameObjectFilter.Land
                 .anyController()
-                .sharingNameWith(EntityReference.LinkedExiledCard()),
+                .sharingNameWith(EffectTarget.LinkedExiledCard()),
             color = null
         )
     }

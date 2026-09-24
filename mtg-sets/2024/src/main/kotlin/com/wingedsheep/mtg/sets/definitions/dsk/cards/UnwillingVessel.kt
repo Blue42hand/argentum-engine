@@ -1,8 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 
 /**
  * Unwilling Vessel — Duskmourn: House of Horror #81
@@ -51,7 +50,7 @@ val UnwillingVessel = card("Unwilling Vessel") {
             filter = GameObjectFilter.Enchantment.youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.AddCounters(Counters.POSSESSION, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.POSSESSION, 1, EffectTarget.Self)
         description = "Eerie — Whenever an enchantment you control enters, put a possession " +
             "counter on this creature."
     }
@@ -59,7 +58,7 @@ val UnwillingVessel = card("Unwilling Vessel") {
     // Eerie trigger — part 2: whenever you fully unlock a Room
     triggeredAbility {
         trigger = Triggers.RoomFullyUnlocked
-        effect = Effects.AddCounters(Counters.POSSESSION, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.POSSESSION, 1, EffectTarget.Self)
         description = "Eerie — Whenever you fully unlock a Room, put a possession counter on this " +
             "creature."
     }
@@ -68,8 +67,8 @@ val UnwillingVessel = card("Unwilling Vessel") {
     triggeredAbility {
         trigger = Triggers.Dies
         effect = Effects.CreateDynamicToken(
-            dynamicPower = DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT),
-            dynamicToughness = DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT),
+            dynamicPower = DynamicAmounts.lastKnownCounterCount(),
+            dynamicToughness = DynamicAmounts.lastKnownCounterCount(),
             colors = setOf(Color.BLUE),
             creatureTypes = setOf("Spirit"),
             keywords = setOf(Keyword.FLYING),

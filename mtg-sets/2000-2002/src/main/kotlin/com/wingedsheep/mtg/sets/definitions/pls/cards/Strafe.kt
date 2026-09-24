@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.pls.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -25,7 +25,7 @@ val Strafe = card("Strafe") {
     oracleText = "Strafe deals 3 damage to target nonred creature."
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.notColor(Color.RED)))
-        effect = DealDamageEffect(3, t)
+        effect = Effects.DealDamage(3, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

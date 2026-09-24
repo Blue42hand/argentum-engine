@@ -3,8 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.chk.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -26,9 +25,8 @@ val UnearthlyBlizzard = card("Unearthly Blizzard") {
 
     spell {
         target = TargetCreature(count = 3, optional = true)
-        effect = ForEachEffect(
-            space = IterationSpace.Targets,
-            body = Effects.CantBlock()
+        effect = Effects.ForEachTarget(
+            Effects.CantBlock(target = EffectTarget.ContextTarget(0))
         )
     }
 

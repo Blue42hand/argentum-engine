@@ -5,13 +5,14 @@
 package com.wingedsheep.mtg.sets.definitions.isd.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -28,11 +29,7 @@ val EndlessRanksOfTheDead = card("Endless Ranks of the Dead") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.CreateToken(
-            count = DynamicAmount.Divide(
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Zombie")),
-                DynamicAmount.Fixed(2),
-                roundUp = false
-            ),
+            count = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Zombie")).count() / 2,
             power = 2,
             toughness = 2,
             colors = setOf(Color.BLACK),

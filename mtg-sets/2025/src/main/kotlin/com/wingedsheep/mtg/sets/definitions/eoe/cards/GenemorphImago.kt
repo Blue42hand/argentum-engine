@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Genemorph Imago
@@ -37,10 +36,10 @@ val GenemorphImago = card("Genemorph Imago") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         val t = target("target creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.ControlLandsAtLeast(6),
-            effect = Effects.SetBasePowerAndToughness(6, 6, t, Duration.EndOfTurn),
-            elseEffect = Effects.SetBasePowerAndToughness(3, 3, t, Duration.EndOfTurn)
+            then = Effects.SetBasePowerAndToughness(6, 6, t, Duration.EndOfTurn),
+            otherwise = Effects.SetBasePowerAndToughness(3, 3, t, Duration.EndOfTurn)
         )
         description = "Landfall — Whenever a land you control enters, target creature has base power " +
             "and toughness 3/3 until end of turn. If you control six or more lands, that creature has " +

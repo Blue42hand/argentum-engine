@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -32,7 +31,7 @@ val MacabreWaltz = card("Macabre Waltz") {
             TargetObject(optional = true, count = 2, filter = TargetFilter.CreatureInYourGraveyard)
         )
         effect = Effects.Composite(
-            ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND))),
+            Effects.ForEachTarget(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)),
             Patterns.Hand.discardCards(1)
         )
     }

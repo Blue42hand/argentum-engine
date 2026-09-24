@@ -19,9 +19,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.withClue
@@ -32,15 +29,15 @@ import io.kotest.matchers.types.shouldBeInstanceOf
  * Scenario tests for the unified [GatedEffect] resolution frame (phase-rs Lesson 1).
  *
  * Exercised through inline test cards whose ETB triggers carry gated effects:
- *  - [Gate.MayPay] (the lowering target for `OptionalCostEffect`) — pay / decline / can't-afford.
+ *  - [Gate.MayPay] (the lowering target for `Effects.MayPay`) — pay / decline / can't-afford.
  *  - The may-vs-target canonical order: a targeted `then` locks its target at trigger time
  *    (CR 603.3d), *before* the may-pay decision is offered at resolution (CR 117.3a). This is
- *    the timing the old wrapper nesting (`MayEffect(IfYouDoEffect(...))`) had to get right by
+ *    the timing the old wrapper nesting (`Effects.May(Effects.IfYouDo(...))`) had to get right by
  *    hand; the single frame makes it correct by construction.
- *  - [Gate.MayDecide] — the pure yes/no gate new cards can opt into, and the `MayEffect` facade
+ *  - [Gate.MayDecide] — the pure yes/no gate new cards can opt into, and the `Effects.May` facade
  *    that lowers onto it (yes/no end-to-end, plus the `sourceRequiredZone` skip the wrapper owned).
- *  - [Gate.DoAction] — the action-outcome gate (the lowering target for `IfYouDoEffect`): an action
- *    runs, then its outcome (not a decision) gates `then` vs `otherwise`, and the `IfYouDoEffect`
+ *  - [Gate.DoAction] — the action-outcome gate (the lowering target for `Effects.IfYouDo`): an action
+ *    runs, then its outcome (not a decision) gates `then` vs `otherwise`, and the `Effects.IfYouDo`
  *    facade that lowers onto it.
  */
 class GatedEffectScenarioTest : ScenarioTestBase() {
@@ -60,9 +57,9 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                             id = AbilityId.generate(),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
-                            effect = OptionalCostEffect(
+                            effect = Effects.MayPay(
                                 cost = PayLifeEffect(2),
-                                ifPaid = DrawCardsEffect(1)
+                                then = DrawCardsEffect(1)
                             )
                         )
                     )
@@ -85,9 +82,9 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                             id = AbilityId.generate(),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
-                            effect = OptionalCostEffect(
+                            effect = Effects.MayPay(
                                 cost = PayLifeEffect(2),
-                                ifPaid = Effects.Destroy(EffectTarget.ContextTarget(0))
+                                then = Effects.Destroy(EffectTarget.ContextTarget(0))
                             ),
                             targetRequirement = Targets.Creature
                         )
@@ -130,7 +127,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             )
         )
 
-        // "When this enters, you may draw a card." authored via the MayEffect facade — proves the
+        // "When this enters, you may draw a card." authored via the Effects.May facade — proves the
         // facade lowers to a Gate.MayDecide that resolves end-to-end through the GatedEffect frame.
         cardRegistry.register(
             CardDefinition.creature(
@@ -145,14 +142,14 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                             id = AbilityId.generate(),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
-                            effect = MayEffect(DrawCardsEffect(1))
+                            effect = Effects.May(DrawCardsEffect(1))
                         )
                     )
                 )
             )
         )
 
-        // A MayEffect whose source must be in the graveyard to act. On an ETB trigger the source is
+        // A Effects.May whose source must be in the graveyard to act. On an ETB trigger the source is
         // on the battlefield, so the gate is skipped silently — no prompt, no draw.
         cardRegistry.register(
             CardDefinition.creature(
@@ -167,7 +164,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                             id = AbilityId.generate(),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
-                            effect = MayEffect(DrawCardsEffect(1), sourceRequiredZone = Zone.GRAVEYARD)
+                            effect = Effects.May(DrawCardsEffect(1), sourceRequiredZone = Zone.GRAVEYARD)
                         )
                     )
                 )
@@ -201,7 +198,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             )
         )
 
-        // Same behavior authored via the IfYouDoEffect facade — proves the facade lowers to a
+        // Same behavior authored via the Effects.IfYouDo facade — proves the facade lowers to a
         // Gate.DoAction that resolves end-to-end through the GatedEffect frame.
         cardRegistry.register(
             CardDefinition.creature(
@@ -216,10 +213,10 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                             id = AbilityId.generate(),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
-                            effect = IfYouDoEffect(
+                            effect = Effects.IfYouDo(
                                 action = Patterns.Library.mill(1),
-                                ifYouDo = DrawCardsEffect(1),
-                                ifYouDont = Effects.LoseLife(1, EffectTarget.Controller)
+                                then = DrawCardsEffect(1),
+                                otherwise = Effects.LoseLife(1, EffectTarget.Controller)
                             )
                         )
                     )
@@ -227,7 +224,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             )
         )
 
-        context("Gate.MayPay (OptionalCostEffect lowering)") {
+        context("Gate.MayPay (Effects.MayPay lowering)") {
 
             test("paying the cost runs the payoff") {
                 val game = scenario()
@@ -395,7 +392,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             }
         }
 
-        context("MayEffect facade (lowered to Gate.MayDecide)") {
+        context("Effects.May facade (lowered to Gate.MayDecide)") {
 
             test("the facade resolves a yes/no end-to-end through the gated frame") {
                 val game = scenario()
@@ -439,7 +436,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
             }
         }
 
-        context("Gate.DoAction (IfYouDoEffect lowering)") {
+        context("Gate.DoAction (Effects.IfYouDo lowering)") {
 
             test("the action accomplishing its work runs `then`, not `otherwise`") {
                 val game = scenario()
@@ -482,7 +479,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 withClue("the mill found nothing, so `otherwise` ran") { game.getLifeTotal(1) shouldBe 19 }
             }
 
-            test("the IfYouDoEffect facade lowers and branches the same way") {
+            test("the Effects.IfYouDo facade lowers and branches the same way") {
                 val game = scenario()
                     .withPlayers("Player1", "Player2")
                     .withCardInHand(1, "Outcome Drawer")

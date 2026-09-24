@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -14,10 +14,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ReplaceLifePaymentWithLibraryExile
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ashiok, Wicked Manipulator
@@ -88,8 +86,8 @@ val AshiokWickedManipulator = card("Ashiok, Wicked Manipulator") {
     // −2: Create two 1/1 black Nightmare creature tokens with "At the beginning of combat on your
     //     turn, if a card was put into exile this turn, put a +1/+1 counter on this token."
     loyaltyAbility(-2) {
-        effect = CreateTokenEffect(
-            count = DynamicAmount.Fixed(2),
+        effect = Effects.CreateToken(
+            count = 2,
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK),
@@ -99,7 +97,7 @@ val AshiokWickedManipulator = card("Ashiok, Wicked Manipulator") {
                     trigger = Triggers.BeginCombat.event,
                     binding = Triggers.BeginCombat.binding,
                     interveningIf = Conditions.CardsPutIntoExileThisTurn(),
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     descriptionOverride = "At the beginning of combat on your turn, if a card was " +
                         "put into exile this turn, put a +1/+1 counter on this token.",
                 ),
@@ -111,10 +109,10 @@ val AshiokWickedManipulator = card("Ashiok, Wicked Manipulator") {
     // −7: Target player exiles the top X cards of their library, where X is the total mana value
     //     of cards you own in exile.
     loyaltyAbility(-7) {
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Patterns.Library.exileTop(
             count = DynamicAmounts.zone(Player.You, Zone.EXILE).sumManaValue(),
-            target = EffectTarget.ContextTarget(0),
+            target = player,
         )
     }
 

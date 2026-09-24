@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -38,7 +37,7 @@ val ThunderscapeMaster = card("Thunderscape Master") {
         description = "{G}{G}, {T}: Creatures you control get +2/+2 until end of turn."
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-            effect = ModifyStatsEffect(2, 2, EffectTarget.Self)
+            effect = Effects.ModifyStats(2, 2, EffectTarget.IterationEntity)
         )
     }
 

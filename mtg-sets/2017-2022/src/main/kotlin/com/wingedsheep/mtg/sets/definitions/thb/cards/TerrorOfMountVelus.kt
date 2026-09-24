@@ -35,7 +35,7 @@ val TerrorOfMountVelus = card("Terror of Mount Velus") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.Self)
+            Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity)
         )
     }
     metadata {

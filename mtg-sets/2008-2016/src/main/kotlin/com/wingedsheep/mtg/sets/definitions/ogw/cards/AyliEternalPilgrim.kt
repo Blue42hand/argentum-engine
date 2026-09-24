@@ -1,18 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.ogw.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ayli, Eternal Pilgrim
@@ -58,13 +58,10 @@ val AyliEternalPilgrim = card("Ayli, Eternal Pilgrim") {
         )
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
-                Compare(
-                    left = DynamicAmount.LifeTotal(Player.You),
+                Conditions.CompareAmounts(
+                    left = DynamicAmounts.lifeTotal(Player.You),
                     operator = ComparisonOperator.GTE,
-                    right = DynamicAmount.Add(
-                        DynamicAmount.StartingLifeTotal(Player.You),
-                        DynamicAmount.Fixed(10)
-                    )
+                    right = DynamicAmounts.startingLifeTotal(Player.You) + 10
                 )
             )
         )

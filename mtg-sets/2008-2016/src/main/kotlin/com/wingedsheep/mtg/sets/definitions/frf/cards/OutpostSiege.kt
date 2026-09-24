@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.frf.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,14 +10,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -71,17 +64,11 @@ val OutpostSiege = card("Outpost Siege") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         triggerRestriction = SourceChosenModeIs("khans")
-        effect = Effects.Composite(listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                storeAs = "exiledCard"
-            ),
-            MoveCollectionEffect(
-                from = "exiledCard",
-                destination = CardDestination.ToZone(Zone.EXILE)
-            ),
-            GrantMayPlayFromExileEffect("exiledCard", MayPlayExpiry.EndOfTurn)
-        ))
+        effect = Effects.Pipeline {
+            val exiledCard = gather(CardSource.TopOfLibrary(1))
+            exile(exiledCard)
+            run(Effects.GrantMayPlayFromExile(exiledCard, MayPlayExpiry.EndOfTurn))
+        }
     }
 
     // Dragons — Whenever a creature you control leaves the battlefield, deal 1 damage.
@@ -92,7 +79,7 @@ val OutpostSiege = card("Outpost Siege") {
         )
         triggerRestriction = SourceChosenModeIs("dragons")
         val any = target("target", Targets.Any)
-        effect = DealDamageEffect(1, any)
+        effect = Effects.DealDamage(1, any)
     }
 
     metadata {

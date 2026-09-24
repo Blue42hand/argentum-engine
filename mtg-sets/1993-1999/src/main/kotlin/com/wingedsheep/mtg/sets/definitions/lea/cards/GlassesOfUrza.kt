@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -25,7 +25,7 @@ val GlassesOfUrza = card("Glasses of Urza") {
     activatedAbility {
         cost = Costs.Tap
         val t = target("target", TargetPlayer())
-        effect = LookAtTargetHandEffect(t)
+        effect = Effects.LookAtHand(t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

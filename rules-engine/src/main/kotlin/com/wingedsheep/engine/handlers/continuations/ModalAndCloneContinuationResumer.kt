@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 class ModalAndCloneContinuationResumer(
@@ -298,7 +298,7 @@ class ModalAndCloneContinuationResumer(
         val count = dynamicAmountEvaluator.evaluate(state, amount, context)
         val entityName = state.getEntity(entityId)?.get<CardComponent>()?.name ?: ""
         return EntersWithReplacements.placeEntryCounters(
-            state, entityId, CounterTypeFilter.PlusOnePlusOne, count, controllerId, entityName
+            state, entityId, CounterType.PLUS_ONE_PLUS_ONE, count, controllerId, entityName
         )
     }
 
@@ -668,12 +668,12 @@ class ModalAndCloneContinuationResumer(
         events.addAll(syntheticRiotEvents)
         events.addAll(enterEvents)
 
-        // The generic "as this permanent enters, …" replacement ([OnEnterRunEffect]) — the same
+        // The generic "as this permanent enters, …" replacement ([OnEnterRun]) — the same
         // call `StackResolver.resolvePermanentSpell` makes just after `enterPermanentOnBattlefield`.
         // It lives at both call sites because `enterPermanentOnBattlefield` returns a
         // `(GameState, events)` pair and this replacement may *pause*, which that signature can't
         // express. Without it here, a card carrying an `EntersWithChoice` **and** an
-        // `OnEnterRunEffect` silently loses the second one: the choice pauses before the permanent
+        // `OnEnterRun` silently loses the second one: the choice pauses before the permanent
         // enters, and this resume path is where entry is completed (Grifter's Blade — "choose a
         // creature you control it could be attached to. If you do, it enters attached to that
         // creature", which is the CREATURE_ON_BATTLEFIELD choice plus an attach).
@@ -1027,15 +1027,12 @@ class ModalAndCloneContinuationResumer(
         // Add counters based on revealed cards
         val revealEvents = mutableListOf<GameEvent>()
         if (revealedCards.isNotEmpty()) {
-            val resolvedCounterType = resolveCounterTypeFromString(continuation.counterType)
-            if (resolvedCounterType != null) {
-                val counterCount = revealedCards.size * continuation.countersPerReveal
-                val current = newState.getEntity(spellId)
-                    ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
-                    ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
-                newState = newState.updateEntity(spellId) { c ->
-                    c.with(current.withAdded(resolvedCounterType, counterCount))
-                }
+            val counterCount = revealedCards.size * continuation.countersPerReveal
+            val current = newState.getEntity(spellId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
+                ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
+            newState = newState.updateEntity(spellId) { c ->
+                c.with(current.withAdded(continuation.counterType, counterCount))
             }
 
             // Emit reveal event so opponent can see the revealed cards
@@ -1115,15 +1112,10 @@ class ModalAndCloneContinuationResumer(
                 container.with(com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent(linked + actuallyExiled))
             }
             val counterCount = actuallyExiled.size * continuation.countersPerCard
-            val counterFilter = when (continuation.counterType) {
-                "+1/+1" -> CounterTypeFilter.PlusOnePlusOne
-                "-1/-1" -> CounterTypeFilter.MinusOneMinusOne
-                else -> CounterTypeFilter.Named(continuation.counterType)
-            }
             val (counterState, counterEvents) = EntersWithReplacements.placeEntryCounters(
                 newState,
                 continuation.spellId,
-                counterFilter,
+                continuation.counterType,
                 counterCount,
                 continuation.controllerId,
                 newState.getEntity(continuation.spellId)?.get<CardComponent>()?.name ?: "",
@@ -1180,8 +1172,7 @@ class ModalAndCloneContinuationResumer(
         // Place counters on the still-resolving spell entity.
         val counterCount = sacrificed.size * continuation.multiplier
         if (counterCount > 0) {
-            val resolvedCounterType = resolveCounterTypeFromString(continuation.counterType)
-                ?: com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
+            val resolvedCounterType = continuation.counterType
             val current = newState.getEntity(spellId)
                 ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
                 ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
@@ -1195,7 +1186,7 @@ class ModalAndCloneContinuationResumer(
                 .recordCounterPlacement(
                     newState,
                     spellId,
-                    com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(resolvedCounterType),
+                    resolvedCounterType,
                     byController = true,
                 )
             newState = afterMark
@@ -1310,20 +1301,6 @@ class ModalAndCloneContinuationResumer(
         return checkForMore(minted.state, sacrificeEvents + minted.events)
     }
 
-    private fun resolveCounterTypeFromString(counterType: String): com.wingedsheep.sdk.core.CounterType? {
-        // Map string constants (from Counters object) to enum values
-        val byDescription = com.wingedsheep.sdk.core.CounterType.entries.associateBy { entry ->
-            entry.name.lowercase().replace('_', ' ')
-        }
-        return when (counterType) {
-            "+1/+1" -> com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
-            "-1/-1" -> com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE
-            else -> byDescription[counterType.lowercase()] ?: run {
-                System.err.println("WARNING: Unknown counter type '$counterType' in EntersWithRevealCounters, skipping counter placement")
-                null
-            }
-        }
-    }
 
     /**
      * Resume after player chose budget modal modes (Season cycle pawprints).

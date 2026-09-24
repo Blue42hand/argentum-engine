@@ -1,20 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Emancipation Angel
@@ -42,23 +35,16 @@ val EmancipationAngel = card("Emancipation Angel") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.BattlefieldMatching(filter = GameObjectFilter.Any.youControl()),
-                storeAs = "yourPermanents",
-            ),
-            SelectFromCollectionEffect(
-                from = "yourPermanents",
-                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
+        effect = Effects.Pipeline {
+            val yourPermanents = gather(CardSource.BattlefieldMatching(filter = GameObjectFilter.Any.youControl()))
+            val returned = chooseExactly(
+                1,
+                from = yourPermanents,
                 chooser = Chooser.Controller,
-                storeSelected = "returned",
-                prompt = "Choose a permanent you control to return to its owner's hand",
-            ),
-            MoveCollectionEffect(
-                from = "returned",
-                destination = CardDestination.ToZone(Zone.HAND),
-            ),
-        )
+                prompt = "Choose a permanent you control to return to its owner's hand"
+            )
+            toHand(returned)
+        }
     }
 
     metadata {

@@ -1,15 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Professor Dellian Fel
@@ -57,15 +55,14 @@ val ProfessorDellianFel = card("Professor Dellian Fel") {
     // −6: Emblem with "Whenever you gain life, target opponent loses that much life."
     loyaltyAbility(-6) {
         effect = Effects.CreateGlobalTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.YouGainLife.event,
-                binding = Triggers.YouGainLife.binding,
-                targetRequirement = Targets.Opponent,
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.YouGainLife
+                val opponent = target("target opponent", Targets.Opponent)
                 effect = Effects.LoseLife(
-                    amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED),
-                    target = EffectTarget.ContextTarget(0)
+                    amount = DynamicAmounts.triggerLifeGained(),
+                    target = opponent
                 )
-            ),
+            },
             descriptionOverride = "Whenever you gain life, target opponent loses that much life."
         )
     }

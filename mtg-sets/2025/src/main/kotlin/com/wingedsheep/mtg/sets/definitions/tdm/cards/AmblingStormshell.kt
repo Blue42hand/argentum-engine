@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -38,7 +38,7 @@ val AmblingStormshell = card("Ambling Stormshell") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = Effects.AddCounters(Counters.STUN, 3, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.STUN, 3, EffectTarget.Self)
             .then(Effects.DrawCards(3))
         description = "Whenever this creature attacks, put three stun counters on it and draw three cards."
     }

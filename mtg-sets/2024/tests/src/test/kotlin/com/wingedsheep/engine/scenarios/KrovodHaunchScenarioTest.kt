@@ -29,7 +29,7 @@ import com.wingedsheep.engine.core.Outcome
  * the Haunch into the graveyard from the battlefield, which is exactly what the second ability
  * triggers on — so cashing it in for life also offers the Dogs. The trigger is
  * [com.wingedsheep.sdk.dsl.Triggers.Dies] (battlefield → graveyard, SELF binding) rather than
- * anything sacrifice-specific, and the optional {1}{W} is a resolution-time `MayPayManaEffect`
+ * anything sacrifice-specific, and the optional {1}{W} is a resolution-time `Effects.MayPay`
  * (CR 603.12 style "you may pay … if you do"), not an additional cost — so declining still leaves
  * the life gain intact, and the Haunch already sitting in the graveyard when the trigger resolves
  * is harmless.

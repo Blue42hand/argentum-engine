@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -57,7 +57,7 @@ val SyggsCommand = card("Sygg's Command") {
             mode("Tap target creature. Put a stun counter on it") {
                 val creature = target("target creature", TargetCreature())
                 effect = Effects.Tap(creature)
-                    .then(Effects.AddCounters(Counters.STUN, 1, creature))
+                    .then(Effects.AddCounters(CounterType.STUN, 1, creature))
             }
         }
     }

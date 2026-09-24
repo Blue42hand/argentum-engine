@@ -37,9 +37,9 @@ val PippinGuardOfTheCitadel = card("Pippin, Guard of the Citadel") {
     keywordAbility(KeywordAbility.ward("{1}"))
 
     activatedAbility {
+        val otherCreatureYouControl = target("target other creature you control", Targets.OtherCreatureYouControl)
         cost = Costs.Tap
-        target = Targets.OtherCreatureYouControl
-        effect = Effects.GrantProtectionFromChosenCardType()
+        effect = Effects.GrantProtectionFromChosenCardType(target = otherCreatureYouControl)
     }
 
     metadata {

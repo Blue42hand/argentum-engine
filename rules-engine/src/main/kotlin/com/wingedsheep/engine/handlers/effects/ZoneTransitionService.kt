@@ -227,7 +227,7 @@ class ZoneTransitionService(
         // 2. Capture last-known info if leaving battlefield (assembled into one EntitySnapshot
         // below). The +1/+1, -1/-1, and total counter counts are derived from this map by the
         // snapshot's accessors, so they are no longer captured as separate scalars.
-        var lastKnownCounters: Map<String, Int> = emptyMap()
+        var lastKnownCounters: Map<CounterType, Int> = emptyMap()
         var lastKnownPower: Int? = null
         var lastKnownToughness: Int? = null
         var lastKnownTypeLine: TypeLine? = null
@@ -249,13 +249,7 @@ class ZoneTransitionService(
 
         if (leavingBattlefield) {
             val countersComponent = container.get<CountersComponent>()
-            lastKnownCounters = countersComponent?.counters
-                ?.filterValues { it > 0 }
-                ?.mapKeys { (type, _) ->
-                    com.wingedsheep.engine.handlers.effects.permanent.counters
-                        .counterTypeToString(type)
-                }
-                ?: emptyMap()
+            lastKnownCounters = countersComponent?.counters?.filterValues { it > 0 } ?: emptyMap()
             val projected = state.projectedState
             lastKnownPower = projected.getPower(entityId)
             lastKnownToughness = projected.getToughness(entityId)

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Blessing of Belzenlok
@@ -25,9 +24,9 @@ val BlessingOfBelzenlok = card("Blessing of Belzenlok") {
         val t = target("target", Targets.Creature)
         effect = Effects.ModifyStats(2, 1, t)
             .then(
-                ConditionalEffect(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary()),
-                    effect = Effects.GrantKeyword(com.wingedsheep.sdk.core.Keyword.LIFELINK, t)
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), t),
+                    then = Effects.GrantKeyword(com.wingedsheep.sdk.core.Keyword.LIFELINK, t)
                 )
             )
     }

@@ -1,15 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCantLoseGameFromLife
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Marina Vendrell's Grimoire (DSK 64)
@@ -55,17 +53,17 @@ val MarinaVendrellsGrimoire = card("Marina Vendrell's Grimoire") {
     // Whenever you gain life, draw that many cards.
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = Effects.DrawCards(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED))
+        effect = Effects.DrawCards(DynamicAmounts.triggerLifeGained())
     }
 
     // Whenever you lose life, discard that many cards. Then if you have no cards in hand, you lose the game.
     triggeredAbility {
         trigger = Triggers.YouLoseLife
         effect = Effects.Composite(
-            Effects.Discard(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST)),
-            ConditionalEffect(
+            Effects.Discard(DynamicAmounts.triggerLifeLost()),
+            Effects.If(
                 condition = Conditions.EmptyHand,
-                effect = Effects.LoseGame()
+                then = Effects.LoseGame()
             )
         )
     }

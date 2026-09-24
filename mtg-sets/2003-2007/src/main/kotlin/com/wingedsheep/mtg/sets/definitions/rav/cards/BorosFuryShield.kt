@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.PreventionScope
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -44,10 +43,10 @@ val BorosFuryShield = card("Boros Fury-Shield") {
         val creature = target("target attacking or blocking creature", TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature))
         effect = Effects.PreventAllDamageDealtBy(creature, scope = PreventionScope.CombatOnly)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ManaSpentToCastIncludes(requiredRed = 1),
-                    effect = Effects.DealDamage(
-                        DynamicAmounts.targetPower(0),
+                    then = Effects.DealDamage(
+                        DynamicAmounts.powerOf(creature),
                         EffectTarget.TargetController
                     )
                 )

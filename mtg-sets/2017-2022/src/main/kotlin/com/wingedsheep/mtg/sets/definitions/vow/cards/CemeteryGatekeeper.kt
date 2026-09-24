@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Cemetery Gatekeeper
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * this creature deals 2 damage to that player.
  *
  * The exile is *linked* to the Gatekeeper (CR 607), so "the exiled card" is
- * [EntityReference.LinkedExiledCard] — the same read-side handle Mirrodin's imprint cards use.
+ * [EffectTarget.LinkedExiledCard] — the same read-side handle Mirrodin's imprint cards use.
  *
  * The payoff is written as **two** triggered abilities, one per event, rather than as one ability
  * over an `EventPattern.AnyOf`. The two are behaviourally identical — a land play is never also a
@@ -55,7 +54,6 @@ val CemeteryGatekeeper = card("Cemetery Gatekeeper") {
         effect = Effects.Pipeline {
             val graveyards = gather(
                 CardSource.FromZone(Zone.GRAVEYARD, Player.Each, GameObjectFilter.Any),
-                name = "graveyards",
             )
             val exiled = chooseExactly(
                 1,
@@ -63,7 +61,6 @@ val CemeteryGatekeeper = card("Cemetery Gatekeeper") {
                 useTargetingUI = true,
                 prompt = "Exile a card from a graveyard",
                 selectedLabel = "Exile",
-                name = "exiled",
             )
             exile(exiled, linkToSource = true)
         }
@@ -74,7 +71,7 @@ val CemeteryGatekeeper = card("Cemetery Gatekeeper") {
     triggeredAbility {
         trigger = Triggers.anyPlayerPlaysLand()
         interveningIf = Conditions.TriggeringSpellMatches(
-            GameObjectFilter.Any.sharingCardTypeWith(EntityReference.LinkedExiledCard())
+            GameObjectFilter.Any.sharingCardTypeWith(EffectTarget.LinkedExiledCard())
         )
         effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.TriggeringPlayer))
         description = "Whenever a player plays a land, if it shares a card type with the exiled " +
@@ -85,7 +82,7 @@ val CemeteryGatekeeper = card("Cemetery Gatekeeper") {
     triggeredAbility {
         trigger = Triggers.AnyPlayerCastsSpell
         interveningIf = Conditions.TriggeringSpellMatches(
-            GameObjectFilter.Any.sharingCardTypeWith(EntityReference.LinkedExiledCard())
+            GameObjectFilter.Any.sharingCardTypeWith(EffectTarget.LinkedExiledCard())
         )
         effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.TriggeringPlayer))
         description = "Whenever a player casts a spell, if it shares a card type with the exiled " +

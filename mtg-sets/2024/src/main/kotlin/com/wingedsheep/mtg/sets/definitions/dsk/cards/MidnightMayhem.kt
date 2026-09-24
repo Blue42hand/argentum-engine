@@ -38,9 +38,9 @@ val MidnightMayhem = card("Midnight Mayhem") {
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.GREMLIN).youControl()),
                 Effects.Composite(
-                    Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self),
-                    Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self),
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                    Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity),
+                    Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity),
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
                 )
             )
         )

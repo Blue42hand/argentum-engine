@@ -1,6 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,11 +10,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Central Elevator // Promising Stairs (DSK 44) — split-layout Room (CR 709.5).
@@ -77,10 +77,10 @@ val CentralElevatorPromisingStairs = card("Central Elevator // Promising Stairs"
         }
 
         stateTriggeredAbility {
-            condition = Compare(
-                DynamicAmount.UnlockedDoors(Player.You, distinctNames = true),
+            condition = Conditions.CompareAmounts(
+                DynamicAmounts.distinctUnlockedDoorNames(Player.You),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(8),
+                8,
             )
             effect = Effects.WinGame(message = "Eight doors stood open — the stairs led out.")
             description = "You win the game if there are eight or more different names among " +

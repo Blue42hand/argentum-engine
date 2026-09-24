@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -57,16 +55,10 @@ val AftermathAnalyst = card("Aftermath Analyst") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{G}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Land),
-                storeAs = "graveyard_lands",
-            ),
-            MoveCollectionEffect(
-                from = "graveyard_lands",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped),
-            ),
-        )
+        effect = Effects.Pipeline {
+            val graveyardLands = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Land))
+            move(graveyardLands, CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped))
+        }
         description = "Return all land cards from your graveyard to the battlefield tapped"
     }
 

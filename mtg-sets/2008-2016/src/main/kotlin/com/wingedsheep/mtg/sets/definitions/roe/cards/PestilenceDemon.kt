@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Modeling notes:
  *  - "Each creature and each player" is **two iterations, not one**: a group pass over every
- *    creature ([Effects.ForEachInGroup] with [EffectTarget.Self] naming the current iteration
+ *    creature ([Effects.ForEachInGroup] with [EffectTarget.IterationEntity] naming the current iteration
  *    entity) and a player pass where each iteration rebinds the controller
  *    ([Effects.ForEachPlayer] over [Player.Each] with [EffectTarget.Controller]). Same idiom as
  *    Thrashing Wumpus, whose printed line is identical, and the same shape Assay compiles.
@@ -46,7 +46,7 @@ val PestilenceDemon = card("Pestilence Demon") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                Effects.DealDamage(1, EffectTarget.Self)
+                Effects.DealDamage(1, EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,

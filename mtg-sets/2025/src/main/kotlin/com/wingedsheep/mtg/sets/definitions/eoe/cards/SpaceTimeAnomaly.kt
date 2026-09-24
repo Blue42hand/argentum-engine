@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Space-Time Anomaly
@@ -20,7 +20,7 @@ val SpaceTimeAnomaly = card("Space-Time Anomaly") {
 
     spell {
         val player = target("player", Targets.Player)
-        effect = Patterns.Library.mill(DynamicAmount.YourLifeTotal, player)
+        effect = Patterns.Library.mill(DynamicAmounts.yourLifeTotal(), player)
     }
 
     metadata {

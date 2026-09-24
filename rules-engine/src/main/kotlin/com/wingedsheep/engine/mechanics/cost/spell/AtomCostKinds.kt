@@ -11,7 +11,6 @@ import com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
 import com.wingedsheep.engine.handlers.costs.CostAtomAmounts
 import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
 import com.wingedsheep.engine.legalactions.AdditionalCostData
 import com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
 import com.wingedsheep.engine.state.GameState
@@ -778,7 +777,7 @@ internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> 
     override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.RemoveCounters, costHandler: CostHandler): Boolean {
         val needed = fixedCount(cost)
         if (needed <= 0) return true
-        val counterType = cost.counterType?.let { resolveCounterType(it) }
+        val counterType = cost.counterType?.let { it }
         val projected = state.projectedState
         val ctx = PredicateContext(controllerId = payerId)
         val total = projected.getBattlefieldControlledBy(payerId).sumOf { entityId ->
@@ -820,14 +819,14 @@ internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> 
                 val permName = state.getEntity(removal.entityId)?.get<CardComponent>()?.name ?: "Permanent"
                 return "$permName doesn't match the required filter: ${cost.filter.description}"
             }
-            val key = removal.entityId to resolveCounterType(removal.counterType)
+            val key = removal.entityId to CounterType.of(removal.counterType)
             demanded[key] = (demanded[key] ?: 0) + removal.count
         }
         for ((key, demandedCount) in demanded) {
             val (entityId, counterType) = key
             val actual = state.getEntity(entityId)?.get<CountersComponent>()?.getCount(counterType) ?: 0
             if (actual < demandedCount) {
-                return "Creature does not have $demandedCount $counterType counters to remove"
+                return "Creature does not have $demandedCount ${counterType.printed} counters to remove"
             }
         }
         return null
@@ -837,13 +836,13 @@ internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> 
         for (removal in ledger.payment.distributedCounterRemovals) {
             val container = ledger.state.getEntity(removal.entityId) ?: continue
             val existing = container.get<CountersComponent>() ?: continue
-            val resolvedType = resolveCounterType(removal.counterType)
+            val resolvedType = CounterType.of(removal.counterType)
             ledger.state = ledger.state.updateEntity(removal.entityId) { c ->
                 c.with(existing.withRemoved(resolvedType, removal.count))
             }
             ledger.events.add(CountersRemovedEvent(
                 entityId = removal.entityId,
-                counterType = removal.counterType,
+                counterType = resolvedType,
                 amount = removal.count,
                 entityName = container.get<CardComponent>()?.name ?: "Permanent"
             ))

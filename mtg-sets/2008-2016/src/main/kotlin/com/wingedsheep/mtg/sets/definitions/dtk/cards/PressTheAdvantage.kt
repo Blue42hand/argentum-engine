@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -29,11 +28,9 @@ val PressTheAdvantage = card("Press the Advantage") {
 
     spell {
         target("target", Targets.UpToCreatures(2))
-        effect = ForEachTargetEffect(
-            listOf(
-                Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)),
+            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0))
         )
     }
 

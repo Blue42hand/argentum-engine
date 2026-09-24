@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -11,9 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,22 +44,20 @@ val TheLastRonin = card("The Last Ronin") {
     sagaChapter(2) {
         // Mill is mandatory, so the "when you do" reflexive always fires; its target is chosen
         // after the mill so you can grab a creature it just put into the graveyard.
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(4),
-            optional = false,
-            reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(
-                    filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD)
-                )
-            )
-        )
+            optional = false) {
+            val creature = target("target creature", TargetObject(
+                filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD)
+            ))
+            effect = Effects.ReturnToHand(creature)
+        }
     }
 
     sagaChapter(3) {
         // Turn-scoped, filter-scoped delayed trigger; the per-attacker fan-out in
         // TriggerDetector.detectEventBasedDelayedTriggers binds each lone attacker to TriggeringEntity.
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.attacks(
                 filter = GameObjectFilter.Creature.youControl(),
                 requires = setOf(AttackPredicate.Alone),
@@ -70,7 +66,7 @@ val TheLastRonin = card("The Last Ronin") {
             expiry = DelayedTriggerExpiry.EndOfTurn,
             effect = Effects.Composite(
                 listOf(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.TriggeringEntity),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.TriggeringEntity),
                     Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
                     Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn)

@@ -1,15 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Selfcraft Mechan
@@ -29,17 +26,17 @@ val SelfcraftMechan = card("Selfcraft Mechan") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
-            action = SacrificeEffect(GameObjectFilter.Artifact),
-            optional = true,
-            reflexiveEffect = Effects.Composite(
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.SacrificeOwn(GameObjectFilter.Artifact),
+            optional = true) {
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.Composite(
                 listOf(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
                     Effects.DrawCards(1)
                 )
-            ),
-            reflexiveTargetRequirements = listOf(Targets.Creature)
-        )
+            )
+        }
     }
 
     metadata {

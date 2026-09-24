@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -48,8 +47,8 @@ val ZimoneParadoxSculptor = card("Zimone, Paradox Sculptor") {
             "up to two target creatures you control",
             TargetCreature(count = 2, optional = true, filter = TargetFilter.Creature.youControl())
         )
-        effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )
         description = "At the beginning of combat on your turn, put a +1/+1 counter on each of " +
             "up to two target creatures you control."
@@ -65,8 +64,8 @@ val ZimoneParadoxSculptor = card("Zimone, Paradox Sculptor") {
                 filter = TargetFilter.CreatureOrArtifact.youControl()
             )
         )
-        effect = ForEachTargetEffect(
-            listOf(Effects.DoubleAllCounters(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.DoubleAllCounters(EffectTarget.ContextTarget(0))
         )
         description = "Double the number of each kind of counter on up to two target creatures " +
             "and/or artifacts you control."

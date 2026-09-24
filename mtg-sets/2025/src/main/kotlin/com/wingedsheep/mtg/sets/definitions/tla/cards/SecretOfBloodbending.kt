@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -37,10 +36,10 @@ val SecretOfBloodbending = card("Secret of Bloodbending") {
     spell {
         val opponent = target("target opponent", TargetOpponent())
         selfExile()
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.WaterbendWasPaid,
-            effect = Effects.HijackNextTurn(opponent),
-            elseEffect = Effects.HijackNextCombatPhase(opponent)
+            then = Effects.HijackNextTurn(opponent),
+            otherwise = Effects.HijackNextCombatPhase(opponent)
         )
     }
 

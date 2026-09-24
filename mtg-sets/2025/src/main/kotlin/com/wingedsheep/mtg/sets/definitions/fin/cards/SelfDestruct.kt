@@ -30,11 +30,11 @@ val SelfDestruct = card("Self-Destruct") {
         val yourCreature = target("creature you control", Targets.CreatureYouControl)
         val other = target("any other target", TargetOther(baseRequirement = AnyTarget()))
         effect = Effects.DealDamage(
-            DynamicAmounts.targetPower(0),
+            DynamicAmounts.powerOf(yourCreature),
             other,
             damageSource = yourCreature
         ) then Effects.DealDamage(
-            DynamicAmounts.targetPower(0),
+            DynamicAmounts.powerOf(yourCreature),
             yourCreature,
             damageSource = yourCreature
         )

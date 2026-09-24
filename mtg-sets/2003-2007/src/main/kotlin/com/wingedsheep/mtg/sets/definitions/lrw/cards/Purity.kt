@@ -8,12 +8,11 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Purity — Lorwyn #37
@@ -35,7 +34,7 @@ val Purity = card("Purity") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.You,
+                recipient = Recipient.You,
                 damageType = DamageType.NonCombat
             ),
             onPrevented = Effects.GainLife(DynamicAmounts.preventedDamage())
@@ -50,7 +49,7 @@ val Purity = card("Purity") {
         )
         // Shuffle even if the card has left the graveyard before this resolves.
         effect = Effects.Move(EffectTarget.Self, Zone.LIBRARY, fromZone = Zone.GRAVEYARD) then
-            ShuffleLibraryEffect()
+            Effects.ShuffleLibrary()
     }
 
     metadata {

@@ -6,11 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
@@ -42,16 +38,16 @@ val DecreeOfAnnihilation = card("Decree of Annihilation") {
 
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(artifactCreatureOrLand),
-            effect = Effects.Move(EffectTarget.Self, Zone.EXILE)
+            effect = Effects.Move(EffectTarget.IterationEntity, Zone.EXILE)
         ).then(
-            ForEachPlayerEffect(
+            Effects.ForEachPlayer(
                 players = Player.Each,
-                effects = listOf(
-                    GatherCardsEffect(source = CardSource.FromZone(Zone.GRAVEYARD), storeAs = "graveyard"),
-                    MoveCollectionEffect(from = "graveyard", destination = CardDestination.ToZone(Zone.EXILE)),
-                    GatherCardsEffect(source = CardSource.FromZone(Zone.HAND), storeAs = "hand"),
-                    MoveCollectionEffect(from = "hand", destination = CardDestination.ToZone(Zone.EXILE))
-                )
+                Effects.Pipeline {
+                    val graveyard = gather(CardSource.FromZone(Zone.GRAVEYARD))
+                    exile(graveyard)
+                    val hand = gather(CardSource.FromZone(Zone.HAND))
+                    exile(hand)
+                }
             )
         )
     }

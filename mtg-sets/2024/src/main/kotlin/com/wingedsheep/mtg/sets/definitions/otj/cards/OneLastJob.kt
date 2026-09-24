@@ -3,12 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -49,55 +47,46 @@ val OneLastJob = card("One Last Job") {
         "attached to a creature you control."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 // + {2} — Return target creature card from your graveyard to the battlefield.
-                Mode(
-                    effect = Effects.PutOntoBattlefield(EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(
-                        TargetObject(
-                            filter = TargetFilter(
-                                GameObjectFilter.Creature.ownedByYou(),
-                                zone = Zone.GRAVEYARD
-                            )
+                mode("+ {2} — Return target creature card from your graveyard to the battlefield.") {
+                    val creature = target("target creature", TargetObject(
+                        filter = TargetFilter(
+                            GameObjectFilter.Creature.ownedByYou(),
+                            zone = Zone.GRAVEYARD
                         )
-                    ),
-                    description = "+ {2} — Return target creature card from your graveyard to the battlefield.",
+                    ))
                     additionalManaCost = "{2}"
-                ),
+                    effect = Effects.PutOntoBattlefield(creature)
+                },
                 // + {1} — Return target Mount or Vehicle card from your graveyard to the battlefield.
-                Mode(
-                    effect = Effects.PutOntoBattlefield(EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(
-                        TargetObject(
-                            filter = TargetFilter(
-                                GameObjectFilter.Any.withAnySubtype("Mount", "Vehicle").ownedByYou(),
-                                zone = Zone.GRAVEYARD
-                            )
+                mode("+ {1} — Return target Mount or Vehicle card from your graveyard to the battlefield.") {
+                    val cardInGraveyard = target("target card in graveyard", TargetObject(
+                        filter = TargetFilter(
+                            GameObjectFilter.Any.withAnySubtype("Mount", "Vehicle").ownedByYou(),
+                            zone = Zone.GRAVEYARD
                         )
-                    ),
-                    description = "+ {1} — Return target Mount or Vehicle card from your graveyard to the battlefield.",
+                    ))
                     additionalManaCost = "{1}"
-                ),
+                    effect = Effects.PutOntoBattlefield(cardInGraveyard)
+                },
                 // + {1} — Return target Aura or Equipment card from your graveyard to the
                 //         battlefield attached to a creature you control.
-                Mode(
-                    effect = Effects.PutOntoBattlefieldAttachedToChosen(
-                        target = EffectTarget.ContextTarget(0),
-                        hostFilter = GameObjectFilter.Creature.youControl()
-                    ),
-                    targetRequirements = listOf(
-                        TargetObject(
-                            filter = TargetFilter(
-                                GameObjectFilter.Any.withAnySubtype("Aura", "Equipment").ownedByYou(),
-                                zone = Zone.GRAVEYARD
-                            )
+                mode("+ {1} — Return target Aura or Equipment card from your graveyard " +
+                    "to the battlefield attached to a creature you control.") {
+                    val cardInGraveyard = target("target card in graveyard", TargetObject(
+                        filter = TargetFilter(
+                            GameObjectFilter.Any.withAnySubtype("Aura", "Equipment").ownedByYou(),
+                            zone = Zone.GRAVEYARD
                         )
-                    ),
-                    description = "+ {1} — Return target Aura or Equipment card from your graveyard " +
-                        "to the battlefield attached to a creature you control.",
+                    ))
                     additionalManaCost = "{1}"
-                )
+                    effect = Effects.PutOntoBattlefieldAttachedToChosen(
+                        target = cardInGraveyard,
+                        hostFilter = GameObjectFilter.Creature.youControl()
+                    )
+                }
             ),
             chooseCount = 3,
             minChooseCount = 1

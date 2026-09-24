@@ -51,9 +51,9 @@ val LoreholdCommand = card("Lorehold Command") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
                     Effects.Composite(
-                        Effects.ModifyStats(1, 0, EffectTarget.Self),
-                        Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
-                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                        Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                        Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity),
+                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
                     )
                 )
             }

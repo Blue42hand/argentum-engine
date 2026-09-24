@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -61,7 +60,7 @@ val GollumTheAbandoned = card("Gollum the Abandoned") {
             )
         )
         effect = Effects.Move(exiled, Zone.EXILE) then
-            LoseLifeEffect(2, EffectTarget.PlayerRef(Player.EachOpponent))
+            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
         description = "When Gollum the Abandoned enters, exile up to one target card from an " +
             "opponent's graveyard. Each opponent loses 2 life."
     }

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Reckless Assault
@@ -20,9 +19,9 @@ val RecklessAssault = card("Reckless Assault") {
     oracleText = "{1}, Pay 2 life: This enchantment deals 1 damage to any target."
 
     activatedAbility {
+        val target = target("target", AnyTarget())
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.PayLife(2))
-        target = AnyTarget()
-        effect = Effects.DealDamage(1, EffectTarget.ContextTarget(0))
+        effect = Effects.DealDamage(1, target)
         description = "{1}, Pay 2 life: This enchantment deals 1 damage to any target."
     }
 

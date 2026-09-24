@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *
  * The tap half is a *reflexive* triggered ability (CR 603.12): no target is chosen when the
  * enters trigger goes on the stack — only when the {2} has actually been paid (2023-09-01
- * ruling). [MayPayManaEffect] is exactly that shape: the engine recognizes a flat mana
+ * ruling). [Effects.MayPay] is exactly that shape: the engine recognizes a flat mana
  * `Gate.MayPay` on a triggered ability that also carries a target requirement and runs the
  * deliberate pay-then-choose-target order (same as Lightning Rift / the "Words of ..." cycle).
  *
@@ -48,9 +47,9 @@ val SnaremasterSprite = card("Snaremaster Sprite") {
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())
         )
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            effect = Effects.Tap(t) then Effects.AddCounters(Counters.STUN, 1, t)
+            then = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
         )
     }
 

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 
 /**
@@ -39,16 +38,16 @@ val DrakusethMawOfFlames = card("Drakuseth, Maw of Flames") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        target("any target", AnyTarget())
-        target(
+        val anyTarget = target("any target", AnyTarget())
+        val (firstOtherTarget, secondOtherTarget) = targets(
             "up to two other targets",
             TargetOther(baseRequirement = AnyTarget(count = 2, minCount = 0))
         )
         effect = Effects.Composite(
             listOf(
-                Effects.DealDamage(4, EffectTarget.ContextTarget(0)),
-                Effects.DealDamage(3, EffectTarget.ContextTarget(1)),
-                Effects.DealDamage(3, EffectTarget.ContextTarget(2))
+                Effects.DealDamage(4, anyTarget),
+                Effects.DealDamage(3, firstOtherTarget),
+                Effects.DealDamage(3, secondOtherTarget)
             )
         )
         description = "Whenever Drakuseth attacks, it deals 4 damage to any target and 3 damage " +

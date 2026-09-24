@@ -35,11 +35,9 @@ import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.sdk.scripting.references.Player
 import kotlin.math.max
 import kotlin.math.min
@@ -134,8 +132,8 @@ class DynamicAmountEvaluator(
         is DynamicAmount.EntityProperty ->
             // The enchanted-creature branch of [evaluate] has its own last-known-information
             // fallback and stays determinable even once the aura has detached.
-            amount.entity is EntityReference.EnchantedCreature ||
-                TargetResolutionUtils.resolveEntityReference(amount.entity, context, state) != null
+            amount.entity is EffectTarget.EnchantedCreature ||
+                TargetResolutionUtils.resolveEntity(amount.entity, context, state) != null
 
         is DynamicAmount.Add -> isDeterminable(state, amount.left, context) &&
             isDeterminable(state, amount.right, context)
@@ -231,10 +229,7 @@ class DynamicAmountEvaluator(
             is DynamicAmount.LastKnownSourceCounters -> {
                 val snapshot = context.lastKnownSourceCounters
                     .ifEmpty { context.triggerContext?.lastKnownCounters ?: emptyMap() }
-                when (val filter = amount.counterType) {
-                    is CounterTypeFilter.Any -> snapshot.values.sum()
-                    else -> snapshot[counterTypeToString(resolveCounterType(filter))] ?: 0
-                }
+                amount.counterType?.let { snapshot[it] ?: 0 } ?: snapshot.values.sum()
             }
 
             // Total damage dealt to the source this turn, summed across every source-controller.
@@ -327,7 +322,7 @@ class DynamicAmountEvaluator(
             is DynamicAmount.PlayerCounterCount -> {
                 val playerIds = resolveUnifiedPlayerIds(state, amount.player, context)
                 val playerId = playerIds.firstOrNull() ?: return 0
-                counterCountOf(state, playerId, CounterTypeFilter.Named(amount.counterType))
+                counterCountOf(state, playerId, amount.counterType)
             }
 
             // Unlocked doors among Rooms the player controls (CR 709.5). Reads per-face door
@@ -500,13 +495,13 @@ class DynamicAmountEvaluator(
 
             // Composable entity property — replaces SourcePower, TargetPower, CountersOnSelf, etc.
             is DynamicAmount.EntityProperty -> {
-                val entityId = TargetResolutionUtils.resolveEntityReference(amount.entity, context, state)
+                val entityId = TargetResolutionUtils.resolveEntity(amount.entity, context, state)
                 // Enchanted-creature power reads use last-known information when the source aura
                 // has detached: the enchanted creature (and the aura) can leave the battlefield
                 // before the ability resolves — e.g. removed in response to the aura's ETB
                 // trigger — and "deals damage equal to its power" must use the power as it last
                 // existed on the battlefield (CR 608.2h). Captured at trigger time.
-                if (amount.entity is EntityReference.EnchantedCreature &&
+                if (amount.entity is EffectTarget.EnchantedCreature &&
                     amount.numericProperty is EntityNumericProperty.Power &&
                     (entityId == null || entityId !in state.getBattlefield())
                 ) {
@@ -1284,8 +1279,11 @@ class DynamicAmountEvaluator(
                 .distinct()
             is Player.Each -> state.activePlayers
             is Player.Any -> state.activePlayers
-            is Player.ContextPlayer -> {
-                val target = context.positionalTarget(player.index) ?: return emptyList()
+            is Player.ContextPlayer, is Player.BoundVariable -> {
+                val target = (
+                    if (player is Player.ContextPlayer) context.positionalTarget(player.index)
+                    else context.pipeline.namedTargets[(player as Player.BoundVariable).name]
+                    ) ?: return emptyList()
                 when (target) {
                     is com.wingedsheep.engine.state.components.stack.ChosenTarget.Player -> listOf(target.playerId)
                     else -> emptyList()
@@ -1596,35 +1594,12 @@ class DynamicAmountEvaluator(
     }
 
     /**
-     * Count of counters of the kind described by [filter] on the permanent [entityId]. Counters
-     * are physically stored on the permanent (base state, layer-independent), so this reads
-     * [CountersComponent] directly. [CounterTypeFilter.Any] sums every kind present.
+     * Count of [counterType] counters on [entityId]. Counters are physically stored on the permanent
+     * (base state, layer-independent), so this reads [CountersComponent] directly. A `null`
+     * [counterType] sums every kind present.
      */
-    private fun counterCountOf(state: GameState, entityId: EntityId, filter: CounterTypeFilter): Int {
+    private fun counterCountOf(state: GameState, entityId: EntityId, counterType: CounterType?): Int {
         val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return 0
-        return when (filter) {
-            is CounterTypeFilter.Any -> counters.counters.values.sum()
-            else -> counters.getCount(resolveCounterType(filter))
-        }
-    }
-
-    private fun resolveCounterType(filter: CounterTypeFilter): CounterType {
-        return when (filter) {
-            is CounterTypeFilter.Any -> CounterType.PLUS_ONE_PLUS_ONE
-            is CounterTypeFilter.PlusOnePlusOne -> CounterType.PLUS_ONE_PLUS_ONE
-            is CounterTypeFilter.MinusOneMinusOne -> CounterType.MINUS_ONE_MINUS_ONE
-            is CounterTypeFilter.PlusOnePlusZero -> CounterType.PLUS_ONE_PLUS_ZERO
-            is CounterTypeFilter.PlusZeroPlusOne -> CounterType.PLUS_ZERO_PLUS_ONE
-            is CounterTypeFilter.MinusOneMinusZero -> CounterType.MINUS_ONE_MINUS_ZERO
-            is CounterTypeFilter.MinusZeroMinusOne -> CounterType.MINUS_ZERO_MINUS_ONE
-            is CounterTypeFilter.Loyalty -> CounterType.LOYALTY
-            is CounterTypeFilter.Named -> {
-                try {
-                    CounterType.valueOf(filter.name.uppercase().replace(' ', '_'))
-                } catch (_: IllegalArgumentException) {
-                    CounterType.PLUS_ONE_PLUS_ONE
-                }
-            }
-        }
+        return counterType?.let(counters::getCount) ?: counters.counters.values.sum()
     }
 }

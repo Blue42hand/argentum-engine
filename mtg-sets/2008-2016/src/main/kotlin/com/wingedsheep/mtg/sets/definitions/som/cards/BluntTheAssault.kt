@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.som.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Blunt the Assault — Scars of Mirrodin #113
@@ -27,7 +27,7 @@ val BluntTheAssault = card("Blunt the Assault") {
 
     spell {
         effect = Effects.Composite(
-            Effects.GainLife(DynamicAmount.AggregateBattlefield(Player.Each, GameObjectFilter.Creature)),
+            Effects.GainLife(DynamicAmounts.allCreatures()),
             Effects.PreventAllCombatDamage(),
         )
     }

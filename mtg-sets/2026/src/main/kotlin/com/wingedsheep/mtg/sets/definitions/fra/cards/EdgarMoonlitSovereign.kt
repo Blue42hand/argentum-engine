@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -32,7 +32,7 @@ val EdgarMoonlitSovereign = card("Edgar, Moonlit Sovereign") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.Not(Conditions.YouCastSpellsThisTurn(1))
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "At the beginning of your end step, if you didn't cast a spell this turn, " +
             "put two +1/+1 counters on Edgar."
     }
@@ -40,8 +40,8 @@ val EdgarMoonlitSovereign = card("Edgar, Moonlit Sovereign") {
     activatedAbility {
         cost = Costs.Mana("{4}{G}")
         effect = Effects.ForEachInGroup(
-            GroupFilter(GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE).youControl()),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            GroupFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl()),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "{4}{G}: Put a +1/+1 counter on each creature you control with a +1/+1 counter on it."
     }

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -30,9 +29,9 @@ val FeedTheCauldron = card("Feed the Cauldron") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3)))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.IsYourTurn,
-                effect = Effects.CreateFood()
+                then = Effects.CreateFood()
             )
     }
 

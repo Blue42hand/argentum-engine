@@ -1,16 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The graveyard is counted as the spell resolves; a flashed-back copy is on the stack by then, so
@@ -26,7 +24,7 @@ val RecursiveRecruitment = card("Recursive Recruitment") {
 
     spell {
         effect = Effects.Composite(
-            CreateTokenEffect(
+            Effects.CreateToken(
                 count = 2,
                 power = 2,
                 toughness = 2,
@@ -35,16 +33,12 @@ val RecursiveRecruitment = card("Recursive Recruitment") {
                 name = "Cadet",
                 imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318",
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
-                effect = Effects.AddCountersToCollection(
+                then = Effects.AddCountersToCollection(
                     CREATED_TOKENS,
-                    Counters.PLUS_ONE_PLUS_ONE,
-                    DynamicAmount.Divide(
-                        DynamicAmounts.cardsInYourGraveyard(),
-                        DynamicAmount.Fixed(3),
-                        roundUp = false
-                    )
+                    CounterType.PLUS_ONE_PLUS_ONE,
+                    DynamicAmounts.cardsInYourGraveyard() / 3
                 )
             )
         )

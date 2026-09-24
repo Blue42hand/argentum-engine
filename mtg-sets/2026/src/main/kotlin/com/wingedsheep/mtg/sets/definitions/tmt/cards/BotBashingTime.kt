@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 
 /**
  * Bot Bashing Time
@@ -22,7 +21,7 @@ val BotBashingTime = card("Bot Bashing Time") {
 
     spell {
         val creature = target("target creature", Targets.Creature)
-        effect = MarkExileOnDeathEffect(creature)
+        effect = Effects.MarkExileOnDeath(creature)
             .then(Effects.DealDamage(6, creature))
     }
 

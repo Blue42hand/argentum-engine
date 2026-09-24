@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TauntEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -23,7 +23,7 @@ val Taunt = card("Taunt") {
     oracleText = "During target player's next turn, creatures that player controls attack you if able."
     spell {
         val t = target("target", TargetPlayer())
-        effect = TauntEffect(t)
+        effect = Effects.Taunt(t)
     }
     metadata {
         rarity = Rarity.RARE

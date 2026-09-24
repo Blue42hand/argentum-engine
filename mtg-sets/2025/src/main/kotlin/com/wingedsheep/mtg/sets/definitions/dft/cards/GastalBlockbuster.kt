@@ -5,10 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -36,26 +33,25 @@ val GastalBlockbuster = card("Gastal Blockbuster") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
-            action = Effects.Composite(
-                listOf(
-                    SelectTargetEffect(
-                        requirement = TargetObject(
-                            filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl())
-                        ),
-                        storeAs = "toSacrifice"
-                    ),
-                    Effects.SacrificeTarget(EffectTarget.PipelineTarget("toSacrifice"))
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.Pipeline {
+                val toSacrifice = selectTarget(
+                    TargetObject(
+                        filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl())
+                    )
                 )
-            ),
+                run(Effects.SacrificeTarget(toSacrifice.asTarget))
+            },
             optional = true,
-            reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
-                TargetPermanent(filter = TargetFilter.Artifact.opponentControls())
-            ),
             descriptionOverride = "You may sacrifice a creature or Vehicle. When you do, destroy target " +
                 "artifact an opponent controls."
-        )
+        ) {
+            val artifact = target(
+                "target artifact",
+                TargetPermanent(filter = TargetFilter.Artifact.opponentControls())
+            )
+            effect = Effects.Destroy(artifact)
+        }
         description = "When this creature enters, you may sacrifice a creature or Vehicle. When you do, " +
             "destroy target artifact an opponent controls."
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
@@ -28,7 +27,7 @@ val LostInTheMist = card("Lost in the Mist") {
         val t1 = target("t1", TargetSpell())
         val t2 = target("t2", TargetPermanent())
         effect = Effects.Composite(
-            CounterEffect(),
+            Effects.CounterSpell(),
             Effects.Move(t2, Zone.HAND)
         )
     }

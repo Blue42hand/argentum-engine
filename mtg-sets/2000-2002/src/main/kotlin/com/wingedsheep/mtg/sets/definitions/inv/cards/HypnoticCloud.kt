@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -27,10 +26,10 @@ val HypnoticCloud = card("Hypnotic Cloud") {
 
     spell {
         val targetPlayer = target("target player", TargetPlayer())
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = Effects.Discard(3, targetPlayer),
-            elseEffect = Effects.Discard(1, targetPlayer),
+            then = Effects.Discard(3, targetPlayer),
+            otherwise = Effects.Discard(1, targetPlayer),
         )
     }
 

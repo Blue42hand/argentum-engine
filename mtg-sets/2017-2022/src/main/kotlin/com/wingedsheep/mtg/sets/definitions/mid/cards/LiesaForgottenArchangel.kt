@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -43,7 +42,7 @@ val LiesaForgottenArchangel = card("Liesa, Forgotten Archangel") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.OTHER,
         )
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.END,
             effect = Effects.Move(
                 EffectTarget.TriggeringEntity,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Lord Dregg, Insect Invader
@@ -36,7 +35,7 @@ val LordDreggInsectInvader = card("Lord Dregg, Insect Invader") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK),

@@ -29,11 +29,11 @@
                                 "zone": "Graveyard",
                                 "player": "TargetPlayer"
                             },
-                            "storeAs": "targetGraveyard"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "targetGraveyard",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"

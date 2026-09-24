@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.events.DamageType
  *
  * The quoted trigger has no recipient: "deals combat damage" fires on combat damage to *anything*
  * — a player, a planeswalker, or a blocking/blocked creature — so it is
- * `Triggers.dealsDamage(DamageType.Combat)` with the default `RecipientFilter.Any`, not the
+ * `Triggers.dealsDamage(DamageType.Combat)` with the default `Recipient.Any`, not the
  * narrower [Triggers.DealsCombatDamageToPlayer]. Binding stays SELF: inside the granted ability
  * "this creature" is the equipped creature that received it, and that creature's controller is the
  * one who gets the Blood token.

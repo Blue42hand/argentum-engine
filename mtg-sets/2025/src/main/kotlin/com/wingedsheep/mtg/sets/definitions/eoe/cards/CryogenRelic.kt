@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
@@ -48,7 +49,7 @@ val CryogenRelic = card("Cryogen Relic") {
                 optional = true
             )
         )
-        effect = Effects.AddCounters("STUN", 1, target)
+        effect = Effects.AddCounters(CounterType.STUN, 1, target)
     }
 
     metadata {

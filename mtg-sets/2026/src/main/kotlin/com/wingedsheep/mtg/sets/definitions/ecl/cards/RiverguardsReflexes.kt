@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -26,7 +25,7 @@ val RiverguardsReflexes = card("Riverguard's Reflexes") {
             listOf(
                 Effects.ModifyStats(2, 2, creature),
                 Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature),
-                Effects.Untap(EffectTarget.ContextTarget(0))
+                Effects.Untap(creature)
             )
         )
     }

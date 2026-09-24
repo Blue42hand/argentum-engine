@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.dsl.Costs
 
 /**
@@ -35,7 +35,7 @@ val MoltenExhale = card("Molten Exhale") {
 
     spell {
         val t = target("target", Targets.CreatureOrPlaneswalker)
-        effect = DealDamageEffect(4, t)
+        effect = Effects.DealDamage(4, t)
     }
 
     metadata {

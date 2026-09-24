@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 
 /**
  * Boggart Forager
@@ -31,7 +31,7 @@ val BoggartForager = card("Boggart Forager") {
             Costs.SacrificeSelf
         )
         val player = target("target player", Targets.Player)
-        effect = ShuffleLibraryEffect(target = player)
+        effect = Effects.ShuffleLibrary(target = player)
         description = "{R}, Sacrifice this creature: Target player shuffles their library."
     }
 

@@ -34,7 +34,7 @@ val SubjugatorAngel = card("Subjugator Angel") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
-            Effects.Tap(EffectTarget.Self)
+            Effects.Tap(EffectTarget.IterationEntity)
         )
     }
     metadata {

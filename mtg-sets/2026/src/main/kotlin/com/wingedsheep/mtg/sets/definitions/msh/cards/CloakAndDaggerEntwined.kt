@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -46,7 +44,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *    that is not hypothetical: `backlog/multiplayer.md` is an active Free-for-All plan (CR 806) and
  *    the AI harness already runs three-seat games, so this card is on the list of things a
  *    multiplayer pass has to revisit.
- *  - **The either/or is an [Effects.ChooseAction]**, wrapped in [MayEffect] for the "You may".
+ *  - **The either/or is an [Effects.ChooseAction]**, wrapped in [Effects.May] for the "You may".
  *    The two branches exile from different zones, which is the whole point of this card:
  *      * the hand branch is [Patterns.Hand.revealHandAndExileChosen] — the Cruelclaw's Heist /
  *        Soul Search recipe — with `linkToSource = true`, which is what puts the card into Cloak
@@ -100,8 +98,8 @@ val CloakAndDaggerEntwined = card("Cloak and Dagger, Entwined") {
             TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls),
         )
         effect = Effects.Composite(
-            RevealHandEffect(opponent),
-            MayEffect(
+            Effects.RevealHand(opponent),
+            Effects.May(
                 Effects.ChooseAction(
                     listOf(
                         EffectChoice(
@@ -110,7 +108,6 @@ val CloakAndDaggerEntwined = card("Cloak and Dagger, Entwined") {
                             effect = Patterns.Hand.revealHandAndExileChosen(
                                 target = opponent,
                                 filter = GameObjectFilter.Nonland,
-                                storeChosenAs = "cloakDaggerExiled",
                                 revealHand = false,
                                 linkToSource = true,
                             ),

@@ -18,8 +18,8 @@ val Throttle = card("Throttle") {
     oracleText = "Target creature gets -4/-4 until end of turn."
 
     spell {
-        effect = Effects.ModifyStats(-4, -4)
-        target = Targets.Creature
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.ModifyStats(-4, -4, target = creature)
     }
 
     metadata {

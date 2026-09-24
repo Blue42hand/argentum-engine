@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val PiaDeterminedRebuilder = card("Pia, Determined Rebuilder") {
     manaCost = "{2}{R}"
@@ -29,7 +28,7 @@ val PiaDeterminedRebuilder = card("Pia, Determined Rebuilder") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
-            DynamicAmount.Fixed(0), creature
+            DynamicAmounts.fixed(0), creature
         )
     }
 

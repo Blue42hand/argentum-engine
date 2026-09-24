@@ -14,11 +14,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyKeywordAction
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Twists and Turns // Mycoid Maze (The Lost Caverns of Ixalan)
@@ -81,7 +79,7 @@ private val TwistsAndTurnsFront = card("Twists and Turns") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         interveningIf = Conditions.YouControlAtLeast(7, GameObjectFilter.Land)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "When a land you control enters, if you control seven or more lands, " +
             "transform Twists and Turns."
     }
@@ -113,7 +111,7 @@ private val MycoidMaze = card("Mycoid Maze") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{G}"), Costs.Tap)
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(4),
+            count = 4,
             filter = GameObjectFilter.Creature,
             prompt = "You may reveal a creature card and put it into your hand",
             restOrder = CardOrder.Random,

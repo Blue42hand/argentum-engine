@@ -1,14 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Edgar's Awakening — Innistrad: Crimson Vow #110.
@@ -41,15 +37,19 @@ val EdgarsAwakening = card("Edgar's Awakening") {
 
     triggeredAbility {
         trigger = Triggers.YouDiscardThis
-        effect = ReflexiveTriggerEffect(
-            action = PayManaCostEffect(ManaCost.parse("{B}")),
-            reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.CreatureCardInYourGraveyard),
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.PayMana("{B}"),
             // The composed description reads "return target to its owner's hand"; this is the
             // yes/no prompt the player actually sees, so spell the oracle wording out.
             descriptionOverride = "You may pay {B}. When you do, return target creature card " +
                 "from your graveyard to your hand."
-        )
+        ) {
+            val creatureCardInYourGraveyard = target(
+                "target creature card in your graveyard",
+                Targets.CreatureCardInYourGraveyard
+            )
+            effect = Effects.ReturnToHand(creatureCardInYourGraveyard)
+        }
     }
 
     metadata {

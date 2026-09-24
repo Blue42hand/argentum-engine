@@ -918,7 +918,7 @@ class MoveCollectionExecutor(
             // tutored onto the battlefield still enters with its clause never run. Closing it
             // needs more than the two-line call: this is a loop, the replacement can pause for a
             // decision, and pausing mid-loop requires a continuation that resumes the remaining
-            // cards. See docs/card-sdk-language-reference.md, OnEnterRunEffect "Scope today".
+            // cards. See docs/card-sdk-language-reference.md, OnEnterRun "Scope today".
             if (destZone == Zone.BATTLEFIELD && faceDown == null) {
                 val (counterState, counterEvents) = EntersWithReplacements.applyOnEntry(
                     newState, cardId, actualDestPlayerId, cardRegistry

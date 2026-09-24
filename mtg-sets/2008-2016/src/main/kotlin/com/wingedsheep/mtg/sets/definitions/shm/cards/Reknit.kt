@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.shm.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 
 /**
  * Reknit
@@ -27,7 +27,7 @@ val Reknit = card("Reknit") {
 
     spell {
         val t = target("target", Targets.Permanent)
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
     }
 
     metadata {

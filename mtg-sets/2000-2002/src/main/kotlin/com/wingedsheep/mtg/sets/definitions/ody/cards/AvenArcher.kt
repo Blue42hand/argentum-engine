@@ -6,9 +6,9 @@ package com.wingedsheep.mtg.sets.definitions.ody.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -32,7 +32,7 @@ val AvenArcher = card("Aven Archer") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{W}"), Costs.Tap)
         val t = target("target", TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature))
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

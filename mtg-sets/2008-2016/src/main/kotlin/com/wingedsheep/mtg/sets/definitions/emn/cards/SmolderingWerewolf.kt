@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -48,15 +46,15 @@ private val SmolderingWerewolfFront = card("Smoldering Werewolf") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = ForEachTargetEffect(
-            listOf(Effects.DealDamage(1, EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.DealDamage(1, EffectTarget.ContextTarget(0))
         )
         description = "When this creature enters, it deals 1 damage to each of up to two target creatures."
     }
 
     activatedAbility {
         cost = Costs.Mana("{4}{R}{R}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "Transform this creature."
     }
 

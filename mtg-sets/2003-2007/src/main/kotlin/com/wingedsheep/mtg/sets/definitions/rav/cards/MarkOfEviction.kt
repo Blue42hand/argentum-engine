@@ -1,17 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -48,20 +44,16 @@ val MarkOfEviction = card("Mark of Eviction") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.AttachedTo(
+        effect = Effects.Pipeline {
+            val evictedAuras = gather(
+                CardSource.AttachedTo(
                     host = EffectTarget.EnchantedCreature,
                     filter = GameObjectFilter.Permanent.withSubtype(Subtype.AURA)
-                ),
-                storeAs = "evictedAuras"
-            ),
-            Effects.ReturnToHand(EffectTarget.EnchantedCreature),
-            MoveCollectionEffect(
-                from = "evictedAuras",
-                destination = CardDestination.ToZone(Zone.HAND)
+                )
             )
-        )
+            run(Effects.ReturnToHand(EffectTarget.EnchantedCreature))
+            toHand(evictedAuras)
+        }
     }
 
     metadata {

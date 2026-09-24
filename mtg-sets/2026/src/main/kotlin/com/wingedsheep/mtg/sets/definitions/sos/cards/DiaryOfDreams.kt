@@ -1,14 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -28,14 +26,14 @@ val DiaryOfDreams = card("Diary of Dreams") {
 
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
-        effect = AddCountersEffect(Counters.PAGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PAGE, 1, EffectTarget.Self)
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap)
         effect = Effects.DrawCards(1)
         // "costs {1} less to activate for each page counter on this artifact"
-        genericCostReduction = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.PAGE))
+        genericCostReduction = DynamicAmounts.countersOnSelf(CounterType.PAGE)
     }
 
     metadata {

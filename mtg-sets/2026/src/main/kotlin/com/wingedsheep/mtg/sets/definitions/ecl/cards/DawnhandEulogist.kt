@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -36,9 +35,9 @@ val DawnhandEulogist = card("Dawnhand Eulogist") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Patterns.Library.mill(3) then ConditionalEffect(
+        effect = Patterns.Library.mill(3) then Effects.If(
             condition = Conditions.GraveyardContainsSubtype(Subtype.ELF),
-            effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
+            then = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
                 .then(Effects.GainLife(2))
         )
     }

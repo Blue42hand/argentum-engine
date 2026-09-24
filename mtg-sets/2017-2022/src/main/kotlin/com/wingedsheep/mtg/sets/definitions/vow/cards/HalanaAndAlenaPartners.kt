@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -37,7 +37,7 @@ val HalanaAndAlenaPartners = card("Halana and Alena, Partners") {
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmounts.sourcePower(),
                 target = t
             ),

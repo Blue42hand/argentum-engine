@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -39,7 +38,7 @@ val ClockworkBeetle = card("Clockwork Beetle") {
 
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.PlusOnePlusOne,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 2,
             selfOnly = true
         )
@@ -48,7 +47,7 @@ val ClockworkBeetle = card("Clockwork Beetle") {
     triggeredAbility {
         trigger = Triggers.EachEndOfCombat
         triggerRestriction = Conditions.SourceAttackedOrBlockedThisCombat
-        effect = Effects.RemoveCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever this creature attacks or blocks, remove a +1/+1 counter from it at end of combat."
     }
 

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -52,7 +51,7 @@ val LowlandOaf = card("Lowland Oaf") {
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, goblin),
             Effects.GrantKeyword(Keyword.FLYING, goblin, Duration.EndOfTurn),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.SacrificeTarget(goblin)
             )

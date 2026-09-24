@@ -2,9 +2,10 @@ package com.wingedsheep.sdk.scripting.values
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -563,20 +564,20 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     /**
      * How many counters of [counterType] a player currently has — the player-scoped sibling of
      * [EntityProperty]'s [com.wingedsheep.sdk.scripting.values.EntityNumericProperty.CounterCount]
-     * (which reads a permanent/object; `EntityReference` has no case for "a player" since players
-     * aren't targeted the way permanents are). Counters placed directly on a player rather than a
-     * permanent (CR 122.1) — poison ([com.wingedsheep.sdk.core.Counters.POISON]), energy
-     * ([com.wingedsheep.sdk.core.Counters.ENERGY], CR 107.14), and rad counters all live here.
+     * (which reads one object named by an `EffectTarget.SingleEntity`; player roles are not
+     * among those). Counters placed directly on a player rather than a
+     * permanent (CR 122.1) — poison ([com.wingedsheep.sdk.core.CounterType.POISON]), energy
+     * ([com.wingedsheep.sdk.core.CounterType.ENERGY], CR 107.14), and rad counters all live here.
      *
      * Examples:
      * ```kotlin
-     * PlayerCounterCount(Counters.ENERGY, Player.You)  // "your energy counters" — Longtusk Cub
+     * PlayerCounterCount(CounterType.ENERGY, Player.You)  // "your energy counters" — Longtusk Cub
      * ```
      */
     @SerialName("PlayerCounterCount")
     @Serializable
-    data class PlayerCounterCount(val counterType: String, val player: Player = Player.You) : DynamicAmount {
-        override val description: String = "${player.possessive} $counterType counters"
+    data class PlayerCounterCount(val counterType: CounterType, val player: Player = Player.You) : DynamicAmount {
+        override val description: String = "${player.possessive} ${counterType.printed} counters"
     }
 
     /**
@@ -655,7 +656,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      *    own source — Lost Isle Calling: "{4}{U}{U}, Exile this enchantment: Draw a card for each
      *    verse counter on this enchantment. If it had seven or more verse counters on it, take an
      *    extra turn after this one." Both the draw amount and the seven-or-more test read
-     *    `LastKnownSourceCounters(CounterTypeFilter.Named(Counters.VERSE))`.
+     *    `LastKnownSourceCounters(CounterType.VERSE)`.
      *  - the **leaves-the-battlefield trigger** snapshot, for a dies/leaves ability reading the
      *    counters its source had as it died — Nine-Lives Familiar: "When this creature dies, if it
      *    had a revival counter on it, return it … with one fewer revival counter on it."
@@ -669,10 +670,10 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("LastKnownSourceCounters")
     @Serializable
     data class LastKnownSourceCounters(
-        val counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+        val counterType: CounterType?
     ) : DynamicAmount {
         override val description: String =
-            "the number of ${counterType.description} counters on it".replace("  ", " ")
+            "the number of ${counterType?.printed ?: ""} counters on it".replace("  ", " ")
     }
 
     /**
@@ -853,7 +854,9 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("VariableReference")
     @Serializable
     data class VariableReference(val variableName: String) : DynamicAmount {
-        override val description: String = "the stored $variableName"
+        // Pipeline keys are generated names, never card text: render the value in words.
+        override val description: String =
+            if (variableName.endsWith("_count")) "the number of those cards" else "that much"
     }
 
     /**
@@ -1216,7 +1219,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
         val aggregation: Aggregation = Aggregation.COUNT,
         val property: CardNumericProperty? = null,
         val excludeSelf: Boolean = false,
-        val counterType: CounterTypeFilter? = null,
+        val counterType: CounterType? = null,
         val excludeTriggeringEntity: Boolean = false
     ) : DynamicAmount {
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
@@ -1241,7 +1244,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
                     append(pluralize(filter.description))
                 }
                 Aggregation.SUM -> {
-                    val what = counterType?.let { "${it.description} counters" } ?: (property?.description ?: "value")
+                    val what = counterType?.let { "${it.printed} counters" } ?: (property?.description ?: "value")
                     append("the total $what ")
                     append(if (counterType != null) "among " else "of ")
                     if (excludeSelf || excludeTriggeringEntity) append("other ")
@@ -1467,16 +1470,16 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      *
      * Examples:
      * ```kotlin
-     * EntityProperty(EntityReference.Source, EntityNumericProperty.Power)        // SourcePower
-     * EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue) // TargetManaValue
-     * EntityProperty(EntityReference.Sacrificed(), EntityNumericProperty.Power)  // SacrificedPermanentPower
-     * EntityProperty(EntityReference.Source, EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)) // CountersOnSelf
+     * EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)        // SourcePower
+     * EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue) // TargetManaValue
+     * EntityProperty(EffectTarget.SacrificedAsCost(), EntityNumericProperty.Power)  // SacrificedPermanentPower
+     * EntityProperty(EffectTarget.Self, EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)) // CountersOnSelf
      * ```
      */
     @SerialName("EntityProperty")
     @Serializable
     data class EntityProperty(
-        val entity: EntityReference,
+        val entity: EffectTarget.SingleEntity,
         val numericProperty: EntityNumericProperty
     ) : DynamicAmount {
         override val description: String = "${entity.description}'s ${numericProperty.description}"

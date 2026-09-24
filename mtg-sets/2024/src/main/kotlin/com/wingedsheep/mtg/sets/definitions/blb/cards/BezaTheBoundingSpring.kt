@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Beza, the Bounding Spring
@@ -29,15 +28,15 @@ val BezaTheBoundingSpring = card("Beza, the Bounding Spring") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.OpponentControlsMoreLands,
-            effect = Effects.CreateTreasure()
-        ) then ConditionalEffect(
+            then = Effects.CreateTreasure()
+        ) then Effects.If(
             condition = Conditions.LessLifeThanOpponent,
-            effect = Effects.GainLife(4)
-        ) then ConditionalEffect(
+            then = Effects.GainLife(4)
+        ) then Effects.If(
             condition = Conditions.OpponentControlsMoreCreatures,
-            effect = Effects.CreateToken(
+            then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.BLUE),
@@ -45,9 +44,9 @@ val BezaTheBoundingSpring = card("Beza, the Bounding Spring") {
                 count = 2,
                 imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
             )
-        ) then ConditionalEffect(
+        ) then Effects.If(
             condition = Conditions.OpponentHasMoreCardsInHand,
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
     }
 

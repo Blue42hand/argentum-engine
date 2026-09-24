@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -29,7 +29,7 @@ val DeepmuckDesperado = card("Deepmuck Desperado") {
     triggeredAbility {
         trigger = Triggers.YouCommitCrime
         oncePerTurn = true
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
             effects = Patterns.Library.mill(3).effects
         )

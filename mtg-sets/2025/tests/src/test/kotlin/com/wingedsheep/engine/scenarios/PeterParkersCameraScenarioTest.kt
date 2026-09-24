@@ -31,7 +31,7 @@ import com.wingedsheep.engine.core.Outcome
  *
  * The whole card is covered here:
  *  - "This artifact enters with three film counters on it." — an [EntersWithCounters] replacement
- *    (`Counters.FILM`, count 3, self-only), exercised via a real cast from hand so the counters are
+ *    (`CounterType.FILM`, count 3, self-only), exercised via a real cast from hand so the counters are
  *    present immediately (replacement, not a trigger).
  *  - "{2}, {T}, Remove a film counter from this artifact: Copy target activated or triggered ability
  *    you control. You may choose new targets for the copy." — the cost pays {2}, taps the Camera, and

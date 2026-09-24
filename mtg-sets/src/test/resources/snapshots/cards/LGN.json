@@ -291,7 +291,7 @@
                             "amount": "XValue",
                             "multiplier": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -378,12 +378,12 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "BlockerCount"
                     },
                     "toughnessModifier": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "BlockerCount"
                     },
                     "target": "TriggeringEntity"
@@ -531,7 +531,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -606,13 +606,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -648,7 +655,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "Gated",
@@ -756,18 +766,18 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "PlusOnePlusOne"
+                            "counterType": "PLUS_ONE_PLUS_ONE"
                         }
                     },
                     "toughnessModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "PlusOnePlusOne"
+                            "counterType": "PLUS_ONE_PLUS_ONE"
                         }
                     },
                     "target": {
@@ -1320,13 +1330,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -1436,8 +1453,8 @@
                     "effect": {
                         "type": "Regenerate",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -1445,7 +1462,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "permanent Sliver"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 },
@@ -1700,10 +1718,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "PlusOnePlusOne"
+                            "counterType": "PLUS_ONE_PLUS_ONE"
                         }
                     },
                     "target": {
@@ -1885,7 +1903,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1946,13 +1964,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],
@@ -2032,11 +2057,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "put_candidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "put_candidates",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -2044,11 +2069,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "putting"
+                            "storeSelected": "selected1"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "putting",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -2056,7 +2081,7 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "putting",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "MoveToZone",
                                 "target": "Self",
@@ -2205,7 +2230,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyCreature"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -2391,18 +2419,18 @@
                                 "zone": "Graveyard",
                                 "filter": "creature"
                             },
-                            "storeAs": "graveyardCreatures"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "graveyardCreatures",
+                            "from": "gathered1",
                             "selection": "SelectAll",
-                            "storeSelected": "chosen",
+                            "storeSelected": "selected2",
                             "matchChosenCreatureType": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "chosen",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -2448,10 +2476,10 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "PlusOnePlusOne"
+                            "counterType": "PLUS_ONE_PLUS_ONE"
                         }
                     },
                     "target": "Controller"
@@ -2464,10 +2492,10 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "PlusOnePlusOne"
+                            "counterType": "PLUS_ONE_PLUS_ONE"
                         }
                     },
                     "target": "Controller"
@@ -2577,13 +2605,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],
@@ -2751,12 +2786,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FIRST_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -2918,7 +2953,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FLYING",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -2974,7 +3009,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3478,13 +3513,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -3545,7 +3587,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3697,7 +3739,7 @@
                             "type": "Fixed",
                             "amount": -5
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3741,7 +3783,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -3756,21 +3801,21 @@
                                     "zone": "Hand",
                                     "player": "TriggeringPlayer"
                                 },
-                                "storeAs": "hand"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "hand",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": "XValue"
                                 },
                                 "chooser": "TriggeringPlayer",
-                                "storeSelected": "revealed"
+                                "storeSelected": "selected1"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "revealed",
+                                "from": "selected1",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -3778,11 +3823,11 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "toDiscard"
+                                "storeSelected": "selected2"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "toDiscard",
+                                "from": "selected2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard",
@@ -3871,13 +3916,20 @@
                     "effect": {
                         "type": "Gated",
                         "gate": "Gate.MayDecide",
-                        "then": "Provoke"
+                        "then": {
+                            "type": "Provoke",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature opponent controls"
+                            }
+                        }
                     },
                     "targetRequirement": {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:opponent"
-                        }
+                        },
+                        "id": "target creature opponent controls"
                     }
                 },
                 "filter": {
@@ -4036,11 +4088,11 @@
                                     "zone": "Graveyard",
                                     "filter": "Zombie"
                                 },
-                                "storeAs": "zombies"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "zombies",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Hand"
@@ -4184,10 +4236,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "PlusOnePlusOne"
+                            "counterType": "PLUS_ONE_PLUS_ONE"
                         }
                     },
                     "target": {
@@ -4298,13 +4350,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],
@@ -4461,13 +4520,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -4543,8 +4609,8 @@
                             "amount": 0
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -4552,7 +4618,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature Sliver"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 },
@@ -4864,6 +4931,7 @@
                             },
                             "body": {
                                 "type": "SetCreatureSubtypes",
+                                "target": "IterationEntity",
                                 "duration": "EndOfTurn",
                                 "fromChosenValueKey": "chosenCreatureType"
                             }
@@ -5016,7 +5084,7 @@
                             "type": "Fixed",
                             "amount": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -5128,7 +5196,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyCreature"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -5151,7 +5222,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "LoseGame",
@@ -5549,7 +5623,10 @@
                     "target": "Self",
                     "power": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target creature"
+                        },
                         "numericProperty": "Power"
                     }
                 },
@@ -5669,7 +5746,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -6017,20 +6097,20 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeAs": "revealed",
+                                "storeAs": "gathered0",
                                 "revealed": true
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "revealed",
+                                "from": "gathered0",
                                 "selection": "SelectAll",
                                 "filter": "permanent Goblin",
-                                "storeSelected": "goblin",
-                                "storeRemainder": "nonGoblin"
+                                "storeSelected": "selected1",
+                                "storeRemainder": "remainder1"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "goblin",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Battlefield"
@@ -6038,7 +6118,7 @@
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "nonGoblin",
+                                "from": "remainder1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"
@@ -6078,20 +6158,20 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeAs": "revealed",
+                                "storeAs": "gathered0",
                                 "revealed": true
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "revealed",
+                                "from": "gathered0",
                                 "selection": "SelectAll",
                                 "filter": "permanent Goblin",
-                                "storeSelected": "goblin",
-                                "storeRemainder": "nonGoblin"
+                                "storeSelected": "selected1",
+                                "storeRemainder": "remainder1"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "goblin",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Battlefield"
@@ -6099,7 +6179,7 @@
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "nonGoblin",
+                                "from": "remainder1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"
@@ -6608,13 +6688,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],
@@ -6666,7 +6753,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "Gated",
@@ -6818,7 +6908,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyCreature"
+                        "recipient": {
+                            "type": "RecipientObject",
+                            "filter": "creature"
+                        }
                     },
                     "effect": {
                         "type": "Composite",
@@ -6911,12 +7004,12 @@
                                             "type": "Fixed",
                                             "amount": 2
                                         },
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "TRAMPLE",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     }
                                 ]
                             }
@@ -7130,7 +7223,8 @@
                     "filter": {
                         "baseFilter": {},
                         "zone": "Stack"
-                    }
+                    },
+                    "id": "target spell"
                 }
             }
         ]
@@ -7546,7 +7640,8 @@
                     "filter": {
                         "baseFilter": {},
                         "zone": "Stack"
-                    }
+                    },
+                    "id": "target spell or ability with single target"
                 }
             }
         ]

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import io.kotest.core.spec.style.FunSpec
@@ -42,7 +41,7 @@ class ForEachPauseResumeScenarioTest : FunSpec({
         spell {
             effect = Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-                effect = MayEffect(Effects.DrawCards(1))
+                effect = Effects.May(Effects.DrawCards(1))
             )
         }
     }
@@ -63,7 +62,7 @@ class ForEachPauseResumeScenarioTest : FunSpec({
             ).then(
                 ForEachInCollectionEffect(
                     collection = "creatures",
-                    effect = MayEffect(Effects.DrawCards(1))
+                    effect = Effects.May(Effects.DrawCards(1))
                 )
             )
         }

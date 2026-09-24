@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -30,7 +29,7 @@ val PainfulQuandary = card("Painful Quandary") {
 
     triggeredAbility {
         trigger = Triggers.OpponentCastsSpell
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Discard(count = 1),
             suffer = Effects.LoseLife(5, target = EffectTarget.PlayerRef(Player.TriggeringPlayer)),
             player = EffectTarget.PlayerRef(Player.TriggeringPlayer)

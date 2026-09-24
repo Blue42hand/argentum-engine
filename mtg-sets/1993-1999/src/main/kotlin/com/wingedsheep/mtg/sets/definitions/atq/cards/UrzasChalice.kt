@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Urza's Chalice
@@ -22,7 +21,7 @@ val UrzasChalice = card("Urza's Chalice") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayerCasts(GameObjectFilter.Artifact)
-        effect = MayPayManaEffect(ManaCost.parse("{1}"), Effects.GainLife(1))
+        effect = Effects.MayPay(ManaCost.parse("{1}"), Effects.GainLife(1))
         description = "Whenever a player casts an artifact spell, you may pay {1}. If you do, you gain 1 life."
     }
 

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The two combat keywords are separate [GrantKeyword] statics over the same filter (attacking
  * Vampires you control — Crossway itself qualifies while attacking). The death trigger mirrors the
- * established "pay N life. If you do, draw" shape (Call of the Ring): a [MayEffect] whose
+ * established "pay N life. If you do, draw" shape (Call of the Ring): a [Effects.May] whose
  * consequence is `LoseLife` + `DrawCards`.
  */
 val CrosswayTroublemakers = card("Crossway Troublemakers") {
@@ -55,7 +54,7 @@ val CrosswayTroublemakers = card("Crossway Troublemakers") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY,
         )
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Composite(
                 listOf(
                     Effects.LoseLife(2, EffectTarget.Controller),

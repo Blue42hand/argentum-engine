@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -41,8 +39,8 @@ val FaerieDreamthief = card("Faerie Dreamthief") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.ExileSelf)
         effect = Effects.Composite(
-            DrawCardsEffect(1),
-            LoseLifeEffect(1, EffectTarget.Controller)
+            Effects.DrawCards(1),
+            Effects.LoseLife(1, EffectTarget.Controller)
         )
         activateFromZone = Zone.GRAVEYARD
     }

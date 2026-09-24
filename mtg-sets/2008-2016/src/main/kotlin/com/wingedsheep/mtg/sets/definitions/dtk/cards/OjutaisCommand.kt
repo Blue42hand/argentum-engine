@@ -54,7 +54,7 @@ val OjutaisCommand = card("Ojutai's Command") {
                 effect = Effects.GainLife(4)
             }
             mode("Counter target creature spell") {
-                target = Targets.CreatureSpell
+                val creatureSpell = target("target creature spell", Targets.CreatureSpell)
                 effect = Effects.CounterSpell()
             }
             mode("Draw a card") {

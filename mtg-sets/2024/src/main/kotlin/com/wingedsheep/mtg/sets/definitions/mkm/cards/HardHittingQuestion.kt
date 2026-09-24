@@ -1,15 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Hard-Hitting Question
@@ -28,11 +25,8 @@ val HardHittingQuestion = card("Hard-Hitting Question") {
         val theirTarget = target("creature or planeswalker you don't control", TargetPermanent(
             filter = TargetFilter(com.wingedsheep.sdk.scripting.GameObjectFilter.CreatureOrPlaneswalker.opponentControls())
         ))
-        effect = DealDamageEffect(
-            amount = DynamicAmount.EntityProperty(
-                EntityReference.Target(0),
-                EntityNumericProperty.Power
-            ),
+        effect = Effects.DealDamage(
+            amount = DynamicAmounts.powerOf(myCreature),
             target = theirTarget,
             damageSource = myCreature
         )

@@ -1,16 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val SomethingWorthSaving = card("Something Worth Saving") {
     manaCost = "{1}{G}"
@@ -20,27 +13,20 @@ val SomethingWorthSaving = card("Something Worth Saving") {
         "(To mill four cards, put the top four cards of your library into your graveyard.)"
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                // Stores the milled cards as "milled".
-                Patterns.Library.mill(4),
-                SelectFromCollectionEffect(
-                    from = "milled",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Permanent,
-                    storeSelected = "selected",
-                    showAllCards = true,
-                    prompt = "You may put a permanent card into your hand",
-                    selectedLabel = "Put in hand",
-                    remainderLabel = "Leave in graveyard"
-                ),
-                MoveCollectionEffect(
-                    from = "selected",
-                    destination = CardDestination.ToZone(Zone.HAND)
-                ),
-                Effects.GainLife(1)
+        effect = Effects.Pipeline {
+            val milled = mill(4)
+            val selected = chooseUpTo(
+                1,
+                from = milled,
+                filter = GameObjectFilter.Permanent,
+                showAllCards = true,
+                prompt = "You may put a permanent card into your hand",
+                selectedLabel = "Put in hand",
+                remainderLabel = "Leave in graveyard"
             )
-        )
+            toHand(selected)
+            run(Effects.GainLife(1))
+        }
     }
 
     metadata {

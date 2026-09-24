@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddSubtypeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Aquitect's Will
@@ -45,18 +43,18 @@ val AquitectsWill = card("Aquitect's Will") {
 
     spell {
         val land = target("target land", Targets.Land)
-        effect = Effects.AddCounters(Counters.FLOOD, 1, land)
+        effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
             .then(
-                AddSubtypeEffect(
+                Effects.AddSubtype(
                     subtype = "Island",
                     target = land,
-                    duration = Duration.WhileAffectedHasCounter(Counters.FLOOD)
+                    duration = Duration.WhileAffectedHasCounter(CounterType.FLOOD)
                 )
             )
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControl(GameObjectFilter.Any.withSubtype("Merfolk")),
-                    effect = Effects.DrawCards(1)
+                    then = Effects.DrawCards(1)
                 )
             )
     }

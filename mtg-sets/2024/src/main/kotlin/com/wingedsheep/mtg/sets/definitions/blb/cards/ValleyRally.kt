@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
@@ -38,14 +39,13 @@ val ValleyRally = card("Valley Rally") {
                 "Don't promise a gift — creatures you control get +2/+0 until end of turn"
             ),
             // Mode 2: Gift a Food — opponent creates Food, creatures get +2/+0, target creature gains first strike
-            Mode.withTarget(
-                Effects.CreateFood(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
+            mode("Promise a gift — opponent creates a Food token, creatures you control get +2/+0 and target creature you control gains first strike until end of turn") {
+                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                effect = Effects.CreateFood(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
                     .then(pumpAll)
-                    .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.ContextTarget(0)))
-                    .then(Effects.GiftGiven()),
-                Targets.CreatureYouControl,
-                "Promise a gift — opponent creates a Food token, creatures you control get +2/+0 and target creature you control gains first strike until end of turn"
-            )
+                    .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creatureYouControl))
+                    .then(Effects.GiftGiven())
+            }
         )
     }
 

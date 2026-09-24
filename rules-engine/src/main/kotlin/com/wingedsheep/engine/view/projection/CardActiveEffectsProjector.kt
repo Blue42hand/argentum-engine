@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.view.projection
 
+import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.mechanics.combat.rules.DefenderBypass
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
@@ -34,6 +36,7 @@ internal class CardActiveEffectsProjector(
     private val visibility: Visibility,
     private val conditionBadges: ConditionBadgeProjector,
 ) {
+    private val predicateEvaluator = PredicateEvaluator()
 
     /**
      * Build a list of active effects on a card for display as badges.
@@ -58,7 +61,7 @@ internal class CardActiveEffectsProjector(
         if (projectedState != null) {
             effects += typeChangeBadges(state, entityId, projectedState)
             effects += colorChangeBadges(state, entityId, projectedState)
-            effects += creatureTypeDamagePreventedBadges(state, entityId, projectedState)
+            effects += matchingSourceDamagePreventedBadges(state, entityId, projectedState)
         }
         // Granted abilities, printed block restrictions and the defender bypass share one set of
         // shown descriptions, so the same ability reached by two routes shows once.
@@ -258,10 +261,9 @@ internal class CardActiveEffectsProjector(
             description = "This creature must block this turn if able",
             icon = "must-attack"
         )
-        // PreventAllCombatDamage, PreventCombatDamageFromGroup and
-        // PreventDamageFromAttackingCreatures are not card-scoped — the first two hold no
-        // affected entity at all and the third holds a player — so they are badged on the
-        // player in PlayerActiveEffectsProjector instead.
+        // PreventAllCombatDamage and PreventCombatDamageFromGroup are not card-scoped — they hold
+        // no affected entity at all — so they are badged on the player in
+        // PlayerActiveEffectsProjector instead.
         is SerializableModification.PreventCombatDamageToAndBy -> ClientCardEffect(
             effectId = "prevent_combat_damage_to_and_by",
             name = "No Combat Dmg",
@@ -613,30 +615,35 @@ internal class CardActiveEffectsProjector(
         )
     }
 
-    /** Check if this creature's damage is prevented by a PreventNextDamageFromCreatureType shield. */
-    private fun creatureTypeDamagePreventedBadges(
+    /**
+     * Badge a permanent whose next damage a [SerializableModification.PreventNextDamageFromMatching]
+     * shield would prevent (Circle of Solace's chosen creature type), so the attacking player can
+     * see it before damage.
+     */
+    private fun matchingSourceDamagePreventedBadges(
         state: GameState,
         entityId: EntityId,
         projectedState: ProjectedState
     ): List<ClientCardEffect> {
-        if (!projectedState.isCreature(entityId)) return emptyList()
-        val subtypes = projectedState.getSubtypes(entityId)
-        for (floatingEffect in state.floatingEffects) {
+        val floatingEffect = state.floatingEffects.firstOrNull { floatingEffect ->
             val modification = floatingEffect.effect.modification
-            if (modification is SerializableModification.PreventNextDamageFromCreatureType &&
-                subtypes.any { it.equals(modification.creatureType, ignoreCase = true) }
-            ) {
-                return listOf(
-                    ClientCardEffect(
-                        effectId = "damage_prevented_by_type_${modification.creatureType.lowercase()}",
-                        name = "Damage Prevented",
-                        description = "Damage from this ${modification.creatureType} would be prevented",
-                        icon = "prevent-damage"
-                    )
+            modification is SerializableModification.PreventNextDamageFromMatching &&
+                predicateEvaluator.matches(
+                    state, projectedState, entityId, modification.filter,
+                    PredicateContext(controllerId = floatingEffect.controllerId)
                 )
-            }
-        }
-        return emptyList()
+        } ?: return emptyList()
+        val protectedName = floatingEffect.effect.affectedEntities.firstNotNullOfOrNull { protectedId ->
+            state.getEntity(protectedId)?.let { it.get<PlayerComponent>()?.name ?: it.get<CardComponent>()?.name }
+        } ?: "its recipient"
+        return listOf(
+            ClientCardEffect(
+                effectId = "damage_prevented_next_${floatingEffect.id.value}",
+                name = "Damage Prevented",
+                description = "The next time this would deal damage to $protectedName this turn, that damage is prevented",
+                icon = "prevent-damage"
+            )
+        )
     }
 
     /**

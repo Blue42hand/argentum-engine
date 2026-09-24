@@ -258,7 +258,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -545,7 +545,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "shield",
+                    "counterType": "SHIELD",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -626,12 +626,12 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -737,7 +737,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -858,8 +858,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -869,7 +869,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact"
-                                    }
+                                    },
+                                    "id": "target artifact"
                                 }
                             ],
                             "description": "Destroy target artifact"
@@ -878,8 +879,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target enchantment"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -889,7 +890,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "enchantment"
-                                    }
+                                    },
+                                    "id": "target enchantment"
                                 }
                             ],
                             "description": "Destroy target enchantment"
@@ -898,8 +900,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target card in graveyard"
                                 },
                                 "destination": "Exile"
                             },
@@ -909,7 +911,8 @@
                                     "filter": {
                                         "baseFilter": {},
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target card in graveyard"
                                 }
                             ],
                             "description": "Exile target card from a graveyard"
@@ -1275,10 +1278,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "shield"
-                },
+                "counterType": "SHIELD",
                 "count": 1,
                 "selfOnly": true
             }
@@ -1471,11 +1471,11 @@
                                     "amount": 5
                                 }
                             },
-                            "storeAs": "fightRiggingTop"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "fightRiggingTop",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1483,15 +1483,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "fightRiggingPicked",
-                            "storeRemainder": "fightRiggingRest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "fightRiggingPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1501,7 +1501,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "fightRiggingRest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -1524,7 +1524,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -1558,11 +1558,11 @@
                                         {
                                             "type": "GatherCards",
                                             "source": "FromLinkedExile",
-                                            "storeAs": "fightRiggingLinked"
+                                            "storeAs": "gathered0"
                                         },
                                         {
                                             "type": "PlayFromCollectionWithoutPayingCost",
-                                            "from": "fightRiggingLinked"
+                                            "from": "gathered0"
                                         }
                                     ]
                                 },
@@ -1877,7 +1877,7 @@
                     "type": "Fixed",
                     "amount": 3
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -2902,10 +2902,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "shield"
-                },
+                "counterType": "SHIELD",
                 "count": 1,
                 "selfOnly": true
             }
@@ -3040,7 +3037,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "DEATHTOUCH",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }

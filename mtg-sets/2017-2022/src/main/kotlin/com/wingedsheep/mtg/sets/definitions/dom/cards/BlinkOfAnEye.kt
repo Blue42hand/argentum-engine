@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Blink of an Eye
@@ -28,9 +27,9 @@ val BlinkOfAnEye = card("Blink of an Eye") {
         val t = target("target", Targets.NonlandPermanent)
         effect = Effects.ReturnToHand(t)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = WasKicked,
-                    effect = Effects.DrawCards(1)
+                    then = Effects.DrawCards(1)
                 )
             )
     }

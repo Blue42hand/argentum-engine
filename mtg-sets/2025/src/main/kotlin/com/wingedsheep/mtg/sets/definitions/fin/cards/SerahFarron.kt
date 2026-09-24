@@ -1,5 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -10,14 +13,10 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Serah Farron // Crystallized Serah — Final Fantasy #240
@@ -95,16 +94,16 @@ private val SerahFarronFront = card("Serah Farron") {
     // creatures, you may transform Serah Farron.
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        interveningIf = Compare(
-            DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature.legendary(),
+        interveningIf = Conditions.CompareAmounts(
+            DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature.legendary(),
                 excludeSelf = true,
-            ),
+            ).count(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(2),
+            2,
         )
-        effect = MayEffect(effect = TransformEffect(EffectTarget.Self))
+        effect = Effects.May(effect = Effects.Transform(EffectTarget.Self))
     }
 
     metadata {

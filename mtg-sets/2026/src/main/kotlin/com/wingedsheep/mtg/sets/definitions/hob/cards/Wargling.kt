@@ -36,7 +36,7 @@ val Wargling = card("Wargling") {
             Effects.ModifyStats(1, 0, EffectTarget.Self),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
         )
     }

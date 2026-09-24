@@ -3,9 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
-import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.EntersTapped
@@ -28,7 +25,7 @@ val GrandColiseum = card("Grand Coliseum") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddColorlessManaEffect(1)
+        effect = Effects.AddColorlessMana(1)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
@@ -37,8 +34,8 @@ val GrandColiseum = card("Grand Coliseum") {
         cost = AbilityCost.Tap
         effect = Effects.Composite(
             listOf(
-                AddManaOfChoiceEffect(ManaColorSet.AnyColor, 1),
-                DealDamageEffect(1, EffectTarget.Controller, damageSource = EffectTarget.Self)
+                Effects.AddManaOfChoice(ManaColorSet.AnyColor, 1),
+                Effects.DealDamage(1, EffectTarget.Controller, damageSource = EffectTarget.Self)
             )
         )
         manaAbility = true

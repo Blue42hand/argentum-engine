@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,7 +33,7 @@ val SpinerockTyrant = card("Spinerock Tyrant") {
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
         triggerRestriction = Conditions.TriggeringSpellHasSingleTarget
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.CopyTargetSpell(
                 target = EffectTarget.TriggeringEntity,
                 keywordsForCopy = listOf(Keyword.WITHER)

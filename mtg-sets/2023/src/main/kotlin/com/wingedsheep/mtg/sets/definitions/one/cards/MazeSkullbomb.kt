@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Maze Skullbomb
@@ -30,11 +29,11 @@ val MazeSkullbomb = card("Maze Skullbomb") {
     }
 
     activatedAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.SacrificeSelf)
-        target = Targets.CreatureYouControl
         effect = Effects.Composite(
-            Effects.ModifyStats(3, 3, EffectTarget.ContextTarget(0)),
-            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0)),
+            Effects.ModifyStats(3, 3, creatureYouControl),
+            Effects.GrantKeyword(Keyword.TRAMPLE, creatureYouControl),
             Effects.DrawCards(1)
         )
         timing = TimingRule.SorcerySpeed

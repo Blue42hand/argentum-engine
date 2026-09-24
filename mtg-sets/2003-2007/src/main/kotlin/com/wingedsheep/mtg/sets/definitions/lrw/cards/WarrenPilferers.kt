@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -43,10 +42,10 @@ val WarrenPilferers = card("Warren Pilferers") {
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
         )
         val returnToHand = Effects.Move(creatureCard, Zone.HAND)
-        effect = ConditionalEffect(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN)),
-            effect = returnToHand.then(Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)),
-            elseEffect = returnToHand
+        effect = Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN), creatureCard),
+            then = returnToHand.then(Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)),
+            otherwise = returnToHand
         )
         description = "Return target creature card from your graveyard to your hand. " +
             "If that card is a Goblin card, this creature gains haste until end of turn."

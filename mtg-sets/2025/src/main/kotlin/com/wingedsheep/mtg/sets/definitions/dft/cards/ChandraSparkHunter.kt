@@ -8,14 +8,14 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -88,7 +88,7 @@ val ChandraSparkHunter = card("Chandra, Spark Hunter") {
 
     // +2: You may sacrifice an artifact or discard a card. If you do, draw a card.
     loyaltyAbility(+2) {
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice(
@@ -123,17 +123,16 @@ val ChandraSparkHunter = card("Chandra, Spark Hunter") {
     //     3 damage to any target."
     loyaltyAbility(-7) {
         effect = Effects.CreateGlobalTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.entersBattlefield(
+            ability = grantedTriggeredAbility {
+                trigger = TriggerSpec(Triggers.entersBattlefield(
                     filter = GameObjectFilter.Artifact.youControl(),
                     binding = TriggerBinding.ANY
-                ).event,
-                binding = TriggerBinding.ANY,
-                effect = Effects.DealDamage(3, EffectTarget.ContextTarget(0)),
-                targetRequirement = Targets.Any,
-                descriptionOverride = "Whenever an artifact you control enters, this emblem deals " +
+                ).event, TriggerBinding.ANY)
+                val anyTarget = target("target any", Targets.Any)
+                effect = Effects.DealDamage(3, anyTarget)
+                description = "Whenever an artifact you control enters, this emblem deals " +
                     "3 damage to any target."
-            ),
+            },
             descriptionOverride = "Whenever an artifact you control enters, this emblem deals 3 " +
                 "damage to any target."
         )

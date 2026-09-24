@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * has a *bigger* Villain than the creature you are borrowing.
  *
  * **"Instead" is a single control change, not two.** The second sentence replaces the first's
- * duration rather than adding a second effect, so the script is one [ConditionalEffect] whose two
+ * duration rather than adding a second effect, so the script is one [Effects.If] whose two
  * branches differ only in [Duration] — never `GainControl(EndOfTurn)` followed by a second grab.
  * One control change means one `ControlChangedEvent` and one summoning-sickness stamp either way.
  *
@@ -64,17 +63,17 @@ val EvilsThrall = card("Evil's Thrall") {
     spell {
         val stolen = target("target creature", Targets.Creature)
         effect = Effects.Composite(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(
                         Player.You,
                         GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN)
                     ).maxManaValue(),
                     ComparisonOperator.GT,
-                    DynamicAmounts.targetManaValue()
+                    DynamicAmounts.manaValueOf(stolen)
                 ),
-                effect = Effects.GainControl(stolen, Duration.EndOfYourNextTurn),
-                elseEffect = Effects.GainControl(stolen, Duration.EndOfTurn)
+                then = Effects.GainControl(stolen, Duration.EndOfYourNextTurn),
+                otherwise = Effects.GainControl(stolen, Duration.EndOfTurn)
             ),
             Effects.Untap(stolen),
             Effects.GrantKeyword(Keyword.HASTE, stolen)

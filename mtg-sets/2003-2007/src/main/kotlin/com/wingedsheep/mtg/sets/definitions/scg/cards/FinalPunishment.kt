@@ -20,7 +20,7 @@ val FinalPunishment = card("Final Punishment") {
 
     spell {
         val t = target("target", Targets.Player)
-        effect = Effects.LoseLife(DynamicAmounts.damageDealtToTargetPlayerThisTurn(), t)
+        effect = Effects.LoseLife(DynamicAmounts.damageReceivedThisTurn(t.asPlayer), t)
     }
 
     metadata {

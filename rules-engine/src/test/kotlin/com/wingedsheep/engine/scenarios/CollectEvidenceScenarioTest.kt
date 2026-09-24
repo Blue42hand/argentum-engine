@@ -11,7 +11,6 @@ import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -28,9 +27,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -106,7 +102,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = Conditions.WasEvidenceCollected
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 
@@ -121,9 +117,9 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
             trigger = Triggers.EntersBattlefield
             effect = Effects.Composite(
                 Effects.GainLife(1),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.WasEvidenceCollected,
-                    effect = Effects.GainLife(5),
+                    then = Effects.GainLife(5),
                 ),
             )
         }
@@ -157,7 +153,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
                 action = Effects.CollectEvidence(3),
                 optional = true,
                 reflexiveEffect = Effects.AddCounters(
-                    Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)
+                    CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)
                 ),
                 reflexiveTargetRequirements = listOf(
                     TargetCreature(filter = TargetFilter.Creature.youControl())
@@ -187,7 +183,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         toughness = 3
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
-            effect = MayEffect(Effects.CollectEvidence(4))
+            effect = Effects.May(Effects.CollectEvidence(4))
         }
         triggeredAbility {
             trigger = Triggers.WheneverYouCollectEvidence
@@ -203,9 +199,9 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         toughness = 1
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
-            effect = OptionalCostEffect(
+            effect = Effects.MayPay(
                 cost = Effects.CollectEvidence(4),
-                ifPaid = Effects.GainLife(7),
+                then = Effects.GainLife(7),
             )
         }
     }
@@ -220,7 +216,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = Conditions.WasEvidenceCollected
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 
@@ -233,7 +229,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = WasKicked
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 

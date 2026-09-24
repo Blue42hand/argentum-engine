@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -40,8 +39,8 @@ val PainSuffering = card("Pain // Suffering") {
         oracleText = "Destroy target land."
 
         spell {
-            target("target land", Targets.Land)
-            effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+            val land = target("target land", Targets.Land)
+            effect = Effects.Destroy(land)
         }
     }
 

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 
 /**
  * Smite the Deathless
@@ -27,7 +26,7 @@ val SmiteTheDeathless = card("Smite the Deathless") {
         // Remove indestructible and set up the "exile if it would die" replacement before
         // dealing damage so the damage can actually destroy/exile the creature.
         effect = Effects.RemoveKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn)
-            .then(MarkExileOnDeathEffect(creature))
+            .then(Effects.MarkExileOnDeath(creature))
             .then(Effects.DealDamage(3, creature))
     }
 

@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * and `TriggerBinding.ANY`, so Earthshaker also triggers off its own cast.
  *
  * The payoff is a group sweep, not a targeted burn: `ForEachInGroup` over every creature lacking
- * flying, with `EffectTarget.Self` inside the body resolving to the current iteration entity.
+ * flying, with `EffectTarget.IterationEntity` inside the body resolving to the current iteration entity.
  * Earthshaker has no flying itself, so it is in its own blast radius (and survives it at 4/5).
  */
 val Earthshaker = card("Earthshaker") {
@@ -40,7 +40,7 @@ val Earthshaker = card("Earthshaker") {
         )
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING),
-            Effects.DealDamage(2, EffectTarget.Self)
+            Effects.DealDamage(2, EffectTarget.IterationEntity)
         )
     }
     metadata {

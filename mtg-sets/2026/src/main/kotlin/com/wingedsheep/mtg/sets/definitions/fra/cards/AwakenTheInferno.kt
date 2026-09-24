@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -31,7 +31,7 @@ val AwakenTheInferno = card("Awaken the Inferno") {
             TargetCreature(filter = TargetFilter.Creature.youControl(), optional = true),
         )
         effect = Effects.DealDamage(6, victim) then
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, ally)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, ally)
     }
 
     keywordAbility(KeywordAbility.basicLandcycling(ManaCost.parse("{2}")))

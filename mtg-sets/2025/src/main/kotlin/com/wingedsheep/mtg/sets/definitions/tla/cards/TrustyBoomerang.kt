@@ -3,9 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -33,15 +32,14 @@ val TrustyBoomerang = card("Trusty Boomerang") {
 
     staticAbility {
         ability = GrantActivatedAbility(
-            ability = ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap),
+            ability = grantedActivatedAbility {
+                cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
+                val creature = target("target creature", TargetCreature())
                 effect = Effects.Composite(
-                    Effects.Tap(EffectTarget.ContextTarget(0)),
+                    Effects.Tap(creature),
                     Effects.ReturnToHand(EffectTarget.GrantingSource),
-                ),
-                targetRequirements = listOf(TargetCreature()),
-            )
+                )
+            }
             // filter defaults to GroupFilter.attachedCreature() — "equipped creature has ..."
         )
     }

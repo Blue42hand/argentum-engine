@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -27,7 +27,7 @@ val MasterTheWay = card("Master the Way") {
     spell {
         val t = target("any target", Targets.Any)
         effect = Effects.DrawCards(1)
-            .then(Effects.DealDamage(DynamicAmount.Count(Player.You, Zone.HAND), t))
+            .then(Effects.DealDamage(DynamicAmounts.cardsInYourHand(), t))
     }
 
     metadata {

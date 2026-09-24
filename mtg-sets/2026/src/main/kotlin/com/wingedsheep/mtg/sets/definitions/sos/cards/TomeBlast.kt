@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -25,7 +25,7 @@ val TomeBlast = card("Tome Blast") {
     oracleText = "Tome Blast deals 2 damage to any target.\nFlashback {4}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
     keywordAbility(KeywordAbility.flashback("{4}{R}"))
     metadata {

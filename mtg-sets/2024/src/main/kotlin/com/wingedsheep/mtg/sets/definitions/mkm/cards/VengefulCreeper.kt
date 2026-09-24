@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -37,9 +36,9 @@ val VengefulCreeper = card("Vengeful Creeper") {
     disguise = "{5}{G}"
 
     triggeredAbility {
+        val target = target("target", TargetObject(filter = TargetFilter.ArtifactOrEnchantment.opponentControls()))
         trigger = Triggers.TurnedFaceUp
-        target = TargetObject(filter = TargetFilter.ArtifactOrEnchantment.opponentControls())
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        effect = Effects.Destroy(target)
         description = "When this creature is turned face up, destroy target artifact or enchantment an opponent controls."
     }
 

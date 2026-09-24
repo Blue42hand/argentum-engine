@@ -5,11 +5,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -41,11 +41,10 @@ val AppaLoyalSkyBison = card("Appa, Loyal Sky Bison") {
     keywords(Keyword.FLYING)
 
     val choice = ModalEffect.chooseOne(
-        Mode(
-            effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.ContextTarget(0)),
-            targetRequirements = listOf(Targets.CreatureYouControl),
-            description = "Target creature you control gains flying until end of turn"
-        ),
+        mode("Target creature you control gains flying until end of turn") {
+            val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+            effect = Effects.GrantKeyword(Keyword.FLYING, creatureYouControl)
+        },
         Mode(
             effect = Effects.Airbend(),
             targetRequirements = listOf(

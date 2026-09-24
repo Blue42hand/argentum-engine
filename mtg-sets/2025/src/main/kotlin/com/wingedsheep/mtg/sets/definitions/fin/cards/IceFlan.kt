@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -40,7 +40,7 @@ val IceFlan = card("Ice Flan") {
         )
         effect = Effects.Composite(
             Effects.Tap(t),
-            Effects.AddCounters(Counters.STUN, 1, t),
+            Effects.AddCounters(CounterType.STUN, 1, t),
         )
     }
 

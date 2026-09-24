@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -34,7 +33,7 @@ val TributeToHunger = card("Tribute to Hunger") {
         val t = target("target", TargetOpponent())
         effect = Effects.Composite(
             listOf(
-                ForceSacrificeEffect(GameObjectFilter.Creature, 1, t),
+                Effects.Sacrifice(GameObjectFilter.Creature, 1, t),
                 Effects.GainLife(DynamicAmounts.sacrificedToughness(0))
             )
         )

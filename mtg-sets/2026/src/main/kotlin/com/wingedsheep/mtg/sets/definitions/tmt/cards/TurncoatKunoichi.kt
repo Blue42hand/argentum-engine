@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Turncoat Kunoichi
@@ -37,10 +36,10 @@ val TurncoatKunoichi = card("Turncoat Kunoichi") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = SneakCostWasPaid,
-            effect = Effects.Exile(creature),
-            elseEffect = Effects.ExileUntilLeaves(creature)
+            then = Effects.Exile(creature),
+            otherwise = Effects.ExileUntilLeaves(creature)
         )
     }
     // LTB: return any creature exiled "until this leaves" (no-op when it was exiled permanently).

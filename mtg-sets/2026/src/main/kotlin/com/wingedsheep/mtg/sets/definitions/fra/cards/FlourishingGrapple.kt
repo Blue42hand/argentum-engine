@@ -41,7 +41,7 @@ val FlourishingGrapple = card("Flourishing Grapple") {
             TargetCreature(filter = TargetFilter.Creature.youControl())
         )
         effect = Effects.RemoveAllAbilities(theirs)
-            .then(Effects.DealDamage(DynamicAmounts.targetPower(1), theirs, damageSource = mine))
+            .then(Effects.DealDamage(DynamicAmounts.powerOf(mine), theirs, damageSource = mine))
     }
 
     metadata {

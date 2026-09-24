@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 
 /**
  * Thrashing Mudspawn
@@ -26,8 +25,8 @@ val ThrashingMudspawn = card("Thrashing Mudspawn") {
 
     triggeredAbility {
         trigger = Triggers.TakesDamage
-        effect = LoseLifeEffect(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+        effect = Effects.LoseLife(
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.Controller
         )
     }

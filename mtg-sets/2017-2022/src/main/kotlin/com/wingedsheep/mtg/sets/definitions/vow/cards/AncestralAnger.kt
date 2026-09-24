@@ -2,14 +2,15 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ancestral Anger
@@ -32,19 +33,16 @@ val AncestralAnger = card("Ancestral Anger") {
 
     spell {
         val t = target("target", Targets.Creature)
-        val pump = DynamicAmount.Add(
-            DynamicAmount.Fixed(1),
-            DynamicAmount.Count(
-                player = Player.You,
-                zone = Zone.GRAVEYARD,
-                filter = GameObjectFilter(
-                    cardPredicates = listOf(CardPredicate.NameEquals("Ancestral Anger")),
-                ),
+        val pump = 1 + DynamicAmounts.count(
+            Player.You,
+            Zone.GRAVEYARD,
+            GameObjectFilter(
+                cardPredicates = listOf(CardPredicate.NameEquals("Ancestral Anger")),
             ),
         )
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.ModifyStats(pump, DynamicAmount.Fixed(0), t),
+            Effects.ModifyStats(pump, DynamicAmounts.fixed(0), t),
             Effects.DrawCards(1),
         )
     }

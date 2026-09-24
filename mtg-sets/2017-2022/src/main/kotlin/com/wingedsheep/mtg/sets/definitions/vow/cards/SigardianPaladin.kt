@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -53,14 +53,14 @@ val SigardianPaladin = card("Sigardian Paladin") {
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.TRAMPLE, GroupFilter.source()),
-            condition = Conditions.PutCounterKindOnCreatureThisTurn(Counters.PLUS_ONE_PLUS_ONE),
+            condition = Conditions.PutCounterKindOnCreatureThisTurn(CounterType.PLUS_ONE_PLUS_ONE),
         )
     }
 
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.LIFELINK, GroupFilter.source()),
-            condition = Conditions.PutCounterKindOnCreatureThisTurn(Counters.PLUS_ONE_PLUS_ONE),
+            condition = Conditions.PutCounterKindOnCreatureThisTurn(CounterType.PLUS_ONE_PLUS_ONE),
         )
     }
 
@@ -72,7 +72,7 @@ val SigardianPaladin = card("Sigardian Paladin") {
                 filter = TargetFilter(
                     GameObjectFilter.Creature
                         .youControl()
-                        .withCounter(Counters.PLUS_ONE_PLUS_ONE),
+                        .withCounter(CounterType.PLUS_ONE_PLUS_ONE),
                 ),
             ),
         )

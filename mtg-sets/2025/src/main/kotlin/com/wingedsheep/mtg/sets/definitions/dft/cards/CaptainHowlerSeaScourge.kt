@@ -1,19 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Captain Howler, Sea Scourge — Aetherdrift #194
@@ -62,18 +61,15 @@ val CaptainHowlerSeaScourge = card("Captain Howler, Sea Scourge") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.Composite(listOf(
             Effects.ModifyStats(
-                power = DynamicAmount.Multiply(
-                    DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCARD_COUNT),
-                    2
-                ),
-                toughness = DynamicAmount.Fixed(0),
+                power = DynamicAmounts.triggerDiscardCount() * 2,
+                toughness = DynamicAmounts.fixed(0),
                 target = creature
             ),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 effect = Effects.DrawCards(1),
                 trigger = Triggers.dealsDamage(
                     damageType = DamageType.Combat,
-                    recipient = RecipientFilter.AnyPlayer
+                    recipient = Recipient.AnyPlayer
                 ),
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn

@@ -31,7 +31,7 @@ val ShelteringWord = card("Sheltering Word") {
         val creature = target("target", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.HEXPROOF, creature),
-            Effects.GainLife(DynamicAmounts.targetToughness())
+            Effects.GainLife(DynamicAmounts.toughnessOf(creature))
         )
     }
 

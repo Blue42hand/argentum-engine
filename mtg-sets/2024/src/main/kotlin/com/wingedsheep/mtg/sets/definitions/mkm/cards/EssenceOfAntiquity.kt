@@ -50,8 +50,8 @@ val EssenceOfAntiquity = card("Essence of Antiquity") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.Self),
-                Effects.Untap(EffectTarget.Self),
+                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity),
+                Effects.Untap(EffectTarget.IterationEntity),
             ),
         )
         description = "When this creature is turned face up, creatures you control gain hexproof " +

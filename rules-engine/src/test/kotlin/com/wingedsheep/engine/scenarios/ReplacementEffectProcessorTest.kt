@@ -317,7 +317,7 @@ class ReplacementEffectProcessorTest : ScenarioTestBase() {
 
         test("Multiple draw effect replacements") {
             // Quantum Riddler (ModifyDrawAmount +1 on EventPattern.DrawCardsEvent)
-            // and Phial of Galadriel (ReplaceDrawWithEffect on EventPattern.DrawEvent)
+            // and Phial of Galadriel (ReplaceDrawWith on EventPattern.DrawEvent)
             // coexist: Quantum Riddler fires at announcement level (DrawAmountPending
             // matches DrawCardsEvent), and Phial fires per-card (DrawPending matches
             // DrawEvent). Both are mandatory, so no player choice is needed.

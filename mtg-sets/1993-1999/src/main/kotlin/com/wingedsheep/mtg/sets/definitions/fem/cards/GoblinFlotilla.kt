@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,9 +42,9 @@ val GoblinFlotilla = card("Goblin Flotilla") {
 
     triggeredAbility {
         trigger = Triggers.EachCombat
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana("{R}"),
-            suffer = CreateDelayedTriggerEffect(
+            suffer = Effects.CreateDelayedTrigger(
                 trigger = Triggers.BlocksOrBecomesBlockedBy(GameObjectFilter.Creature),
                 watchedTarget = EffectTarget.Self,
                 effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.TriggeringEntity),

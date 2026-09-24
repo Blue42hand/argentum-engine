@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -80,7 +79,7 @@ val SummonLeviathan = card("Summon: Leviathan") {
  * by any sea creature. A fresh instance is built per chapter so II and III spawn independent
  * watchers.
  */
-private fun seaCreatureAttackDraw(): Effect = CreateDelayedTriggerEffect(
+private fun seaCreatureAttackDraw(): Effect = Effects.CreateDelayedTrigger(
     trigger = TriggerSpec(
         event = EventPattern.AttackEvent(
             filter = GameObjectFilter.Creature.withAnySubtype(

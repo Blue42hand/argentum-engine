@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -56,9 +55,9 @@ private val IfritWardenOfInferno = card("Ifrit, Warden of Inferno") {
     // lore threshold, so it is the chapter that flips Ifrit back to Clive.
     val brimstone = Effects.Composite(
         Effects.AddMana(Color.RED, 4),
-        ConditionalEffect(
-            condition = Conditions.SourceCounterCountAtLeast("LORE", 3),
-            effect = Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
+        Effects.If(
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.LORE, 3),
+            then = Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
         ),
     )
     sagaChapter(2) { effect = brimstone }
@@ -87,7 +86,7 @@ private val CliveIfritsDominantFront = card("Clive, Ifrit's Dominant") {
     // When Clive enters, you may discard your hand, then draw cards equal to your devotion to red.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Patterns.Hand.discardHand(),
                 Effects.DrawCards(DynamicAmounts.devotionTo(Color.RED)),

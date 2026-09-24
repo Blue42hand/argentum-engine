@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -28,7 +27,7 @@ val PlanarGuide = card("Planar Guide") {
         cost = Costs.Composite(Costs.Mana("{3}{W}"), Costs.ExileSelf)
         effect = Effects.ExileGroupAndLink(GroupFilter.AllCreatures)
             .then(
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     step = Step.END,
                     effect = Effects.ReturnLinkedExileUnderOwnersControl()
                 )

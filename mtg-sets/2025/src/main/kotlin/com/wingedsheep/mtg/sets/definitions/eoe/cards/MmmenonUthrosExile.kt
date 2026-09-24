@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,7 +43,7 @@ val MmmenonUthrosExile = card("Mm'menon, Uthros Exile") {
         )
 
         val targetCreature = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters("+1/+1", 1, targetCreature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, targetCreature)
         description = "Whenever an artifact you control enters, put a +1/+1 counter on target creature."
     }
 

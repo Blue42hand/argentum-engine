@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.iko.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -26,7 +26,7 @@ val FullyGrown = card("Fully Grown") {
         val t = target("target", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(3, 3, t),
-            Effects.AddCounters(Counters.TRAMPLE, 1, t)
+            Effects.AddCounters(CounterType.TRAMPLE, 1, t)
         )
     }
 

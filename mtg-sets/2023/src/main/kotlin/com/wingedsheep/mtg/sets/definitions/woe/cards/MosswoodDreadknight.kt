@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 
 /**
@@ -52,21 +51,20 @@ val MosswoodDreadknight = card("Mosswood Dreadknight") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = Effects.Composite(listOf(
-            GatherCardsEffect(
-                source = CardSource.FromZone(
+        effect = Effects.Pipeline {
+            val dreadknight = gather(
+                CardSource.FromZone(
                     zone = Zone.GRAVEYARD,
                     player = Player.You,
                     filter = GameObjectFilter.Any.sourceItself()
-                ),
-                storeAs = "dreadknight"
-            ),
-            Effects.GrantMayPlayFromExile(
-                from = "dreadknight",
+                )
+            )
+            run(Effects.GrantMayPlayFromExile(
+                from = dreadknight,
                 expiry = MayPlayExpiry.UntilEndOfNextTurn,
                 castFaceIndex = 0
-            )
-        ))
+            ))
+        }
     }
 
     adventure("Dread Whispers") {

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.arn.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 
 /**
  * Hurr Jackal
@@ -24,7 +24,7 @@ val HurrJackal = card("Hurr Jackal") {
     activatedAbility {
         cost = Costs.Tap
         val creature = target("target creature", Targets.Creature)
-        effect = CantBeRegeneratedEffect(creature)
+        effect = Effects.CantBeRegenerated(creature)
     }
 
     metadata {

@@ -76,7 +76,7 @@ data class TriggeredAbility(
      * immediately follows a trigger condition."* So an `if` printed **after** the effect —
      * "Whenever this creature attacks, create a token *if* you control a creature with power 4 or
      * greater" — is not this field. That ability triggers unconditionally and checks only as it
-     * resolves, which is a [com.wingedsheep.sdk.scripting.effects.ConditionalEffect], not a
+     * resolves, which is a [com.wingedsheep.sdk.dsl.Effects.If], not a
      * condition on the trigger.
      *
      * For a restriction on *when the ability triggers at all*, use [triggerRestriction]. The two
@@ -140,7 +140,7 @@ data class TriggeredAbility(
      * "pick which Villain connives") unreachable.
      *
      * **Keep the consent gate outermost or last — this is enforced.** The lowering looks for the
-     * consent gate — a `MayEffect` / `mayPay` / `mayPayX` — at the top of [effect] or at the
+     * consent gate — a `Effects.May` / `mayPay` / `mayPayX` — at the top of [effect] or at the
      * **tail** of a `CompositeEffect`, which covers "do X, then you may Y" ("look at the top card
      * of your library. You may cast that card …", Planetarium of Wan Shi Tong). A "you may" sitting
      * anywhere else — mid-composite, or under some other wrapper — would leave the budget gate on

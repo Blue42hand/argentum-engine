@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.core.spec.style.FunSpec
@@ -50,7 +50,7 @@ class ExcessDamageTriggerScenarioTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.dealsDamage(
                 damageType = DamageType.NonCombat,
-                recipient = RecipientFilter.CreatureOpponentControls,
+                recipient = Recipient.CreatureOpponentControls,
                 binding = TriggerBinding.ANY,
                 requireExcess = true,
             )
@@ -101,7 +101,7 @@ class ExcessDamageTriggerScenarioTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.dealsDamage(
                 damageType = DamageType.Combat,
-                recipient = RecipientFilter.CreatureOpponentControls,
+                recipient = Recipient.CreatureOpponentControls,
                 binding = TriggerBinding.ANY,
                 requireExcess = true,
             )

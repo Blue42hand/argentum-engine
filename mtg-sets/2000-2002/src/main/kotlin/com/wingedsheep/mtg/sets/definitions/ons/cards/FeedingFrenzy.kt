@@ -4,8 +4,8 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -24,7 +24,7 @@ val FeedingFrenzy = card("Feeding Frenzy") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         val zombieCount = DynamicAmounts.creaturesWithSubtype(Subtype("Zombie"))
-        val negativeZombieCount = DynamicAmount.Multiply(zombieCount, -1)
+        val negativeZombieCount = -zombieCount
         effect = Effects.ModifyStats(
             power = negativeZombieCount,
             toughness = negativeZombieCount,

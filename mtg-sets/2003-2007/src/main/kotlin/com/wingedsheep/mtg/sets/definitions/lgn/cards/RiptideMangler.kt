@@ -28,10 +28,10 @@ val RiptideMangler = card("Riptide Mangler") {
 
     activatedAbility {
         cost = Costs.Mana(ManaCost.parse("{1}{U}"))
-        target("target creature", Targets.Creature)
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.SetBasePower(
             target = EffectTarget.Self,
-            power = DynamicAmounts.targetPower(0)
+            power = DynamicAmounts.powerOf(creature)
         )
     }
 

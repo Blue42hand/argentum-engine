@@ -2,17 +2,17 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithExileCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Mimeoplasm, Revered One — Aetherdrift #214.
@@ -36,8 +36,8 @@ val MimeoplasmReveredOne = card("Mimeoplasm, Revered One") {
         EntersWithExileCounters(
             filter = GameObjectFilter.Creature,
             sourceZone = Zone.GRAVEYARD,
-            maxCards = DynamicAmount.XValue,
-            counterType = CounterTypeFilter.PlusOnePlusOne,
+            maxCards = DynamicAmounts.xValue(),
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             countersPerCard = 3,
         )
     )

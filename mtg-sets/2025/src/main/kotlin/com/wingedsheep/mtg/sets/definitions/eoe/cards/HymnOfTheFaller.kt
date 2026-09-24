@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +25,7 @@ val HymnOfTheFaller = card("Hymn of the Faller") {
         effect = Patterns.Library.surveil(1)
             .then(Effects.DrawCards(1))
             .then(Effects.LoseLife(1, EffectTarget.Controller))
-            .then(ConditionalEffect(Conditions.Void, Effects.DrawCards(1)))
+            .then(Effects.If(Conditions.Void, Effects.DrawCards(1)))
     }
 
     metadata {

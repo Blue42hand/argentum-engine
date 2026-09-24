@@ -5,10 +5,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Ferocification
@@ -35,19 +34,17 @@ val Ferocification = card("Ferocification") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.ModifyStats(2, 0, EffectTarget.ContextTarget(0)),
-                Targets.CreatureYouControl,
-                "Target creature you control gets +2/+0 until end of turn",
-            ),
-            Mode.withTarget(
-                Effects.Composite(
-                    Effects.GrantKeyword(Keyword.MENACE, EffectTarget.ContextTarget(0)),
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.ContextTarget(0)),
-                ),
-                Targets.CreatureYouControl,
-                "Target creature you control gains menace and haste until end of turn",
-            ),
+            mode("Target creature you control gets +2/+0 until end of turn") {
+                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                effect = Effects.ModifyStats(2, 0, creatureYouControl)
+            },
+            mode("Target creature you control gains menace and haste until end of turn") {
+                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                effect = Effects.Composite(
+                    Effects.GrantKeyword(Keyword.MENACE, creatureYouControl),
+                    Effects.GrantKeyword(Keyword.HASTE, creatureYouControl),
+                )
+            },
         )
     }
 

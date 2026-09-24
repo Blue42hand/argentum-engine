@@ -209,7 +209,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -243,12 +243,12 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "target"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "StoreCardName",
-                    "from": "target",
-                    "storeAs": "name"
+                    "from": "gathered0",
+                    "storeAs": "cardName1"
                 },
                 {
                     "type": "GatherCards",
@@ -258,16 +258,16 @@
                             "cardPredicates": [
                                 {
                                     "type": "NameEqualsChosen",
-                                    "variableName": "name"
+                                    "variableName": "cardName1"
                                 }
                             ]
                         }
                     },
-                    "storeAs": "sameNamed"
+                    "storeAs": "gathered2"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "sameNamed",
+                    "from": "gathered2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard"

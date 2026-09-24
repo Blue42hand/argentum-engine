@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Treeguard Duo
@@ -30,7 +30,7 @@ val TreeguardDuo = card("Treeguard Duo") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
-        val x = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature)
+        val x = DynamicAmounts.creaturesYouControl()
         effect = Effects.GrantKeyword(Keyword.VIGILANCE, creature)
             .then(Effects.ModifyStats(x, x, creature))
     }

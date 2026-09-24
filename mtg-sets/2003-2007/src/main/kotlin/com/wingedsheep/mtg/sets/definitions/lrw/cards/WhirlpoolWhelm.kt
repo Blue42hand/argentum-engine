@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 
 val WhirlpoolWhelm = card("Whirlpool Whelm") {
     manaCost = "{1}{U}"
@@ -18,10 +16,10 @@ val WhirlpoolWhelm = card("Whirlpool Whelm") {
         val creature = target("target creature", Targets.Creature)
         val bounce = Effects.ReturnToHand(creature)
         effect = Patterns.Mechanic.clash(
-            ifYouWin = GatedEffect(
-                gate = Gate.MayDecide(prompt = "Put that creature on top of its owner's library?"),
-                then = Effects.PutOnTopOfLibrary(creature),
-                otherwise = bounce
+            ifYouWin = Effects.May(
+                effect = Effects.PutOnTopOfLibrary(creature),
+                otherwise = bounce,
+                prompt = "Put that creature on top of its owner's library?"
             ),
             otherwise = bounce
         )

@@ -1,19 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Aurelia's Vindicator — Murders at Karlov Manor #4
@@ -77,19 +73,13 @@ val AureliasVindicator = card("Aurelia's Vindicator") {
             TargetObject(
                 optional = true,
                 filter = TargetFilter.OtherCreature.or(TargetFilter.CreatureInGraveyard),
-                dynamicMaxCount = DynamicAmount.XValue,
+                dynamicMaxCount = DynamicAmounts.xValue(),
             ),
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "vindicated"),
-                MoveCollectionEffect(
-                    from = "vindicated",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    linkToSource = true,
-                ),
-            )
-        )
+        effect = Effects.Pipeline {
+            val vindicated = gather(CardSource.ChosenTargets)
+            exile(vindicated, linkToSource = true)
+        }
         description = "When this creature is turned face up, exile up to X other target creatures " +
             "from the battlefield and/or creature cards from graveyards."
     }

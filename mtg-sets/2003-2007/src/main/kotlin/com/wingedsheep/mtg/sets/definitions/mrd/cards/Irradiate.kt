@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Irradiate — Mirrodin #67
@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * - [Effects.ModifyStats] with a [DynamicAmount] is the *resolution-time* shape: the artifact count
  *   is locked in when Irradiate resolves and the -N/-N sticks for the rest of the turn even if the
  *   artifacts are sacrificed in response to the death trigger. That is the printed behaviour —
- *   contrast [com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect], which keeps recomputing and
+ *   contrast [com.wingedsheep.sdk.scripting.GrantDynamicStats], which keeps recomputing and
  *   belongs to permanents like Nim Devourer.
  * - Irradiate itself is on the stack (not the battlefield) while it resolves, so it never counts
  *   toward its own bonus; artifact *creatures* you control do count.
@@ -32,10 +32,7 @@ val Irradiate = card("Irradiate") {
 
     spell {
         val t = target("target", Targets.Creature)
-        val negArtifacts = DynamicAmount.Multiply(
-            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
-            -1
-        )
+        val negArtifacts = -DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
         effect = Effects.ModifyStats(negArtifacts, negArtifacts, t)
     }
 

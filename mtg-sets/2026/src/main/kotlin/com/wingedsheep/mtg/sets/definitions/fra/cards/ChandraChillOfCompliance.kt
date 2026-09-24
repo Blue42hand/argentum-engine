@@ -2,9 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,20 +14,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.EmitSurveiledEventEffect
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Chandra, Chill of Compliance
@@ -33,10 +24,10 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Legendary Planeswalker — Chandra
  * Starting Loyalty: 3
  *
- * - The first +1 is the surveil pipeline written out so the "put into your graveyard this way"
- *   collection can be read afterwards: the graveyard move records what actually arrived
- *   (`storeMovedAs`), that is filtered to noncreature, nonland cards, and the survivor moves on to
- *   the hand. `EmitSurveiledEventEffect` still fires, so "whenever you surveil" triggers see it.
+ * - The first +1 is a surveil that remembers what it put into the graveyard
+ *   (`Patterns.Library.surveil(1, storeGraveyardAs = …)`, as Enlightened Confidant); the
+ *   noncreature, nonland card among them moves on to the hand. The surveil still emits its
+ *   `SurveiledEvent`, so "whenever you surveil" triggers see it.
  * - The second +1 is a loyalty ability, not a mana ability (loyalty abilities never are), so it
  *   uses the stack; its {U} carries the negated creature card-type restriction The Emperor of
  *   Palamecia uses for "spend this mana only to cast a noncreature spell".
@@ -57,42 +48,14 @@ val ChandraChillOfCompliance = card("Chandra, Chill of Compliance") {
     // +1: Surveil 1. If you put a noncreature, nonland card into your graveyard this way, put
     //     that card into your hand.
     loyaltyAbility(+1) {
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "surveiled",
-                ),
-                SelectFromCollectionEffect(
-                    from = "surveiled",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "toGraveyard",
-                    storeRemainder = "toTop",
-                    selectedLabel = "Put in graveyard",
-                    remainderLabel = "Put on top",
-                ),
-                MoveCollectionEffect(
-                    from = "toGraveyard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD),
-                    storeMovedAs = "milled",
-                ),
-                MoveCollectionEffect(
-                    from = "toTop",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top),
-                    order = CardOrder.ControllerChooses,
-                ),
-                EmitSurveiledEventEffect(),
-                FilterCollectionEffect(
-                    from = "milled",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Noncreature.withCardPredicate(CardPredicate.IsNonland)),
-                    storeMatching = "returned",
-                ),
-                MoveCollectionEffect(
-                    from = "returned",
-                    destination = CardDestination.ToZone(Zone.HAND),
-                ),
+        effect = Effects.Pipeline {
+            val surveiledIntoGraveyard = runStoringCollection { Patterns.Library.surveil(1, storeGraveyardAs = it) }
+            move(
+                surveiledIntoGraveyard,
+                CardDestination.ToZone(Zone.HAND),
+                filter = GameObjectFilter.Noncreature.withCardPredicate(CardPredicate.IsNonland)
             )
-        )
+        }
         description = "Surveil 1. If you put a noncreature, nonland card into your graveyard this " +
             "way, put that card into your hand."
     }
@@ -117,7 +80,7 @@ val ChandraChillOfCompliance = card("Chandra, Chill of Compliance") {
         )
         effect = Effects.Composite(
             Effects.Tap(t),
-            Effects.AddDynamicCounters(Counters.STUN, DynamicAmount.XValue, t),
+            Effects.AddDynamicCounters(CounterType.STUN, DynamicAmounts.xValue(), t),
         )
         description = "Tap target artifact or creature. Put X stun counters on it."
     }

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Jump Scare
@@ -30,13 +29,13 @@ val JumpScare = card("Jump Scare") {
         "Horror enchantment creature in addition to its other types."
 
     spell {
-        target = Targets.Creature
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             listOf(
-                Effects.ModifyStats(2, 2, target = EffectTarget.ContextTarget(0), duration = Duration.EndOfTurn),
-                Effects.GrantKeyword(Keyword.FLYING, target = EffectTarget.ContextTarget(0), duration = Duration.EndOfTurn),
-                Effects.AddCreatureType("Horror", target = EffectTarget.ContextTarget(0), duration = Duration.EndOfTurn),
-                Effects.AddCardType("ENCHANTMENT", target = EffectTarget.ContextTarget(0), duration = Duration.EndOfTurn)
+                Effects.ModifyStats(2, 2, target = creature, duration = Duration.EndOfTurn),
+                Effects.GrantKeyword(Keyword.FLYING, target = creature, duration = Duration.EndOfTurn),
+                Effects.AddCreatureType("Horror", target = creature, duration = Duration.EndOfTurn),
+                Effects.AddCardType("ENCHANTMENT", target = creature, duration = Duration.EndOfTurn)
             )
         )
     }

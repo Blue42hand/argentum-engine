@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -47,7 +47,7 @@ class TheCloneSagaChapterThreeTest : FunSpec({
                 CreateDelayedTriggerEffect(
                     trigger = Triggers.dealsDamage(
                         damageType = DamageType.Combat,
-                        recipient = RecipientFilter.AnyPlayer,
+                        recipient = Recipient.AnyPlayer,
                         sourceFilter = GameObjectFilter.Creature.namedFromVariable("clonedName"),
                         binding = TriggerBinding.ANY,
                     ),

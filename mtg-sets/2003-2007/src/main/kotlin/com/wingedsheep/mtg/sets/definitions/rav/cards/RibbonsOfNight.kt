@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Ribbons of Night — Ravnica: City of Guilds #101
@@ -33,9 +32,9 @@ val RibbonsOfNight = card("Ribbons of Night") {
         effect = Effects.DealDamage(4, creature)
             .then(Effects.GainLife(4))
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ManaSpentToCastIncludes(requiredBlue = 1),
-                    effect = Effects.DrawCards(1),
+                    then = Effects.DrawCards(1),
                 )
             )
     }

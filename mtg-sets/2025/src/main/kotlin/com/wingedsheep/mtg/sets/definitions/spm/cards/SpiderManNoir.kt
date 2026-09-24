@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * lone attacker ([EffectTarget.TriggeringEntity]), not Spider-Man Noir. The +1/+1 counter lands
  * first, then "surveil X" reads the number of counters on that same triggering creature *after*
  * the counter is added (so X is always at least 1). X counts counters of every kind
- * ([CounterTypeFilter.Any] via [DynamicAmounts.countersOnTriggering]), matching the reminder-free
+ * (`null` via [DynamicAmounts.countersOnTriggering]), matching the reminder-free
  * "number of counters on it". Surveil X uses the dynamic [Effects.Surveil] overload.
  */
 val SpiderManNoir = card("Spider-Man Noir") {
@@ -44,7 +44,7 @@ val SpiderManNoir = card("Spider-Man Noir") {
             requires = setOf(AttackPredicate.Alone),
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity) then
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity) then
             Effects.Surveil(DynamicAmounts.countersOnTriggering())
         description = "Whenever a creature you control attacks alone, put a +1/+1 counter on it. " +
             "Then surveil X, where X is the number of counters on it."

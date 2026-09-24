@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -32,7 +32,7 @@ val UtromScientists = card("Utrom Scientists") {
             TargetCreature(count = 1, optional = true)
         )
         effect = Effects.Tap(creature)
-            .then(Effects.AddCounters(Counters.STUN, 1, creature))
+            .then(Effects.AddCounters(CounterType.STUN, 1, creature))
     }
 
     metadata {

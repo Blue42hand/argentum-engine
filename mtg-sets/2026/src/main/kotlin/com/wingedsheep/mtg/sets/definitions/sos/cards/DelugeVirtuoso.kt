@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -40,10 +40,10 @@ val DelugeVirtuoso = card("Deluge Virtuoso") {
         "+2/+2 until end of turn instead."
 
     triggeredAbility {
+        val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
         trigger = Triggers.EntersBattlefield
-        target = Targets.CreatureOpponentControls
-        effect = Effects.Tap(EffectTarget.ContextTarget(0))
-            .then(Effects.AddCounters(Counters.STUN, 1, EffectTarget.ContextTarget(0)))
+        effect = Effects.Tap(creatureOpponentControls)
+            .then(Effects.AddCounters(CounterType.STUN, 1, creatureOpponentControls))
     }
 
     opus {

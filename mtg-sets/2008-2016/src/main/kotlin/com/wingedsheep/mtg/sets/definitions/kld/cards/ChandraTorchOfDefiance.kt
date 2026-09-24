@@ -1,27 +1,20 @@
 package com.wingedsheep.mtg.sets.definitions.kld.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Chandra, Torch of Defiance — Kaladesh #110
@@ -59,35 +52,22 @@ val ChandraTorchOfDefiance = card("Chandra, Torch of Defiance") {
 
     // +1: Exile the top card of your library. You may cast that card. If you don't, 2 to each opponent.
     loyaltyAbility(+1) {
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "chandraExiled"
-                ),
-                MoveCollectionEffect(
-                    from = "chandraExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                ),
+        effect = Effects.IfYouDo(
+            action = Effects.Pipeline {
+                val exiled = gather(CardSource.TopOfLibrary(DynamicAmounts.fixed(1)))
+                exile(exiled)
                 // "Cast" never covers playing a land (CR 305.1 via the ruling).
-                FilterCollectionEffect(
-                    from = "chandraExiled",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Nonland),
-                    storeMatching = "chandraCastable"
-                ),
-                Effects.IfYouDo(
-                    action = ConditionalOnCollectionEffect(
-                        collection = "chandraCastable",
-                        ifNotEmpty = MayEffect(
-                            Effects.CastFromCollection("chandraCastable", storeCastTo = "chandraCast"),
-                            descriptionOverride = "You may cast that card."
-                        )
-                    ),
-                    ifYouDo = Effects.Composite(emptyList()),
-                    ifYouDont = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-                    successCriterion = SuccessCriterion.CollectionNonEmpty("chandraCast"),
-                ),
-            )
+                val castable = filter(exiled, GameObjectFilter.Nonland)
+                ifNotEmpty(castable) {
+                    run(Effects.May(
+                        Effects.CastFromCollection(castable, storeCastTo = "chandraCast"),
+                        descriptionOverride = "You may cast that card."
+                    ))
+                }
+            },
+            then = Effects.Composite(emptyList()),
+            otherwise = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
+            successCriterion = SuccessCriterion.CollectionNonEmpty("chandraCast"),
         )
         description = "Exile the top card of your library. You may cast that card. If you don't, " +
             "Chandra deals 2 damage to each opponent."
@@ -108,13 +88,12 @@ val ChandraTorchOfDefiance = card("Chandra, Torch of Defiance") {
     // −7: Emblem — "Whenever you cast a spell, this emblem deals 5 damage to any target."
     loyaltyAbility(-7) {
         effect = Effects.CreateGlobalTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.YouCastSpell.event,
-                binding = TriggerBinding.ANY,
-                effect = Effects.DealDamage(5, EffectTarget.ContextTarget(0)),
-                targetRequirement = Targets.Any,
-                descriptionOverride = "Whenever you cast a spell, this emblem deals 5 damage to any target."
-            ),
+            ability = grantedTriggeredAbility {
+                trigger = TriggerSpec(Triggers.YouCastSpell.event, TriggerBinding.ANY)
+                val anyTarget = target("any target", Targets.Any)
+                effect = Effects.DealDamage(5, anyTarget)
+                description = "Whenever you cast a spell, this emblem deals 5 damage to any target."
+            },
             descriptionOverride = "Whenever you cast a spell, this emblem deals 5 damage to any target."
         )
         description = "You get an emblem with \"Whenever you cast a spell, this emblem deals 5 " +

@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.HealOtherDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -60,7 +60,7 @@ val WolverineFierceFighter = card("Wolverine, Fierce Fighter") {
 
     // Healing factor: the damage is dealt in full, but everything marked before it is healed.
     replacementEffect(
-        HealOtherDamage(appliesTo = EventPattern.DamageEvent(recipient = RecipientFilter.Self))
+        HealOtherDamage(appliesTo = EventPattern.DamageEvent(recipient = Recipient.Self))
     )
 
     metadata {

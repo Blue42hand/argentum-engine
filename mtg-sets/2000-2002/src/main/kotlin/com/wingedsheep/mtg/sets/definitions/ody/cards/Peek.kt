@@ -7,8 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.ody.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -27,8 +25,8 @@ val Peek = card("Peek") {
     spell {
         val t = target("target", TargetPlayer())
         effect = Effects.Composite(
-            LookAtTargetHandEffect(t),
-            DrawCardsEffect(1)
+            Effects.LookAtHand(t),
+            Effects.DrawCards(1)
         )
     }
     metadata {

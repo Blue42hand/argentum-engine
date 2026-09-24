@@ -1,15 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -40,15 +36,12 @@ val CeaseDesist = card("Cease // Desist") {
                 ),
             )
             val player = target("target player", Targets.Player)
-            effect = Effects.Composite(
-                GatherCardsEffect(CardSource.ChosenTargets, "ceaseTargets"),
-                MoveCollectionEffect(
-                    from = "ceaseTargets",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                ),
-                Effects.GainLife(2, player),
-                Effects.DrawCards(1, player),
-            )
+            effect = Effects.Pipeline {
+                val ceaseTargets = gather(CardSource.ChosenTargets)
+                exile(ceaseTargets)
+                run(Effects.GainLife(2, player))
+                run(Effects.DrawCards(1, player))
+            }
         }
     }
 

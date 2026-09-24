@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -49,7 +48,7 @@ val DoctorDoom = card("Doctor Doom") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreatePredefinedTokenEffect("Doombot", count = 2)
+        effect = Effects.CreatePredefinedToken("Doombot", 2)
         description = "When Doctor Doom enters, create two 3/3 colorless Robot Villain artifact " +
             "creature tokens named Doombot."
     }

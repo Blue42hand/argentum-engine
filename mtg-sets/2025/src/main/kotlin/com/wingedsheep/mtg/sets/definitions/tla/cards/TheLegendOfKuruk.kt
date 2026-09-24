@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
 import com.wingedsheep.sdk.scripting.CantBeBlockedExceptBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Legend of Kuruk // Avatar Kuruk
@@ -46,8 +44,8 @@ private val AvatarKuruk = card("Avatar Kuruk") {
 
     triggeredAbility {
         trigger = Triggers.youCastSpell()
-        effect = CreateTokenEffect(
-            count = DynamicAmount.Fixed(1),
+        effect = Effects.CreateToken(
+            count = 1,
             power = 1,
             toughness = 1,
             colors = emptySet(),

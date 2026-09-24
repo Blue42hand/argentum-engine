@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -7,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Graveborn Muse
@@ -27,11 +27,11 @@ val GravebornMuse = card("Graveborn Muse") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.DrawCards(
-            count = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Zombie")),
+            count = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Zombie")).count(),
             target = EffectTarget.Controller
         ).then(
             Effects.LoseLife(
-                amount = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Zombie")),
+                amount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Zombie")).count(),
                 target = EffectTarget.Controller
             )
         )

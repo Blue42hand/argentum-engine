@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Honorbound Page // Forum's Favor — Secrets of Strixhaven #19
@@ -40,10 +39,10 @@ val HonorboundPage = card("Honorbound Page") {
         typeLine = "Sorcery"
         oracleText = "Target creature gets +1/+0 and gains flying until end of turn."
         spell {
-            target = Targets.Creature
+            val creature = target("target creature", Targets.Creature)
             effect = Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
-                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
+                Effects.ModifyStats(1, 0, creature),
+                Effects.GrantKeyword(Keyword.FLYING, creature, Duration.EndOfTurn),
             )
         }
     }

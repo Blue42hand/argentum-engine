@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.sth.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 /**
@@ -23,7 +23,7 @@ val Shock = card("Shock") {
 
     spell {
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
 
     metadata {

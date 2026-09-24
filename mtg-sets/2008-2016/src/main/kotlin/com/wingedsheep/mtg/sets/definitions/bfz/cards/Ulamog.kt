@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -46,8 +45,8 @@ val Ulamog = card("Ulamog, the Ceaseless Hunger") {
     triggeredAbility {
         trigger = Triggers.WhenYouCastThisSpell()
         val targets = target("target permanents", TargetPermanent(count = 2))
-        effect = ForEachTargetEffect(
-            listOf(Effects.Exile(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.Exile(EffectTarget.ContextTarget(0))
         )
         description = "When you cast this spell, exile two target permanents."
     }

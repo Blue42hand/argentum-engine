@@ -13,11 +13,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -56,7 +53,7 @@ val TomBombadil = card("Tom Bombadil") {
     // Four or more lore counters among Sagas you control (CR 714 lore counters).
     val fourLoreAmongYourSagas = Conditions.CounterKindAmongYouControlAtLeast(
         count = 4,
-        counterType = CounterTypeFilter.Named("lore"),
+        counterType = CounterType.LORE,
         filter = GameObjectFilter.Enchantment.withSubtype("Saga").youControl()
     )
 
@@ -76,36 +73,32 @@ val TomBombadil = card("Tom Bombadil") {
     triggeredAbility {
         trigger = Triggers.WheneverFinalChapterOfYourSagaResolves
         oncePerTurn = true
-        effect = Effects.Composite(
-            listOf(
-                GatherUntilMatchEffect(
-                    player = Player.You,
-                    filter = GameObjectFilter().withSubtype("Saga"),
-                    storeMatch = "revealedSaga",
-                    storeRevealed = "allRevealed"
-                ),
-                RevealCollectionEffect(from = "allRevealed"),
-                // The revealed Saga (the match) enters the battlefield under your control.
-                MoveCollectionEffect(
-                    from = "revealedSaga",
-                    destination = CardDestination.ToZone(
-                        Zone.BATTLEFIELD,
-                        player = Player.You
-                    )
-                ),
-                // The rest go to the bottom of your library in a random order.
-                MoveCollectionEffect(
-                    from = "allRevealed",
-                    filter = GameObjectFilter().notSubtype(Subtype("Saga")),
-                    destination = CardDestination.ToZone(
-                        Zone.LIBRARY,
-                        player = Player.You,
-                        placement = ZonePlacement.Bottom
-                    ),
-                    order = CardOrder.Random
+        effect = Effects.Pipeline {
+            val (revealedSaga, allRevealed) = gatherUntilMatch(
+                GameObjectFilter().withSubtype("Saga"),
+                player = Player.You
+            )
+            reveal(allRevealed)
+            // The revealed Saga (the match) enters the battlefield under your control.
+            move(
+                revealedSaga,
+                CardDestination.ToZone(
+                    Zone.BATTLEFIELD,
+                    player = Player.You
                 )
             )
-        )
+            // The rest go to the bottom of your library in a random order.
+            move(
+                allRevealed,
+                CardDestination.ToZone(
+                    Zone.LIBRARY,
+                    player = Player.You,
+                    placement = ZonePlacement.Bottom
+                ),
+                filter = GameObjectFilter().notSubtype(Subtype("Saga")),
+                order = CardOrder.Random
+            )
+        }
     }
 
     metadata {

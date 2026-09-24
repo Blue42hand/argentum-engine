@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -57,8 +55,8 @@ val DoesMachines = card("Does Machines") {
                 optional = true,
                 filter = TargetFilter.ArtifactInYourGraveyard
             )
-            effect = ForEachTargetEffect(
-                effects = listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND))
+            effect = Effects.ForEachTarget(
+                Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)
             )
         }
     }
@@ -67,17 +65,17 @@ val DoesMachines = card("Does Machines") {
     // control; a noncreature one also becomes a 0/0 Robot in addition to its other types.
     classLevel(3, "{4}{U}") {
         triggeredAbility {
-            trigger = Triggers.BeginCombat
-            target = TargetObject(
+            val target = target("target", TargetObject(
                 count = 1,
                 filter = TargetFilter(GameObjectFilter.Artifact.youControl())
-            )
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.ContextTarget(0))
+            ))
+            trigger = Triggers.BeginCombat
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target)
                 .then(
-                    ConditionalEffect(
-                        condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature)),
-                        effect = Effects.BecomeCreature(
-                            target = EffectTarget.ContextTarget(0),
+                    Effects.If(
+                        condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature, target)),
+                        then = Effects.BecomeCreature(
+                            target = target,
                             power = 0,
                             toughness = 0,
                             creatureTypes = setOf("Robot"),

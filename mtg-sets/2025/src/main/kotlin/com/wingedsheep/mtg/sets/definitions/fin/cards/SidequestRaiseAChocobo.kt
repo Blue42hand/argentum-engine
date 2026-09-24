@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -87,7 +85,7 @@ private val SidequestRaiseAChocoboFront = card("Sidequest: Raise a Chocobo") {
     // "Whenever a land you control enters, this token gets +1/+0 until end of turn."
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(Color.GREEN),
@@ -111,7 +109,7 @@ private val SidequestRaiseAChocoboFront = card("Sidequest: Raise a Chocobo") {
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
         interveningIf = Conditions.YouControlAtLeast(4, GameObjectFilter.Creature.withSubtype("Bird"))
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {

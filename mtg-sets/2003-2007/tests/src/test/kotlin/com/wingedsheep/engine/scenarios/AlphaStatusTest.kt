@@ -13,11 +13,11 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -28,7 +28,7 @@ import io.kotest.matchers.shouldBe
  * Exercises the composition that replaced the bespoke `DynamicAmount.CreaturesSharingTypeWithEntity`
  * variant: `AggregateBattlefield(Player.Each, Creature.sharingCreatureTypeWith(AffectedEntity),
  * excludeSelf = true)`. Two engine behaviours are under test:
- *   - `EntityReference.AffectedEntity` resolves inside an `AggregateBattlefield` filter predicate
+ *   - `EffectTarget.AffectedEntity` resolves inside an `AggregateBattlefield` filter predicate
  *     during projection (so the filter knows which creature "it" refers to).
  *   - `excludeSelf` excludes the *affected* (enchanted) creature, not the Aura source — otherwise
  *     the enchanted creature would count itself (it trivially shares all its own types).
@@ -47,10 +47,10 @@ class AlphaStatusTest : FunSpec({
         staticAbility {
             val sharedTypeCount = DynamicAmount.AggregateBattlefield(
                 player = Player.Each,
-                filter = GameObjectFilter.Creature.sharingCreatureTypeWith(EntityReference.AffectedEntity),
+                filter = GameObjectFilter.Creature.sharingCreatureTypeWith(EffectTarget.AffectedEntity),
                 excludeSelf = true,
             )
-            ability = GrantDynamicStatsEffect(
+            ability = GrantDynamicStats(
                 filter = GroupFilter.attachedCreature(),
                 powerBonus = DynamicAmount.Multiply(sharedTypeCount, 2),
                 toughnessBonus = DynamicAmount.Multiply(sharedTypeCount, 2),

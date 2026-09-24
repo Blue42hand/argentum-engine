@@ -183,7 +183,7 @@ import com.wingedsheep.sdk.scripting.GrantLandwalkOfChosenType
 import com.wingedsheep.sdk.scripting.RemoveKeywordStatic
 import com.wingedsheep.sdk.scripting.CantBeBlockedWhilePropertyAtMost
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
@@ -685,7 +685,7 @@ class StaticAbilityHandler(
                     affectsFilter = convertGroupFilter(ability.filter)
                 )
             }
-            is GrantDynamicStatsEffect -> {
+            is GrantDynamicStats -> {
                 ContinuousEffectData(
                     modification = Modification.ModifyPowerToughnessDynamic(ability.powerBonus, ability.toughnessBonus),
                     affectsFilter = convertGroupFilter(ability.filter)
@@ -1187,7 +1187,7 @@ class StaticAbilityHandler(
             is com.wingedsheep.sdk.scripting.ReplaceLifePaymentWithLibraryExile,
             // Draws:
             is com.wingedsheep.sdk.scripting.PreventDraw,
-            is com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect,
+            is com.wingedsheep.sdk.scripting.ReplaceDrawWith,
             is com.wingedsheep.sdk.scripting.ModifyDrawAmount,
             // Mill:
             is com.wingedsheep.sdk.scripting.ModifyMillAmount,
@@ -1205,7 +1205,7 @@ class StaticAbilityHandler(
             is com.wingedsheep.sdk.scripting.PermanentsEnterTapped,
             // Zone changes and turns:
             is com.wingedsheep.sdk.scripting.RedirectZoneChange,
-            is com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect,
+            is com.wingedsheep.sdk.scripting.RedirectZoneChangeWith,
             is com.wingedsheep.sdk.scripting.PreventExtraTurns,
             // Keyword-action modification, consulted from the battlefield when the action happens:
             // explore (Twists and Turns) and connive (Leader, Super-Genius).
@@ -1225,7 +1225,7 @@ class StaticAbilityHandler(
             is com.wingedsheep.sdk.scripting.EntersWithDevour,
             is com.wingedsheep.sdk.scripting.EntersWithRevealCounters,
             is com.wingedsheep.sdk.scripting.EntersWithExileCounters,
-            is com.wingedsheep.sdk.scripting.OnEnterRunEffect -> false
+            is com.wingedsheep.sdk.scripting.OnEnterRun -> false
         }
 
     /**

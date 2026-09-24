@@ -7,12 +7,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The enters trigger is a reflexive one (CR 603.12): the edict only happens if a creature or
@@ -31,7 +29,7 @@ val WinterTormentedLoner = card("Winter, Tormented Loner") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(GameObjectFilter.CreatureOrPlaneswalker),
             optional = true,
             reflexiveEffect = Effects.Sacrifice(
@@ -47,14 +45,14 @@ val WinterTormentedLoner = card("Winter, Tormented Loner") {
     }
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmounts.zone(
                 Player.You,
                 Zone.GRAVEYARD,
                 GameObjectFilter.CreatureOrPlaneswalker
             ).count(),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

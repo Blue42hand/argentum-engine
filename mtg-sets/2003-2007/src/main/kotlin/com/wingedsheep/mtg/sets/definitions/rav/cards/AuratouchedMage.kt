@@ -9,17 +9,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Auratouched Mage
@@ -30,7 +22,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * creature is still on the battlefield, put that Aura card onto the battlefield attached to it.
  * Otherwise, reveal the Aura card and put it into your hand. Then shuffle.
  *
- * The search pool is `couldEnchant(Source)` — each Aura card's printed enchant restriction tested
+ * The search pool is `couldEnchant(Self)` — each Aura card's printed enchant restriction tested
  * against the Mage as it currently exists (so an Aura with "enchant artifact" qualifies if the
  * Mage has been made an artifact, per the ruling). Searching for a card with a stated quality may
  * fail to find (CR 701.23b), so the choice is up to one. The Aura then enters attached to the Mage
@@ -49,38 +41,30 @@ val AuratouchedMage = card("Auratouched Mage") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(
+        effect = Effects.Pipeline {
+            val searchable = gather(
+                CardSource.FromZone(
                     Zone.LIBRARY,
                     Player.You,
-                    GameObjectFilter.Enchantment.withSubtype("Aura").couldEnchant(EntityReference.Source)
-                ),
-                storeAs = "searchable"
-            ),
-            SelectFromCollectionEffect(
-                from = "searchable",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                storeSelected = "found",
-                prompt = "Search for an Aura card that could enchant Auratouched Mage"
-            ),
-            ConditionalEffect(
-                Conditions.SourceInZone(Zone.BATTLEFIELD),
-                MoveCollectionEffect(
-                    from = "found",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                    attachTo = EffectTarget.Self
-                ),
-                MoveCollectionEffect(
-                    from = "found",
-                    destination = CardDestination.ToZone(Zone.HAND),
-                    revealed = true
+                    GameObjectFilter.Enchantment.withSubtype("Aura").couldEnchant(EffectTarget.Self)
                 )
-            ),
-            ShuffleLibraryEffect(),
+            )
+            val found = chooseUpTo(
+                1,
+                from = searchable,
+                prompt = "Search for an Aura card that could enchant Auratouched Mage"
+            )
+            run(Effects.If(
+                Conditions.SourceInZone(Zone.BATTLEFIELD),
+                Effects.Pipeline {
+                    move(found, CardDestination.ToZone(Zone.BATTLEFIELD), attachTo = EffectTarget.Self)
+                },
+                Effects.Pipeline { toHand(found, revealed = true) }
+            ))
+            run(Effects.ShuffleLibrary())
             // CR 701.23 — the search happened whether or not anything was found.
-            EmitLibrarySearchedEventEffect
-        )
+            run(EmitLibrarySearchedEventEffect)
+        }
     }
 
     metadata {

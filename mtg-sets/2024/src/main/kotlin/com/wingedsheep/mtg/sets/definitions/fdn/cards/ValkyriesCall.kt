@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -48,7 +49,7 @@ val ValkyriesCall = card("Valkyrie's Call") {
             // Return that card to the battlefield under its owner's control.
             Effects.Move(EffectTarget.TriggeringEntity, Zone.BATTLEFIELD),
             // ... with a +1/+1 counter on it.
-            Effects.AddCounters("+1/+1", 1, EffectTarget.TriggeringEntity),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity),
             // It has flying and is an Angel in addition to its other types.
             Effects.AddCreatureType("Angel", EffectTarget.TriggeringEntity, Duration.Permanent),
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.TriggeringEntity, Duration.Permanent)

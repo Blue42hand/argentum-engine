@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -24,7 +24,7 @@ val MistformMutant = card("Mistform Mutant") {
     activatedAbility {
         cost = Costs.Mana("{1}{U}")
         val t = target("target", TargetCreature())
-        effect = BecomeCreatureTypeEffect(
+        effect = Effects.BecomeCreatureType(
             target = t,
             excludedTypes = listOf("Wall")
         )

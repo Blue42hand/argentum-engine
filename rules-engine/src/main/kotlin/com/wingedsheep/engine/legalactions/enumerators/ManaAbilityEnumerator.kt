@@ -12,7 +12,6 @@ import com.wingedsheep.engine.mechanics.mana.LandManaColorInspector
 import com.wingedsheep.engine.mechanics.mana.ManaColorSetResolver
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
-import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -544,7 +543,7 @@ class ManaAbilityEnumerator : ActionEnumerator {
         val needed = (atom.count as? DynamicAmount.Fixed)?.amount ?: return true
         if (needed <= 0) return true
         val available = if (atom.self) {
-            val type = atom.counterType?.let { resolveCounterType(it) }
+            val type = atom.counterType?.let { it }
             if (type != null) counters?.getCount(type) ?: 0 else counters?.counters?.values?.sum() ?: 0
         } else {
             context.costUtils.buildRemoveCountersPermanents(state, playerId, atom.filter, atom.counterType)

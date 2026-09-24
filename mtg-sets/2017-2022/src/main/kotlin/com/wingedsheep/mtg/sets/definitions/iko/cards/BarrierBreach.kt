@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -30,8 +29,8 @@ val BarrierBreach = card("Barrier Breach") {
 
     spell {
         target("target", TargetPermanent(count = 3, optional = true, filter = TargetFilter.Enchantment))
-        effect = ForEachTargetEffect(
-            effects = listOf(Effects.Exile(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.Exile(EffectTarget.ContextTarget(0))
         )
     }
 

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  * shape; the granted ability keeps the SELF binding of
  * [Triggers.DealsCombatDamageToPlayer], which resolves against whichever creature it is riding on.
  *
- * The printed "you may" is a [MayEffect] consent gate around the draw, not an `optional` flag.
+ * The printed "you may" is a [Effects.May] consent gate around the draw, not an `optional` flag.
  */
 val ReconnaissanceMission = card("Reconnaissance Mission") {
     manaCost = "{2}{U}{U}"
@@ -39,7 +38,7 @@ val ReconnaissanceMission = card("Reconnaissance Mission") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsCombatDamageToPlayer.event,
                 binding = Triggers.DealsCombatDamageToPlayer.binding,
-                effect = MayEffect(effect = Effects.DrawCards(1))
+                effect = Effects.May(effect = Effects.DrawCards(1))
             ),
             filter = GroupFilter(GameObjectFilter.Creature.youControl())
         )

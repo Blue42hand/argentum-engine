@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Canonical printing: Return to Ravnica, the card's earliest real printing.
  *
  * "You may" on a triggered ability is the builder's `optional = true`, which lowers to a
- * `MayEffect` around the declared effect — one consent gate, asked at resolution. The target is
+ * `Effects.May` around the declared effect — one consent gate, asked at resolution. The target is
  * still chosen when the ability goes on the stack, so declining wastes the choice (CR 603.3d).
  */
 val Batterhorn = card("Batterhorn") {

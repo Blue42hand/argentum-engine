@@ -243,12 +243,15 @@
                         "amount": 3
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
                 "targetRequirements": [
-                    "AnyTarget"
+                    {
+                        "type": "AnyTarget",
+                        "id": "any target"
+                    }
                 ],
                 "descriptionOverride": "{5}, {T}, Sacrifice this creature: It deals 3 damage to any target."
             }
@@ -363,17 +366,17 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "MENACE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -477,7 +480,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -487,8 +490,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact or enchantment"
                                 },
                                 "destination": "Hand"
                             },
@@ -498,7 +501,8 @@
                                     "filter": {
                                         "baseFilter": "artifact|enchantment own:you",
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target artifact or enchantment"
                                 }
                             ],
                             "description": "Return target artifact or enchantment card from your graveyard to your hand"

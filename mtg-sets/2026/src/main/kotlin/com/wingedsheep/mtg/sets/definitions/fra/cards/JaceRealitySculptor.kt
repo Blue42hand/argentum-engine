@@ -6,23 +6,18 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Jace, Reality Sculptor
@@ -61,7 +56,7 @@ val JaceRealitySculptor = card("Jace, Reality Sculptor") {
     }
 
     loyaltyAbility(-3) {
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = TriggerSpec(
                 event = EventPattern.AttackEvent(
                     filter = GameObjectFilter.Creature.attackingYouOrYourPlaneswalkers(),
@@ -80,30 +75,23 @@ val JaceRealitySculptor = card("Jace, Reality Sculptor") {
             ActivationRestriction.OnlyIfCondition(
                 Conditions.CounterKindAmongYouControlAtLeast(
                     count = 25,
-                    counterType = CounterTypeFilter.Loyalty,
+                    counterType = CounterType.LOYALTY,
                     filter = GameObjectFilter.Planeswalker.withSubtype("Jace"),
                 )
             )
         )
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(
-                        DynamicAmount.IfPositive(
-                            DynamicAmount.Subtract(
-                                DynamicAmount.Count(Player.You, Zone.LIBRARY),
-                                DynamicAmount.Fixed(1),
-                            )
+            Effects.Pipeline {
+                val realitySculptorExiled = gather(
+                    CardSource.TopOfLibrary(
+                        DynamicAmounts.nonNegative(
+                            DynamicAmounts.count(Player.You, Zone.LIBRARY) - 1
                         )
-                    ),
-                    storeAs = "realitySculptorExiled",
-                ),
-                MoveCollectionEffect(
-                    from = "realitySculptorExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                ),
-            ),
+                    )
+                )
+                exile(realitySculptorExiled)
+            },
         )
         description = "Exile all but the bottom card of each opponent's library. Activate only if " +
             "there are twenty-five or more loyalty counters among Jaces you control."

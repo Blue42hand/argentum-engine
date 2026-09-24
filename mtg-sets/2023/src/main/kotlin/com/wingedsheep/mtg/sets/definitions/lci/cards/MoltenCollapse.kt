@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Molten Collapse
@@ -42,10 +42,10 @@ val MoltenCollapse = card("Molten Collapse") {
         modal(
             chooseCount = 2,
             minChooseCount = 1,
-            dynamicChooseCount = DynamicAmount.Conditional(
+            dynamicChooseCount = DynamicAmounts.conditional(
                 condition = Conditions.YouDescendedThisTurn(atLeast = 1),
-                ifTrue = DynamicAmount.Fixed(2),
-                ifFalse = DynamicAmount.Fixed(1)
+                ifTrue = 2,
+                ifFalse = 1
             )
         ) {
             mode("Destroy target creature or planeswalker") {

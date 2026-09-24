@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -29,9 +28,9 @@ val FoolishFate = card("Foolish Fate") {
 
     spell {
         val creature = target("target creature", Targets.Creature)
-        effect = Effects.Destroy(creature) then ConditionalEffect(
+        effect = Effects.Destroy(creature) then Effects.If(
             condition = Conditions.YouGainedLifeThisTurn,
-            effect = Effects.LoseLife(3, EffectTarget.TargetController),
+            then = Effects.LoseLife(3, EffectTarget.TargetController),
         )
     }
 

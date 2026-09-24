@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,10 +10,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Homarid
@@ -48,7 +46,7 @@ val Homarid = card("Homarid") {
 
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.Named(Counters.TIDE),
+            counterType = CounterType.TIDE,
             count = 1,
             selfOnly = true
         )
@@ -56,31 +54,31 @@ val Homarid = card("Homarid") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.AddCounters(Counters.TIDE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.TIDE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a tide counter on this creature."
     }
 
     staticAbility {
         condition = Conditions.CompareAmounts(
-            DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.TIDE)),
+            DynamicAmounts.countersOnSelf(CounterType.TIDE),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(1),
+            1,
         )
         ability = ModifyStats(-1, -1, GroupFilter.source())
     }
 
     staticAbility {
         condition = Conditions.CompareAmounts(
-            DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.TIDE)),
+            DynamicAmounts.countersOnSelf(CounterType.TIDE),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(3),
+            3,
         )
         ability = ModifyStats(1, 1, GroupFilter.source())
     }
 
     stateTriggeredAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.TIDE, 4)
-        effect = Effects.RemoveAllCountersOfType(Counters.TIDE, EffectTarget.Self)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.TIDE, 4)
+        effect = Effects.RemoveAllCountersOfType(CounterType.TIDE, EffectTarget.Self)
         description = "Whenever there are four or more tide counters on this creature, remove all tide counters from it."
     }
 

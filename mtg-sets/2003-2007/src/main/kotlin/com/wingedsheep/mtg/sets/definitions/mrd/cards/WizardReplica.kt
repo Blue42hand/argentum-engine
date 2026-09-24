@@ -33,8 +33,8 @@ val WizardReplica = card("Wizard Replica") {
     keywords(Keyword.FLYING)
 
     activatedAbility {
+        val spell = target("target spell", Targets.Spell)
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.SacrificeSelf)
-        target = Targets.Spell
         effect = Effects.CounterUnlessPays("{2}")
         description = "{U}, Sacrifice this creature: Counter target spell unless its controller pays {2}."
     }

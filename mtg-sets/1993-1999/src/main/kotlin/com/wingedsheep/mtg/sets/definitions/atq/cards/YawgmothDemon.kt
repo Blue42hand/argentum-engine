@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -40,7 +39,7 @@ val YawgmothDemon = card("Yawgmoth Demon") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         optional = true
-        effect = SacrificeEffect(GameObjectFilter.Artifact)
+        effect = Effects.SacrificeOwn(GameObjectFilter.Artifact)
         elseEffect = Effects.Composite(
             listOf(
                 Effects.Tap(EffectTarget.Self),

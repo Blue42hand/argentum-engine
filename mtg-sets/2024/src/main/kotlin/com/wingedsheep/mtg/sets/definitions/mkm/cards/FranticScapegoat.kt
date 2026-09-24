@@ -7,13 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Frantic Scapegoat — Murders at Karlov Manor #126
@@ -85,28 +79,27 @@ val FranticScapegoat = card("Frantic Scapegoat") {
     triggeredAbility {
         trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Creature, excludeSource = true)
         interveningIf = Conditions.SourceIsSuspected
-        effect = Effects.Composite(
-            SelectFromCollectionEffect(
-                from = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                storeSelected = "scapegoated",
+        effect = Effects.Pipeline {
+            val scapegoated = chooseUpTo(
+                1,
+                from = triggerCaptured,
                 useTargetingUI = true,
                 prompt = "You may suspect one of the creatures that entered. " +
                     "If you do, Frantic Scapegoat is no longer suspected."
-            ),
-            // Inside a ForEach over a collection, EffectTarget.Self rebinds to the iteration
+            )
+            // Inside a ForEach over a collection, EffectTarget.IterationEntity is the iteration
             // item — so this suspects the chosen creature, not the Goat.
-            ForEachInCollectionEffect(
-                collection = "scapegoated",
-                effect = Effects.Suspect(EffectTarget.Self)
-            ),
+            run(Effects.ForEachInCollection(
+                collection = scapegoated,
+                effect = Effects.Suspect(EffectTarget.IterationEntity)
+            ))
             // Back at the top level, Self is the source again: the Goat sheds its own suspicion,
             // but only if a creature was actually chosen ("If you do").
-            ConditionalEffect(
-                condition = Conditions.CollectionContainsMatch("scapegoated"),
-                effect = Effects.NoLongerSuspected(EffectTarget.Self)
-            ),
-        )
+            run(Effects.If(
+                condition = whenMatches(scapegoated),
+                then = Effects.NoLongerSuspected(EffectTarget.Self)
+            ))
+        }
         description = "Whenever one or more other creatures you control enter, if this creature " +
             "is suspected, you may suspect one of the other creatures. If you do, this creature " +
             "is no longer suspected."

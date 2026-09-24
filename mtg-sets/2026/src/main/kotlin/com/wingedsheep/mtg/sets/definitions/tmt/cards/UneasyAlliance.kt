@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttack
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -47,7 +46,7 @@ val UneasyAlliance = card("Uneasy Alliance") {
         timing = TimingRule.SorcerySpeed
         effect = Effects.Exile(EffectTarget.EnchantedCreature)
             .then(
-                CreateTokenEffect(
+                Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.BLACK),

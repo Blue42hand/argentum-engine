@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,7 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Edgar isn't "other"). The dies trigger returns Edgar transformed via
  * [Effects.ReturnSelfFromGraveyardTransformed] (Ojer Taq's idiom); "under its owner's control" is
  * the default for that effect. The back's upkeep trigger is a [Effects.Composite] of token +
- * counter + a [ConditionalEffect] gated on [Conditions.SourceCounterCountAtLeast] 3 that removes the
+ * counter + a [Effects.If] gated on [Conditions.SourceCounterCountAtLeast] 3 that removes the
  * three counters and transforms (Treasure Map's counter-then-transform idiom). Modeled with
  * [CardDefinition.doubleFacedPermanent] because the back is an artifact, not a creature.
  */
@@ -89,12 +88,12 @@ private val EdgarMarkovsCoffin = card("Edgar Markov's Coffin") {
                 keywords = setOf(Keyword.LIFELINK),
                 imageUri = "https://cards.scryfall.io/normal/front/7/e/7eee78d3-c65f-4454-bd3c-1c55388422f5.jpg?1783924693",
             ),
-            Effects.AddCounters("bloodline", 1, EffectTarget.Self),
-            ConditionalEffect(
-                condition = Conditions.SourceCounterCountAtLeast("bloodline", 3),
-                effect = Effects.Composite(
-                    Effects.RemoveCounters("bloodline", 3, EffectTarget.Self),
-                    TransformEffect(EffectTarget.Self),
+            Effects.AddCounters(CounterType.BLOODLINE, 1, EffectTarget.Self),
+            Effects.If(
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODLINE, 3),
+                then = Effects.Composite(
+                    Effects.RemoveCounters(CounterType.BLOODLINE, 3, EffectTarget.Self),
+                    Effects.Transform(EffectTarget.Self),
                 ),
             ),
         )

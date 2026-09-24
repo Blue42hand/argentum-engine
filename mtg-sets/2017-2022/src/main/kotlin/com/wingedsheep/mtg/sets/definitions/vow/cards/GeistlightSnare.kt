@@ -4,8 +4,8 @@
 
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostModification
@@ -13,8 +13,6 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.effects.CounterCondition
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
@@ -51,7 +49,7 @@ val GeistlightSnare = card("Geistlight Snare") {
     }
     spell {
         val t = target("target", TargetSpell())
-        effect = CounterEffect(condition = CounterCondition.UnlessPaysMana(ManaCost.parse("{3}")))
+        effect = Effects.CounterUnlessPays("{3}")
     }
     metadata {
         rarity = Rarity.UNCOMMON

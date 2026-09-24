@@ -8,17 +8,10 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.AnyCondition
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * "…the same name as [the spell that was just cast]" — shared by the intervening-if gate and the
@@ -28,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * a constant referenced by a card must be defined before it.
  */
 private val NAMED_AS_TRIGGERING_SPELL: GameObjectFilter =
-    GameObjectFilter.Any.sharingNameWith(EntityReference.Triggering)
+    GameObjectFilter.Any.sharingNameWith(EffectTarget.TriggeringEntity)
 
 /**
  * Spellweaver Helix — Mirrodin #247
@@ -86,14 +79,10 @@ val SpellweaverHelix = card("Spellweaver Helix") {
                 sameOwner = true
             )
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "helixImprints"),
-            MoveCollectionEffect(
-                from = "helixImprints",
-                destination = CardDestination.ToZone(Zone.EXILE),
-                linkToSource = true
-            )
-        )
+        effect = Effects.Pipeline {
+            val helixImprints = gather(CardSource.ChosenTargets)
+            exile(helixImprints, linkToSource = true)
+        }
         description = "Imprint — When this artifact enters, you may exile two target sorcery " +
             "cards from a single graveyard."
     }
@@ -111,20 +100,18 @@ val SpellweaverHelix = card("Spellweaver Helix") {
                 Conditions.LinkedExiledCardMatches(NAMED_AS_TRIGGERING_SPELL, index = 1)
             )
         )
-        effect = MayEffect(
-            Effects.Composite(
-                GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "helixPile"),
-                SelectFromCollectionEffect(
-                    from = "helixPile",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
+        effect = Effects.May(
+            Effects.Pipeline {
+                val helixPile = gather(CardSource.FromLinkedExile())
+                val (_, helixOther) = chooseExactlySplit(
+                    1,
+                    from = helixPile,
                     filter = NAMED_AS_TRIGGERING_SPELL,
-                    storeSelected = "helixNamed",
-                    storeRemainder = "helixOther",
                     prompt = "Choose the exiled card with the same name as the spell just cast"
-                ),
-                Effects.CopyCollectionIntoCollection(from = "helixOther", storeAs = "helixCopy"),
-                Effects.CastFromCollectionWithoutPayingCost("helixCopy")
-            ),
+                )
+                val helixCopy = copyCards(helixOther)
+                run(Effects.CastFromCollectionWithoutPayingCost(helixCopy))
+            },
             descriptionOverride = "You may copy the other exiled card and cast the copy without " +
                 "paying its mana cost."
         )

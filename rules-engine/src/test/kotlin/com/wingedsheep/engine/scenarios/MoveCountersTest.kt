@@ -4,7 +4,6 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
@@ -40,7 +39,7 @@ class MoveCountersTest : FunSpec({
             val source = target("source", TargetCreature())
             val dest = target("destination", TargetCreature(filter = TargetFilter.OtherCreature))
             effect = Effects.MoveCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.Fixed(amount),
                 source = source,
                 destination = dest,

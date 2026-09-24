@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,11 +10,9 @@ import com.wingedsheep.sdk.dsl.nightbound
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ill-Tempered Loner // Howlpack Avenger (Innistrad: Crimson Vow)
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * hits *any* target (not "any **other**"), so it can even bounce at the source that struck it.
  *
  * The back widens the watch to "**a permanent you control** is dealt damage" — the Kazarov observer rail
- * ([Triggers.dealsDamage] with `recipient = RecipientFilter.PermanentYouControl` and
+ * ([Triggers.dealsDamage] with `recipient = Recipient.PermanentYouControl` and
  * [TriggerBinding.ANY], which matches any `DealsDamageEvent` whose recipient is a permanent this creature's
  * controller controls, including the creature itself). It deals that much damage to any target, sourced
  * from itself (`damageSource = EffectTarget.Self`) so it reads as "**this creature** deals…". Each damage
@@ -56,7 +55,7 @@ private val IllTemperedLonerFront = card("Ill-Tempered Loner") {
         trigger = Triggers.TakesDamage
         val victim = target("any target", AnyTarget())
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = victim,
             damageSource = EffectTarget.Self,
         )
@@ -91,12 +90,12 @@ private val HowlpackAvenger = card("Howlpack Avenger") {
 
     triggeredAbility {
         trigger = Triggers.dealsDamage(
-            recipient = RecipientFilter.PermanentYouControl,
+            recipient = Recipient.PermanentYouControl,
             binding = TriggerBinding.ANY,
         )
         val victim = target("any target", AnyTarget())
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = victim,
             damageSource = EffectTarget.Self,
         )

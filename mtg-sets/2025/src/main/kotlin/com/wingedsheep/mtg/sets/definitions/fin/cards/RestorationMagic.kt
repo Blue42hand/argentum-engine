@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Restoration Magic
@@ -35,22 +34,22 @@ val RestorationMagic = card("Restoration Magic") {
     spell {
         tiered {
             tier("Cure", "{0}", "Target permanent gains hexproof and indestructible until end of turn.") {
+                val permanent = target("target permanent", Targets.Permanent)
                 effect = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.ContextTarget(0)),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.ContextTarget(0))
+                    Effects.GrantKeyword(Keyword.HEXPROOF, permanent),
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent)
                 )
-                target = Targets.Permanent
             }
             tier(
                 "Cura", "{1}",
                 "Target permanent gains hexproof and indestructible until end of turn. You gain 3 life."
             ) {
+                val permanent = target("target permanent", Targets.Permanent)
                 effect = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.ContextTarget(0)),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.ContextTarget(0)),
+                    Effects.GrantKeyword(Keyword.HEXPROOF, permanent),
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent),
                     Effects.GainLife(3)
                 )
-                target = Targets.Permanent
             }
             tier(
                 "Curaga", "{3}{W}",

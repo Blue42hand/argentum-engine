@@ -1,16 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -32,14 +30,13 @@ val CryptSliver = card("Crypt Sliver") {
 
     staticAbility {
         ability = GrantActivatedAbility(
-            ability = ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = Costs.Tap,
-                effect = RegenerateEffect(EffectTarget.ContextTarget(0)),
-                targetRequirement = TargetCreature(
+            ability = grantedActivatedAbility {
+                cost = Costs.Tap
+                val creature = target("target creature", TargetCreature(
                     filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Sliver"))
-                )
-            ),
+                ))
+                effect = Effects.Regenerate(creature)
+            },
             filter = sliverFilter
         )
     }

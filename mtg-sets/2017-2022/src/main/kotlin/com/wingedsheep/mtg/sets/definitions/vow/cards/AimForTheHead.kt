@@ -45,8 +45,8 @@ val AimForTheHead = card("Aim for the Head") {
                 effect = Effects.Exile(zombie)
             }
             mode("Target opponent exiles two cards from their hand") {
-                target("opponent", Targets.Opponent)
-                effect = Patterns.Hand.exileFromHand(2)
+                val opponent = target("target opponent", Targets.Opponent)
+                effect = Patterns.Hand.exileFromHand(2, target = opponent)
             }
         }
     }

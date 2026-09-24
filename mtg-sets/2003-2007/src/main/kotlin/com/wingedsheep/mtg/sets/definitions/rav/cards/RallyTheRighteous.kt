@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Rally the Righteous
@@ -18,7 +17,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * creatures get +2/+0 until end of turn.
  *
  * Radiance: the target is untapped and pumped directly; every *other* creature sharing a color
- * with it (`sharingColorWith(EntityReference.Target(0))`, `otherThanTarget()`) is gathered once
+ * with it (`sharingColorWith(EffectTarget.ContextTarget(0))`, `otherThanTarget()`) is gathered once
  * as the spell resolves and untapped-then-pumped in the same pass — "those creatures" is the
  * group the first sentence named, so it isn't re-evaluated for the pump. A colorless target
  * shares a color with nothing, so only it is affected.
@@ -36,10 +35,10 @@ val RallyTheRighteous = card("Rally the Righteous") {
             Effects.ModifyStats(2, 0, radiant) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EntityReference.Target(0))
+                    GameObjectFilter.Creature.sharingColorWith(radiant)
                 ).otherThanTarget(),
-                effect = Effects.Untap(EffectTarget.Self) then
-                    Effects.ModifyStats(2, 0, EffectTarget.Self)
+                effect = Effects.Untap(EffectTarget.IterationEntity) then
+                    Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
             )
     }
 

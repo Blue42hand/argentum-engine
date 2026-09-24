@@ -11,7 +11,6 @@ import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -349,7 +348,7 @@ class TargetedProliferateTest : ScenarioTestBase() {
                     matchesHistory(game, bears) shouldBe true
                 }
                 withClue("recorded under the counter's own kind, not a different one") {
-                    matchesHistory(game, bears, counterType = Counters.STUN) shouldBe false
+                    matchesHistory(game, bears, counterType = CounterType.STUN) shouldBe false
                 }
             }
         }
@@ -622,7 +621,7 @@ class TargetedProliferateTest : ScenarioTestBase() {
     private fun matchesHistory(
         game: TestGame,
         id: EntityId,
-        counterType: String = Counters.PLUS_ONE_PLUS_ONE
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE
     ): Boolean = predicateEvaluator.matches(
         game.state,
         game.state.projectedState,

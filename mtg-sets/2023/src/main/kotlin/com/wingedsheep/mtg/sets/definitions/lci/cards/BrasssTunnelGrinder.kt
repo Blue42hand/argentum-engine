@@ -1,23 +1,21 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Brass's Tunnel-Grinder // Tecutlan, the Searing Rift (The Lost Caverns of Ixalan)
@@ -39,8 +37,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Implementation:
  *  - ETB loots via [Patterns.Hand.discardAnyNumber] (stores the discard count under `discarded`),
  *    then draws `discarded_count + 1` ([DynamicAmount.Add] of the stored count and one).
- *  - End-step [Conditions.YouDescendedThisTurn] intervening-if adds a [Counters.BORE] passive
- *    counter; a resolution-time [ConditionalEffect] on [Conditions.SourceCounterCountAtLeast]`(bore,
+ *  - End-step [Conditions.YouDescendedThisTurn] intervening-if adds a [CounterType.BORE] passive
+ *    counter; a resolution-time [Effects.If] on [Conditions.SourceCounterCountAtLeast]`(bore,
  *    3)` removes three and flips it (Grasping Shadows' dread idiom).
  *  - Tecutlan's cast trigger uses [SpellCastPredicate.PaidWithManaFromSource] — the mana-source
  *    provenance the engine records for the mana Tecutlan produced — and discovers for the triggering
@@ -60,15 +58,10 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            Patterns.Hand.discardAnyNumber(storeAs = "discarded"),
-            Effects.DrawCards(
-                DynamicAmount.Add(
-                    DynamicAmount.VariableReference("discarded_count"),
-                    DynamicAmount.Fixed(1),
-                )
-            ),
-        )
+        effect = Effects.Pipeline {
+            val discarded = runStoringCollection { Patterns.Hand.discardAnyNumber(storeAs = it) }
+            run(Effects.DrawCards(discarded.count + 1))
+        }
         description = "When Brass's Tunnel-Grinder enters, discard any number of cards, then draw " +
             "that many cards plus one."
     }
@@ -77,12 +70,12 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouDescendedThisTurn()
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.BORE, 1, EffectTarget.Self),
-            ConditionalEffect(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.BORE, 3),
-                effect = Effects.Composite(
-                    Effects.RemoveCounters(Counters.BORE, 3, EffectTarget.Self),
-                    TransformEffect(EffectTarget.Self),
+            Effects.AddCounters(CounterType.BORE, 1, EffectTarget.Self),
+            Effects.If(
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.BORE, 3),
+                then = Effects.Composite(
+                    Effects.RemoveCounters(CounterType.BORE, 3, EffectTarget.Self),
+                    Effects.Transform(EffectTarget.Self),
                 ),
             ),
         )
@@ -119,7 +112,7 @@ private val Tecutlan = card("Tecutlan, the Searing Rift") {
             spellFilter = GameObjectFilter.Permanent,
             requires = setOf(SpellCastPredicate.PaidWithManaFromSource),
         )
-        effect = Effects.Discover(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGERING_SPELL_MANA_VALUE))
+        effect = Effects.Discover(DynamicAmounts.triggeringSpellManaValue())
         description = "Whenever you cast a permanent spell using mana produced by Tecutlan, " +
             "discover X, where X is that spell's mana value."
     }

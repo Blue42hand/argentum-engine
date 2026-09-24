@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Eternal Taskmaster
@@ -31,9 +30,9 @@ val EternalTaskmaster = card("Eternal Taskmaster") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val card = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{B}"),
-            effect = Effects.ReturnToHand(card),
+            then = Effects.ReturnToHand(card),
         )
         description = "Whenever this creature attacks, you may pay {2}{B}. If you do, return target " +
             "creature card from your graveyard to your hand."

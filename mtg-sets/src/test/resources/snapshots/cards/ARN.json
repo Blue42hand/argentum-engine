@@ -384,7 +384,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -624,7 +624,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": {
                             "statePredicates": [
                                 "InSameBandAsSource"
@@ -632,8 +632,13 @@
                         }
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "land Desert"
+                        "cardPredicates": [
+                            "IsLand",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Desert"
+                            }
+                        ]
                     }
                 }
             }
@@ -897,7 +902,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "wind",
+                            "counterType": "WIND",
                             "count": 1,
                             "target": "Self"
                         },
@@ -909,13 +914,10 @@
                                     "type": "PayDynamicManaCost",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "wind"
-                                            }
+                                            "counterType": "WIND"
                                         }
                                     },
                                     "color": "GREEN"
@@ -936,16 +938,13 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
-                                                    "counterType": {
-                                                        "type": "Named",
-                                                        "name": "wind"
-                                                    }
+                                                    "counterType": "WIND"
                                                 }
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     {
@@ -958,13 +957,10 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
-                                                    "counterType": {
-                                                        "type": "Named",
-                                                        "name": "wind"
-                                                    }
+                                                    "counterType": "WIND"
                                                 }
                                             },
                                             "target": "Controller"
@@ -1150,10 +1146,22 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "land Desert"
+                        "cardPredicates": [
+                            "IsLand",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Desert"
+                            }
+                        ]
                     }
                 }
             }
@@ -1235,7 +1243,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Toughness"
                     }
                 }
@@ -1639,7 +1647,7 @@
     "script": {
         "spellEffect": {
             "type": "PreventDamageShield",
-            "sourceFilter": "ChosenSource",
+            "sourceFilter": "PreventFromChosen",
             "onPrevented": {
                 "type": "DealDamage",
                 "amount": {
@@ -2082,7 +2090,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -2543,7 +2551,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "Add",
                         "left": {
@@ -2803,14 +2811,14 @@
                                 "player": "TriggeringPlayer",
                                 "filter": "creature blue tapped"
                             },
-                            "storeAs": "eligible"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "eligible",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
                             "chooser": "TriggeringPlayer",
-                            "storeSelected": "chosen",
+                            "storeSelected": "selected1",
                             "prompt": "Choose any number of tapped blue creatures to untap (pay {4} for each)",
                             "useTargetingUI": true,
                             "restrictions": [
@@ -2823,7 +2831,7 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "chosen",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "Gated",
                                 "gate": {
@@ -2834,7 +2842,7 @@
                                             "type": "Multiply",
                                             "amount": {
                                                 "type": "VariableReference",
-                                                "variableName": "chosen_count"
+                                                "variableName": "selected1_count"
                                             },
                                             "multiplier": 4
                                         },
@@ -2845,11 +2853,11 @@
                                     "type": "ForEach",
                                     "space": {
                                         "type": "IterationSpace.Collection",
-                                        "collection": "chosen"
+                                        "collection": "selected1"
                                     },
                                     "body": {
                                         "type": "TapUntap",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "tap": false
                                     }
                                 },
@@ -2968,7 +2976,7 @@
                 },
                 "right": {
                     "type": "EntityProperty",
-                    "entity": "Sacrificed",
+                    "entity": "SacrificedAsCost",
                     "numericProperty": "ManaValue"
                 }
             },
@@ -3092,7 +3100,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreateDelayedTrigger",
@@ -3237,7 +3248,7 @@
                                     "IsCreature",
                                     {
                                         "type": "PowerAtMostEntity",
-                                        "reference": "Source"
+                                        "reference": "Self"
                                     }
                                 ]
                             }
@@ -3336,7 +3347,7 @@
                     "type": "Fixed",
                     "amount": 3
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3376,8 +3387,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target enchantment"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -3401,7 +3412,8 @@
                                                 }
                                             ]
                                         }
-                                    }
+                                    },
+                                    "id": "target enchantment"
                                 }
                             ],
                             "description": "Destroy target Aura attached to a land"
@@ -3410,8 +3422,8 @@
                             "effect": {
                                 "type": "RemoveDamageShield",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target land"
                                 }
                             },
                             "targetRequirements": [
@@ -3419,7 +3431,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "land"
-                                    }
+                                    },
+                                    "id": "target land"
                                 }
                             ],
                             "description": "The next time target land would be destroyed this turn, remove all damage marked on it instead"
@@ -3700,7 +3713,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3872,7 +3885,7 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "toDraw"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "DrawCards",
@@ -3883,31 +3896,32 @@
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "toDraw",
+                            "from": "gathered0",
                             "filter": {
-                                "type": "InZone",
-                                "zone": "Hand"
+                                "statePredicates": [
+                                    {
+                                        "type": "InZone",
+                                        "zone": "Hand"
+                                    }
+                                ]
                             },
-                            "storeMatching": "drawn"
+                            "storeMatching": "matching2"
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "drawn",
+                            "from": "matching2",
                             "revealToSelf": false
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "drawn",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
-                            "storeMatching": "keptLand",
-                            "storeNonMatching": "notLand"
+                            "from": "matching2",
+                            "filter": "land",
+                            "storeMatching": "matching4",
+                            "storeNonMatching": "rest4"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "notLand",
+                            "from": "rest4",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
@@ -4080,7 +4094,7 @@
                 "binding": "ATTACHED",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": "EnchantedCreature"
                 }

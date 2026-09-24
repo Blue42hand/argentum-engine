@@ -421,7 +421,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "targetRequirements": [
@@ -471,7 +471,7 @@
                     "type": "Fixed",
                     "amount": -2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "targetRequirements": [
@@ -889,7 +889,7 @@
             "body": {
                 "type": "GrantKeyword",
                 "keyword": "FLYING",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -921,7 +921,7 @@
             },
             "body": {
                 "type": "TapUntap",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -962,7 +962,7 @@
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -978,7 +978,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -1370,7 +1370,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1545,7 +1545,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Graveyard",
                 "byDestruction": true
             }

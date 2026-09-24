@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -62,7 +60,7 @@ val GarrukCurseBreaker = card("Garruk, Curse Breaker") {
             "up to two target lands",
             TargetPermanent(count = 2, optional = true, filter = TargetFilter(GameObjectFilter.Land)),
         )
-        effect = ForEachTargetEffect(listOf(Effects.Untap(EffectTarget.ContextTarget(0))))
+        effect = Effects.ForEachTarget(Effects.Untap(EffectTarget.ContextTarget(0)))
         description = "Untap up to two target lands."
     }
 
@@ -82,7 +80,7 @@ val GarrukCurseBreaker = card("Garruk, Curse Breaker") {
     // −4: Until your next turn, whenever one or more creatures attack one of your opponents,
     //     those creatures get +2/+2 and gain trample until end of turn.
     loyaltyAbility(-4) {
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.CreaturesAttackYourOpponent,
             effect = Patterns.Group.pumpAndGrantToAll(
                 power = 2,

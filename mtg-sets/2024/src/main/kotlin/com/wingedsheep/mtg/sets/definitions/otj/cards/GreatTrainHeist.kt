@@ -9,16 +9,13 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Great Train Heist {R}
@@ -54,14 +51,14 @@ val GreatTrainHeist = card("Great Train Heist") {
         "+ {R} — Choose target opponent. Whenever a creature you control deals combat damage to that player this turn, create a tapped Treasure token."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode(
                     effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl)
                         .then(
-                            ConditionalEffect(
+                            Effects.If(
                                 condition = Conditions.IsInPhase(Phase.COMBAT, yoursOnly = true),
-                                effect = Effects.AddCombatPhase
+                                then = Effects.AddCombatPhase
                             )
                         ),
                     description = "+ {2}{R} — Untap all creatures you control. If it's your combat phase, there is an additional combat phase after this phase.",
@@ -74,20 +71,19 @@ val GreatTrainHeist = card("Great Train Heist") {
                     description = "+ {2} — Creatures you control get +1/+0 and gain first strike until end of turn.",
                     additionalManaCost = "{2}"
                 ),
-                Mode(
-                    effect = CreateDelayedTriggerEffect(
+                mode("+ {R} — Choose target opponent. Whenever a creature you control deals combat damage to that player this turn, create a tapped Treasure token.") {
+                    val opponent = target("target opponent", Targets.Opponent)
+                    additionalManaCost = "{R}"
+                    effect = Effects.CreateDelayedTrigger(
                         trigger = Triggers.dealsDamage(
                             damageType = DamageType.Combat,
-                            recipient = RecipientFilter.AnyPlayer,
+                            recipient = Recipient.AnyPlayer,
                             sourceFilter = GameObjectFilter.Creature.youControl(),
                         ),
-                        watchedRecipient = EffectTarget.ContextTarget(0),
+                        watchedRecipient = opponent,
                         effect = Effects.CreateTreasure(1, tapped = true),
-                    ),
-                    targetRequirements = listOf(Targets.Opponent),
-                    description = "+ {R} — Choose target opponent. Whenever a creature you control deals combat damage to that player this turn, create a tapped Treasure token.",
-                    additionalManaCost = "{R}"
-                )
+                    )
+                }
             ),
             chooseCount = 3,
             minChooseCount = 1

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -58,7 +58,7 @@ val Boommobile = card("Boommobile") {
         val victim = target("any target", Targets.Any)
         effect = Effects.Composite(
             Effects.DealXDamage(victim),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
         description = "This Vehicle deals X damage to any target. Put a +1/+1 counter on this Vehicle."
     }

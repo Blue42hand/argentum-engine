@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -38,10 +36,10 @@ val ShackleSlinger = card("Shackle Slinger") {
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetIsTapped(),
-            effect = AddCountersEffect(counterType = Counters.STUN, count = 1, target = t),
-            elseEffect = Effects.Tap(t),
+            then = Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t),
+            otherwise = Effects.Tap(t),
         )
     }
 

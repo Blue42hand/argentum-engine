@@ -100,7 +100,6 @@ val CemeteryProwler = card("Cemetery Prowler") {
 private fun exileFromAGraveyard(): Effect = Effects.Pipeline {
     val graveyards = gather(
         CardSource.FromZone(Zone.GRAVEYARD, Player.Each, GameObjectFilter.Any),
-        name = "graveyards",
     )
     val exiled = chooseExactly(
         1,
@@ -108,7 +107,6 @@ private fun exileFromAGraveyard(): Effect = Effects.Pipeline {
         useTargetingUI = true,
         prompt = "Exile a card from a graveyard",
         selectedLabel = "Exile",
-        name = "exiled",
     )
     exile(exiled, linkToSource = true)
 }

@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Depressurize
@@ -28,9 +27,9 @@ val Depressurize = card("Depressurize") {
         effect = Effects.ModifyStats(-3, 0, target)
             .then(
                 // Then destroy if power is 0 or less
-                ConditionalEffect(
-                    condition = Conditions.TargetPowerAtMost(DynamicAmount.Fixed(0)),
-                    effect = Effects.Destroy(target)
+                Effects.If(
+                    condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(0), target),
+                    then = Effects.Destroy(target)
                 )
             )
     }

@@ -75,7 +75,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Graveyard",
                 "byDestruction": true
             }
@@ -1176,7 +1176,7 @@
                     "body": {
                         "type": "DealDamage",
                         "amount": "XValue",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -1327,7 +1327,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Graveyard",
                 "byDestruction": true
             }
@@ -1992,7 +1992,7 @@
                     "body": {
                         "type": "DealDamage",
                         "amount": "XValue",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -2040,7 +2040,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "RecipientOpponent"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -2912,7 +2915,7 @@
                     },
                     "body": {
                         "type": "MoveToZone",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "destination": "Graveyard",
                         "byDestruction": true
                     }
@@ -3230,8 +3233,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target"
             },
             "destination": "Hand"
         },
@@ -3241,7 +3244,8 @@
                 "filter": {
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
-                }
+                },
+                "id": "target"
             }
         ]
     },
@@ -4081,7 +4085,10 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target creature"
+                        },
                         "numericProperty": "Power"
                     },
                     "target": "TargetController"
@@ -5132,7 +5139,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Graveyard",
                 "byDestruction": true
             }

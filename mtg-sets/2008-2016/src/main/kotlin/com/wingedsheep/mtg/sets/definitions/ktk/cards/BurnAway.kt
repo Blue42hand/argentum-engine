@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MarkExileControllerGraveyardOnDeathEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -23,7 +22,7 @@ val BurnAway = card("Burn Away") {
     spell {
         val t = target("creature", Targets.Creature)
         effect = Effects.DealDamage(6, t) then
-                MarkExileControllerGraveyardOnDeathEffect(t)
+                Effects.MarkExileControllerGraveyardOnDeath(t)
     }
 
     metadata {

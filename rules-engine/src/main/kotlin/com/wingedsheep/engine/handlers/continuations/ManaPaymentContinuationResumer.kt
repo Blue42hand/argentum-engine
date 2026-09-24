@@ -1295,7 +1295,7 @@ class ManaPaymentContinuationResumer(
      * Resume after the controller selects mana sources to pay a cost for a triggered
      * ability that also requires targets.
      *
-     * Taps the selected sources, deducts mana, unwraps MayPayManaEffect, and proceeds
+     * Taps the selected sources, deducts mana, unwraps Effects.MayPay, and proceeds
      * to target selection with the inner effect.
      */
     fun resumeManaSourceSelection(

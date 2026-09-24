@@ -1,6 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,15 +10,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.AnyCondition
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Reptilian Recruiter {3}{R}{R}
@@ -42,24 +38,24 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = AnyCondition(
                 listOf(
                     // Target creature's power is 2 or less
-                    Compare(
-                        DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                    Conditions.CompareAmounts(
+                        DynamicAmounts.powerOf(creature),
                         ComparisonOperator.LTE,
-                        DynamicAmount.Fixed(2)
+                        2
                     ),
                     // You control another Lizard (2+ Lizards total since this is a Lizard)
-                    Compare(
-                        DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Lizard")),
+                    Conditions.CompareAmounts(
+                        DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Lizard")).count(),
                         ComparisonOperator.GTE,
-                        DynamicAmount.Fixed(2)
+                        2
                     )
                 )
             ),
-            effect = Effects.GainControl(creature, Duration.EndOfTurn)
+            then = Effects.GainControl(creature, Duration.EndOfTurn)
                 .then(Effects.Untap(creature))
                 .then(Effects.GrantKeyword(Keyword.HASTE, creature))
         )

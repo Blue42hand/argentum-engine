@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -41,9 +40,9 @@ val Probe = card("Probe") {
         val targetPlayer = target("target player", TargetPlayer(optional = true))
         effect = Effects.DrawCards(3) then
             Effects.Discard(2) then
-            ConditionalEffect(
+            Effects.If(
                 condition = WasKicked,
-                effect = Effects.Discard(2, targetPlayer)
+                then = Effects.Discard(2, targetPlayer)
             )
     }
 

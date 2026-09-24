@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -28,7 +27,7 @@ val Swelter = card("Swelter") {
     oracleText = "Swelter deals 2 damage to each of two target creatures."
     spell {
         val t = target("target", TargetCreature(count = 2, filter = TargetFilter.Creature))
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Permanent), DealDamageEffect(2, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Permanent), Effects.DealDamage(2, EffectTarget.IterationEntity))
     }
     metadata {
         rarity = Rarity.UNCOMMON

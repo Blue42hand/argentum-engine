@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Supertype
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
@@ -15,11 +16,8 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
@@ -148,18 +146,18 @@ class CardValidatorTest : DescribeSpec({
             errors[0].shouldBeInstanceOf<CardValidationError.InvalidTargetIndex>().index shouldBe 2
         }
 
-        it("flags nested MayEffect inside ConditionalEffect + elseEffect") {
+        it("flags nested Effects.May inside Effects.If + elseEffect") {
             val card = CardDefinition(
                 name = "Deep Nest",
                 manaCost = ManaCost.parse("{2}{R}"),
                 typeLine = TypeLine.sorcery(),
                 script = CardScript(
-                    spellEffect = ConditionalEffect(
+                    spellEffect = Effects.If(
                         condition = Conditions.SourceIsAttacking,
-                        effect = MayEffect(
+                        then = Effects.May(
                             DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(3))
                         ),
-                        elseEffect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(7)),
+                        otherwise = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(7)),
                     ),
                     targetRequirements = listOf(AnyTarget()),
                 ),
@@ -253,7 +251,7 @@ class CardValidatorTest : DescribeSpec({
                 manaCost = ManaCost.parse("{R}"),
                 typeLine = TypeLine.instant(),
                 script = CardScript(
-                    spellEffect = MayEffect(
+                    spellEffect = Effects.May(
                         DealDamageEffect(DynamicAmount.Fixed(3), EffectTarget.ContextTarget(0)),
                     ),
                     targetRequirements = listOf(AnyTarget()),
@@ -388,10 +386,10 @@ class CardValidatorTest : DescribeSpec({
                 manaCost = ManaCost.parse("{R}"),
                 typeLine = TypeLine.instant(),
                 script = CardScript(
-                    spellEffect = IfYouDoEffect(
+                    spellEffect = Effects.IfYouDo(
                         // Deal-damage has no zone-move shape — Auto used to fail open here.
                         action = DealDamageEffect(DynamicAmount.Fixed(2), EffectTarget.Controller),
-                        ifYouDo = DrawCardsEffect(1),
+                        then = DrawCardsEffect(1),
                     ),
                 ),
             )
@@ -413,9 +411,9 @@ class CardValidatorTest : DescribeSpec({
                             trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                             effect = ModalEffect.chooseOne(
                                 Mode.noTarget(
-                                    IfYouDoEffect(
+                                    Effects.IfYouDo(
                                         action = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.Controller),
-                                        ifYouDo = DrawCardsEffect(1),
+                                        then = DrawCardsEffect(1),
                                     )
                                 ),
                                 Mode.noTarget(DrawCardsEffect(1)),
@@ -438,12 +436,12 @@ class CardValidatorTest : DescribeSpec({
                     spellEffect = CompositeEffect(
                         listOf(
                             GatherCardsEffect(CardSource.FromZone(Zone.HAND), storeAs = "discarded"),
-                            IfYouDoEffect(
+                            Effects.IfYouDo(
                                 action = MoveCollectionEffect(
                                     from = "discarded",
                                     destination = CardDestination.ToZone(Zone.GRAVEYARD),
                                 ),
-                                ifYouDo = DrawCardsEffect(1),
+                                then = DrawCardsEffect(1),
                             ),
                         ),
                     ),
@@ -458,9 +456,9 @@ class CardValidatorTest : DescribeSpec({
                 manaCost = ManaCost.parse("{U}"),
                 typeLine = TypeLine.instant(),
                 script = CardScript(
-                    spellEffect = IfYouDoEffect(
+                    spellEffect = Effects.IfYouDo(
                         action = MoveToZoneEffect(EffectTarget.Self, Zone.EXILE),
-                        ifYouDo = DrawCardsEffect(1),
+                        then = DrawCardsEffect(1),
                     ),
                 ),
             )
@@ -473,9 +471,9 @@ class CardValidatorTest : DescribeSpec({
                 manaCost = ManaCost.parse("{R}"),
                 typeLine = TypeLine.instant(),
                 script = CardScript(
-                    spellEffect = IfYouDoEffect(
+                    spellEffect = Effects.IfYouDo(
                         action = DealDamageEffect(DynamicAmount.Fixed(2), EffectTarget.Controller),
-                        ifYouDo = DrawCardsEffect(1),
+                        then = DrawCardsEffect(1),
                         successCriterion = SuccessCriterion.Always,
                     ),
                 ),

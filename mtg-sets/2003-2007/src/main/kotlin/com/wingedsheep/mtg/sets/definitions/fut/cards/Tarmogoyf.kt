@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.fut.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tarmogoyf
@@ -27,11 +26,10 @@ val Tarmogoyf = card("Tarmogoyf") {
     colorIdentity = "G"
     typeLine = "Creature — Lhurgoyf"
     dynamicStats(
-        DynamicAmount.AggregateZone(
-            player = Player.Each,
-            zone = Zone.GRAVEYARD,
-            aggregation = Aggregation.DISTINCT_TYPES,
-        ),
+        DynamicAmounts.zone(
+            Player.Each,
+            Zone.GRAVEYARD,
+        ).distinctTypes(),
         toughnessOffset = 1,
     )
     oracleText = "Tarmogoyf's power is equal to the number of card types among cards in all " +

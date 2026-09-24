@@ -1,9 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 
 /**
  * Healing Grace
@@ -20,8 +22,11 @@ val HealingGrace = card("Healing Grace") {
 
     spell {
         val t = target("any target", Targets.Any)
-        effect = Effects.PreventNextDamageFromChosenSource(3, t)
-            .then(Effects.GainLife(3))
+        effect = Effects.PreventDamage(
+            target = t,
+            sources = PreventionSourceFilter.Chosen(),
+            amount = DynamicAmounts.fixed(3)
+        ).then(Effects.GainLife(3))
     }
 
     metadata {

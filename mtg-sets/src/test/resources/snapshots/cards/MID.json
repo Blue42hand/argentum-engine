@@ -161,7 +161,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": {
                         "type": "BoundVariable",
@@ -808,7 +808,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -925,7 +925,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -973,7 +974,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -1031,13 +1032,16 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature or planeswalker"
             },
             "destination": "Exile"
         },
         "targetRequirements": [
-            "TargetCreatureOrPlaneswalker"
+            {
+                "type": "TargetCreatureOrPlaneswalker",
+                "id": "target creature or planeswalker"
+            }
         ],
         "additionalCosts": [
             {
@@ -1318,7 +1322,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                },
                                 "numericProperty": "ManaValue"
                             },
                             "operator": "LTE",
@@ -1560,7 +1567,7 @@
                         "Zombie"
                     ],
                     "initialCounters": {
-                        "decayed": 1
+                        "DECAYED": 1
                     }
                 },
                 "oncePerTurn": true,
@@ -2704,7 +2711,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2780,7 +2787,7 @@
                             "amount": "CastX",
                             "multiplier": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -2871,7 +2878,7 @@
                             "entity": "IterationEntity",
                             "numericProperty": "Toughness"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "At the beginning of each combat, double the power and toughness of each creature you control until end of turn."
@@ -3046,12 +3053,12 @@
                                     "amount": 4
                                 }
                             },
-                            "storeAs": "revealed",
+                            "storeAs": "gathered0",
                             "revealed": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "revealed",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -3060,7 +3067,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "revealed",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
@@ -3089,18 +3096,18 @@
                                 "zone": "Hand",
                                 "filter": "land"
                             },
-                            "storeAs": "lands_in_hand"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "lands_in_hand",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
-                            "storeSelected": "chosen_lands",
+                            "storeSelected": "selected1",
                             "prompt": "Choose any number of land cards to put onto the battlefield tapped."
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "chosen_lands",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield",
@@ -3168,11 +3175,11 @@
                                 "zone": "Graveyard",
                                 "filter": "permanent"
                             },
-                            "storeAs": "permanents_in_graveyard"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "permanents_in_graveyard",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"

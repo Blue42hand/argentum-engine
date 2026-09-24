@@ -5,11 +5,11 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
 /**
@@ -31,7 +31,7 @@ val MigratingKetradon = card("Migrating Ketradon") {
     keywords(Keyword.REACH)
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = GainLifeEffect(4)
+        effect = Effects.GainLife(4)
     }
     keywordAbility(KeywordAbility.cycling("{2}"))
     metadata {

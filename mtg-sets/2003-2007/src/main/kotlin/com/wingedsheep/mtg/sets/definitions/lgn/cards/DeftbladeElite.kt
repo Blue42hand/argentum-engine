@@ -29,10 +29,10 @@ val DeftbladeElite = card("Deftblade Elite") {
     keywords(Keyword.PROVOKE)
 
     triggeredAbility {
+        val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
         trigger = Triggers.Attacks
         optional = true
-        target = Targets.CreatureOpponentControls
-        effect = Effects.Provoke(EffectTarget.ContextTarget(0))
+        effect = Effects.Provoke(creatureOpponentControls)
     }
 
     activatedAbility {

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - The accumulator is the batching [Triggers.CardsPutIntoYourGraveyard]`(Creature)` — one fire
  *    per event batch no matter how many creature cards land, and regardless of the source zone.
  *  - "When the **third** plan counter is put on this enchantment" composes from existing
- *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [Counters.PLAN] gated by
+ *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [CounterType.PLAN] gated by
  *    `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN, 3)`. The at-least gate is
  *    behaviourally exact here because the payoff **sacrifices its own source**, so the enchantment
  *    is gone before a fourth counter could ever land — the threshold can never fire twice. No
@@ -46,7 +46,7 @@ val RobotDomination = card("Robot Domination") {
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Effects.LoseLife(1, EffectTarget.Controller),
-            Effects.AddCounters(Counters.PLAN, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
         )
         description = "Whenever one or more creature cards are put into your graveyard from " +
             "anywhere, you draw a card, lose 1 life, and put a plan counter on this enchantment."
@@ -55,11 +55,11 @@ val RobotDomination = card("Robot Domination") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Any,
-            counterType = Counters.PLAN,
+            counterType = CounterType.PLAN,
             firstTimeEachTurn = false,
             binding = TriggerBinding.SELF,
         )
-        triggerRestriction = Conditions.SourceCounterCountAtLeast(Counters.PLAN, 3)
+        triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 3)
         effect = Effects.Composite(
             Effects.SacrificeTarget(EffectTarget.Self),
             Effects.CreateToken(

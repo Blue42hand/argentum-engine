@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -7,9 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Friendly Rivalry
@@ -44,12 +42,12 @@ val FriendlyRivalry = card("Friendly Rivalry") {
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
 
         effect = Effects.DealDamage(
-            amount = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+            amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,
             damageSource = myCreature
         ).then(
             Effects.DealDamage(
-                amount = DynamicAmount.EntityProperty(EntityReference.Target(1), EntityNumericProperty.Power),
+                amount = DynamicAmounts.powerOf(legendary),
                 target = theirCreature,
                 damageSource = legendary
             )

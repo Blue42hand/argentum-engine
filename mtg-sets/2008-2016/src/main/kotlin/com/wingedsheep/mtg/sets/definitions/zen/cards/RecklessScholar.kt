@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -31,7 +30,7 @@ val RecklessScholar = card("Reckless Scholar") {
         cost = Costs.Tap
         val t = target("target", TargetPlayer())
         effect = Effects.Composite(
-            DrawCardsEffect(1, t),
+            Effects.DrawCards(1, t),
             Patterns.Hand.discardCards(1, t)
         )
     }

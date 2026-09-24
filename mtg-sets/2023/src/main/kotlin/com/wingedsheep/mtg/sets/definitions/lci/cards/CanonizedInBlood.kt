@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -39,7 +39,7 @@ val CanonizedInBlood = card("Canonized in Blood") {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouDescendedThisTurn()
         val t = target("target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 
     activatedAbility {

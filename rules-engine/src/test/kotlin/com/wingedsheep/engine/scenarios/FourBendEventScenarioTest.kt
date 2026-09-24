@@ -12,7 +12,6 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Conditions
@@ -28,7 +27,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AlternativePaymentChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -69,7 +67,7 @@ class FourBendEventScenarioTest : FunSpec({
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.YouBend()
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
     // "Whenever you earthbend, put a +1/+1 counter on this." — a single-element YouBend subset.
@@ -77,7 +75,7 @@ class FourBendEventScenarioTest : FunSpec({
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.YouBend(setOf(BendType.EARTH))
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
     // Mirrors Avatar Aang's payoff: "Whenever you bend, then if you've done all four this turn, …".
@@ -85,13 +83,13 @@ class FourBendEventScenarioTest : FunSpec({
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.YouBend()
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmount.TurnTracking(Player.You, TurnTracker.DISTINCT_BENDS),
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(4)
                 ),
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 5, EffectTarget.Self)
+                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 5, EffectTarget.Self)
             )
         }
     }

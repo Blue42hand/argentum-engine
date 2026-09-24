@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.chk.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 
 /**
  * Teller of Tales
@@ -48,10 +47,10 @@ val TellerOfTales = card("Teller of Tales") {
             spellFilter = GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane")
         )
         val creature = target("target", Targets.Creature)
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
-                Mode.noTarget(TapUntapEffect(creature, tap = true)),
-                Mode.noTarget(TapUntapEffect(creature, tap = false))
+                Mode.noTarget(Effects.Tap(creature)),
+                Mode.noTarget(Effects.Untap(creature))
             ),
             chooseCount = 1,
             countsAsModalSpell = false

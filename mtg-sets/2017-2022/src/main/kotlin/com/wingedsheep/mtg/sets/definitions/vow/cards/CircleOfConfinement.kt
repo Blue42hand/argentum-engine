@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Circle of Confinement
@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * The exile is linked (CR 610.3) — the Glass Casket shape: the leaves trigger returns only what
  * this enchantment exiled. The life trigger reads that same linked pile through
- * [EntityReference.LinkedExiledCard], so it fires only while the prisoner is still exiled; once the
+ * [EffectTarget.LinkedExiledCard], so it fires only while the prisoner is still exiled; once the
  * Circle leaves and the card returns, the reference resolves to nothing and no spell matches.
  */
 val CircleOfConfinement = card("Circle of Confinement") {
@@ -51,7 +51,7 @@ val CircleOfConfinement = card("Circle of Confinement") {
         trigger = Triggers.opponentCasts(
             spellFilter = GameObjectFilter.Any
                 .withSubtype("Vampire")
-                .sharingNameWith(EntityReference.LinkedExiledCard()),
+                .sharingNameWith(EffectTarget.LinkedExiledCard()),
         )
         effect = Effects.GainLife(2)
         description = "Whenever an opponent casts a Vampire spell with the same name as a card " +

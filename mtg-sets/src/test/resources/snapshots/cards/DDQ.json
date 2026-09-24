@@ -277,11 +277,11 @@
                         "type": "BattlefieldMatching",
                         "filter": "land"
                     },
-                    "storeAs": "lands"
+                    "storeAs": "gathered1"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "lands",
+                    "from": "gathered1",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -289,18 +289,18 @@
                             "amount": 2
                         }
                     },
-                    "storeSelected": "toUntap",
+                    "storeSelected": "selected2",
                     "prompt": "Choose up to two lands to untap"
                 },
                 {
                     "type": "ForEach",
                     "space": {
                         "type": "IterationSpace.Collection",
-                        "collection": "toUntap"
+                        "collection": "selected2"
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 },

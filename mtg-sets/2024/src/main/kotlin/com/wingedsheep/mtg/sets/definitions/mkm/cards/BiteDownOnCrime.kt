@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.collectEvidence
@@ -11,9 +12,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.EntityReference
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 
 /**
@@ -72,10 +70,7 @@ val BiteDownOnCrime = card("Bite Down on Crime") {
         effect = Effects.Composite(
             Effects.ModifyStats(power = 2, toughness = 0, target = yours),
             Effects.DealDamage(
-                amount = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0),
-                    EntityNumericProperty.Power,
-                ),
+                amount = DynamicAmounts.powerOf(yours),
                 target = theirs,
                 damageSource = yours,
             ),

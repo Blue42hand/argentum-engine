@@ -1,17 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -54,25 +49,18 @@ val DiregrafScavenger = card("Diregraf Scavenger") {
                 filter = TargetFilter.CardInGraveyard
             )
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.ChosenTargets,
-                storeAs = "diregraf_exiled"
-            ),
-            MoveCollectionEffect(
-                from = "diregraf_exiled",
-                destination = CardDestination.ToZone(Zone.EXILE)
-            ),
-            ConditionalOnCollectionEffect(
-                collection = "diregraf_exiled",
-                filter = GameObjectFilter.Creature,
-                ifNotEmpty = Effects.Composite(
+        effect = Effects.Pipeline {
+            val diregrafExiled = gather(CardSource.ChosenTargets)
+            exile(diregrafExiled)
+            ifNotEmpty(diregrafExiled, filter = GameObjectFilter.Creature) {
+                run(Effects.Composite(
                     Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
                     Effects.GainLife(2)
-                ),
-                ifEmpty = Effects.Composite(emptyList())
-            )
-        )
+                ))
+            } orElse {
+                run(Effects.Composite(emptyList()))
+            }
+        }
         description = "When this creature enters, exile up to one target card from a graveyard. " +
             "If a creature card was exiled this way, each opponent loses 2 life and you gain 2 life."
     }

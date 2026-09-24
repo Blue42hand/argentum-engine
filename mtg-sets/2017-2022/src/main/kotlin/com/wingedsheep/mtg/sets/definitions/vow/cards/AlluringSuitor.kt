@@ -14,11 +14,9 @@ import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Alluring Suitor // Deadly Dancer — Innistrad: Crimson Vow #141
@@ -74,9 +72,9 @@ private val AlluringSuitorFront = card("Alluring Suitor") {
         triggerRestriction = Conditions.CompareAmounts(
             DynamicAmounts.attackingCreaturesYouControl(),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(2),
+            2,
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "When you attack with exactly two creatures, transform this creature."
     }
 

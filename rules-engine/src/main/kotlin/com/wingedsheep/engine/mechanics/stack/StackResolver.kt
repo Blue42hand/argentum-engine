@@ -371,7 +371,7 @@ class StackResolver(
  * or [AdditionalCost.ChooseEntity]) are stored on the stack object as
  * [SpellOnStackComponent.beheldCards]. Each of those costs declares its own
  * `storeAs` key that the card's resolution-time effects reference (e.g. via
- * `EntityReference.FromCostStorage`). To keep the effect's reference
+ * `EffectTarget.PipelineTarget`). To keep the effect's reference
  * stable across cost variants, expose the IDs under every relevant `storeAs`
  * key plus a default `"beheld"` key for backward compatibility with
  * pre-existing Behold-using cards.

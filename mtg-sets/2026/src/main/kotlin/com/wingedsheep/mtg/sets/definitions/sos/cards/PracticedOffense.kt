@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -29,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  * Two independent targets, declared as named bindings: a target player and a target creature.
  * The counter is placed on every creature the *target player* controls via [ForEachInGroup] over
  * a [GroupFilter] scoped with `targetPlayerControls(player)` (the preferred explicit-reference form
- * over implicit first-player resolution), applying [AddCountersEffect] with [EffectTarget.Self]
+ * over implicit first-player resolution), applying [AddCountersEffect] with [EffectTarget.IterationEntity]
  * (the current group member). The "your choice of double strike or lifelink" is a within-resolution
  * choice (not a modal spell), so [ModalEffect.chooseOne] is built with `countsAsModalSpell = false`;
  * the chosen keyword is granted to the target creature until end of turn.
@@ -52,20 +50,20 @@ val PracticedOffense = card("Practiced Offense") {
             // Put a +1/+1 counter on each creature the target player controls.
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
-                effect = AddCountersEffect(
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+                effect = Effects.AddCounters(
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                 ),
             ),
             // Target creature gains your choice of double strike or lifelink until end of turn.
             ModalEffect.chooseOne(
                 Mode.noTarget(
-                    GrantKeywordEffect(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
+                    Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
                     "Double strike",
                 ),
                 Mode.noTarget(
-                    GrantKeywordEffect(Keyword.LIFELINK, creature, Duration.EndOfTurn),
+                    Effects.GrantKeyword(Keyword.LIFELINK, creature, Duration.EndOfTurn),
                     "Lifelink",
                 ),
                 countsAsModalSpell = false,

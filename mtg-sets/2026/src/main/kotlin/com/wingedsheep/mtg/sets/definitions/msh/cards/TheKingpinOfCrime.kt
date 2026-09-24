@@ -7,10 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AssignDamageEqualToToughness
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -29,10 +25,10 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - **Extort** (CR 702.101) has no `Keyword` of its own here, and it does not need one: it *is*
  *    exactly "whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life
  *    and you gain that much life", which composes from primitives already in the SDK —
- *    [Triggers.YouCastSpell] + [MayPayManaEffect] over [Effects.DrainLife]. The hybrid `{W/B}`
+ *    [Triggers.YouCastSpell] + [Effects.MayPay] over [Effects.DrainLife]. The hybrid `{W/B}`
  *    parses and pays as a hybrid symbol (either color, or two generic-equivalent sources of
  *    either), and `DrainLife(1)` is the single-event "each opponent loses 1, you gain that much"
- *    shape — so a multiplayer drain gains the total, not 1 per opponent. `MayPayManaEffect` is
+ *    shape — so a multiplayer drain gains the total, not 1 per opponent. `Effects.MayPay` is
  *    the same shape Shambling Cie'th uses for its cast-triggered optional mana payment.
  *
  *    TODO: promote extort to a first-class `Keyword` (with its own reminder text and a shared
@@ -86,9 +82,9 @@ val TheKingpinOfCrime = card("The Kingpin of Crime") {
     // life and you gain that much life.
     triggeredAbility {
         trigger = Triggers.YouCastSpell
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{W/B}"),
-            effect = Effects.DrainLife(1),
+            then = Effects.DrainLife(1),
         )
         description = "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each " +
             "opponent loses 1 life and you gain that much life.)"
@@ -99,8 +95,8 @@ val TheKingpinOfCrime = card("The Kingpin of Crime") {
     // toughness rather than their power.
     triggeredAbility {
         trigger = Triggers.YouAttack
-        effect = GatedEffect(
-            gate = Gate.MayPay(PayLifeEffect(2)),
+        effect = Effects.MayPay(
+            cost = Effects.PayLife(2),
             then = Effects.GrantStaticAbility(
                 AssignDamageEqualToToughness(
                     filter = GroupFilter.AllCreaturesYouControl,

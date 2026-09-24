@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.core.Keyword
 
 /**
@@ -80,7 +79,7 @@ val TomikWielderOfLaw = card("Tomik, Wielder of Law") {
                 GameObjectFilter.Creature.attackingYouOrYourPlaneswalkers(),
             ).count(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(2),
+            2,
         )
         effect = Effects.Composite(
             Effects.LoseLife(3, EffectTarget.PlayerRef(Player.TriggeringPlayer)),

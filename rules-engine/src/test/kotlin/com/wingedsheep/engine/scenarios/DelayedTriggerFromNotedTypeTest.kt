@@ -71,7 +71,7 @@ class DelayedTriggerFromNotedTypeTest : FunSpec({
                     fireOnce = true,
                     expiry = DelayedTriggerExpiry.EndOfTurn,
                     effect = Effects.AddCounters(
-                        com.wingedsheep.sdk.core.Counters.PLUS_ONE_PLUS_ONE,
+                        com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE,
                         1,
                         EffectTarget.TriggeringEntity
                     )

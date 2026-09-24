@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -48,20 +48,20 @@ val MisterHydeMonsterWithin = card("Mister Hyde, Monster Within") {
         trigger = Triggers.YourUpkeep
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 "Put a +1/+1 counter on Mister Hyde",
             ),
             Mode.noTarget(
-                Effects.Composite(
-                    Effects.SelectTarget(Targets.CreatureYouControl, storeAs = "hydeCounterSource"),
-                    Effects.IfYouDo(
+                Effects.Pipeline {
+                    val hydeCounterSource = selectTarget(Targets.CreatureYouControl)
+                    run(Effects.IfYouDo(
                         action = Effects.RemoveCounterOfAnyKind(
-                            EffectTarget.PipelineTarget("hydeCounterSource", 0),
+                            hydeCounterSource.asTarget,
                         ),
-                        ifYouDo = Effects.DrawCards(1),
+                        then = Effects.DrawCards(1),
                         successCriterion = SuccessCriterion.CountersRemoved,
-                    ),
-                ),
+                    ))
+                },
                 "Remove a counter from a creature you control. If you do, draw a card",
             ),
         )

@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.dsl.Costs
 
 /**
@@ -30,7 +30,7 @@ val DragonsEyeSavants = card("Dragon's Eye Savants") {
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
         val t = target("target opponent", Targets.Opponent)
-        effect = LookAtTargetHandEffect(t)
+        effect = Effects.LookAtHand(t)
     }
 
     metadata {

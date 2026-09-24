@@ -10,10 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -29,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *  - [Effects.GainControl] of the target creature for [Duration.EndOfTurn], then [Effects.Untap]
  *    and a [Duration.EndOfTurn] haste grant — the standard borrow-and-swing package.
  *  - The Equipment to move is an *optional* second target (you may decline by choosing none). A
- *    [ConditionalEffect] gates the attach on an Equipment actually having been chosen
+ *    [Effects.If] gates the attach on an Equipment actually having been chosen
  *    ([Conditions.EntityMatches] resolves to `false` when the optional slot is empty), so the "if
  *    you do" clause is honored — no attach, no scheduled unattach when you decline.
  *  - When an Equipment is chosen, [Effects.AttachTargetEquipmentToCreature] moves it onto the
@@ -59,19 +56,19 @@ val UnexpectedRequest = card("Unexpected Request") {
             Effects.GainControl(creature, Duration.EndOfTurn),
             Effects.Untap(creature),
             Effects.GrantKeyword(Keyword.HASTE, creature, Duration.EndOfTurn),
-            ConditionalEffect(
+            Effects.If(
                 // "If you do" — the ConditionEvaluator only dispatches ContextTarget (not the
                 // bound-variable handle), so gate on the equipment's positional slot.
                 condition = Conditions.EntityMatches(
-                    EffectTarget.ContextTarget(1),
+                    equipment,
                     GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
                 ),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.AttachTargetEquipmentToCreature(
                         equipmentTarget = equipment,
                         creatureTarget = creature
                     ),
-                    CreateDelayedTriggerEffect(
+                    Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.UnattachEquipment(equipment)
                     )

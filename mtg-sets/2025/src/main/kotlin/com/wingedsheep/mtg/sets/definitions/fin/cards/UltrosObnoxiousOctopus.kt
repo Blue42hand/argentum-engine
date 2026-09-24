@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -45,14 +45,14 @@ val UltrosObnoxiousOctopus = card("Ultros, Obnoxious Octopus") {
         val t = target("target", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.Tap(t),
-            Effects.AddCounters(Counters.STUN, 1, t),
+            Effects.AddCounters(CounterType.STUN, 1, t),
         )
     }
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
         interveningIf = Conditions.TriggeringSpellManaSpentAtLeast(8)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 8, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 8, EffectTarget.Self)
     }
 
     metadata {
