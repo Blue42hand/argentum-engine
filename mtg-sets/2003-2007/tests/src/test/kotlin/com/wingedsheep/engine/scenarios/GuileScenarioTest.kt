@@ -48,6 +48,34 @@ class GuileScenarioTest : ScenarioTestBase() {
             game.isOnBattlefield("Grizzly Bears") shouldBe false
         }
 
+        test("a declined counter-unless-pay offers the free cast before the counterspell finishes") {
+            val game = scenario().withPlayers("P1", "P2")
+                .withCardOnBattlefield(1, "Guile")
+                .withCardInHand(1, "Disrupt")
+                .withLandsOnBattlefield(1, "Island", 1)
+                .withCardInLibrary(1, "Island").withCardInLibrary(1, "Island").withCardInLibrary(1, "Island")
+                .withCardInHand(2, "Divination")
+                .withLandsOnBattlefield(2, "Island", 4)
+                .withActivePlayer(2).inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                .build()
+            game.castSpell(2, "Divination").error shouldBe null
+            game.passPriority().error shouldBe null
+            game.castSpellTargetingStackSpell(1, "Disrupt", "Divination").error shouldBe null
+            game.resolveStack()
+            // Divination's controller is asked whether to pay {1}; declining counters it.
+            game.getPendingDecision()!!.playerId shouldBe game.player2Id
+            game.answerYesNo(false).error shouldBe null
+            // Guile's offer comes now — before Disrupt's "Draw a card".
+            val offer = game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
+            offer.playerId shouldBe game.player1Id
+            game.handSize(1) shouldBe 0
+            game.answerYesNo(true).error shouldBe null
+            game.handSize(1) shouldBe 1
+            game.resolveStack()
+            game.handSize(1) shouldBe 3
+            game.isInGraveyard(2, "Divination") shouldBe true
+        }
+
         test("an opponent's counter is not replaced") {
             val game = scenario().withPlayers("P1", "P2")
                 .withCardOnBattlefield(1, "Guile")

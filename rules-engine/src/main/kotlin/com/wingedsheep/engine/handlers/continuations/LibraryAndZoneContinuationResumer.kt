@@ -704,7 +704,7 @@ class LibraryAndZoneContinuationResumer(
     /**
      * Resume after a card's owner chose top or bottom of their library.
      * Moves the card to the chosen position via ZoneTransitionService, or — if the
-     * target is a spell on the stack — counters the spell and places it directly
+     * target is a spell on the stack — removes the spell (it isn't countered) and places it directly
      * onto the chosen end of the owner's library.
      */
     fun resumePutOnTopOrBottom(
@@ -809,8 +809,10 @@ class LibraryAndZoneContinuationResumer(
         newState = com.wingedsheep.engine.handlers.effects.library.LibraryRevealUtils
             .markRevealed(newState, listOf(spellId), newState.turnOrder.toSet())
 
+        // Not a counter: "the owner of target spell puts it on … their library" (Sudden Setback,
+        // Swat Away) moves the spell, so no SpellCounteredEvent — and Guile's counter replacement
+        // (ExileCounteredSpellInstead) rightly never sees it.
         val events = listOf(
-            SpellCounteredEvent(spellId, spellName),
             ZoneChangeEvent(
                 entityId = spellId,
                 entityName = spellName,
