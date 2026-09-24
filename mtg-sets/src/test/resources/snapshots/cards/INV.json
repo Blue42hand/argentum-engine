@@ -9831,7 +9831,14 @@
                 },
                 "effect": {
                     "type": "PreventDamageShield",
-                    "sourceFilter": "ChosenColoredSource"
+                    "sourceFilter": {
+                        "type": "PreventFromChosen",
+                        "eligible": {
+                            "cardPredicates": [
+                                "IsColored"
+                            ]
+                        }
+                    }
                 },
                 "descriptionOverride": "{1}, Pay 1 life: Prevent all damage that would be dealt to you this turn by a source of your choice that shares a color with the mana spent on this activation cost."
             }
@@ -11600,7 +11607,7 @@
     "script": {
         "spellEffect": {
             "type": "PreventDamageShield",
-            "sourceFilter": "ChosenSource",
+            "sourceFilter": "PreventFromChosen",
             "gainLifeFromColors": [
                 "BLACK",
                 "RED"

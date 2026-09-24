@@ -268,20 +268,18 @@
                     "type": "PreventDamageShield",
                     "recipientGroupIncludesController": true,
                     "sourceFilter": {
-                        "type": "FromGroup",
+                        "type": "PreventFromMatching",
                         "filter": {
-                            "baseFilter": {
-                                "cardPredicates": [
-                                    "IsCreature",
-                                    {
-                                        "type": "NotKeyword",
-                                        "keyword": "FLYING"
-                                    }
-                                ],
-                                "statePredicates": [
-                                    "IsAttacking"
-                                ]
-                            }
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "NotKeyword",
+                                    "keyword": "FLYING"
+                                }
+                            ],
+                            "statePredicates": [
+                                "IsAttacking"
+                            ]
                         }
                     }
                 }

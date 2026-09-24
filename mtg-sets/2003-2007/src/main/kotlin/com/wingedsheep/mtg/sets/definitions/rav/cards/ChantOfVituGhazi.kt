@@ -5,7 +5,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.effects.PreventionDirection
+import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 
 /**
  * Chant of Vitu-Ghazi — Ravnica: City of Guilds #7
@@ -15,9 +16,9 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  * Prevent all damage that would be dealt by creatures this turn. You gain life equal to the damage
  * prevented this way.
  *
- * One source-side prevention shield ([Effects.PreventAllDamageFrom]) over every creature, with
+ * One source-side prevention shield ([Effects.PreventDamage] `FromTarget`) over every creature, with
  * `gainLifeFromPrevented`: *all* damage, not only combat damage — a creature's pinging ability is
- * stopped too — and the creature group is re-read each time damage would be dealt, so a creature
+ * stopped too — and the creature filter is re-read each time damage would be dealt, so a creature
  * that enters later this turn is covered. The life is the amount the shield actually prevents, as
  * it prevents it ("you gain life each time that shield prevents 1 or more damage"): a combat damage
  * step is one simultaneous event and gives one combined gain, while each noncombat instance gives
@@ -36,8 +37,9 @@ val ChantOfVituGhazi = card("Chant of Vitu-Ghazi") {
     keywords(Keyword.CONVOKE)
 
     spell {
-        effect = Effects.PreventAllDamageFrom(
-            GroupFilter(GameObjectFilter.Creature),
+        effect = Effects.PreventDamage(
+            direction = PreventionDirection.FromTarget,
+            sources = PreventionSourceFilter.Matching(GameObjectFilter.Creature),
             gainLifeFromPrevented = true
         )
     }

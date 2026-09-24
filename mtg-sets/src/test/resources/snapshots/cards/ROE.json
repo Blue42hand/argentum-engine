@@ -1285,10 +1285,8 @@
             "scope": "CombatOnly",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
-                "filter": {
-                    "baseFilter": "creature attacking"
-                }
+                "type": "PreventFromMatching",
+                "filter": "creature attacking"
             }
         }
     },

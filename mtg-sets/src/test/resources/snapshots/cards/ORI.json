@@ -3322,10 +3322,8 @@
             "scope": "CombatOnly",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
-                "filter": {
-                    "baseFilter": "creature pow<=4"
-                }
+                "type": "PreventFromMatching",
+                "filter": "creature pow<=4"
             }
         }
     },

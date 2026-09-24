@@ -4787,7 +4787,10 @@
                     "effect": {
                         "type": "PreventDamageShield",
                         "recipientGroup": {
-                            "baseFilter": "creature ctrl:you"
+                            "cardPredicates": [
+                                "IsCreature"
+                            ],
+                            "controllerPredicate": "ControlledByYou"
                         }
                     }
                 },
@@ -4796,7 +4799,10 @@
                     "effect": {
                         "type": "PreventDamageShield",
                         "recipientGroup": {
-                            "baseFilter": "creature ctrl:you"
+                            "cardPredicates": [
+                                "IsCreature"
+                            ],
+                            "controllerPredicate": "ControlledByYou"
                         }
                     }
                 },

@@ -1282,7 +1282,10 @@
         "spellEffect": {
             "type": "PreventDamageShield",
             "recipientGroup": {
-                "baseFilter": "creature ctrl:you"
+                "cardPredicates": [
+                    "IsCreature"
+                ],
+                "controllerPredicate": "ControlledByYou"
             },
             "recipientGroupIncludesController": true
         }

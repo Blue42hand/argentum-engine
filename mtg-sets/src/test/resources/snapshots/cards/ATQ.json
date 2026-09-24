@@ -841,8 +841,12 @@
                 "effect": {
                     "type": "PreventDamageShield",
                     "sourceFilter": {
-                        "type": "ChosenSourceMatching",
-                        "filter": "artifact"
+                        "type": "PreventFromChosen",
+                        "eligible": {
+                            "cardPredicates": [
+                                "IsArtifact"
+                            ]
+                        }
                     },
                     "nextInstanceOnly": true
                 },

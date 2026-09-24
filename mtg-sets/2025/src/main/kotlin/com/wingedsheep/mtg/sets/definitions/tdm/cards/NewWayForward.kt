@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -31,7 +32,8 @@ val NewWayForward = card("New Way Forward") {
         "When damage is prevented this way, New Way Forward deals that much damage to that source's controller and you draw that many cards."
 
     spell {
-        effect = Effects.PreventNextDamageFromChosenSource(
+        effect = Effects.PreventDamage(
+            sources = PreventionSourceFilter.Chosen(),
             onPrevented = Effects.Composite(
                 Effects.DealDamage(
                     amount = DynamicAmounts.preventedDamage(),

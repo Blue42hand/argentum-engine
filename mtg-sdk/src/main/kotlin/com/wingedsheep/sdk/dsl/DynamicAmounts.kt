@@ -444,7 +444,7 @@ object DynamicAmounts {
     /**
      * "That much" / "that many" — the amount of damage a prevention shield just prevented, readable
      * inside the shield's `onPrevented` follow-up (New Way Forward, Deflecting Palm). See
-     * [Effects.PreventNextDamageFromChosenSource].
+     * [Effects.PreventDamage]'s `onPrevented`.
      */
     fun preventedDamage(): DynamicAmount =
         DynamicAmount.ContextProperty(ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT)

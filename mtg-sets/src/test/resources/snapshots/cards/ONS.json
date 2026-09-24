@@ -3002,7 +3002,16 @@
                 },
                 "effect": {
                     "type": "PreventDamageShield",
-                    "sourceFilter": "ChosenCreatureType"
+                    "sourceFilter": {
+                        "type": "PreventFromMatching",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                "HasChosenSubtype"
+                            ]
+                        }
+                    },
+                    "nextInstanceOnly": true
                 }
             }
         ],

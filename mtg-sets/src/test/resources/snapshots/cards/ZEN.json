@@ -3974,17 +3974,15 @@
             "scope": "CombatOnly",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
+                "type": "PreventFromMatching",
                 "filter": {
-                    "baseFilter": {
-                        "cardPredicates": [
-                            "IsCreature",
-                            {
-                                "type": "NotKeyword",
-                                "keyword": "TRAMPLE"
-                            }
-                        ]
-                    }
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "NotKeyword",
+                            "keyword": "TRAMPLE"
+                        }
+                    ]
                 }
             }
         }

@@ -8205,8 +8205,8 @@
                     "type": "PreventDamageShield",
                     "direction": "FromTarget",
                     "sourceFilter": {
-                        "type": "ChosenSourceMatching",
-                        "filter": {
+                        "type": "PreventFromChosen",
+                        "eligible": {
                             "cardPredicates": [
                                 {
                                     "type": "SharesColorWith",

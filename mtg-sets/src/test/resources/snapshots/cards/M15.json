@@ -909,17 +909,15 @@
             "scope": "CombatOnly",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
+                "type": "PreventFromMatching",
                 "filter": {
-                    "baseFilter": {
-                        "cardPredicates": [
-                            "IsCreature",
-                            {
-                                "type": "NotColor",
-                                "color": "GREEN"
-                            }
-                        ]
-                    }
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "NotColor",
+                            "color": "GREEN"
+                        }
+                    ]
                 }
             }
         }

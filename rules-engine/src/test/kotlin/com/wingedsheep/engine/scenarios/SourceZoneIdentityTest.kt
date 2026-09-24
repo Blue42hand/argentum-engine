@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
+import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -409,7 +410,16 @@ class SourceZoneIdentityTest : FunSpec({
         val d = driver()
         val reflection = card("Identity Reflected Spell") {
             manaCost = "{W}"; typeLine = "Instant"
-            spell { effect = Effects.ReflectNextDamageFromChosenSourceToController() }
+            spell {
+                effect = Effects.PreventDamage(
+                    sources = PreventionSourceFilter.Chosen(),
+                    stillDealt = true,
+                    onPrevented = Effects.DealDamage(
+                        amount = DynamicAmounts.preventedDamage(),
+                        target = EffectTarget.ControllerOfTriggeringEntity
+                    )
+                )
+            }
         }
         d.registerCards(listOf(reflection))
         val bolt = d.putCardInHand(d.player2, "Lightning Bolt")

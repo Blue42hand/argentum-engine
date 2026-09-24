@@ -1024,7 +1024,11 @@
     "script": {
         "spellEffect": {
             "type": "PreventDamageShield",
-            "sourceFilter": "AttackingCreatures"
+            "recipientGroupIncludesController": true,
+            "sourceFilter": {
+                "type": "PreventFromMatching",
+                "filter": "creature attacking"
+            }
         },
         "castRestrictions": [
             {

@@ -10657,7 +10657,7 @@
     "script": {
         "spellEffect": {
             "type": "PreventDamageShield",
-            "sourceFilter": "ChosenSource",
+            "sourceFilter": "PreventFromChosen",
             "onPrevented": {
                 "type": "Composite",
                 "effects": [

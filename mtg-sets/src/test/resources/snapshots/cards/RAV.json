@@ -1902,10 +1902,8 @@
             "type": "PreventDamageShield",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
-                "filter": {
-                    "baseFilter": "creature"
-                }
+                "type": "PreventFromMatching",
+                "filter": "creature"
             },
             "gainLifeFromPrevented": true
         }

@@ -5409,7 +5409,7 @@
                         "type": "Fixed",
                         "amount": 3
                     },
-                    "sourceFilter": "ChosenSource"
+                    "sourceFilter": "PreventFromChosen"
                 },
                 {
                     "type": "GainLife",

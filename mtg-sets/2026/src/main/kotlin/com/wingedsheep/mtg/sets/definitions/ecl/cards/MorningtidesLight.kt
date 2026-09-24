@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.PreventDamageEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -47,10 +46,7 @@ val MorningtidesLight = card("Morningtide's Light") {
                 )
             )
         ).then(
-            PreventDamageEffect(
-                target = EffectTarget.Controller,
-                duration = Duration.UntilYourNextTurn
-            )
+            Effects.PreventDamage(duration = Duration.UntilYourNextTurn)
         )
     }
 

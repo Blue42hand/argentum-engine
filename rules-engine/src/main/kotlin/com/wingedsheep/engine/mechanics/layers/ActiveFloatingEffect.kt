@@ -249,14 +249,6 @@ sealed interface SerializableModification {
     data class CantBlockSpecificAttacker(val attackerId: EntityId) : SerializableModification
 
     /**
-     * Damage prevention: prevent all combat damage that would be dealt to a player
-     * by attacking creatures this turn.
-     * Used by Deep Wood and similar effects.
-     */
-    @Serializable
-    data object PreventDamageFromAttackingCreatures : SerializableModification
-
-    /**
      * Damage prevention: prevent all combat damage that would be dealt this turn.
      * Used by Leery Fogbeast and similar effects.
      */
@@ -554,14 +546,15 @@ sealed interface SerializableModification {
     }
 
     /**
-     * Damage prevention shield: the next time a creature of the specified type would deal
-     * damage to the affected player this turn, prevent that damage.
-     * Used by Circle of Solace and similar effects.
-     * The shield is consumed after preventing one damage instance and removed.
+     * Damage prevention shield: the next time a source matching [filter] would deal damage to the
+     * affected entity, prevent that damage, then the shield is spent. [filter] is evaluated against
+     * projected state at damage time with the shield's controller as "you"; any chosen value it
+     * named was bound when the shield was created ("a creature of the chosen type" becomes the
+     * concrete type — Circle of Solace).
      */
     @Serializable
-    data class PreventNextDamageFromCreatureType(
-        val creatureType: String
+    data class PreventNextDamageFromMatching(
+        val filter: GameObjectFilter
     ) : SerializableModification
 
     /**
@@ -791,8 +784,6 @@ fun SerializableModification.toModification(): Modification = when (this) {
     // CantBlockSpecificAttacker is pairwise, so it can't be a per-blocker projected flag —
     // CantBlockSpecificAttackerRule reads the floating effect directly at block declaration.
     is SerializableModification.CantBlockSpecificAttacker -> Modification.NoOp
-    // PreventDamageFromAttackingCreatures doesn't map to a layer modification - it's checked by CombatManager directly
-    is SerializableModification.PreventDamageFromAttackingCreatures -> Modification.NoOp
     // CantBeBlockedExceptBy maps to the real Layer.ABILITY modification, so it flows through the
     // projector into `cantBeBlockedExceptByFilters` and is enforced by CantBeBlockedExceptByRule.
     is SerializableModification.CantBeBlockedExceptBy -> Modification.CantBeBlockedExceptBy(blockerFilter)
@@ -840,8 +831,8 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.RedirectNextDamage -> Modification.NoOp
     // ReplaceDrawWithEffect doesn't map to a layer modification - it's checked during draw execution directly
     is SerializableModification.ReplaceDrawWithEffect -> Modification.NoOp
-    // PreventNextDamageFromCreatureType doesn't map to a layer modification - it's checked during damage resolution directly
-    is SerializableModification.PreventNextDamageFromCreatureType -> Modification.NoOp
+    // PreventNextDamageFromMatching doesn't map to a layer modification - it's checked during damage resolution directly
+    is SerializableModification.PreventNextDamageFromMatching -> Modification.NoOp
     // ExileOnDeath doesn't map to a layer modification - it's checked during SBA creature death
     is SerializableModification.ExileOnDeath -> Modification.NoOp
     // ExileControllerGraveyardOnDeath doesn't map to a layer modification - it's checked during SBA creature death

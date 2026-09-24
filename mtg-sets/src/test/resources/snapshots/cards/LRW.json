@@ -2313,8 +2313,15 @@
                     "type": "PreventDamageShield",
                     "direction": "FromTarget",
                     "sourceFilter": {
-                        "type": "ChosenSourceMatching",
-                        "filter": "red"
+                        "type": "PreventFromChosen",
+                        "eligible": {
+                            "cardPredicates": [
+                                {
+                                    "type": "HasColor",
+                                    "color": "RED"
+                                }
+                            ]
+                        }
                     }
                 },
                 "descriptionOverride": "Sacrifice this creature: Prevent all damage a red source of your choice would deal this turn."

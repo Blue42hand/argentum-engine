@@ -26,7 +26,7 @@ val FleetingFlight = card("Fleeting Flight") {
         effect = Effects.Composite(listOf(
             Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target),
             Effects.GrantKeyword(Keyword.FLYING, target),
-            Effects.PreventAllCombatDamageTo(target)
+            Effects.PreventDamage(target = target, combatOnly = true)
         ))
     }
 

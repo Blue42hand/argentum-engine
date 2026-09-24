@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PreventDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *
  * "Tapped Merfolk or Kithkin creature" is one noun phrase, so it is one filter — `tapped()` plus a
  * [GameObjectFilter.withAnySubtype] union — not a [TargetFilter.or] of two clauses, which is for
- * targets that span different zones. Every [PreventDamageEffect] field stays at its default: a null
+ * targets that span different zones. Every other [Effects.PreventDamage] parameter stays at its default: a null
  * `amount` is "prevent all", the scope covers non-combat damage, and the duration is "this turn".
  * The ability has no tap symbol, so it can be activated repeatedly.
  */
@@ -42,7 +42,7 @@ val WellgabberApothecary = card("Wellgabber Apothecary") {
                 )
             )
         )
-        effect = PreventDamageEffect(target = t)
+        effect = Effects.PreventDamage(target = t)
         description = "Prevent all damage that would be dealt to target tapped Merfolk or Kithkin creature this turn."
     }
 

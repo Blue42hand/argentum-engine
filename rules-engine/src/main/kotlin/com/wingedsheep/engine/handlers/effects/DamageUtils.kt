@@ -1346,6 +1346,42 @@ object DamageUtils {
     }
 
     /**
+     * Is damage from [sourceId] to [targetId] prevented by a recipient-group shield
+     * ([SerializableModification.PreventAllDamageToGroup] — "prevent all damage that would be dealt
+     * to creatures you control this turn", "… to you this turn by attacking creatures")?
+     *
+     * The recipient filter is re-evaluated now against projected state, with the shield's
+     * controller as the "you" reference, so permanents that came under control later this turn are
+     * protected too. Honours the combat-only variant, the "you and …" player recipient (a player
+     * never matches a permanent filter, so it is checked separately — and a null filter is the
+     * "to you" shield that names no permanent at all), and an optional source filter ("… by
+     * creatures") evaluated against the damage source the same way.
+     */
+    fun isPreventedByRecipientGroupShield(
+        state: GameState,
+        targetId: EntityId,
+        sourceId: EntityId?,
+        isCombatDamage: Boolean
+    ): Boolean {
+        val evaluator = PredicateEvaluator()
+        return state.floatingEffects.any { fe ->
+            val mod = fe.effect.modification
+            if (mod !is SerializableModification.PreventAllDamageToGroup) return@any false
+            if (mod.combatOnly && !isCombatDamage) return@any false
+            val predicateContext = PredicateContext(controllerId = fe.controllerId)
+            val recipientMatches = (mod.includesController && targetId == fe.controllerId) ||
+                (mod.filter != null && evaluator.matches(state, state.projectedState, targetId, mod.filter, predicateContext))
+            if (!recipientMatches) return@any false
+            // Fail closed on an unidentifiable source: a "by creatures" shield must not swallow
+            // damage it can't attribute to a creature.
+            mod.sourceFilter == null || (
+                sourceId != null &&
+                    evaluator.matches(state, state.projectedState, sourceId, mod.sourceFilter, predicateContext)
+                )
+        }
+    }
+
+    /**
      * Apply damage prevention shields to reduce incoming damage.
      *
      * Finds all PreventNextDamage floating effects targeting the entity,
@@ -1381,44 +1417,7 @@ object DamageUtils {
             return state to 0
         }
 
-        // Recipient-group shields ("prevent all damage that would be dealt to creatures you control
-        // this turn"): the filter is re-evaluated now against projected state, with the shield's
-        // controller as the "you" reference, so permanents that came under control later this turn
-        // are protected too. Honours the combat-only variant, the "you and …" player recipient
-        // (a player never matches a permanent filter, so it is checked separately — and a null
-        // filter is the "to you" shield that names no permanent at all), and an optional source
-        // filter ("… by creatures") evaluated against the damage source the same way.
-        val groupShieldEvaluator = PredicateEvaluator()
-        if (updatedEffects.any { fe ->
-                val mod = fe.effect.modification
-                if (mod !is SerializableModification.PreventAllDamageToGroup) return@any false
-                if (mod.combatOnly && !isCombatDamage) return@any false
-                val predicateContext = PredicateContext(controllerId = fe.controllerId)
-                val recipientFilter = mod.filter
-                val recipientMatches = (mod.includesController && targetId == fe.controllerId) ||
-                    (
-                        recipientFilter != null && groupShieldEvaluator.matches(
-                            state,
-                            state.projectedState,
-                            targetId,
-                            recipientFilter,
-                            predicateContext
-                        )
-                        )
-                if (!recipientMatches) return@any false
-                // Fail closed on an unidentifiable source: a "by creatures" shield must not swallow
-                // damage it can't attribute to a creature.
-                val sourceMatches = mod.sourceFilter == null || (
-                    sourceId != null && groupShieldEvaluator.matches(
-                        state,
-                        state.projectedState,
-                        sourceId,
-                        mod.sourceFilter,
-                        predicateContext
-                    )
-                    )
-                sourceMatches
-            }) {
+        if (isPreventedByRecipientGroupShield(state, targetId, sourceId, isCombatDamage)) {
             return state to 0
         }
 
@@ -1444,25 +1443,29 @@ object DamageUtils {
             }
         }
 
-        // Check for creature-type-specific prevention shields (Circle of Solace)
+        // Single-instance shields over sources matching a filter (Circle of Solace: "the next time a
+        // creature of the chosen type would deal damage to you"). The filter is judged against
+        // projected state now, with the shield's controller as "you"; the whole instance is
+        // prevented and the shield is spent.
         if (remainingDamage > 0 && sourceId != null) {
-            val projected = state.projectedState
-            val sourceSubtypes = projected.getSubtypes(sourceId).map { it.uppercase() }.toSet()
-            val sourceCard = state.getEntity(sourceId)?.get<CardComponent>()
-            if (sourceCard != null && sourceCard.isCreature) {
-                for (i in updatedEffects.indices) {
-                    if (remainingDamage <= 0) break
-                    if (i in toRemove) continue
-                    val effect = updatedEffects[i]
-                    val mod = effect.effect.modification
-                    if (mod is SerializableModification.PreventNextDamageFromCreatureType &&
-                        targetId in effect.effect.affectedEntities &&
-                        mod.creatureType.uppercase() in sourceSubtypes
-                    ) {
-                        // Prevent all damage from this instance and consume the shield
-                        remainingDamage = 0
-                        toRemove.add(i)
-                    }
+            val sourceEvaluator = PredicateEvaluator()
+            for (i in updatedEffects.indices) {
+                if (remainingDamage <= 0) break
+                if (i in toRemove) continue
+                val effect = updatedEffects[i]
+                val mod = effect.effect.modification
+                if (mod is SerializableModification.PreventNextDamageFromMatching &&
+                    targetId in effect.effect.affectedEntities &&
+                    sourceEvaluator.matches(
+                        state,
+                        state.projectedState,
+                        sourceId,
+                        mod.filter,
+                        PredicateContext(controllerId = effect.controllerId)
+                    )
+                ) {
+                    remainingDamage = 0
+                    toRemove.add(i)
                 }
             }
         }

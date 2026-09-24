@@ -60,7 +60,6 @@ internal class CombatDamageManager(
         PreventAllDamageFromSourceModifier(),
         PreventCombatDamageToAndByModifier(),
         PreventCombatDamageFromGroupModifier(),
-        PreventDamageFromAttackingCreaturesModifier(),
         ProtectionModifier(),
         PlayerProtectionModifier(),
         RedirectToControllerModifier()
@@ -1626,7 +1625,7 @@ internal class CombatDamageManager(
 
             if (blockedBy == null) {
                 val defenderId = attackingComponent.defenderId
-                if (!isProtectedFromAttackingCreatureDamage(state, defenderId) &&
+                if (!DamageUtils.isPreventedByRecipientGroupShield(state, defenderId, attackerId, isCombatDamage = true) &&
                     !isCombatDamagePreventedByGroupFilter(state, attackerId, projected)) {
                     val amplified = DamageUtils.applyStaticDamageAmplification(state, defenderId, attackerPower, attackerId, isCombatDamage = true)
                     incomingDamage.getOrPut(defenderId) { mutableMapOf() }
@@ -1790,13 +1789,6 @@ internal class CombatDamageManager(
     private fun isAllCombatDamagePrevented(state: GameState): Boolean {
         return state.floatingEffects.any { floatingEffect ->
             floatingEffect.effect.modification is SerializableModification.PreventAllCombatDamage
-        }
-    }
-
-    private fun isProtectedFromAttackingCreatureDamage(state: GameState, playerId: EntityId): Boolean {
-        return state.floatingEffects.any { floatingEffect ->
-            floatingEffect.effect.modification is SerializableModification.PreventDamageFromAttackingCreatures &&
-                playerId in floatingEffect.effect.affectedEntities
         }
     }
 

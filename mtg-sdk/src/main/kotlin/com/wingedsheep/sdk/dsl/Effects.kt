@@ -4790,341 +4790,134 @@ object Effects {
     // -------------------------------------------------------------------------
 
     /**
+     * Prevent damage — the one facade over [PreventDamageEffect]. Every parameter mirrors a field of
+     * the effect under a name that reads like the Oracle sentence, and every default is the plain
+     * "prevent all damage that would be dealt to you this turn" shield, so a call names only the
+     * words the card prints:
+     *
+     * - "Prevent all damage that would be dealt to target creature this turn." →
+     *   `PreventDamage(target = creature)`
+     * - "Prevent all damage that would be dealt to you and creatures you control this turn by
+     *   creatures." → `PreventDamage(toGroup = Creature.youControl(), alsoToYou = true,
+     *   sources = Matching(Creature))`
+     * - "Prevent all damage that would be dealt by creatures this turn. You gain life equal to the
+     *   damage prevented this way." → `PreventDamage(direction = FromTarget,
+     *   sources = Matching(Creature), gainLifeFromPrevented = true)`
+     * - "The next time an artifact source of your choice would deal damage to you this turn,
+     *   prevent that damage." → `PreventDamage(sources = Chosen(Artifact), nextInstanceOnly = true)`
+     *
+     * @param target The single recipient ([PreventionDirection.ToTarget]) or silenced source
+     *   ([PreventionDirection.FromTarget]); ignored when [toGroup] or [alsoToYou] names the recipients.
+     * @param direction Damage dealt *to* [target], *by* it, or both.
+     * @param sources Which damage sources are covered: every source, those matching a filter, or one
+     *   the controller chooses at resolution (see [PreventionSourceFilter]).
+     * @param amount "The next N damage"; null prevents all of it.
+     * @param combatOnly "Combat damage" rather than all damage.
+     * @param toGroup Protect every permanent matching this filter instead of [target] — "to
+     *   creatures you control" — re-evaluated whenever damage would be dealt.
+     * @param alsoToYou Add the controller to the recipients: "to **you and** creatures you control",
+     *   or, without [toGroup], "to you" alone for a [PreventionSourceFilter.Matching] shield
+     *   (Scarecrow, Heavy Fog).
+     * @param nextInstanceOnly Prevent only the next instance of damage from a covered source, then
+     *   spend the shield (the Circle of Protection family).
+     * @param halve With [nextInstanceOnly], prevent half that instance, rounded down (Dark Sphere).
+     * @param onPrevented "When damage is prevented this way, …" — run with the prevented amount as
+     *   [DynamicAmounts.preventedDamage] and the source's controller as
+     *   [EffectTarget.ControllerOfTriggeringEntity] (Deflecting Palm, New Way Forward).
+     * @param stillDealt The damage is dealt anyway and only [onPrevented] reacts (Eye for an Eye).
+     * @param gainLifeFromColors Gain life whenever damage from a source of these colors is prevented
+     *   this way (Samite Ministration).
+     * @param gainLifeFromPrevented Gain life equal to the damage prevented this way (Chant of Vitu-Ghazi).
+     */
+    fun PreventDamage(
+        target: EffectTarget = EffectTarget.Controller,
+        direction: PreventionDirection = PreventionDirection.ToTarget,
+        sources: PreventionSourceFilter = PreventionSourceFilter.AnySource,
+        amount: DynamicAmount? = null,
+        combatOnly: Boolean = false,
+        toGroup: GameObjectFilter? = null,
+        alsoToYou: Boolean = false,
+        nextInstanceOnly: Boolean = false,
+        halve: Boolean = false,
+        onPrevented: Effect? = null,
+        stillDealt: Boolean = false,
+        gainLifeFromColors: Set<Color> = emptySet(),
+        gainLifeFromPrevented: Boolean = false,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect =
+        PreventDamageEffect(
+            target = target,
+            recipientGroup = toGroup,
+            recipientGroupIncludesController = alsoToYou,
+            amount = amount,
+            scope = if (combatOnly) PreventionScope.CombatOnly else PreventionScope.AllDamage,
+            direction = direction,
+            sourceFilter = sources,
+            onPrevented = onPrevented,
+            gainLifeFromColors = gainLifeFromColors,
+            duration = duration,
+            preventDamage = !stillDealt,
+            nextInstanceOnly = nextInstanceOnly,
+            halvePreventedDamage = halve,
+            gainLifeFromPrevented = gainLifeFromPrevented
+        )
+
+    /**
      * Prevent the next N damage that would be dealt to target this turn.
      */
     fun PreventNextDamage(amount: DynamicAmount, target: EffectTarget): Effect =
-        PreventDamageEffect(target = target, amount = amount)
+        PreventDamage(target = target, amount = amount)
 
     /**
      * Prevent the next N damage that would be dealt to target this turn.
      */
     fun PreventNextDamage(amount: Int, target: EffectTarget): Effect =
-        PreventDamageEffect(target = target, amount = DynamicAmount.Fixed(amount))
+        PreventDamage(target = target, amount = DynamicAmount.Fixed(amount))
 
     /**
-     * Prevent all combat damage that would be dealt this turn.
+     * Prevent all combat damage that would be dealt this turn (Fog).
      */
     fun PreventAllCombatDamage(): Effect =
-        PreventDamageEffect(scope = PreventionScope.CombatOnly)
+        PreventDamage(combatOnly = true)
 
     /**
-     * Prevent all combat damage that would be dealt to [target] this turn (Fleeting Flight).
+     * Prevent all combat damage that would be dealt by sources matching [source] this turn —
+     * "prevent all combat damage that would be dealt by non-Soldier creatures" (Frontline
+     * Strategist). The filter is re-evaluated against projected state when damage would be dealt.
      */
-    fun PreventAllCombatDamageTo(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
-        PreventDamageEffect(target = target, scope = PreventionScope.CombatOnly, duration = duration)
-
-    /**
-     * Prevent all combat damage that would be dealt by creatures matching a filter.
-     */
-    fun PreventCombatDamageFrom(source: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter, duration: Duration = Duration.EndOfTurn): Effect =
-        PreventDamageEffect(
-            scope = PreventionScope.CombatOnly,
+    fun PreventCombatDamageFrom(source: GameObjectFilter, duration: Duration = Duration.EndOfTurn): Effect =
+        PreventDamage(
             direction = PreventionDirection.FromTarget,
-            sourceFilter = PreventionSourceFilter.FromGroup(source),
+            sources = PreventionSourceFilter.Matching(source),
+            combatOnly = true,
             duration = duration
-        )
-
-    /**
-     * Prevent **all** damage — combat and noncombat — that would be dealt by sources matching
-     * [source] this turn: "prevent all damage that would be dealt by creatures this turn" (Ethereal
-     * Haze). The all-damage sibling of [PreventCombatDamageFrom]; the group is re-evaluated against
-     * projected state each time damage would be dealt, so a creature that enters later is covered.
-     *
-     * [gainLifeFromPrevented] adds "you gain life equal to the damage prevented this way" (Chant of
-     * Vitu-Ghazi): each time the shield prevents damage, its controller gains that much life.
-     */
-    fun PreventAllDamageFrom(
-        source: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        gainLifeFromPrevented: Boolean = false,
-        duration: Duration = Duration.EndOfTurn
-    ): Effect =
-        PreventDamageEffect(
-            direction = PreventionDirection.FromTarget,
-            sourceFilter = PreventionSourceFilter.FromGroup(source),
-            gainLifeFromPrevented = gainLifeFromPrevented,
-            duration = duration
-        )
-
-    /**
-     * Prevent all damage that would be dealt to every permanent matching [group] for [duration]
-     * (default this turn) — "prevent all damage that would be dealt to creatures you control this
-     * turn" (Summon: Alexander). The group is re-evaluated against projected state when each damage
-     * instance would be dealt, with the shield's controller as the "you" reference, so permanents
-     * that come under your control later in the turn are protected too. Pass [PreventionScope.CombatOnly]
-     * for a combat-only variant ("prevent all combat damage to creatures you control").
-     */
-    fun PreventAllDamageToGroup(
-        group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        scope: PreventionScope = PreventionScope.AllDamage,
-        duration: Duration = Duration.EndOfTurn
-    ): Effect =
-        PreventDamageEffect(
-            recipientGroup = group,
-            scope = scope,
-            duration = duration
-        )
-
-    /**
-     * Prevent all damage that would be dealt to **you and** every permanent matching [group] for
-     * [duration], optionally only from sources matching [fromSources] — "prevent all damage that
-     * would be dealt to you and creatures you control this turn by creatures" (Eerie Interference).
-     *
-     * The player-inclusive sibling of [PreventAllDamageToGroup]: a player is not a permanent, so
-     * "you" can't come from the [GroupFilter] and rides along as
-     * [PreventDamageEffect.recipientGroupIncludesController] instead. Both the recipient group and
-     * [fromSources] are re-evaluated against projected state at the moment damage would be dealt,
-     * with the shield's controller as the "you" reference — so a creature that changes controller
-     * or stops being a creature mid-turn is judged as it is when the damage happens.
-     *
-     * @param fromSources Restrict the shield to damage from sources matching this filter
-     *   (`GroupFilter(GameObjectFilter.Creature)` for "by creatures"); null protects from every source.
-     */
-    fun PreventAllDamageToYouAndGroup(
-        group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        fromSources: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter? = null,
-        scope: PreventionScope = PreventionScope.AllDamage,
-        duration: Duration = Duration.EndOfTurn
-    ): Effect =
-        PreventDamageEffect(
-            recipientGroup = group,
-            recipientGroupIncludesController = true,
-            sourceFilter = fromSources?.let { PreventionSourceFilter.FromGroup(it) }
-                ?: PreventionSourceFilter.AnySource,
-            scope = scope,
-            duration = duration
-        )
-
-    /**
-     * Prevent all damage that would be dealt to **you** for [duration], from sources matching
-     * [fromSources] — "prevent all damage that would be dealt to you this turn by creatures with
-     * flying" (Scarecrow).
-     *
-     * The permanent-less member of the recipient-shield family: [PreventAllDamageToGroup] names
-     * permanents, [PreventAllDamageToYouAndGroup] names you *and* permanents, and this one names
-     * you alone, so all three are the same
-     * [PreventDamageEffect.recipientGroup]/[PreventDamageEffect.recipientGroupIncludesController]
-     * shield with a different half filled in. [fromSources] is re-evaluated against projected
-     * state at the moment damage would be dealt, and a damage instance whose source can't be
-     * identified is *not* prevented — a "by creatures with flying" shield must not swallow damage
-     * it can't attribute.
-     *
-     * Not combat-only by default: an activated ability of a flying creature that damages you is
-     * prevented too. Pass [PreventionScope.CombatOnly] for the combat-only wording.
-     */
-    fun PreventAllDamageToYouFrom(
-        fromSources: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        scope: PreventionScope = PreventionScope.AllDamage,
-        duration: Duration = Duration.EndOfTurn
-    ): Effect =
-        PreventDamageEffect(
-            recipientGroupIncludesController = true,
-            sourceFilter = PreventionSourceFilter.FromGroup(fromSources),
-            scope = scope,
-            duration = duration
-        )
-
-    /**
-     * Prevent all damage that would be dealt to controller this turn by attacking creatures.
-     */
-    fun PreventDamageFromAttackingCreatures(): Effect =
-        PreventDamageEffect(
-            target = EffectTarget.Controller,
-            sourceFilter = PreventionSourceFilter.AttackingCreatures
         )
 
     /**
      * Prevent all combat damage that would be dealt to and dealt by a creature this turn.
      */
     fun PreventCombatDamageToAndBy(target: EffectTarget = EffectTarget.Self): Effect =
-        PreventDamageEffect(
-            target = target,
-            scope = PreventionScope.CombatOnly,
-            direction = PreventionDirection.Both
-        )
+        PreventDamage(target = target, direction = PreventionDirection.Both, combatOnly = true)
 
-    /**
-     * Prevent all damage target creature or spell would deal, this turn by default. Pass a
-     * [duration] for the open-ended wordings — [Duration.WhileSourceOnBattlefield] gives "prevent
-     * all damage that would be dealt by up to one target creature for as long as this Saga remains
-     * on the battlefield" (Old Fat Spider Can't See Me), which the shield honors like any other
-     * source-keyed floating effect: it stops applying the moment the source leaves.
-     */
     /**
      * Prevent all damage [target] would deal for [duration].
      *
      * [scope] narrows *which* damage: the default [PreventionScope.AllDamage] covers combat and
      * noncombat alike, while [PreventionScope.CombatOnly] is what a printed line saying "prevent
-     * all **combat** damage that would be dealt by …" actually means (Restrain, Safeguard).
+     * all **combat** damage that would be dealt by …" actually means (Restrain, Safeguard). An
+     * open-ended [duration] such as [Duration.WhileSourceOnBattlefield] gives "for as long as this
+     * Saga remains on the battlefield" (Old Fat Spider Can't See Me).
      */
     fun PreventAllDamageDealtBy(
         target: EffectTarget,
         duration: Duration = Duration.EndOfTurn,
         scope: PreventionScope = PreventionScope.AllDamage
     ): Effect =
-        PreventDamageEffect(
+        PreventDamage(
             target = target,
-            scope = scope,
             direction = PreventionDirection.FromTarget,
+            combatOnly = scope == PreventionScope.CombatOnly,
             duration = duration
-        )
-
-    /**
-     * Prevent the next damage instance [target] would deal this turn, then run [onPrevented] as a
-     * linked delayed trigger with the prevented amount available through
-     * [DynamicAmounts.preventedDamage].
-     */
-    fun PreventNextDamageDealtBy(target: EffectTarget, onPrevented: Effect): Effect =
-        PreventDamageEffect(
-            target = target,
-            direction = PreventionDirection.FromTarget,
-            onPrevented = onPrevented,
-            nextInstanceOnly = true
-        )
-
-    /**
-     * Choose a source on resolution, prevent the next damage it would deal to you this turn, then run
-     * [onPrevented] — an arbitrary follow-up effect — as a triggered ability when that damage is
-     * prevented ("When damage is prevented this way, …"). Inside the follow-up the prevented amount is
-     * [DynamicAmounts.preventedDamage] ("that much"/"that many") and the prevented source's controller
-     * is `EffectTarget.ControllerOfTriggeringEntity` ("that source's controller"). Compose the payoff
-     * from ordinary atomic effects — no bespoke reaction type: Deflecting Palm reflects
-     * (`DealDamage(ControllerOfTriggeringEntity, preventedDamage())`); New Way Forward reflects and draws.
-     */
-    fun PreventNextDamageFromChosenSource(onPrevented: Effect): Effect =
-        PreventDamageEffect(
-            sourceFilter = PreventionSourceFilter.ChosenSource,
-            onPrevented = onPrevented
-        )
-
-    /**
-     * Choose a source, prevent the next damage it would deal to you this turn, and deal that much
-     * damage to its controller (Deflecting Palm) — the canonical reflect, expressed as a follow-up.
-     */
-    fun DeflectNextDamageFromChosenSource(): Effect =
-        PreventNextDamageFromChosenSource(
-            onPrevented = DealDamageEffect(
-                amount = DynamicAmounts.preventedDamage(),
-                target = EffectTarget.ControllerOfTriggeringEntity
-            )
-        )
-
-    /**
-     * Choose a source; the next time it would deal damage to you this turn, the damage is still
-     * dealt to you in full **and** that much damage is dealt to that source's controller (Eye for
-     * an Eye). Same chosen-source reaction machinery as [DeflectNextDamageFromChosenSource], but
-     * with `preventDamage = false` so the original damage is not prevented.
-     */
-    fun ReflectNextDamageFromChosenSourceToController(): Effect =
-        PreventDamageEffect(
-            sourceFilter = PreventionSourceFilter.ChosenSource,
-            preventDamage = false,
-            onPrevented = DealDamageEffect(
-                amount = DynamicAmounts.preventedDamage(),
-                target = EffectTarget.ControllerOfTriggeringEntity
-            )
-        )
-
-    /**
-     * Prevent the next N damage that would be dealt to a target this turn by a source of your choice.
-     */
-    fun PreventNextDamageFromChosenSource(amount: Int, target: EffectTarget): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = DynamicAmount.Fixed(amount),
-            sourceFilter = PreventionSourceFilter.ChosenSource
-        )
-
-    /**
-     * The next time a source of your choice would deal damage to [target] this turn, prevent **half**
-     * that damage, rounded down (Dark Sphere). Single-instance shield like the Circle of Protection
-     * family: the unprevented half is still dealt, and the shield is spent either way — a 1-damage
-     * instance halves to 0 prevented and consumes it.
-     */
-    fun PreventHalfNextDamageFromChosenSource(
-        target: EffectTarget = EffectTarget.Controller
-    ): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = null,
-            sourceFilter = PreventionSourceFilter.ChosenSource,
-            nextInstanceOnly = true,
-            halvePreventedDamage = true
-        )
-
-    /**
-     * Prevent all damage that would be dealt to a target this turn by a source of your choice.
-     * If [gainLifeFromColors] is non-empty, whenever damage from a source of one of those colors is
-     * prevented this way, the controller gains that much life (Samite Ministration).
-     */
-    fun PreventAllDamageFromChosenSource(
-        target: EffectTarget = EffectTarget.Controller,
-        gainLifeFromColors: Set<com.wingedsheep.sdk.core.Color> = emptySet()
-    ): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = null,
-            sourceFilter = PreventionSourceFilter.ChosenSource,
-            gainLifeFromColors = gainLifeFromColors
-        )
-
-    /**
-     * Prevent all damage that would be dealt to a target this turn by a source of your choice
-     * that shares a color with the mana spent — i.e. only colored sources are eligible
-     * (a colorless source shares a color with no mana). Protective Sphere.
-     */
-    fun PreventAllDamageFromChosenColoredSource(
-        target: EffectTarget = EffectTarget.Controller
-    ): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = null,
-            sourceFilter = PreventionSourceFilter.ChosenColoredSource
-        )
-
-    /**
-     * Prevent **all** damage that a source of your choice matching [filter] would deal this turn —
-     * to anything, with no recipient clause (Mourner's Shield: "Prevent all damage that would be
-     * dealt this turn by a source of your choice that shares a color with the exiled card").
-     *
-     * The recipient-free sibling of [PreventAllDamageFromChosenSource], which shields one recipient
-     * against the chosen source. `PreventionDirection.FromTarget` is what distinguishes them: it
-     * already means "damage dealt *by*" for a targeted source, and reads the same way for a chosen
-     * one. [filter] is evaluated relative to the ability's source, so it may reference the source or
-     * its linked exile.
-     */
-    fun PreventAllDamageFromChosenSourceMatching(filter: GameObjectFilter): Effect =
-        PreventDamageEffect(
-            amount = null,
-            direction = PreventionDirection.FromTarget,
-            sourceFilter = PreventionSourceFilter.ChosenSourceMatching(filter)
-        )
-
-    /**
-     * The next time an artifact source of your choice would deal damage to [target] this turn,
-     * prevent that damage (Circle of Protection: Artifacts). Single-instance shield: only artifact
-     * sources are eligible for the choice, and the whole next instance from the chosen source is
-     * prevented, then the shield is consumed. Built from the generic `ChosenSourceMatching`
-     * eligibility filter (`GameObjectFilter.Artifact`) plus `nextInstanceOnly = true`; a future
-     * "an enchantment/red/… source of your choice" Circle of Protection reuses the same shape with
-     * a different filter.
-     */
-    fun PreventNextDamageFromChosenArtifactSource(
-        target: EffectTarget = EffectTarget.Controller
-    ): Effect =
-        PreventDamageEffect(
-            target = target,
-            amount = null,
-            sourceFilter = PreventionSourceFilter.ChosenSourceMatching(GameObjectFilter.Artifact),
-            nextInstanceOnly = true
-        )
-
-    /**
-     * Prevent the next time a creature of the chosen type would deal damage to you this turn.
-     */
-    fun PreventNextDamageFromChosenCreatureType(): Effect =
-        PreventDamageEffect(
-            target = EffectTarget.Controller,
-            sourceFilter = PreventionSourceFilter.ChosenCreatureType
         )
 
     /**

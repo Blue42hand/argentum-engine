@@ -1249,7 +1249,7 @@
                 },
                 "effect": {
                     "type": "PreventDamageShield",
-                    "sourceFilter": "ChosenSource",
+                    "sourceFilter": "PreventFromChosen",
                     "nextInstanceOnly": true,
                     "halvePreventedDamage": true
                 },
@@ -5142,10 +5142,8 @@
                     "type": "PreventDamageShield",
                     "recipientGroupIncludesController": true,
                     "sourceFilter": {
-                        "type": "FromGroup",
-                        "filter": {
-                            "baseFilter": "creature kw:flying"
-                        }
+                        "type": "PreventFromMatching",
+                        "filter": "creature kw:flying"
                     }
                 }
             }

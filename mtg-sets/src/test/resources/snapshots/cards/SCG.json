@@ -3860,17 +3860,15 @@
                     "scope": "CombatOnly",
                     "direction": "FromTarget",
                     "sourceFilter": {
-                        "type": "FromGroup",
+                        "type": "PreventFromMatching",
                         "filter": {
-                            "baseFilter": {
-                                "cardPredicates": [
-                                    "IsCreature",
-                                    {
-                                        "type": "NotSubtype",
-                                        "subtype": "Soldier"
-                                    }
-                                ]
-                            }
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "NotSubtype",
+                                    "subtype": "Soldier"
+                                }
+                            ]
                         }
                     }
                 }

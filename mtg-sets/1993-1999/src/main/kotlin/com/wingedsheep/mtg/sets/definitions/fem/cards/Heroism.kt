@@ -5,11 +5,8 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
-import com.wingedsheep.sdk.scripting.effects.PreventDamageEffect
-import com.wingedsheep.sdk.scripting.effects.PreventionDirection
 import com.wingedsheep.sdk.scripting.effects.PreventionScope
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -42,12 +39,7 @@ val Heroism = card("Heroism") {
             filter = GroupFilter(GameObjectFilter.Creature.withColor(Color.RED).attacking()),
             effect = PayOrSufferEffect(
                 cost = Costs.pay.Mana("{2}{R}"),
-                suffer = PreventDamageEffect(
-                    target = EffectTarget.Self,
-                    direction = PreventionDirection.FromTarget,
-                    scope = PreventionScope.CombatOnly,
-                    duration = Duration.EndOfTurn,
-                ),
+                suffer = Effects.PreventAllDamageDealtBy(EffectTarget.Self, scope = PreventionScope.CombatOnly),
                 player = EffectTarget.PlayerRef(Player.ControllerOfIterationEntity),
                 consequenceDescription = "have all combat damage that creature would deal this turn prevented",
             )
