@@ -9,6 +9,7 @@ import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.library.CascadeExecutor
 import com.wingedsheep.engine.handlers.effects.library.ChooseOnePerCategoryExecutor
+import com.wingedsheep.engine.handlers.effects.library.CastAnyNumberFromCollectionWithoutPayingCostExecutor
 import com.wingedsheep.engine.handlers.effects.library.CastFromCollectionWithoutPayingCostExecutor
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
@@ -1283,7 +1284,7 @@ class LibraryAndZoneContinuationResumer(
         // CastFromCollectionWithoutPayingCostExecutor no-ops on it, leaving it in exile. Ask the
         // executor's own precondition the same question it will ask, so that pick doesn't burn a
         // cast. Deterministic over the same state, so the two answers can't disagree.
-        val castWillInitiate = continuation.maxCasts == null ||
+        val castWillInitiate = (continuation.maxCasts == null && continuation.maxTotalManaValue == null) ||
             CastFromCollectionWithoutPayingCostExecutor.prepareTargetSelection(
                 state = state,
                 cardId = chosenId,
@@ -1302,6 +1303,12 @@ class LibraryAndZoneContinuationResumer(
                 // uncastable card is out of the pool either way, so this can't spin). `null`
                 // stays uncapped; a budget that hits 0 makes the next iteration a no-op.
                 maxCasts = continuation.maxCasts?.let { if (castWillInitiate) it - 1 else it },
+                // "Total mana value N or less": the cast spends its mana value from the budget.
+                maxTotalManaValue = continuation.maxTotalManaValue?.let { budget ->
+                    if (castWillInitiate) {
+                        budget - CastAnyNumberFromCollectionWithoutPayingCostExecutor.manaValueOf(state, chosenId)
+                    } else budget
+                },
             ),
         )
         val result = effectRunner.executeRemainingEffects(state, effects, loopContext)

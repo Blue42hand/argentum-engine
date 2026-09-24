@@ -4780,7 +4780,8 @@
                             "ownedStaticAbilities": [
                                 {
                                     "type": "MayCastWithoutPayingManaCost",
-                                    "controllerOnly": true
+                                    "controllerOnly": true,
+                                    "fromHandOnly": true
                                 }
                             ],
                             "emblemDescription": "You may cast spells from your hand without paying their mana costs."

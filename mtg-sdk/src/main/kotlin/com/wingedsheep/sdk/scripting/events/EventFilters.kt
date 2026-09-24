@@ -400,6 +400,23 @@ sealed interface SpellCastPredicate {
     }
 
     /**
+     * The spell was cast **as a prepare spell** (CR 722.3c) — "Whenever you cast a prepared spell"
+     * (Codie, Ravenous Codex). A preparation card's prepare spell is never cast directly (CR 722.3);
+     * it is the copy a prepared permanent leaves in exile that gets cast, so this is true exactly
+     * for that cast copy. The same preparation card cast from hand as its creature half does not
+     * match, and neither does an unrelated instant or sorcery.
+     *
+     * A cast-time fact like [CastAsAdventure], not a characteristic: contrast
+     * [com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsPrepared], which is the
+     * *permanent's* "prepared" designation.
+     */
+    @SerialName("SpellCastAsPrepareSpell")
+    @Serializable
+    data object CastAsPrepareSpell : SpellCastPredicate {
+        override val description = "prepared"
+    }
+
+    /**
      * The spell was cast with at least one chosen target that is an **opponent** of the trigger's
      * controller — "a spell that targets an opponent" (Danitha, Spear of Agony). The player half of
      * [TargetsMatching], which only sees objects.

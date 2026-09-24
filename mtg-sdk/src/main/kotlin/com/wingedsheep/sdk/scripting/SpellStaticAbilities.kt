@@ -235,7 +235,16 @@ data class GrantMayCastFromLinkedExile(
      * Intrepid Paleontologist: `entersWithCounter = CounterType.FINALITY` — "If you cast a spell this
      * way, that creature enters with a finality counter on it."
      */
-    val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null
+    val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null,
+    /**
+     * "…, and mana of any type can be spent to cast that spell" (CR 609.4b): when true, the colored
+     * requirements of a spell cast *through this grant* may be paid with mana of any type. Scoped to
+     * the permission rather than a blanket [SpendAnyManaTypeForSpells] for the same reason as
+     * [MayPlayCardsFromExile.withAnyManaType] — the relaxation belongs to spells cast this way, not
+     * to the card wherever it is cast from. Read by the linked-exile cast enumerator (cost display and
+     * affordability) and by the cast handler's payment. Null Summoner.
+     */
+    val withAnyManaType: Boolean = false
 ) : StaticAbility {
     override val description: String = buildString {
         // "pay life equal to its mana value rather than pay its mana cost" — Valgavoth, Terror Eater
@@ -266,6 +275,7 @@ data class GrantMayCastFromLinkedExile(
         if (exiledThisTurnOnly) append(" this turn")
         if (withoutPayingManaCost) append(" without paying its mana cost")
         if (additionalCost != null) append(" by ${additionalCost.description.lowercase()} in addition to paying their other costs")
+        if (withAnyManaType) append(", and mana of any type can be spent to cast those spells")
         if (oncePerTurn) append(". This ability may be used only once each turn")
         append(".")
         if (entersWithCounter != null) {
@@ -772,19 +782,35 @@ data class MayCastWithoutPayingManaCost(
      * true, oncePerTurn = true, fromExileOnly = true)`. The engine gates this on the cast's source
      * zone in `CostCalculator.hasFreeCastPermission` / `oncePerTurnFreeCastSourceToConsume`.
      */
-    val fromExileOnly: Boolean = false
+    val fromExileOnly: Boolean = false,
+    /**
+     * When true, the permission applies only to spells **cast from their caster's hand** — the
+     * "from your hand" wording. A cast from exile, a graveyard, the top of the library, or the
+     * command zone is withheld, including on the client-supplied validation path. Omnipresence:
+     * "You may cast spells with mana value less than or equal to the number of creatures you
+     * control from your hand without paying their mana costs." → `MayCastWithoutPayingManaCost(
+     * controllerOnly = true, fromHandOnly = true, spellFilter = GameObjectFilter.Any.manaValueAtMostDynamic(
+     * DynamicAmounts.creaturesYouControl()))`. The zone mirror of [fromExileOnly]; the two are
+     * mutually exclusive. The engine gates this on the cast's source zone in
+     * `CostCalculator.hasFreeCastPermission`.
+     */
+    val fromHandOnly: Boolean = false
 ) : StaticAbility {
+    init {
+        require(!(fromExileOnly && fromHandOnly)) { "fromExileOnly and fromHandOnly are mutually exclusive" }
+    }
+
     override val description: String = buildString {
         val noun = if (spellFilter == GameObjectFilter.Any) "spells" else "${spellFilter.description} spells"
         val singular = if (spellFilter == GameObjectFilter.Any) "spell" else "${spellFilter.description} spell"
-        val fromExile = if (fromExileOnly) " from exile" else ""
+        val fromExile = if (fromExileOnly) " from exile" else if (fromHandOnly) " from your hand" else ""
         if (oncePerTurn) {
             append("Once during each of your turns, you may cast a $singular$fromExile without paying its mana cost")
         } else if (firstSpellOfTurnOnly) {
             if (controllerOnly) append("The first spell you cast each turn may be cast without paying its mana cost")
             else append("The first spell each player casts during each of their turns may be cast without paying its mana cost")
         } else {
-            if (controllerOnly) append("You may cast $noun without paying their mana costs")
+            if (controllerOnly) append("You may cast $noun$fromExile without paying their mana costs")
             else append("Each player may cast $noun without paying their mana costs")
         }
     }

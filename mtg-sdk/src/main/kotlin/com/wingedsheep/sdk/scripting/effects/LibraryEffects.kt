@@ -469,11 +469,20 @@ data class PlayFromCollectionWithoutPayingCostEffect(
  * still spend one of the N. Don't author that combination without wiring the affordability check
  * to match.
  *
+ * **Capping the total mana value.** [maxTotalManaValue] is the "any number of spells with **total
+ * mana value N or less** from among them" wording (Uldaros Theorix). It is a budget, spent by the
+ * mana value of each spell whose cast *initiates* (the same precondition as [maxCasts]): each
+ * iteration offers only the cards whose mana value still fits in what is left, and the loop ends
+ * once nothing fits. A free cast has X = 0 (CR 107.3b), so a card's mana value off the stack is the
+ * mana value it is cast with. Like [maxCasts], it is only wired for the free form.
+ *
  * @property from Name of the collection of already-exiled candidate cards.
  * @property payManaCost When true, each chosen card is cast paying its normal mana cost.
  * @property maxCasts Maximum number of cards that may still be cast by this loop, or `null`
  *   for no cap. A value of `0` or less makes the effect a no-op. Only meaningful alongside the
  *   default `payManaCost = false` — see above.
+ * @property maxTotalManaValue Remaining total-mana-value budget for the casts, or `null` for no
+ *   cap. Only meaningful alongside the default `payManaCost = false`.
  */
 @SerialName("CastAnyNumberFromCollectionWithoutPayingCost")
 @Serializable
@@ -481,10 +490,12 @@ data class CastAnyNumberFromCollectionWithoutPayingCostEffect(
     val from: String,
     val payManaCost: Boolean = false,
     val maxCasts: Int? = null,
+    val maxTotalManaValue: Int? = null,
 ) : Effect {
     override val description: String = buildString {
         append("Cast ")
         append(if (maxCasts == null) "any number of those cards" else "up to $maxCasts of those cards")
+        if (maxTotalManaValue != null) append(" with total mana value $maxTotalManaValue or less")
         if (!payManaCost) append(" without paying their mana costs")
     }
 }

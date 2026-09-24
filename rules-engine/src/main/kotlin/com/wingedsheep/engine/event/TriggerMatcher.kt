@@ -1854,6 +1854,12 @@ class TriggerMatcher(
                 ?.get<CardComponent>()?.hasAdventure == true
             hasAdventure && spellComponent?.faceIndex != null
         }
+        // Cast as a prepare spell (CR 722.3c): the only way to cast a prepare spell is to cast the
+        // copy a prepared permanent keeps in exile, and that copy carries the link back to its
+        // source. The preparation card cast from hand as a creature carries no such link.
+        SpellCastPredicate.CastAsPrepareSpell ->
+            state.getEntity(event.spellEntityId)
+                ?.has<com.wingedsheep.engine.state.components.battlefield.PreparedSpellCopyComponent>() == true
         // "a spell they don't own" — owner vs. the player who *cast* it, not vs. the trigger's
         // controller. The two coincide for the "whenever you cast a spell you don't own" wording
         // (Nita, Vaan), where `matchesPlayer(state, Player.You, …)` has already pinned casterId ==

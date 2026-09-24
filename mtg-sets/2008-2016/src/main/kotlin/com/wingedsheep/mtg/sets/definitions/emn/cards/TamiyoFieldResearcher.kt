@@ -106,7 +106,7 @@ val TamiyoFieldResearcher = card("Tamiyo, Field Researcher") {
     //     paying their mana costs."
     loyaltyAbility(-7) {
         effect = Effects.DrawCards(3) then Effects.CreatePermanentEmblem(
-            ownedStaticAbilities = listOf(MayCastWithoutPayingManaCost(controllerOnly = true)),
+            ownedStaticAbilities = listOf(MayCastWithoutPayingManaCost(controllerOnly = true, fromHandOnly = true)),
             emblemDescription = "You may cast spells from your hand without paying their mana costs."
         )
     }

@@ -2389,6 +2389,77 @@
     ]
 }
 
+// Codie, Ravenous Codex
+{
+    "name": "Codie, Ravenous Codex",
+    "manaCost": "{3}",
+    "typeLine": "Legendary Artifact Creature — Book Construct",
+    "oracleText": "Whenever you cast a prepared spell, copy it. You may choose new targets for the copy.\n{W}{U}{B}{R}{G}, {T}: Each creature you control becomes prepared. (Only creatures with prepare spells can become prepared.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "requires": [
+                        "SpellCastAsPrepareSpell"
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CopyTargetSpell",
+                    "target": "TriggeringEntity"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W}{U}{B}{R}{G}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "BecomePrepared",
+                        "target": "IterationEntity"
+                    }
+                },
+                "descriptionOverride": "{W}{U}{B}{R}{G}, {T}: Each creature you control becomes prepared."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "168",
+        "rarity": "RARE",
+        "artist": "Steve Prescott",
+        "flavorText": "A font of knowledge for those able to read more than a page of hexed words.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/3/c3192390-1518-49fc-8716-f2c7a0384f39.jpg?1789646811",
+        "inBooster": false
+    },
+    "colorIdentityOverride": []
+}
+
 // Command the Stage
 {
     "name": "Command the Stage",
@@ -4132,6 +4203,140 @@
     ]
 }
 
+// Emrakul, the Exigent Doom
+{
+    "name": "Emrakul, the Exigent Doom",
+    "manaCost": "{10}",
+    "typeLine": "Legendary Creature — Eldrazi",
+    "oracleText": "When you cast this spell, untap all lands you control.\nFlying, trample\nWard—Sacrifice three permanents.\n{3}, Exile this card from your hand: Target land gains \"{T}: Add {C}{C}\" until this card is cast from exile. You may cast this card for as long as it remains exiled.",
+    "creatureStats": {
+        "power": 12,
+        "toughness": 12
+    },
+    "keywords": [
+        "FLYING",
+        "TRAMPLE",
+        "WARD"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ward",
+            "cost": {
+                "type": "WardCost.Sacrifice",
+                "filter": "permanent",
+                "count": 3
+            }
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "CastThisSpellEvent",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "land ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "TapUntap",
+                        "target": "IterationEntity",
+                        "tap": false
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}"
+                            }
+                        },
+                        "CostExileSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GrantActivatedAbility",
+                            "ability": {
+                                "id": "ability_3",
+                                "cost": "CostTap",
+                                "effect": {
+                                    "type": "AddColorlessMana",
+                                    "amount": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
+                                },
+                                "timing": "ManaAbility",
+                                "isManaAbility": true
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land"
+                            },
+                            "duration": "UntilSourceCastFromExile"
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Exile",
+                                        "filter": {
+                                            "statePredicates": [
+                                                "IsSource"
+                                            ]
+                                        }
+                                    },
+                                    "storeAs": "gathered0"
+                                },
+                                {
+                                    "type": "GrantMayPlayFromExile",
+                                    "from": "gathered0",
+                                    "expiry": "Permanent"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land"
+                        },
+                        "id": "target land"
+                    }
+                ],
+                "activateFromZone": "Hand",
+                "descriptionOverride": "{3}, Exile this card from your hand: Target land gains \"{T}: Add {C}{C}\" until this card is cast from exile. You may cast this card for as long as it remains exiled."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "MYTHIC",
+        "artist": "Cristi Balanescu",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/3/c3ff8dd3-88a8-49dc-a59b-e2748680623c.jpg?1789060137",
+        "inBooster": false
+    }
+}
+
 // Enlightened Confidant
 {
     "name": "Enlightened Confidant",
@@ -4483,6 +4688,113 @@
     ]
 }
 
+// Extrapolate the Impossible
+{
+    "name": "Extrapolate the Impossible",
+    "manaCost": "{1}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "You may reveal exactly two cards you own with different names from outside the game. An opponent chooses one of them. You put that card into your hand.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": "Gate.MayDecide",
+            "then": {
+                "type": "Gated",
+                "gate": {
+                    "type": "Gate.DoAction",
+                    "action": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Sideboard"
+                                },
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "gathered0",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
+                                },
+                                "storeSelected": "extrapolateRevealed",
+                                "prompt": "Reveal two cards with different names from outside the game",
+                                "restrictions": [
+                                    "OnePerCardName"
+                                ]
+                            },
+                            {
+                                "type": "RevealCollection",
+                                "from": "extrapolateRevealed",
+                                "fromZone": "Sideboard"
+                            }
+                        ]
+                    },
+                    "successCriterion": {
+                        "type": "SuccessCriterion.CollectionNonEmpty",
+                        "name": "extrapolateRevealed",
+                        "min": 2
+                    }
+                },
+                "then": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromVariable",
+                                "variableName": "extrapolateRevealed"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "chooser": "Opponent",
+                            "storeSelected": "selected1",
+                            "prompt": "Choose the card your opponent puts into their hand",
+                            "selectedLabel": "Into their hand",
+                            "remainderLabel": "Stays outside the game"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                }
+            },
+            "descriptionOverride": "You may reveal exactly two cards you own with different names from outside the game. An opponent chooses one of them. You put that card into your hand."
+        }
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "RARE",
+        "artist": "Volkan Baǵa",
+        "flavorText": "Jace believed that if he could successfully merge the two Multiverses, he would remove the suffering of so many.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/7/17fb6538-493c-41aa-ad13-3e63d3ad3317.jpg?1789729624"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Eye of Jace
 {
     "name": "Eye of Jace",
@@ -4566,6 +4878,71 @@
         "inBooster": false
     },
     "colorIdentityOverride": []
+}
+
+// Face Yourself
+{
+    "name": "Face Yourself",
+    "manaCost": "{5}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "For each creature target player controls, create a token that's a copy of that creature, except it has haste and \"At the beginning of the end step, if you don't control a planeswalker, sacrifice this creature.\"",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "creature ctrl:target-player"
+                }
+            },
+            "body": {
+                "type": "CreateTokenCopyOfTarget",
+                "target": "IterationEntity",
+                "triggeredAbilities": [
+                    {
+                        "id": "ability_1",
+                        "trigger": {
+                            "type": "StepEvent",
+                            "step": "END",
+                            "player": "Each"
+                        },
+                        "binding": "ANY",
+                        "effect": {
+                            "type": "SacrificeTarget",
+                            "target": "Self"
+                        },
+                        "interveningIf": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "planeswalker",
+                            "negate": true
+                        }
+                    }
+                ],
+                "addedKeywords": [
+                    "HASTE"
+                ]
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "target player"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "83",
+        "rarity": "RARE",
+        "artist": "Ekaterina Burmak",
+        "flavorText": "\"I only wish you could see the necessity of this. Your counterparts all have.\"\n—The Theorist, Jace Beleren",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/c/3ccf8f64-19bd-4fdf-b70a-30a042bacf2f.jpg?1789127528",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
 }
 
 // Fatehold Annex
@@ -6722,6 +7099,82 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Hall of Echoes
+{
+    "name": "Hall of Echoes",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{5}: This land becomes a copy of target creature you control until end of turn. The \"legend rule\" doesn't apply to permanents you control this turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{5}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "EachPermanentBecomesCopyOfTarget",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
+                            },
+                            "duration": "EndOfTurn",
+                            "affected": "Self"
+                        },
+                        {
+                            "type": "GrantStaticAbility",
+                            "ability": {
+                                "type": "LegendRuleDoesNotApplyTo",
+                                "filter": "permanent"
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "target creature you control"
+                    }
+                ],
+                "descriptionOverride": "{5}: This land becomes a copy of target creature you control until end of turn. The \"legend rule\" doesn't apply to permanents you control this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "179",
+        "rarity": "RARE",
+        "artist": "Leon Tukker",
+        "flavorText": "The tunnels below Hexhaven murmur with ripples of first breaths.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/a/4a771010-b397-4849-ac9b-08e4dd5d6a72.jpg?1789644859",
+        "inBooster": false
+    },
+    "colorIdentityOverride": []
 }
 
 // Hallway Heckler
@@ -10904,6 +11357,158 @@
     ]
 }
 
+// Null Summoner
+{
+    "name": "Null Summoner",
+    "manaCost": "{2}{U}{B}",
+    "typeLine": "Creature — Human Warlock",
+    "oracleText": "When this creature enters, if you cast it, target opponent reveals their hand. You choose a nonland card from it. Exile that card.\nThreshold — As long as there are seven or more cards in your graveyard, you may cast the exiled card, and mana of any type can be spent to cast that spell.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "RevealHand",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target opponent"
+                            }
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
+                                },
+                                "filter": "nonland"
+                            },
+                            "storeAs": "chosenCardCandidates"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "chosenCardCandidates",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "chosenCard",
+                            "prompt": "Choose a nonland card to exile"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "chosenCard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
+                                }
+                            },
+                            "linkToSource": true
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                },
+                "interveningIf": "WasCast"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantMayCastFromLinkedExile",
+                    "withAnyManaType": true
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "142",
+        "rarity": "RARE",
+        "artist": "Magali Villeneuve",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/a/3afdc75a-1bf5-4f2f-84eb-d82f77a095cd.jpg?1789127648",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
+// Omnipresence
+{
+    "name": "Omnipresence",
+    "manaCost": "{5}{G}{G}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "You may cast spells with mana value less than or equal to the number of creatures you control from your hand without paying their mana costs.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "MayCastWithoutPayingManaCost",
+                "controllerOnly": true,
+                "spellFilter": {
+                    "cardPredicates": [
+                        {
+                            "type": "ManaValueAtMostDynamic",
+                            "amount": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "creature"
+                            }
+                        }
+                    ]
+                },
+                "fromHandOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "rarity": "MYTHIC",
+        "artist": "Bryan Sola",
+        "flavorText": "Her choice made, Tam called upon the one being who could fix what Jace had done.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/a/eaf9dc77-c83b-49cf-84be-6bd791cb925e.jpg?1789470856",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Overwrite the Multiverse
 {
     "name": "Overwrite the Multiverse",
@@ -14806,6 +15411,137 @@
     ]
 }
 
+// Sphinx's Approach
+{
+    "name": "Sphinx's Approach",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Draw two cards. Then you may exile this spell and four cards named Sphinx's Approach from your graveyard. If you do, search your library for a Sphinx creature card, put it onto the battlefield, then shuffle.\nA deck can have any number of cards named Sphinx's Approach.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.DoAction",
+                            "action": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Graveyard",
+                                            "filter": "name:Sphinx's Approach"
+                                        },
+                                        "storeAs": "gathered0"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "gathered0",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 4
+                                            }
+                                        },
+                                        "storeSelected": "sphinxsApproachExiled",
+                                        "prompt": "Exile four cards named Sphinx's Approach from your graveyard"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "sphinxsApproachExiled",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Exile"
+                                        }
+                                    },
+                                    {
+                                        "type": "GatherCards",
+                                        "source": "Self",
+                                        "storeAs": "gathered3"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "gathered3",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Exile"
+                                        }
+                                    }
+                                ]
+                            },
+                            "successCriterion": {
+                                "type": "SuccessCriterion.CollectionNonEmpty",
+                                "name": "sphinxsApproachExiled",
+                                "min": 4
+                            }
+                        },
+                        "then": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Library",
+                                        "filter": "creature Sphinx"
+                                    },
+                                    "storeAs": "searchable",
+                                    "search": true
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "searchable",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "found"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "found",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    }
+                                },
+                                "ShuffleLibrary",
+                                "EmitLibrarySearchedEvent"
+                            ]
+                        }
+                    },
+                    "descriptionOverride": "You may exile this spell and four cards named Sphinx's Approach from your graveyard. If you do, search your library for a Sphinx creature card, put it onto the battlefield, then shuffle."
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "41",
+        "artist": "Nathaniel Himawan",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/4/f49be090-c745-40e5-bc1c-605b8d98acdf.jpg?1789644816"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Stingcaster Mage
 {
     "name": "Stingcaster Mage",
@@ -17592,6 +18328,82 @@
     },
     "colorIdentityOverride": [
         "WHITE",
+        "BLACK"
+    ]
+}
+
+// Uldaros Theorix
+{
+    "name": "Uldaros Theorix",
+    "manaCost": "{3}{U}{B}{B}",
+    "typeLine": "Legendary Creature — Elder Sphinx",
+    "oracleText": "Flying\nWhen Uldaros Theorix enters, if you cast him, exile up to one target nonland card of each card type from your graveyard. Copy those cards. You may cast any number of spells with total mana value 6 or less from among the copies without paying their mana costs. (Permanent spells cast this way become tokens.)",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "CopyCollectionIntoCollection",
+                            "from": "gathered0",
+                            "storeAs": "copies2"
+                        },
+                        {
+                            "type": "CastAnyNumberFromCollectionWithoutPayingCost",
+                            "from": "copies2",
+                            "maxTotalManaValue": 6
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "unlimited": true,
+                    "filter": {
+                        "baseFilter": "nonland own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "up to one target nonland card of each card type from your graveyard",
+                    "onePerCardType": true
+                },
+                "interveningIf": "WasCast"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "MYTHIC",
+        "artist": "Alexander Mokhov",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/7/a7ad622a-42ff-48fa-ae95-12e0a5bd9387.jpg?1788878220",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE",
         "BLACK"
     ]
 }

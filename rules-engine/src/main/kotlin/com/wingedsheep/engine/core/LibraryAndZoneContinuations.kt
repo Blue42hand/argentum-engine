@@ -439,5 +439,10 @@ data class CastAnyNumberFromCollectionContinuation(
      * after a card is actually cast.
      */
     val maxCasts: Int? = null,
+    /**
+     * Remaining total-mana-value budget for a "spells with total mana value N or less" loop, or
+     * `null` when uncapped. The resumer re-enters the loop with the cast card's mana value spent.
+     */
+    val maxTotalManaValue: Int? = null,
 ) : AnswerContinuation
 

@@ -158,7 +158,13 @@ data class TargetRequirementInfo(
      * Justice). Enforced against each selected permanent's projected controller in
      * [DecisionValidators.validateTargets].
      */
-    val differentControllers: Boolean = false
+    val differentControllers: Boolean = false,
+    /**
+     * When true, the chosen targets must be at most one of each card type — each paired with a
+     * different card type it has ("up to one target nonland card of each card type", Uldaros
+     * Theorix). Enforced in [DecisionValidators.validateTargets].
+     */
+    val onePerCardType: Boolean = false
 )
 
 /**

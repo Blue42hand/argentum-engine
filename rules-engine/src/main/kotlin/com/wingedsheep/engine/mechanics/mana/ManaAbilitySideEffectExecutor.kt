@@ -135,15 +135,22 @@ class ManaAbilitySideEffectExecutor(
         )
     }
 
-    /** The printed mana ability of [sourceId] that produced [producedColor], if there is one. */
+    /**
+     * The mana ability of [sourceId] that produced [producedColor], if there is one: a printed one
+     * first, then one a resolved effect granted it (`GameState.grantedActivatedAbilities` — the
+     * auto-payer taps those too, e.g. Emrakul, the Exigent Doom's "{T}: Add {C}{C}").
+     */
     private fun matchingManaAbility(
         state: GameState,
         sourceId: EntityId,
         producedColor: Color?,
     ): ActivatedAbility? {
         val card = state.getEntity(sourceId)?.get<CardComponent>() ?: return null
-        val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: return null
-        return cardDef.script.activatedAbilities
+        val printed = cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities.orEmpty()
+        val granted = state.grantedActivatedAbilities.asSequence()
+            .filter { it.entityId == sourceId }
+            .map { it.ability }
+        return (printed.asSequence() + granted)
             .filter { it.isManaAbility }
             .firstOrNull { abilityProducesColor(it, producedColor) }
     }

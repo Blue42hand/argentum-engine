@@ -4261,6 +4261,10 @@ object Effects {
     fun CastUpToNFromCollectionWithoutPayingCost(from: CollectionSlot, maxCasts: Int): Effect =
         CastUpToNFromCollectionWithoutPayingCost(from.key, maxCasts)
 
+    /** Cast any number of the cards in [from] with total mana value [maxTotalManaValue] or less, without paying their mana costs. */
+    fun CastWithTotalManaValueFromCollectionWithoutPayingCost(from: CollectionSlot, maxTotalManaValue: Int): Effect =
+        CastWithTotalManaValueFromCollectionWithoutPayingCost(from.key, maxTotalManaValue)
+
     /** Cast any number of the cards in [from], paying their mana costs. */
     fun CastAnyNumberFromCollection(from: CollectionSlot): Effect = CastAnyNumberFromCollection(from.key)
 
@@ -4466,6 +4470,18 @@ object Effects {
                 "CastAnyNumberFromCollectionWithoutPayingCost for the uncapped form"
         }
         return CastAnyNumberFromCollectionWithoutPayingCostEffect(from = from, maxCasts = maxCasts)
+    }
+
+    /**
+     * Cast any number of the cards stored under [from] **with total mana value [maxTotalManaValue]
+     * or less** without paying their mana costs, during this effect's resolution — "you may cast
+     * any number of spells with total mana value 6 or less from among the copies without paying
+     * their mana costs" (Uldaros Theorix). Each pick spends its mana value from the budget; only
+     * cards that still fit are offered, and the controller may stop at any point.
+     */
+    fun CastWithTotalManaValueFromCollectionWithoutPayingCost(from: String, maxTotalManaValue: Int): Effect {
+        require(maxTotalManaValue >= 0) { "maxTotalManaValue must not be negative (was $maxTotalManaValue)" }
+        return CastAnyNumberFromCollectionWithoutPayingCostEffect(from = from, maxTotalManaValue = maxTotalManaValue)
     }
 
     /**

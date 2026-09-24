@@ -42,6 +42,7 @@ import com.wingedsheep.sdk.scripting.effects.PayManaCostRepeatedlyEffect
 import com.wingedsheep.sdk.scripting.effects.DamageRecipient
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -629,9 +630,11 @@ class GatedEffectExecutor(
      * answer to the yes/no can make the gate succeed, so the option isn't a legal choice at all
      * (CR 608.2d) and the prompt is skipped. Anything else answers `true` — prompt as before.
      *
-     * The count is deliberately generous: a selection's `restrictions` can narrow it further, and
-     * they aren't applied here, so the prompt is only ever withheld when the payment is impossible
-     * outright. Gathering is a pure read — it stores a collection and changes no state and emits no
+     * The count is deliberately generous: of a selection's `restrictions`, only
+     * [SelectionRestriction.OnePerCardName] is applied (the pool then offers one card per distinct
+     * name — "reveal exactly two cards with different names", Extrapolate the Impossible); the
+     * others can narrow it further but aren't applied here, so the prompt is only ever withheld when
+     * the payment is impossible outright. Gathering is a pure read — it stores a collection and changes no state and emits no
      * events — so probing it here costs nothing and can't be observed.
      */
     private fun optionalActionCanClearItsBar(
@@ -672,7 +675,12 @@ class GatedEffectExecutor(
                 predicateEvaluator.matches(state, state.projectedState, cardId, select.filter, predicateContext)
             }
         }
-        return eligible.size >= criterion.min
+        val achievable = if (select.restrictions.any { it is SelectionRestriction.OnePerCardName }) {
+            eligible.mapNotNull { state.getEntity(it)?.get<CardComponent>()?.name }.toSet().size
+        } else {
+            eligible.size
+        }
+        return achievable >= criterion.min
     }
 
     /**

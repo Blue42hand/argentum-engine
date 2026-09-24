@@ -515,7 +515,8 @@
         "staticAbilities": [
             {
                 "type": "MayCastWithoutPayingManaCost",
-                "controllerOnly": true
+                "controllerOnly": true,
+                "fromHandOnly": true
             }
         ]
     },

@@ -18674,7 +18674,8 @@
                         }
                     ]
                 },
-                "oncePerTurn": true
+                "oncePerTurn": true,
+                "fromHandOnly": true
             }
         ]
     },

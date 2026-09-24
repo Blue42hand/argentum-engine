@@ -650,6 +650,12 @@ internal class CastValidator(
             if (!costCalculator.hasFreeCastPermission(state, action.playerId, cardDef, castCostTotaller.castSourceZone(state, action.cardId))) {
                 return "'Without paying its mana cost' is not available (gate closed or no source on the battlefield)"
             }
+            // CR 107.3b — casting an {X} spell without paying its mana cost leaves 0 as the only
+            // legal choice for X. The enumerator never asks for X on this variant; a client that
+            // announces one anyway is refused rather than handed a free X.
+            if ((action.xValue ?: 0) > 0 && cardComponent.manaCost.hasX) {
+                return "X must be 0 when casting a spell without paying its mana cost"
+            }
         }
         val playForFree = zoneResolver.hasPlayWithoutPayingCost(state, action.playerId, action.cardId) ||
             action.useWithoutPayingManaCost
