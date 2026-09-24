@@ -2714,7 +2714,11 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
     fewer than `min` cards. No answer could clear that bar, so the option isn't a legal choice
     (CR 608.2d) — **Emeritus of Ideation** with seven cards in the graveyard isn't asked whether to
     exile eight, and the seven aren't spent for nothing. (CR 609.3's do-as-much-as-possible governs
-    *mandatory* instructions; it doesn't turn an unavailable option into a partial payment.)
+    *mandatory* instructions; it doesn't turn an unavailable option into a partial payment.) A
+    `SelectionRestriction.OnePerCardName` on that selection is honoured by the count — the pool
+    offers one card per distinct name — so **Extrapolate the Impossible** ("you may reveal exactly
+    two cards … with different names from outside the game") isn't asked when the sideboard holds
+    only copies of one card. The selection's other restrictions aren't applied to this check.
   - `Gate.MayPay(cost)` — "You may [cost]. If you do, [then]." `cost` is a cost **effect**
     (`PayManaCostEffect`, `PayDynamicManaCostEffect`, `PayLifeEffect`, `SacrificeEffect`, or a
     `CompositeEffect` of them). An unaffordable cost (fixed mana, dynamic mana, and life are
@@ -3166,6 +3170,12 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
   it. Sideboards are populated at deck-build: an explicit ≤15-card list in constructed (CR 100.4a),
   `pool − maindeck` in Limited (CR 100.4b). Example — **Burning Wish**:
   `spell { selfExile(); effect = Patterns.Sideboard.wish(Filters.Sorcery) }`.
+  A wish whose pick is split between players is composed inline rather than through the recipe —
+  **Extrapolate the Impossible** ("you may reveal exactly two cards you own with different names from outside
+  the game. An opponent chooses one of them. You put that card into your hand"): `MayEffect(IfYouDo(Pipeline {
+  gather(FromZone(SIDEBOARD, You)) → chooseExactly(2, restrictions = [OnePerCardName]) → reveal },
+  Pipeline { gather(FromVariable(revealed)) → chooseExactly(1, chooser = Opponent) → toHand },
+  CollectionNonEmpty(revealed, min = 2)))`.
 
 **Top-deck manipulation**
 
@@ -3609,7 +3619,12 @@ effect = Effects.Pipeline {
 
 **Special `gather` sources** (component-backed, no zone scan):
 
-- `CardSource.Self` — the ability's own source card, in whatever zone it currently sits.
+- `CardSource.Self` — the ability's own source card, in whatever zone it currently sits. For a spell that is the
+  resolving spell itself, on the stack: exiling it mid-resolution ("you may exile this spell and …") is
+  `exile(gather(CardSource.Self))`, and CR 608.2n's final "put it into its owner's graveyard" then finds nothing
+  on the stack to move. **Sphinx's Approach**: `MayEffect(IfYouDo(Pipeline { four = chooseExactly(4, gather(graveyard
+  named "Sphinx's Approach")); exile(four); exile(gather(CardSource.Self)) }, searchLibrary(Sphinx → BATTLEFIELD),
+  CollectionNonEmpty(four, min = 4)))` — unlike `spell { selfExile() }`, the exile only happens on the "yes" branch.
 - `CardSource.TriggeringEntity` — the entity that fired the trigger (`EffectContext.triggeringEntityId`),
   the gatherable counterpart of `EffectTarget.TriggeringEntity`. Yields a single-element collection while
   that entity still exists (empty once it has left), so a non-targeted "it" reference can feed a
@@ -13220,7 +13235,9 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
   split are unaffected).
 - `SelectFromCollectionEffect(from, into, selectCount?, allowZero?, alwaysPrompt?, restrictions?)` — let a player pick
   from a collection. `restrictions` (`List<SelectionRestriction>`) cap and trim the picks server-side: `OnePerCardType`,
-  `OnePerColor(matchControllerPermanentColors?)`, `OnePerCardName`, `OnePerPower`, `TotalManaValueAtMost(max)` /
+  `OnePerColor(matchControllerPermanentColors?)`, `OnePerCardName` (surfaces `onePerCardName` on `SelectCardsDecision`;
+  the UI disables a card sharing an already-picked card's name — Behold the Sinister Six!, Extrapolate the Impossible),
+  `OnePerPower`, `TotalManaValueAtMost(max)` /
   `TotalManaValueAtMost(maxAmount = <DynamicAmount>)` (the dynamic overload caps the sum at a resolved amount — e.g.
   `DynamicAmount.XValue` for "with total mana value X or less"; the executor resolves it to a fixed cap up front so every
   downstream consumer sees an integer — The Rise of Sozin // Fire Lord Sozin),
