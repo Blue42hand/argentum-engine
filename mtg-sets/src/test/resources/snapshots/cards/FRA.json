@@ -12368,6 +12368,171 @@
     ]
 }
 
+// Seasoned Cryomancer
+{
+    "name": "Seasoned Cryomancer",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "When this creature enters, draw two cards, then discard two cards. When you discard one or more nonland cards this way, tap up to that many target creatures and put a stun counter on each of them.\n{3}{U}{U}, Exile this card from your graveyard: Draw two cards.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 2 cards to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "ConditionalOnCollection",
+                            "collection": "discarded",
+                            "ifNotEmpty": {
+                                "type": "ReflexiveTrigger",
+                                "action": {
+                                    "type": "FilterCollection",
+                                    "from": "discarded",
+                                    "filter": {
+                                        "type": "MatchesFilter",
+                                        "filter": "nonland"
+                                    },
+                                    "storeMatching": "discardedNonland"
+                                },
+                                "optional": false,
+                                "reflexiveEffect": {
+                                    "type": "ForEach",
+                                    "space": "IterationSpace.Targets",
+                                    "body": {
+                                        "type": "Composite",
+                                        "effects": [
+                                            {
+                                                "type": "TapUntap",
+                                                "target": {
+                                                    "type": "ContextTarget",
+                                                    "index": 0
+                                                }
+                                            },
+                                            {
+                                                "type": "AddCounters",
+                                                "counterType": "stun",
+                                                "count": 1,
+                                                "target": {
+                                                    "type": "ContextTarget",
+                                                    "index": 0
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                "reflexiveTargetRequirements": [
+                                    {
+                                        "type": "TargetObject",
+                                        "optional": true,
+                                        "filter": {
+                                            "baseFilter": "creature"
+                                        },
+                                        "dynamicMaxCount": {
+                                            "type": "VariableReference",
+                                            "variableName": "discardedNonland_count"
+                                        }
+                                    }
+                                ],
+                                "descriptionOverride": "When you discard one or more nonland cards this way, tap up to that many target creatures and put a stun counter on each of them."
+                            },
+                            "filter": "nonland"
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, draw two cards, then discard two cards. When you discard one or more nonland cards this way, tap up to that many target creatures and put a stun counter on each of them."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{U}{U}"
+                            }
+                        },
+                        "CostExileSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "activateFromZone": "Graveyard",
+                "descriptionOverride": "{3}{U}{U}, Exile this card from your graveyard: Draw two cards."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "rarity": "MYTHIC",
+        "artist": "Andrea Piparo",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/1/51d86875-420d-4e82-b69c-4feeb99c9428.jpg?1789470781",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Semester Foreseer
 {
     "name": "Semester Foreseer",
