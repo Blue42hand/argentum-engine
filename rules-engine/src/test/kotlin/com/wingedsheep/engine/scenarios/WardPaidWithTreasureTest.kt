@@ -18,6 +18,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Treasure tokens ("{T}, Sacrifice this artifact: Add one mana of any color") can be
@@ -32,7 +33,7 @@ class WardPaidWithTreasureTest : FunSpec({
         typeLine = "Creature — Bear"
         power = 2
         toughness = 2
-        keywordAbility(KeywordAbility.ward("{2}"))
+        keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     }
 
     fun createDriver(): GameTestDriver {

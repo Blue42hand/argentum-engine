@@ -51,7 +51,7 @@ val GisaTheHellraiser = card("Gisa, the Hellraiser") {
         "control, and/or cards in their graveyards is a crime.)"
 
     keywordAbility(
-        KeywordAbility.wardComposite(WardCost.Mana("{2}"), WardCost.Life(2))
+        KeywordAbility.Ward(WardCost.Composite(listOf(WardCost.Mana("{2}"), WardCost.Life(2))))
     )
 
     staticAbility {

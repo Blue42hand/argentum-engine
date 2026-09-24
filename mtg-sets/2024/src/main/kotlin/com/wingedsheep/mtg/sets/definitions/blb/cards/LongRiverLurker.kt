@@ -39,7 +39,7 @@ val LongRiverLurker = card("Long River Lurker") {
     toughness = 3
     oracleText = "Ward {1}\nOther Frogs you control have ward {1}.\nWhen this creature enters, target creature you control can't be blocked this turn. Whenever that creature deals combat damage this turn, you may exile it. If you do, return it to the battlefield under its owner's control."
 
-    keywordAbility(KeywordAbility.ward("{1}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
 
     // Other Frogs you control have ward {1}
     staticAbility {

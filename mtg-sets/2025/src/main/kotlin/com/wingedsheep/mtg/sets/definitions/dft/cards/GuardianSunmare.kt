@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Guardian Sunmare — Aetherdrift #15
@@ -39,7 +40,7 @@ val GuardianSunmare = card("Guardian Sunmare") {
     power = 5
     toughness = 5
 
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
         trigger = Triggers.Attacks

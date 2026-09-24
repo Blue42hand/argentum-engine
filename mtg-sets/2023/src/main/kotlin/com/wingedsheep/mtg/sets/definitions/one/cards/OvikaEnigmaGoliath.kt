@@ -46,7 +46,7 @@ val OvikaEnigmaGoliath = card("Ovika, Enigma Goliath") {
 
     keywords(Keyword.FLYING)
     keywordAbility(
-        KeywordAbility.wardComposite(WardCost.Mana("{3}"), WardCost.Life(3))
+        KeywordAbility.Ward(WardCost.Composite(listOf(WardCost.Mana("{3}"), WardCost.Life(3))))
     )
 
     // Whenever you cast a noncreature spell, create X 1/1 red Phyrexian Goblin tokens,

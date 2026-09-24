@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Gev, Scaled Scorch
@@ -38,7 +39,7 @@ val GevScaledScorch = card("Gev, Scaled Scorch") {
     toughness = 2
 
     keywords(Keyword.WARD)
-    keywordAbility(KeywordAbility.wardLife(2))
+    keywordAbility(KeywordAbility.Ward(WardCost.Life(2)))
 
     // Other creatures you control enter with +1/+1 counters
     replacementEffect(

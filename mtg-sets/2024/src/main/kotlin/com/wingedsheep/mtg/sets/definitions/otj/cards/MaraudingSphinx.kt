@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Marauding Sphinx
@@ -27,7 +28,7 @@ val MaraudingSphinx = card("Marauding Sphinx") {
         "(Targeting opponents, anything they control, and/or cards in their graveyards is a crime.)"
 
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
         trigger = Triggers.YouCommitCrime

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Aurelia's Vindicator — Murders at Karlov Manor #4
@@ -63,7 +64,7 @@ val AureliasVindicator = card("Aurelia's Vindicator") {
         "When this creature leaves the battlefield, return the exiled cards to their owners' hands."
 
     keywords(Keyword.FLYING, Keyword.LIFELINK)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     disguise = "{X}{3}{W}"
 
     triggeredAbility {

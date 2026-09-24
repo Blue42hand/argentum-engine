@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Hamlet Vanguard
@@ -46,7 +47,7 @@ val HamletVanguard = card("Hamlet Vanguard") {
         "opponent controls, counter it unless that player pays {2}.)\n" +
         "This creature enters with two +1/+1 counters on it for each other nontoken Human you control."
 
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     replacementEffect(
         EntersWithDynamicCounters(

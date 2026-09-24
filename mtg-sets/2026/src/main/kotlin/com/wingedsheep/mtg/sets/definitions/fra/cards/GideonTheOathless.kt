@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Gideon the Oathless.
@@ -28,7 +29,7 @@ val GideonTheOathless = card("Gideon the Oathless") {
         "Whenever a creature an opponent controls enters, Gideon deals 1 damage to that player.\n" +
         "Whenever an opponent activates a loyalty ability, Gideon deals 1 damage to that player."
 
-    keywordAbility(KeywordAbility.wardDiscard())
+    keywordAbility(KeywordAbility.Ward(WardCost.Discard()))
 
     triggeredAbility {
         trigger = Triggers.entersBattlefield(
