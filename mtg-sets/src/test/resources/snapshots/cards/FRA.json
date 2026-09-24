@@ -7430,6 +7430,113 @@
     ]
 }
 
+// Jiang Yanggu, Alone
+{
+    "name": "Jiang Yanggu, Alone",
+    "manaCost": "{4}{R}",
+    "typeLine": "Legendary Creature — Human Berserker",
+    "oracleText": "Menace (This creature can't be blocked except by two or more creatures.)\nWhenever a creature you control attacks a player alone, discard a card, then draw a card. Then put a +1/+1 counter on that creature for each card you've discarded this turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            "IsAttackingAnOpponent"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "requires": [
+                        "AttacksAlone"
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "AddDynamicCounters",
+                            "counterType": "+1/+1",
+                            "amount": {
+                                "type": "TurnTracking",
+                                "player": "You",
+                                "tracker": "CARDS_DISCARDED"
+                            },
+                            "target": "TriggeringEntity"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever a creature you control attacks a player alone, discard a card, then draw a card. Then put a +1/+1 counter on that creature for each card you've discarded this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "246",
+        "rarity": "UNCOMMON",
+        "artist": "Dmitry Burmak",
+        "flavorText": "His best friend was gone. Someone had to pay.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/8/e8c1ce21-b77d-40bf-9ed1-478604e71f5f.jpg?1789014416",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Jiang Yanggu, Never Alone
 {
     "name": "Jiang Yanggu, Never Alone",
