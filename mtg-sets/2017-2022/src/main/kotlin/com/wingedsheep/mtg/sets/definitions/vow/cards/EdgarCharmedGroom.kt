@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -88,11 +89,11 @@ private val EdgarMarkovsCoffin = card("Edgar Markov's Coffin") {
                 keywords = setOf(Keyword.LIFELINK),
                 imageUri = "https://cards.scryfall.io/normal/front/7/e/7eee78d3-c65f-4454-bd3c-1c55388422f5.jpg?1783924693",
             ),
-            Effects.AddCounters("bloodline", 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.BLOODLINE, 1, EffectTarget.Self),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtLeast("bloodline", 3),
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODLINE, 3),
                 then = Effects.Composite(
-                    Effects.RemoveCounters("bloodline", 3, EffectTarget.Self),
+                    Effects.RemoveCounters(CounterType.BLOODLINE, 3, EffectTarget.Self),
                     TransformEffect(EffectTarget.Self),
                 ),
             ),
