@@ -6856,7 +6856,7 @@
                     "space": {
                         "type": "IterationSpace.Group",
                         "filter": {
-                            "baseFilter": "creature Mouse ctrl:you"
+                            "baseFilter": "permanent Mouse ctrl:you"
                         }
                     },
                     "body": {
@@ -12157,7 +12157,7 @@
                     "space": {
                         "type": "IterationSpace.Group",
                         "filter": {
-                            "baseFilter": "creature Bat ctrl:you"
+                            "baseFilter": "permanent Bat ctrl:you"
                         }
                     },
                     "body": {

@@ -184,8 +184,15 @@ data class GroupFilter(
         /** All lands with a specific subtype (e.g., "Destroy all Islands") */
         fun allLandsWithSubtype(subtype: Subtype) = GroupFilter(GameObjectFilter.Land.withSubtype(subtype))
 
-        /** All creatures with a specific subtype (e.g., "Destroy all Goblins") */
+        /** All creatures with a specific subtype — the adjectival form (e.g., "Goblin creatures get +3/+0") */
         fun allCreaturesWithSubtype(subtype: String) = GroupFilter(GameObjectFilter.Creature.withSubtype(subtype))
+
+        /**
+         * All permanents with a specific subtype — the bare-noun form (e.g., "Destroy all Goblins",
+         * "Bats you control get +1/+0"). A bare creature-type noun names every permanent with that
+         * subtype, not only creatures; [allCreaturesWithSubtype] is for "<Type> creatures" only.
+         */
+        fun allPermanentsWithSubtype(subtype: String) = GroupFilter(GameObjectFilter.Permanent.withSubtype(subtype))
 
         /**
          * All creatures of the creature type chosen at resolution time.

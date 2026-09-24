@@ -35,7 +35,7 @@ val GoblinPyromancer = card("Goblin Pyromancer") {
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.ForEachInGroup(
-            filter = GroupFilter.allCreaturesWithSubtype("Goblin"),
+            filter = GroupFilter.allPermanentsWithSubtype("Goblin"),
             effect = Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true)
         )
     }
