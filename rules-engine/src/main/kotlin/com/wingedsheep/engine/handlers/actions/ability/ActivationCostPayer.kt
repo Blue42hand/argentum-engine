@@ -148,6 +148,7 @@ internal class ActivationCostPayer(
         val costChoices = CostPaymentChoices(
             sacrificeChoices = action.costPayment?.sacrificedPermanents ?: emptyList(),
             discardChoices = action.costPayment?.discardedCards ?: emptyList(),
+            putOnLibraryChoices = action.costPayment?.cardsPutOnLibrary ?: emptyList(),
             exileChoices = exileChoices,
             variablePermanentChoices = action.costPayment?.variableCostPermanents ?: emptyList(),
             tapChoices = firstTapSlice,

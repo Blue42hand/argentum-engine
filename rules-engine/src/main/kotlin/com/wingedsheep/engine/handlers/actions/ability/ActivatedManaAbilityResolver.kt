@@ -167,7 +167,12 @@ internal class ActivatedManaAbilityResolver(
             // permanent is already in the graveyard (CR 113.7a); without the snapshots the
             // amount resolves to 0 and the ability produces nothing.
             sacrificedPermanents = sacrificedSnapshots,
-            manaColorChoice = action.manaColorChoice,
+            // Dropped when another player chooses the color at resolution (Spectral Searchlight) —
+            // the activator has no say in it, whatever the client sent.
+            manaColorChoice = action.manaColorChoice.takeUnless {
+                com.wingedsheep.engine.mechanics.mana.ManaColorChoiceTiming
+                    .chosenByAnotherPlayerAtResolution(finalEffect)
+            },
             // Mana abilities resolve without a stack component, so their activation-time
             // provenance must enter the effect context here. The concrete id remains useful
             // even when this lookup branch could not prove a definition-scoped identity.

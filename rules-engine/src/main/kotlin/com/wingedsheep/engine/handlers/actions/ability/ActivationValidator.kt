@@ -9,7 +9,7 @@ import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.toEntityId
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
-import com.wingedsheep.engine.mechanics.ActivationRestrictionKernel
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.mechanics.SummoningSicknessRules
 import com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
 import com.wingedsheep.engine.mechanics.mana.AlternativePaymentHandler
@@ -63,7 +63,7 @@ internal class ActivationValidator(
     private val castPermissionUtils: CastPermissionUtils,
     private val abilityResolver: ActivatedAbilityResolver,
     private val costTotaller: ActivationCostTotaller,
-    private val restrictionKernel: ActivationRestrictionKernel,
+    private val legality: LegalityKernel,
 ) {
 
     fun validate(state: GameState, action: ActivateAbility): String? {
@@ -186,7 +186,7 @@ internal class ActivationValidator(
         container: ComponentContainer,
         ability: ActivatedAbility,
     ): String? {
-        val anyPlayerMay = ability.restrictions.any { ActivationRestrictionKernel.anyPlayerMay(it) }
+        val anyPlayerMay = LegalityKernel.anyPlayerMay(ability)
         if (anyPlayerMay) return null
         // Use projected controller to account for control-changing effects (e.g., Annex)
         val projected = state.projectedState
@@ -502,14 +502,12 @@ internal class ActivationValidator(
         } else null
     }
 
-    /** Check activation restrictions, through the shared [ActivationRestrictionKernel]. */
+    /** Check activation restrictions, through the shared [LegalityKernel]. */
     private fun checkActivationRestrictions(
         state: GameState,
         action: ActivateAbility,
         ability: ActivatedAbility,
-    ): String? = ability.restrictions.firstNotNullOfOrNull { restriction ->
-        restrictionKernel.violation(state, action.playerId, restriction, action.sourceId, ability)
-    }
+    ): String? = legality.activationRestrictionsFailure(state, action.playerId, action.sourceId, ability)
 
     /**
      * Validate targets. Only the controller-chosen requirements are validated here — any

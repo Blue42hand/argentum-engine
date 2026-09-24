@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.mechanics.mana
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
@@ -30,7 +31,6 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.costs.manaCostOrNull
-import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEffect
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
@@ -304,6 +304,10 @@ class ManaSolver(
 
     private val predicateEvaluator = PredicateEvaluator()
     private val conditionEvaluator = ConditionEvaluator()
+
+    // Auto-tap asks the same kernel the enumerators and ActivateAbilityHandler do, so it never taps
+    // a mana ability they would refuse (or skips one they would allow).
+    private val legality = LegalityKernel(cardRegistry, conditionEvaluator)
 
     /** The five subtypes that grant a land its intrinsic `{T}: Add …` mana ability (CR 305.6). */
     private val basicLandSubtypeNames = setOf("Plains", "Island", "Swamp", "Mountain", "Forest")
@@ -1123,7 +1127,7 @@ class ManaSolver(
             for (ability in manaAbilities) {
                 // Skip abilities whose activation restrictions aren't satisfied
                 // (e.g., Lys Alana Dignitary's "only if there is an Elf card in your graveyard").
-                if (!activationRestrictionsSatisfied(state, playerId, entityId, ability)) {
+                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) {
                     continue
                 }
 
@@ -1218,6 +1222,12 @@ class ManaSolver(
                 }
 
                 val manaEffect = manaProducingEffect(ability.effect, state, entityId, playerId)
+
+                // A mana ability whose mana goes to a player picked as it resolves (Spectral
+                // Searchlight: "Choose a player. That player adds …") isn't an auto-pay source:
+                // who gets the mana, and who picks its color, are real decisions the fast path
+                // can't make on the player's behalf. It stays activatable by hand.
+                if (manaEffect is AddManaOfChoiceEffect && manaEffect.recipient != EffectTarget.Controller) continue
 
                 // A dynamic amount that evaluates to zero right now — Gaea's Cradle with no
                 // creatures, Marwyn the Nurturer at 0 power, Quintorius Kand with nothing exiled —
@@ -1521,27 +1531,6 @@ class ManaSolver(
     }
 
     /**
-     * Returns true when every [ActivationRestriction] on the given mana ability is currently
-     * satisfied for the controller. Asks the same [ActivationRestrictionKernel] the enumerators and
-     * `ActivateAbilityHandler` use, so auto-tap agrees with them about whether a restricted source
-     * (e.g. an exhaust mana ability, whose once-only memory can be raised or waived) may be tapped.
-     */
-    private fun activationRestrictionsSatisfied(
-        state: GameState,
-        playerId: EntityId,
-        sourceId: EntityId,
-        ability: ActivatedAbility
-    ): Boolean {
-        if (ability.restrictions.isEmpty()) return true
-        return ability.restrictions.all {
-            activationRestrictionKernel.isSatisfied(state, playerId, it, sourceId, ability)
-        }
-    }
-
-    private val activationRestrictionKernel =
-        com.wingedsheep.engine.mechanics.ActivationRestrictionKernel(cardRegistry, conditionEvaluator)
-
-    /**
      * Evaluates a DynamicAmount for a mana ability, returning the actual mana count.
      * Returns 0 when the amount evaluates to zero (e.g., no creatures of the chosen type).
      */
@@ -1696,7 +1685,7 @@ class ManaSolver(
      * True if [landId] is subject to a [com.wingedsheep.sdk.scripting.ReplaceLandManaColor] static
      * (Pulse of Llanowar) — its produced mana becomes one mana of a color of its controller's
      * choice, so for solving it is treated as a five-color source. Mirrors
-     * `ActivatedManaAbilityResolver.manaColorReplacementFor`.
+     * `ActivateAbilityHandler.landMatchesManaColorReplacement`.
      *
      * The statics come from [manaStatics] rather than a battlefield walk, so a board with no
      * Pulse of Llanowar answers in zero work instead of one scan per candidate source.
@@ -2376,7 +2365,7 @@ class ManaSolver(
                 // A mana sub-cost would recurse straight back into canPay, and its net production
                 // is ambiguous anyway — the same call the tap+SacrificeSelf helper makes.
                 if (costHasManaSubCost(cost)) continue
-                if (!activationRestrictionsSatisfied(state, playerId, entityId, ability)) continue
+                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
                 if (!nonManaAbilityCostIsPayable(state, playerId, entityId, cost)) continue
 
                 total += manaProducedByEffect(ability.effect)
@@ -2556,7 +2545,7 @@ class ManaSolver(
                 if (composite.costs.any { it.manaCostOrNull != null }) continue
 
                 // Honor activation restrictions (e.g. "only during your turn").
-                if (!activationRestrictionsSatisfied(state, playerId, entityId, ability)) continue
+                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
 
                 // Recurse into the effect so multi-mana sacrifice abilities expressed as a
                 // CompositeEffect (e.g. Irrigation Ditch's "{T}, Sacrifice: Add {G}{U}",
@@ -2671,7 +2660,7 @@ class ManaSolver(
                 // double-count or complicate color resolution here.
                 if (composite.costs.any { it is AbilityCost.SacrificeSelf || it.manaCostOrNull != null }) continue
 
-                if (!activationRestrictionsSatisfied(state, playerId, entityId, ability)) continue
+                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
 
                 val context = PredicateContext(controllerId = playerId)
                 val matchingTapTargets = battlefieldCards.filter { targetId ->

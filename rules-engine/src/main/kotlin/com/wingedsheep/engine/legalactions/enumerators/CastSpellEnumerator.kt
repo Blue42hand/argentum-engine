@@ -106,7 +106,7 @@ class CastSpellEnumerator : ActionEnumerator {
                             landCardDef.layout == com.wingedsheep.sdk.model.CardLayout.OMEN ||
                             landCardDef.layout == com.wingedsheep.sdk.model.CardLayout.MODAL_DFC) &&
                         landCardDef.cardFaces.isNotEmpty() &&
-                        context.castPermissionUtils.checkCastRestrictions(
+                        context.legality.castRestrictionsMet(
                             state, playerId, landCardDef.script.castRestrictions
                         )
                     ) {
@@ -130,7 +130,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             // Check cast restrictions first
             val castRestrictions = cardDef.script.castRestrictions
-            if (!context.castPermissionUtils.checkCastRestrictions(state, playerId, castRestrictions)) {
+            if (!context.legality.castRestrictionsMet(state, playerId, castRestrictions)) {
                 continue
             }
 
@@ -453,7 +453,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             // What each legal target would add to a target-derived collect-evidence threshold
@@ -1623,7 +1623,7 @@ class CastSpellEnumerator : ActionEnumerator {
             if (!isInstant && !grantedFlash && !context.canPlaySorcerySpeed) continue
 
             val castRestrictions = cardDef.script.castRestrictions
-            if (castRestrictions.isNotEmpty() && !context.castPermissionUtils.checkCastRestrictions(state, playerId, castRestrictions)) continue
+            if (castRestrictions.isNotEmpty() && !context.legality.castRestrictionsMet(state, playerId, castRestrictions)) continue
 
             // Gather controlled, untapped creatures that share at least one color with the spell.
             val eligibleTapTargets = mutableListOf<EntityId>()
@@ -1647,7 +1647,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val conspireCostInfo = AdditionalCostData(
@@ -1725,7 +1725,7 @@ class CastSpellEnumerator : ActionEnumerator {
             if (!isInstant && !grantedFlash && !context.canPlaySorcerySpeed) continue
 
             val castRestrictions = cardDef.script.castRestrictions
-            if (castRestrictions.isNotEmpty() && !context.castPermissionUtils.checkCastRestrictions(state, playerId, castRestrictions)) continue
+            if (castRestrictions.isNotEmpty() && !context.legality.castRestrictionsMet(state, playerId, castRestrictions)) continue
 
             // Gather controlled creatures whose projected power meets the threshold.
             val eligibleSacrifices = mutableListOf<EntityId>()
@@ -1747,7 +1747,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val casualtyCostInfo = AdditionalCostData(
@@ -1842,7 +1842,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             val castRestrictions = cardDef.script.castRestrictions
             if (castRestrictions.isNotEmpty() &&
-                !context.castPermissionUtils.checkCastRestrictions(state, playerId, castRestrictions)
+                !context.legality.castRestrictionsMet(state, playerId, castRestrictions)
             ) continue
 
             val candidates = SpliceCasts.candidates(
@@ -1872,7 +1872,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 // same order the cast handler and the stack resolver slice the flat target list by.
                 val targetReqs = buildList {
                     addAll(cardDef.script.targetRequirements)
-                    cardDef.script.auraTarget?.let { add(it) }
+                    cardDef.script.castAuraTarget?.let { add(it) }
                     addAll(candidate.definition.script.targetRequirements)
                 }
                 val description = "Cast ${cardComponent.name} (Splice ${candidate.name})"
@@ -1944,7 +1944,7 @@ class CastSpellEnumerator : ActionEnumerator {
             ) continue
 
             val castRestrictions = cardDef.script.castRestrictions
-            if (castRestrictions.isNotEmpty() && !context.castPermissionUtils.checkCastRestrictions(state, playerId, castRestrictions)) continue
+            if (castRestrictions.isNotEmpty() && !context.legality.castRestrictionsMet(state, playerId, castRestrictions)) continue
 
             // One cast variant per mechanic riding the optional-additional-cost rail, keyed by the
             // slot it declares: kicker/multikicker/offspring stamp KICKED, bargain stamps BARGAINED
@@ -2048,7 +2048,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 }
                 val targetReqs = buildList {
                     addAll(kickerBaseReqs)
-                    cardDef.script.auraTarget?.let { add(it) }
+                    cardDef.script.castAuraTarget?.let { add(it) }
                 }
 
                 // The printed name of what's being paid — "Bargained" for bargain, "Offspring" /
@@ -2268,7 +2268,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             // Check cast restrictions
             val castRestrictions = cardDef.script.castRestrictions
-            if (castRestrictions.isNotEmpty() && !context.castPermissionUtils.checkCastRestrictions(state, playerId, castRestrictions)) continue
+            if (castRestrictions.isNotEmpty() && !context.legality.castRestrictionsMet(state, playerId, castRestrictions)) continue
 
             // Cleave mana cost (CR 202.3b — mana value is still computed from the printed cost, not
             // the cleave cost; only affordability uses this).
@@ -2305,7 +2305,7 @@ class CastSpellEnumerator : ActionEnumerator {
             }
             val targetReqs = buildList {
                 addAll(cleaveBaseReqs)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             if (targetReqs.isNotEmpty()) {
@@ -2902,7 +2902,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
         val targetReqs = buildList {
             addAll(back.script.targetRequirements)
-            back.script.auraTarget?.let { add(it) }
+            back.script.castAuraTarget?.let { add(it) }
         }
         val autoTapPreview = if (context.skipAutoTapPreview) null else {
             context.manaSolver

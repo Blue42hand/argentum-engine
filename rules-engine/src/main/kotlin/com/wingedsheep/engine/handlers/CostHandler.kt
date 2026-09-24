@@ -665,6 +665,11 @@ class CostHandler {
             val handZone = ZoneKey(controllerId, Zone.HAND)
             findMatchingCardsUnified(state, state.getZone(handZone), atom.filter, controllerId).size >= atom.count
         }
+        // CR 118.3 — too few matching cards in hand and the cost can't be paid at all.
+        is CostAtom.PutFromHandOnTopOfLibrary -> {
+            val handZone = ZoneKey(controllerId, Zone.HAND)
+            findMatchingCardsUnified(state, state.getZone(handZone), atom.filter, controllerId).size >= atom.count
+        }
         // You can only reveal a choice you made. A player who gained control of the permanent
         // never saw it, so the cost is unpayable for them and the ability is never offered
         // (A Killer Among Us's ruling); so is a permanent with nothing secretly noted on it.
@@ -834,6 +839,30 @@ class CostHandler {
         }
         is CostAtom.TapPermanents -> payTapPermanents(state, atom, sourceId, controllerId, manaPool, choices)
         is CostAtom.ReturnToHand -> payReturnToHand(state, atom, controllerId, manaPool, choices)
+        is CostAtom.PutFromHandOnTopOfLibrary -> {
+            val eligible = findMatchingCardsUnified(
+                state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId
+            )
+            // A pre-chosen selection must be exactly `count` distinct eligible hand cards; with no
+            // selection the payment is forced only when the hand holds exactly `count` candidates
+            // (ActivateAbilityHandler pauses for the choice otherwise).
+            val chosen = when {
+                choices.putOnLibraryChoices.isNotEmpty() -> choices.putOnLibraryChoices
+                eligible.size == atom.count -> eligible
+                else -> return CostPaymentResult.failure("Must choose ${atom.count} card(s) to put on top of your library")
+            }
+            if (chosen.size != atom.count || chosen.toSet().size != chosen.size || chosen.any { it !in eligible }) {
+                return CostPaymentResult.failure("Invalid choice of cards to put on top of your library")
+            }
+            // Each card goes on top in turn, so the last chosen ends up on top.
+            val result = ZoneTransitionService.moveToZoneBatch(
+                state, chosen, Zone.LIBRARY,
+                com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
+                    libraryPlacement = com.wingedsheep.engine.handlers.effects.LibraryPlacement.Top
+                )
+            )
+            CostPaymentResult.success(result.state, manaPool, result.events)
+        }
         is CostAtom.RevealFromHand ->
             // No activated-ability cost reveals from hand today; revealing changes no zone, so this
             // is a no-op success kept for atom exhaustiveness (the PayCost reveal path emits the
@@ -1690,6 +1719,8 @@ data class CostPaymentResult(
 data class CostPaymentChoices(
     val sacrificeChoices: List<EntityId> = emptyList(),
     val discardChoices: List<EntityId> = emptyList(),
+    /** Hand cards chosen for a [CostAtom.PutFromHandOnTopOfLibrary] cost, in placement order. */
+    val putOnLibraryChoices: List<EntityId> = emptyList(),
     val exileChoices: List<EntityId> = emptyList(),
     /**
      * Permanents chosen for a [CostAtom.VariablePermanents] variable-count cost, kept apart from

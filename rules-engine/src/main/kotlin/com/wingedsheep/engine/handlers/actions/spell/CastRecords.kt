@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 internal class CastAuthorization(
     /** The linked-exile granter (Maralen, Intrepid Paleontologist), for its once-per-turn mark and entry rider. */
-    val linkedExileGranter: CastZoneResolver.LinkedExileGranter?,
+    val linkedExileGranter: com.wingedsheep.engine.legality.LegalityKernel.LinkedExileGranter?,
     /** A limited "cast from the top of your library" source whose use this cast consumes. */
     val limitedTopLibraryCastSource: EntityId?,
     /** The Tomb of Aclazotz / Bilbo: the rider-bearing graveyard-cast grant that authorized this cast. */

@@ -41,6 +41,7 @@ object SpellCosts {
         put(CostAtom.PutCountersOnPermanent::class, AbilityOnlyAtomCostKind)
         put(CostAtom.RevealNotedCreatureType::class, AbilityOnlyAtomCostKind)
         put(CostAtom.Unattach::class, AbilityOnlyAtomCostKind)
+        put(CostAtom.PutFromHandOnTopOfLibrary::class, AbilityOnlyAtomCostKind)
 
         // Casting-context-specific costs.
         put(AdditionalCost.PayLifePerTarget::class, PayLifePerTargetCostKind)

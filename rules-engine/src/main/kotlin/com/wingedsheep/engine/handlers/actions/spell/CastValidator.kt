@@ -195,6 +195,7 @@ internal class CastValidator(
     private val castCostPayer: CastCostPayer,
     private val grantedKeywordResolver: com.wingedsheep.engine.mechanics.mana.GrantedKeywordResolver,
     private val predicateEvaluator: PredicateEvaluator,
+    private val legality: com.wingedsheep.engine.legality.LegalityKernel,
 ) {
 
     fun validate(state: GameState, action: CastSpell): String? {
@@ -535,7 +536,7 @@ internal class CastValidator(
     private fun validateAnnouncements(state: GameState, action: CastSpell, cardDef: CardDefinition?): String? {
         if (cardDef == null) return null
         if (cardDef.script.castRestrictions.isNotEmpty()) {
-            validateCastRestrictions(state, cardDef.script.castRestrictions, action.playerId)?.let { return it }
+            legality.castRestrictionsFailure(state, action.playerId, cardDef.script.castRestrictions)?.let { return it }
         }
         if (action.chosenModes.isNotEmpty()) {
             val modalEffect = cardDef.script.spellEffect as? ModalEffect
@@ -628,6 +629,17 @@ internal class CastValidator(
         cardDef: CardDefinition?,
         source: CastSource,
     ): String? {
+        // "As an additional cost to cast creature spells, you may pay any amount of mana" (Chorus of
+        // the Conclave). The amount is client-supplied, so it must be non-negative and backed by a
+        // grant that applies to this very spell. A face-down cast is excluded: the grant's filter
+        // can't be checked against the hidden card, and the enumerator never offers it.
+        if (action.additionalManaForCounters < 0) return "Additional mana paid can't be negative"
+        if (action.additionalManaForCounters > 0) {
+            if (action.castFaceDown) return "Additional mana for counters can't be paid for a face-down spell"
+            com.wingedsheep.engine.mechanics.mana.AdditionalManaForCounters.applicableGrant(state, action.playerId, action.cardId, cardRegistry)
+                ?: return "No permanent you control lets you pay additional mana for this spell"
+        }
+
         // Free if PlayWithoutPayingCostComponent is present, or if a MayCastWithoutPayingManaCost
         // battlefield source (e.g. Weftwalking) is the chosen alt.
         if (action.useWithoutPayingManaCost) {
@@ -709,7 +721,9 @@ internal class CastValidator(
         }
         val targetRequirements = buildList {
             addAll(baseTargetReqs)
-            (transformedFace ?: cardDef).script.auraTarget?.let { add(it) }
+            // The cast-time choice: Dream Leash narrows it to a tapped permanent. The stack captures
+            // the plain enchant restriction instead (see execute()), so 608.2b doesn't re-check it.
+            (transformedFace ?: cardDef).script.castAuraTarget?.let { add(it) }
             // Splice (CR 702.47d): targets for the added text are chosen normally, as part of casting
             // this spell. They sit after the main spell's own requirements, so the flat target list
             // splits into the main slice followed by one slice per spliced card.
@@ -886,57 +900,6 @@ internal class CastValidator(
             }
         }
         return null
-    }
-
-    private fun validateCastRestrictions(
-        state: GameState,
-        restrictions: List<CastRestriction>,
-        playerId: EntityId
-    ): String? {
-        val context = EffectContext(
-            sourceId = null,
-            controllerId = playerId,
-            targets = emptyList(),
-            xValue = 0
-        )
-
-        for (restriction in restrictions) {
-            val error = validateSingleRestriction(state, restriction, context)
-            if (error != null) return error
-        }
-        return null
-    }
-
-    private fun validateSingleRestriction(
-        state: GameState,
-        restriction: CastRestriction,
-        context: EffectContext
-    ): String? {
-        return when (restriction) {
-            is CastRestriction.OnlyDuringStep -> {
-                if (state.step != restriction.step) {
-                    "Can only be cast during the ${restriction.step.name.lowercase().replace('_', ' ')} step"
-                } else null
-            }
-            is CastRestriction.OnlyDuringPhase -> {
-                if (state.phase != restriction.phase) {
-                    "Can only be cast during the ${restriction.phase.name.lowercase().replace('_', ' ')} phase"
-                } else null
-            }
-            is CastRestriction.OnlyIfCondition -> {
-                if (!conditionEvaluator.evaluate(state, restriction.condition, context)) {
-                    "Casting condition not met"
-                } else null
-            }
-            is CastRestriction.TimingRequirement -> null
-            is CastRestriction.All -> {
-                for (subRestriction in restriction.restrictions) {
-                    val error = validateSingleRestriction(state, subRestriction, context)
-                    if (error != null) return error
-                }
-                null
-            }
-        }
     }
 
     /**

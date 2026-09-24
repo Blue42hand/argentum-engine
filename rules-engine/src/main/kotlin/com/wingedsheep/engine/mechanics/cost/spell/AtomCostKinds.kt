@@ -879,6 +879,7 @@ internal object PayLifeCostKind : SpellCostKind<CostAtom.PayLife> {
  * The atoms that are never a spell's additional cost: mana isn't produced as one; put-counters and
  * reveal-the-noted-type are ability-scoped (a spell on the stack has no permanent to accrue counters
  * on, nor one carrying a secret note); a spell is attached to nothing, so unattaching is ability-only;
+ * putting cards from hand on the library (Leashling) is only printed on abilities;
  * mill and exile-from-library-top are activated-ability costs. Never payable here, so validation and
  * payment have nothing to do.
  */

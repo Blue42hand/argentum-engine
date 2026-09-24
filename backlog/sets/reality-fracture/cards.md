@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 215 / 285
+**Implemented:** 228 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -98,10 +98,10 @@
 - [x] Geist of Saint Thalia
 - [x] Generous Revival
 - [x] Germinate Recruits
-- [ ] Ghalta the Immovable
+- [x] Ghalta the Immovable
 - [x] Ghalta the Unstoppable
 - [x] Gideon the Oathless
-- [ ] Gideon's Memorial
+- [x] Gideon's Memorial
 - [x] Graft Surgeon
 - [x] Greenhouse Propagator
 - [x] Grim Repriser
@@ -117,7 +117,7 @@
 - [ ] Hexhaven Dueling Arena
 - [ ] Hexhaven Invigorator
 - [x] Hungering Puppetbeast
-- [ ] Hunter's Axe
+- [x] Hunter's Axe
 - [x] Icy Reception
 - [ ] Identity Echo
 - [ ] Infinite Coursework
@@ -140,9 +140,9 @@
 - [x] Konstrari Improviser
 - [x] Koth of the Homestead
 - [x] Koth, the Geomancer
-- [ ] Kwia Vigorbloom
+- [x] Kwia Vigorbloom
 - [x] Last Gasp
-- [ ] Lich's Relic
+- [x] Lich's Relic
 - [x] Liliana the Faultless
 - [x] Liliana the Repentant
 - [x] Living Library
@@ -150,7 +150,7 @@
 - [ ] Loot, the Nexus
 - [x] Loyal Tutor
 - [x] Lyra, Archangel of Dawn
-- [ ] Lyra, Tolarian Archangel
+- [x] Lyra, Tolarian Archangel
 - [x] Mabel, Bitter Recluse
 - [x] Mabel, Valley Hero
 - [x] Marwyn, the Clearcutter
@@ -199,10 +199,10 @@
 - [x] Rewrite Regrets
 - [x] Rise of the Deathbringer
 - [x] Rockfall Vale
-- [ ] Roiling Canopy
+- [x] Roiling Canopy
 - [x] Room of Refuge
 - [x] Ruric Thar, Biomagus
-- [ ] Ruric Thar, Magecrusher
+- [x] Ruric Thar, Magecrusher
 - [x] Saheeli, Consul of Oversight
 - [x] Saheeli, Jewel of Avishkar
 - [x] Samut, Hazoret's Champion
@@ -217,7 +217,7 @@
 - [x] Simulacrum Shaper
 - [x] Skilled Battlecarver
 - [x] Solarium Sentry
-- [ ] Solitary Cell
+- [x] Solitary Cell
 - [x] Solve for Disappointment
 - [x] Something Worth Saving
 - [x] Sphinx of False Conclusions
@@ -269,15 +269,15 @@
 - [x] Vigorbloom Annex
 - [x] Vigorbloom Charm
 - [x] Vigorbloom Vanguard
-- [ ] Vindictive Triumph
+- [x] Vindictive Triumph
 - [x] Vinelasher Adept
 - [ ] Violent Echoes
 - [x] Void Extrapolator
 - [x] Vraska's Final Mercy
 - [ ] Vraska, Soul of Stone
 - [x] Vraska, the Cutting Glare
-- [ ] Warrior's Blades
-- [ ] Way of the Cryomancer
+- [x] Warrior's Blades
+- [x] Way of the Cryomancer
 - [x] Way of the Deathbringer
 - [x] Way of the Healer
 - [x] Way of the Mentor
@@ -295,7 +295,7 @@
 - [x] Wrecking Gecko
 - [x] Yargle, Glutton of Urborg
 - [x] Yargle, Goliath of Otaria
-- [ ] Yoshimaru, Beloved Companion
+- [x] Yoshimaru, Beloved Companion
 - [x] Yoshimaru, Scrappy Stray
 - [x] Your Fate Ends Here
 - [ ] Yuriko, Blade of the Mighty

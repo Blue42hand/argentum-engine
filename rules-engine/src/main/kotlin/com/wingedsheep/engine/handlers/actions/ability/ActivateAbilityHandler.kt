@@ -14,7 +14,7 @@ import com.wingedsheep.engine.handlers.ObjectReferenceEnvironment
 import com.wingedsheep.engine.handlers.actions.ActionHandler
 import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
-import com.wingedsheep.engine.mechanics.ActivationRestrictionKernel
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.mechanics.mana.AlternativePaymentHandler
 import com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow
@@ -81,6 +81,7 @@ class ActivateAbilityHandler(
     private val targetValidator: TargetValidator,
     private val conditionEvaluator: ConditionEvaluator,
     private val castPermissionUtils: CastPermissionUtils,
+    private val legality: LegalityKernel,
     private val manaAbilitySideEffectExecutor: ManaAbilitySideEffectExecutor,
 ) : ActionHandler<ActivateAbility> {
     override val actionType: KClass<ActivateAbility> = ActivateAbility::class
@@ -97,7 +98,7 @@ class ActivateAbilityHandler(
         castPermissionUtils = castPermissionUtils,
         abilityResolver = abilityResolver,
         costTotaller = costTotaller,
-        restrictionKernel = ActivationRestrictionKernel(cardRegistry, conditionEvaluator),
+        legality = legality,
     )
     private val choicePauses = ActivationChoicePauses(costHandler, manaSolver)
     private val autoTapper = ActivationAutoTapper(manaSolver, manaAbilitySideEffectExecutor)
@@ -281,13 +282,10 @@ class ActivateAbilityHandler(
         val ability = activation.ability
         var currentState = state
 
-        // Track per-turn activation if the ability has an OncePerTurn or MaxPerTurn restriction
-        fun isPerTurnTracked(r: ActivationRestriction): Boolean =
-            r is ActivationRestriction.OncePerTurn || r is ActivationRestriction.MaxPerTurn ||
-                (r is ActivationRestriction.All && r.restrictions.any { isPerTurnTracked(it) })
+        // Track per-turn activation if the ability has an OncePerTurn or MaxPerTurn restriction.
         // `trackActivations` opts an unrestricted ability into the same tally so its own effect can
         // read the count back (Farrelite Priest's burnout clause).
-        if (ability.trackActivations || ability.restrictions.any { isPerTurnTracked(it) }) {
+        if (ability.trackActivations || LegalityKernel.tracksActivationsPerTurn(ability)) {
             // Only track if source is still on the battlefield (it might have been bounced as cost)
             if (currentState.getEntity(action.sourceId) != null) {
                 currentState = currentState.updateEntity(action.sourceId) { c ->
@@ -298,7 +296,7 @@ class ActivateAbilityHandler(
         }
 
         // Track once-ever activation if the ability has an Once restriction
-        if (ability.restrictions.any { it is ActivationRestriction.Once || (it is ActivationRestriction.All && it.restrictions.any { r -> r is ActivationRestriction.Once }) }) {
+        if (LegalityKernel.tracksActivationsEver(ability)) {
             if (currentState.getEntity(action.sourceId) != null) {
                 currentState = currentState.updateEntity(action.sourceId) { c ->
                     val tracker = c.get<AbilityActivatedEverComponent>() ?: AbilityActivatedEverComponent()
@@ -565,6 +563,7 @@ class ActivateAbilityHandler(
                 services.targetValidator,
                 services.conditionEvaluator,
                 services.castPermissionUtils,
+                services.legalityKernel,
                 services.manaAbilitySideEffectExecutor
             )
         }

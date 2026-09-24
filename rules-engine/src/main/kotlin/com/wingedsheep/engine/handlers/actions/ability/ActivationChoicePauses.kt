@@ -61,6 +61,7 @@ internal class ActivationChoicePauses(
             ?: exileXFromGraveyardChoice(state, activation)
             ?: exileFromGraveyardChoice(state, activation)
             ?: sacrificeChoice(state, activation)
+            ?: putOnLibraryChoice(state, activation)
             ?: variablePermanentsChoice(state, activation)
             ?: variablePermanentsTargetChoice(state, activation)
 
@@ -351,6 +352,48 @@ internal class ActivationChoicePauses(
                 )
             },
             answer = continuation
+        )
+    }
+
+    // -------------------------------------------------------------------
+    // Put-from-hand-on-library cost-choice pause (Leashling). Which card goes back is always the
+    // player's choice — it decides their next draw — so pause whenever the choice isn't pre-filled
+    // and there is more than one way to pay. An exactly-sized hand is forced and CostHandler pays it
+    // without a prompt.
+    // -------------------------------------------------------------------
+    private fun putOnLibraryChoice(state: GameState, activation: Activation): ExecutionResult? {
+        val action = activation.action
+        val putOnLibraryCost = activation.effectiveCost.extractPutOnLibraryCost() ?: return null
+        if (!action.costPayment?.cardsPutOnLibrary.isNullOrEmpty()) return null
+        val candidates = costHandler.findMatchingCardsUnified(
+            state,
+            state.getZone(com.wingedsheep.engine.state.ZoneKey(action.playerId, Zone.HAND)),
+            putOnLibraryCost.filter,
+            action.playerId
+        )
+        if (candidates.size < putOnLibraryCost.count) {
+            return ExecutionResult.error(state, "Not enough cards in hand to pay ${putOnLibraryCost.description}")
+        }
+        if (candidates.size == putOnLibraryCost.count) return null
+        val n = putOnLibraryCost.count
+        val prompt = "Choose ${if (n == 1) "a card" else "$n cards"} to put on top of your library for ${activation.sourceName}"
+        return state.suspendForDecision(
+            question = { decisionId ->
+                SelectCardsDecision(
+                    id = decisionId,
+                    playerId = action.playerId,
+                    prompt = prompt,
+                    context = castingContext(action, activation.sourceName),
+                    options = candidates,
+                    minSelections = n,
+                    maxSelections = n
+                )
+            },
+            answer = com.wingedsheep.engine.core.ActivateAbilityPutOnLibraryContinuation(
+                action = action,
+                candidates = candidates,
+                count = n
+            )
         )
     }
 

@@ -73,17 +73,7 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone) : ActionEnumerator 
                 if (context.castPermissionUtils.isPowerUpActivationRestricted(state, ability)) continue
 
                 // Check activation restrictions
-                var restrictionsMet = true
-                for (restriction in ability.restrictions) {
-                    if (!context.castPermissionUtils.checkActivationRestriction(
-                            state, playerId, restriction, entityId, ability
-                        )
-                    ) {
-                        restrictionsMet = false
-                        break
-                    }
-                }
-                if (!restrictionsMet) continue
+                if (!context.legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
 
                 // Check cost requirements and build cost info. A *defined* {X} (CR 107.3c) and
                 // the ability's generic cost reduction are both resolved here for the same reason

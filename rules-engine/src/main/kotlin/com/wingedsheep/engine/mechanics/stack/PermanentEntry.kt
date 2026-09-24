@@ -609,6 +609,21 @@ internal class PermanentEntry(
             counterEvents.addAll(riderEvents)
         }
 
+        // Counters bought while casting (Chorus of the Conclave: "that creature enters with that
+        // many additional +1/+1 counters on it"). Recorded on the spell when the cost was paid, so
+        // they arrive even if the granting permanent has since left the battlefield. Placed through
+        // the shared entry-counter path so counter-modifying replacements see them.
+        val boughtCounters = spellComponent.additionalEntryCounters
+        if (boughtCounters != null && boughtCounters.count > 0) {
+            val (boughtState, boughtEvents) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements.placeEntryCounters(
+                newState, spellId,
+                boughtCounters.counterType, boughtCounters.count,
+                controllerId, cardComponent?.name ?: ""
+            )
+            newState = boughtState
+            counterEvents.addAll(boughtEvents)
+        }
+
         // Handle the intrinsic entry counters of a planeswalker (starting loyalty, CR 306.5b) or a
         // battle (printed defense, CR 310.4b). This is the cast pipeline's entry point for those
         // intrinsic entry replacements — it runs here, while the permanent is still on the stack,

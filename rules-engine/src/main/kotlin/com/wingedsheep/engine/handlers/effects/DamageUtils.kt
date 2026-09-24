@@ -17,6 +17,7 @@ import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.effects.library.MillAmountModifier
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.nameVisibleToAll
 import com.wingedsheep.engine.state.GameState
@@ -376,6 +377,16 @@ object DamageUtils {
                 // Check for "prevent all damage from chosen source" shields (Samite Ministration)
                 val preventFromSourceResult = checkPreventFromSourceShield(newState, targetId, effectiveAmount, sourceId)
                 if (preventFromSourceResult != null) return preventFromSourceResult
+
+                // "Prevent all damage that would be dealt by creatures this turn" (Ethereal Haze),
+                // and the life-gaining form (Chant of Vitu-Ghazi) — gains exactly this instance.
+                val preventFromGroupResult = checkPreventFromGroupShield(newState, effectiveAmount, sourceId, isCombatDamage)
+                if (preventFromGroupResult != null) {
+                    return EffectResult.success(
+                        preventFromGroupResult.state,
+                        shieldCounterEvents + reflectEvents + preventFromGroupResult.events
+                    )
+                }
             }
 
             val (shieldState, reducedAmount) = applyDamagePreventionShields(newState, targetId, effectiveAmount, sourceId = sourceId)
@@ -516,7 +527,7 @@ object DamageUtils {
         }
 
         newState = newState.updateEntity(targetId) { it.with(WasDealtDamageThisTurnComponent) }
-        newState = trackDamageDealt(newState, sourceId, effectiveAmount)
+        newState = trackDamageDealt(newState, sourceId, effectiveAmount, isCombatDamage)
         // Record the source on its controller's per-turn set of damage sources. Unlike the stamp
         // above this is not battlefield-only: a resolving burn spell is a source that dealt damage
         // just as much as a creature is (Case of the Burning Masks).
@@ -998,8 +1009,13 @@ object DamageUtils {
         return newState to first
     }
 
-    /** Record actual damage for a battlefield source or a resolving spell, bound to its object identity. */
-    fun trackDamageDealt(state: GameState, sourceId: EntityId?, amount: Int): GameState {
+    /**
+     * Record actual damage for a battlefield source or a resolving spell, bound to its object identity.
+     *
+     * [isCombatDamage] has no default: each caller must say whether this was combat damage, because
+     * the lifetime marker keeps a separate combat stamp ("hasn't dealt combat damage yet").
+     */
+    fun trackDamageDealt(state: GameState, sourceId: EntityId?, amount: Int, isCombatDamage: Boolean): GameState {
         if (sourceId == null || amount <= 0) return state
         // An ability can deal damage using a source that has already left. Do not stamp the
         // new card in its owner's graveyard with the old battlefield object's damage history.
@@ -1012,8 +1028,20 @@ object DamageUtils {
                 it.turnNumber == state.turnNumber && it.sourceObject == sourceObject
             }?.amount ?: 0
             val updated = container.with(DamageDealtThisTurnComponent(state.turnNumber, priorAmount + amount, sourceObject))
-            // Preserve the existing permanent-only lifetime marker's semantics.
-            if (onBattlefield) updated.with(HasDealtDamageComponent(state.turnNumber)) else updated
+            // Preserve the existing permanent-only lifetime marker's semantics. The combat stamp is
+            // carried forward across a noncombat stamp, so a later ping can't erase "has dealt
+            // combat damage".
+            if (onBattlefield) {
+                val priorCombatTurn = container.get<HasDealtDamageComponent>()?.lastDealtCombatDamageTurn
+                updated.with(
+                    HasDealtDamageComponent(
+                        lastDealtDamageTurn = state.turnNumber,
+                        lastDealtCombatDamageTurn = if (isCombatDamage) state.turnNumber else priorCombatTurn
+                    )
+                )
+            } else {
+                updated
+            }
         }
     }
 
@@ -1801,6 +1829,56 @@ object DamageUtils {
         // Life gain goes to the affected player (the protected "you"). The amount is the fixed
         // prevented damage, so the ModifyLifeGain pipeline must not touch it.
         val (newState, event) = gainLife(state, targetId, damageAmount, applyLifeGainModification = false)
+        return EffectResult.success(newState, listOfNotNull(event))
+    }
+
+    /**
+     * The [SerializableModification.PreventAllDamageFromGroup] shield ("prevent all damage that
+     * would be dealt by creatures this turn") covering damage from [sourceId], as its controller
+     * paired with whether it gains that controller life — or null when none covers it. The group
+     * is evaluated against projected state now, with the shield's controller as "you". The first
+     * covering shield wins, since an instance is prevented once. Damage with no identifiable source
+     * is never covered: a "by creatures" shield must not swallow damage it can't attribute.
+     */
+    fun groupPreventionShieldController(
+        state: GameState,
+        sourceId: EntityId?,
+        isCombatDamage: Boolean
+    ): Pair<EntityId, Boolean>? {
+        if (sourceId == null) return null
+        val evaluator = PredicateEvaluator()
+        for (fe in state.floatingEffects) {
+            val mod = fe.effect.modification as? SerializableModification.PreventAllDamageFromGroup ?: continue
+            if (mod.combatOnly && !isCombatDamage) continue
+            if (!evaluator.matches(
+                    state, state.projectedState, sourceId, mod.filter,
+                    PredicateContext(controllerId = fe.controllerId)
+                )
+            ) continue
+            return fe.controllerId to mod.controllerGainsLife
+        }
+        return null
+    }
+
+    /**
+     * Noncombat half of the source-side group shield ([SerializableModification.PreventAllDamageFromGroup]):
+     * prevents the whole instance when [sourceId] matches a shield, and — for a life-gaining shield
+     * (Chant of Vitu-Ghazi) — gives the shield's controller life equal to [damageAmount], the amount
+     * this shield actually prevented. The combat half lives in the combat damage pipeline, which
+     * credits a whole simultaneous step as one gain.
+     *
+     * @return EffectResult (damage fully prevented) if a shield covers this damage, null otherwise
+     */
+    fun checkPreventFromGroupShield(
+        state: GameState,
+        damageAmount: Int,
+        sourceId: EntityId?,
+        isCombatDamage: Boolean
+    ): EffectResult? {
+        val (controllerId, gainsLife) = groupPreventionShieldController(state, sourceId, isCombatDamage)
+            ?: return null
+        if (!gainsLife || damageAmount <= 0) return EffectResult.success(state)
+        val (newState, event) = gainLife(state, controllerId, damageAmount)
         return EffectResult.success(newState, listOfNotNull(event))
     }
 
@@ -2792,22 +2870,18 @@ object DamageUtils {
                 )
                 if (!sourceMatches) continue
 
-                // Check recipient filter
-                val recipientMatches = when (val recipient = damageEvent.recipient) {
-                    is RecipientFilter.You -> targetId == sourceControllerId
-                    // "If damage would be dealt to <this creature>…" (Anti-Venom) — the damaged
-                    // permanent is the replacement's own host; counters go on it (entityId).
-                    is RecipientFilter.Self -> targetId == entityId
-                    // "…to a creature an opponent controls" (Soul-Scar Mage). Reads the projected
-                    // controller and the projected type, so a stolen creature and one that is only
-                    // a creature because of a continuous effect are both judged correctly.
-                    is RecipientFilter.CreatureOpponentControls ->
-                        state.projectedState.isCreature(targetId) &&
-                            state.projectedState.getController(targetId)
-                                ?.let { it != sourceControllerId } == true
-                    is RecipientFilter.Any -> true
-                    else -> false
-                }
+                // Recipient filter — the shared matcher every damage-replacement scan uses, so
+                // "to you" (Force Bubble), "to <this creature>" (Anti-Venom), "to a creature an
+                // opponent controls" (Soul-Scar Mage, read off projected control and type) and "to a
+                // player" (Szadek) all agree with the prevention and doubling scans.
+                val recipientMatches = damageRecipientMatches(
+                    state = state,
+                    projected = state.projectedState,
+                    filter = damageEvent.recipient,
+                    targetId = targetId,
+                    hostId = entityId,
+                    hostControllerId = sourceControllerId,
+                )
                 if (!recipientMatches) continue
 
                 // Which permanent the counters land on. "That creature" (Soul-Scar Mage) is the
@@ -2862,6 +2936,20 @@ object DamageUtils {
                         )
                     )
                     events.addAll(transitionResult.events)
+                }
+
+                // "…and that player mills that many cards" (Szadek, Lord of Secrets) — the same
+                // replacement's second result, so it only happens when the damage was headed for a
+                // player. The count goes through the mill-amount replacements like any other mill,
+                // and the top cards are snapshotted before moving so a shrinking library isn't
+                // re-read.
+                if (effect.damagedPlayerMills && targetId in state.turnOrder) {
+                    val millCount = MillAmountModifier.apply(newState, targetId, amount)
+                    for (cardId in newState.getLibrary(targetId).take(millCount)) {
+                        val result = ZoneTransitionService.moveToZone(newState, cardId, Zone.GRAVEYARD)
+                        newState = result.state
+                        events.addAll(result.events)
+                    }
                 }
 
                 return EffectResult.success(newState, events)

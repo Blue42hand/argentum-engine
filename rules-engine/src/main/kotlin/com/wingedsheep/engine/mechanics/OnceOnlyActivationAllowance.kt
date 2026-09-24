@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.OnceOnlyAbilityKind
  * Lives here rather than in `CastPermissionUtils` because three activation-legality paths need the
  * same answer and must not drift: the legal-action enumerators, `ActivateAbilityHandler`, and
  * `ManaSolver`'s restriction check for auto-tapping, which deliberately doesn't depend on the
- * legalactions module. All three reach it through [ActivationRestrictionKernel].
+ * legalactions module. All three reach it through the legality kernel.
  */
 object OnceOnlyActivationAllowance {
 

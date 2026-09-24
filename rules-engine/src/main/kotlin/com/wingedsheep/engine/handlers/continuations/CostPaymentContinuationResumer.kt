@@ -72,6 +72,7 @@ class CostPaymentContinuationResumer(
                 else resumeSelection(state, continuation, cost, response, checkForMore)
             // Selection costs.
             is CostAtom.ExileFrom, is CostAtom.RevealFromHand, is CostAtom.Sacrifice,
+            is CostAtom.PutFromHandOnTopOfLibrary,
             is CostAtom.ReturnToHand, is CostAtom.TapPermanents,
             // Collect evidence is a selection cost too — the sum gate rides on the decision's
             // `minTotalManaValue`, so resuming it is the ordinary selection path.

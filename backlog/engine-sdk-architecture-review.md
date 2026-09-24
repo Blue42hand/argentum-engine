@@ -155,7 +155,34 @@ unevenly.
    recommendation is an effect-tree interpreter, piloted on the "may" frames, with replay-to-resume
    for action handlers. The implementation itself is future work._
 
-## 3. One legality kernel — [HIGH]
+## 3. ✅ One legality kernel — [HIGH] — DONE
+
+> **Done (2026-09-23).** `rules-engine/.../legality/LegalityKernel.kt` is the one place that
+> decides:
+> - whether an `ActivationRestriction` holds;
+> - whether a spell's `CastRestriction`s hold;
+> - whether a `GrantMayCastFromLinkedExile` lets a player cast an exiled card.
+>
+> These now call it: `ActivateAbilityHandler.validate`, `CastSpellHandler.validate`, `ManaSolver`,
+> every ability and cast enumerator, `CastZoneResolver`, the land-play path, and
+> `ClientStateTransformer`. The four copies of the activation `when`, the second cast `when`, and
+> the view's `isCastableFromLinkedExile` are deleted. The linked-exile grant is now read from
+> projected control and the granter's functioning abilities (none when it is face down or has lost
+> all abilities, plus granted ones). That fixed a stolen Rona granting to its old controller and a
+> Deep-Frozen Rona still granting in every path, not only the view.
+>
+> Two tests guard it:
+> - `LegalityKernelBoundaryTest` fails on restriction dispatch outside the kernel.
+> - `LegalActionsPassValidateTest` plays seeded random games over six sets and submits every
+>   complete affordable offer to `ActionProcessor.validate`. On its first run it caught
+>   `ManaAbilityEnumerator` offering a bare `{1}:` mana ability (Three Tree Mascot) with no mana to
+>   pay for it.
+>
+> Enumerators still assemble their offers themselves rather than calling `validate` per candidate.
+> An offer usually lacks the targets and payment choices `validate` needs, and the extra cost would
+> land on the MCTS hot path. The shared kernel plus the parity test stand in for that. Folding the
+> other offer/accept pairs (costs, timing) into the kernel belongs with §4's cost plug-ins.
+
 
 **Problem.** Legality is implemented three to five times:
 - **`ActivationRestriction`** is switched on in four places:
@@ -187,9 +214,8 @@ instead of recomputing it.
 >   (`CastTriggers`); `validate` lives in `CastValidator`, one function per legality question. Unifying
 >   the total-cost stage fixed two validate/execute drifts: splice mana was validated but never
 >   charged, and per-mode mana was charged but never validated.
-> - **Activation.** `executeActivation` is staged collaborators (`handlers/actions/ability/`), and one
->   `ActivationRestrictionKernel` replaces the handler's, `CastPermissionUtils`'s and `ManaSolver`'s
->   copies. **Not done:** activation still pays `AbilityCost` through `CostHandler`, not the spell
+> - **Activation.** `executeActivation` is staged collaborators (`handlers/actions/ability/`);
+>   restrictions go through the §3 `LegalityKernel`. **Not done:** activation still pays `AbilityCost` through `CostHandler`, not the spell
 >   cost kinds — sharing them means unifying the atom payers across the two cost contexts.
 > - **`StackResolver`** is a façade over `SpellCaster`, `PermanentSpellResolver`, `PermanentEntry`,
 >   `NonPermanentSpellResolver`, `AbilityResolver`, `ResolutionTargetValidator`, `SpellCounterer`.
@@ -382,7 +408,7 @@ other "target" Oracle text scripted without a target requirement. That can becom
    - ~~the single `settle()` boundary from §2~~ (done).
 2. **Medium:**
    - ~~`ResolutionContext` and the sealed result type (§2)~~ (done);
-   - the legality kernel (§3);
+   - ~~the legality kernel (§3)~~ (done);
    - ~~the staged casting pipeline with cost plug-ins (§4)~~ (done).
 3. **Large, codemod-driven:** SDK consolidation (§5), then generation (§6).
 4. **When gym throughput matters:** persistent collections and incremental projection.

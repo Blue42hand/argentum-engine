@@ -2123,6 +2123,12 @@ enum class DamageCounterRecipient {
  *        Only meaningful together with [DamageCounterRecipient.ReplacementHost].
  * @param counterRecipient Which permanent receives the counters. Defaults to the replacement's
  *        own host, which is what every "on this permanent" printing says.
+ * @param damagedPlayerMills When the replaced damage was headed for a **player**, that player also
+ *        mills that many cards as part of the same replacement — Szadek, Lord of Secrets: "If
+ *        Szadek would deal combat damage to a player, instead put that many +1/+1 counters on
+ *        Szadek and that player mills that many cards." One replacement producing both results, so
+ *        they can never be split across two replacements that would each want to consume the same
+ *        damage event. Ignored when the recipient is a permanent.
  */
 @SerialName("ReplaceDamageWithCounters")
 @Serializable
@@ -2132,14 +2138,17 @@ data class ReplaceDamageWithCounters(
     override val appliesTo: EventPattern = EventPattern.DamageEvent(
         recipient = RecipientFilter.You
     ),
-    val counterRecipient: DamageCounterRecipient = DamageCounterRecipient.ReplacementHost
+    val counterRecipient: DamageCounterRecipient = DamageCounterRecipient.ReplacementHost,
+    val damagedPlayerMills: Boolean = false
 ) : ReplacementEffect {
     override val description: String = buildString {
         val where = when (counterRecipient) {
             DamageCounterRecipient.ReplacementHost -> "this permanent"
             DamageCounterRecipient.DamagedPermanent -> "that permanent"
         }
-        append("If ${appliesTo.description}, put that many $counterType counters on $where instead")
+        append("If ${appliesTo.description}, put that many $counterType counters on $where")
+        if (damagedPlayerMills) append(" and that player mills that many cards")
+        append(" instead")
         if (sacrificeThreshold != null) {
             append(". When there are $sacrificeThreshold or more $counterType counters on this permanent, sacrifice it")
         }

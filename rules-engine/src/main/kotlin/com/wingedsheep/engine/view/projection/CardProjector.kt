@@ -71,6 +71,9 @@ internal class CardProjector(
     private val spellOnStackProjector: SpellOnStackProjector,
     private val facesProjector: CardFacesProjector,
 ) {
+    // Answers "may the viewer cast this exiled card?" the way the cast handler does.
+    private val legality = com.wingedsheep.engine.legality.LegalityKernel(cardRegistry, conditionEvaluator)
+
 
     /** Transform an entity into a ClientCard DTO, or null when it isn't a card. */
     fun project(
@@ -821,7 +824,10 @@ internal class CardProjector(
             // or cast-from-linked-exile like Rona / Dawnhand Dissident).
             playableFromExile = inExile && (
                 frame.state.hasMayPlayFor(frame.entityId, frame.viewingPlayerId, conditionEvaluator, cardRegistry) ||
-                    isCastableFromLinkedExile(frame.state, frame.viewingPlayerId, frame.entityId, container)
+                    // The legality kernel's linked-exile answer, not a view-layer re-derivation. The
+                    // "right now" gates (during your turn, once per turn, the mana-value cap) are
+                    // skipped: the flag marks a pile the viewer can cast from, even if not this moment.
+                    legality.linkedExileGranterFor(frame.state, frame.viewingPlayerId, frame.entityId, usableNow = false) != null
                 ),
             // Plotted cards (CR 718) sit face-up in exile with a PlottedComponent; surface a flag so the
             // client can badge them as plotted (otherwise indistinguishable from any other exiled card).
@@ -866,57 +872,6 @@ internal class CardProjector(
             },
             isSaddled = onBattlefield && container.has<SaddledComponent>(),
         )
-    }
-
-    /**
-     * True when [cardId] (in exile) is linked to a battlefield permanent controlled by
-     * [viewingPlayerId] that grants a cast-from-linked-exile permission, the card matches
-     * its filter, and (when applicable) ownership matches. Used to flag linked-exile
-     * cards as ghost cards in the viewer's hand so they know they can cast them later.
-     *
-     * Known gap (architecture review §3): this re-derives castability in the view layer from the
-     * base [ControllerComponent] and the printed static abilities rather than reading the legality
-     * the legal-actions layer computed. Left as is here; moving it onto that shared kernel is its
-     * own change.
-     */
-    private fun isCastableFromLinkedExile(
-        state: GameState,
-        viewingPlayerId: EntityId,
-        cardId: EntityId,
-        cardContainer: ComponentContainer
-    ): Boolean {
-        val cardComp = cardContainer.get<CardComponent>() ?: return false
-        for (permId in state.getBattlefield()) {
-            val permContainer = state.getEntity(permId) ?: continue
-            if (permContainer.get<ControllerComponent>()?.playerId != viewingPlayerId) continue
-            val linked = permContainer.get<LinkedExileComponent>() ?: continue
-            if (cardId !in linked.exiledIds) continue
-            val permCard = permContainer.get<CardComponent>() ?: continue
-            val cardDef = cardRegistry.getCard(permCard.cardDefinitionId) ?: continue
-            val grant = cardDef.script.staticAbilities
-                .filterIsInstance<GrantMayCastFromLinkedExile>()
-                .firstOrNull() ?: continue
-            if (grant.ownedByYou && cardComp.ownerId != viewingPlayerId) continue
-            // "exiled with [granter] this turn" gates eligibility on the turn the card
-            // entered exile (e.g. Maralen). Cards exiled on prior turns aren't castable,
-            // so they shouldn't appear as ghost-castables in the viewer's hand either.
-            if (grant.exiledThisTurnOnly) {
-                val turn = cardContainer.get<ExileEntryTurnComponent>()?.turnNumber
-                if (turn == null || turn != state.turnNumber) continue
-            }
-            // Filter check mirrors the enumerator's CardPredicate loop for parity.
-            val passesFilter = grant.filter.cardPredicates.all { pred ->
-                when (pred) {
-                    is CardPredicate.IsNonland -> !cardComp.typeLine.isLand
-                    is CardPredicate.IsCreature -> cardComp.typeLine.isCreature
-                    is CardPredicate.IsArtifact -> cardComp.typeLine.isArtifact
-                    is CardPredicate.IsNonartifact -> !cardComp.typeLine.isArtifact
-                    else -> true
-                }
-            }
-            if (passesFilter) return true
-        }
-        return false
     }
 
     private companion object {

@@ -197,6 +197,15 @@ internal fun AbilityCost.extractExileXFromGraveyardCost(): AbilityCost.ExileXFro
  * to detect that an activation needs to pause for a sacrifice-target selection when the player
  * controls more matching permanents than the cost requires (Sage of Lat-Nam, Atog, …).
  */
+/** The put-from-hand-on-library atom in this cost (Leashling), top-level or in a Composite. */
+internal fun AbilityCost.extractPutOnLibraryCost(): CostAtom.PutFromHandOnTopOfLibrary? = when (this) {
+    is AbilityCost.Atom -> atom as? CostAtom.PutFromHandOnTopOfLibrary
+    is AbilityCost.Composite -> costs.firstNotNullOfOrNull {
+        (it as? AbilityCost.Atom)?.atom as? CostAtom.PutFromHandOnTopOfLibrary
+    }
+    else -> null
+}
+
 internal fun AbilityCost.extractSacrificeCost(): CostAtom.Sacrifice? = when (this) {
     is AbilityCost.Atom -> atom as? CostAtom.Sacrifice
     is AbilityCost.Composite -> costs.firstNotNullOfOrNull {

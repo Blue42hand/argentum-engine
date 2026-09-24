@@ -98,6 +98,9 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.TapReason
 import com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
+import com.wingedsheep.engine.legality.LegalityKernel
+import com.wingedsheep.engine.mechanics.mana.AdditionalManaForCounters
+import com.wingedsheep.engine.state.components.stack.AdditionalEntryCounters
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCostCheck
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCostLedger
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCosts
@@ -155,12 +158,13 @@ class CastSpellHandler(
     private val targetValidator: TargetValidator,
     private val conditionEvaluator: ConditionEvaluator,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
+    private val legality: LegalityKernel,
     private val targetFinder: com.wingedsheep.engine.handlers.TargetFinder = com.wingedsheep.engine.handlers.TargetFinder(),
 ) : ActionHandler<CastSpell> {
     override val actionType: KClass<CastSpell> = CastSpell::class
 
     private val predicateEvaluator = PredicateEvaluator()
-    private val zoneResolver = CastZoneResolver(cardRegistry, conditionEvaluator)
+    private val zoneResolver = CastZoneResolver(cardRegistry, conditionEvaluator, legality)
     private val castPermissionUtils = com.wingedsheep.engine.legalactions.utils.CastPermissionUtils(
         cardRegistry, predicateEvaluator, conditionEvaluator
     )
@@ -180,7 +184,7 @@ class CastSpellHandler(
     private val castValidator = CastValidator(
         cardRegistry, turnManager, costCalculator, alternativePaymentHandler, costHandler, targetValidator,
         conditionEvaluator, zoneResolver, castPermissionUtils, castCostTotaller, castCostPayer,
-        grantedKeywordResolver, predicateEvaluator,
+        grantedKeywordResolver, predicateEvaluator, legality,
     )
     private val costEnumerationUtils = com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils(
         manaSolver, costCalculator, predicateEvaluator, cardRegistry
@@ -265,6 +269,15 @@ class CastSpellHandler(
         // chosen entities merged into the payment) is side-effect free.
         surfaceUnpaidAdditionalCostSelection(announcedState, action, owedCosts)?.let { return it }
 
+        // "You may pay any amount of mana" as an additional cost (Chorus of the Conclave): the {N}
+        // is part of the total cost above. The grant is read *now*, before any cost is paid: the
+        // payment was announced while the source was on the battlefield (CR 601.2b), so sacrificing
+        // that source to another cost of this same spell doesn't take the counters back.
+        val additionalEntryCounters = if (action.additionalManaForCounters > 0) {
+            AdditionalManaForCounters.applicableGrant(announcedState, action.playerId, action.cardId, cardRegistry)
+                ?.let { AdditionalEntryCounters(it.counterType, action.additionalManaForCounters) }
+        } else null
+
         // --- 3. Pay (CR 601.2g–h) ----------------------------------------------------------------
 
         val ledger = SpellCostLedger(
@@ -323,7 +336,8 @@ class CastSpellHandler(
         }
 
         val castResult = putSpellOnStack(
-            currentState, state, action, cardDef, transformedFace, ledger, paid, targeting, returned, marks, splicedCardNames
+            currentState, state, action, cardDef, transformedFace, ledger, paid, targeting, returned, marks, splicedCardNames,
+            additionalEntryCounters,
         )
         if (castResult.outcome !is Outcome.Done) {
             return castResult
@@ -483,6 +497,7 @@ class CastSpellHandler(
         returned: ReturnedForAlternativeCost,
         marks: AlternativeCostMarks,
         splicedCardNames: List<String>,
+        additionalEntryCounters: AdditionalEntryCounters?,
     ): ExecutionResult {
         // Derive per-mode target groups from the flat target list when the action arrived with
         // chosenModes but no modeTargetsOrdered (current web-client cast-time UI for choose-1 modal
@@ -527,6 +542,7 @@ class CastSpellHandler(
             // True when the spell's waterbend additional cost was paid (Avatar) — mandatory costs
             // always, optional "you may waterbend {N}" only when the player elected it.
             wasWaterbendPaid = cardDef?.script?.spellWaterbend?.let { !it.optional || action.wasWaterbendPaid } == true,
+            additionalEntryCounters = additionalEntryCounters,
             // Gift (CR 702.174a): the promised opponent, elected as part of casting. Only honored
             // for a card that actually has gift — validate() rejects the flag otherwise.
             giftRecipient = action.giftRecipient?.takeIf { cardDef?.giftKeyword() != null },
@@ -1217,6 +1233,7 @@ class CastSpellHandler(
                 services.targetValidator,
                 services.conditionEvaluator,
                 services.manaAbilitySideEffectExecutor,
+                services.legalityKernel,
                 services.targetFinder
             )
         }

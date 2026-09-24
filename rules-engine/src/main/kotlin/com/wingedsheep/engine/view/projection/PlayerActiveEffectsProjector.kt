@@ -81,6 +81,7 @@ internal class PlayerActiveEffectsProjector {
         var preventsAttackingCreatureDamage = false
         val preventedCreatureTypes = mutableSetOf<String>()
         val preventedCombatDamageSources = mutableSetOf<String>()
+        val preventedAllDamageSources = mutableSetOf<String>()
         val preventedFromSources = mutableSetOf<EntityId>()
         // Single-instance chosen-source shields, kept separate from the all-damage ones above
         // because they read differently: "the next time" rather than "all damage", and Dark Sphere
@@ -102,6 +103,9 @@ internal class PlayerActiveEffectsProjector {
                 is SerializableModification.PreventAllCombatDamage -> tally.preventsAllCombatDamage = true
                 is SerializableModification.PreventCombatDamageFromGroup ->
                     tally.preventedCombatDamageSources.add(modification.filter.description)
+                is SerializableModification.PreventAllDamageFromGroup ->
+                    if (modification.combatOnly) tally.preventedCombatDamageSources.add(modification.filter.description)
+                    else tally.preventedAllDamageSources.add(modification.filter.description)
                 else -> {}
             }
             if (playerId !in floatingEffect.effect.affectedEntities) continue
@@ -172,6 +176,16 @@ internal class PlayerActiveEffectsProjector {
                     effectId = "prevent_combat_damage_from_${sourceDescription.lowercase().replace(' ', '_')}",
                     name = "No Combat Damage",
                     description = "Combat damage that would be dealt by $sourceDescription this turn is prevented",
+                    icon = "prevent-damage"
+                )
+            )
+        }
+        for (sourceDescription in preventedAllDamageSources) {
+            effects.add(
+                ClientPlayerEffect(
+                    effectId = "prevent_all_damage_from_${sourceDescription.lowercase().replace(' ', '_')}",
+                    name = "No Damage",
+                    description = "All damage that would be dealt by $sourceDescription this turn is prevented",
                     icon = "prevent-damage"
                 )
             )

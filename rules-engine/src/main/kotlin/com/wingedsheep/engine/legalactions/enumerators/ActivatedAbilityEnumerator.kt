@@ -3,11 +3,11 @@ package com.wingedsheep.engine.legalactions.enumerators
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.handlers.effects.composite.asConditional
 import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
-import com.wingedsheep.engine.mechanics.ActivationRestrictionKernel
 import com.wingedsheep.engine.mechanics.SummoningSicknessRules
 import com.wingedsheep.engine.mechanics.mana.TapForGeneric
 import com.wingedsheep.engine.legalactions.*
 import com.wingedsheep.engine.legalactions.utils.AbilityCostReduction
+import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.legalactions.utils.TargetEnumerationUtils
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.*
@@ -303,6 +303,11 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                             )
                             if (tapTargets.size < atom.count) continue
                         }
+                        // CR 118.3 — unpayable with too few matching cards in hand. The choice of
+                        // card is raised by ActivateAbilityHandler as a pause, so nothing to surface.
+                        is CostAtom.PutFromHandOnTopOfLibrary -> {
+                            if (context.costUtils.findDiscardTargets(state, playerId, atom.filter).size < atom.count) continue
+                        }
                         is CostAtom.Discard -> {
                             val targets = context.costUtils.findDiscardTargets(state, playerId, atom.filter)
                             if (targets.size < atom.count) continue
@@ -572,6 +577,13 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                         exileCost = atom
                                         exileTargets = targets
                                     }
+                                    // See the top-level branch: a hand-size gate, choice via pause.
+                                    is CostAtom.PutFromHandOnTopOfLibrary -> {
+                                        if (context.costUtils.findDiscardTargets(state, playerId, atom.filter).size < atom.count) {
+                                            costCanBePaid = false
+                                            break
+                                        }
+                                    }
                                     is CostAtom.Discard -> {
                                         val targets = context.costUtils.findDiscardTargets(state, playerId, atom.filter)
                                         if (targets.size < atom.count) {
@@ -766,14 +778,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                 }
 
                 // Check activation restrictions
-                var restrictionsMet = true
-                for (restriction in ability.restrictions) {
-                    if (!context.castPermissionUtils.checkActivationRestriction(state, playerId, restriction, entityId, ability)) {
-                        restrictionsMet = false
-                        break
-                    }
-                }
-                if (!restrictionsMet) continue
+                if (!context.legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
 
                 // Compute convoke creature data for abilities with hasConvoke
                 val abilityConvokeCreatures = if (ability.hasConvoke) {
@@ -843,11 +848,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         && tapTargets.size > 1
                         && ability.targetRequirements.isEmpty()
                         && effectStacksOnRepeat(ability.effect)
-                        && !ability.restrictions.any {
-                            it is ActivationRestriction.OncePerTurn || it is ActivationRestriction.Once ||
-                                it is ActivationRestriction.MaxPerTurn ||
-                                (it is ActivationRestriction.All && it.restrictions.any { r -> r is ActivationRestriction.OncePerTurn || r is ActivationRestriction.Once || r is ActivationRestriction.MaxPerTurn })
-                        }
+                        && !LegalityKernel.hasActivationCountLimit(ability)
                     ) tapTargets.size else 1
                 }
 
@@ -926,11 +927,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                     && !abilityHasXCost
                     && ability.effect !is LevelUpClassEffect
                     && effectStacksOnRepeat(ability.effect)
-                    && !ability.restrictions.any {
-                    it is ActivationRestriction.OncePerTurn || it is ActivationRestriction.Once ||
-                        it is ActivationRestriction.MaxPerTurn ||
-                        (it is ActivationRestriction.All && it.restrictions.any { r -> r is ActivationRestriction.OncePerTurn || r is ActivationRestriction.Once || r is ActivationRestriction.MaxPerTurn })
-                }
+                    && !LegalityKernel.hasActivationCountLimit(ability)
                 val maxRepeatableActivations: Int? = if (isRepeatEligible && abilityManaCost != null && abilityManaCost.cmc > 0) {
                     // Upper bound assuming every available mana could pay for a colored symbol;
                     // color requirements only ever reduce this, so it's a safe search ceiling.
@@ -1133,7 +1130,6 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
 
     /**
      * Check for "any player may activate" abilities on opponent's permanents (e.g., Lethal Vapors).
-     * The permission is often nested inside `All` — see [ActivationRestrictionKernel.anyPlayerMay].
      */
     private fun enumerateAnyPlayerMayAbilities(context: EnumerationContext, result: MutableList<LegalAction>) {
         val state = context.state
@@ -1156,7 +1152,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             val cardDef = context.cardRegistry.getCard(cardComponent.cardDefinitionId) ?: continue
             val anyPlayerAbilities = cardDef.script.activatedAbilities.filter { ability ->
                 !ability.isManaAbility && ability.activateFromZone == Zone.BATTLEFIELD &&
-                    ability.restrictions.any { ActivationRestrictionKernel.anyPlayerMay(it) }
+                    LegalityKernel.anyPlayerMay(ability)
             }
             if (anyPlayerAbilities.isEmpty()) continue
 
@@ -1206,14 +1202,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                 )
 
                 // Check activation restrictions
-                var restrictionsMet = true
-                for (restriction in ability.restrictions) {
-                    if (!context.castPermissionUtils.checkActivationRestriction(state, playerId, restriction, entityId, ability)) {
-                        restrictionsMet = false
-                        break
-                    }
-                }
-                if (!restrictionsMet) continue
+                if (!context.legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
 
                 // Check target requirements
                 val targetReqs = if (textReplacement != null) {
@@ -1449,9 +1438,8 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
     /** True when [cost] contains a [CostAtom.VariablePermanents] atom (top-level or in a Composite). */
     /**
      * Whether [cost] includes "Reveal the creature type you chose" — the cost only the player who
-     * made the source's secret note can pay. Mirrors the activation path's
-     * `AbilityCost.revealsNotedCreatureType`, which decides when to capture the note as last-known
-     * information.
+     * made the source's secret note can pay. Mirrors `ActivateAbilityHandler`'s helper of the same
+     * name, which decides when to capture the note as last-known information.
      */
     private fun costRevealsNotedCreatureType(cost: AbilityCost): Boolean = when (cost) {
         is AbilityCost.Atom -> cost.atom is CostAtom.RevealNotedCreatureType

@@ -164,6 +164,13 @@ internal class CastCostTotaller(
             effectiveCost = SpliceCasts.addSpliceCosts(effectiveCost, state, action.splicedCardIds, cardRegistry)
         }
 
+        // "You may pay any amount of mana" as an additional cost (Chorus of the Conclave) — like
+        // splice, on top of whatever pays for the spell itself; a free or alternative cast still owes
+        // it (CR 601.2f). Legality is checked in validation.
+        if (action.additionalManaForCounters > 0) {
+            effectiveCost = effectiveCost + ManaCost.parse("{${action.additionalManaForCounters}}")
+        }
+
         // Sacrifice-for-cost-reduction (Torgaar): the declared sacrifices take generic mana off.
         if (cardDef != null && action.additionalCostPayment != null) {
             for (cost in cardDef.script.additionalCosts) {
