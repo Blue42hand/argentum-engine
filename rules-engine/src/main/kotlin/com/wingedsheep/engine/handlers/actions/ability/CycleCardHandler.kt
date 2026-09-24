@@ -46,7 +46,8 @@ class CycleCardHandler(
     private val manaSolver: ManaSolver,
     private val manaAbilitySideEffectExecutor: ManaAbilitySideEffectExecutor,
     private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)?,
-    private val replacementProcessor: ReplacementEffectProcessor
+    private val replacementProcessor: ReplacementEffectProcessor,
+    private val castPermissionUtils: com.wingedsheep.engine.legalactions.utils.CastPermissionUtils? = null
 ) : ActionHandler<CycleCard> {
     private val amountEvaluator = zones.predicateEvaluator.amounts
     override val actionType: KClass<CycleCard> = CycleCard::class
@@ -59,6 +60,12 @@ class CycleCardHandler(
         // Check if cycling is prevented by any permanent on the battlefield (e.g., Stabilizer)
         if (isCyclingPrevented(state)) {
             return "Cycling is prevented"
+        }
+
+        // Cycling is an activated ability of the card in hand (CR 702.29a): an any-zone
+        // "players can't activate abilities" (Yuriko, Blade of the Mighty) forbids it.
+        if (castPermissionUtils?.isActivationPreventedForPlayer(state, action.cardId, action.playerId) == true) {
+            return "An effect prevents you from activating that ability right now"
         }
 
         val container = state.getEntity(action.cardId)
@@ -300,7 +307,8 @@ class CycleCardHandler(
                 services.manaSolver,
                 services.manaAbilitySideEffectExecutor,
                 services.effectExecutorRegistry::execute,
-                services.replacementEffectProcessor
+                services.replacementEffectProcessor,
+                services.castPermissionUtils
             )
         }
     }

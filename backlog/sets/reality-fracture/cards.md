@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 243 / 285
+**Implemented:** 262 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -19,7 +19,7 @@
 - [x] Aerid Konstrari
 - [x] Afterthought Sentry
 - [x] Ajani Resolute
-- [ ] Ajani Unrelenting
+- [x] Ajani Unrelenting
 - [x] Ajani's Anguish
 - [x] Apex Witchstalker
 - [x] Arcane Amphisbaena
@@ -41,17 +41,17 @@
 - [x] Carnivorous Cultivator
 - [x] Cast Away Doubt
 - [x] Chandra's Emberling
-- [ ] Chandra, Chill of Compliance
+- [x] Chandra, Chill of Compliance
 - [x] Chandra, Torch of Defiance
 - [x] Charge the Sanctum
-- [ ] Clash of Elements
+- [x] Clash of Elements
 - [ ] Codie, Ravenous Codex
 - [x] Command the Stage
 - [x] Compel Brutality
-- [ ] Countersculpt
+- [x] Countersculpt
 - [x] Craftwork Crusher
 - [x] Craterclaw Colossus
-- [ ] Cruel Calculations
+- [x] Cruel Calculations
 - [x] Cryotheory Adept
 - [x] Curse-Marred Demon
 - [x] Danitha, Spear of Agony
@@ -70,7 +70,7 @@
 - [x] Edgar, Moonlit Sovereign
 - [x] Emergency Phytomedic
 - [ ] Emrakul, the Exigent Doom
-- [ ] Enlightened Confidant
+- [x] Enlightened Confidant
 - [x] Entrust the Spark
 - [x] Essence Burn
 - [x] Extended Absence
@@ -82,7 +82,7 @@
 - [x] Fatehold Chronologist
 - [x] Fateshaper Aspirant
 - [ ] Fblthp, Impossibly Lost
-- [ ] Fblthp, Knows the Way
+- [x] Fblthp, Knows the Way
 - [x] Ferocity of the Hunt
 - [x] Flickering Hound
 - [x] Flourishing Grapple
@@ -93,7 +93,7 @@
 - [x] Gallia, Tragic Host
 - [x] Gallia, the Merrymaker
 - [x] Gardenize
-- [ ] Garruk, Curse Breaker
+- [x] Garruk, Curse Breaker
 - [x] Garruk, Veiled Butcher
 - [x] Geist of Saint Thalia
 - [x] Generous Revival
@@ -115,7 +115,7 @@
 - [ ] Heartwood Crafter
 - [x] Hexhaven Battalion
 - [x] Hexhaven Dueling Arena
-- [ ] Hexhaven Invigorator
+- [x] Hexhaven Invigorator
 - [x] Hungering Puppetbeast
 - [x] Hunter's Axe
 - [x] Icy Reception
@@ -123,11 +123,11 @@
 - [x] Infinite Coursework
 - [x] Ingris Stingerquill
 - [x] Innovative Commons
-- [ ] Inspired Tethermage
+- [x] Inspired Tethermage
 - [x] Island
 - [ ] Jace's Machinations
 - [ ] Jace, Reality Sculptor
-- [ ] Jiang Yanggu, Alone
+- [x] Jiang Yanggu, Alone
 - [x] Jiang Yanggu, Never Alone
 - [ ] Karn, Argent Defender
 - [x] Karn, Gilded Guardian
@@ -175,7 +175,7 @@
 - [x] Pia, Aether Ascetic
 - [x] Pia, Determined Rebuilder
 - [x] Plains
-- [ ] Plan for All Outcomes
+- [x] Plan for All Outcomes
 - [x] Pompous Battlemage
 - [x] Precise Redaction
 - [x] Predictive Preparations
@@ -209,7 +209,7 @@
 - [ ] Samut, Tyrant of Naktamun
 - [x] Sanctum Lurker
 - [x] Screeching Soulbreaker
-- [ ] Seasoned Cryomancer
+- [x] Seasoned Cryomancer
 - [x] Semester Foreseer
 - [x] Shatterwing Pegasus
 - [x] Shipwreck Marsh
@@ -232,7 +232,7 @@
 - [x] Surveillance Phantasm
 - [x] Swamp
 - [x] Tam's Resistance
-- [ ] Tam, the Possibility
+- [x] Tam, the Possibility
 - [x] Tarmogoyf
 - [x] Tenured Tethermage
 - [x] Terminal Criticism
@@ -247,7 +247,7 @@
 - [x] The Theorist, Jace Beleren
 - [x] Theoretical Necromancer
 - [x] Theorist's Proxy
-- [ ] Theorist's Sanctum
+- [x] Theorist's Sanctum
 - [x] Theorix Annex
 - [x] Theorix Charm
 - [x] Theorix Metamage
@@ -264,14 +264,14 @@
 - [x] Undulating Witness
 - [x] Unflinching Hortimancer
 - [x] Unsummon
-- [ ] Variable Chaser
-- [ ] Verdant Kraken
+- [x] Variable Chaser
+- [x] Verdant Kraken
 - [x] Vigorbloom Annex
 - [x] Vigorbloom Charm
 - [x] Vigorbloom Vanguard
 - [x] Vindictive Triumph
 - [x] Vinelasher Adept
-- [ ] Violent Echoes
+- [x] Violent Echoes
 - [x] Void Extrapolator
 - [x] Vraska's Final Mercy
 - [x] Vraska, Soul of Stone
@@ -298,5 +298,5 @@
 - [x] Yoshimaru, Beloved Companion
 - [x] Yoshimaru, Scrappy Stray
 - [x] Your Fate Ends Here
-- [ ] Yuriko, Blade of the Mighty
+- [x] Yuriko, Blade of the Mighty
 - [x] Yuriko, Hope from the Shadows

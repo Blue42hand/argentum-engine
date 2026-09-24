@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.damage
 
+import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
@@ -108,11 +109,19 @@ class DealDamageExecutor(
         )
         if (pause != null) return pause
 
-        return dealDamageToTarget(
+        val result = dealDamageToTarget(
             zones,
             readyState, targetId, amount, sourceId, effect.cantBePrevented,
             excessToController = effect.excessToController
         )
+        val excessVariable = effect.excessDamageVariable ?: return result
+        // Excess damage (CR 120.4a) dealt to this target by this instruction, read off the actual
+        // DamageDealtEvent so prevention, deathtouch, marked damage and loyalty are all accounted.
+        val excess = result.events
+            .filterIsInstance<DamageDealtEvent>()
+            .filter { it.targetId == targetId }
+            .sumOf { it.excessAmount }
+        return result.copy(updatedStoredNumbers = result.updatedStoredNumbers + (excessVariable to excess))
     }
 
     /**

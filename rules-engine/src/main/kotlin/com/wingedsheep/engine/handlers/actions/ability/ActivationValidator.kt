@@ -170,6 +170,14 @@ internal class ActivationValidator(
             val inZone = state.getZone(ownerId, ability.activateFromZone).contains(action.sourceId)
             if (!inZone) return "This ability can only be activated from the ${ability.activateFromZone.name.lowercase()}"
             if (ownerId != action.playerId) return "You don't own this card"
+            // An unqualified "players can't activate abilities" (Yuriko, Blade of the Mighty)
+            // reaches abilities of cards in every zone, not just permanents.
+            if (castPermissionUtils.isActivationPreventedForPlayer(
+                    state, action.sourceId, action.playerId, abilityIsManaAbility = ability.isManaAbility
+                )
+            ) {
+                return "An effect prevents you from activating that ability right now"
+            }
             return null
         }
         return checkBattlefieldController(state, action, container, ability)
@@ -238,7 +246,10 @@ internal class ActivationValidator(
         // PlayersCantActivateAbilities (Grand Abolisher etc.) blocks abilities by *who* is
         // activating and *when* — "During your turn, your opponents can't activate abilities
         // of artifacts, creatures, or enchantments." Scoped to the activating player.
-        if (castPermissionUtils.isActivationPreventedForPlayer(state, action.sourceId, action.playerId)) {
+        if (castPermissionUtils.isActivationPreventedForPlayer(
+                state, action.sourceId, action.playerId, abilityIsManaAbility = ability.isManaAbility
+            )
+        ) {
             return "An effect prevents you from activating that ability right now"
         }
 

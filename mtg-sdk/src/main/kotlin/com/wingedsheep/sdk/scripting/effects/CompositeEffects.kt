@@ -591,25 +591,31 @@ enum class DamageRecipient {
  *
  * @property filter Which permanents/cards qualify to be beheld
  * @property ifBeheld Effect that runs only if the player successfully beholds
+ * @property otherwise Effect that runs only if the player doesn't behold — declined, or had
+ *   nothing to behold ("you may behold a Jace. If you don't, this land enters tapped." —
+ *   Theorist's Sanctum, wrapped in `OnEnterRunEffect`)
  */
 @SerialName("Behold")
 @Serializable
 data class BeholdEffect(
     val filter: GameObjectFilter = GameObjectFilter.Any,
-    val ifBeheld: Effect? = null
+    val ifBeheld: Effect? = null,
+    val otherwise: Effect? = null
 ) : Effect {
     override val description: String = buildString {
         val filterDesc = filter.description
         val article = if (filterDesc.firstOrNull()?.lowercase() in listOf("a", "e", "i", "o", "u")) "an" else "a"
         append("You may behold $article $filterDesc")
         if (ifBeheld != null) append(". If you do, ${ifBeheld.description.replaceFirstChar { it.lowercase() }}")
+        if (otherwise != null) append(". If you don't, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newFilter = filter.applyTextReplacement(replacer)
         val newIfBeheld = ifBeheld?.applyTextReplacement(replacer)
-        return if (newFilter !== filter || newIfBeheld !== ifBeheld)
-            copy(filter = newFilter, ifBeheld = newIfBeheld) else this
+        val newOtherwise = otherwise?.applyTextReplacement(replacer)
+        return if (newFilter !== filter || newIfBeheld !== ifBeheld || newOtherwise !== otherwise)
+            copy(filter = newFilter, ifBeheld = newIfBeheld, otherwise = newOtherwise) else this
     }
 }
 

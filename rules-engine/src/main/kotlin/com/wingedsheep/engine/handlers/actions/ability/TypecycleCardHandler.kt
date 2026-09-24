@@ -43,7 +43,8 @@ class TypecycleCardHandler(
     private val cardRegistry: CardRegistry,
     private val manaSolver: ManaSolver,
     private val effectExecutorRegistry: EffectExecutorRegistry,
-    private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
+    private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
+    private val castPermissionUtils: com.wingedsheep.engine.legalactions.utils.CastPermissionUtils? = null
 ) : ActionHandler<TypecycleCard> {
     override val actionType: KClass<TypecycleCard> = TypecycleCard::class
 
@@ -55,6 +56,12 @@ class TypecycleCardHandler(
         // Check if cycling is prevented by any permanent on the battlefield (e.g., Stabilizer)
         if (isCyclingPrevented(state)) {
             return "Cycling is prevented"
+        }
+
+        // Typecycling is an activated ability of the card in hand (CR 702.29e): an any-zone
+        // "players can't activate abilities" (Yuriko, Blade of the Mighty) forbids it.
+        if (castPermissionUtils?.isActivationPreventedForPlayer(state, action.cardId, action.playerId) == true) {
+            return "An effect prevents you from activating that ability right now"
         }
 
         val container = state.getEntity(action.cardId)
@@ -267,7 +274,8 @@ class TypecycleCardHandler(
                 services.cardRegistry,
                 services.manaSolver,
                 services.effectExecutorRegistry,
-                services.manaAbilitySideEffectExecutor
+                services.manaAbilitySideEffectExecutor,
+                services.castPermissionUtils
             )
         }
     }
