@@ -113,7 +113,7 @@
                     "color": "BLACK",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "CHARGE"
@@ -387,12 +387,12 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -637,7 +637,7 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": "CHARGE"
@@ -645,7 +645,7 @@
                 },
                 "toughnessBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": "CHARGE"
@@ -1146,7 +1146,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "ManaValue"
                     },
                     "target": {
@@ -1254,13 +1254,13 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ManaValue"
                     },
                     "operator": "EQ",
                     "right": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "CHARGE"
@@ -1903,7 +1903,7 @@
                                 "IsPermanent",
                                 {
                                     "type": "SharesCardTypeWith",
-                                    "entity": "Triggering"
+                                    "entity": "TriggeringEntity"
                                 }
                             ],
                             "controllerPredicate": {
@@ -2545,7 +2545,10 @@
                         "type": "IterationSpace.Collection",
                         "collection": "gathered0"
                     },
-                    "body": "UnattachEquipment"
+                    "body": {
+                        "type": "UnattachEquipment",
+                        "target": "IterationEntity"
+                    }
                 }
             ]
         },
@@ -3595,7 +3598,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "tap": false
                                 }
                             }
@@ -3812,7 +3815,7 @@
             "counterType": "PLUS_ONE_PLUS_ONE",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Sacrificed",
+                "entity": "SacrificedAsCost",
                 "numericProperty": "ManaValue"
             },
             "target": {
@@ -4174,7 +4177,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "ManaValue"
                             },
                             "operator": "EQ",
@@ -4696,7 +4702,7 @@
                                 "type": "DealDamage",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Sacrificed",
+                                    "entity": "SacrificedAsCost",
                                     "numericProperty": "Power"
                                 },
                                 "target": {
@@ -5273,7 +5279,10 @@
                                 "baseFilter": "creature ctrl:target-player"
                             }
                         },
-                        "body": "MarkMustAttackThisTurn"
+                        "body": {
+                            "type": "MarkMustAttackThisTurn",
+                            "target": "IterationEntity"
+                        }
                     },
                     "targetRequirements": [
                         {
@@ -5295,7 +5304,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "FIRST_STRIKE",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control gain first strike until end of turn"
@@ -5616,7 +5625,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "CHARGE"
@@ -5906,7 +5915,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -6042,7 +6051,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -6282,7 +6291,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -6609,7 +6618,7 @@
                             "name": "removedChargeCounters",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": "CHARGE"
@@ -6647,7 +6656,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "CHARGE"
@@ -7005,7 +7014,7 @@
                     "type": "Multiply",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "AttachmentCount",
                             "kind": "EQUIPMENT"
@@ -7017,7 +7026,7 @@
                     "type": "Multiply",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "AttachmentCount",
                             "kind": "EQUIPMENT"
@@ -8225,7 +8234,7 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "AttachmentCount",
                         "kind": "EQUIPMENT"
@@ -8233,7 +8242,7 @@
                 },
                 "toughnessBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "AttachmentCount",
                         "kind": "EQUIPMENT"
@@ -8440,7 +8449,7 @@
                 "type": "CantAttackOrBlockUnlessPay",
                 "amount": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": "PLUS_ONE_PLUS_ONE"
@@ -9399,7 +9408,7 @@
                             "body": {
                                 "type": "RemoveAllCountersOfType",
                                 "counterType": "FATE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -10508,7 +10517,7 @@
                     "body": {
                         "type": "RemoveAllCountersOfType",
                         "counterType": "FLOOD",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "interveningIf": {
@@ -10833,7 +10842,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +1/+1 until end of turn"
@@ -10849,7 +10858,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "tap": false
                         }
                     },
@@ -12774,7 +12783,7 @@
                                     "cardPredicates": [
                                         {
                                             "type": "SharesNameWith",
-                                            "entity": "Triggering"
+                                            "entity": "TriggeringEntity"
                                         }
                                     ]
                                 },
@@ -12805,7 +12814,7 @@
                                 "cardPredicates": [
                                     {
                                         "type": "SharesNameWith",
-                                        "entity": "Triggering"
+                                        "entity": "TriggeringEntity"
                                     }
                                 ]
                             }
@@ -12820,7 +12829,7 @@
                                 "cardPredicates": [
                                     {
                                         "type": "SharesNameWith",
-                                        "entity": "Triggering"
+                                        "entity": "TriggeringEntity"
                                     }
                                 ]
                             }
@@ -12954,7 +12963,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -15445,7 +15454,7 @@
                     "color": "GREEN",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 },
@@ -15728,7 +15737,7 @@
                     },
                     "body": {
                         "type": "AttachTargetEquipmentToCreature",
-                        "equipmentTarget": "Self",
+                        "equipmentTarget": "IterationEntity",
                         "creatureTarget": "TriggeringEntity"
                     }
                 },
@@ -15865,7 +15874,7 @@
                         },
                         "body": {
                             "type": "Regenerate",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Regenerate each creature you control"
@@ -15888,7 +15897,7 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
