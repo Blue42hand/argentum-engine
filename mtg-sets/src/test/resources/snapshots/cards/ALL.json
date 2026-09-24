@@ -1,3 +1,83 @@
+// Arcane Denial
+{
+    "name": "Arcane Denial",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target spell. Its controller may draw up to two cards at the beginning of the next turn's upkeep.\nYou draw a card at the beginning of the next turn's upkeep.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": "ChosenTargets",
+                    "storeAs": "deniedSpell"
+                },
+                {
+                    "type": "CaptureControllers",
+                    "from": "deniedSpell",
+                    "storeAs": "deniedControllers"
+                },
+                "Counter",
+                {
+                    "type": "ForEachCapturedController",
+                    "collection": "deniedSpell",
+                    "originalCollection": "deniedSpell",
+                    "controllerSnapshot": "deniedControllers",
+                    "countVariable": "count3",
+                    "effects": [
+                        {
+                            "type": "CreateDelayedTrigger",
+                            "step": "UPKEEP",
+                            "effect": {
+                                "type": "DrawUpTo",
+                                "maxCards": 2
+                            },
+                            "timing": "NextTurn"
+                        }
+                    ]
+                },
+                {
+                    "type": "CreateDelayedTrigger",
+                    "step": "UPKEEP",
+                    "effect": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "timing": "NextTurn"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "target spell"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "22a",
+        "artist": "Richard Kane Ferguson",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/0/b0c5728e-43e7-417a-ba18-5038345cec67.jpg?1783947197",
+        "rulings": [
+            {
+                "date": "2007-09-16",
+                "text": "The controller of the countered spell doesn't choose how many cards to draw until the relevant ability resolves. The player may draw 0, 1, or 2 cards. They choose the number before drawing any cards."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Deadly Insect
 {
     "name": "Deadly Insect",
