@@ -2595,17 +2595,14 @@
                 "type": "MoveToZone",
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target"
+                    "name": "target noncreature permanent"
                 },
                 "destination": "Graveyard",
                 "byDestruction": true
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
-            },
-            "targetFilter": {
-                "baseFilter": "noncreature permanent"
+                "name": "target noncreature permanent"
             },
             "copyRecipient": "TARGET_CONTROLLER",
             "copyTargetRequirement": {
@@ -2613,8 +2610,7 @@
                 "filter": {
                     "baseFilter": "noncreature permanent"
                 }
-            },
-            "spellName": "Chain of Acid"
+            }
         },
         "targetRequirements": [
             {
@@ -2622,7 +2618,7 @@
                 "filter": {
                     "baseFilter": "noncreature permanent"
                 },
-                "id": "target"
+                "id": "target noncreature permanent"
             }
         ]
     },
@@ -2655,25 +2651,24 @@
                 },
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target"
+                    "name": "any target"
                 }
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "any target"
             },
             "copyRecipient": "AFFECTED_PLAYER",
             "copyCost": {
                 "type": "PayAtom",
                 "atom": "AtomDiscard"
             },
-            "copyTargetRequirement": "AnyTarget",
-            "spellName": "Chain of Plasma"
+            "copyTargetRequirement": "AnyTarget"
         },
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "target"
+                "id": "any target"
             }
         ]
     },
@@ -2701,16 +2696,13 @@
                 "type": "PreventDamageShield",
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target"
+                    "name": "target creature"
                 },
                 "direction": "FromTarget"
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
-            },
-            "targetFilter": {
-                "baseFilter": "creature"
+                "name": "target creature"
             },
             "copyRecipient": "TARGET_CONTROLLER",
             "copyCost": {
@@ -2725,8 +2717,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 }
-            },
-            "spellName": "Chain of Silence"
+            }
         },
         "targetRequirements": [
             {
@@ -2734,7 +2725,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "target creature"
             }
         ]
     },
@@ -2804,16 +2795,15 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "target player"
             },
             "copyRecipient": "TARGET_PLAYER",
-            "copyTargetRequirement": "TargetPlayer",
-            "spellName": "Chain of Smog"
+            "copyTargetRequirement": "TargetPlayer"
         },
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target"
+                "id": "target player"
             }
         ]
     },
@@ -2841,16 +2831,13 @@
                 "type": "MoveToZone",
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target"
+                    "name": "target nonland permanent"
                 },
                 "destination": "Hand"
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
-            },
-            "targetFilter": {
-                "baseFilter": "nonland permanent"
+                "name": "target nonland permanent"
             },
             "copyRecipient": "TARGET_CONTROLLER",
             "copyCost": {
@@ -2865,8 +2852,7 @@
                 "filter": {
                     "baseFilter": "nonland permanent"
                 }
-            },
-            "spellName": "Chain of Vapor"
+            }
         },
         "targetRequirements": [
             {
@@ -2874,7 +2860,7 @@
                 "filter": {
                     "baseFilter": "nonland permanent"
                 },
-                "id": "target"
+                "id": "target nonland permanent"
             }
         ]
     },
