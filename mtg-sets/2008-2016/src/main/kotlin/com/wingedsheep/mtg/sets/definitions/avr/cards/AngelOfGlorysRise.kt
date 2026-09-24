@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -51,20 +49,16 @@ val AngelOfGlorysRise = card("Angel of Glory's Rise") {
                 GroupFilter(GameObjectFilter.Permanent.withSubtype("Zombie")),
                 Effects.Exile(EffectTarget.IterationEntity)
             ),
-            Effects.Composite(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
+            Effects.Pipeline {
+                val graveyardLands = gather(
+                    CardSource.FromZone(
                         Zone.GRAVEYARD,
                         Player.You,
                         GameObjectFilter.Creature.withSubtype("Human")
-                    ),
-                    storeAs = "graveyard_lands",
-                ),
-                MoveCollectionEffect(
-                    from = "graveyard_lands",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                ),
-            )
+                    )
+                )
+                move(graveyardLands, CardDestination.ToZone(Zone.BATTLEFIELD))
+            }
         )
     }
 

@@ -7,16 +7,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Hoarding Dragon (M11 #144)
@@ -50,46 +44,26 @@ val HoardingDragon = card("Hoarding Dragon") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         optional = true
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Artifact),
-                    storeAs = "hoardSearchable",
-                    search = true
-                ),
-                SelectFromCollectionEffect(
-                    from = "hoardSearchable",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "hoardFound",
-                    prompt = "Search for an artifact card to exile"
-                ),
-                MoveCollectionEffect(
-                    from = "hoardFound",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    linkToSource = true
-                ),
-                ShuffleLibraryEffect(),
-                EmitLibrarySearchedEventEffect
+        effect = Effects.Pipeline {
+            val hoardSearchable = gather(
+                CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Artifact),
+                search = true
             )
-        )
+            val hoardFound = chooseUpTo(1, from = hoardSearchable, prompt = "Search for an artifact card to exile")
+            exile(hoardFound, linkToSource = true)
+            run(ShuffleLibraryEffect())
+            run(EmitLibrarySearchedEventEffect)
+        }
     }
 
     // Dies: may put the linked exiled card into its owner's hand.
     triggeredAbility {
         trigger = Triggers.Dies
         optional = true
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromLinkedExile(),
-                    storeAs = "hoardExiled"
-                ),
-                MoveCollectionEffect(
-                    from = "hoardExiled",
-                    destination = CardDestination.ToZone(Zone.HAND)
-                )
-            )
-        )
+        effect = Effects.Pipeline {
+            val hoardExiled = gather(CardSource.FromLinkedExile())
+            toHand(hoardExiled)
+        }
     }
 
     metadata {

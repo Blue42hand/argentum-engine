@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -64,13 +63,13 @@ val SpellQueller = card("Spell Queller") {
         trigger = Triggers.LeavesBattlefield
         effect = Effects.ForEachPlayer(
             players = Player.OwnersOfLinkedExile,
-            effects = listOf(
-                GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "quelledCard"),
-                Effects.May(
-                    Effects.CastFromCollectionWithoutPayingCost("quelledCard"),
+            Effects.Pipeline {
+                val quelledCard = gather(CardSource.FromLinkedExile())
+                run(Effects.May(
+                    Effects.CastFromCollectionWithoutPayingCost(quelledCard),
                     descriptionOverride = "Cast the exiled card without paying its mana cost"
-                )
-            )
+                ))
+            }
         )
         description = "When this creature leaves the battlefield, the exiled card's owner may " +
             "cast that card without paying its mana cost."
