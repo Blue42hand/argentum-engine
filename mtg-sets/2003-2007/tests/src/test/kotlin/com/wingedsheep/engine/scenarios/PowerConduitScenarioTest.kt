@@ -10,7 +10,6 @@ import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.mtg.sets.definitions.mrd.cards.PowerConduit
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
@@ -72,7 +71,7 @@ class PowerConduitScenarioTest : ScenarioTestBase() {
                         abilityId = abilityId,
                         costPayment = AdditionalCostPayment(
                             distributedCounterRemovals = listOf(
-                                DistributedCounterRemoval(bears, Counters.PLUS_ONE_PLUS_ONE, 1)
+                                DistributedCounterRemoval(bears, CounterType.PLUS_ONE_PLUS_ONE.printed, 1)
                             )
                         )
                     )
@@ -126,7 +125,7 @@ class PowerConduitScenarioTest : ScenarioTestBase() {
                         abilityId = abilityId,
                         costPayment = AdditionalCostPayment(
                             distributedCounterRemovals = listOf(
-                                DistributedCounterRemoval(conduit, Counters.CHARGE, 1)
+                                DistributedCounterRemoval(conduit, CounterType.CHARGE.printed, 1)
                             )
                         )
                     )

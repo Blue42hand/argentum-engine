@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
@@ -10,11 +12,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 // Keen-Eyed Curator - {G}{G}
@@ -30,10 +29,10 @@ val KeenEyedCurator = card("Keen-Eyed Curator") {
     toughness = 3
     oracleText = "As long as there are four or more card types among cards exiled with this creature, it gets +4/+4 and has trample.\n{1}: Exile target card from a graveyard."
 
-    val fourOrMoreCardTypes = Compare(
-        DynamicAmount.ContextProperty(ContextPropertyKey.LINKED_EXILE_DISTINCT_CARD_TYPE_COUNT),
+    val fourOrMoreCardTypes = Conditions.CompareAmounts(
+        DynamicAmounts.linkedExileDistinctCardTypeCount(),
         ComparisonOperator.GTE,
-        DynamicAmount.Fixed(4)
+        4
     )
 
     staticAbility {

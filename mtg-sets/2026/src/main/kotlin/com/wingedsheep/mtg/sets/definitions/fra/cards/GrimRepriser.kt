@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -26,7 +26,7 @@ val GrimRepriser = card("Grim Repriser") {
     activatedAbility {
         cost = Costs.Mana("{B}{R}")
         effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.AddCounters(Counters.FINALITY, 1, EffectTarget.Self))
+            .then(Effects.AddCounters(CounterType.FINALITY, 1, EffectTarget.Self))
         activateFromZone = Zone.GRAVEYARD
         restrictions = listOf(ActivationRestriction.OnlyIfCondition(Conditions.OpponentWasDealtNoncombatDamageThisTurn))
         description = "{B}{R}: Return this card from your graveyard to the battlefield with a finality counter on it. " +

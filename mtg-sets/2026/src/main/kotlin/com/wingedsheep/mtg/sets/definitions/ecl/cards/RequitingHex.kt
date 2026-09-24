@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Costs
@@ -36,9 +35,9 @@ val RequitingHex = card("Requiting Hex") {
             "creature with mana value 2 or less",
             TargetObject(filter = TargetFilter(GameObjectFilter.Creature.manaValueAtMost(2)))
         )
-        effect = Effects.Destroy(creature) then ConditionalEffect(
+        effect = Effects.Destroy(creature) then Effects.If(
             condition = Conditions.BlightWasPaid,
-            effect = Effects.GainLife(2)
+            then = Effects.GainLife(2)
         )
     }
 

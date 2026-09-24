@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Violent Echoes
@@ -19,7 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * that permanent this way, empower Jace X, where X is that excess damage.
  *
  * The damage step stores its excess (CR 120.4a — above lethal for a creature, above loyalty for a
- * planeswalker) in a pipeline number via `excessDamageVariable`; the empower is gated on it being
+ * planeswalker) in a pipeline number slot (`runStoringNumber` + `excessDamageVariable`); the empower is gated on it being
  * positive, so no excess means no Jace token is created.
  */
 val ViolentEchoes = card("Violent Echoes") {
@@ -33,14 +31,13 @@ val ViolentEchoes = card("Violent Echoes") {
 
     spell {
         val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
-        val excess = DynamicAmount.VariableReference("violentEchoesExcess")
-        effect = Effects.Composite(
-            Effects.DealDamage(6, permanent, excessDamageVariable = "violentEchoesExcess"),
-            ConditionalEffect(
-                condition = Conditions.CompareAmounts(excess, ComparisonOperator.GT, DynamicAmount.Fixed(0)),
-                effect = Patterns.Mechanic.empowerJace(excess),
-            ),
-        )
+        effect = Effects.Pipeline {
+            val excess = runStoringNumber { Effects.DealDamage(6, permanent, excessDamageVariable = it) }
+            run(Effects.If(
+                condition = Conditions.CompareAmounts(excess.amount, ComparisonOperator.GT, 0),
+                then = Patterns.Mechanic.empowerJace(excess.amount),
+            ))
+        }
     }
 
     metadata {

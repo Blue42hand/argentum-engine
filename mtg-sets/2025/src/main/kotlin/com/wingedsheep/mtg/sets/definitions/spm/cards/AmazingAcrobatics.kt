@@ -4,9 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -25,7 +23,7 @@ val AmazingAcrobatics = card("Amazing Acrobatics") {
     oracleText = "Choose one or both —\n• Counter target spell.\n• Tap one or two target creatures."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.withTarget(
                     effect = Effects.CounterSpell(),
@@ -33,7 +31,7 @@ val AmazingAcrobatics = card("Amazing Acrobatics") {
                     description = "Counter target spell."
                 ),
                 Mode.withTarget(
-                    effect = ForEachTargetEffect(listOf(Effects.Tap(EffectTarget.ContextTarget(0)))),
+                    effect = Effects.ForEachTarget(Effects.Tap(EffectTarget.ContextTarget(0))),
                     target = TargetCreature(count = 2, minCount = 1),
                     description = "Tap one or two target creatures."
                 )

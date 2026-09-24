@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.StateTriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantStateTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -73,7 +72,7 @@ val OliviaCrimsonBride = card("Olivia, Crimson Bride") {
                 placement = ZonePlacement.TappedAndAttacking,
                 fromZone = Zone.GRAVEYARD
             ),
-            GrantStateTriggeredAbilityEffect(
+            Effects.GrantStateTriggeredAbility(
                 ability = StateTriggeredAbility.create(
                     condition = Conditions.YouControl(
                         GameObjectFilter.Creature.legendary().withSubtype(Subtype.VAMPIRE),

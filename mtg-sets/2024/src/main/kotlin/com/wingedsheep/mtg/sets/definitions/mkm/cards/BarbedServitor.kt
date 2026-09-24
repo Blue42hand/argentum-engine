@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Barbed Servitor — Murders at Karlov Manor #77
@@ -67,7 +66,7 @@ val BarbedServitor = card("Barbed Servitor") {
         trigger = Triggers.TakesDamage
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.LoseLife(
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            DynamicAmounts.triggerDamageAmount(),
             opponent,
         )
         description = "Whenever this creature is dealt damage, target opponent loses that much life."

@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Last Agni Kai — {1}{R}
@@ -45,7 +45,7 @@ val TheLastAgniKai = card("The Last Agni Kai") {
             TargetCreature(filter = TargetFilter.CreatureOpponentControls)
         )
         effect = Effects.Fight(yourCreature, theirCreature, excessDamageVariable = "excess")
-            .then(Effects.AddMana(Color.RED, DynamicAmount.VariableReference("excess")))
+            .then(Effects.AddMana(Color.RED, DynamicAmounts.storedNumber("excess")))
             .then(Effects.RetainUnspentMana(Color.RED))
     }
 

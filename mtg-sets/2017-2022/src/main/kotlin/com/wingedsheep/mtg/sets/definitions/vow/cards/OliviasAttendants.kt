@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Olivia's Attendants
@@ -45,7 +44,7 @@ val OliviasAttendants = card("Olivia's Attendants") {
     triggeredAbility {
         trigger = Triggers.DealsDamage
         effect = Effects.CreateBlood(
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+            DynamicAmounts.triggerDamageAmount()
         )
         description = "Whenever this creature deals damage, create that many Blood tokens."
     }

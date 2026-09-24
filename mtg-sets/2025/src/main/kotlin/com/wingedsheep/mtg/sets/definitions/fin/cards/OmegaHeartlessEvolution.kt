@@ -1,7 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Omega, Heartless Evolution
@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    the shape multiplayer targeting will generalize.
  *  - X = the number of nonbasic lands you control (`Count(You, BATTLEFIELD, NonbasicLand)`), read
  *    once at resolution. The chosen permanent is tapped, gets X stun counters (`AddDynamicCounters`
- *    with `Counters.STUN`, so it stays tapped through its controller's next untap), and you gain X
+ *    with `CounterType.STUN`, so it stays tapped through its controller's next untap), and you gain X
  *    life. The life gain is independent of whether a permanent was chosen, so it uses its own step.
  *    With no target chosen the tap/counters steps simply no-op and you still gain X life.
  */
@@ -52,14 +52,14 @@ val OmegaHeartlessEvolution = card("Omega, Heartless Evolution") {
             "permanent",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
         )
-        val nonbasicLands = DynamicAmount.Count(
+        val nonbasicLands = DynamicAmounts.count(
             Player.You,
             Zone.BATTLEFIELD,
             GameObjectFilter.NonbasicLand
         )
         effect = Effects.Composite(
             Effects.Tap(permanent),
-            Effects.AddDynamicCounters(Counters.STUN, nonbasicLands, permanent),
+            Effects.AddDynamicCounters(CounterType.STUN, nonbasicLands, permanent),
             Effects.GainLife(nonbasicLands)
         )
     }

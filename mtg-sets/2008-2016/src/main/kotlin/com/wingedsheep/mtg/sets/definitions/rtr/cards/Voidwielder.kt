@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * Canonical printing: Return to Ravnica, the card's earliest real printing.
  *
- * Batterhorn's shape in blue: `optional = true` lowers to one `MayEffect` consent gate, asked at
+ * Batterhorn's shape in blue: `optional = true` lowers to one `Effects.May` consent gate, asked at
  * resolution after the target was locked in on announcement.
  */
 val Voidwielder = card("Voidwielder") {

@@ -37,9 +37,9 @@ val SafeHaven = card("Safe Haven") {
         "card exiled with this land to the battlefield under its owner's control."
 
     activatedAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        target = Targets.CreatureYouControl
-        effect = Effects.ExileLinkedToSource(EffectTarget.ContextTarget(0))
+        effect = Effects.ExileLinkedToSource(creatureYouControl)
         description = "{2}, {T}: Exile target creature you control."
     }
 
@@ -48,7 +48,7 @@ val SafeHaven = card("Safe Haven") {
         optional = true
         effect = Effects.IfYouDo(
             action = Effects.SacrificeTarget(EffectTarget.Self),
-            ifYouDo = Effects.ReturnLinkedExileUnderOwnersControl(),
+            then = Effects.ReturnLinkedExileUnderOwnersControl(),
             // "If you do" gates on the sacrifice actually happening. A sacrifice is a zone move,
             // but Auto can't infer it from the action's shape, and Always would fail open — a
             // Safe Haven that has already left the battlefield would still return its exiles.

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -39,7 +39,7 @@ val HerculesPrinceOfPower = card("Hercules, Prince of Power") {
         isPowerUp = true
         cost = Costs.Mana("{4}{G}")
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)

@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Calamity, Galloping Inferno
@@ -69,8 +67,8 @@ val CalamityGallopingInferno = card("Calamity, Galloping Inferno") {
                 prompt = "Choose a nonlegendary creature that saddled Calamity this turn to copy"
             )
             run(
-                CreateTokenCopyOfTargetEffect(
-                    target = EffectTarget.PipelineTarget(chosenA.key),
+                Effects.CreateTokenCopyOfTarget(
+                    target = chosenA.asTarget,
                     tapped = true,
                     attacking = true,
                     sacrificeAtStep = Step.END,
@@ -88,8 +86,8 @@ val CalamityGallopingInferno = card("Calamity, Galloping Inferno") {
                 prompt = "Choose a nonlegendary creature that saddled Calamity this turn to copy (again)"
             )
             run(
-                CreateTokenCopyOfTargetEffect(
-                    target = EffectTarget.PipelineTarget(chosenB.key),
+                Effects.CreateTokenCopyOfTarget(
+                    target = chosenB.asTarget,
                     tapped = true,
                     attacking = true,
                     sacrificeAtStep = Step.END,

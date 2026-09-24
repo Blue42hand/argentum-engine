@@ -33,9 +33,9 @@ val GlassworksShatteredYard = card("Glassworks // Shattered Yard") {
         oracleText = "When you unlock this door, this Room deals 4 damage to target creature an opponent controls."
 
         triggeredAbility {
+            val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
             trigger = Triggers.OnDoorUnlocked
-            target = Targets.CreatureOpponentControls
-            effect = Effects.DealDamage(4, EffectTarget.ContextTarget(0))
+            effect = Effects.DealDamage(4, creatureOpponentControls)
             description = "When you unlock this door, this Room deals 4 damage to target creature an opponent controls."
         }
     }

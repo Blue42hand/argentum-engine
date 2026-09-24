@@ -26,7 +26,7 @@ import com.wingedsheep.engine.core.Outcome
  *                    create a Food token."
  *
  * The card is pure composition over existing pipeline primitives (GatherCards / SelectFromCollection /
- * MoveCollection / ConditionalEffect + CollectionContainsMatch), so this test is the behavioural gate.
+ * MoveCollection / Effects.If + CollectionContainsMatch), so this test is the behavioural gate.
  */
 class IgnisScientiaScenarioTest : FunSpec({
 

@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -38,8 +36,8 @@ val RavenOfFellOmens = card("Raven of Fell Omens") {
         oncePerTurn = true
         effect = Effects.Composite(
             listOf(
-                LoseLifeEffect(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                GainLifeEffect(1, EffectTarget.Controller)
+                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+                Effects.GainLife(1, EffectTarget.Controller)
             )
         )
         description = "Whenever you commit a crime, each opponent loses 1 life and you gain 1 life. " +

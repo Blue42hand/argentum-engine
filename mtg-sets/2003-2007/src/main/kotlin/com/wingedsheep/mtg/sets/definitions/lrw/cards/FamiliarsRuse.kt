@@ -29,7 +29,7 @@ val FamiliarsRuse = card("Familiar's Ruse") {
     additionalCost(Costs.additional.ReturnToHand(GameObjectFilter.Creature))
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
     }
 

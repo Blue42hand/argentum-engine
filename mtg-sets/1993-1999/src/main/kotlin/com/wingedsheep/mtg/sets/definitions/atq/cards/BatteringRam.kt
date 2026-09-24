@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -50,7 +49,7 @@ val BatteringRam = card("Battering Ram") {
             filter = GameObjectFilter.Creature.withSubtype(Subtype.WALL),
             binding = TriggerBinding.SELF,
         )
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,
             effect = Effects.Destroy(EffectTarget.TriggeringEntity),
         )

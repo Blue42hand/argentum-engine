@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -55,7 +54,7 @@ private val AvabruckCaretakerFront = card("Avabruck Caretaker") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         val creature = target("another target creature you control", Targets.OtherCreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
         description = "Put two +1/+1 counters on another target creature you control."
     }
     daybound()
@@ -93,7 +92,7 @@ private val HollowhengeHuntmaster = card("Hollowhenge Huntmaster") {
         trigger = Triggers.BeginCombat
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.IterationEntity),
         )
         description = "Put two +1/+1 counters on each creature you control."
     }

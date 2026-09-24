@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The horsemanship-blind cousin of Earthquake: one sentence, two halves joined by
  * [Effects.Composite]. The board half is [Effects.ForEachInGroup] over every creature that lacks
- * [Keyword.HORSEMANSHIP], with the damage aimed at [EffectTarget.Self] — the current iteration
+ * [Keyword.HORSEMANSHIP], with the damage aimed at [EffectTarget.IterationEntity] — the current iteration
  * entity. The player half is [Effects.ForEachPlayer] over [Player.Each], each iteration rebinding
  * the controller so [EffectTarget.Controller] is the player being processed.
  */
@@ -30,7 +30,7 @@ val RollingEarthquake = card("Rolling Earthquake") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 Filters.Group.allCreatures.withoutKeyword(Keyword.HORSEMANSHIP),
-                Effects.DealXDamage(EffectTarget.Self)
+                Effects.DealXDamage(EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,

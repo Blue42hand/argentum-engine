@@ -32,7 +32,7 @@ val FangrenPathcutter = card("Fangren Pathcutter") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.attacking()),
-            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
         )
     }
     metadata {

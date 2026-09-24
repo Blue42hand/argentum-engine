@@ -19,7 +19,7 @@ val SpellPierce = card("Spell Pierce") {
     oracleText = "Counter target noncreature spell unless its controller pays {2}."
 
     spell {
-        target = Targets.NoncreatureSpell
+        val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
         effect = Effects.CounterUnlessPays("{2}")
     }
 

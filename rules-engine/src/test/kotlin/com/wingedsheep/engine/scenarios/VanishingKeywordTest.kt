@@ -12,7 +12,6 @@ import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
@@ -69,7 +68,7 @@ class VanishingKeywordTest : FunSpec({
         oracleText = "Remove a time counter from target creature."
         spell {
             val victim = target("target creature", Targets.Creature)
-            effect = Effects.RemoveCounters(Counters.TIME, 1, victim)
+            effect = Effects.RemoveCounters(CounterType.TIME, 1, victim)
         }
     }
 

@@ -23,8 +23,8 @@ val VoidmageApprentice = card("Voidmage Apprentice") {
     oracleText = "Morph {2}{U}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, counter target spell."
 
     triggeredAbility {
+        val spell = target("target spell", Targets.Spell)
         trigger = Triggers.TurnedFaceUp
-        target = Targets.Spell
         effect = Effects.CounterSpell()
     }
 

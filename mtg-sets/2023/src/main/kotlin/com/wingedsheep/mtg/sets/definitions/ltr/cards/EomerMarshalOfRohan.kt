@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -45,7 +44,7 @@ val EomerMarshalOfRohan = card("Éomer, Marshal of Rohan") {
                 // Untap all creatures you control
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    TapUntapEffect(EffectTarget.Self, tap = false)
+                    Effects.Untap(EffectTarget.IterationEntity)
                 ),
                 // After this phase, there is an additional combat phase (combat only — no main)
                 Effects.AddCombatPhase

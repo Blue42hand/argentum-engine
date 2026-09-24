@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RetainUnspentColoredMana
-import com.wingedsheep.sdk.scripting.effects.MayPayXForEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Electro, Assaulting Battery — Marvel's Spider-Man #76
@@ -53,8 +52,8 @@ val ElectroAssaultingBattery = card("Electro, Assaulting Battery") {
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
         val target = target("target player", Targets.Player)
-        effect = MayPayXForEffect(
-            effect = Effects.DealDamage(DynamicAmount.XValue, target)
+        effect = Effects.MayPayX(
+            then = Effects.DealDamage(DynamicAmounts.xValue(), target)
         )
     }
 

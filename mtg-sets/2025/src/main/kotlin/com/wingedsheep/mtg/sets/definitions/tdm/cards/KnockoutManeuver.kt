@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Knockout Maneuver — Tarkir: Dragonstorm #147
@@ -31,11 +30,11 @@ val KnockoutManeuver = card("Knockout Maneuver") {
         val mine = target("creature you control", Targets.CreatureYouControl)
         val theirs = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Composite(listOf(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine),
             Effects.DealDamage(
-                amount = DynamicAmounts.targetPower(0),
+                amount = DynamicAmounts.powerOf(mine),
                 target = theirs,
-                damageSource = EffectTarget.ContextTarget(0)
+                damageSource = mine
             )
         ))
     }

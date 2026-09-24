@@ -5,10 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
 /**
@@ -29,7 +29,7 @@ val GraspingLongneck = card("Grasping Longneck") {
     keywords(Keyword.REACH)
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = GainLifeEffect(2)
+        effect = Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -1,8 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -15,13 +16,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Avatar Aang // Aang, Master of Elements — {R}{G}{W}{U} Legendary Creature — Human Avatar Ally 4/4
@@ -43,7 +39,7 @@ import com.wingedsheep.sdk.scripting.values.TurnTracker
  * [TurnTracker.DISTINCT_BENDS] (== 4). Aang's own `firebending 2` counts as the firebend. The
  * `{W}{U}{B}{R}{G}` reduction is [CostModification.ReduceColoredPerUnit] with a fixed unit — its
  * excess overflows to generic, matching "(This can reduce generic costs.)". The upkeep payoff is a
- * single [MayEffect]: choosing to transform performs the transform *and* the reward together.
+ * single [Effects.May]: choosing to transform performs the transform *and* the reward together.
  */
 private val AangMasterOfElements = card("Aang, Master of Elements") {
     manaCost = ""
@@ -72,13 +68,13 @@ private val AangMasterOfElements = card("Aang, Master of Elements") {
     // At the beginning of each upkeep, you may transform Aang, Master of Elements. If you do, ...
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 listOf(
-                    TransformEffect(EffectTarget.Self),
+                    Effects.Transform(EffectTarget.Self),
                     Effects.GainLife(4),
                     Effects.DrawCards(4),
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self),
                     Effects.DealDamage(4, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
                 )
             ),
@@ -116,13 +112,13 @@ private val AvatarAangFront = card("Avatar Aang") {
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(1),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CompareAmounts(
-                        DynamicAmount.TurnTracking(Player.You, TurnTracker.DISTINCT_BENDS),
+                        DynamicAmounts.distinctBendsThisTurn(Player.You),
                         ComparisonOperator.GTE,
-                        DynamicAmount.Fixed(4)
+                        4
                     ),
-                    effect = TransformEffect(EffectTarget.Self)
+                    then = Effects.Transform(EffectTarget.Self)
                 )
             )
         )

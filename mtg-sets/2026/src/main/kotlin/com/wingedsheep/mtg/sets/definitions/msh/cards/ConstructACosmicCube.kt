@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    the per-turn draw count and fires exactly once — including when a single multi-card draw
  *    crosses the threshold.
  *  - "When the **seventh** plan counter is put on this enchantment" composes from existing
- *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [Counters.PLAN] gated by
+ *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [CounterType.PLAN] gated by
  *    `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN, 7)`. The at-least gate is
  *    behaviourally exact here because the payoff **sacrifices its own source**, so the enchantment
  *    is gone before an eighth counter could ever land — the threshold can never fire twice. No
@@ -59,7 +58,7 @@ val ConstructACosmicCube = card("Construct a Cosmic Cube") {
                 keywords = setOf(Keyword.MENACE),
                 imageUri = "https://cards.scryfall.io/normal/front/4/a/4a51b6a0-9a54-4f01-b959-0a28c15d103f.jpg?1783902804",
             ),
-            Effects.AddCounters(Counters.PLAN, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
         )
         description = "Whenever you draw your second card each turn, create a 2/1 black Villain " +
             "creature token with menace and put a plan counter on this enchantment."
@@ -68,19 +67,20 @@ val ConstructACosmicCube = card("Construct a Cosmic Cube") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Any,
-            counterType = Counters.PLAN,
+            counterType = CounterType.PLAN,
             firstTimeEachTurn = false,
             binding = TriggerBinding.SELF,
         )
-        triggerRestriction = Conditions.SourceCounterCountAtLeast(Counters.PLAN, 7)
-        effect = ReflexiveTriggerEffect(
+        triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 7)
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.HijackNextTurn(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.Opponent),
             descriptionOverride = "Sacrifice this enchantment. When you do, you control target " +
                 "opponent during their next turn.",
-        )
+        ) {
+            val opponent = target("target opponent", Targets.Opponent)
+            effect = Effects.HijackNextTurn(opponent)
+        }
         description = "When the seventh plan counter is put on this enchantment, sacrifice it. " +
             "When you do, you control target opponent during their next turn."
     }

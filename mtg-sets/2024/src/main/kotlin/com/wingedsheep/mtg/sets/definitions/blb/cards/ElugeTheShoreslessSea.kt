@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -45,21 +45,21 @@ val ElugeTheShoreslessSea = card("Eluge, the Shoreless Sea") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val land = target("target land", Targets.Land)
-        effect = Effects.AddCounters(Counters.FLOOD, 1, land)
+        effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
     }
 
     // Whenever Eluge attacks, put a flood counter on target land
     triggeredAbility {
         trigger = Triggers.Attacks
         val land = target("target land", Targets.Land)
-        effect = Effects.AddCounters(Counters.FLOOD, 1, land)
+        effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
     }
 
     // Lands with flood counters are Islands in addition to their other types
     staticAbility {
         ability = AddLandTypeByCounter(
             landType = "Island",
-            counterType = Counters.FLOOD
+            counterType = CounterType.FLOOD
         )
     }
 
@@ -71,7 +71,7 @@ val ElugeTheShoreslessSea = card("Eluge, the Shoreless Sea") {
                 symbols = "{U}",
                 countSource = CostReductionSource.PermanentsWithCounterYouControl(
                     filter = GameObjectFilter.Land,
-                    counterType = Counters.FLOOD,
+                    counterType = CounterType.FLOOD,
                 ),
             ),
             gating = CostGating.NthOfTypePerTurn(1),

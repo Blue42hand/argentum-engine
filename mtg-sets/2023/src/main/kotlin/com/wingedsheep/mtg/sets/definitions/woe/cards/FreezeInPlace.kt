@@ -4,12 +4,11 @@
 
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -29,7 +28,7 @@ val FreezeInPlace = card("Freeze in Place") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = Counters.STUN, count = 3, target = t),
+            Effects.AddCounters(counterType = CounterType.STUN, count = 3, target = t),
             Patterns.Library.scry(2)
         )
     }

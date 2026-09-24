@@ -16,8 +16,8 @@
                 "amount": 7
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -25,7 +25,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -289,12 +290,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1176,7 +1177,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "gold",
+                    "counterType": "GOLD",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1194,7 +1195,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "gold",
+                                "counterType": "GOLD",
                                 "self": true
                             }
                         }
@@ -1943,12 +1944,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -2219,7 +2220,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -2766,7 +2767,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -3901,7 +3902,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "DOUBLE_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }

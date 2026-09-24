@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -43,7 +42,7 @@ val CurseArtifact = card("Curse Artifact") {
 
     triggeredAbility {
         trigger = Triggers.phase(Step.UPKEEP, binding = TriggerBinding.ATTACHED)
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Artifact.attachedToBySource()),
             suffer = Effects.DealDamage(2, EffectTarget.Controller),
         )

@@ -4,14 +4,13 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -27,9 +26,9 @@ val CruelBargain = card("Cruel Bargain") {
     oracleText = "Draw four cards. You lose half your life, rounded up."
     spell {
         effect = Effects.Composite(
-            DrawCardsEffect(4),
-            LoseLifeEffect(
-                DynamicAmount.Divide(DynamicAmount.LifeTotal(Player.You), DynamicAmount.Fixed(2), roundUp = true),
+            Effects.DrawCards(4),
+            Effects.LoseLife(
+                DynamicAmounts.lifeTotal(Player.You) divRoundedUp 2,
                 EffectTarget.Controller
             )
         )

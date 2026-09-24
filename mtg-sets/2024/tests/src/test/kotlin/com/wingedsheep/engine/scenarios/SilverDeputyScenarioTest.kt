@@ -53,7 +53,7 @@ class SilverDeputyScenarioTest : FunSpec({
         driver.bothPass() // resolve the creature spell -> it enters, ETB trigger goes on stack
         driver.bothPass() // resolve the ETB trigger
 
-        // MayEffect prompts yes/no first; accept.
+        // Effects.May prompts yes/no first; accept.
         driver.submitYesNo(player, true)
 
         val decision = driver.pendingDecision.shouldBeInstanceOf<SelectCardsDecision>()

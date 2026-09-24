@@ -863,14 +863,14 @@ data class ReceivedCountersThisTurnComponent(
      * `StatePredicate.ReceivedCounterThisTurn` be `counterTypes.isNotEmpty()` instead of a separate
      * marker-presence test that the by-controller axis could not mirror.
      */
-    val counterTypes: Set<String> = emptySet(),
+    val counterTypes: Set<CounterType> = emptySet(),
     /**
      * The subset of [counterTypes] placed by this permanent's own controller (as of the placement).
      * "You've put …" reads this; "counters would be put …" reads [counterTypes].
      */
-    val typesFromController: Set<String> = emptySet()
+    val typesFromController: Set<CounterType> = emptySet()
 ) : Component {
-    fun with(counterType: String, byController: Boolean): ReceivedCountersThisTurnComponent {
+    fun with(counterType: CounterType, byController: Boolean): ReceivedCountersThisTurnComponent {
         return copy(
             counterTypes = counterTypes + counterType,
             typesFromController =

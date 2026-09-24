@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ala.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -18,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * with [TriggerBinding.ANY] — the enchantment can never be the creature that entered, and the printed
  * line says "a creature", not "another". The counters land on [EffectTarget.TriggeringEntity] (the
  * creature that entered, not a fresh target), and `optional = true` lowers the printed "you may" into
- * the same `Gate.MayDecide` a hand-written `MayEffect` would build.
+ * the same `Gate.MayDecide` a hand-written `Effects.May` would build.
  */
 val MightyEmergence = card("Mighty Emergence") {
     manaCost = "{2}{G}"
@@ -32,7 +33,7 @@ val MightyEmergence = card("Mighty Emergence") {
             binding = TriggerBinding.ANY
         )
         optional = true
-        effect = Effects.AddCounters("+1/+1", 2, EffectTarget.TriggeringEntity)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.TriggeringEntity)
     }
 
     metadata {

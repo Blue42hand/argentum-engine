@@ -1,19 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dawn of a New Age
@@ -49,11 +46,8 @@ val DawnOfANewAge = card("Dawn of a New Age") {
     // Enters with a hope counter for each creature you control.
     replacementEffect(
         EntersWithDynamicCounters(
-            counterType = CounterTypeFilter.Named(Counters.HOPE),
-            count = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature
-            )
+            counterType = CounterType.HOPE,
+            count = DynamicAmounts.creaturesYouControl()
         )
     )
 
@@ -61,18 +55,18 @@ val DawnOfANewAge = card("Dawn of a New Age") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         effect = Effects.Composite(
-            ConditionalEffect(
-                condition = Conditions.SourceHasCounter(CounterTypeFilter.Named(Counters.HOPE)),
-                effect = Effects.Composite(
-                    RemoveCountersEffect(Counters.HOPE, 1, EffectTarget.Self),
+            Effects.If(
+                condition = Conditions.SourceHasCounter(CounterType.HOPE),
+                then = Effects.Composite(
+                    Effects.RemoveCounters(CounterType.HOPE, 1, EffectTarget.Self),
                     Effects.DrawCards(1)
                 )
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.Not(
-                    Conditions.SourceHasCounter(CounterTypeFilter.Named(Counters.HOPE))
+                    Conditions.SourceHasCounter(CounterType.HOPE)
                 ),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.SacrificeTarget(EffectTarget.Self),
                     Effects.GainLife(4)
                 )

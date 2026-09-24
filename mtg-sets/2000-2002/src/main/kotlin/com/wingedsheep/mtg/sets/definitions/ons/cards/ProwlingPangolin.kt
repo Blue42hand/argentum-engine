@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.dsl.Costs
@@ -26,7 +26,7 @@ val ProwlingPangolin = card("Prowling Pangolin") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = AnyPlayerMayPayEffect(
+        effect = Effects.AnyPlayerMayPay(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Creature, count = 2),
             consequence = SacrificeSelfEffect
         )

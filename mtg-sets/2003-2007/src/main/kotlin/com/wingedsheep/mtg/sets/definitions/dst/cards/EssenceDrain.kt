@@ -7,8 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.dst.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -26,8 +24,8 @@ val EssenceDrain = card("Essence Drain") {
     spell {
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
-            DealDamageEffect(3, t),
-            GainLifeEffect(3)
+            Effects.DealDamage(3, t),
+            Effects.GainLife(3)
         )
     }
     metadata {

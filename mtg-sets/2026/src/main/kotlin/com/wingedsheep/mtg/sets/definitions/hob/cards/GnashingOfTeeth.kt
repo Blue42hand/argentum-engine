@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -37,14 +36,14 @@ val GnashingOfTeeth = card("Gnashing of Teeth") {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature))
                 effect = Effects.Composite(
                     Effects.ModifyStats(-5, -5, t),
-                    MarkExileOnDeathEffect(t)
+                    Effects.MarkExileOnDeath(t)
                 )
             }
             mode("Creatures target player controls get -1/-1 until end of turn") {
                 val t = target("target", TargetPlayer())
                 effect = Effects.ForEachInGroup(
-                    GroupFilter(GameObjectFilter.Creature.targetPlayerControls(EffectTarget.ContextTarget(0))),
-                    Effects.ModifyStats(-1, -1, EffectTarget.Self)
+                    GroupFilter(GameObjectFilter.Creature.targetPlayerControls(t)),
+                    Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)
                 )
             }
         }

@@ -1,18 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * "For each opponent, … up to one target creature that player controls" is Kaya, Spirits'
@@ -37,15 +36,13 @@ val HapatraTheDesertFrost = card("Hapatra, the Desert Frost") {
             TargetCreature(
                 filter = TargetFilter.CreatureOpponentControls,
                 optional = true,
-                dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent),
+                dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
                 differentControllers = true,
             )
         )
-        effect = ForEachTargetEffect(
-            listOf(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(Counters.STUN, 1, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.Tap(EffectTarget.ContextTarget(0)),
+            Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
         )
         description = "When Hapatra enters, for each opponent, tap up to one target creature that player " +
             "controls. Put a stun counter on each of those creatures."

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -26,7 +25,7 @@ val DeadlyAllure = card("Deadly Allure") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
-            MustBeBlockedEffect(t, allCreatures = false)
+            Effects.MustBeBlocked(t, allCreatures = false)
         )
     }
     keywordAbility(KeywordAbility.flashback("{G}"))

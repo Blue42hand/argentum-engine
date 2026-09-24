@@ -3,12 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.lgn.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,10 +34,10 @@ val SkirkAlarmist = card("Skirk Alarmist") {
     activatedAbility {
         cost = Costs.Tap
         val t = target("target face-down creature you control", Targets.FaceDownCreatureYouControl)
-        effect = TurnFaceUpEffect(t)
-            .then(CreateDelayedTriggerEffect(
+        effect = Effects.TurnFaceUp(t)
+            .then(Effects.CreateDelayedTrigger(
                 step = Step.END,
-                effect = SacrificeTargetEffect(t)
+                effect = Effects.SacrificeTarget(t)
             ))
     }
 

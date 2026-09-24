@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
-import com.wingedsheep.sdk.scripting.effects.TurnFaceDownEffect
 
 /**
  * Skittish Valesk
@@ -26,8 +25,8 @@ val SkittishValesk = card("Skittish Valesk") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = FlipCoinEffect(
-            lostEffect = TurnFaceDownEffect(EffectTarget.Self)
+        effect = Effects.FlipCoin(
+            lostEffect = Effects.TurnFaceDown(EffectTarget.Self)
         )
     }
 

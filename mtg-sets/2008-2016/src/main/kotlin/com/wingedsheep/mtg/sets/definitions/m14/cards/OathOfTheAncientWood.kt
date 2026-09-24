@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.m14.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -28,7 +29,7 @@ val OathOfTheAncientWood = card("Oath of the Ancient Wood") {
         )
         val recipient = target("target", TargetCreature(filter = TargetFilter.Creature))
         optional = true
-        effect = Effects.AddCounters("+1/+1", 1, recipient)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, recipient)
         description = "Whenever this enchantment or another enchantment you control enters, " +
             "you may put a +1/+1 counter on target creature."
     }

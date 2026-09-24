@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.dsl.CollectionSlot
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   ([Triggers.OneOrMoreOpponentPermanentsEnter] on [GameObjectFilter.Token]). The batch exposes its
  *   matching tokens to the payoff as the pipeline collection `IterationSpace.TRIGGER_CAPTURED_COLLECTION`,
  *   so [ForEachInCollectionEffect] iterates them and [CreateTokenCopyOfTargetEffect] (target
- *   [EffectTarget.Self], `tapped = true`) makes one tapped copy of each. `oncePerTurn = true` gives
+ *   [EffectTarget.IterationEntity], `tapped = true`) makes one tapped copy of each. `oncePerTurn = true` gives
  *   "This ability triggers only once each turn" (CR 603.3 / engine-tracked once-per-turn). Per the
  *   official rulings, the copies use each original token's copiable characteristics and enter tapped;
  *   the copy executor reads each token at resolution, so any that left the battlefield meanwhile
@@ -50,9 +48,9 @@ val KambalProfiteeringMayor = card("Kambal, Profiteering Mayor") {
     triggeredAbility {
         trigger = Triggers.OneOrMoreOpponentPermanentsEnter(GameObjectFilter.Token)
         oncePerTurn = true
-        effect = ForEachInCollectionEffect(
-            collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
-            effect = CreateTokenCopyOfTargetEffect(target = EffectTarget.Self, tapped = true)
+        effect = Effects.ForEachInCollection(
+            collection = CollectionSlot.TriggerCaptured,
+            effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.IterationEntity, tapped = true)
         )
     }
 

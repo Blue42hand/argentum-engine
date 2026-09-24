@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -26,7 +26,7 @@ val HelpfulHunter = card("Helpful Hunter") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

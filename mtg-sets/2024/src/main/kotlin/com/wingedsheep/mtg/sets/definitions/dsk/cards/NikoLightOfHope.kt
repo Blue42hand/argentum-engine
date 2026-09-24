@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -63,14 +62,14 @@ val NikoLightOfHope = card("Niko, Light of Hope") {
             Costs.Mana("{2}"),
             Costs.Tap
         )
-        target(
+        val nonlegendaryCreatureYouControl = target(
             "target nonlegendary creature you control",
             TargetObject(filter = TargetFilter(GameObjectFilter.Creature.nonlegendary().youControl())),
         )
         effect = Effects.Composite(
-            Patterns.Exile.exileUntilEndStep(EffectTarget.ContextTarget(0)),
+            Patterns.Exile.exileUntilEndStep(nonlegendaryCreatureYouControl),
             Effects.EachPermanentBecomesCopyOfTarget(
-                target = EffectTarget.ContextTarget(0),
+                target = nonlegendaryCreatureYouControl,
                 filter = GroupFilter(GameObjectFilter.Any.named("Shard").youControl()),
                 duration = Duration.UntilNextEndStep,
                 sourceFromAnyZone = true,

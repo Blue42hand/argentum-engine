@@ -235,7 +235,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 },
@@ -294,10 +294,17 @@
         "replacementEffects": [
             {
                 "type": "ReplaceDamageWithCounters",
-                "counterType": "+1/+1",
+                "counterType": "PLUS_ONE_PLUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    }
                 }
             }
         ]
@@ -405,7 +412,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -425,7 +432,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": {
                         "cardPredicates": [
                             "IsCreature"
@@ -522,7 +532,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "TriggeringEntity"
                             }
@@ -573,7 +583,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -685,7 +695,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -844,7 +854,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",
@@ -909,15 +922,15 @@
                                     "amount": 9
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
-                            "storeAs": "topNine"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "topNine",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -925,33 +938,33 @@
                                     "amount": 2
                                 }
                             },
-                            "storeSelected": "exiled",
-                            "storeRemainder": "rest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Exile two of those cards face down.",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiled",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "faceDown": "HIDDEN"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "rest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 },
                                 "placement": "Bottom"
                             },
@@ -959,7 +972,7 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "exiled",
+                            "from": "selected1",
                             "expiry": "Permanent",
                             "withAnyManaType": true
                         }
@@ -1041,7 +1054,10 @@
                                 "trigger": {
                                     "type": "DealsDamageEvent",
                                     "damageType": "DamageCombat",
-                                    "recipient": "AnyPlayer"
+                                    "recipient": {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    }
                                 },
                                 "effect": "SacrificeSelf"
                             },
@@ -1155,7 +1171,7 @@
                             "effects": [
                                 {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -1163,10 +1179,10 @@
                                     "type": "AddColorlessMana",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": "CounterAny"
+                                            "counterType": null
                                         }
                                     }
                                 }
@@ -1309,27 +1325,27 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FLYING",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FIRST_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "LIFELINK",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1379,7 +1395,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1392,7 +1408,7 @@
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "Fixed",
                         "amount": 1
@@ -1419,10 +1435,6 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "+1/+1"
-                },
                 "count": 2,
                 "selfOnly": true
             }
@@ -1557,7 +1569,7 @@
                                 "space": "IterationSpace.Targets",
                                 "body": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": {
                                         "type": "ContextTarget",
@@ -1581,8 +1593,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "destination": "Hand"
                             },
@@ -1592,7 +1604,8 @@
                                     "filter": {
                                         "baseFilter": "creature mv<=2 own:you",
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Investigative Journalism — Return target creature card with mana value 2 or less from your graveyard to your hand."
@@ -1638,8 +1651,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target card in graveyard"
                                 },
                                 "destination": "Hand"
                             },
@@ -1649,7 +1662,8 @@
                                     "filter": {
                                         "baseFilter": "mv>=4 own:you",
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target card in graveyard"
                                 }
                             ],
                             "description": "Repair — Return target card with mana value 4 or greater from your graveyard to your hand."
@@ -1658,8 +1672,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact"
                                 },
                                 "destination": "Exile"
                             },
@@ -1668,7 +1682,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact|enchantment"
-                                    }
+                                    },
+                                    "id": "target artifact"
                                 }
                             ],
                             "description": "Impound — Exile target artifact or enchantment."
@@ -1756,7 +1771,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -2094,7 +2109,7 @@
                                     "type": "DrawCards",
                                     "count": {
                                         "type": "EntityProperty",
-                                        "entity": "Sacrificed",
+                                        "entity": "SacrificedAsCost",
                                         "numericProperty": "ManaValue"
                                     }
                                 },
@@ -2108,11 +2123,11 @@
                                                 "zone": "Hand",
                                                 "filter": "permanent"
                                             },
-                                            "storeAs": "venomHand"
+                                            "storeAs": "gathered0"
                                         },
                                         {
                                             "type": "SelectFromCollection",
-                                            "from": "venomHand",
+                                            "from": "gathered0",
                                             "selection": {
                                                 "type": "ChooseUpTo",
                                                 "count": {
@@ -2120,14 +2135,14 @@
                                                     "amount": 1
                                                 }
                                             },
-                                            "storeSelected": "venomChosen",
+                                            "storeSelected": "selected1",
                                             "prompt": "You may put a permanent card with mana value X or less onto the battlefield",
                                             "restrictions": [
                                                 {
                                                     "type": "TotalManaValueAtMost",
                                                     "maxAmount": {
                                                         "type": "EntityProperty",
-                                                        "entity": "Sacrificed",
+                                                        "entity": "SacrificedAsCost",
                                                         "numericProperty": "ManaValue"
                                                     }
                                                 }
@@ -2135,7 +2150,7 @@
                                         },
                                         {
                                             "type": "MoveCollection",
-                                            "from": "venomChosen",
+                                            "from": "selected1",
                                             "destination": {
                                                 "type": "ToZone",
                                                 "zone": "Battlefield"
@@ -2244,11 +2259,11 @@
                                 },
                                 "isMill": true
                             },
-                            "storeAs": "milled"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "milled",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
@@ -2256,7 +2271,7 @@
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "milled",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -2265,7 +2280,7 @@
                                 }
                             },
                             "filter": "creature",
-                            "storeSelected": "selected",
+                            "storeSelected": "selected2",
                             "prompt": "You may put a creature card into your hand",
                             "selectedLabel": "Put in hand",
                             "remainderLabel": "Leave in graveyard",
@@ -2273,7 +2288,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "selected",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -2510,8 +2525,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -2519,7 +2534,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Heckle — Tap target creature."
@@ -2528,8 +2544,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "tap": false
                             },
@@ -2538,7 +2554,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Hero Worship — Untap target creature."
@@ -2587,7 +2604,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2673,8 +2690,8 @@
                             "filter": "creature"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -2682,7 +2699,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "timing": "SorcerySpeed"
@@ -2923,7 +2941,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2984,11 +3002,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "gwenExiled"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "gwenExiled",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -2996,7 +3014,7 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "gwenExiled",
+                            "from": "gathered0",
                             "expiry": "Permanent",
                             "condition": "YouControlSource"
                         }
@@ -3051,7 +3069,7 @@
                     "binding": "ANY",
                     "effect": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -3068,7 +3086,7 @@
                     "binding": "ANY",
                     "effect": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -3082,7 +3100,7 @@
                         "type": "CostAtomWrapper",
                         "atom": {
                             "type": "AtomRemoveCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": {
                                 "type": "Fixed",
                                 "amount": 2
@@ -3230,11 +3248,11 @@
                                         "amount": 2
                                     }
                                 },
-                                "storeAs": "exiledCards"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "exiledCards",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -3242,13 +3260,13 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "chosen",
+                                "storeSelected": "selected1",
                                 "prompt": "Choose one of the exiled cards to play.",
                                 "showAllCards": true
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "exiledCards",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -3256,7 +3274,7 @@
                             },
                             {
                                 "type": "GrantMayPlayFromExile",
-                                "from": "chosen",
+                                "from": "selected1",
                                 "expiry": {
                                     "type": "UntilControllerStep",
                                     "step": "CLEANUP",
@@ -3582,7 +3600,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature nontoken ctrl:you"
                 },
                 "binding": "ANY",
@@ -3794,9 +3815,9 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -3816,7 +3837,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 2
@@ -3942,7 +3963,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -3952,13 +3973,13 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ManaValue"
                     },
                     "operator": "EQ",
                     "right": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 }
@@ -3990,7 +4011,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -4007,16 +4028,16 @@
                                 {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature you control"
                                     },
                                     "filter": "creature ctrl:you"
                                 },
                                 {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 1
+                                        "type": "BoundVariable",
+                                        "name": "creature an opponent controls"
                                     },
                                     "filter": "creature ctrl:opponent"
                                 }
@@ -4109,7 +4130,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -4230,8 +4251,8 @@
                             "property": "POWER"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -4239,7 +4260,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "descriptionOverride": "Mill five cards. When you do, this Saga deals damage equal to the greatest power among creature cards in your graveyard to target creature."
@@ -4357,7 +4379,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "ingenuity",
+                    "counterType": "INGENUITY",
                     "count": 1,
                     "target": "Self"
                 },
@@ -4372,7 +4394,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "ingenuity",
+                    "counterType": "INGENUITY",
                     "count": 1,
                     "target": "Self"
                 },
@@ -4393,30 +4415,31 @@
                                 "zone": "Hand",
                                 "filter": "artifact"
                             },
-                            "storeAs": "ladyOctopusCandidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "ladyOctopusCandidates",
+                            "from": "gathered0",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "EntityProperty",
-                                    "entity": "Source",
-                                    "numericProperty": {
-                                        "type": "CounterCount",
-                                        "counterType": {
-                                            "type": "Named",
-                                            "name": "ingenuity"
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "EntityProperty",
+                                            "entity": "Self",
+                                            "numericProperty": {
+                                                "type": "CounterCount",
+                                                "counterType": "INGENUITY"
+                                            }
                                         }
                                     }
-                                }
+                                ]
                             },
-                            "storeMatching": "ladyOctopusEligible"
+                            "storeMatching": "matching1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "ladyOctopusEligible",
+                            "from": "matching1",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -4424,12 +4447,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "ladyOctopusChosen",
+                            "storeSelected": "selected2",
                             "selectedLabel": "Cast without paying its mana cost"
                         },
                         {
                             "type": "CastFromCollectionWithoutPayingCost",
-                            "from": "ladyOctopusChosen"
+                            "from": "selected2"
                         }
                     ]
                 },
@@ -4635,7 +4658,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -4831,7 +4854,7 @@
                     },
                     "body": {
                         "type": "Goad",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -4953,7 +4976,7 @@
                                         "collection": "connive_discarded",
                                         "ifNotEmpty": {
                                             "type": "AddCounters",
-                                            "counterType": "+1/+1",
+                                            "counterType": "PLUS_ONE_PLUS_ONE",
                                             "count": 1,
                                             "target": {
                                                 "type": "BoundVariable",
@@ -5071,7 +5094,7 @@
                     "space": "IterationSpace.Targets",
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -5162,7 +5185,7 @@
                         "body": {
                             "type": "DoubleCounters",
                             "counterType": null,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "descriptionOverride": "Whenever you attack, double the number of each kind of counter on each Spider and legendary creature you control."
@@ -5183,7 +5206,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -5358,7 +5381,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": {
                                         "type": "BoundVariable",
@@ -5666,13 +5689,13 @@
                         {
                             "type": "ChooseOption",
                             "optionType": "BASIC_LAND_TYPE",
-                            "storeAs": "chosenLandType"
+                            "storeAs": "chosen0"
                         },
                         {
                             "type": "SetLandType",
                             "target": "Self",
                             "duration": "Permanent",
-                            "fromChosenValueKey": "chosenLandType"
+                            "fromChosenValueKey": "chosen0"
                         },
                         {
                             "type": "Gated",
@@ -5823,11 +5846,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "mysterioTokens"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "mysterioTokens",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -5913,7 +5936,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Connive",
@@ -5962,7 +5988,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -6157,7 +6183,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -6390,15 +6416,15 @@
                                     "amount": 1
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "players[0]"
                                 }
                             },
-                            "storeAs": "revealedA"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "revealedA"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GatherCards",
@@ -6409,59 +6435,59 @@
                                     "amount": 1
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 1
+                                    "type": "BoundVariable",
+                                    "name": "players[1]"
                                 }
                             },
-                            "storeAs": "revealedB"
+                            "storeAs": "gathered2"
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "revealedB"
+                            "from": "gathered2"
                         },
                         {
                             "type": "LoseLife",
                             "amount": {
                                 "type": "StoredCardManaValue",
-                                "collectionName": "revealedB"
+                                "collectionName": "gathered2"
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "players[0]"
                             }
                         },
                         {
                             "type": "LoseLife",
                             "amount": {
                                 "type": "StoredCardManaValue",
-                                "collectionName": "revealedA"
+                                "collectionName": "gathered0"
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "players[1]"
                             }
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "revealedA",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "players[0]"
                                 }
                             }
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "revealedB",
+                            "from": "gathered2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 1
+                                    "type": "BoundVariable",
+                                    "name": "players[1]"
                                 }
                             }
                         }
@@ -6522,8 +6548,8 @@
                         "type": "GrantKeyword",
                         "keyword": "CANT_BE_BLOCKED",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -6532,7 +6558,8 @@
                             "filter": {
                                 "baseFilter": "creature attacking",
                                 "excludeSelf": true
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -6687,7 +6714,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "film",
+                                "counterType": "FILM",
                                 "self": true
                             }
                         }
@@ -6721,10 +6748,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "film"
-                },
+                "counterType": "FILM",
                 "count": 3,
                 "selfOnly": true
             }
@@ -6766,11 +6790,11 @@
                                     "amount": 5
                                 }
                             },
-                            "storeAs": "looked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "looked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -6779,14 +6803,14 @@
                                 }
                             },
                             "filter": "creature",
-                            "storeSelected": "kept",
-                            "storeRemainder": "rest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "You may reveal up to two creature cards to put into your hand.",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "kept",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -6795,7 +6819,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "rest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -6874,7 +6898,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -7018,7 +7042,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -7059,8 +7083,8 @@
                 "amount": 3
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -7068,7 +7092,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ],
         "additionalCosts": [
@@ -7261,11 +7286,11 @@
                                             ]
                                         }
                                     },
-                                    "storeAs": "rentTargets"
+                                    "storeAs": "gathered0"
                                 },
                                 {
                                     "type": "SelectFromCollection",
-                                    "from": "rentTargets",
+                                    "from": "gathered0",
                                     "selection": {
                                         "type": "ChooseExactly",
                                         "count": {
@@ -7273,13 +7298,13 @@
                                             "amount": 2
                                         }
                                     },
-                                    "storeSelected": "toTap",
+                                    "storeSelected": "selected1",
                                     "prompt": "Tap two untapped creatures and/or Treasures you control",
                                     "useTargetingUI": true
                                 },
                                 {
                                     "type": "TapUntapCollection",
-                                    "collectionName": "toTap"
+                                    "collectionName": "selected1"
                                 }
                             ]
                         }
@@ -7344,7 +7369,7 @@
                         "type": "BoundVariable",
                         "name": "target creature an opponent controls"
                     },
-                    "excessDamageVariable": "excess"
+                    "excessDamageVariable": "storedNumber1"
                 },
                 {
                     "type": "Gated",
@@ -7354,7 +7379,7 @@
                             "type": "Compare",
                             "left": {
                                 "type": "VariableReference",
-                                "variableName": "excess"
+                                "variableName": "storedNumber1"
                             },
                             "operator": "GTE",
                             "right": {
@@ -7389,13 +7414,13 @@
                                             }
                                         }
                                     },
-                                    "storeAs": "rampageArtifact"
+                                    "storeAs": "target2"
                                 },
                                 {
                                     "type": "MoveToZone",
                                     "target": {
                                         "type": "PipelineTarget",
-                                        "collectionName": "rampageArtifact"
+                                        "collectionName": "target2"
                                     },
                                     "destination": "Graveyard",
                                     "byDestruction": true
@@ -7774,7 +7799,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -7794,7 +7819,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": {
                         "cardPredicates": [
                             "IsCreature"
@@ -7868,7 +7896,7 @@
                         "type": "Fixed",
                         "amount": -2
                     },
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             },
             "otherwise": {
@@ -7889,7 +7917,7 @@
                         "type": "Fixed",
                         "amount": -2
                     },
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             }
         }
@@ -8182,7 +8210,7 @@
                         },
                         "then": {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -8382,7 +8410,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": {
                                         "type": "BoundVariable",
@@ -8441,11 +8469,11 @@
                                         "amount": 3
                                     }
                                 },
-                                "storeAs": "milled"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "milled",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"
@@ -8453,7 +8481,7 @@
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "milled",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseUpTo",
                                     "count": {
@@ -8462,7 +8490,7 @@
                                     }
                                 },
                                 "filter": "permanent",
-                                "storeSelected": "selected",
+                                "storeSelected": "selected2",
                                 "prompt": "You may put a permanent card into your hand",
                                 "selectedLabel": "Put in hand",
                                 "remainderLabel": "Leave in graveyard",
@@ -8470,7 +8498,7 @@
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "selected",
+                                "from": "selected2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Hand"
@@ -8541,16 +8569,16 @@
                                     "Citizen"
                                 ],
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "duration": "EndOfTurn"
                             },
                             {
                                 "type": "SetBaseStats",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -8566,8 +8594,8 @@
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             }
                         ]
@@ -8577,7 +8605,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Conceal — Until end of turn, target creature you control becomes a Citizen with base power and toughness 1/1 and gains hexproof."
@@ -8592,16 +8621,16 @@
                                     "Hero"
                                 ],
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "duration": "EndOfTurn"
                             },
                             {
                                 "type": "SetBaseStats",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -8617,16 +8646,16 @@
                                 "type": "GrantKeyword",
                                 "keyword": "FLYING",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             }
                         ]
@@ -8636,7 +8665,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Reveal — Until end of turn, target creature you control becomes a Hero with base power and toughness 3/4 and gains flying and vigilance."
@@ -8673,12 +8703,19 @@
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
                 },
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 },
                 "descriptionOverride": "When this creature leaves the battlefield, put its +1/+1 counters on target creature you control."
             }
@@ -8960,8 +8997,8 @@
                     "reflexiveEffect": {
                         "type": "CantBlockTargetCreatures",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -8969,7 +9006,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -9089,12 +9127,12 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -9135,7 +9173,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -9366,7 +9404,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -9380,7 +9418,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "INDESTRUCTIBLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -9416,7 +9454,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
@@ -9926,7 +9964,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -10016,7 +10054,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -10133,7 +10171,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "TriggeringEntity"
                         },
@@ -10146,10 +10184,10 @@
                                         "type": "TopOfLibrary",
                                         "count": {
                                             "type": "EntityProperty",
-                                            "entity": "Triggering",
+                                            "entity": "TriggeringEntity",
                                             "numericProperty": {
                                                 "type": "CounterCount",
-                                                "counterType": "CounterAny"
+                                                "counterType": null
                                             }
                                         }
                                     },
@@ -10162,10 +10200,10 @@
                                         "type": "ChooseUpTo",
                                         "count": {
                                             "type": "EntityProperty",
-                                            "entity": "Triggering",
+                                            "entity": "TriggeringEntity",
                                             "numericProperty": {
                                                 "type": "CounterCount",
-                                                "counterType": "CounterAny"
+                                                "counterType": null
                                             }
                                         }
                                     },
@@ -10584,7 +10622,7 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "creature Spider"
                     }
                 },
@@ -10987,7 +11025,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -11296,7 +11334,7 @@
                         "trigger": "DamageReceivedEvent",
                         "effect": {
                             "type": "AddDynamicCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "amount": {
                                 "type": "ContextProperty",
                                 "key": "TRIGGER_DAMAGE_AMOUNT"
@@ -11831,7 +11869,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -11904,7 +11945,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -11918,7 +11959,10 @@
                                 "trigger": {
                                     "type": "DealsDamageEvent",
                                     "damageType": "DamageCombat",
-                                    "recipient": "AnyPlayer"
+                                    "recipient": {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    }
                                 },
                                 "effect": {
                                     "type": "Composite",
@@ -12075,22 +12119,19 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "allTargets"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "FilterCollection",
-                    "from": "allTargets",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:you"
-                    },
-                    "storeMatching": "team"
+                    "from": "gathered0",
+                    "filter": "creature ctrl:you",
+                    "storeMatching": "matching1"
                 },
                 {
                     "type": "ForEach",
                     "space": {
                         "type": "IterationSpace.Collection",
-                        "collection": "team"
+                        "collection": "matching1"
                     },
                     "body": {
                         "type": "ModifyStats",
@@ -12102,14 +12143,14 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
                     "type": "ForEach",
                     "space": {
                         "type": "IterationSpace.Collection",
-                        "collection": "team"
+                        "collection": "matching1"
                     },
                     "body": {
                         "type": "DealDamage",
@@ -12119,10 +12160,10 @@
                             "numericProperty": "Power"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature an opponent controls"
                         },
-                        "damageSource": "Self"
+                        "damageSource": "IterationEntity"
                     }
                 }
             ]
@@ -12223,7 +12264,7 @@
                         {
                             "type": "ChooseOption",
                             "optionType": "CARD_NAME",
-                            "storeAs": "clonedName"
+                            "storeAs": "cardName0"
                         },
                         {
                             "type": "CreateDelayedTrigger",
@@ -12238,13 +12279,16 @@
                                 "event": {
                                     "type": "DealsDamageEvent",
                                     "damageType": "DamageCombat",
-                                    "recipient": "AnyPlayer",
+                                    "recipient": {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    },
                                     "sourceFilter": {
                                         "cardPredicates": [
                                             "IsCreature",
                                             {
                                                 "type": "NameEqualsChosen",
-                                                "variableName": "clonedName"
+                                                "variableName": "cardName0"
                                             }
                                         ]
                                     }
@@ -12377,11 +12421,11 @@
                                         "index": 0
                                     }
                                 },
-                                "storeAs": "gwenTargetGraveyard"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "gwenTargetGraveyard",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -12494,7 +12538,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "harness",
+                    "counterType": "HARNESS",
                     "count": 1,
                     "target": "Self"
                 },
@@ -12731,8 +12775,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "filter": "creature Spider"
                         }
@@ -13011,8 +13055,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "up to one target creature you control"
                             },
                             "filter": "creature"
                         }
@@ -13068,7 +13112,7 @@
                                     "collection": "connive_discarded",
                                     "ifNotEmpty": {
                                         "type": "AddCounters",
-                                        "counterType": "+1/+1",
+                                        "counterType": "PLUS_ONE_PLUS_ONE",
                                         "count": 1,
                                         "target": {
                                             "type": "BoundVariable",
@@ -13282,7 +13326,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": {
                                 "type": "BoundVariable",
@@ -13546,7 +13590,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FLYING",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -13745,11 +13789,11 @@
                                     "amount": 5
                                 }
                             },
-                            "storeAs": "looked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "looked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -13758,14 +13802,14 @@
                                 }
                             },
                             "filter": "creature",
-                            "storeSelected": "kept",
-                            "storeRemainder": "rest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "You may put a creature card onto the battlefield.",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "kept",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -13773,7 +13817,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "rest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -13853,15 +13897,16 @@
                     "effect": {
                         "type": "TapUntap",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
                         }
                     },
                     "targetRequirement": {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:opponent"
-                        }
+                        },
+                        "id": "target creature opponent controls"
                     }
                 }
             }
@@ -13909,9 +13954,9 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -13949,8 +13994,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target nonland permanent"
                     },
                     "destination": "Hand"
                 },
@@ -13975,7 +14020,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "nonland permanent"
-                }
+                },
+                "id": "target nonland permanent"
             }
         ]
     },
@@ -14066,7 +14112,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target creature"
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -14085,8 +14134,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "filter": "creature attacking"
                         }
@@ -14164,7 +14213,10 @@
                 "redirectTo": "EnchantedCreature",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "You"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    }
                 }
             }
         ],

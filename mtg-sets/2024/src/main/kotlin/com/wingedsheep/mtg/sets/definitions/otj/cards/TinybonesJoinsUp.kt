@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -38,10 +37,8 @@ val TinybonesJoinsUp = card("Tinybones Joins Up") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target("any number of target players", TargetPlayer(unlimited = true))
-        effect = ForEachTargetEffect(
-            listOf(
-                Effects.Discard(1, EffectTarget.PlayerRef(Player.ContextPlayer(0)))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.Discard(1, EffectTarget.PlayerRef(Player.ContextPlayer(0)))
         )
     }
 
@@ -51,11 +48,9 @@ val TinybonesJoinsUp = card("Tinybones Joins Up") {
             binding = TriggerBinding.ANY
         )
         target("any number of target players", TargetPlayer(unlimited = true))
-        effect = ForEachTargetEffect(
-            listOf(
-                Patterns.Library.mill(1, EffectTarget.PlayerRef(Player.ContextPlayer(0))),
-                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.ContextPlayer(0)))
-            )
+        effect = Effects.ForEachTarget(
+            Patterns.Library.mill(1, EffectTarget.PlayerRef(Player.ContextPlayer(0))),
+            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.ContextPlayer(0)))
         )
     }
 

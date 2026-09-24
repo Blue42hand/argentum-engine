@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.lgn.cards
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -28,7 +27,7 @@ val BloodstokeHowler = card("Bloodstoke Howler") {
         trigger = Triggers.TurnedFaceUp
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.allCreaturesWithSubtype("Beast").youControl(),
-            effect = ModifyStatsEffect(3, 0, EffectTarget.Self)
+            effect = Effects.ModifyStats(3, 0, EffectTarget.IterationEntity)
         )
     }
 

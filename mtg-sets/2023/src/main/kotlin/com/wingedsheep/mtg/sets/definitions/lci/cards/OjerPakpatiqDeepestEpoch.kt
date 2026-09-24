@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -14,8 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordToSpellEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -67,7 +65,7 @@ private val OjerPakpatiqDeepestEpochFront = card("Ojer Pakpatiq, Deepest Epoch")
             spellFilter = GameObjectFilter.Instant,
             requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
         )
-        effect = GrantKeywordToSpellEffect(Keyword.REBOUND, EffectTarget.TriggeringEntity)
+        effect = Effects.GrantKeywordToSpell(Keyword.REBOUND, EffectTarget.TriggeringEntity)
         description = "Whenever you cast an instant spell from your hand, it gains rebound."
     }
 
@@ -75,7 +73,7 @@ private val OjerPakpatiqDeepestEpochFront = card("Ojer Pakpatiq, Deepest Epoch")
         trigger = Triggers.Dies
         effect = Effects.Composite(
             Effects.ReturnSelfFromGraveyardTransformed(tapped = true),
-            Effects.AddCounters(Counters.TIME, 3, EffectTarget.Self),
+            Effects.AddCounters(CounterType.TIME, 3, EffectTarget.Self),
         )
         description = "When Ojer Pakpatiq dies, return it to the battlefield tapped and " +
             "transformed under its owner's control with three time counters on it."
@@ -102,7 +100,7 @@ private val TempleOfCyclicalTime = card("Temple of Cyclical Time") {
         cost = Costs.Tap
         effect = Effects.Composite(
             Effects.AddMana(Color.BLUE, 1),
-            Effects.RemoveCounters(Counters.TIME, 1, EffectTarget.Self),
+            Effects.RemoveCounters(CounterType.TIME, 1, EffectTarget.Self),
         )
         manaAbility = true
         timing = TimingRule.ManaAbility
@@ -110,11 +108,11 @@ private val TempleOfCyclicalTime = card("Temple of Cyclical Time") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.Tap)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
-                Conditions.Not(Conditions.SourceCounterCountAtLeast(Counters.TIME, 1))
+                Conditions.Not(Conditions.SourceCounterCountAtLeast(CounterType.TIME, 1))
             )
         )
         description = "Transform this land. Activate only if it has no time counters on it and " +

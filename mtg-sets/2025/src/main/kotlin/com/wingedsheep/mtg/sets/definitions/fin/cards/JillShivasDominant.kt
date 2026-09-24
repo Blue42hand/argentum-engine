@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -47,11 +46,11 @@ private val ShivaWardenOfIce = card("Shiva, Warden of Ice") {
     // I, II — Mesmerize — Target creature can't be blocked this turn.
     sagaChapter(1) {
         val t = target("creature", TargetObject(filter = TargetFilter.Creature))
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
     sagaChapter(2) {
         val t = target("creature", TargetObject(filter = TargetFilter.Creature))
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
 
     // III — Cold Snap — Tap all lands your opponents control, then flip Shiva back to Jill.

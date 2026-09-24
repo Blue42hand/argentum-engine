@@ -32,7 +32,7 @@ val TroublesomeSpirit = card("Troublesome Spirit") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Land.youControl()), Effects.Tap(EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Land.youControl()), Effects.Tap(EffectTarget.IterationEntity))
     }
     metadata {
         rarity = Rarity.RARE

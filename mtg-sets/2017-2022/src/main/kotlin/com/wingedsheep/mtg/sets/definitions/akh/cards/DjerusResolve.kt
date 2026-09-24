@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.PreventDamageEffect
 
 /**
  * Djeru's Resolve
@@ -15,8 +14,8 @@ import com.wingedsheep.sdk.scripting.effects.PreventDamageEffect
  * Cycling {2} ({2}, Discard this card: Draw a card.)
  *
  * "it" is the same creature both halves act on, so there is one named target and both effects bind
- * to it. No `Effects.*` facade spells the plain "prevent all damage that would be dealt to target
- * this turn" shield — every parameter is [PreventDamageEffect]'s own default except the recipient.
+ * to it. The shield is [Effects.PreventDamage] with every parameter at its default
+ * except the recipient.
  */
 val DjerusResolve = card("Djeru's Resolve") {
     manaCost = "{W}"
@@ -29,7 +28,7 @@ val DjerusResolve = card("Djeru's Resolve") {
         val creature = target("target", Targets.Creature)
         effect = Effects.Composite(
             Effects.Untap(creature),
-            PreventDamageEffect(target = creature)
+            Effects.PreventDamage(target = creature)
         )
     }
 

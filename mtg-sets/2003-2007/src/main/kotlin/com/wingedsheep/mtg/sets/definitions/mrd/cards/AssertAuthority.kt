@@ -34,7 +34,7 @@ val AssertAuthority = card("Assert Authority") {
     keywordAbility(KeywordAbility.Affinity(CardType.ARTIFACT))
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpellToExile()
     }
 

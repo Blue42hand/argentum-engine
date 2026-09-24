@@ -7,7 +7,6 @@ import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
@@ -58,7 +57,7 @@ class NumberExplosionSafetyTest : FunSpec({
         oracleText = "Double the number of +1/+1 counters on target creature."
         spell {
             val target = target("target creature", Targets.Creature)
-            effect = Effects.DoubleCounters(Counters.PLUS_ONE_PLUS_ONE, target)
+            effect = Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, target)
         }
     }
 

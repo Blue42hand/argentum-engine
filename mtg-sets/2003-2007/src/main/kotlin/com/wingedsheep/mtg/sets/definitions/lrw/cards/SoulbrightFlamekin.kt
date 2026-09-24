@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Soulbright Flamekin — Lorwyn #190
@@ -27,7 +25,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  * out for free.
  *
  * "**You may** add" is a real decision, not a selection that can be declined, so the mana sits
- * under [MayEffect] — eight red mana that must be spent this step is often a liability, and CR
+ * under [Effects.May] — eight red mana that must be spent this step is often a liability, and CR
  * 106.4 wants the player asked.
  *
  * The ability **targets**, so it is not a mana ability (its own ruling says so, CR 605.1a): it
@@ -50,9 +48,9 @@ val SoulbrightFlamekin = card("Soulbright Flamekin") {
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn)
             .then(IncrementAbilityResolutionCountEffect)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    effect = MayEffect(
+                    then = Effects.May(
                         effect = Effects.AddMana(Color.RED, 8),
                         hint = "Add {R}{R}{R}{R}{R}{R}{R}{R}?"
                     )

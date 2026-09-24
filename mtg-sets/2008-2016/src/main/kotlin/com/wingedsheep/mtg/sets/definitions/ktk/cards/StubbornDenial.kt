@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -24,12 +23,12 @@ val StubbornDenial = card("Stubborn Denial") {
     oracleText = "Counter target noncreature spell unless its controller pays {1}.\nFerocious — If you control a creature with power 4 or greater, counter that spell instead."
 
     spell {
-        target = Targets.NoncreatureSpell
+        val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
         // Ferocious: if you control a creature with power 4+, hard counter instead
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
-            effect = Effects.CounterSpell(),
-            elseEffect = Effects.CounterUnlessPays("{1}")
+            then = Effects.CounterSpell(),
+            otherwise = Effects.CounterUnlessPays("{1}")
         )
     }
 

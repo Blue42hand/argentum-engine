@@ -131,6 +131,22 @@ sealed interface Player {
     }
 
     /**
+     * The player chosen for the target declared as [name] — the player-typed reading of a named
+     * target handle ([com.wingedsheep.sdk.scripting.targets.EffectTarget.BoundVariable]). Card
+     * code reaches it as `handle.asPlayer` rather than constructing it, so a "cards in that
+     * player's hand" slot names the target it reads instead of counting positions:
+     * `CardSource.FromZone(Zone.HAND, opponent.asPlayer)`.
+     *
+     * Shares `BoundVariable`'s serial name on purpose: the JSON says "the target named *name*"
+     * the same way whether the slot is typed as an entity or as a player.
+     */
+    @SerialName("BoundVariable")
+    @Serializable
+    data class BoundVariable(val name: String) : Player {
+        override val description: String = "that player"
+    }
+
+    /**
      * The player currently being considered as a target (CR 115). Bound by the engine's
      * target enumerator/validator to each candidate player in turn while evaluating a
      * [com.wingedsheep.sdk.scripting.targets.TargetPlayer.restriction] /
@@ -342,6 +358,7 @@ sealed interface Player {
             EachOpponent -> "each opponent's"
             Any -> "a player's"
             is ContextPlayer -> "that player's"
+            is BoundVariable -> "that player's"
             Candidate -> "that player's"
             TriggeringPlayer -> "that player's"
             ChosenOpponent -> "the chosen player's"

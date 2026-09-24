@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -43,6 +42,10 @@ sealed interface CardSource {
         val player: Player = Player.You,
         val isMill: Boolean = false
     ) : CardSource {
+        /** The top [count] cards — a constant count ("look at the top three cards"). */
+        constructor(count: Int, player: Player = Player.You, isMill: Boolean = false) :
+            this(DynamicAmount.Fixed(count), player, isMill)
+
         override val description: String = "the top ${count.description} cards of ${player.possessive} library"
     }
 
@@ -1810,18 +1813,14 @@ data class GrantFreeCastTargetFromExileEffect(
 // =============================================================================
 
 /**
- * How to filter a named collection.
+ * The collection-relative half of [FilterCollectionEffect]: a keep-rule whose answer for one card
+ * depends on something beyond that card's own characteristics — the rest of the collection ("the
+ * creature with the greatest power among them"), another collection, or a value the resolution
+ * captured. Anything a single object can answer about itself is a [GameObjectFilter] and goes in
+ * [FilterCollectionEffect.filter] instead.
  */
 @Serializable
 sealed interface CollectionFilter {
-    /**
-     * Exclude entities that have any subtype matching a stored string list.
-     * Reads the list from [storedKey] in the effect context's storedStringLists.
-     */
-    @SerialName("ExcludeSubtypesFromStored")
-    @Serializable
-    data class ExcludeSubtypesFromStored(val storedKey: String) : CollectionFilter
-
     /**
      * Keep only entities that share at least one subtype with the sacrificed creature.
      * Reads subtypes from context.sacrificedPermanents[].subtypes (snapshotted at sacrifice time).
@@ -1829,14 +1828,6 @@ sealed interface CollectionFilter {
     @SerialName("SharesSubtypeWithSacrificed")
     @Serializable
     data object SharesSubtypeWithSacrificed : CollectionFilter
-
-    /**
-     * Keep only entities that match a [GameObjectFilter] using projected state.
-     * This is the general-purpose filter for any predicate-based collection filtering.
-     */
-    @SerialName("MatchesFilter")
-    @Serializable
-    data class MatchesFilter(val filter: GameObjectFilter) : CollectionFilter
 
     /**
      * Keep only creatures with the greatest power in the collection.
@@ -1875,31 +1866,6 @@ sealed interface CollectionFilter {
     data object GreatestManaValue : CollectionFilter
 
     /**
-     * Keep only entities whose mana value is at most a dynamic amount.
-     * The amount is resolved at execution time from the effect context.
-     *
-     * Used for "spells with mana value X or less" effects like Villainous Wealth.
-     *
-     * @property max The maximum mana value (resolved dynamically)
-     */
-    @SerialName("ManaValueAtMost")
-    @Serializable
-    data class ManaValueAtMost(val max: DynamicAmount) : CollectionFilter
-
-    /**
-     * Keep only entities whose mana value equals a dynamic amount.
-     * The amount is resolved at execution time from the effect context.
-     *
-     * Used for "instant or sorcery with mana value equal to the number of
-     * counters on this artifact" effects like Wishing Well.
-     *
-     * @property value The exact mana value to match (resolved dynamically)
-     */
-    @SerialName("ManaValueEquals")
-    @Serializable
-    data class ManaValueEquals(val value: DynamicAmount) : CollectionFilter
-
-    /**
      * Exclude the entity referenced by [entity] from the collection.
      * Used for "another" constraints (e.g., "return another creature card").
      *
@@ -1907,7 +1873,7 @@ sealed interface CollectionFilter {
      */
     @SerialName("ExcludeEntity")
     @Serializable
-    data class ExcludeEntity(val entity: EntityReference) : CollectionFilter
+    data class ExcludeEntity(val entity: EffectTarget.SingleEntity) : CollectionFilter
 
     /**
      * Exclude all entities present in another stored collection — i.e., set difference.
@@ -1920,35 +1886,21 @@ sealed interface CollectionFilter {
     @SerialName("ExcludeOtherCollection")
     @Serializable
     data class ExcludeOtherCollection(val otherCollectionName: String) : CollectionFilter
-
-    /**
-     * Keep only entities that are currently in [zone].
-     *
-     * Pipeline collections track entity references, not the cards' live location, so a card
-     * gathered into a collection can subsequently leave the zone it was in (e.g. an exiled
-     * card cast for free during the same resolution moves to the stack). This filter re-reads
-     * each card's current zone so a downstream step acts only on the cards still there.
-     *
-     * Used by "exile cards … you may cast it … if you don't, put that card into your hand"
-     * effects (the Tarkir: Dragonstorm "…storm" enchantments): after the optional free-cast,
-     * keep only the nonland card still in exile and move it to hand.
-     *
-     * @property zone The zone a card must currently be in to be kept.
-     */
-    @SerialName("InZone")
-    @Serializable
-    data class InZone(val zone: com.wingedsheep.sdk.core.Zone) : CollectionFilter
 }
 
 /**
  * Filter a named collection, splitting it into matching and non-matching subsets.
  *
- * This is a purely automatic filter (no player choice). The matching entities
- * are stored in [storeMatching]; non-matching entities are stored in [storeNonMatching]
- * if provided.
+ * This is a purely automatic filter (no player choice). A card is kept when it matches [filter] —
+ * an ordinary [GameObjectFilter], evaluated per card with the resolving context (so a dynamic
+ * `manaValueAtMostDynamic(…)` reads the pipeline's stored numbers, and `currentlyIn(zone)` keeps
+ * only the cards still where they were gathered) — and then, among those, the collection-relative
+ * [collectionFilter] when one is given ("the greatest power among them"). The matching entities
+ * are stored in [storeMatching]; the rest in [storeNonMatching] if provided.
  *
  * @property from Name of the collection to filter
- * @property filter How to filter the collection
+ * @property filter The per-card test
+ * @property collectionFilter Optional collection-relative keep-rule applied after [filter]
  * @property storeMatching Name of the collection to store entities that pass the filter
  * @property storeNonMatching Optional name to store entities that fail the filter
  */
@@ -1956,7 +1908,8 @@ sealed interface CollectionFilter {
 @Serializable
 data class FilterCollectionEffect(
     val from: String,
-    val filter: CollectionFilter,
+    val filter: GameObjectFilter = GameObjectFilter.Any,
+    val collectionFilter: CollectionFilter? = null,
     val storeMatching: String,
     val storeNonMatching: String? = null
 ) : Effect {

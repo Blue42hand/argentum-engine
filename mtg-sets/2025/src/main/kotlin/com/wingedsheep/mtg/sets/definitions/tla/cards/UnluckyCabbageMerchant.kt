@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -25,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * bottom of its owner's library, then shuffle.
  *
  * The sacrifice trigger is modeled with [Triggers.YouSacrificeOneOrMore] filtered to Foods.
- * The whole search-and-bounce is wrapped in a single [MayEffect] so the optional "you may search"
+ * The whole search-and-bounce is wrapped in a single [Effects.May] so the optional "you may search"
  * decision gates the self-bounce: declining keeps the creature, while accepting always puts it on
  * the bottom of the library (even if no basic land is found), matching "If you search this way".
  * The search's own shuffle is folded into the explicit "then shuffle" via the trailing
@@ -51,7 +49,7 @@ val UnluckyCabbageMerchant = card("Unlucky Cabbage Merchant") {
     // bottom of its owner's library, then shuffle.
     triggeredAbility {
         trigger = Triggers.YouSacrificeA(GameObjectFilter.Artifact.withSubtype("Food"))
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Composite(
                 Patterns.Library.searchLibrary(
                     filter = Filters.BasicLand,
@@ -60,7 +58,7 @@ val UnluckyCabbageMerchant = card("Unlucky Cabbage Merchant") {
                     shuffleAfter = false
                 ),
                 Effects.PutOnBottomOfLibrary(EffectTarget.Self),
-                ShuffleLibraryEffect()
+                Effects.ShuffleLibrary()
             ),
             descriptionOverride = "You may search your library for a basic land card and put it onto the battlefield tapped",
             hint = "If you search this way, put this creature on the bottom of its owner's library, then shuffle"

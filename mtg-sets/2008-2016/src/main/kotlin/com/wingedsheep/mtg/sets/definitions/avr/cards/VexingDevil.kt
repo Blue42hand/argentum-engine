@@ -4,8 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -42,7 +40,7 @@ val VexingDevil = card("Vexing Devil") {
         effect = Effects.ForEachPlayer(
             Player.EachOpponent,
             listOf(
-                MayEffect(
+                Effects.May(
                     effect = Effects.Composite(
                         Effects.DealDamage(
                             amount = 4,
@@ -52,7 +50,7 @@ val VexingDevil = card("Vexing Devil") {
                         // `ForEachPlayer` rebinds the resolving controller to the opponent being
                         // asked, so the sacrifice has to name the Devil's *own* controller as the
                         // actor — otherwise the control mismatch silently skips it.
-                        SacrificeTargetEffect(
+                        Effects.SacrificeTarget(
                             target = EffectTarget.Self,
                             sacrificedByItsController = true,
                         ),

@@ -18,7 +18,7 @@ val TheorixCharm = card("Theorix Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Counter target noncreature spell unless its controller pays {2}") {
-                target = Targets.NoncreatureSpell
+                val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
                 effect = Effects.CounterUnlessPays("{2}")
             }
             mode("Target creature gets -2/-2 until end of turn") {

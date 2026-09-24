@@ -32,9 +32,9 @@ val NaruMehaMasterWizard = card("Naru Meha, Master Wizard") {
 
     // When Naru Meha enters, copy target instant or sorcery spell you control
     triggeredAbility {
+        val instantOrSorcerySpellYouControl = target("target instant or sorcery spell you control", Targets.InstantOrSorcerySpellYouControl)
         trigger = Triggers.EntersBattlefield
-        target = Targets.InstantOrSorcerySpellYouControl
-        effect = Effects.CopyTargetSpell()
+        effect = Effects.CopyTargetSpell(target = instantOrSorcerySpellYouControl)
     }
 
     // Other Wizards you control get +1/+1

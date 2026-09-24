@@ -1,10 +1,9 @@
 package com.wingedsheep.sdk.scripting.filters.unified
 
-import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.ObjectFilterBuilder
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
@@ -99,7 +98,7 @@ data class GroupFilter(
      * [baseFilter] / [excludeSelf] are ignored by the projection layer.
      */
     val scope: Scope = Scope.Battlefield
-) : TextReplaceable<GroupFilter> {
+) : TextReplaceable<GroupFilter>, ObjectFilterBuilder<GroupFilter> {
     val description: String
         get() = buildDescription()
 
@@ -220,56 +219,11 @@ data class GroupFilter(
     }
 
     // =============================================================================
-    // Fluent Builder Methods (delegates to GameObjectFilter)
+    // Builders — the predicate builders come from [ObjectFilterBuilder]; these are GroupFilter's own
     // =============================================================================
 
-    /** Add color requirement */
-    fun withColor(color: Color) = copy(baseFilter = baseFilter.withColor(color))
-
-    /** Exclude color */
-    fun notColor(color: Color) = copy(baseFilter = baseFilter.notColor(color))
-
-    /** Add subtype requirement */
-    fun withSubtype(subtype: Subtype) = copy(baseFilter = baseFilter.withSubtype(subtype))
-
-    /** Add subtype by string */
-    fun withSubtype(subtype: String) = copy(baseFilter = baseFilter.withSubtype(subtype))
-
-    /** Must have a counter of the given type (e.g. `Counters.PLUS_ONE_PLUS_ONE`) */
-    fun withCounter(counterType: String) = copy(baseFilter = baseFilter.withCounter(counterType))
-
-    /** Must not have a counter of the given type; delegates to [GameObjectFilter.withoutCounter]. */
-    fun withoutCounter(counterType: String) = copy(baseFilter = baseFilter.withoutCounter(counterType))
-
-    /** Add keyword requirement */
-    fun withKeyword(keyword: Keyword) = copy(baseFilter = baseFilter.withKeyword(keyword))
-
-    /** Exclude keyword */
-    fun withoutKeyword(keyword: Keyword) = copy(baseFilter = baseFilter.withoutKeyword(keyword))
-
-    /** Power at most */
-    fun powerAtMost(max: Int) = copy(baseFilter = baseFilter.powerAtMost(max))
-
-    /** Power at least */
-    fun powerAtLeast(min: Int) = copy(baseFilter = baseFilter.powerAtLeast(min))
-
-    /** Toughness at most */
-    fun toughnessAtMost(max: Int) = copy(baseFilter = baseFilter.toughnessAtMost(max))
-
-    /** Must be tapped */
-    fun tapped() = copy(baseFilter = baseFilter.tapped())
-
-    /** Must be untapped */
-    fun untapped() = copy(baseFilter = baseFilter.untapped())
-
-    /** Must be attacking */
-    fun attacking() = copy(baseFilter = baseFilter.attacking())
-
-    /** Must be controlled by you */
-    fun youControl() = copy(baseFilter = baseFilter.youControl())
-
-    /** Must be controlled by opponent */
-    fun opponentControls() = copy(baseFilter = baseFilter.opponentControls())
+    override fun mapObjectFilter(transform: (GameObjectFilter) -> GameObjectFilter) =
+        copy(baseFilter = transform(baseFilter))
 
     /** Exclude the source permanent */
     fun other() = copy(excludeSelf = true)

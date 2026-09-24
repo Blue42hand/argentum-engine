@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Triumphant Chomp — {R}
@@ -28,8 +27,8 @@ val TriumphantChomp = card("Triumphant Chomp") {
     spell {
         val t = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Max(
-                DynamicAmount.Fixed(2),
+            amount = DynamicAmounts.max(
+                DynamicAmounts.fixed(2),
                 DynamicAmounts.battlefield(
                     Player.You,
                     GameObjectFilter.Creature.withSubtype(Subtype.DINOSAUR),

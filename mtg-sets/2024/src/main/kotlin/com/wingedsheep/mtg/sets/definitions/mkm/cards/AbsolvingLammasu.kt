@@ -58,7 +58,7 @@ val AbsolvingLammasu = card("Absolving Lammasu") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.suspected()),
-            Effects.NoLongerSuspected(EffectTarget.Self)
+            Effects.NoLongerSuspected(EffectTarget.IterationEntity)
         )
         description = "When this creature enters, all suspected creatures are no longer suspected."
     }

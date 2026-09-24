@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -50,7 +49,7 @@ val HighPerfectMorcant = card("High Perfect Morcant") {
         )
         // Each opponent blights 1: ForEachPlayerEffect rebinds Player.You to the
         // iterating opponent, so the stock blight pipeline picks one of THEIR creatures.
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
             effects = Patterns.Mechanic.blight(1).effects
         )

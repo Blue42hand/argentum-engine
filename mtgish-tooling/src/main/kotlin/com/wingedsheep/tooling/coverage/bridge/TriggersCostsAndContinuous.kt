@@ -231,9 +231,9 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     // (DISTINCT_TYPES aggregation over your graveyard). Spineseeker Centipede, Balustrade Wurm.
     supported("NumCardTypesInGraveyardIs", "predicate: N or more card types among cards in your graveyard (Conditions.Delirium)")
     supported("ThereAreNumberCardTypesInPlayersGraveyard", "condition: N or more card types in a player's graveyard (Conditions.Delirium)")
-    // "if you do" / "if [the cost] was paid" — the IfYouDoEffect linkage after a MayCost(DiscardACard)
-    // loot, rendered by the emitter as MayEffect(IfYouDoEffect(...)). Universal condition vocabulary.
-    supported("CostWasPaid", "condition: the optional cost was paid (IfYouDoEffect linkage)")
+    // "if you do" / "if [the cost] was paid" — the Effects.IfYouDo linkage after a MayCost(DiscardACard)
+    // loot, rendered by the emitter as Effects.May(Effects.IfYouDo(...)). Universal condition vocabulary.
+    supported("CostWasPaid", "condition: the optional cost was paid (Effects.IfYouDo linkage)")
     supported("WasCastFromTheirHand", "predicate: spell cast from the player's hand (fromZone = HAND)")
     // The negation — "a spell from anywhere other than your hand" (Kellan, the Kid). Backed by
     // SpellCastPredicate.CastFromZoneOtherThan(Zone.HAND). The trigger itself is coverable even

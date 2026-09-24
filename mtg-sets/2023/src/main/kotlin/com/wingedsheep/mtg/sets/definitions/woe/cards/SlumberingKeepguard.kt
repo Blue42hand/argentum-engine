@@ -5,6 +5,7 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -42,8 +42,8 @@ val SlumberingKeepguard = card("Slumbering Keepguard") {
     activatedAbility {
         cost = Costs.Mana("{2}{W}")
         effect = Effects.ModifyStats(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Enchantment),
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Enchantment),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Enchantment).count(),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Enchantment).count(),
             EffectTarget.Self
         )
     }

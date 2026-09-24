@@ -33,7 +33,7 @@ val StirringHonormancer = card("Stirring Honormancer") {
         trigger = Triggers.EntersBattlefield
         effect = Patterns.Library.lookAtTopAndKeep(
             count = DynamicAmounts.creaturesYouControl(),
-            keepCount = com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed(1),
+            keepCount = DynamicAmounts.fixed(1),
         )
     }
 

@@ -18,7 +18,7 @@ val ItllQuenchYa = card("It'll Quench Ya!") {
     oracleText = "Counter target spell unless its controller pays {2}."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessPays("{2}")
     }
 

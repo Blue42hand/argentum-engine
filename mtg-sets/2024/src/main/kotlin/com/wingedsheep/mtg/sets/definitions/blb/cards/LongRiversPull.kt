@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -35,7 +34,7 @@ val LongRiversPull = card("Long River's Pull") {
             // Mode 1: Gift promised — opponent draws a card, then counter target spell
             Mode.withTarget(
                 effect = Effects.Composite(listOf(
-                    DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
+                    Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
                     Effects.CounterSpell(),
                     Effects.GiftGiven()
                 )),

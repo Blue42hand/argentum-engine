@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * Implementation notes:
  *  - "enters or attacks" is two triggered abilities ([Triggers.EntersBattlefield] +
  *    [Triggers.Attacks]), each exiling an optional ("up to one") graveyard card.
- *  - "If a creature card is exiled this way" is a [ConditionalEffect] gated on
+ *  - "If a creature card is exiled this way" is a [Effects.If] gated on
  *    [Conditions.TargetIsCreatureCard], which reads the exiled card's printed type in exile —
  *    correctly false when no target was chosen.
  *  - "your second card each turn" is [Triggers.NthCardDrawn], draining each opponent for 1.
@@ -54,9 +53,9 @@ val RavenEagle = card("Raven Eagle") {
         )
         effect = Effects.Composite(
             Effects.Exile(exiled),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                effect = Effects.CreateClue()
+                then = Effects.CreateClue()
             )
         )
         description = "Whenever this creature enters, exile up to one target card from a graveyard. " +
@@ -71,9 +70,9 @@ val RavenEagle = card("Raven Eagle") {
         )
         effect = Effects.Composite(
             Effects.Exile(exiled),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                effect = Effects.CreateClue()
+                then = Effects.CreateClue()
             )
         )
         description = "Whenever this creature attacks, exile up to one target card from a graveyard. " +

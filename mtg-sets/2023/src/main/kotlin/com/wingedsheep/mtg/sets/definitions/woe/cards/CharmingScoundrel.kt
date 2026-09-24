@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -53,11 +53,13 @@ val CharmingScoundrel = card("Charming Scoundrel") {
                 Effects.CreateTreasure(),
                 "Create a Treasure token."
             ),
-            Mode.withTarget(
-                Effects.CreateRoleToken("Wicked Role", EffectTarget.ContextTarget(0)),
-                TargetCreature(filter = TargetFilter.CreatureYouControl),
-                "Create a Wicked Role token attached to target creature you control."
-            )
+            mode("Create a Wicked Role token attached to target creature you control.") {
+                val creatureYouControl = target(
+                    "target creature you control",
+                    TargetCreature(filter = TargetFilter.CreatureYouControl)
+                )
+                effect = Effects.CreateRoleToken("Wicked Role", creatureYouControl)
+            }
         )
         description = "When this creature enters, choose one."
     }

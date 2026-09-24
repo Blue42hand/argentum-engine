@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting.effects
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
@@ -489,7 +490,7 @@ sealed interface WardCost {
      * ([com.wingedsheep.sdk.dsl.DynamicAmounts.sourcePower]). The amount is evaluated when the
      * ward triggered ability *resolves* (CR 702.21b), reading the source's power at that time,
      * or its last-known value if the source has left the battlefield (CR 113.7a) — both handled
-     * by [com.wingedsheep.sdk.scripting.values.EntityReference.Source]'s last-known-information
+     * by [com.wingedsheep.sdk.scripting.targets.EffectTarget.Self]'s last-known-information
      * fallback. The fixed-Int [Life] stays the common case; this variant covers only costs that
      * read live game state.
      */
@@ -542,8 +543,7 @@ sealed interface WardCost {
     /**
      * Ward with a cost paid in **counters placed on the paying player** (CR 122.1 — a counter is a
      * marker placed on an object *or player*) — "Ward—Get five poison counters." (The Serpent
-     * Society). [counterType] is a `Counters.*` symbol (`Counters.POISON`, `Counters.ENERGY`, …),
-     * matching every other player-scoped counter surface in the SDK.
+     * Society). [counterType] is the kind placed (`CounterType.POISON`, `CounterType.ENERGY`, …).
      *
      * Unlike every other ward cost this one has no affordability precondition: a player can always
      * get counters, so the payment is a plain yes/no and can never be "unpayable" the way an empty
@@ -558,9 +558,9 @@ sealed interface WardCost {
      */
     @SerialName("WardCost.PlayerCounters")
     @Serializable
-    data class PlayerCounters(val counterType: String, val amount: Int) : WardCost {
+    data class PlayerCounters(val counterType: CounterType, val amount: Int) : WardCost {
         override val description: String =
-            if (amount == 1) "a $counterType counter" else "${numberToWord(amount)} $counterType counters"
+            if (amount == 1) "a ${counterType.printed} counter" else "${numberToWord(amount)} ${counterType.printed} counters"
         override val clause: String = "get $description"
     }
 
@@ -1232,19 +1232,19 @@ data class ReduceSpellCostsThisTurnEffect(
  * `onlyIfResolved` flag on the underlying AfterResolveDestinationComponent.
  *
  * @property target The spell on the stack to mark (typically the triggering entity).
- * @property counterType Counter type string (see [com.wingedsheep.sdk.core.Counters]).
+ * @property counterType The kind of counter.
  * @property count How many counters of [counterType] to add when the spell exiles.
  */
 @SerialName("MarkSpellExileWithCounters")
 @Serializable
 data class MarkSpellExileWithCountersEffect(
     val target: com.wingedsheep.sdk.scripting.targets.EffectTarget = com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity,
-    val counterType: String = com.wingedsheep.sdk.core.Counters.PLUS_ONE_PLUS_ONE,
+    val counterType: CounterType = com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE,
     val count: Int = 1
 ) : Effect {
     override val description: String = buildString {
         append("Exile that card with ")
-        if (count == 1) append("a $counterType counter") else append("$count $counterType counters")
+        if (count == 1) append("a ${counterType.printed} counter") else append("$count ${counterType.printed} counters")
         append(" on it instead of putting it into your graveyard as it resolves")
     }
 }

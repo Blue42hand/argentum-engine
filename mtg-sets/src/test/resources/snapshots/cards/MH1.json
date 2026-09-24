@@ -288,7 +288,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": {
                         "type": "BoundVariable",
@@ -579,7 +579,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -745,7 +745,8 @@
                 "filter": {
                     "baseFilter": "noncreature",
                     "zone": "Stack"
-                }
+                },
+                "id": "target noncreature spell"
             }
         ],
         "selfAlternativeCost": {
@@ -885,7 +886,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "TriggeringEntity"
                 }
@@ -1065,7 +1066,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",
@@ -1423,7 +1427,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreateToken",
@@ -2310,14 +2317,14 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "ContextProperty",
                             "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target permanent"
                         }
                     },
                     "descriptionOverride": "When this creature dies, you may put its +1/+1 counters on target artifact creature."
@@ -2326,7 +2333,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "artifact creature"
-                    }
+                    },
+                    "id": "target permanent"
                 },
                 "descriptionOverride": "When this creature dies, you may put its +1/+1 counters on target artifact creature."
             }

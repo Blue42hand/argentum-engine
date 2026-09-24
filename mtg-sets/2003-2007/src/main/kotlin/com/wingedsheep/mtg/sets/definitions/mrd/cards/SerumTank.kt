@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,7 +43,7 @@ val SerumTank = card("Serum Tank") {
             filter = GameObjectFilter.Artifact,
             binding = TriggerBinding.ANY
         )
-        effect = AddCountersEffect(Counters.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     // {3}, {T}, Remove a charge counter from this artifact: Draw a card.
@@ -52,7 +51,7 @@ val SerumTank = card("Serum Tank") {
         cost = Costs.Composite(
             Costs.Mana("{3}"),
             Costs.Tap,
-            Costs.RemoveCounterFromSelf(Counters.CHARGE, 1)
+            Costs.RemoveCounterFromSelf(CounterType.CHARGE, 1)
         )
         effect = Effects.DrawCards(1)
         description = "{3}, {T}, Remove a charge counter from this artifact: Draw a card."

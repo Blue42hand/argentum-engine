@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -37,7 +37,7 @@ val LeadersTalent = card("Leader's Talent") {
     triggeredAbility {
         trigger = Triggers.YouAttack
         val attacker = target("target attacking creature", Targets.AttackingCreature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, attacker)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker)
     }
 
     // Level 2: Whenever a creature you control leaves the battlefield, if it had a counter
@@ -59,7 +59,7 @@ val LeadersTalent = card("Leader's Talent") {
             trigger = Triggers.YouCastSpell
             effect = Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
         }
     }

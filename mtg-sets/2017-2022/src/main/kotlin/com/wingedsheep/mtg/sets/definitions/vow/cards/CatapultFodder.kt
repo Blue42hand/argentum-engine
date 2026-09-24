@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -54,7 +53,7 @@ private val CatapultFodderFront = card("Catapult Fodder") {
             3,
             GameObjectFilter.Creature.toughnessGreaterThanPower()
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "At the beginning of combat on your turn, if you control three or more " +
             "creatures that each have toughness greater than their power, transform this creature."
     }

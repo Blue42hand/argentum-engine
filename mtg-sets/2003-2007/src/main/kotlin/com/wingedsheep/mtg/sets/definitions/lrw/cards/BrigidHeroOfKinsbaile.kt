@@ -48,7 +48,7 @@ val BrigidHeroOfKinsbaile = card("Brigid, Hero of Kinsbaile") {
         val player = target("target player", Targets.Player)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.attackingOrBlocking().targetPlayerControls(player)),
-            Effects.DealDamage(2, EffectTarget.Self)
+            Effects.DealDamage(2, EffectTarget.IterationEntity)
         )
         description = "Brigid deals 2 damage to each attacking or blocking creature target " +
             "player controls."

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.neo.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -32,7 +33,7 @@ val PatchworkAutomaton = card("Patchwork Automaton") {
 
     triggeredAbility {
         trigger = Triggers.youCastSpell(GameObjectFilter.Artifact)
-        effect = Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you cast an artifact spell, put a +1/+1 counter on this creature."
     }
 

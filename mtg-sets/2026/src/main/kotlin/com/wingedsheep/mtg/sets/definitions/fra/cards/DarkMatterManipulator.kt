@@ -4,10 +4,11 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dark Matter Manipulator — "+2/+0 for every seven cards" is twice the number of complete sets of
@@ -29,17 +30,10 @@ val DarkMatterManipulator = card("Dark Matter Manipulator") {
     }
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.Multiply(
-                DynamicAmount.Divide(
-                    DynamicAmounts.cardsInYourGraveyard(),
-                    DynamicAmount.Fixed(7),
-                    roundUp = false,
-                ),
-                2,
-            ),
-            toughnessBonus = DynamicAmount.Fixed(0),
+            powerBonus = DynamicAmounts.cardsInYourGraveyard() / 7 * 2,
+            toughnessBonus = DynamicAmounts.fixed(0),
         )
     }
 

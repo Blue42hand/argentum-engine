@@ -4,17 +4,16 @@
 
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
@@ -39,16 +38,18 @@ val ApothecaryStomper = card("Apothecary Stomper") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                AddCountersEffect(
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+            mode("Put two +1/+1 counters on target creature you control") {
+                val creature = target(
+                    "target creature",
+                    TargetCreature(filter = TargetFilter.Creature.youControl())
+                )
+                effect = Effects.AddCounters(
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 2,
-                    target = EffectTarget.ContextTarget(0)
-                ),
-                TargetCreature(filter = TargetFilter.Creature.youControl()),
-                "Put two +1/+1 counters on target creature you control"
-            ),
-            Mode.noTarget(GainLifeEffect(4), "You gain 4 life")
+                    target = creature
+                )
+            },
+            Mode.noTarget(Effects.GainLife(4), "You gain 4 life")
         )
     }
     metadata {

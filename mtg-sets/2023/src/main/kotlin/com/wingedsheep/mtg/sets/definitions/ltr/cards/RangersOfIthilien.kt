@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Rangers of Ithilien
@@ -42,7 +42,7 @@ val RangersOfIthilien = card("Rangers of Ithilien") {
             "up to one target creature with lesser power",
             TargetCreature(
                 optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.powerLessThanEntity(EntityReference.Source))
+                filter = TargetFilter(GameObjectFilter.Creature.powerLessThanEntity(EffectTarget.Self))
             )
         )
         effect = Effects.GainControl(creature, Duration.WhileYouControlSource("Rangers of Ithilien"))

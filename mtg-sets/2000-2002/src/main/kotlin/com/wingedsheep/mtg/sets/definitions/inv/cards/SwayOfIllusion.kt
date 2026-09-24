@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -24,8 +23,8 @@ val SwayOfIllusion = card("Sway of Illusion") {
     spell {
         target = TargetCreature(unlimited = true)
         effect = Effects.ChooseColorThen(
-            then = ForEachTargetEffect(
-                effects = listOf(Effects.ChangeColorToChosen(EffectTarget.ContextTarget(0)))
+            then = Effects.ForEachTarget(
+                Effects.ChangeColorToChosen(EffectTarget.ContextTarget(0))
             ),
             prompt = "Choose a color"
         ) then Effects.DrawCards(1)

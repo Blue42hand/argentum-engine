@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.EachPermanentBecomesCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -68,7 +66,7 @@ private val TheEverflowingWellFront = card("The Everflowing Well") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(8, GameObjectFilter.Permanent)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "Descend 8 — At the beginning of your upkeep, if there are eight or more " +
             "permanent cards in your graveyard, transform The Everflowing Well."
     }
@@ -111,7 +109,7 @@ private val TheMyriadPools = card("The Myriad Pools") {
                 ),
             ),
         )
-        effect = EachPermanentBecomesCopyOfTargetEffect(
+        effect = Effects.EachPermanentBecomesCopyOfTarget(
             target = EffectTarget.TriggeringEntity,
             affected = t,
             duration = Duration.EndOfTurn,

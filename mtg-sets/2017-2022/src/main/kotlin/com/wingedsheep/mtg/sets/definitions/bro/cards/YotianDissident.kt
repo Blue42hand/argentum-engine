@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.bro.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -35,7 +35,7 @@ val YotianDissident = card("Yotian Dissident") {
             binding = TriggerBinding.ANY
         )
         val creature = target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "Put a +1/+1 counter on target creature you control."
     }
 

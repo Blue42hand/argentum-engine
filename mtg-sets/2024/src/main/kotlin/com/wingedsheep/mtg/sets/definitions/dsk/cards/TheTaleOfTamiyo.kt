@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -55,13 +52,13 @@ val TheTaleOfTamiyo = card("The Tale of Tamiyo") {
     val millRepeat = Effects.RepeatWhile(
         body = Effects.Composite(
             Patterns.Library.mill(2),
-            ConditionalEffect(
-                condition = Conditions.CollectionSharesCardType("milled"),
-                effect = Effects.DrawCards(1),
+            Effects.If(
+                condition = Conditions.CollectionSharesCardType(Patterns.Library.milled),
+                then = Effects.DrawCards(1),
             ),
         ),
         repeatCondition = RepeatCondition.WhileCondition(
-            Conditions.CollectionSharesCardType("milled")
+            Conditions.CollectionSharesCardType(Patterns.Library.milled)
         ),
     )
 
@@ -81,12 +78,12 @@ val TheTaleOfTamiyo = card("The Tale of Tamiyo") {
                 ),
             )
         )
-        effect = Effects.Composite(
-            ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE))),
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "tamiyoExiled"),
-            Effects.CopyCollectionIntoCollection(from = "tamiyoExiled", storeAs = "tamiyoCopies"),
-            Effects.CastAnyNumberFromCollection(from = "tamiyoCopies"),
-        )
+        effect = Effects.Pipeline {
+            run(Effects.ForEachTarget(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)))
+            val tamiyoExiled = gather(CardSource.ChosenTargets)
+            val tamiyoCopies = copyCards(tamiyoExiled)
+            run(Effects.CastAnyNumberFromCollection(from = tamiyoCopies))
+        }
     }
 
     metadata {

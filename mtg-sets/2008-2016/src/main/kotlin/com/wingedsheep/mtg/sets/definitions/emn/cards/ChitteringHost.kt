@@ -41,8 +41,8 @@ val ChitteringHost = card("Chittering Host") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)
+                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity)
             )
         )
     }

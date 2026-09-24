@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -27,19 +27,19 @@ val OblivionStone = card("Oblivion Stone") {
         "on it, then remove all fate counters from all permanents."
 
     activatedAbility {
+        val permanent = target("target permanent", Targets.Permanent)
         cost = Costs.Composite(Costs.Mana("{4}"), Costs.Tap)
-        target = Targets.Permanent
-        effect = Effects.AddCounters(Counters.FATE, 1, EffectTarget.ContextTarget(0))
+        effect = Effects.AddCounters(CounterType.FATE, 1, permanent)
         description = "{4}, {T}: Put a fate counter on target permanent."
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.Composite(
-            Effects.DestroyAll(GameObjectFilter.NonlandPermanent.withoutCounter(Counters.FATE)),
+            Effects.DestroyAll(GameObjectFilter.NonlandPermanent.withoutCounter(CounterType.FATE)),
             Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Permanent.withCounter(Counters.FATE)),
-                Effects.RemoveAllCountersOfType(Counters.FATE, EffectTarget.Self)
+                GroupFilter(GameObjectFilter.Permanent.withCounter(CounterType.FATE)),
+                Effects.RemoveAllCountersOfType(CounterType.FATE, EffectTarget.IterationEntity)
             )
         )
         description = "{5}, {T}, Sacrifice this artifact: Destroy each nonland permanent without " +

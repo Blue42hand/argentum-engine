@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,7 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The end-step trigger is a "descend" trigger (CR 700.11) with an intervening-if gate
  * ([Conditions.YouDescendedThisTurn]). On resolution the player is offered an optional
- * life payment ([Gate.MayPay] via [OptionalCostEffect]); if paid, [Effects.ReturnToHand]
+ * life payment ([Gate.MayPay] via [Effects.MayPay]); if paid, [Effects.ReturnToHand]
  * bounces the source enchantment to its owner's hand.
  */
 val CorpsesOfTheLost = card("Corpses of the Lost") {
@@ -80,9 +78,9 @@ val CorpsesOfTheLost = card("Corpses of the Lost") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouDescendedThisTurn()
-        effect = OptionalCostEffect(
-            cost = PayLifeEffect(1),
-            ifPaid = Effects.ReturnToHand(EffectTarget.Self)
+        effect = Effects.MayPay(
+            cost = Effects.PayLife(1),
+            then = Effects.ReturnToHand(EffectTarget.Self)
         )
     }
 

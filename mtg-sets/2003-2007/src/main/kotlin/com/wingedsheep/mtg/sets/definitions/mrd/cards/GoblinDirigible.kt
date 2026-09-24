@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The Brass Man / Colossus of Sardia shape, with a bigger toll: [AbilityFlag.DOESNT_UNTAP] takes
  * it out of the untap step, and a [Triggers.YourUpkeep] trigger offers the buy-back via
- * [MayPayManaEffect] — a mandatory trigger with an optional payment, so declining is a legal
+ * [Effects.MayPay] — a mandatory trigger with an optional payment, so declining is a legal
  * choice each upkeep and the Dirigible simply stays tapped. The untap is [EffectTarget.Self],
  * so the trigger does nothing if the creature has already left the battlefield.
  */
@@ -39,7 +38,7 @@ val GoblinDirigible = card("Goblin Dirigible") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = MayPayManaEffect(ManaCost.parse("{4}"), Effects.Untap(EffectTarget.Self))
+        effect = Effects.MayPay(ManaCost.parse("{4}"), Effects.Untap(EffectTarget.Self))
     }
 
     metadata {

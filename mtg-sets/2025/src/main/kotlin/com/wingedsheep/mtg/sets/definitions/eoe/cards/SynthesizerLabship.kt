@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -41,8 +41,8 @@ val SynthesizerLabship = card("Synthesizer Labship") {
     station()
 
     // Charge-counter threshold predicates ({N+} station symbols, CR 721.2a)
-    val charge2 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 2)
-    val charge9 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+    val charge2 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 2)
+    val charge9 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
 
     // 2+ | At the beginning of combat on your turn, up to one other target artifact you control
     // becomes an artifact creature with base P/T 2/2 and gains flying until end of turn.

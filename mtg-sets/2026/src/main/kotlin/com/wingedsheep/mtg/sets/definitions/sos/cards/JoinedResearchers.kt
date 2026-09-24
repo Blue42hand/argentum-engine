@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Joined Researchers // Secret Rendezvous — Secrets of Strixhaven #23
@@ -55,10 +54,10 @@ val JoinedResearchers = card("Joined Researchers") {
         typeLine = "Sorcery"
         oracleText = "You and target opponent each draw three cards."
         spell {
-            target = Targets.Opponent
+            val opponent = target("target opponent", Targets.Opponent)
             effect = Effects.Composite(
                 Effects.DrawCards(3),
-                Effects.DrawCards(3, EffectTarget.ContextTarget(0))
+                Effects.DrawCards(3, opponent)
             )
         }
     }

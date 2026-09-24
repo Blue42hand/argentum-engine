@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -29,7 +28,7 @@ val ScoriaWurm = card("Scoria Wurm") {
     toughness = 7
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = FlipCoinEffect(lostEffect = Effects.Move(EffectTarget.Self, Zone.HAND))
+        effect = Effects.FlipCoin(lostEffect = Effects.Move(EffectTarget.Self, Zone.HAND))
     }
     metadata {
         rarity = Rarity.RARE

@@ -4,14 +4,11 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Soul Separator
@@ -47,19 +44,15 @@ val SoulSeparator = card("Soul Separator") {
         effect = Effects.Composite(listOf(
             Effects.Exile(graveyardCreature),
             Effects.CreateTokenCopyOfTarget(
-                target = EffectTarget.ContextTarget(0),
+                target = graveyardCreature,
                 overridePower = 1,
                 overrideToughness = 1,
                 addedSubtypes = setOf(Subtype("Spirit")),
                 addedKeywords = setOf(Keyword.FLYING)
             ),
             Effects.CreateDynamicToken(
-                dynamicPower = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0), EntityNumericProperty.Power
-                ),
-                dynamicToughness = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0), EntityNumericProperty.Toughness
-                ),
+                dynamicPower = DynamicAmounts.powerOf(graveyardCreature),
+                dynamicToughness = DynamicAmounts.toughnessOf(graveyardCreature),
                 colors = setOf(Color.BLACK),
                 creatureTypes = setOf("Zombie")
             )

@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Valduk, Keeper of the Flame
@@ -28,7 +28,7 @@ val ValdukKeeperOfTheFlame = card("Valduk, Keeper of the Flame") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmounts.attachmentsOnSelf(),
             power = 3,
             toughness = 1,

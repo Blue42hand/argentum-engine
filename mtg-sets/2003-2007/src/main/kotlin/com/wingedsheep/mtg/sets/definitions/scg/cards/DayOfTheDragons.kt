@@ -6,12 +6,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Day of the Dragons
@@ -33,10 +30,11 @@ val DayOfTheDragons = card("Day of the Dragons") {
     // ETB: Exile all creatures you control, create that many Dragon tokens
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.ExileGroupAndLink(GroupFilter.AllCreaturesYouControl)
-            .then(
-                CreateTokenEffect(
-                    count = DynamicAmount.VariableReference("linked_exile_count"),
+        effect = Effects.Pipeline {
+            val exiled = runStoringCollection { Effects.ExileGroupAndLink(GroupFilter.AllCreaturesYouControl, storeAs = it) }
+            run(
+                Effects.CreateToken(
+                    count = exiled.count,
                     power = 5,
                     toughness = 5,
                     colors = setOf(Color.RED),
@@ -45,12 +43,13 @@ val DayOfTheDragons = card("Day of the Dragons") {
                     imageUri = "https://cards.scryfall.io/normal/front/a/5/a5d4dd3b-0a5f-4d2c-aa6b-3c47e71e8c39.jpg?1730485632"
                 )
             )
+        }
     }
 
     // LTB: Sacrifice all Dragons you control, return exiled cards
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
-        effect = ForceSacrificeEffect(
+        effect = Effects.Sacrifice(
             filter = GameObjectFilter.Creature.withSubtype("Dragon"),
             count = 100,
             target = EffectTarget.Controller

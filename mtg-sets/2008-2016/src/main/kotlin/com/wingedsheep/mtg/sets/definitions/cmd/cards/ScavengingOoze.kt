@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.cmd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -37,10 +36,10 @@ val ScavengingOoze = card("Scavenging Ooze") {
         val exiled = target("target card in a graveyard", Targets.CardInGraveyard)
         effect = Effects.Composite(
             Effects.Exile(exiled),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                effect = Effects.Composite(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                then = Effects.Composite(
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     Effects.GainLife(1),
                 ),
             ),

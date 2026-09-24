@@ -6,8 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.CounterType
 
 /**
  * Servant of the Scale
@@ -35,16 +34,16 @@ val ServantOfTheScale = card("Servant of the Scale") {
         "the number of +1/+1 counters on this creature."
 
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.PlusOnePlusOne,
+        counterType = CounterType.PLUS_ONE_PLUS_ONE,
         count = 1,
         selfOnly = true
     ))
 
     // When this creature dies, put its +1/+1 counters on target creature you control.
     triggeredAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         trigger = Triggers.Dies
-        target = Targets.CreatureYouControl
-        effect = Effects.MoveAllLastKnownCounters(EffectTarget.ContextTarget(0))
+        effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
     }
 
     metadata {

@@ -374,7 +374,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -460,13 +460,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "page"
-                            }
+                            "counterType": "PAGE"
                         }
                     },
                     "operator": "GTE",
@@ -508,7 +505,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPutCountersOnSelf",
-                                "counterType": "page"
+                                "counterType": "PAGE"
                             }
                         }
                     ]
@@ -535,7 +532,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPutCountersOnSelf",
-                                "counterType": "page"
+                                "counterType": "PAGE"
                             }
                         }
                     ]
@@ -1101,7 +1098,7 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": {
                         "cardPredicates": [
                             "IsCreature",
@@ -1116,7 +1113,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }

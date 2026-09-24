@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.stx.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -32,7 +32,7 @@ val BigPlay = card("Big Play") {
                 Effects.ModifyStats(2, 2, creature),
                 Effects.GrantKeyword(Keyword.REACH, creature)
             ),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         )
     }
 

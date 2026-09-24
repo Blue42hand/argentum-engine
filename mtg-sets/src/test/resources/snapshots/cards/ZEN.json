@@ -380,13 +380,16 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target any"
                         },
                         "damageSource": "GrantingSource"
                     },
                     "targetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ],
                     "descriptionOverride": "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target."
                 }
@@ -1765,8 +1768,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target nonland permanent"
                     },
                     "destination": "Hand"
                 },
@@ -1791,7 +1794,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "nonland permanent"
-                }
+                },
+                "id": "target nonland permanent"
             }
         ]
     },
@@ -1945,7 +1949,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2264,7 +2268,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2461,10 +2465,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land Island"
-                            },
+                            "filter": "land Island",
                             "storeMatching": "kept",
                             "storeNonMatching": "rest"
                         },
@@ -2696,7 +2697,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2776,7 +2777,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -3009,8 +3010,8 @@
                                         "type": "FromZone",
                                         "zone": "Hand",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         }
                                     },
                                     "storeAs": "hand"
@@ -3036,8 +3037,8 @@
                                         "type": "ToZone",
                                         "zone": "Graveyard",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         }
                                     },
                                     "moveType": "Discard"
@@ -3219,7 +3220,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 4,
                     "target": "Self"
                 },
@@ -3364,7 +3365,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3973,17 +3974,15 @@
             "scope": "CombatOnly",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
+                "type": "PreventFromMatching",
                 "filter": {
-                    "baseFilter": {
-                        "cardPredicates": [
-                            "IsCreature",
-                            {
-                                "type": "NotKeyword",
-                                "keyword": "TRAMPLE"
-                            }
-                        ]
-                    }
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "NotKeyword",
+                            "keyword": "TRAMPLE"
+                        }
+                    ]
                 }
             }
         }
@@ -4220,7 +4219,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -4331,7 +4330,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }

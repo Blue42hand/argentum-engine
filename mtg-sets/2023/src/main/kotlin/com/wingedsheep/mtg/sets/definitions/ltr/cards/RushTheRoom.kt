@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Rush the Room
@@ -29,9 +28,9 @@ val RushTheRoom = card("Rush the Room") {
         effect = Effects.ModifyStats(1, 0, creature)
             .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature))
             .then(
-                ConditionalEffect(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc")),
-                    effect = Effects.GrantKeyword(Keyword.HASTE, creature)
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc"), creature),
+                    then = Effects.GrantKeyword(Keyword.HASTE, creature)
                 )
             )
     }

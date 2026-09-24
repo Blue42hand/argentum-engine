@@ -6,9 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainControlEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,9 +30,9 @@ val BroadcastTakeover = card("Broadcast Takeover") {
 
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(opponentArtifacts, TapUntapEffect(EffectTarget.Self, tap = false)),
-            Effects.ForEachInGroup(opponentArtifacts, GrantKeywordEffect(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn)),
-            Effects.ForEachInGroup(opponentArtifacts, GainControlEffect(EffectTarget.Self, Duration.EndOfTurn))
+            Effects.ForEachInGroup(opponentArtifacts, Effects.Untap(EffectTarget.IterationEntity)),
+            Effects.ForEachInGroup(opponentArtifacts, Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)),
+            Effects.ForEachInGroup(opponentArtifacts, Effects.GainControl(EffectTarget.IterationEntity, Duration.EndOfTurn))
         )
     }
 

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -34,7 +33,7 @@ val ToxinSliver = card("Toxin Sliver") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsCombatDamageToCreature.event,
                 binding = Triggers.DealsCombatDamageToCreature.binding,
-                effect = CantBeRegeneratedEffect(EffectTarget.TriggeringEntity) then
+                effect = Effects.CantBeRegenerated(EffectTarget.TriggeringEntity) then
                         Effects.Move(EffectTarget.TriggeringEntity, Zone.GRAVEYARD, byDestruction = true)
             ),
             filter = sliverFilter

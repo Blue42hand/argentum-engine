@@ -24,7 +24,7 @@ val SawItComing = card("Saw It Coming") {
         "Foretell {1}{U} (During your turn, you may pay {2} and exile this card from your hand face down. Cast it on a later turn for its foretell cost.)"
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
     }
 

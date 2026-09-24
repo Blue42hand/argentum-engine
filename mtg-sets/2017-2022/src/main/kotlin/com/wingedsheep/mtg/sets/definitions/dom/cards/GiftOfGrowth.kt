@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Gift of Growth
@@ -28,10 +27,10 @@ val GiftOfGrowth = card("Gift of Growth") {
         val t = target("target", Targets.Creature)
         effect = Effects.Untap(t)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = WasKicked,
-                    effect = Effects.ModifyStats(4, 4, t),
-                    elseEffect = Effects.ModifyStats(2, 2, t)
+                    then = Effects.ModifyStats(4, 4, t),
+                    otherwise = Effects.ModifyStats(2, 2, t)
                 )
             )
     }

@@ -28,7 +28,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -76,13 +76,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -490,24 +487,28 @@
                                 "zone": "Hand",
                                 "filter": "permanent"
                             },
-                            "storeAs": "hand_permanents"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "hand_permanents",
+                            "from": "gathered1",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "AggregateBattlefield",
-                                    "player": "You",
-                                    "filter": "land"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "land"
+                                        }
+                                    }
+                                ]
                             },
-                            "storeMatching": "eligible_permanents"
+                            "storeMatching": "matching2"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "eligible_permanents",
+                            "from": "matching2",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -515,12 +516,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "chosen_permanent",
+                            "storeSelected": "selected3",
                             "prompt": "Choose a permanent card to put onto the battlefield (optional)"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "chosen_permanent",
+                            "from": "selected3",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield",
@@ -601,7 +602,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": {
                                     "type": "BoundVariable",
@@ -688,7 +689,7 @@
                                 "IsNonland",
                                 {
                                     "type": "ManaValueAtMostEntityManaSpent",
-                                    "reference": "Source"
+                                    "reference": "Self"
                                 }
                             ],
                             "controllerPredicate": "OwnedByYou"
@@ -758,9 +759,9 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -778,7 +779,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -796,13 +797,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -826,13 +824,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -856,13 +851,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -1134,7 +1126,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Exile"
             }
         }
@@ -1289,7 +1281,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1437,7 +1429,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": "Self"
                             },
@@ -1447,8 +1439,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target targeted object"
                                 },
                                 "destination": "Library",
                                 "placement": "Bottom"
@@ -1463,7 +1455,8 @@
                                             ]
                                         },
                                         "zone": "Exile"
-                                    }
+                                    },
+                                    "id": "target targeted object"
                                 }
                             ],
                             "description": "Put target exiled card with warp on the bottom of its owner's library"
@@ -1610,12 +1603,19 @@
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
                 },
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 }
             }
         ],
@@ -1693,11 +1693,11 @@
                             "filter": "artifact"
                         }
                     },
-                    "storeAs": "surveiled"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "surveiled",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -1706,14 +1706,14 @@
                             "filter": "artifact"
                         }
                     },
-                    "storeSelected": "toGraveyard",
-                    "storeRemainder": "toTop",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "selectedLabel": "Put in graveyard",
                     "remainderLabel": "Put on top"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toGraveyard",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard"
@@ -1721,7 +1721,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toTop",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -1911,7 +1911,7 @@
             "amount": {
                 "type": "EntityProperty",
                 "entity": {
-                    "type": "FromCostStorage",
+                    "type": "PipelineTarget",
                     "collectionName": "chosen"
                 },
                 "numericProperty": "Power"
@@ -2440,9 +2440,9 @@
                                 },
                                 "body": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Put a +1/+1 counter on each creature you control"
@@ -2620,8 +2620,8 @@
                 "condition": {
                     "type": "EntityMatches",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "creature"
                     },
                     "filter": "creature kw:flying"
                 },
@@ -2629,14 +2629,20 @@
                     "type": "Multiply",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "creature"
+                        },
                         "numericProperty": "Power"
                     },
                     "multiplier": 2
                 },
                 "ifFalse": {
                     "type": "EntityProperty",
-                    "entity": "Target",
+                    "entity": {
+                        "type": "BoundVariable",
+                        "name": "creature"
+                    },
                     "numericProperty": "Power"
                 }
             },
@@ -2807,13 +2813,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -2856,7 +2859,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -2874,13 +2877,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -2904,13 +2904,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -2964,9 +2961,9 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "interveningIf": {
@@ -3051,7 +3048,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -3091,13 +3088,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -3121,13 +3115,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -3252,7 +3243,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                },
                                 "numericProperty": "Power"
                             },
                             "operator": "LTE",
@@ -3312,8 +3306,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target nonland permanent"
                             },
                             "filter": "permanent attacking"
                         }
@@ -3457,7 +3451,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "creature you control"
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -3524,7 +3521,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -3558,12 +3556,19 @@
                     "from": "Battlefield",
                     "to": "Graveyard"
                 },
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 }
             }
         ],
@@ -3599,7 +3604,7 @@
                 {
                     "effect": {
                         "type": "AddCounters",
-                        "counterType": "charge",
+                        "counterType": "CHARGE",
                         "count": 5,
                         "target": {
                             "type": "BoundVariable",
@@ -3706,7 +3711,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3735,7 +3740,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -3796,7 +3801,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{5}: Creatures you control get +1/+1 until end of turn."
@@ -3841,10 +3846,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                },
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": "PlusOnePlusOne"
+                                    "counterType": "PLUS_ONE_PLUS_ONE"
                                 }
                             },
                             "operator": "GTE",
@@ -4036,18 +4044,18 @@
                                         "statePredicates": [
                                             {
                                                 "type": "HasCounter",
-                                                "counterType": "+1/+1"
+                                                "counterType": "PLUS_ONE_PLUS_ONE"
                                             }
                                         ],
                                         "controllerPredicate": "ControlledByYou"
                                     },
                                     "player": "You"
                                 },
-                                "storeAs": "candidates"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "candidates",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -4055,26 +4063,26 @@
                                         "amount": 2
                                     }
                                 },
-                                "storeSelected": "chosen",
+                                "storeSelected": "selected1",
                                 "prompt": "Choose two creatures you control to remove a +1/+1 counter from",
                                 "useTargetingUI": true
                             },
                             {
                                 "type": "RemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "PipelineTarget",
-                                    "collectionName": "chosen"
+                                    "collectionName": "selected1"
                                 }
                             },
                             {
                                 "type": "RemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "PipelineTarget",
-                                    "collectionName": "chosen",
+                                    "collectionName": "selected1",
                                     "index": 1
                                 }
                             },
@@ -4440,13 +4448,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -4535,7 +4540,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -4553,13 +4558,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -4583,13 +4585,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -4613,13 +4612,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -4762,7 +4758,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -4800,13 +4796,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -4967,7 +4960,7 @@
                                     "type": "Fixed",
                                     "amount": 4
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -4995,7 +4988,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -5013,13 +5006,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5043,13 +5033,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5073,13 +5060,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5128,8 +5112,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "up to one other target creature"
                                     },
                                     "filter": {
                                         "cardPredicates": [
@@ -5239,30 +5223,30 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": "Power"
                                 }
                             },
-                            "storeAs": "looked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "looked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": "Power"
                                 }
                             },
                             "filter": "land",
-                            "storeSelected": "toBattlefield",
-                            "storeRemainder": "rest"
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toBattlefield",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield",
@@ -5271,7 +5255,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "rest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -5377,11 +5361,11 @@
                                         "zone": "Graveyard",
                                         "filter": "creature|Spacecraft"
                                     },
-                                    "storeAs": "creatureOrSpacecraftCards"
+                                    "storeAs": "gathered0"
                                 },
                                 {
                                     "type": "SelectFromCollection",
-                                    "from": "creatureOrSpacecraftCards",
+                                    "from": "gathered0",
                                     "selection": {
                                         "type": "ChooseUpTo",
                                         "count": {
@@ -5389,12 +5373,12 @@
                                             "amount": 1
                                         }
                                     },
-                                    "storeSelected": "chosen",
+                                    "storeSelected": "selected1",
                                     "prompt": "Return a creature or Spacecraft card from your graveyard to your hand"
                                 },
                                 {
                                     "type": "MoveCollection",
-                                    "from": "chosen",
+                                    "from": "selected1",
                                     "destination": {
                                         "type": "ToZone",
                                         "zone": "Hand"
@@ -5420,7 +5404,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -5438,13 +5422,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5468,13 +5449,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5498,13 +5476,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5740,7 +5715,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5809,8 +5784,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             },
                             "filter": {
                                 "cardPredicates": [
@@ -5978,7 +5953,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -5996,13 +5971,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -6026,13 +5998,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -6056,13 +6025,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -6373,17 +6339,17 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -6586,7 +6552,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -6607,7 +6573,7 @@
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -6634,7 +6600,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -6897,12 +6863,12 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -6945,7 +6911,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -7431,7 +7397,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -7582,7 +7551,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -7674,7 +7643,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -7692,13 +7661,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -7722,13 +7688,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -7779,7 +7742,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -7846,7 +7809,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -7890,7 +7853,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -7935,8 +7898,8 @@
                     "amount": 5
                 },
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "target creature"
                 }
             },
             "otherwise": {
@@ -7946,8 +7909,8 @@
                     "amount": 3
                 },
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "target creature"
                 }
             }
         },
@@ -7956,7 +7919,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -8109,7 +8073,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -8227,7 +8191,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -8263,13 +8227,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -8311,7 +8272,7 @@
                                         "type": "Fixed",
                                         "amount": 0
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -8325,7 +8286,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -8501,7 +8462,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -8519,13 +8480,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -8549,13 +8507,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -8653,7 +8608,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -8709,11 +8664,11 @@
                                     "type": "FromZone",
                                     "zone": "Hand"
                                 },
-                                "storeAs": "exileCandidates"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "exileCandidates",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -8721,12 +8676,12 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "chosenCard",
+                                "storeSelected": "selected1",
                                 "prompt": "Choose a card to exile"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "chosenCard",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -8734,13 +8689,13 @@
                             },
                             {
                                 "type": "GrantMayPlayFromExile",
-                                "from": "chosenCard",
+                                "from": "selected1",
                                 "expiry": "Permanent",
                                 "landEntersTapped": true
                             },
                             {
                                 "type": "GrantPlayWithCostIncrease",
-                                "from": "chosenCard",
+                                "from": "selected1",
                                 "amount": 1
                             }
                         ]
@@ -8801,7 +8756,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -8839,7 +8794,7 @@
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": {
                             "cardPredicates": [
                                 {
@@ -8974,7 +8929,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -8992,13 +8947,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -9023,13 +8975,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -9053,13 +9002,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -9083,13 +9029,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -9342,17 +9285,17 @@
                         {
                             "type": "TapUntap",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target artifact or creature an opponent controls"
                             }
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "count": 1,
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target artifact or creature an opponent controls"
                             }
                         }
                     ]
@@ -9510,7 +9453,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -9777,16 +9720,16 @@
                                     },
                                     "right": {
                                         "type": "EntityProperty",
-                                        "entity": "Sacrificed",
+                                        "entity": "SacrificedAsCost",
                                         "numericProperty": "ManaValue"
                                     }
                                 }
                             },
-                            "storeAs": "exiledCards"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiledCards",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -9794,7 +9737,7 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "exiledCards"
+                            "from": "gathered0"
                         }
                     ]
                 }
@@ -9914,7 +9857,10 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
+                        },
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
@@ -9922,8 +9868,8 @@
                         "amount": 0
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
                     }
                 },
                 "targetRequirement": {
@@ -9973,7 +9919,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -10346,7 +10292,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "duration": "UntilYourNextTurn"
                     }
                 },
@@ -10416,7 +10362,7 @@
                                 },
                                 "body": {
                                     "type": "GainControl",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "duration": "EndOfTurn"
                                 }
                             },
@@ -10430,7 +10376,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "tap": false
                                 }
                             },
@@ -10445,7 +10391,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -10493,7 +10439,7 @@
                                 },
                                 "body": {
                                     "type": "GainControl",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "duration": "EndOfTurn"
                                 }
                             },
@@ -10507,7 +10453,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "tap": false
                                 }
                             },
@@ -10522,7 +10468,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -10860,7 +10806,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -10904,10 +10850,10 @@
                     "effects": [
                         {
                             "type": "StoreNumber",
-                            "name": "ouroboroid_power",
+                            "name": "number0",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -10921,12 +10867,12 @@
                             },
                             "body": {
                                 "type": "AddDynamicCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "amount": {
                                     "type": "VariableReference",
-                                    "variableName": "ouroboroid_power"
+                                    "variableName": "number0"
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -11228,7 +11174,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -11246,13 +11192,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -11276,13 +11219,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -11383,22 +11323,22 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "exiled"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiled",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
                             },
-                            "storeMovedAs": "moved"
+                            "storeMovedAs": "moved1"
                         },
                         {
                             "type": "CreateToken",
                             "count": {
                                 "type": "VariableReference",
-                                "variableName": "moved_count"
+                                "variableName": "moved1_count"
                             },
                             "power": 2,
                             "toughness": 2,
@@ -11478,12 +11418,15 @@
                 }
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "any target"
             }
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ]
     },
     "metadata": {
@@ -11535,11 +11478,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "exiledCard"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiledCard",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -11547,7 +11490,7 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "exiledCard",
+                            "from": "gathered0",
                             "expiry": "Permanent",
                             "condition": {
                                 "type": "Exists",
@@ -11585,21 +11528,18 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "chosen"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "FilterCollection",
-                    "from": "chosen",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "land"
-                    },
-                    "storeMatching": "chosenLands",
-                    "storeNonMatching": "chosenNonlands"
+                    "from": "gathered0",
+                    "filter": "land",
+                    "storeMatching": "matching1",
+                    "storeNonMatching": "rest1"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "chosenNonlands",
+                    "from": "rest1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -11607,7 +11547,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "chosenLands",
+                    "from": "matching1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield",
@@ -11681,11 +11621,11 @@
                                     "amount": 5
                                 }
                             },
-                            "storeAs": "looked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "looked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -11694,15 +11634,15 @@
                                 }
                             },
                             "filter": "Spacecraft",
-                            "storeSelected": "kept",
-                            "storeRemainder": "rest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "selectedLabel": "Put in hand",
                             "remainderLabel": "Put on bottom",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "rest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -11711,21 +11651,21 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "kept",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "Composite",
                                 "effects": []
                             },
                             "ifEmpty": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             }
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "kept",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -12061,7 +12001,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -12089,7 +12029,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -12327,8 +12267,8 @@
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact"
                         }
                     },
                     "targetRequirements": [
@@ -12336,7 +12276,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact|creature"
-                            }
+                            },
+                            "id": "target artifact"
                         }
                     ],
                     "description": "Target artifact or creature gains indestructible until end of turn"
@@ -12349,8 +12290,8 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target tapped creature"
                         }
                     },
                     "targetRequirements": [
@@ -12358,7 +12299,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature tapped"
-                            }
+                            },
+                            "id": "target tapped creature"
                         }
                     ],
                     "description": "Reroute Systems deals 2 damage to target tapped creature"
@@ -12427,7 +12369,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -12445,13 +12387,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -12475,13 +12414,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -12603,14 +12539,14 @@
                                 "type": "BoundVariable",
                                 "name": "instant or sorcery card with mana value 2 or less from your graveyard"
                             },
-                            "storeAs": "copy"
+                            "storeAs": "copy1"
                         },
                         {
                             "type": "Gated",
                             "gate": "Gate.MayDecide",
                             "then": {
                                 "type": "CastFromCollectionWithoutPayingCost",
-                                "from": "copy"
+                                "from": "copy1"
                             },
                             "descriptionOverride": "You may cast the copy without paying its mana cost."
                         }
@@ -12676,7 +12612,7 @@
                         },
                         "body": {
                             "type": "MoveToZone",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "destination": "Exile"
                         }
                     },
@@ -12740,7 +12676,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -12748,7 +12684,7 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             },
                             "target": {
@@ -13019,36 +12955,12 @@
             "effects": [
                 {
                     "type": "GatherCards",
-                    "source": {
-                        "type": "FromZone",
-                        "zone": "Graveyard",
-                        "filter": "creature"
-                    },
-                    "storeAs": "graveyardCreatures"
-                },
-                {
-                    "type": "SelectFromCollection",
-                    "from": "graveyardCreatures",
-                    "selection": {
-                        "type": "ChooseUpTo",
-                        "count": {
-                            "type": "Fixed",
-                            "amount": 3
-                        }
-                    },
-                    "storeSelected": "chosen",
-                    "prompt": "Choose up to three creature cards with total mana value 3 or less",
-                    "selectedLabel": "Return to the battlefield with a +1/+1 counter",
-                    "restrictions": [
-                        {
-                            "type": "TotalManaValueAtMost",
-                            "max": 3
-                        }
-                    ]
+                    "source": "ChosenTargets",
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "chosen",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"
@@ -13056,7 +12968,23 @@
                     "addCounterType": "PLUS_ONE_PLUS_ONE"
                 }
             ]
-        }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 3,
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "up to three target creature cards with total mana value 3 or less from your graveyard",
+                "totalManaValueAtMost": {
+                    "type": "Fixed",
+                    "amount": 3
+                }
+            }
+        ]
     },
     "metadata": {
         "collectorNumber": "33",
@@ -13365,7 +13293,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -13527,7 +13455,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "target artifact or enchantment"
+                                },
                                 "numericProperty": "ManaValue"
                             },
                             "operator": "LTE",
@@ -13595,11 +13526,11 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             {
@@ -13616,7 +13547,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -14048,7 +13980,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -14066,13 +13998,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -14096,13 +14025,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -14158,11 +14084,11 @@
                                     "filter": "creature",
                                     "player": "You"
                                 },
-                                "storeAs": "opponent_creatures"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "opponent_creatures",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -14170,12 +14096,12 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "chosen_creature",
+                                "storeSelected": "selected1",
                                 "prompt": "Choose a creature to exile"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "chosen_creature",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -14200,12 +14126,12 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "exiled_creatures"
+                            "storeAs": "gathered0"
                         },
                         "SacrificeSelf",
                         {
                             "type": "SelectFromCollection",
-                            "from": "exiled_creatures",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -14214,22 +14140,22 @@
                                 }
                             },
                             "filter": "creature",
-                            "storeSelected": "chosen_creature",
+                            "storeSelected": "selected2",
                             "prompt": "Choose a creature card to put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "chosen_creature",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
                             },
-                            "storeMovedAs": "returned_creature"
+                            "storeMovedAs": "moved3"
                         },
                         {
                             "type": "AddCountersToCollection",
-                            "collectionName": "returned_creature",
-                            "counterType": "+1/+1",
+                            "collectionName": "moved3",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2
                         }
                     ]
@@ -14284,8 +14210,8 @@
                         "type": "TopOfLibrary",
                         "count": "YourLifeTotal",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "player"
                         },
                         "isMill": true
                     },
@@ -14298,8 +14224,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "player"
                         }
                     }
                 }
@@ -14418,7 +14344,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -14436,13 +14362,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -14466,13 +14389,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -14896,7 +14816,7 @@
                             "statePredicates": [
                                 {
                                     "type": "HasCounter",
-                                    "counterType": "+1/+1"
+                                    "counterType": "PLUS_ONE_PLUS_ONE"
                                 }
                             ],
                             "controllerPredicate": "ControlledByYou"
@@ -14948,7 +14868,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature ctrl:you"
                 },
                 "binding": "ANY",
@@ -15127,7 +15050,7 @@
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -15178,7 +15101,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -15225,7 +15148,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "filter": "creature ctrl:you"
                             }
                         }
@@ -15364,7 +15287,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -15529,7 +15452,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -15568,7 +15491,7 @@
                     "type": "DrawCards",
                     "count": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Power"
                     }
                 },
@@ -15580,13 +15503,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -15669,7 +15589,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -15687,13 +15607,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -15717,13 +15634,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -15939,13 +15853,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -15969,7 +15880,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -15987,13 +15898,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -16017,13 +15925,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -16047,13 +15952,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -16124,7 +16026,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -16153,7 +16055,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -16196,7 +16098,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "operator": "GTE",
@@ -16235,7 +16137,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "operator": "GTE",
@@ -16314,12 +16216,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -16351,12 +16253,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -16419,8 +16321,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target artifact or creature"
                             },
                             "filter": "Spacecraft"
                         }
@@ -16430,7 +16332,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "count": 10,
                                 "target": {
                                     "type": "BoundVariable",
@@ -16442,7 +16344,7 @@
                                 "step": "END",
                                 "effect": {
                                     "type": "RemoveCounters",
-                                    "counterType": "charge",
+                                    "counterType": "CHARGE",
                                     "count": 10,
                                     "target": {
                                         "type": "BoundVariable",
@@ -16678,15 +16580,15 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
-                    "storeAs": "hand"
+                    "storeAs": "gathered1"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "hand",
+                    "from": "gathered1",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -16695,20 +16597,20 @@
                         }
                     },
                     "filter": "nonland",
-                    "storeSelected": "toDiscard",
+                    "storeSelected": "selected2",
                     "prompt": "Choose a nonland card to discard",
                     "showAllCards": true,
                     "alwaysPrompt": true
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toDiscard",
+                    "from": "selected2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "moveType": "Discard"
@@ -16757,33 +16659,38 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "GatherCards",
-                    "source": {
-                        "type": "FromZone",
-                        "zone": "Hand",
-                        "filter": "artifact|creature"
-                    },
-                    "storeAs": "put_candidates"
-                },
-                {
-                    "type": "SelectFromCollection",
-                    "from": "put_candidates",
-                    "selection": {
-                        "type": "ChooseUpTo",
-                        "count": {
-                            "type": "Fixed",
-                            "amount": 1
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "filter": "artifact|creature"
+                            },
+                            "storeAs": "put_candidates"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "put_candidates",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "putting"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "putting",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
                         }
-                    },
-                    "storeSelected": "putting"
-                },
-                {
-                    "type": "MoveCollection",
-                    "from": "putting",
-                    "destination": {
-                        "type": "ToZone",
-                        "zone": "Battlefield"
-                    }
+                    ]
                 },
                 {
                     "type": "ConditionalOnCollection",
@@ -16820,10 +16727,10 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": "ManaValue"
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     "descriptionOverride": "When this permanent leaves the battlefield, it deals damage equal to its mana value to each creature."
@@ -16916,7 +16823,7 @@
                             "label": "Put two +1/+1 counters on this creature",
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": "Self"
                             }
@@ -16958,7 +16865,7 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": "creature ctrl:you",
                     "placedBy": "You"
                 },
@@ -17019,12 +16926,12 @@
                         {
                             "type": "GatherUntilMatch",
                             "filter": "nonland",
-                            "storeMatch": "impulseCard",
-                            "storeRevealed": "exiledCards"
+                            "storeMatch": "matched0",
+                            "storeRevealed": "revealed0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiledCards",
+                            "from": "revealed0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -17032,7 +16939,7 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "impulseCard"
+                            "from": "matched0"
                         }
                     ]
                 }
@@ -17069,7 +16976,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "loyalty",
+                    "counterType": "LOYALTY",
                     "count": 1,
                     "target": "Self"
                 }
@@ -17100,15 +17007,15 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "artifact or creature"
                                     },
                                     "filter": "artifact creature"
                                 }
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
@@ -17197,11 +17104,11 @@
                             "effects": [
                                 {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 3,
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target artifact"
                                     }
                                 },
                                 {
@@ -17211,8 +17118,8 @@
                                         "condition": {
                                             "type": "EntityMatches",
                                             "entity": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target artifact"
                                             },
                                             "filter": "noncreature"
                                         }
@@ -17220,8 +17127,8 @@
                                     "then": {
                                         "type": "BecomeCreature",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target artifact"
                                         },
                                         "power": {
                                             "type": "Fixed",
@@ -17243,7 +17150,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact ctrl:you"
-                            }
+                            },
+                            "id": "target artifact"
                         }
                     },
                     "descriptionOverride": "At the beginning of combat on your turn, put three +1/+1 counters on target artifact you control. If it's not a creature, it becomes a 0/0 Robot artifact creature."
@@ -17465,18 +17373,21 @@
                     "effect": {
                         "type": "HijackNextTurn",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "targetRequirements": [
-                        "TargetOpponent"
+                        {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        }
                     ],
                     "timing": "SorcerySpeed",
                     "descriptionOverride": "{15}, Exile The Dominion Bracelet: You control target opponent during their next turn. This ability costs {X} less to activate, where X is this creature's power.",
                     "genericCostReduction": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 }
@@ -17645,7 +17556,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -17658,13 +17569,10 @@
                     "type": "AddManaOfChoice",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     }
                 },
@@ -17676,13 +17584,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -17783,7 +17688,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -17801,13 +17706,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -17831,13 +17733,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18085,8 +17984,8 @@
                 }
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -18094,7 +17993,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -18167,13 +18067,19 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target spell"
+                        },
                         "numericProperty": "ManaSpent"
                     },
                     "operator": "LT",
                     "right": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target spell"
+                        },
                         "numericProperty": "ManaValue"
                     }
                 }
@@ -18199,7 +18105,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -18346,7 +18253,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -18364,13 +18271,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18394,13 +18298,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18453,7 +18354,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -18491,13 +18392,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -18636,13 +18534,16 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature artifact nontoken ctrl:you"
                 },
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "poison",
+                    "counterType": "POISON",
                     "count": 2,
                     "target": {
                         "type": "PlayerRef",
@@ -18818,7 +18719,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -18836,13 +18737,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18866,13 +18764,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18976,7 +18871,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -18994,13 +18889,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19024,13 +18916,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19054,13 +18943,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19112,7 +18998,7 @@
                     "space": "IterationSpace.Targets",
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -19221,11 +19107,11 @@
                                     "Graveyard"
                                 ]
                             },
-                            "storeAs": "weftwalkingShuffleCards"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "weftwalkingShuffleCards",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -19305,7 +19191,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -19323,13 +19209,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19353,13 +19236,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19477,7 +19357,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -19496,7 +19376,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "tap": false
                         }
                     }
@@ -19549,7 +19429,7 @@
                                 "zone": "Graveyard"
                             },
                             "moveType": "Destroy",
-                            "storeMovedAs": "destroyed"
+                            "storeMovedAs": "stored0"
                         }
                     ]
                 },
@@ -19577,7 +19457,7 @@
                         "effects": [
                             {
                                 "type": "SelectFromCollection",
-                                "from": "destroyed",
+                                "from": "stored0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -19586,11 +19466,11 @@
                                     }
                                 },
                                 "filter": "creature nontoken",
-                                "storeSelected": "reanimated"
+                                "storeSelected": "selected2"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "reanimated",
+                                "from": "selected2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Battlefield"

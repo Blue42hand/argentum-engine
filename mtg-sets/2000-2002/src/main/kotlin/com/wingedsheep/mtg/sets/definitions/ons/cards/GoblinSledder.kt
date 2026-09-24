@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 
 /**
  * Goblin Sledder
@@ -27,9 +27,9 @@ val GoblinSledder = card("Goblin Sledder") {
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype("Goblin"))
         val t = target("target", Targets.Creature)
-        effect = ModifyStatsEffect(
-            powerModifier = 1,
-            toughnessModifier = 1,
+        effect = Effects.ModifyStats(
+            power = 1,
+            toughness = 1,
             target = t,
             duration = Duration.EndOfTurn
         )

@@ -817,6 +817,11 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   // faces, and on the Aura face the third counter *ends the game* — a tally a player has to be
   // able to read off the board.
   CounterType.JUDGMENT,
+  // Innistrad: Crimson Vow tallies that transform their permanent at three (Edgar Markov's Coffin,
+  // Wedding Announcement), and Illicit Masquerade's impostor marker, which decides what it exiles.
+  CounterType.BLOODLINE,
+  CounterType.INVITATION,
+  CounterType.IMPOSTOR,
   CounterType.PLUS_ONE_PLUS_TWO,
   CounterType.PLUS_TWO_PLUS_TWO,
   CounterType.MINUS_TWO_MINUS_TWO,

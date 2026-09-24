@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,12 +45,12 @@ val ShriekTreblemaker = card("Shriek, Treblemaker") {
     // creature can't block this turn."
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
-            optional = true,
-            reflexiveEffect = Effects.CantBlock(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.Creature)
-        )
+            optional = true) {
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.CantBlock(creature)
+        }
     }
 
     // "Sonic Blast — Whenever a creature an opponent controls dies, Shriek deals 1 damage to that player."

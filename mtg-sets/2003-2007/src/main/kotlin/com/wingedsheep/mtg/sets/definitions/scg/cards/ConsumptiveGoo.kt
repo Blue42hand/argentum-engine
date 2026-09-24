@@ -1,15 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,14 +29,14 @@ val ConsumptiveGoo = card("Consumptive Goo") {
     activatedAbility {
         cost = Costs.Mana(ManaCost.parse("{2}{B}{B}"))
         val t = target("target creature", Targets.Creature)
-        effect = ModifyStatsEffect(
-            powerModifier = -1,
-            toughnessModifier = -1,
+        effect = Effects.ModifyStats(
+            power = -1,
+            toughness = -1,
             target = t,
             duration = Duration.EndOfTurn
         ).then(
-            AddCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+            Effects.AddCounters(
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
                 target = EffectTarget.Self
             )

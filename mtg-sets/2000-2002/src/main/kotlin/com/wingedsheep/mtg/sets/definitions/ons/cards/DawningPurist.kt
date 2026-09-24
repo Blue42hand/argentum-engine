@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -39,7 +38,7 @@ val DawningPurist = card("Dawning Purist") {
                 filter = TargetFilter(GameObjectFilter.Enchantment.controlledByTriggeringPlayer())
             )
         )
-        effect = MayEffect(Effects.Move(t, Zone.GRAVEYARD, byDestruction = true))
+        effect = Effects.May(Effects.Move(t, Zone.GRAVEYARD, byDestruction = true))
     }
 
     morph = "{1}{W}"

@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -55,9 +54,9 @@ val BriaRiptideRogue = card("Bria, Riptide Rogue") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.YouCastNoncreature.event,
                 binding = Triggers.YouCastNoncreature.binding,
-                effect = ModifyStatsEffect(
-                    powerModifier = 1,
-                    toughnessModifier = 1,
+                effect = Effects.ModifyStats(
+                    power = 1,
+                    toughness = 1,
                     target = EffectTarget.Self
                 )
             ),
@@ -69,7 +68,7 @@ val BriaRiptideRogue = card("Bria, Riptide Rogue") {
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
         val t = target("target", Targets.CreatureYouControl)
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
 
     metadata {

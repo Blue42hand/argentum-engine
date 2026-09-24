@@ -738,7 +738,7 @@ class CostCalculator(
      * carries the cost modifier (The Scarlet Witch's "where X is The Scarlet Witch's power").
      *
      * Delegates to [DynamicAmountEvaluator] rather than re-deriving the reads here, so
-     * `EntityReference.Source` and the rest of the [DynamicAmount] vocabulary behave exactly as they
+     * `EffectTarget.Self` and the rest of the [DynamicAmount] vocabulary behave exactly as they
      * do everywhere else — power/toughness come from projected state (CR 613: counters, Auras, and
      * anthems on the source count), base P/T and mana value come from the printed card, and counter
      * counts read the source's [CountersComponent].
@@ -1055,15 +1055,13 @@ class CostCalculator(
         state: GameState,
         playerId: EntityId,
         filter: GameObjectFilter,
-        counterType: String
+        counterType: CounterType
     ): Int {
         val projected = state.projectedState
         val context = PredicateContext(controllerId = playerId)
-        val ct = CounterType.entries.find { it.name.equals(counterType, ignoreCase = true) }
-            ?: return 0
         return state.controlledBattlefield(playerId).count { entityId ->
             val counters = state.getEntity(entityId)?.get<CountersComponent>()
-            if ((counters?.getCount(ct) ?: 0) <= 0) return@count false
+            if ((counters?.getCount(counterType) ?: 0) <= 0) return@count false
             predicateEvaluator.matches(state, projected, entityId, filter, context)
         }
     }

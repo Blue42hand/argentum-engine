@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.teamwork
 import com.wingedsheep.sdk.dsl.teamworkModal
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -68,8 +67,8 @@ val AtlantisAttacks = card("Atlantis Attacks") {
                     "one or two target nonland permanents",
                     TargetObject(count = 2, minCount = 1, filter = TargetFilter.NonlandPermanent),
                 )
-                effect = ForEachTargetEffect(
-                    listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0))),
+                effect = Effects.ForEachTarget(
+                    Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
                 )
             }
         }

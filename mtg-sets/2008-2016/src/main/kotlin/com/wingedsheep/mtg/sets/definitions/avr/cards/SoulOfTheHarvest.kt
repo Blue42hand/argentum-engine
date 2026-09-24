@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 /**
  * Soul of the Harvest
@@ -33,7 +33,7 @@ val SoulOfTheHarvest = card("Soul of the Harvest") {
             binding = TriggerBinding.OTHER,
         )
         optional = true
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
         description = "Whenever another nontoken creature you control enters, you may draw a card."
     }
 

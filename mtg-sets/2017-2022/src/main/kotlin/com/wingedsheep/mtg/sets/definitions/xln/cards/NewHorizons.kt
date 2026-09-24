@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.xln.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -38,7 +38,7 @@ val NewHorizons = card("New Horizons") {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature", Targets.CreatureYouControl)
         effect = Effects.AddCounters(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = creature
         )

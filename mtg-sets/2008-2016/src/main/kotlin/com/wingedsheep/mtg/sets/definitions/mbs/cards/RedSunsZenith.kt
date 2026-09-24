@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mbs.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Red Sun's Zenith — Mirrodin Besieged #74 (canonical / earliest real printing, 2011)
@@ -40,15 +39,15 @@ val RedSunsZenith = card("Red Sun's Zenith") {
 
     spell {
         val t = target("any target", AnyTarget())
-        effect = ConditionalEffect(
+        effect = Effects.If(
             // CR 120.8 — X = 0 deals no damage, so nothing was "dealt damage this way".
             condition = Conditions.CompareAmounts(
-                DynamicAmount.XValue,
+                DynamicAmounts.xValue(),
                 ComparisonOperator.GT,
-                DynamicAmount.Fixed(0),
+                0,
             ),
-            effect = Effects.MarkExileOnDeath(t),
-        ) then Effects.DealDamage(DynamicAmount.XValue, t)
+            then = Effects.MarkExileOnDeath(t),
+        ) then Effects.DealDamage(DynamicAmounts.xValue(), t)
         selfShuffleIntoLibrary()
     }
 

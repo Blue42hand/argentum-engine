@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -28,12 +28,12 @@ val ThornThallid = card("Thorn Thallid") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.AddCounters(Counters.SPORE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.SPORE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a spore counter on this creature."
     }
 
     activatedAbility {
-        cost = Costs.RemoveCounterFromSelf(Counters.SPORE, 3)
+        cost = Costs.RemoveCounterFromSelf(CounterType.SPORE, 3)
         val t = target("any target", AnyTarget())
         effect = Effects.DealDamage(1, t)
         description = "Remove three spore counters from this creature: It deals 1 damage to any target."

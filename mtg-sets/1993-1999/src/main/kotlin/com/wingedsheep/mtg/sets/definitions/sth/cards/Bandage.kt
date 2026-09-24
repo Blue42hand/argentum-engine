@@ -7,7 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.sth.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -27,7 +26,7 @@ val Bandage = card("Bandage") {
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
             Effects.PreventNextDamage(1, t),
-            DrawCardsEffect(1)
+            Effects.DrawCards(1)
         )
     }
     metadata {

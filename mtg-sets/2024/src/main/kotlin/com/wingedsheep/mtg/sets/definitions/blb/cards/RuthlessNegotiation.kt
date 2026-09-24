@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -29,9 +28,9 @@ val RuthlessNegotiation = card("Ruthless Negotiation") {
     spell {
         val opponent = target("opponent", Targets.Opponent)
         effect = Patterns.Hand.exileFromHand(1, opponent)
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Conditions.WasCastFromZone(Zone.GRAVEYARD),
-                effect = Effects.DrawCards(1)
+                then = Effects.DrawCards(1)
             ))
     }
 

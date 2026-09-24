@@ -35,8 +35,8 @@ val StagecoachSecurity = card("Stagecoach Security") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(1, 1, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
+                Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
             )
         )
     }

@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.collectEvidence
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
@@ -53,7 +53,7 @@ val VituGhaziInspector = card("Vitu-Ghazi Inspector") {
         interveningIf = Conditions.WasEvidenceCollected
         val creature = target("target creature", TargetCreature())
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
             Effects.GainLife(2),
         )
         description = "When this creature enters, if evidence was collected, put a +1/+1 counter " +

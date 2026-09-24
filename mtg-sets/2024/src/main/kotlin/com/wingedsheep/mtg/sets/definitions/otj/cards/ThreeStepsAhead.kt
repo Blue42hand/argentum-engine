@@ -3,12 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -36,7 +35,7 @@ val ThreeStepsAhead = card("Three Steps Ahead") {
         "+ {2} — Draw two cards, then discard a card."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 // + {1}{U} — Counter target spell.
                 Mode(
@@ -46,16 +45,16 @@ val ThreeStepsAhead = card("Three Steps Ahead") {
                     additionalManaCost = "{1}{U}"
                 ),
                 // + {3} — Create a token that's a copy of target artifact or creature you control.
-                Mode(
-                    effect = Effects.CreateTokenCopyOfTarget(
-                        target = EffectTarget.ContextTarget(0)
-                    ),
-                    targetRequirements = listOf(
+                mode("+ {3} — Create a token that's a copy of target artifact or creature you control.") {
+                    val creatureOrArtifact = target(
+                        "target creature or artifact",
                         TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()))
-                    ),
-                    description = "+ {3} — Create a token that's a copy of target artifact or creature you control.",
+                    )
                     additionalManaCost = "{3}"
-                ),
+                    effect = Effects.CreateTokenCopyOfTarget(
+                        target = creatureOrArtifact
+                    )
+                },
                 // + {2} — Draw two cards, then discard a card.
                 Mode(
                     effect = Effects.DrawCards(2) then Effects.Discard(1),

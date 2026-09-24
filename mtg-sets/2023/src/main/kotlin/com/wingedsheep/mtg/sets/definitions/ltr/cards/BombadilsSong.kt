@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 
 /**
  * Bombadil's Song
@@ -24,9 +23,9 @@ val BombadilsSong = card("Bombadil's Song") {
 
     spell {
         val creature = target("creature you control", Targets.CreatureYouControl)
-        effect = ModifyStatsEffect(
-            powerModifier = 1,
-            toughnessModifier = 1,
+        effect = Effects.ModifyStats(
+            power = 1,
+            toughness = 1,
             target = creature,
             duration = Duration.EndOfTurn
         )

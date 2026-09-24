@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -80,7 +79,7 @@ private val JechtReluctantGuardianFront = card("Jecht, Reluctant Guardian") {
     // Whenever Jecht deals combat damage to a player, you may exile-and-return-transformed.
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = MayEffect(Effects.ExileAndReturnTransformed())
+        effect = Effects.May(Effects.ExileAndReturnTransformed())
     }
 
     metadata {

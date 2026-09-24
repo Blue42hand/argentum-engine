@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Spider-Mobile
@@ -30,16 +30,16 @@ val SpiderMobile = card("Spider-Mobile") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.ModifyStats(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")),
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")).count(),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")).count(),
             EffectTarget.Self
         )
     }
     triggeredAbility {
         trigger = Triggers.Blocks
         effect = Effects.ModifyStats(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")),
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")).count(),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")).count(),
             EffectTarget.Self
         )
     }

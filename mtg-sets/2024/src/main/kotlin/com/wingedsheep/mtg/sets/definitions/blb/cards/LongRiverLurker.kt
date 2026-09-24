@@ -11,12 +11,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Long River Lurker
@@ -59,16 +56,16 @@ val LongRiverLurker = card("Long River Lurker") {
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(listOf(
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature),
-            CreateDelayedTriggerEffect(
-                effect = MayEffect(
+            Effects.CreateDelayedTrigger(
+                effect = Effects.May(
                     effect = Effects.Composite(listOf(
-                        Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
-                        Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD)
+                        Effects.Move(creature, Zone.EXILE),
+                        Effects.Move(creature, Zone.BATTLEFIELD)
                     )),
                     descriptionOverride = "You may exile that creature. If you do, return it to the battlefield under its owner's control."
                 ),
                 trigger = Triggers.dealsDamage(damageType = DamageType.Combat),
-                watchedTarget = EffectTarget.ContextTarget(0),
+                watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )
         ))

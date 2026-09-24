@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -35,9 +34,9 @@ val WarcryPhoenix = card("Warcry Phoenix") {
     triggeredAbility {
         trigger = TriggerSpec(YouAttackEvent(minAttackers = 3), TriggerBinding.ANY)
         triggerZone = Zone.GRAVEYARD
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{R}"),
-            effect = Effects.Move(
+            then = Effects.Move(
                 target = EffectTarget.Self,
                 destination = Zone.BATTLEFIELD,
                 placement = ZonePlacement.TappedAndAttacking

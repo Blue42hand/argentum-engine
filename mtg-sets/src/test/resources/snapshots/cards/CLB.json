@@ -90,7 +90,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -718,12 +718,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }

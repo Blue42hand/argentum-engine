@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Voyage's End
@@ -20,8 +19,8 @@ val VoyagesEnd = card("Voyage's End") {
     oracleText = "Return target creature to its owner's hand. Scry 1. (Look at the top card of your library. You may put that card on the bottom.)"
 
     spell {
-        target = Targets.Creature
-        effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.ReturnToHand(creature)
             .then(Effects.Scry(1))
     }
 

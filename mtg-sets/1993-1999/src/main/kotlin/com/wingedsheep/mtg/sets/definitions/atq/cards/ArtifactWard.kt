@@ -9,8 +9,7 @@ import com.wingedsheep.sdk.scripting.CantBeTargetedBySourceTypeAbilities
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -54,8 +53,8 @@ val ArtifactWard = card("Artifact Ward") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.EnchantedCreature,
-                source = SourceFilter.Matching(GameObjectFilter.Artifact)
+                recipient = Recipient.EnchantedCreature,
+                source = GameObjectFilter.Artifact
             )
         )
     )

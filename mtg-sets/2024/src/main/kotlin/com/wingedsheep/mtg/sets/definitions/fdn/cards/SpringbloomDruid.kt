@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -27,7 +26,7 @@ val SpringbloomDruid = card("Springbloom Druid") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Sacrifice(GameObjectFilter.Land, count = 1, target = EffectTarget.Controller)
                 .then(Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.BasicLand,

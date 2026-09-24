@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -40,7 +39,7 @@ val PhageTheUntouchable = card("Phage the Untouchable") {
     // Combat damage to creature: destroy, can't be regenerated
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToCreature
-        effect = CantBeRegeneratedEffect(EffectTarget.TriggeringEntity) then
+        effect = Effects.CantBeRegenerated(EffectTarget.TriggeringEntity) then
                 Effects.Move(EffectTarget.TriggeringEntity, Zone.GRAVEYARD, byDestruction = true)
     }
 

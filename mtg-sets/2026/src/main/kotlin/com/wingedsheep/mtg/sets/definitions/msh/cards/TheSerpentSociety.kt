@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -50,7 +50,7 @@ val TheSerpentSociety = card("The Serpent Society") {
         "nontoken creature of their choice."
 
     keywords(Keyword.DEATHTOUCH)
-    keywordAbility(KeywordAbility.wardPlayerCounters(Counters.POISON, 5))
+    keywordAbility(KeywordAbility.wardPlayerCounters(CounterType.POISON, 5))
 
     triggeredAbility {
         trigger = Triggers.leavesBattlefield(

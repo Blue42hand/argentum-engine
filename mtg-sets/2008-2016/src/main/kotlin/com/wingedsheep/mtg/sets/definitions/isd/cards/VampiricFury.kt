@@ -29,8 +29,8 @@ val VampiricFury = card("Vampiric Fury") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl()),
             Effects.Composite(
-                Effects.ModifyStats(2, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self)
+                Effects.ModifyStats(2, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.IterationEntity)
             )
         )
     }

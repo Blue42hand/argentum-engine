@@ -64,7 +64,7 @@ val AlongTheCrookedWay = card("Along the Crooked Way") {
         cost = Costs.Mana("{1}{B}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Permanent.youControl().withAnySubtype("Goblin", "Orc")),
-            Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)
+            Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity)
         )
         description = "Goblins and Orcs you control gain menace until end of turn."
     }

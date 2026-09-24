@@ -28,8 +28,8 @@ val PreposterousProportions = card("Preposterous Proportions") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(10, 10, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
+                Effects.ModifyStats(10, 10, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
             )
         )
     }

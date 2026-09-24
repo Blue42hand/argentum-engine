@@ -5,12 +5,12 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 
@@ -34,7 +34,7 @@ val VialSmasherGleefulGrenadier = card("Vial Smasher, Gleeful Grenadier") {
             binding = TriggerBinding.OTHER
         )
         val t = target("target", TargetOpponent())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

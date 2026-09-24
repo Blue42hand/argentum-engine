@@ -1,16 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Endstone
@@ -50,11 +51,7 @@ val TheEndstone = card("The Endstone") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         effect = Effects.SetLifeTotal(
-            amount = DynamicAmount.Divide(
-                numerator = DynamicAmount.StartingLifeTotal(Player.You),
-                denominator = DynamicAmount.Fixed(2),
-                roundUp = true,
-            ),
+            amount = DynamicAmounts.startingLifeTotal(Player.You) divRoundedUp 2,
         )
     }
 

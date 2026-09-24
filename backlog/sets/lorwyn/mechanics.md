@@ -284,7 +284,7 @@ Cards: Benthicore, Cloudgoat Ranger, Drowner of Secrets, Springleaf Drum, Summon
 
 As a land enters, its controller may reveal a card of its tribe; otherwise it enters tapped. This is an entry replacement, not an enter trigger.
 
-**Engine support:** Supported: `OnEnterRunEffect(Effects.MayRevealCardFromHand(...))`; [Auntie's Hovel](../../../mtg-sets/2003-2007/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/lrw/cards/AuntiesHovel.kt).
+**Engine support:** Supported: `OnEnterRun(Effects.MayRevealCardFromHand(...))`; [Auntie's Hovel](../../../mtg-sets/2003-2007/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/lrw/cards/AuntiesHovel.kt).
 
 Cards: Ancient Amphitheater, Auntie's Hovel, Gilt-Leaf Palace, Secluded Glen, Wanderwine Hub
 

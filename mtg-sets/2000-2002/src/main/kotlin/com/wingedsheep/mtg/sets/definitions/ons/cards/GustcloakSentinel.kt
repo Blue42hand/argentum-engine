@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Gustcloak Sentinel
@@ -24,7 +23,7 @@ val GustcloakSentinel = card("Gustcloak Sentinel") {
 
     triggeredAbility {
         trigger = Triggers.BecomesBlocked
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Untap(EffectTarget.Self) then Effects.RemoveFromCombat(EffectTarget.Self)
         )
     }

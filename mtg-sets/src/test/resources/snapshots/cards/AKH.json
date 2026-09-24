@@ -76,7 +76,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -380,7 +380,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -681,7 +681,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",
@@ -709,7 +709,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -905,7 +905,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1340,7 +1340,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -1653,7 +1653,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1741,14 +1741,17 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -1768,7 +1771,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "filter": "creature",
                     "placedBy": "You"
                 },
@@ -1955,7 +1958,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "TapUntap",
@@ -2148,7 +2154,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "MENACE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -2200,7 +2206,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -2282,7 +2288,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -2540,7 +2546,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2721,7 +2727,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3091,11 +3097,16 @@
         "replacementEffects": [
             {
                 "type": "ReplaceDamageWithCounters",
-                "counterType": "-1/-1",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "CreatureOpponentControls",
-                    "source": "SourceYouControl",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature ctrl:opponent"
+                    },
+                    "source": {
+                        "controllerPredicate": "ControlledByYou"
+                    },
                     "damageType": "DamageNonCombat"
                 },
                 "counterRecipient": "DamagedPermanent"
@@ -3190,7 +3201,7 @@
     "script": {
         "spellEffect": {
             "type": "AddCounters",
-            "counterType": "-1/-1",
+            "counterType": "MINUS_ONE_MINUS_ONE",
             "count": 3,
             "target": {
                 "type": "BoundVariable",
@@ -3412,7 +3423,7 @@
                     "type": "Fixed",
                     "amount": 3
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },

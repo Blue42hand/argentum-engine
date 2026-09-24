@@ -34,3 +34,9 @@ HAND->STACK cast plus the stack-origin on the graveyard move in `free-cast-targe
 `nested-may`, `repeat-while` and `suspended-mana-window` event lists still match the
 original parent capture byte for byte, which is what shows the suspension change itself
 did not alter behaviour.
+
+Edited on 2026-09-24 when a `ForEach` loop's current object moved from
+`PipelineState.iterationTarget` into `ObjectReferenceEnvironment.iteration` (replacing
+`selfBinding`). Every capture held both as `null`, so the obsolete `iterationTarget` keys were
+dropped and `selfBinding` renamed in place; no other byte of `state.json`, `actions.json` or
+`after-N.json` changed.

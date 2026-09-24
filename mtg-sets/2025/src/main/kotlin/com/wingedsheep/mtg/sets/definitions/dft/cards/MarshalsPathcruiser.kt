@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -61,7 +61,7 @@ val MarshalsPathcruiser = card("Marshals' Pathcruiser") {
                 toughness = 5,
                 duration = Duration.Permanent
             ),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         )
         description = "Exhaust — {W}{U}{B}{R}{G}: This Vehicle becomes an artifact creature. " +
             "Put two +1/+1 counters on it."

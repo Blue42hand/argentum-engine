@@ -7,11 +7,8 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Miasma Demon — Duskmourn: House of Horror #109
@@ -24,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Modeled as a [ReflexiveTriggerEffect]: the action is "discard any number of cards"
  * ([Patterns.Hand.discardAnyNumber], which stores the discarded set so its size is readable as
  * `discarded_count`), and the reflexive payoff selects up to that many target creatures —
- * [TargetCreature.dynamicMaxCount] = `DynamicAmount.VariableReference("discarded_count")`, resolved
+ * [TargetCreature.dynamicMaxCount] = `Patterns.Hand.discarded.count`, resolved
  * against the resolving ability's pipeline when the reflexive targets are chosen (after the
  * discard). [ForEachTargetEffect] applies -2/-2 until end of turn to each chosen creature.
  *
@@ -47,18 +44,16 @@ val MiasmaDemon = card("Miasma Demon") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Patterns.Hand.discardAnyNumber(),
             optional = false,
-            reflexiveEffect = ForEachTargetEffect(
-                listOf(
-                    Effects.ModifyStats(-2, -2, EffectTarget.ContextTarget(0))
-                )
+            reflexiveEffect = Effects.ForEachTarget(
+                Effects.ModifyStats(-2, -2, EffectTarget.ContextTarget(0))
             ),
             reflexiveTargetRequirements = listOf(
                 TargetCreature(
                     optional = true,
-                    dynamicMaxCount = DynamicAmount.VariableReference("discarded_count")
+                    dynamicMaxCount = Patterns.Hand.discarded.count
                 )
             ),
             descriptionOverride = "You may discard any number of cards. When you do, up to that " +

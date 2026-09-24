@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.flurry
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CounterDestination
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
-import com.wingedsheep.sdk.scripting.effects.CounterTargetSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -52,8 +50,7 @@ val TaigamMasterOpportunist = card("Taigam, Master Opportunist") {
         effect = Effects.Composite(
             listOf(
                 Effects.CopyTargetSpell(EffectTarget.TriggeringEntity),
-                CounterEffect(
-                    targetSource = CounterTargetSource.TriggeringEntity,
+                Effects.CounterTriggeringSpell(
                     counterDestination = CounterDestination.Exile(),
                 ),
                 Effects.Suspend(EffectTarget.TriggeringEntity, timeCounters = 4),

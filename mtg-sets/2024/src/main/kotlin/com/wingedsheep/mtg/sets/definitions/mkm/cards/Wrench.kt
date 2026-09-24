@@ -5,13 +5,11 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -52,13 +50,12 @@ val Wrench = card("Wrench") {
 
     staticAbility {
         ability = GrantActivatedAbility(
-            ability = ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap),
-                effect = Effects.Tap(EffectTarget.ContextTarget(0)),
-                targetRequirements = listOf(TargetCreature()),
-                descriptionOverride = "{3}, {T}: Tap target creature."
-            ),
+            ability = grantedActivatedAbility {
+                cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
+                val creature = target("target creature", TargetCreature())
+                effect = Effects.Tap(creature)
+                description = "{3}, {T}: Tap target creature."
+            },
             filter = Filters.EquippedCreature
         )
     }

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.xln.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Implementation:
  *  - Front activated ability composes [Effects.Scry] (1) → [Effects.AddCounters] (a passive
- *    [Counters.LANDMARK] counter on Self) → a [ConditionalEffect] gated on
+ *    [CounterType.LANDMARK] counter on Self) → a [Effects.If] gated on
  *    [Conditions.SourceCounterCountAtLeast]`(landmark, 3)` that removes the three counters
  *    ([Effects.RemoveCounters]), flips the artifact ([TransformEffect]) and makes three
  *    Treasures ([Effects.CreateTreasure]). Same "add counter, then conditionally do more"
@@ -52,12 +50,12 @@ private val TreasureMapFront = card("Treasure Map") {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
         effect = Effects.Composite(
             Effects.Scry(1),
-            Effects.AddCounters(Counters.LANDMARK, 1, EffectTarget.Self),
-            ConditionalEffect(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.LANDMARK, 3),
-                effect = Effects.Composite(
-                    Effects.RemoveCounters(Counters.LANDMARK, 3, EffectTarget.Self),
-                    TransformEffect(EffectTarget.Self),
+            Effects.AddCounters(CounterType.LANDMARK, 1, EffectTarget.Self),
+            Effects.If(
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.LANDMARK, 3),
+                then = Effects.Composite(
+                    Effects.RemoveCounters(CounterType.LANDMARK, 3, EffectTarget.Self),
+                    Effects.Transform(EffectTarget.Self),
                     Effects.CreateTreasure(3),
                 ),
             ),

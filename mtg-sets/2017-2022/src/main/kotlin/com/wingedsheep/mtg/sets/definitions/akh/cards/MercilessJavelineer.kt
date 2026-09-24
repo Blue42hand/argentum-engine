@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.akh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -29,7 +29,7 @@ val MercilessJavelineer = card("Merciless Javelineer") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.DiscardCard)
         val t = target("target", Targets.Creature)
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 1, t),
+            Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t),
             Effects.CantBlock(t),
         )
     }

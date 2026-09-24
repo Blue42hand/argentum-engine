@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -39,14 +37,12 @@ val ViewFromAbove = card("View from Above") {
         val t = target("target", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FLYING, t)
             .then(
-                GatedEffect(
-                    gate = Gate.WhenCondition(
-                        Exists(
+                Effects.If(
+                    condition = Exists(
                             Player.You,
                             Zone.BATTLEFIELD,
                             GameObjectFilter.Permanent.withColor(Color.WHITE)
-                        )
-                    ),
+                        ),
                     then = Effects.ReturnToHand(EffectTarget.Self)
                 )
             )

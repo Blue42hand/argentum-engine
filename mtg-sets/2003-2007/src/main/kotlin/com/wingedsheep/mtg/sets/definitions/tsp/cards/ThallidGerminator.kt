@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tsp.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -33,12 +33,12 @@ val ThallidGerminator = card("Thallid Germinator") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.AddCounters(Counters.SPORE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.SPORE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a spore counter on this creature."
     }
 
     activatedAbility {
-        cost = Costs.RemoveCounterFromSelf(Counters.SPORE, 3)
+        cost = Costs.RemoveCounterFromSelf(CounterType.SPORE, 3)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

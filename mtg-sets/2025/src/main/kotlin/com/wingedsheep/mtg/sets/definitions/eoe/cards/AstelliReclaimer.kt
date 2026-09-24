@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Astelli Reclaimer
@@ -53,7 +53,7 @@ val AstelliReclaimer = card("Astelli Reclaimer") {
                 filter = TargetFilter(
                     baseFilter = (GameObjectFilter.NoncreaturePermanent and GameObjectFilter.Nonland)
                         .ownedByYou()
-                        .manaValueAtMostEntityManaSpent(EntityReference.Source),
+                        .manaValueAtMostEntityManaSpent(EffectTarget.Self),
                     zone = Zone.GRAVEYARD
                 )
             )

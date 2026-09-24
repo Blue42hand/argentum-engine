@@ -25,7 +25,7 @@ import com.wingedsheep.engine.core.Outcome
  *  where X is this creature's power."
  *
  * The load-bearing detail is that X is read *after* the Wanderer has already been sacrificed to pay
- * the cost. `EntityReference.Source` resolves with last-known information (CR 112.7a / 608.2h), so
+ * the cost. `EffectTarget.Self` resolves with last-known information (CR 112.7a / 608.2h), so
  * the pre-sacrifice snapshot must supply the pumped power. These tests pin X to 1 unpumped and 2
  * after one Spirit has entered, by giving the opposing spell's controller exactly one mana: at X=1
  * they get a real pay-or-be-countered choice, at X=2 they simply can't pay.

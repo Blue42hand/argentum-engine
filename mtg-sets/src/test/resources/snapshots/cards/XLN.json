@@ -109,7 +109,9 @@
                 {
                     "type": "PreventDamageShield",
                     "recipientGroup": {
-                        "baseFilter": "creature"
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
                     }
                 },
                 {
@@ -123,7 +125,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "HEXPROOF",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -743,7 +745,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -927,7 +929,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -941,7 +943,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -1185,7 +1187,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1278,7 +1280,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1354,7 +1356,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -1368,16 +1373,16 @@
                                     "key": "TRIGGER_DAMAGE_AMOUNT"
                                 }
                             },
-                            "storeAs": "gishath_revealed",
+                            "storeAs": "gathered0",
                             "revealed": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "gishath_revealed",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
                             "filter": "creature Dinosaur",
-                            "storeSelected": "gishath_toBattlefield",
-                            "storeRemainder": "gishath_toBottom",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Put any number of Dinosaur creature cards onto the battlefield",
                             "selectedLabel": "Put onto the battlefield",
                             "remainderLabel": "Put on the bottom of your library",
@@ -1385,7 +1390,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "gishath_toBattlefield",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -1393,7 +1398,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "gishath_toBottom",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -1875,7 +1880,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1926,7 +1931,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -2201,7 +2206,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3050,11 +3055,11 @@
                             }
                         }
                     },
-                    "storeAs": "attackers"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "attackers",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Exile"
@@ -3062,7 +3067,7 @@
                 },
                 {
                     "type": "ConditionalOnCollection",
-                    "collection": "attackers",
+                    "collection": "gathered0",
                     "ifNotEmpty": {
                         "type": "Gated",
                         "gate": "Gate.MayDecide",
@@ -3077,27 +3082,27 @@
                                         "player": "TargetPlayer",
                                         "filter": "basicland"
                                     },
-                                    "storeAs": "searchable"
+                                    "storeAs": "gathered3"
                                 },
                                 {
                                     "type": "SelectFromCollection",
-                                    "from": "searchable",
+                                    "from": "gathered3",
                                     "selection": {
                                         "type": "ChooseUpTo",
                                         "count": {
                                             "type": "DistinctEntitiesInCollections",
                                             "collections": [
-                                                "attackers"
+                                                "gathered0"
                                             ]
                                         }
                                     },
                                     "chooser": "TargetPlayer",
-                                    "storeSelected": "found",
+                                    "storeSelected": "selected4",
                                     "prompt": "Search your library for basic land cards"
                                 },
                                 {
                                     "type": "MoveCollection",
-                                    "from": "found",
+                                    "from": "selected4",
                                     "destination": {
                                         "type": "ToZone",
                                         "zone": "Battlefield",
@@ -3537,7 +3542,7 @@
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3720,16 +3725,16 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Triggering",
+                                    "entity": "TriggeringEntity",
                                     "numericProperty": "ManaValue"
                                 }
                             },
-                            "storeAs": "revealed",
+                            "storeAs": "gathered0",
                             "revealed": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "revealed",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -3742,12 +3747,12 @@
                                     "IsNonland",
                                     {
                                         "type": "ManaValueAtMostEntity",
-                                        "reference": "Triggering"
+                                        "reference": "TriggeringEntity"
                                     }
                                 ]
                             },
-                            "storeSelected": "chosen",
-                            "storeRemainder": "toBottom",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "You may cast one of the revealed cards without paying its mana cost.",
                             "selectedLabel": "Cast for free",
                             "remainderLabel": "Put on bottom",
@@ -3755,7 +3760,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toBottom",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -3765,7 +3770,7 @@
                         },
                         {
                             "type": "CastFromCollectionWithoutPayingCost",
-                            "from": "chosen"
+                            "from": "selected1"
                         }
                     ]
                 }
@@ -4029,7 +4034,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "landmark",
+                            "counterType": "LANDMARK",
                             "count": 1,
                             "target": "Self"
                         },
@@ -4041,13 +4046,10 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "landmark"
-                                            }
+                                            "counterType": "LANDMARK"
                                         }
                                     },
                                     "operator": "GTE",
@@ -4062,7 +4064,7 @@
                                 "effects": [
                                     {
                                         "type": "RemoveCounters",
-                                        "counterType": "landmark",
+                                        "counterType": "LANDMARK",
                                         "count": 3,
                                         "target": "Self"
                                     },

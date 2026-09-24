@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.OwnerGainsLifeEffect
 
 /**
  * Misfortune's Gain
@@ -22,7 +21,7 @@ val MisfortunesGain = card("Misfortune's Gain") {
         val t = target("target", Targets.Creature)
         effect = Effects.Composite(
             Effects.Destroy(t),
-            OwnerGainsLifeEffect(4)
+            Effects.OwnerGainsLife(4)
         )
     }
 

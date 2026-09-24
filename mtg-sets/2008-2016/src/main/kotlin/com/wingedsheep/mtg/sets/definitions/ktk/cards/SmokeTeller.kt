@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.FaceDownLookScope
-import com.wingedsheep.sdk.scripting.effects.LookAtFaceDownEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -29,7 +29,7 @@ val SmokeTeller = card("Smoke Teller") {
         val t = target("target", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Creature.faceDown())
         ))
-        effect = LookAtFaceDownEffect(t, FaceDownLookScope.SINGLE_TARGET)
+        effect = Effects.LookAtFaceDown(t, FaceDownLookScope.SINGLE_TARGET)
     }
 
     metadata {

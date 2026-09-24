@@ -179,14 +179,14 @@ class ProliferateExecutor : EffectExecutor<ProliferateEffect> {
                     val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(
                         newState,
                         entityId,
-                        counterTypeToString(counterType),
+                        counterType,
                         placerId = controllerId,
                     )
                     newState = afterMark
                     events.add(
                         CountersAddedEvent(
                             entityId,
-                            counterTypeToString(counterType),
+                            counterType,
                             modifiedAmount,
                             entityName,
                             firstThisTurn,

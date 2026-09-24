@@ -56,10 +56,10 @@ val EmeritusOfAbundance = card("Emeritus of Abundance") {
         typeLine = "Sorcery"
         oracleText = "Return target card from your graveyard to your hand."
         spell {
-            target = TargetObject(
+            val target = target("target", TargetObject(
                 filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD)
-            )
-            effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)
+            ))
+            effect = Effects.Move(target, Zone.HAND)
         }
     }
 

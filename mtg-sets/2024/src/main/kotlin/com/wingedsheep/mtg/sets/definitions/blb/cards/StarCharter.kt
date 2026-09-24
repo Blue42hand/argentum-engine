@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Star Charter {3}{W}
@@ -37,7 +36,7 @@ val StarCharter = card("Star Charter") {
         // recipe was restated here by hand instead of called — which lost the `revealed = true` on
         // the move to hand, so the card the text says to *reveal* went to hand unseen.
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(4),
+            count = 4,
             filter = GameObjectFilter.Creature.powerAtMost(3),
             prompt = "You may reveal a creature card with power 3 or less from among them and put it into your hand",
         )

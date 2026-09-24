@@ -27,8 +27,8 @@ val QuicksilverDragon = card("Quicksilver Dragon") {
     keywords(Keyword.FLYING)
 
     activatedAbility {
+        val spell = target("target spell", Targets.Spell)
         cost = Costs.Mana("{U}")
-        target = Targets.Spell
         effect = Effects.ChangeSpellTarget(targetMustBeSource = true)
     }
 

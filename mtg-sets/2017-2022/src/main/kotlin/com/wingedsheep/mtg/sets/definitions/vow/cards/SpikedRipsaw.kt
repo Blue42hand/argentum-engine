@@ -57,7 +57,7 @@ val SpikedRipsaw = card("Spiked Ripsaw") {
                 )
                 sacrifice(chosen)
             },
-            ifYouDo = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.EquippedCreature)
+            then = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.EquippedCreature)
         )
     }
 

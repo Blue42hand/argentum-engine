@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Boughside Wanderers
@@ -40,7 +39,7 @@ val BoughsideWanderers = card("Boughside Wanderers") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(4),
+            count = 4,
             filter = GameObjectFilter(cardPredicates = listOf(CardPredicate.IsPermanent)),
             prompt = "You may reveal a permanent card from among them and put it into your hand"
         )

@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -25,10 +23,10 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The chosen creature deals damage equal to its power to each OTHER creature: a
  * [Effects.ForEachInGroup] over every creature except the chosen one
- * (`GroupFilter(...).otherThanTarget()`), each iterated creature ([EffectTarget.Self]) taking
+ * (`GroupFilter(...).otherThanTarget()`), each iterated creature ([EffectTarget.IterationEntity]) taking
  * [DynamicAmounts.targetPower] damage *from the chosen creature itself* (`damageSource = chosen`),
  * so its combat keywords and "dealt damage by" triggers see the correct source. The graveyard-cast
- * rider is a [ConditionalEffect] gated on [Conditions.WasCastFromGraveyard] — true when the
+ * rider is a [Effects.If] gated on [Conditions.WasCastFromGraveyard] — true when the
  * flashback cast resolves.
  */
 val NibelheimAflame = card("Nibelheim Aflame") {
@@ -44,15 +42,15 @@ val NibelheimAflame = card("Nibelheim Aflame") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
-                effect = DealDamageEffect(
-                    amount = DynamicAmounts.targetPower(0),
-                    target = EffectTarget.Self,
+                effect = Effects.DealDamage(
+                    amount = DynamicAmounts.powerOf(chosen),
+                    target = EffectTarget.IterationEntity,
                     damageSource = chosen,
                 ),
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Patterns.Hand.discardHand(),
                     Effects.DrawCards(4),
                 ),

@@ -20,7 +20,7 @@ val WinterTeamPlayer = card("Winter, Team Player") {
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreaturesYouControl, Effects.ModifyStats(1, 0, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreaturesYouControl, Effects.ModifyStats(1, 0, EffectTarget.IterationEntity))
     }
 
     metadata {

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
@@ -8,9 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * "Exiled this way" is literal: X counts what [MoveCollectionEffect] actually moved (its
@@ -24,18 +22,11 @@ val OverwriteTheMultiverse = card("Overwrite the Multiverse") {
     oracleText = "Exile all creatures. Empower Jace X, where X is the number of creatures exiled this way. (Put that many loyalty counters on a Jace token you control. If you don't control one, first create a blue Jace planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\")"
 
     spell {
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.BattlefieldMatching(GameObjectFilter.Creature),
-                storeAs = "creatures",
-            ),
-            MoveCollectionEffect(
-                from = "creatures",
-                destination = CardDestination.ToZone(Zone.EXILE),
-                storeMovedAs = "exiledCreatures",
-            ),
-            Patterns.Mechanic.empowerJace(DynamicAmount.DistinctEntitiesInCollections(listOf("exiledCreatures"))),
-        )
+        effect = Effects.Pipeline {
+            val creatures = gather(CardSource.BattlefieldMatching(GameObjectFilter.Creature))
+            val exiledCreatures = moveTracked(creatures, CardDestination.ToZone(Zone.EXILE))
+            run(Patterns.Mechanic.empowerJace(DynamicAmounts.distinctEntitiesIn(exiledCreatures)))
+        }
     }
 
     metadata {

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 
 /**
  * Enlightened Confidant — "if you gained life this turn" is an intervening-if
@@ -37,14 +36,14 @@ val EnlightenedConfidant = card("Enlightened Confidant") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouGainedLifeThisTurn
-        effect = Effects.Composite(
-            Patterns.Library.surveil(1, storeGraveyardAs = "surveiledIntoGraveyard"),
-            MoveCollectionEffect(
-                from = "surveiledIntoGraveyard",
-                destination = CardDestination.ToZone(Zone.HAND),
+        effect = Effects.Pipeline {
+            val surveiledIntoGraveyard = runStoringCollection { Patterns.Library.surveil(1, storeGraveyardAs = it) }
+            move(
+                surveiledIntoGraveyard,
+                CardDestination.ToZone(Zone.HAND),
                 filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmounts.lifeGainedThisTurn())
             )
-        )
+        }
         description = "At the beginning of your end step, if you gained life this turn, surveil 1. If you " +
             "put a card with mana value less than or equal to the amount of life you gained this turn " +
             "into your graveyard this way, put that card into your hand."

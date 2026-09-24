@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -49,8 +48,8 @@ val SpecimenFreighter = card("Specimen Freighter") {
                 filter = TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Spacecraft")))
             )
         )
-        effect = ForEachTargetEffect(
-            listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.ReturnToHand(EffectTarget.ContextTarget(0))
         )
     }
 
@@ -58,7 +57,7 @@ val SpecimenFreighter = card("Specimen Freighter") {
     station()
 
     // Station threshold: 9+ charge counters
-    val charge9 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+    val charge9 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
 
     // 9+ charge counters: becomes artifact creature
     staticAbility {

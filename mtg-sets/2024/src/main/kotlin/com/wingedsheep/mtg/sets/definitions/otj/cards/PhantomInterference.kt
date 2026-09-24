@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 
 /**
  * Phantom Interference
@@ -37,7 +36,7 @@ val PhantomInterference = card("Phantom Interference") {
         "+ {1} — Counter target spell unless its controller pays {2}."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 // + {3} — Create a 2/2 white Spirit creature token with flying.
                 Mode(

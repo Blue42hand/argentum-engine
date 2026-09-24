@@ -21,7 +21,7 @@ val HinderingTouch = card("Hindering Touch") {
     oracleText = "Counter target spell unless its controller pays {2}.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessPays("{2}")
     }
 

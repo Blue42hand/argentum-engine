@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.AddCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -54,8 +53,8 @@ val SarkhanDragonAscendant = card("Sarkhan, Dragon Ascendant") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.Composite(listOf(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            AddCreatureTypeEffect("Dragon", EffectTarget.Self, Duration.EndOfTurn),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCreatureType("Dragon", EffectTarget.Self, Duration.EndOfTurn),
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self, Duration.EndOfTurn)
         ))
         description = "Whenever a Dragon you control enters, put a +1/+1 counter on Sarkhan. " +

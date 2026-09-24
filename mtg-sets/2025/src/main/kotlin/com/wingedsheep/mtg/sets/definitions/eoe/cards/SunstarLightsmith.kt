@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -27,7 +27,7 @@ val SunstarLightsmith = card("Sunstar Lightsmith") {
 
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self).then(
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self).then(
             Effects.DrawCards(1)
         )
     }

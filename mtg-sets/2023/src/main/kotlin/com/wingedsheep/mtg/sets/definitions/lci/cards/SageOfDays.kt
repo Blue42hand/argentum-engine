@@ -1,18 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sage of Days
@@ -45,31 +38,18 @@ val SageOfDays = card("Sage of Days") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(3)),
-                    storeAs = "looked"
-                ),
-                SelectFromCollectionEffect(
-                    from = "looked",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "toTop",
-                    storeRemainder = "toGraveyard",
-                    selectedLabel = "Put on top of library",
-                    remainderLabel = "Put into graveyard",
-                    prompt = "You may put one card back on top of your library"
-                ),
-                MoveCollectionEffect(
-                    from = "toTop",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top)
-                ),
-                MoveCollectionEffect(
-                    from = "toGraveyard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD)
-                )
+        effect = Effects.Pipeline {
+            val looked = gather(CardSource.TopOfLibrary(3))
+            val (toTop, toGraveyardCards) = chooseUpToSplit(
+                1,
+                from = looked,
+                selectedLabel = "Put on top of library",
+                remainderLabel = "Put into graveyard",
+                prompt = "You may put one card back on top of your library"
             )
-        )
+            toLibraryTop(toTop, order = CardOrder.Preserve)
+            toGraveyard(toGraveyardCards)
+        }
     }
 
     metadata {

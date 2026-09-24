@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -43,10 +40,10 @@ val TophHardheadedTeacher = card("Toph, Hardheaded Teacher") {
             "target instant or sorcery card from your graveyard",
             TargetObject(filter = TargetFilter.InstantOrSorceryInYourGraveyard),
         )
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.ReturnToHand(spellCard),
+                then = Effects.ReturnToHand(spellCard),
             ),
         )
     }
@@ -60,9 +57,9 @@ val TophHardheadedTeacher = card("Toph, Hardheaded Teacher") {
         )
         effect = Effects.Composite(
             Effects.Earthbend(1, land),
-            ConditionalEffect(
+            Effects.If(
                 Conditions.TriggeringSpellMatches(GameObjectFilter.Any.withSubtype("Lesson")),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, land),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, land),
             ),
         )
     }

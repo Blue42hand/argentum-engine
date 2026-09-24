@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Callous Sell-Sword // Burn Together
@@ -51,7 +49,7 @@ val CallousSellSword = card("Callous Sell-Sword") {
 
     replacementEffect(
         EntersWithDynamicCounters(
-            count = DynamicAmount.TurnTracking(Player.You, TurnTracker.CREATURES_DIED),
+            count = DynamicAmounts.creaturesDiedThisTurn(Player.You),
         )
     )
 
@@ -65,7 +63,7 @@ val CallousSellSword = card("Callous Sell-Sword") {
             val yourCreature = target("target creature you control", Targets.CreatureYouControl)
             val other = target("any other target", TargetOther(baseRequirement = AnyTarget()))
             effect = Effects.DealDamage(
-                DynamicAmounts.targetPower(0),
+                DynamicAmounts.powerOf(yourCreature),
                 other,
                 damageSource = yourCreature,
             ) then Effects.SacrificeTarget(yourCreature)

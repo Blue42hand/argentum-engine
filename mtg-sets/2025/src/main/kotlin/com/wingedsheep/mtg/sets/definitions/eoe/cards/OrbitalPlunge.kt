@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Orbital Plunge
@@ -34,9 +33,9 @@ val OrbitalPlunge = card("Orbital Plunge") {
         val damaged = target("creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.DealDamage(6, damaged),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.IfTargetTookExcessDamage(),
-                effect = Effects.CreateLander(),
+                then = Effects.CreateLander(),
             ),
         )
     }

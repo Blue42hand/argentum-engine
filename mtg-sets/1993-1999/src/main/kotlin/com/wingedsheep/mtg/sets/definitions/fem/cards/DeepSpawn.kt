@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.costs.CostAtom
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -44,7 +42,7 @@ val DeepSpawn = card("Deep Spawn") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Atom(CostAtom.Mill(2)),
             suffer = SacrificeSelfEffect,
         )
@@ -55,8 +53,8 @@ val DeepSpawn = card("Deep Spawn") {
         cost = Costs.Mana("{U}")
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.Self),
-            GrantKeywordEffect(
-                AbilityFlag.DOESNT_UNTAP.name,
+            Effects.GrantKeyword(
+                AbilityFlag.DOESNT_UNTAP,
                 EffectTarget.Self,
                 Duration.UntilAfterAffectedControllersNextUntap,
             ),

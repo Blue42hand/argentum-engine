@@ -12,19 +12,10 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kefka, Court Mage // Kefka, Ruler of Ruin
@@ -76,7 +67,7 @@ private val KefkaRulerOfRuin = card("Kefka, Ruler of Ruin") {
         trigger = Triggers.AnOpponentLosesLife
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.DrawCards(
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST)
+            DynamicAmounts.triggerLifeLost()
         )
         description = "Whenever an opponent loses life during your turn, you draw that many cards."
     }
@@ -101,48 +92,30 @@ private val KefkaCourtMageFrontFace = card("Kefka, Court Mage") {
     toughness = 5
 
     // Each player discards a card; then you draw a card for each card type among those discards.
-    val discardAndDraw = Effects.Composite(
-        listOf(
-            // You discard a card.
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.HAND, Player.You),
-                storeAs = "kefkaSelfHand"
-            ),
-            SelectFromCollectionEffect(
-                from = "kefkaSelfHand",
-                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                chooser = Chooser.Controller,
-                storeSelected = "kefkaSelfDiscard",
-                prompt = "Choose a card to discard"
-            ),
-            MoveCollectionEffect(
-                from = "kefkaSelfDiscard",
-                destination = CardDestination.ToZone(Zone.GRAVEYARD),
-                moveType = MoveType.Discard
-            ),
-            // Each opponent discards a card (a single opponent in a two-player game).
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.HAND, Player.AnOpponent),
-                storeAs = "kefkaOppHand"
-            ),
-            SelectFromCollectionEffect(
-                from = "kefkaOppHand",
-                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                chooser = Chooser.Opponent,
-                storeSelected = "kefkaOppDiscard",
-                prompt = "Choose a card to discard"
-            ),
-            MoveCollectionEffect(
-                from = "kefkaOppDiscard",
-                destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.AnOpponent),
-                moveType = MoveType.Discard
-            ),
-            // Then you draw a card for each card type among cards discarded this way.
-            Effects.DrawCards(
-                DynamicAmounts.distinctCardTypesIn("kefkaSelfDiscard", "kefkaOppDiscard")
-            )
+    val discardAndDraw = Effects.Pipeline {
+        // You discard a card.
+        val kefkaSelfHand = gather(CardSource.FromZone(Zone.HAND, Player.You))
+        val kefkaSelfDiscard = chooseExactly(
+            1,
+            from = kefkaSelfHand,
+            chooser = Chooser.Controller,
+            prompt = "Choose a card to discard"
         )
-    )
+        discard(kefkaSelfDiscard)
+        // Each opponent discards a card (a single opponent in a two-player game).
+        val kefkaOppHand = gather(CardSource.FromZone(Zone.HAND, Player.AnOpponent))
+        val kefkaOppDiscard = chooseExactly(
+            1,
+            from = kefkaOppHand,
+            chooser = Chooser.Opponent,
+            prompt = "Choose a card to discard"
+        )
+        discard(kefkaOppDiscard, Player.AnOpponent)
+        // Then you draw a card for each card type among cards discarded this way.
+        run(Effects.DrawCards(
+            DynamicAmounts.distinctCardTypesIn(listOf(kefkaSelfDiscard, kefkaOppDiscard))
+        ))
+    }
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
@@ -168,7 +141,7 @@ private val KefkaCourtMageFrontFace = card("Kefka, Court Mage") {
                     1,
                     EffectTarget.PlayerRef(Player.EachOpponent)
                 ),
-                TransformEffect(EffectTarget.Self)
+                Effects.Transform(EffectTarget.Self)
             )
         )
         description = "{8}: Each opponent sacrifices a permanent of their choice. Transform " +

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Peppersmoke
@@ -24,9 +23,9 @@ val Peppersmoke = card("Peppersmoke") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(-1, -1, creature),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.ControlPermanentOfType(Subtype.FAERIE),
-                effect = Effects.DrawCards(1)
+                then = Effects.DrawCards(1)
             )
         )
     }

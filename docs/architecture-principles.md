@@ -788,9 +788,14 @@ backed `LiveEntityView` both implement one `EntityView` interface, so a read sit
 of an entity — live if it is still on the battlefield, otherwise its snapshot — and reads the same
 accessors either way. Whether a given reference falls back to its snapshot once the permanent has
 left is a declared property, not ad-hoc per-call logic: `lkiPolicyFor(reference)` is an exhaustive
-`when` over `EntityReference` returning `LIVE_THEN_LKI` or `LIVE_ONLY`, so a new reference variant is
-a compile error until its last-known behavior is classified — and filtered enumeration
+`when` over `EffectTarget.SingleEntity` returning `LIVE_THEN_LKI` or `LIVE_ONLY`, so a new reference
+variant is a compile error until its last-known behavior is classified — and filtered enumeration
 (Gather/ForEach) is deliberately `LIVE_ONLY`: a permanent that has left simply is not in the set.
+This is the *value-read* rule. `EffectTarget` is also what effects *act* on, and every reference
+resolves through one mapping (`TargetResolutionUtils`) entered two ways: `resolveEntity` for value
+reads, which then apply the policy above, and `resolveTarget` for actions, which instead refuse an
+object that has changed zones since the ability captured it (CR 400.7) — the source (`Self`), the
+triggering object, or the object a `ForEach` loop is visiting (`IterationEntity`).
 
 ### 2.6 Strategy-Based Registries
 
@@ -861,8 +866,8 @@ data class MultiplyTokenCreation(
 data class ModifyCounterPlacement(
     val modifier: Int,
     override val appliesTo: EventPattern = EventPattern.CounterPlacementEvent(
-        counterType = CounterTypeFilter.PlusOnePlusOne,
-        recipient = RecipientFilter.CreatureYouControl
+        counterType = CounterType.PLUS_ONE_PLUS_ONE,
+        recipient = Recipient.CreatureYouControl
     )
 ) : ReplacementEffect
 
@@ -886,8 +891,8 @@ serialize the state even when a replacement choice is pending.
   points mirrors the rules naturally.
 - **Composability.** The `appliesTo` field uses the same `EventPattern` pattern system as trigger
   conditions. A replacement effect that applies to "damage dealt to creatures you control" reuses
-  the same predicate composition as a trigger that fires on the same event — `RecipientFilter`,
-  `SourceFilter`, and `DamageType` are shared between both systems.
+  the same predicate composition as a trigger that fires on the same event — `Recipient`,
+  `GameObjectFilter` (for the source), and `DamageType` are shared between both systems.
 
 **Ordering multiple replacement effects (Rule 616.1).** When multiple replacement effects would apply
 to the same event, the `ReplacementEffectProcessor` implements the full CR 616.1 pipeline as a
@@ -930,7 +935,7 @@ A floating effect with this duration is removed after its replacement effect is 
 end of turn if never used. The Words cycle cards (Words of War, Words of Wind, etc.) use this mechanism.
 An activated ability creates a `Duration.NextUse` floating
 shield that replaces the next draw with a stored effect. Activation-time variables (`{X}` value,
-targets, named targets) are captured in `SerializableModification.ReplaceDrawWithEffect` and
+targets, named targets) are captured in `SerializableModification.ReplaceDrawWith` and
 replayed when the shield is consumed.
 
 **Why a central processor instead of per-category dispatchers?**

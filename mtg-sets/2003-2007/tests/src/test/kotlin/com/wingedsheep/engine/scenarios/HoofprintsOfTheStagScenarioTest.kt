@@ -25,10 +25,9 @@ import io.kotest.matchers.shouldNotBe
  * this enchantment. {2}{W}, Remove four hoofprint counters from this enchantment: Create a 4/4
  * white Elemental creature token with flying. Activate only during your turn."
  *
- * `hoofprint` is a new counter type, and the failure mode of getting that wrong is silent: with no
- * `CounterType` enum entry, `resolveCounterType` falls back to **+1/+1** and every read counts the
- * wrong thing while nothing errors. So the tests read the tally back by
- * `CounterType.HOOFPRINT` explicitly rather than trusting the ability to be self-consistent.
+ * `hoofprint` is a bespoke counter type, and the failure mode of getting a counter kind wrong is
+ * silent: every read counts the wrong thing while nothing errors. So the tests read the tally back
+ * by `CounterType.HOOFPRINT` explicitly rather than trusting the ability to be self-consistent.
  *
  * The 2007-10-01 ruling — a multi-card draw triggers it that many times — is the other half, and it
  * is the shape that separates a per-card trigger from a per-*event* one.

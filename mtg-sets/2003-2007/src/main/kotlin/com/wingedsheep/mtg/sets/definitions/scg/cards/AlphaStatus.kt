@@ -1,14 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Alpha Status
@@ -31,15 +32,15 @@ val AlphaStatus = card("Alpha Status") {
         // every battlefield creature sharing a type with the affected (enchanted) creature, then
         // exclude that creature itself. excludeSelf resolves "self" to the affected entity here,
         // since the bonus is granted to the enchanted creature rather than to the Aura source.
-        val sharedTypeCount = DynamicAmount.AggregateBattlefield(
-            player = Player.Each,
-            filter = GameObjectFilter.Creature.sharingCreatureTypeWith(EntityReference.AffectedEntity),
+        val sharedTypeCount = DynamicAmounts.battlefield(
+            Player.Each,
+            GameObjectFilter.Creature.sharingCreatureTypeWith(EffectTarget.AffectedEntity),
             excludeSelf = true,
-        )
-        ability = GrantDynamicStatsEffect(
+        ).count()
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
-            powerBonus = DynamicAmount.Multiply(sharedTypeCount, 2),
-            toughnessBonus = DynamicAmount.Multiply(sharedTypeCount, 2)
+            powerBonus = sharedTypeCount * 2,
+            toughnessBonus = sharedTypeCount * 2
         )
     }
 

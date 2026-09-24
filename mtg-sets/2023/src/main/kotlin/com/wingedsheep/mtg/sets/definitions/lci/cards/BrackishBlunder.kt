@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Brackish Blunder — LCI #46
@@ -17,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  *
  * Timing note: [Conditions.TargetIsTapped] reads live battlefield state and returns false once
  * the permanent is no longer in play. The condition must therefore be evaluated while the creature
- * is still on the battlefield — before the bounce. [ConditionalEffect] handles this correctly:
+ * is still on the battlefield — before the bounce. [Effects.If] handles this correctly:
  * it checks "tapped?" against the pre-resolution state, then both branches bounce the creature
  * (the tapped branch also creates a Map token).
  */
@@ -31,10 +30,10 @@ val BrackishBlunder = card("Brackish Blunder") {
 
     spell {
         val t = target("target creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetIsTapped(0),
-            effect = Effects.ReturnToHand(t) then Effects.CreateMapToken(),
-            elseEffect = Effects.ReturnToHand(t),
+            then = Effects.ReturnToHand(t) then Effects.CreateMapToken(),
+            otherwise = Effects.ReturnToHand(t),
         )
     }
 

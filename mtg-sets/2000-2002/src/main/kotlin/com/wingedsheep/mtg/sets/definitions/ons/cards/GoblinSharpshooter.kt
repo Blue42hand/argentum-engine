@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
@@ -37,7 +36,7 @@ val GoblinSharpshooter = card("Goblin Sharpshooter") {
     activatedAbility {
         cost = AbilityCost.Tap
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
 
     metadata {

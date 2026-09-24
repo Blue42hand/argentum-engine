@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -54,7 +54,7 @@ val SurgicalSuiteHospitalRoom = card("Surgical Suite // Hospital Room") {
         triggeredAbility {
             trigger = Triggers.YouAttack
             val attacker = target("target attacking creature", Targets.AttackingCreature)
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, attacker)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker)
             description = "Whenever you attack, put a +1/+1 counter on target attacking creature."
         }
     }

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.GameRng
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -73,7 +72,7 @@ class RoutingIdentityTest : ScenarioTestBase() {
             val game = scenario().withPlayers().build()
             val paused = EffectHandler(zones, cardRegistry = cardRegistry).execute(
                 game.state,
-                MayEffect(MayEffect(Effects.GainLife(2))),
+                Effects.May(Effects.May(Effects.GainLife(2))),
                 EffectContext(sourceId = null, controllerId = game.player1Id)
             )
             paused.error shouldBe null
@@ -115,8 +114,8 @@ class RoutingIdentityTest : ScenarioTestBase() {
             val initial = game.state
             val handler = EffectHandler(zones, cardRegistry = cardRegistry)
             val effect = CompositeEffect(listOf(
-                MayEffect(Effects.GainLife(1)),
-                MayEffect(Effects.GainLife(2))
+                Effects.May(Effects.GainLife(1)),
+                Effects.May(Effects.GainLife(2))
             ))
             val context = EffectContext(sourceId = null, controllerId = game.player1Id)
             val first = handler.execute(initial, effect, context)

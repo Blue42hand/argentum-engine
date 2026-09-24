@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -29,11 +28,11 @@ val SpectralShepherd = card("Spectral Shepherd") {
     keywords(Keyword.FLYING)
 
     activatedAbility {
-        cost = Costs.Mana("{1}{U}")
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter(GameObjectFilter.Permanent.youControl().withSubtype("Spirit"))
-        )
-        effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+        ))
+        cost = Costs.Mana("{1}{U}")
+        effect = Effects.ReturnToHand(target)
     }
 
     metadata {

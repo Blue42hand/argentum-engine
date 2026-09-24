@@ -1,15 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 
 /**
  * Territorial Bruntar
@@ -43,20 +39,11 @@ val TerritorialBruntar = card("Territorial Bruntar") {
 
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
-        effect = Effects.Composite(
-            listOf(
-                GatherUntilMatchEffect(
-                    filter = GameObjectFilter.Nonland,
-                    storeMatch = "impulseCard",
-                    storeRevealed = "exiledCards"
-                ),
-                MoveCollectionEffect(
-                    from = "exiledCards",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                ),
-                Effects.GrantMayPlayFromExile(from = "impulseCard")
-            )
-        )
+        effect = Effects.Pipeline {
+            val (impulseCard, exiledCards) = gatherUntilMatch(GameObjectFilter.Nonland)
+            exile(exiledCards)
+            run(Effects.GrantMayPlayFromExile(from = impulseCard))
+        }
     }
 
     metadata {

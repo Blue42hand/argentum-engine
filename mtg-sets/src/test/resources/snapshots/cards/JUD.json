@@ -677,7 +677,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1012,12 +1012,15 @@
                 "amount": 1
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "any target"
             }
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ]
     },
     "metadata": {
@@ -1365,7 +1368,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "feather",
+                    "counterType": "FEATHER",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1379,24 +1382,18 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "feather"
-                        }
+                        "counterType": "FEATHER"
                     }
                 },
                 "toughnessBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "feather"
-                        }
+                        "counterType": "FEATHER"
                     }
                 }
             }
@@ -1513,7 +1510,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "targetRequirements": [

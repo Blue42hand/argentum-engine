@@ -198,7 +198,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -214,7 +214,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -268,20 +268,18 @@
                     "type": "PreventDamageShield",
                     "recipientGroupIncludesController": true,
                     "sourceFilter": {
-                        "type": "FromGroup",
+                        "type": "PreventFromMatching",
                         "filter": {
-                            "baseFilter": {
-                                "cardPredicates": [
-                                    "IsCreature",
-                                    {
-                                        "type": "NotKeyword",
-                                        "keyword": "FLYING"
-                                    }
-                                ],
-                                "statePredicates": [
-                                    "IsAttacking"
-                                ]
-                            }
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "NotKeyword",
+                                    "keyword": "FLYING"
+                                }
+                            ],
+                            "statePredicates": [
+                                "IsAttacking"
+                            ]
                         }
                     }
                 }
@@ -563,7 +561,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -579,7 +577,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -711,7 +709,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -727,7 +725,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -1412,7 +1410,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -1428,7 +1426,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -1636,7 +1634,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1905,7 +1903,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -1921,7 +1919,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -2556,7 +2554,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -2572,7 +2570,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -3277,7 +3275,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4256,7 +4254,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -4272,7 +4270,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {

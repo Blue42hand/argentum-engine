@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * "Wasn't cast from your hand" covers every other way the spell reaches resolution — flashback
@@ -22,10 +21,10 @@ val TwinnedVision = card("Twinned Vision") {
         "flashback cost. Then exile it.)"
 
     spell {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.WasCastFromHand,
-            effect = Effects.DrawCards(1),
-            elseEffect = Effects.DrawCards(2)
+            then = Effects.DrawCards(1),
+            otherwise = Effects.DrawCards(2)
         )
     }
 

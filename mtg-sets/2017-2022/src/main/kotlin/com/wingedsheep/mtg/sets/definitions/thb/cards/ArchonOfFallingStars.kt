@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *
  * The target is an object in the graveyard, so its controller predicate reads **owner**
  * (`ownedByYou()`): a card in a graveyard has no controller. `optional = true` is the DSL's
- * shorthand for the printed "you may" and lowers to exactly `MayEffect(effect)`.
+ * shorthand for the printed "you may" and lowers to exactly `Effects.May(effect)`.
  *
  * [Effects.PutOntoBattlefieldFromGraveyard] keeps its `fromZone = GRAVEYARD` guard even though the
  * target requirement already scopes the graveyard: the requirement decides legality at

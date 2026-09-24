@@ -1,12 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 
 /**
@@ -51,7 +52,7 @@ val RadiantLotus = card("Radiant Lotus") {
         val player = target("target player", TargetPlayer())
         effect = Effects.AddManaOfChoice(
             colorSet = ManaColorSet.AnyColor,
-            amount = DynamicAmount.Multiply(DynamicAmount.XValue, 3),
+            amount = DynamicAmounts.xValue() * 3,
             recipient = player,
         )
         description = "{T}, Sacrifice one or more artifacts: Choose a color. Target player adds " +

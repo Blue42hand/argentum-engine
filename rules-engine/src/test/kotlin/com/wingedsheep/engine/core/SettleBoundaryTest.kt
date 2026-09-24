@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -46,7 +45,7 @@ class SettleBoundaryTest : FunSpec({
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            effect = Effects.Composite(MayEffect(Effects.GainLife(2)), Effects.EndTheTurn)
+            effect = Effects.Composite(Effects.May(Effects.GainLife(2)), Effects.EndTheTurn)
         }
     }
 

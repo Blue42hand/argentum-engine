@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Thwip!
@@ -27,11 +26,9 @@ val Thwip = card("Thwip!") {
         effect = Effects.ModifyStats(2, 2, t)
             .then(Effects.GrantKeyword(Keyword.FLYING, t))
             .then(
-                ConditionalEffect(
-                    condition = Conditions.TargetMatchesFilter(
-                        GameObjectFilter.Creature.withSubtype(Subtype.SPIDER), targetIndex = 0
-                    ),
-                    effect = Effects.GainLife(2)
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.SPIDER), t),
+                    then = Effects.GainLife(2)
                 )
             )
     }

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 
 /**
@@ -42,7 +41,7 @@ val GrimJavelineer = card("Grim Javelineer") {
         effect = Effects.Composite(
             listOf(
                 Effects.ModifyStats(1, 0, attacker),
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     effect = Patterns.Library.surveil(1),
                     trigger = Triggers.Dies,
                     watchedTarget = attacker,

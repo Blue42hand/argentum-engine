@@ -27,7 +27,7 @@ val FaerieTrickery = card("Faerie Trickery") {
         "instead of putting it into its owner's graveyard."
 
     spell {
-        target = TargetSpell(filter = TargetFilter.SpellOnStack.notSubtype(Subtype.FAERIE))
+        val spell = target("target spell", TargetSpell(filter = TargetFilter.SpellOnStack.notSubtype(Subtype.FAERIE)))
         effect = Effects.CounterSpellToExile()
     }
 

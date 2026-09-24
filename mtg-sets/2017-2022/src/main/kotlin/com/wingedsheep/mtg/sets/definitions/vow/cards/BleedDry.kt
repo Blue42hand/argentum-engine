@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -22,7 +21,7 @@ val BleedDry = card("Bleed Dry") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.ModifyStats(-13, -13, t),
-            MarkExileOnDeathEffect(t)
+            Effects.MarkExileOnDeath(t)
         )
     }
     metadata {

@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -27,7 +27,7 @@ val RotlungReanimator = card("Rotlung Reanimator") {
     toughness = 2
     oracleText = "Whenever Rotlung Reanimator or another Cleric dies, create a 2/2 black Zombie creature token."
 
-    val zombieToken = CreateTokenEffect(
+    val zombieToken = Effects.CreateToken(
         count = 1,
         power = 2,
         toughness = 2,

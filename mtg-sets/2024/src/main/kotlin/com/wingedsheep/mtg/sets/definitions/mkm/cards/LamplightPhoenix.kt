@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,12 +34,12 @@ val LamplightPhoenix = card("Lamplight Phoenix") {
     triggeredAbility {
         trigger = Triggers.Dies
         triggerZone = Zone.GRAVEYARD
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = Effects.Composite(
                 Effects.Exile(EffectTarget.Self, fromZone = Zone.GRAVEYARD),
                 Effects.CollectEvidence(4),
             ),
-            ifPaid = Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
+            then = Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
         )
         description = "When this creature dies, you may exile it and collect evidence 4. If you " +
             "do, return this card to the battlefield tapped."

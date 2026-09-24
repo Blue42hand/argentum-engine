@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -85,15 +84,14 @@ private val SidequestPlayBlitzballFront = card("Sidequest: Play Blitzball") {
         interveningIf = Conditions.aPlayerWasDealtCombatDamageThisTurnAtLeast(6)
         effect = Effects.Pipeline {
             // Transform this enchantment (it becomes World Champion, Celestial Weapon)...
-            run(TransformEffect(EffectTarget.Self))
+            run(Effects.Transform(EffectTarget.Self))
             // ...then attach it to a creature you control. Chosen at resolution, not targeted:
             // auto-selects a lone creature, pauses to choose among several, no-ops with none.
             val host = selectTarget(
                 TargetCreature(filter = TargetFilter.Creature.youControl()),
-                name = "host",
             )
             ifNotEmpty(host) {
-                run(Effects.AttachEquipment(EffectTarget.PipelineTarget(host.key)))
+                run(Effects.AttachEquipment(host.asTarget))
             }
         }
     }

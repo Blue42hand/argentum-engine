@@ -21,7 +21,7 @@ import io.kotest.matchers.string.shouldNotContain
  * Regression for World War Hulk's chapter III rendering as "target gets +0/+0 until end of turn".
  *
  * An ability that pumps a creature by *its own* stats ("double its power and toughness") reads
- * [com.wingedsheep.sdk.scripting.values.EntityReference.Target], so its amount is only knowable once
+ * [com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget], so its amount is only knowable once
  * a target exists. Two surfaces render such an ability, and they sat on opposite sides of one bug:
  *
  *  1. **The targeting banner**, drawn *before* the player chooses. No target exists by construction,

@@ -40,8 +40,8 @@ val EpicFight = card("Epic Fight") {
             mode("Double target creature's power and toughness until end of turn") {
                 val creature = target("target creature", Targets.Creature)
                 effect = Effects.ModifyStats(
-                    power = DynamicAmounts.targetPower(),
-                    toughness = DynamicAmounts.targetToughness(),
+                    power = DynamicAmounts.powerOf(creature),
+                    toughness = DynamicAmounts.toughnessOf(creature),
                     target = creature
                 )
             }

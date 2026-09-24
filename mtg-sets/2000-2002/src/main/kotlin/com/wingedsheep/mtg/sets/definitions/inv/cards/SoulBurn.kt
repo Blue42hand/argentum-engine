@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Soul Burn
@@ -33,11 +32,11 @@ val SoulBurn = card("Soul Burn") {
         "black mana spent this way."
 
     spell {
+        val anyTarget = target("any target", Targets.Any)
         xManaRestriction = setOf(Color.BLACK, Color.RED)
-        target = Targets.Any
         effect = Effects.Composite(
-            Effects.DealXDamage(EffectTarget.ContextTarget(0)),
-            Effects.GainLife(DynamicAmount.ManaSpentOnX(Color.BLACK))
+            Effects.DealXDamage(anyTarget),
+            Effects.GainLife(DynamicAmounts.manaSpentOnX(Color.BLACK))
         )
     }
 

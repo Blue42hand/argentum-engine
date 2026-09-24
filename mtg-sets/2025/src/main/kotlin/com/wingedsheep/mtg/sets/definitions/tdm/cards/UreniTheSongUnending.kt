@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ProtectionScope
-import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -51,8 +51,8 @@ val UreniTheSongUnending = card("Ureni, the Song Unending") {
             dynamicMaxCount = DynamicAmounts.landsYouControl(),
             id = "target creatures and/or planeswalkers your opponents control"
         )
-        effect = DividedDamageEffect(
-            totalDamage = 0,
+        effect = Effects.DividedDamage(
+            total = 0,
             dynamicTotal = DynamicAmounts.landsYouControl()
         )
         description = "When Ureni enters, it deals X damage divided as you choose among any number of " +

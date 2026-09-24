@@ -5,12 +5,11 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,7 +32,7 @@ val QueenBrahne = card("Queen Brahne") {
     prowess()
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 0,
             toughness = 1,
             colors = setOf(Color.BLACK),
@@ -43,7 +42,7 @@ val QueenBrahne = card("Queen Brahne") {
                 TriggeredAbility.create(
                     trigger = Triggers.YouCastNoncreature.event,
                     binding = Triggers.YouCastNoncreature.binding,
-                    effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent))
+                    effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
                 )
             )
         )

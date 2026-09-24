@@ -33,7 +33,7 @@ val Crumble = card("Crumble") {
             "target artifact",
             TargetObject(filter = TargetFilter.Artifact)
         )
-        effect = Effects.GainLife(DynamicAmounts.targetManaValue(), EffectTarget.TargetController)
+        effect = Effects.GainLife(DynamicAmounts.manaValueOf(artifact), EffectTarget.TargetController)
             .then(Effects.Destroy(artifact, noRegenerate = true))
     }
 

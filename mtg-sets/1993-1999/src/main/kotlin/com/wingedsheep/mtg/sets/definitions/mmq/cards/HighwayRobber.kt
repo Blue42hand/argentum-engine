@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 
@@ -31,8 +29,8 @@ val HighwayRobber = card("Highway Robber") {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetOpponent())
         effect = Effects.Composite(
-            LoseLifeEffect(2, t),
-            GainLifeEffect(2)
+            Effects.LoseLife(2, t),
+            Effects.GainLife(2)
         )
     }
     metadata {

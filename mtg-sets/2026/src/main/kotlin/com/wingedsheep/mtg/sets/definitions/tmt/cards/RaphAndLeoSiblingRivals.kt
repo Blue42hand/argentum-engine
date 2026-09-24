@@ -4,8 +4,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -53,8 +51,8 @@ val RaphAndLeoSiblingRivals = card("Raph & Leo, Sibling Rivals") {
         )
         effect = Effects.Composite(
             listOf(
-                ForEachTargetEffect(
-                    listOf(TapUntapEffect(EffectTarget.ContextTarget(0), tap = false))
+                Effects.ForEachTarget(
+                    Effects.Untap(EffectTarget.ContextTarget(0))
                 ),
                 // "After this phase, there is an additional combat phase." (combat only — no main)
                 Effects.AddCombatPhase,

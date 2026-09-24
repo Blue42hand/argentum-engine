@@ -6,12 +6,13 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gloom Ripper
@@ -50,13 +51,11 @@ val GloomRipper = card("Gloom Ripper") {
 
         // "Elves you control" counts every Elf permanent, not just Elf creatures — a noncreature
         // Changeling permanent (e.g. Firdoch Core) is an Elf, so filter on Permanent, not Creature.
-        val elfCount = DynamicAmount.Add(
-            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype(Subtype.ELF)).count(),
+        val elfCount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype(Subtype.ELF)).count() +
             DynamicAmounts.zone(Player.You, Zone.GRAVEYARD, GameObjectFilter.Any.withSubtype(Subtype.ELF)).count()
-        )
 
-        effect = Effects.ModifyStats(elfCount, DynamicAmount.Fixed(0), ally)
-            .then(Effects.ModifyStats(DynamicAmount.Fixed(0), DynamicAmount.Subtract(DynamicAmount.Fixed(0), elfCount), enemy))
+        effect = Effects.ModifyStats(elfCount, DynamicAmounts.fixed(0), ally)
+            .then(Effects.ModifyStats(DynamicAmounts.fixed(0), 0 - elfCount, enemy))
     }
 
     metadata {

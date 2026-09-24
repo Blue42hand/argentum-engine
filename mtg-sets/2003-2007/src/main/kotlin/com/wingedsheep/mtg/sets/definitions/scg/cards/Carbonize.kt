@@ -1,10 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 /**
@@ -22,9 +20,9 @@ val Carbonize = card("Carbonize") {
 
     spell {
         val t = target("target", AnyTarget())
-        effect = CantBeRegeneratedEffect(t) then
-                MarkExileOnDeathEffect(t) then
-                DealDamageEffect(3, t)
+        effect = Effects.CantBeRegenerated(t) then
+                Effects.MarkExileOnDeath(t) then
+                Effects.DealDamage(3, t)
     }
 
     metadata {

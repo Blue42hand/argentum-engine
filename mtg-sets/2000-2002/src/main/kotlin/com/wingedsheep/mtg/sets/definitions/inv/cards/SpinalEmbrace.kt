@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -42,7 +41,7 @@ val SpinalEmbrace = card("Spinal Embrace") {
             Effects.Untap(t),
             Effects.GainControl(t, Duration.Permanent),
             Effects.GrantKeyword(Keyword.HASTE, t, Duration.EndOfTurn),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Composite(
                     Effects.SacrificeTarget(t),

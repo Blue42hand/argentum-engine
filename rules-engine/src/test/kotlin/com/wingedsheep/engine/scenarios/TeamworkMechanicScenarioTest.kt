@@ -2,6 +2,7 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -138,7 +138,7 @@ class TeamworkMechanicScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = Conditions.TeamworkWasPaid
-            effect = Effects.AddCounters("+1/+1", 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 
@@ -225,7 +225,7 @@ class TeamworkMechanicScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = WasKicked
-            effect = Effects.AddCounters("+1/+1", 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 

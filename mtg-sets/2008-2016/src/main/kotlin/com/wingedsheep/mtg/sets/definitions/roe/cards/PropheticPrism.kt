@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -27,7 +26,7 @@ val PropheticPrism = card("Prophetic Prism") {
     oracleText = "When this artifact enters, draw a card.\n{1}, {T}: Add one mana of any color."
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)

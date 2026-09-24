@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -39,7 +39,7 @@ val JeongJeongTheDeserter = card("Jeong Jeong, the Deserter") {
         isExhaust = true
         cost = Costs.Mana("{3}")
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.CopyNextSpellCast(1, GameObjectFilter.Any.withSubtype("Lesson")),
         )
     }

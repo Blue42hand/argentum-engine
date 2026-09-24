@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
-import com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityEffect
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,11 +28,11 @@ val DefilingTears = card("Defiling Tears") {
         val t = target("target creature", Targets.Creature)
         effect = Effects.ChangeColor(t, setOf(Color.BLACK)) then
             Effects.ModifyStats(1, -1, t) then
-            GrantActivatedAbilityEffect(
+            Effects.GrantActivatedAbility(
                 ability = ActivatedAbility(
                     id = AbilityId.generate(),
                     cost = Costs.Mana(ManaCost.parse("{B}")),
-                    effect = RegenerateEffect(EffectTarget.Self)
+                    effect = Effects.Regenerate(EffectTarget.Self)
                 ),
                 target = t
             )

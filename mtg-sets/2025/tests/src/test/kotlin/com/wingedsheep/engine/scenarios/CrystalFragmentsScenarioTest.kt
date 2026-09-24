@@ -32,7 +32,7 @@ import com.wingedsheep.engine.core.Outcome
  *      [com.wingedsheep.sdk.model.CardDefinition.doubleFacedPermanent] and flips via the face-agnostic
  *      [com.wingedsheep.sdk.scripting.effects.ExileAndReturnTransformedEffect].
  *   2. Recipient-group damage prevention — chapters I, II apply
- *      [com.wingedsheep.sdk.dsl.Effects.PreventAllDamageToGroup] over "creatures you control".
+ *      [com.wingedsheep.sdk.dsl.Effects.PreventDamage] `toGroup` over "creatures you control".
  */
 class CrystalFragmentsScenarioTest : FunSpec({
 

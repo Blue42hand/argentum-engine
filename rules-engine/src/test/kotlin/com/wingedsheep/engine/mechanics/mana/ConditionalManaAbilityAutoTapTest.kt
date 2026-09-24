@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
@@ -24,7 +23,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
  * source — Raucous Audience: "{T}: Add {G}. If you control a creature with power 4 or greater, add
  * {G}{G} instead."
  *
- * `ConditionalEffect` lowers to a [com.wingedsheep.sdk.scripting.effects.GatedEffect], which the
+ * `Effects.If` lowers to a [com.wingedsheep.sdk.scripting.effects.GatedEffect], which the
  * solver's effect-extraction did not handle — the gate fell through unread, the solver never saw
  * the green, and the source was silently skipped (player couldn't auto-tap it). The fix evaluates
  * the gate's condition against current state (stable during a payment) and reads the branch that
@@ -43,10 +42,10 @@ class ConditionalManaAbilityAutoTapTest : FunSpec({
 
         activatedAbility {
             cost = Costs.Tap
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 condition = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4)),
-                effect = Effects.AddMana(Color.GREEN, 2),
-                elseEffect = Effects.AddMana(Color.GREEN),
+                then = Effects.AddMana(Color.GREEN, 2),
+                otherwise = Effects.AddMana(Color.GREEN),
             )
             manaAbility = true
             timing = TimingRule.ManaAbility

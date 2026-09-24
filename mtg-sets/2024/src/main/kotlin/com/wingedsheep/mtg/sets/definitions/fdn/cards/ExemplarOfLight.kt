@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -36,14 +36,14 @@ val ExemplarOfLight = card("Exemplar of Light") {
     // Whenever you gain life, put a +1/+1 counter on this creature
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     // Whenever you put one or more +1/+1 counters on this creature, draw a card. This ability triggers only once each turn.
     triggeredAbility {
         trigger = TriggerSpec(
             event = CountersPlacedEvent(
-                counterType = "+1/+1",
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 filter = GameObjectFilter.Any
             ),
             binding = TriggerBinding.SELF

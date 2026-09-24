@@ -25,7 +25,7 @@ import com.wingedsheep.engine.core.Outcome
  * The legendary status is read from the `EntitySnapshot.supertypes` set captured by
  * `captureEntitySnapshots` at cost-payment time — the supertype field is freshly added
  * for Gap 17 (previous snapshots only carried subtypes). The condition data-only path runs
- * inside `ConditionalEffect`'s `Gate.WhenCondition`, lowered from the SDK facade
+ * inside `Effects.If`'s `Gate.WhenCondition`, lowered from the SDK facade
  * `Conditions.SacrificedWasLegendary`.
  */
 class NastyEndTest : FunSpec({

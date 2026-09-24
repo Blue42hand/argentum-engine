@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Syncopate
@@ -21,7 +21,7 @@ val Syncopate = card("Syncopate") {
 
     spell {
         val spell = target("spell", Targets.Spell)
-        effect = Effects.CounterUnlessDynamicPays(DynamicAmount.XValue, exileOnCounter = true)
+        effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.xValue(), exileOnCounter = true)
     }
 
     metadata {

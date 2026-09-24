@@ -20,7 +20,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "Toughness"
                     }
                 },
@@ -362,7 +362,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "ForEach",
@@ -389,7 +392,7 @@
                             "type": "ContextProperty",
                             "key": "TRIGGER_DAMAGE_AMOUNT"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -925,7 +928,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1140,11 +1143,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "delverLooked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "delverLooked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -1152,14 +1155,14 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "delverRevealed",
+                            "storeSelected": "selected1",
                             "prompt": "You may reveal the top card of your library",
                             "selectedLabel": "Reveal",
                             "showAllCards": true
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "delverRevealed",
+                            "from": "selected1",
                             "revealToSelf": false
                         },
                         {
@@ -1168,7 +1171,7 @@
                                 "type": "Gate.WhenCondition",
                                 "condition": {
                                     "type": "CollectionContainsMatch",
-                                    "collection": "delverRevealed",
+                                    "collection": "selected1",
                                     "filter": "instant|sorcery"
                                 }
                             },
@@ -1504,15 +1507,15 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             },
                             "filter": "creature Human"
                         }
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 2,
                         "target": {
                             "type": "BoundVariable",
@@ -1521,7 +1524,7 @@
                     },
                     "otherwise": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -2234,13 +2237,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "loyalty"
-                            }
+                            "counterType": "LOYALTY"
                         }
                     },
                     "operator": "LTE",
@@ -2278,7 +2278,10 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                },
                                 "numericProperty": "Power"
                             },
                             "target": "Self",
@@ -2450,12 +2453,12 @@
                                         "zone": "Graveyard",
                                         "filter": "creature"
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -2713,11 +2716,11 @@
                                 "zone": "Graveyard",
                                 "filter": "Zombie"
                             },
-                            "storeAs": "zombies"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "zombies",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "Random",
                                 "count": {
@@ -2725,11 +2728,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "chosen"
+                            "storeSelected": "selected1"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "chosen",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -2902,7 +2905,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -2938,7 +2941,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -2997,7 +3000,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -3023,7 +3026,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3205,7 +3208,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3738,18 +3741,18 @@
                             "source": {
                                 "type": "ControlledPermanents",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
-                            "storeAs": "their_permanents"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "their_permanents",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
-                            "storeSelected": "pileA",
-                            "storeRemainder": "pileB",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Separate their permanents into two piles. The permanents you select form Pile 1; the rest form Pile 2.",
                             "selectedLabel": "Pile 1",
                             "remainderLabel": "Pile 2",
@@ -3758,16 +3761,16 @@
                         },
                         {
                             "type": "ChoosePile",
-                            "pileA": "pileA",
-                            "pileB": "pileB",
+                            "pileA": "selected1",
+                            "pileB": "remainder1",
                             "chooser": "TargetPlayer",
-                            "storeChosenAs": "sacrificedPile",
-                            "storeOtherAs": "keptPile",
+                            "storeChosenAs": "chosenPile2",
+                            "storeOtherAs": "otherPile2",
                             "prompt": "Choose a pile. You sacrifice all permanents in the pile you choose."
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "sacrificedPile",
+                            "from": "chosenPile2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
@@ -3894,7 +3897,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -4643,7 +4646,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -4869,7 +4872,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5037,7 +5040,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5153,7 +5156,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -5224,12 +5227,12 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "target"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "StoreCardName",
-                    "from": "target",
-                    "storeAs": "name"
+                    "from": "gathered0",
+                    "storeAs": "cardName1"
                 },
                 {
                     "type": "GatherCards",
@@ -5240,16 +5243,16 @@
                                 "IsCreature",
                                 {
                                     "type": "NameEqualsChosen",
-                                    "variableName": "name"
+                                    "variableName": "cardName1"
                                 }
                             ]
                         }
                     },
-                    "storeAs": "sameNamed"
+                    "storeAs": "gathered2"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "sameNamed",
+                    "from": "gathered2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Exile"
@@ -5782,8 +5785,8 @@
                 "effect": {
                     "type": "GrantFlashback",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 "targetRequirement": {
@@ -5791,7 +5794,8 @@
                     "filter": {
                         "baseFilter": "instant|sorcery own:you",
                         "zone": "Graveyard"
-                    }
+                    },
+                    "id": "target"
                 },
                 "descriptionOverride": "When this creature enters, target instant or sorcery card in your graveyard gains flashback until end of turn. The flashback cost is equal to its mana cost."
             }
@@ -6217,11 +6221,14 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -6360,7 +6367,7 @@
             "space": "IterationSpace.Targets",
             "body": {
                 "type": "AddCounters",
-                "counterType": "+1/+1",
+                "counterType": "PLUS_ONE_PLUS_ONE",
                 "count": 1,
                 "target": {
                     "type": "ContextTarget",
@@ -6487,7 +6494,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Toughness"
                     }
                 }
@@ -6770,12 +6777,12 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -6876,7 +6883,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 }

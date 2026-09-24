@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 
 val CraftworkCrusher = card("Craftwork Crusher") {
@@ -27,11 +27,13 @@ val CraftworkCrusher = card("Craftwork Crusher") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseTwo(
-            Mode.withTarget(
-                Effects.DealDamage(4, EffectTarget.ContextTarget(0)),
-                TargetCreatureOrPlaneswalker(),
-                "This creature deals 4 damage to target creature or planeswalker."
-            ),
+            mode("This creature deals 4 damage to target creature or planeswalker.") {
+                val creatureOrPlaneswalker = target(
+                    "target creature or planeswalker",
+                    TargetCreatureOrPlaneswalker()
+                )
+                effect = Effects.DealDamage(4, creatureOrPlaneswalker)
+            },
             Mode.noTarget(
                 Effects.CreateToken(power = 2, toughness = 2, name = "Cadet", creatureTypes = setOf("Wizard", "Soldier"), imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"),
                 "Create a 2/2 colorless Wizard Soldier creature token named Cadet."

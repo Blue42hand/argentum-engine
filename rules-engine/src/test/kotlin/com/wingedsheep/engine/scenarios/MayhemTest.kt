@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.dsl.mayhem
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.conditions.MayhemCostWasPaid
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -70,10 +69,10 @@ class MayhemTest : FunSpec({
         manaCost = "{2}{R}"
         typeLine = "Sorcery"
         spell {
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 condition = Conditions.MayhemCostWasPaid,
-                effect = Effects.GainLife(5),
-                elseEffect = Effects.GainLife(2)
+                then = Effects.GainLife(5),
+                otherwise = Effects.GainLife(2)
             )
         }
         mayhem("{R}")

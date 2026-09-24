@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -48,7 +47,7 @@ val AnzragTheQuakeMole = card("Anzrag, the Quake-Mole") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.Self),
+                Effects.Untap(EffectTarget.IterationEntity),
             ),
             Effects.AddCombatPhase,
         )
@@ -58,7 +57,7 @@ val AnzragTheQuakeMole = card("Anzrag, the Quake-Mole") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{R}{R}{G}{G}")
-        effect = MustBeBlockedEffect(EffectTarget.Self, allCreatures = false)
+        effect = Effects.MustBeBlocked(EffectTarget.Self, allCreatures = false)
         description = "Anzrag must be blocked each combat this turn if able."
     }
 

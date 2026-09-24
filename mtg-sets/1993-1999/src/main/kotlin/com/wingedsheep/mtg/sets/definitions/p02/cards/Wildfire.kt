@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * "Each player sacrifices …" is [Effects.Sacrifice] naming [Player.Each] as the sacrificing player —
  * each player chooses their own lands, in APNAP order. The sweep is [Effects.ForEachInGroup] over
- * every creature with the damage aimed at [EffectTarget.Self], the current iteration entity.
+ * every creature with the damage aimed at [EffectTarget.IterationEntity], the current iteration entity.
  */
 val Wildfire = card("Wildfire") {
     manaCost = "{4}{R}{R}"
@@ -33,7 +33,7 @@ val Wildfire = card("Wildfire") {
             ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                Effects.DealDamage(4, EffectTarget.Self)
+                Effects.DealDamage(4, EffectTarget.IterationEntity)
             )
         )
     }

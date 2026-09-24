@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Send in the Pest
@@ -30,7 +29,7 @@ val SendInThePest = card("Send in the Pest") {
     spell {
         effect = Effects.EachOpponentDiscards(1)
             .then(
-                CreateTokenEffect(
+                Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.BLACK, Color.GREEN),

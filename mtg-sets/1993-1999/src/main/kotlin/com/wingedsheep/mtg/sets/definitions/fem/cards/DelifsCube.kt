@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,10 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -44,16 +41,16 @@ val DelifsCube = card("Delif's Cube") {
             "target creature you control",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
         )
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.AttacksAndIsntBlocked.copy(binding = TriggerBinding.ANY),
             watchedTarget = t,
             effect = Effects.Composite(
-                GrantKeywordEffect(
-                    AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE.name,
+                Effects.GrantKeyword(
+                    AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                     EffectTarget.TriggeringEntity,
                     Duration.EndOfTurn,
                 ),
-                Effects.AddCounters(Counters.CUBE, 1, EffectTarget.Self),
+                Effects.AddCounters(CounterType.CUBE, 1, EffectTarget.Self),
             ),
             expiry = DelayedTriggerExpiry.EndOfTurn,
             fireOnce = true,
@@ -62,9 +59,9 @@ val DelifsCube = card("Delif's Cube") {
     }
 
     activatedAbility {
-        cost = Costs.Composite(Costs.Mana("{2}"), Costs.RemoveCounterFromSelf(Counters.CUBE, 1))
+        cost = Costs.Composite(Costs.Mana("{2}"), Costs.RemoveCounterFromSelf(CounterType.CUBE, 1))
         val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
         description = "{2}, Remove a cube counter from this artifact: Regenerate target creature."
     }
 

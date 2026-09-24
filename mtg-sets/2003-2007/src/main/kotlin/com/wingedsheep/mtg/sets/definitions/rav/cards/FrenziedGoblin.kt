@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -26,9 +25,9 @@ val FrenziedGoblin = card("Frenzied Goblin") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val creature = target("creature", TargetCreature())
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
-            effect = Effects.CantBlock(creature)
+            then = Effects.CantBlock(creature)
         )
     }
 

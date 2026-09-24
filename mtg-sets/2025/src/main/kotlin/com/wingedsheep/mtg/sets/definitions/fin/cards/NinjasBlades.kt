@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
@@ -62,7 +63,7 @@ val NinjasBlades = card("Ninja's Blades") {
                     Effects.DrawCards(1),
                     Patterns.Hand.discardCards(1),
                     Effects.LoseLife(
-                        DynamicAmount.StoredCardManaValue("discarded"),
+                        DynamicAmounts.manaValueOf(Patterns.Hand.discarded),
                         EffectTarget.PlayerRef(Player.TriggeringPlayer),
                     ),
                 )

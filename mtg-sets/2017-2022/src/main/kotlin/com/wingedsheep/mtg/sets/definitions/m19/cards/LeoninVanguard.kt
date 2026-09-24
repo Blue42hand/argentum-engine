@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -33,7 +32,7 @@ val LeoninVanguard = card("Leonin Vanguard") {
         interveningIf = Conditions.YouControlAtLeast(3, GameObjectFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, EffectTarget.Self),
-            GainLifeEffect(1)
+            Effects.GainLife(1)
         )
     }
     metadata {

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * War Machine, Legacy of Iron — Marvel Super Heroes #238 (uncommon)
@@ -44,7 +43,7 @@ val WarMachineLegacyOfIron = card("War Machine, Legacy of Iron") {
         val boosted = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.ModifyStats(
             DynamicAmounts.sourcePower(),
-            DynamicAmount.Fixed(0),
+            DynamicAmounts.fixed(0),
             boosted
         )
     }

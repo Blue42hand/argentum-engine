@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -23,7 +23,7 @@ val BreakOpen = card("Break Open") {
         val t = target("target", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Creature.faceDown().opponentControls())
         ))
-        effect = TurnFaceUpEffect(t)
+        effect = Effects.TurnFaceUp(t)
     }
 
     metadata {

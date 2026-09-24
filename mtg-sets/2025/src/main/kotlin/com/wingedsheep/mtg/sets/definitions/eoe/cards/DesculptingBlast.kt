@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Desculpting Blast
@@ -26,9 +25,9 @@ val DesculptingBlast = card("Desculpting Blast") {
         val permanent = target("target nonland permanent", Targets.NonlandPermanent)
         // Check attacking status before the return so the permanent is still on the battlefield
         effect = Effects.Composite(
-            ConditionalEffect(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.attacking()),
-                effect = Effects.CreateDroneToken()
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.attacking(), permanent),
+                then = Effects.CreateDroneToken()
             ),
             Effects.ReturnToHand(permanent)
         )

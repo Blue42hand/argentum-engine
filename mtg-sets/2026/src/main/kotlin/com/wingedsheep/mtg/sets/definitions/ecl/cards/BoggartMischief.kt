@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,17 +11,10 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Boggart Mischief
@@ -57,29 +50,22 @@ val BoggartMischief = card("Boggart Mischief") {
     // When this enchantment enters, you may blight 1. If you do, create two 1/1 black and red Goblin creature tokens.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
-            effect = Effects.Composite(
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.ControlledPermanents(Player.You, GameObjectFilter.Creature),
-                        storeAs = "blightTargets"
-                    ),
-                    SelectFromCollectionEffect(
-                        from = "blightTargets",
-                        selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                        chooser = Chooser.Controller,
-                        storeSelected = "blighted",
-                        prompt = "Blight 1 — choose a creature you control (or cancel)",
-                        useTargetingUI = true,
-                        alwaysPrompt = true
-                    ),
-                    AddCountersToCollectionEffect("blighted", Counters.MINUS_ONE_MINUS_ONE, 1),
-                    ConditionalOnCollectionEffect(
-                        collection = "blighted",
-                        ifNotEmpty = createGoblinTokens
-                    )
+        effect = Effects.May(
+            effect = Effects.Pipeline {
+                val blightTargets = gather(CardSource.ControlledPermanents(Player.You, GameObjectFilter.Creature))
+                val blighted = chooseUpTo(
+                    1,
+                    from = blightTargets,
+                    chooser = Chooser.Controller,
+                    prompt = "Blight 1 — choose a creature you control (or cancel)",
+                    useTargetingUI = true,
+                    alwaysPrompt = true
                 )
-            ),
+                run(Effects.AddCountersToCollection(blighted, CounterType.MINUS_ONE_MINUS_ONE, 1))
+                ifNotEmpty(blighted) {
+                    run(createGoblinTokens)
+                }
+            },
             descriptionOverride = "You may blight 1. If you do, create two 1/1 black and red Goblin creature tokens."
         )
     }

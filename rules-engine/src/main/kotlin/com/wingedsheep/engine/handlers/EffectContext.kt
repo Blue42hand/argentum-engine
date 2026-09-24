@@ -8,6 +8,7 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceSlot
@@ -85,6 +86,8 @@ data class EffectContext(
      */
     val sourceReferenceLost: Boolean = false,
     val triggeringReferenceLost: Boolean = false,
+    /** The loop's current object ([iterationEntityId]) has changed zones since the loop bound it. */
+    val iterationReferenceLost: Boolean = false,
     val objectReferences: ObjectReferenceEnvironment = ObjectReferenceEnvironment(),
     val targets: List<ChosenTarget> = emptyList(),
     /**
@@ -93,13 +96,13 @@ data class EffectContext(
      * validation (CR 608.2b). Populated on the spell-resolution path (and copied through
      * composite/iteration sub-effects); empty elsewhere, where it coincides with [targets].
      *
-     * Positional target references — [EffectTarget.ContextTarget], [EntityReference.Target],
+     * Positional target references — [EffectTarget.ContextTarget],
      * [com.wingedsheep.sdk.scripting.references.Player.ContextPlayer], and indexed conditions —
      * MUST resolve through [positionalTarget] so a now-illegal slot reads `null` (and the
      * sub-effect fizzles, CR 608.2b) instead of silently consuming the next still-legal target
      * whose position shifted forward in the compacted [targets] list. Diplomatic Relations is
      * the canonical case: "creature you control" dies in response, and without this the damage
-     * amount's `Target(0)` power read would land on the surviving opponent's creature.
+     * amount's `ContextTarget(0)` power read would land on the surviving opponent's creature.
      */
     val alignedTargets: List<ChosenTarget?> = emptyList(),
     /**
@@ -200,18 +203,18 @@ data class EffectContext(
     /** LKI snapshots for [tappedPermanents] (Rule 113.7a). See [EntitySnapshot]. */
     val tappedEntitySnapshots: List<EntitySnapshot> = emptyList(),
     /**
-     * Counters (counter-type-string → count) the source had the moment a self-exile /
+     * Counters (kind → count) the source had the moment a self-exile /
      * self-sacrifice cost wiped them (CR 113.7a). Read by
      * [com.wingedsheep.sdk.scripting.values.DynamicAmount.LastKnownSourceCounters] so an effect
      * like "Draw a card for each verse counter on this. If it had seven or more..." (Lost Isle
      * Calling) sees the pre-cost count rather than zero.
      */
-    val lastKnownSourceCounters: Map<String, Int> = emptyMap(),
+    val lastKnownSourceCounters: Map<CounterType, Int> = emptyMap(),
     /**
      * Frozen projected P/T (and subtypes/supertypes) the source had the moment a self-exile /
      * self-sacrifice cost moved it off the battlefield (CR 113.7a / 608.2h — "as it last existed
      * on the battlefield"). Mirrors [lastKnownSourceCounters]. Read by [DynamicAmountEvaluator]
-     * when an `EntityProperty(EntityReference.Source, …)` power/toughness read resolves after the
+     * when an `EntityProperty(EffectTarget.Self, …)` power/toughness read resolves after the
      * source is gone, so "Sacrifice this creature: it deals damage equal to its power" reads the
      * pre-sacrifice power rather than zero (Blazing Bomb's Blow Up, Cinder Shade, Ghitu Fire-Eater).
      * Null when the cost did not sacrifice/exile the source.
@@ -233,7 +236,7 @@ data class EffectContext(
      * with `captureSnapshot = true`. Indexed by entity id via
      * [com.wingedsheep.engine.state.components.stack.snapshotFor]. Read by
      * [DynamicAmountEvaluator] when the `EntityProperty` path resolves an
-     * [com.wingedsheep.sdk.scripting.values.EntityReference.FromCostStorage].
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.PipelineTarget].
      */
     val chosenEntitySnapshots: List<EntitySnapshot> = emptyList(),
     // --- Trigger state ---
@@ -321,6 +324,13 @@ data class EffectContext(
         get() = activatedAbility?.id
 
     /**
+     * The object an enclosing `ForEach` loop over a group or a collection is visiting —
+     * [EffectTarget.IterationEntity]. Null outside such a loop.
+     */
+    val iterationEntityId: EntityId?
+        get() = objectReferences.iteration?.entityId
+
+    /**
      * Resolve a symbolic effect target to a concrete entity id using just the context.
      *
      * Stateless resolution — handles self, controller, context targets, bound variables,
@@ -369,11 +379,13 @@ data class EffectContext(
 
     /** Recheck on every instruction/resume; an unrelated move while paused cannot be followed. */
     fun withCurrentObjectReferences(state: GameState): EffectContext = copy(
-        sourceReferenceLost = if (objectReferences.captured || objectReferences.selfBinding != null) {
-            !objectReferences.isSelfCurrent(state)
+        sourceReferenceLost = if (objectReferences.captured) {
+            !objectReferences.isCurrent(objectReferences.source, state)
         } else sourceReferenceLost,
         triggeringReferenceLost = triggeringEntityId !in state.turnOrder &&
             !objectReferences.isCurrent(objectReferences.triggering, state),
+        iterationReferenceLost = objectReferences.iteration != null &&
+            !objectReferences.isIterationCurrent(state),
     )
 
     fun authorizeObjectMoves(events: List<com.wingedsheep.engine.core.GameEvent>): EffectContext =
@@ -385,11 +397,17 @@ data class EffectContext(
                 ?.let { state.getEntity(it)?.chosenOpponent() }
 
 
-    /** Battlefield-only instructions cannot affect a source that has left or already returned. */
-    fun isUnavailableBattlefieldSource(target: EffectTarget, state: GameState): Boolean =
-        target == EffectTarget.Self &&
-            (sourceReferenceLost || ((objectReferences.selfBinding != null || sourceBattlefieldTimestamp != null) &&
-                (pipeline.iterationTarget ?: objectReferences.selfBinding?.entityId ?: sourceId) !in state.getBattlefield()))
+    /**
+     * Battlefield-only instructions cannot affect a source — or a loop's current object — that has
+     * left the battlefield or already returned as a new object.
+     */
+    fun isUnavailableBattlefieldSource(target: EffectTarget, state: GameState): Boolean = when (target) {
+        EffectTarget.Self -> sourceReferenceLost ||
+            (sourceBattlefieldTimestamp != null && sourceId !in state.getBattlefield())
+        EffectTarget.IterationEntity -> objectReferences.iteration != null &&
+            (iterationReferenceLost || iterationEntityId !in state.getBattlefield())
+        else -> false
+    }
 
     fun resolveTarget(target: EffectTarget): EntityId? =
         TargetResolutionUtils.resolveTarget(target, this)

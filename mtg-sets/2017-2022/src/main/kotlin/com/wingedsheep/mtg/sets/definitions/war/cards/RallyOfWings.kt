@@ -24,11 +24,11 @@ val RallyOfWings = card("Rally of Wings") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.Self)
+                Effects.Untap(EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING).youControl()),
-                Effects.ModifyStats(2, 2, EffectTarget.Self)
+                Effects.ModifyStats(2, 2, EffectTarget.IterationEntity)
             )
         )
     }

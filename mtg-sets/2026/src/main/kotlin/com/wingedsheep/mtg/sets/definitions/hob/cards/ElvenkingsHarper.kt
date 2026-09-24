@@ -6,9 +6,9 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -30,7 +30,7 @@ val ElvenkingsHarper = card("Elvenking's Harper") {
     activatedAbility {
         cost = Costs.Mana("{4}{U}")
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
     metadata {
         rarity = Rarity.COMMON

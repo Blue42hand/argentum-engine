@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -52,7 +50,7 @@ val LindblumIndustrialRegency = card("Lindblum, Industrial Regency") {
             "spell, this token deals 1 damage to each opponent.\" " +
             "(Then exile this card. You may play the land later from exile.)"
         spell {
-            effect = CreateTokenEffect(
+            effect = Effects.CreateToken(
                 power = 0,
                 toughness = 1,
                 colors = setOf(Color.BLACK),
@@ -62,7 +60,7 @@ val LindblumIndustrialRegency = card("Lindblum, Industrial Regency") {
                     TriggeredAbility.create(
                         trigger = Triggers.YouCastNoncreature.event,
                         binding = Triggers.YouCastNoncreature.binding,
-                        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent))
+                        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
                     )
                 )
             )

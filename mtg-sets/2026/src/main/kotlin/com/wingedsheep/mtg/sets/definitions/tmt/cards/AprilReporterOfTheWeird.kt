@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * April, Reporter of the Weird
@@ -28,7 +27,7 @@ val AprilReporterOfTheWeird = card("April, Reporter of the Weird") {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.Composite(
             listOf(
-                Effects.DrawCards(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)),
+                Effects.DrawCards(DynamicAmounts.triggerDamageAmount()),
                 Effects.Discard(1)
             )
         )

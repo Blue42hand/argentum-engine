@@ -40,7 +40,7 @@ import com.wingedsheep.engine.core.Outcome
  * exile-and-return-transformed into the Summon-Saga back (a new object, fresh lore); and — the
  * point of the accompanying engine work — Esper Terra's chapter I–III copy, where the "if it's a
  * Saga, put up to three lore counters on it" clause is composed as
- * `ConditionalEffect(CollectionContainsMatch(CREATED_TOKENS, Saga), AddCountersUpTo(LORE, 3, …))`.
+ * `Effects.If(CollectionContainsMatch(CREATED_TOKENS, Saga), AddCountersUpTo(LORE, 3, …))`.
  */
 class TerraMagicalAdeptScenarioTest : FunSpec({
 

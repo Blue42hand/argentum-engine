@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Conjurer's Closet
@@ -24,7 +23,7 @@ val ConjurersCloset = card("Conjurer's Closet") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         val creature = target("creature you control", Targets.CreatureYouControl)
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Move(creature, Zone.EXILE)
                 .then(Effects.Move(creature, Zone.BATTLEFIELD))
         )

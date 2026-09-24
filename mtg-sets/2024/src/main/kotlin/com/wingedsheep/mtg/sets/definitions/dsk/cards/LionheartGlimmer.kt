@@ -35,7 +35,7 @@ val LionheartGlimmer = card("Lionheart Glimmer") {
         trigger = Triggers.YouAttack
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = Effects.ModifyStats(1, 1, EffectTarget.Self),
+            effect = Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
         )
     }
 

@@ -1,14 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Assert Perfection
@@ -34,7 +32,7 @@ val AssertPerfection = card("Assert Perfection") {
             listOf(
                 Effects.ModifyStats(1, 0, myCreature),
                 Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                    amount = DynamicAmounts.powerOf(myCreature),
                     target = theirCreature,
                     damageSource = myCreature
                 )

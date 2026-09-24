@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -26,7 +26,7 @@ val Quarrel = card("Quarrel") {
     spell {
         val t1 = target("t1", TargetCreature(filter = TargetFilter.Creature.youControl()))
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = DealDamageEffect(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+        effect = Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
     }
     metadata {
         rarity = Rarity.COMMON

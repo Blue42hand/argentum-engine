@@ -3,9 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -33,16 +32,15 @@ val ViridianLongbow = card("Viridian Longbow") {
 
     staticAbility {
         ability = GrantActivatedAbility(
-            ability = ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = Costs.Tap,
+            ability = grantedActivatedAbility {
+                cost = Costs.Tap
+                val anyTarget = target("target any", AnyTarget())
                 effect = Effects.DealDamage(
                     amount = 1,
-                    target = EffectTarget.ContextTarget(0),
+                    target = anyTarget,
                     damageSource = EffectTarget.Self
-                ),
-                targetRequirements = listOf(AnyTarget())
-            )
+                )
+            }
         )
     }
 

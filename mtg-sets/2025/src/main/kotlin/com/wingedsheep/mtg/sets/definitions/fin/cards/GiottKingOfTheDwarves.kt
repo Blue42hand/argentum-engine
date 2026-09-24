@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Giott, King of the Dwarves
@@ -39,10 +37,10 @@ val GiottKingOfTheDwarves = card("Giott, King of the Dwarves") {
             filter = GameObjectFilter.Creature.withSubtype("Dwarf").youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.DrawCards(1),
+                then = Effects.DrawCards(1),
             ),
             descriptionOverride = "You may discard a card. If you do, draw a card.",
         )
@@ -53,10 +51,10 @@ val GiottKingOfTheDwarves = card("Giott, King of the Dwarves") {
             filter = GameObjectFilter.Artifact.withSubtype("Equipment").youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.DrawCards(1),
+                then = Effects.DrawCards(1),
             ),
             descriptionOverride = "You may discard a card. If you do, draw a card.",
         )

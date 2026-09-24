@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -20,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * A conditional fight-style spell built on the Clear Shot rail: pump the first target, then have it deal
  * damage equal to its (already-modified) power to the second target. The pump is gated on
  * [Conditions.IsNight] (CR 731) — true only while it is night, false during day *and* when neither
- * designation exists — wrapping the [Effects.ModifyStats] in a [ConditionalEffect]. Because the composite
+ * designation exists — wrapping the [Effects.ModifyStats] in a [Effects.If]. Because the composite
  * resolves in order, the [DealDamageEffect]'s `DynamicAmounts.targetPower(0)` reads the buffed power when
  * it was night and the base power otherwise, matching "+2/+0 … if it's night. **Then** it deals damage
  * equal to its power".
@@ -39,11 +37,11 @@ val WolfStrike: CardDefinition = card("Wolf Strike") {
         val t1 = target("your creature", TargetCreature(filter = TargetFilter.Creature.youControl()))
         val t2 = target("their creature", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.IsNight,
-                effect = Effects.ModifyStats(2, 0, t1),
+                then = Effects.ModifyStats(2, 0, t1),
             ),
-            DealDamageEffect(DynamicAmounts.targetPower(0), t2, damageSource = t1),
+            Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1),
         )
     }
 

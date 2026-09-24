@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -31,7 +30,7 @@ val CruelTutor = card("Cruel Tutor") {
                 filter = GameObjectFilter.Any,
                 destination = SearchDestination.TOP_OF_LIBRARY
             ),
-            LoseLifeEffect(2, EffectTarget.Controller)
+            Effects.LoseLife(2, EffectTarget.Controller)
         )
     }
     metadata {

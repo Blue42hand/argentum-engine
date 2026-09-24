@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
@@ -11,21 +11,12 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Grub, Storied Matriarch // Grub, Notorious Auntie
@@ -54,43 +45,36 @@ private val GrubNotoriousAuntie = card("Grub, Notorious Auntie") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(
-            effect = Effects.Composite(
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.ControlledPermanents(Player.You, GameObjectFilter.Creature),
-                        storeAs = "blightTargets"
-                    ),
-                    SelectFromCollectionEffect(
-                        from = "blightTargets",
-                        selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                        chooser = Chooser.Controller,
-                        storeSelected = "blighted",
-                        prompt = "Blight 1 — choose a creature you control (or cancel)",
-                        useTargetingUI = true,
-                        alwaysPrompt = true
-                    ),
-                    AddCountersToCollectionEffect("blighted", Counters.MINUS_ONE_MINUS_ONE, 1),
-                    ConditionalOnCollectionEffect(
-                        collection = "blighted",
-                        ifNotEmpty = Effects.CreateTokenCopyOfTarget(
-                            target = EffectTarget.PipelineTarget("blighted"),
-                            tapped = true,
-                            attacking = true,
-                            triggeredAbilities = listOf(sacrificeAtEndStep)
-                        )
-                    )
+        effect = Effects.May(
+            effect = Effects.Pipeline {
+                val blightTargets = gather(CardSource.ControlledPermanents(Player.You, GameObjectFilter.Creature))
+                val blighted = chooseUpTo(
+                    1,
+                    from = blightTargets,
+                    chooser = Chooser.Controller,
+                    prompt = "Blight 1 — choose a creature you control (or cancel)",
+                    useTargetingUI = true,
+                    alwaysPrompt = true
                 )
-            ),
+                run(Effects.AddCountersToCollection(blighted, CounterType.MINUS_ONE_MINUS_ONE, 1))
+                ifNotEmpty(blighted) {
+                    run(Effects.CreateTokenCopyOfTarget(
+                        target = blighted.asTarget,
+                        tapped = true,
+                        attacking = true,
+                        triggeredAbilities = listOf(sacrificeAtEndStep)
+                    ))
+                }
+            },
             descriptionOverride = "You may blight 1. If you do, create a tapped and attacking token that's a copy of the blighted creature."
         )
     }
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -134,9 +118,9 @@ private val GrubStoriedMatriarchFrontFace = card("Grub, Storied Matriarch") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 

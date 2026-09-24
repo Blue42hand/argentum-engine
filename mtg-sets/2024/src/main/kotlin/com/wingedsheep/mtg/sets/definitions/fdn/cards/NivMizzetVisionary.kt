@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,9 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Niv-Mizzet, Visionary
@@ -46,11 +45,11 @@ val NivMizzetVisionary = card("Niv-Mizzet, Visionary") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.NonCombat,
-            recipient = RecipientFilter.Opponent,
+            recipient = Recipient.Opponent,
             sourceFilter = GameObjectFilter.Any.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = Effects.DrawCards(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
+        effect = Effects.DrawCards(DynamicAmounts.triggerDamageAmount())
     }
 
     metadata {

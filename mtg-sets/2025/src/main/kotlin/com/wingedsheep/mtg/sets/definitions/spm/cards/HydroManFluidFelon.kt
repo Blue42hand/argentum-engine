@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -48,7 +47,7 @@ val HydroManFluidFelon = card("Hydro-Man, Fluid Felon") {
         trigger = Triggers.YourEndStep
         effect = Effects.Composite(
             Effects.Untap(EffectTarget.Self),
-            BecomeArtifactEffect(
+            Effects.BecomeArtifact(
                 target = EffectTarget.Self,
                 cardTypes = setOf("LAND"),
                 colors = null,          // keep Hydro-Man's blue color

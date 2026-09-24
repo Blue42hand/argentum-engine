@@ -47,8 +47,8 @@ val EncouragingAviator = card("Encouraging Aviator") {
         typeLine = "Instant"
         oracleText = "Target creature gains flying until end of turn."
         spell {
-            target = Targets.Creature
-            effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.ContextTarget(0))
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.GrantKeyword(Keyword.FLYING, creature)
         }
     }
 

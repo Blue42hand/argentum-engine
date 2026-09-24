@@ -33,14 +33,14 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "ContextProperty",
                             "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target permanent"
                         }
                     },
                     "descriptionOverride": "When this creature dies, you may put its +1/+1 counters on target artifact creature."
@@ -49,7 +49,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "artifact creature"
-                    }
+                    },
+                    "id": "target permanent"
                 },
                 "descriptionOverride": "When this creature dies, you may put its +1/+1 counters on target artifact creature."
             },
@@ -72,15 +73,16 @@
                         "amount": -1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature opponent controls"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 },
                 "descriptionOverride": "Whenever another artifact you control enters, target creature an opponent controls gets -1/-1 until end of turn."
             }
@@ -313,13 +315,13 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "energy",
+                    "counterType": "ENERGY",
                     "count": 3,
                     "target": "Controller"
                 },
                 {
                     "type": "PayCounters",
-                    "counterType": "energy",
+                    "counterType": "ENERGY",
                     "storeAmountAs": "paid"
                 },
                 {
@@ -399,7 +401,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "energy",
+                            "counterType": "ENERGY",
                             "count": 1,
                             "target": "Controller"
                         }
@@ -414,7 +416,7 @@
                     "type": "ReflexiveTrigger",
                     "action": {
                         "type": "PayFixedCounters",
-                        "counterType": "energy",
+                        "counterType": "ENERGY",
                         "amount": 3
                     },
                     "reflexiveEffect": {
@@ -422,28 +424,28 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target attacking creature"
                                 }
                             },
                             {
                                 "type": "AddCounters",
-                                "counterType": "flying",
+                                "counterType": "FLYING",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target attacking creature"
                                 }
                             },
                             {
                                 "type": "AddCreatureType",
                                 "subtype": "Angel",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target attacking creature"
                                 }
                             }
                         ]
@@ -453,7 +455,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature attacking"
-                            }
+                            },
+                            "id": "target attacking creature"
                         }
                     ],
                     "descriptionOverride": "You may pay {E}{E}{E}. When you do, put two +1/+1 counters and a flying counter on target attacking creature. It becomes an Angel in addition to its other types."
@@ -505,12 +508,12 @@
                             "amount": 4
                         }
                     },
-                    "storeAs": "revealed",
+                    "storeAs": "gathered0",
                     "revealed": true
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "revealed",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -519,8 +522,8 @@
                         }
                     },
                     "filter": "permanent",
-                    "storeSelected": "toHand",
-                    "storeRemainder": "toGraveyard",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "prompt": "You may put a permanent card into your hand",
                     "selectedLabel": "Put into hand",
                     "remainderLabel": "Put into graveyard",
@@ -528,7 +531,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toHand",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -536,7 +539,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toGraveyard",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard"
@@ -754,7 +757,7 @@
                                 },
                                 "body": {
                                     "type": "CreateTokenCopyOfTarget",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -1042,11 +1045,11 @@
                                             "index": 0
                                         }
                                     },
-                                    "storeAs": "tc_graveyard"
+                                    "storeAs": "gathered0"
                                 },
                                 {
                                     "type": "MoveCollection",
-                                    "from": "tc_graveyard",
+                                    "from": "gathered0",
                                     "destination": {
                                         "type": "ToZone",
                                         "zone": "Exile"
@@ -1109,11 +1112,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "labyrinthEligible"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "labyrinthEligible",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -1121,13 +1124,13 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "labyrinthPicked",
+                            "storeSelected": "selected1",
                             "prompt": "Exile a colorless card with mana value 7 or greater?",
                             "selectedLabel": "Exile"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "labyrinthPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1289,7 +1292,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "flying",
+                    "counterType": "FLYING",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",

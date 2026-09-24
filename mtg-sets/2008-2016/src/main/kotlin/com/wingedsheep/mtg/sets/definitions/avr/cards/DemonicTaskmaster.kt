@@ -5,11 +5,11 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 
 /**
@@ -30,7 +30,7 @@ val DemonicTaskmaster = card("Demonic Taskmaster") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = SacrificeEffect(GameObjectFilter.Creature, excludeSource = true)
+        effect = Effects.SacrificeOwn(GameObjectFilter.Creature, excludeSource = true)
     }
     metadata {
         rarity = Rarity.UNCOMMON

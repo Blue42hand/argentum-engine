@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.daybound
 import com.wingedsheep.sdk.dsl.nightbound
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -37,7 +37,7 @@ private val LambholtRaconteurFront = card("Lambholt Raconteur") {
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
         description = "This creature deals 1 damage to each opponent."
     }
     daybound()
@@ -62,7 +62,7 @@ private val LambholtRavager = card("Lambholt Ravager") {
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = DealDamageEffect(2, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
+        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
         description = "This creature deals 2 damage to each opponent."
     }
     nightbound()

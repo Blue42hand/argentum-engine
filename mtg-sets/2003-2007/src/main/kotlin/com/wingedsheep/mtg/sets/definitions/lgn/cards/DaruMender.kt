@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 
 /**
  * Daru Mender
@@ -25,7 +25,7 @@ val DaruMender = card("Daru Mender") {
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
         val t = target("creature", Targets.Creature)
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
     }
 
     morph = "{W}"

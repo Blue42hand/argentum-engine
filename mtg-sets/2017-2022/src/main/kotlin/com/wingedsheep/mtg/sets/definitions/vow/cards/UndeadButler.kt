@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -42,16 +41,18 @@ val UndeadButler = card("Undead Butler") {
     triggeredAbility {
         trigger = Triggers.Dies
         triggerZone = Zone.GRAVEYARD
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),
             optional = true,
-            reflexiveEffect = Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-            ),
             descriptionOverride = "You may exile this creature. When you do, return target " +
                 "creature card from your graveyard to your hand."
-        )
+        ) {
+            val creatureInYourGraveyard = target(
+                "target creature in your graveyard",
+                TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
+            )
+            effect = Effects.Move(creatureInYourGraveyard, Zone.HAND)
+        }
     }
 
     metadata {

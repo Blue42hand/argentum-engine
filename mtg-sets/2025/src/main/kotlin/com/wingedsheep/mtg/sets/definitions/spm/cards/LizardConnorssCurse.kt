@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.RemoveAllAbilitiesEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -51,7 +50,7 @@ val LizardConnorssCurse = card("Lizard, Connors's Curse") {
             TargetCreature(optional = true, filter = TargetFilter.OtherCreature)
         )
         effect = Effects.Composite(
-            RemoveAllAbilitiesEffect(t, Duration.Permanent),
+            Effects.RemoveAllAbilities(t, Duration.Permanent),
             Effects.BecomeCreature(
                 target = t,
                 power = 4,

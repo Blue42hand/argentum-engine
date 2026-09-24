@@ -4,8 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -25,7 +23,7 @@ val SeismicShift = card("Seismic Shift") {
         val land = target("target land", Targets.Land)
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
         effect = Effects.Destroy(land)
-            .then(ForEachTargetEffect(listOf(CantBlockEffect(EffectTarget.ContextTarget(0)))))
+            .then(Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0))))
     }
 
     metadata {

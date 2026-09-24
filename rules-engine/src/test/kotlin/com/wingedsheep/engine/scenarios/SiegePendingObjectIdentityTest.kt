@@ -13,7 +13,7 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -58,7 +58,7 @@ class SiegePendingObjectIdentityTest : FunSpec({
                 manaCost = "{0}"; typeLine = "Sorcery"
                 spell {
                     effect = Effects.Composite(
-                        Effects.RemoveCounters(Counters.DEFENSE, 3, EffectTarget.SpecificEntity(siege)),
+                        Effects.RemoveCounters(CounterType.DEFENSE, 3, EffectTarget.SpecificEntity(siege)),
                         if (pause == "resolution") GatedEffect(Gate.MayDecide("Continue?"), Effects.GainLife(1))
                         else Effects.GainLife(1))
                 }

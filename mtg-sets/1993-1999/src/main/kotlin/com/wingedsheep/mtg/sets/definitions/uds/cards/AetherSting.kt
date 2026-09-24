@@ -4,11 +4,11 @@
 
 package com.wingedsheep.mtg.sets.definitions.uds.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,7 +26,7 @@ val AetherSting = card("Aether Sting") {
     oracleText = "Whenever an opponent casts a creature spell, this enchantment deals 1 damage to that player."
     triggeredAbility {
         trigger = Triggers.opponentCasts(GameObjectFilter.Creature)
-        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
     metadata {
         rarity = Rarity.UNCOMMON

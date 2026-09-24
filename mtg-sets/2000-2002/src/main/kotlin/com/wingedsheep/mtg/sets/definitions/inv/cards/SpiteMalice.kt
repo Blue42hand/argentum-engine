@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -31,7 +30,7 @@ val SpiteMalice = card("Spite // Malice") {
         oracleText = "Counter target noncreature spell."
 
         spell {
-            target = Targets.NoncreatureSpell
+            val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
             effect = Effects.CounterSpell()
         }
     }
@@ -46,7 +45,7 @@ val SpiteMalice = card("Spite // Malice") {
                 "target nonblack creature",
                 TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK))
             )
-            effect = CantBeRegeneratedEffect(creature) then Effects.Destroy(creature)
+            effect = Effects.CantBeRegenerated(creature) then Effects.Destroy(creature)
         }
     }
 

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Whenever you sacrifice a token, target opponent loses 1 life.
  *
  * The "you may sacrifice another creature or artifact. If you do, …" clause is the Swarm Culler /
- * Comet Crawler shell — a declared permanent under a [MayEffect], so the "if you do" rider is bound to
+ * Comet Crawler shell — a declared permanent under a [Effects.May], so the "if you do" rider is bound to
  * a sacrifice that is guaranteed to happen once the controller accepts. With no other creature or
  * artifact on the battlefield there is nothing to declare and the trigger simply does nothing.
  *
@@ -49,7 +48,7 @@ val TheSackvilleBagginses = card("The Sackville-Bagginses") {
                 ).other()
             )
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.SacrificeTarget(sacrificed) then
                 Effects.DrawCards(1) then
                 Effects.CreateTreasure()

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -11,9 +11,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
+import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -40,7 +38,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    Temporal Tyrant idiom, rather than `Effects.DrainLife`.
  *  - "When the **fifth** plan counter is put on this enchantment" composes from existing
  *    vocabulary, as with the rest of the Plan cycle: a SELF-bound [Triggers.countersPlacedOn] on
- *    [Counters.PLAN] gated by `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN,
+ *    [CounterType.PLAN] gated by `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN,
  *    5)`. The at-least gate is behaviourally exact because the payoff **sacrifices its own
  *    source**, so the enchantment is gone before a sixth counter could ever land — the threshold
  *    can never fire twice.
@@ -77,7 +75,7 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(1),
-            Effects.AddCounters(Counters.PLAN, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
         )
         description = "Whenever a Villain you control enters, each opponent loses 1 life and you " +
             "gain 1 life. Put a plan counter on this enchantment."
@@ -86,23 +84,21 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Any,
-            counterType = Counters.PLAN,
+            counterType = CounterType.PLAN,
             firstTimeEachTurn = false,
             binding = TriggerBinding.SELF,
         )
-        triggerRestriction = Conditions.SourceCounterCountAtLeast(Counters.PLAN, 5)
-        effect = ReflexiveTriggerEffect(
+        triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 5)
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.Composite(
-                Patterns.Library.exileTop(5, EffectTarget.PlayerRef(Player.TargetOpponent)),
-                FilterCollectionEffect(
-                    from = "exiled_top",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Nonland),
-                    storeMatching = "castable",
-                ),
-                Effects.CastUpToNFromCollectionWithoutPayingCost("castable", maxCasts = 2),
-            ),
+            reflexiveEffect = Effects.Pipeline {
+                // Target opponent exiles the top five cards of their library.
+                val exiled = gather(CardSource.TopOfLibrary(5, Player.TargetOpponent))
+                exile(exiled, Player.TargetOpponent)
+                val castable = filter(exiled, GameObjectFilter.Nonland)
+                run(Effects.CastUpToNFromCollectionWithoutPayingCost(castable, maxCasts = 2))
+            },
             reflexiveTargetRequirements = listOf(Targets.Opponent),
             descriptionOverride = "Sacrifice this enchantment. When you do, target opponent " +
                 "exiles the top five cards of their library. You may cast up to two spells from " +

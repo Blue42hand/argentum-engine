@@ -29,7 +29,7 @@ val RoaringSlagwurm = card("Roaring Slagwurm") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Artifact), Effects.Tap(EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Artifact), Effects.Tap(EffectTarget.IterationEntity))
     }
     metadata {
         rarity = Rarity.RARE

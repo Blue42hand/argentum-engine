@@ -55,7 +55,7 @@ val BumiUnleashed = card("Bumi, Unleashed") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Land.youControl()),
-                Effects.Untap(EffectTarget.Self),
+                Effects.Untap(EffectTarget.IterationEntity),
             ),
             Effects.AddCombatPhaseRestrictedTo(GameObjectFilter.Creature and GameObjectFilter.Land),
         )

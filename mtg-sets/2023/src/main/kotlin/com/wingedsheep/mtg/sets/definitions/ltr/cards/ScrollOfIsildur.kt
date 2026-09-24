@@ -1,20 +1,19 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scroll of Isildur
@@ -66,21 +65,19 @@ val ScrollOfIsildur = card("Scroll of Isildur") {
             "up to two target creatures",
             TargetCreature(count = 2, optional = true)
         )
-        effect = ForEachTargetEffect(
-            effects = listOf(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(Counters.STUN, 1, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.Tap(EffectTarget.ContextTarget(0)),
+            Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
         )
     }
 
     sagaChapter(3) {
         target("target opponent", Targets.Opponent)
         effect = Effects.DrawCards(
-            count = DynamicAmount.Count(
-                player = Player.TargetOpponent,
-                zone = Zone.BATTLEFIELD,
-                filter = GameObjectFilter.Creature.tapped()
+            count = DynamicAmounts.count(
+                Player.TargetOpponent,
+                Zone.BATTLEFIELD,
+                GameObjectFilter.Creature.tapped()
             )
         )
     }

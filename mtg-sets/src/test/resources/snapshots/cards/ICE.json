@@ -541,7 +541,8 @@
                                 ]
                             },
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target"
                     }
                 ],
                 "descriptionOverride": "{1}{G}, {T}: Counter target activated ability from an artifact source."
@@ -1451,7 +1452,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "ice",
+                    "counterType": "ICE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1463,7 +1464,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "ice",
+                        "counterType": "ICE",
                         "self": true
                     }
                 },
@@ -1482,10 +1483,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithDynamicCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "ice"
-                },
+                "counterType": "ICE",
                 "count": "XValue"
             }
         ]
@@ -2711,7 +2709,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -2752,7 +2750,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3128,12 +3126,12 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -4037,8 +4035,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "storeAs": "hand"
@@ -4064,8 +4062,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "moveType": "Discard"

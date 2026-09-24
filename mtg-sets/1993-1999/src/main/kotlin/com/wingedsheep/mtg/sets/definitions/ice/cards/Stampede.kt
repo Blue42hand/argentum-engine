@@ -29,8 +29,8 @@ val Stampede = card("Stampede") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.attacking()),
             Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
         )
     }

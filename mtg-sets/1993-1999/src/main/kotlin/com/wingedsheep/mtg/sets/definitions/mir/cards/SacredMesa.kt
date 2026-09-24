@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
 
@@ -30,7 +29,7 @@ val SacredMesa = card("Sacred Mesa") {
     oracleText = "At the beginning of your upkeep, sacrifice this enchantment unless you sacrifice a Pegasus.\n{1}{W}: Create a 1/1 white Pegasus creature token with flying."
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = PayOrSufferEffect(cost = Costs.pay.Sacrifice(GameObjectFilter.Creature), suffer = SacrificeSelfEffect)
+        effect = Effects.PayOrSuffer(cost = Costs.pay.Sacrifice(GameObjectFilter.Creature), suffer = SacrificeSelfEffect)
     }
     activatedAbility {
         cost = Costs.Mana("{1}{W}")

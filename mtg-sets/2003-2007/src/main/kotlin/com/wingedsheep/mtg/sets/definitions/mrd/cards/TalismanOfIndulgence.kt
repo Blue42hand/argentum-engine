@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -37,7 +36,7 @@ val TalismanOfIndulgence = card("Talisman of Indulgence") {
         cost = Costs.Tap
         effect = Effects.Composite(
             Effects.AddMana(Color.BLACK),
-            DealDamageEffect(1, EffectTarget.PlayerRef(Player.You))
+            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
         )
         manaAbility = true
         timing = TimingRule.ManaAbility
@@ -46,7 +45,7 @@ val TalismanOfIndulgence = card("Talisman of Indulgence") {
         cost = Costs.Tap
         effect = Effects.Composite(
             Effects.AddMana(Color.RED),
-            DealDamageEffect(1, EffectTarget.PlayerRef(Player.You))
+            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
         )
         manaAbility = true
         timing = TimingRule.ManaAbility

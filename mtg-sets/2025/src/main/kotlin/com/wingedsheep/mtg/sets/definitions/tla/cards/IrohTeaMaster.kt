@@ -1,7 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,16 +10,12 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Iroh, Tea Master
@@ -35,8 +32,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - The ETB Food is the plain [Effects.CreateFood] facade (Canyon Crawler pattern).
  *  - The combat ability declares both targets up front (chosen as the triggered ability is put on
  *    the stack): "target opponent" and "target permanent you control". "you may … When you do" is
- *    the documented `MayEffect(IfYouDoEffect(action, then))` idiom — [MayEffect] gates the optional
- *    "you may", and [IfYouDoEffect] with [SuccessCriterion.ControlChanged] gates the payoff on the
+ *    the documented `Effects.May(Effects.IfYouDo(action, then))` idiom — [Effects.May] gates the optional
+ *    "you may", and [Effects.IfYouDo] with [SuccessCriterion.ControlChanged] gates the payoff on the
  *    control actually changing (the same deliberate gating Stiltzkin, Moogle Merchant uses for its
  *    "if they do" rider). The `action` is [GiveControlToTargetPlayerEffect] handing the chosen
  *    permanent to the chosen opponent.
@@ -78,13 +75,13 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
             "target permanent you control",
             TargetPermanent(filter = TargetFilter.Permanent.youControl())
         )
-        effect = MayEffect(
-            IfYouDoEffect(
-                action = GiveControlToTargetPlayerEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
+                action = Effects.GiveControl(
                     permanent = permanent,
                     newController = opponent
                 ),
-                ifYouDo = Effects.Composite(
+                then = Effects.Composite(
                     Effects.CreateToken(
                         power = 1,
                         toughness = 1,
@@ -92,13 +89,13 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
                         creatureTypes = setOf("Ally")
                     ),
                     Effects.AddDynamicCounters(
-                        counterType = Counters.PLUS_ONE_PLUS_ONE,
-                        amount = DynamicAmount.AggregateBattlefield(
-                            player = Player.EachOpponent,
-                            filter = GameObjectFilter.Permanent.withControllerPredicate(
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                        amount = DynamicAmounts.battlefield(
+                            Player.EachOpponent,
+                            GameObjectFilter.Permanent.withControllerPredicate(
                                 ControllerPredicate.OwnedByYou
                             )
-                        ),
+                        ).count(),
                         target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
                     )
                 ),

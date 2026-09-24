@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -29,7 +28,7 @@ val AngelOfFury = card("Angel of Fury") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = MayEffect(Effects.ShuffleIntoLibrary(EffectTarget.Self))
+        effect = Effects.May(Effects.ShuffleIntoLibrary(EffectTarget.Self))
     }
 
     metadata {

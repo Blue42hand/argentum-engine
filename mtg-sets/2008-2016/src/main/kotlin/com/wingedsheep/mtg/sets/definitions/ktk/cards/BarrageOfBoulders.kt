@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -26,9 +25,9 @@ val BarrageOfBoulders = card("Barrage of Boulders") {
 
     spell {
         effect = Patterns.Group.dealDamageToAll(1, GroupFilter.AllCreaturesOpponentsControl)
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
-                effect = Effects.CantBlockGroup(GroupFilter.AllCreatures)
+                then = Effects.CantBlockGroup(GroupFilter.AllCreatures)
             ))
     }
 

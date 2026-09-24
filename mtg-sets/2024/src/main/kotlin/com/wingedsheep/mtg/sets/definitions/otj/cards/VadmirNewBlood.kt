@@ -1,15 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -41,8 +41,8 @@ val VadmirNewBlood = card("Vadmir, New Blood") {
     triggeredAbility {
         trigger = Triggers.YouCommitCrime
         oncePerTurn = true
-        effect = AddCountersEffect(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+        effect = Effects.AddCounters(
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = EffectTarget.Self
         )
@@ -53,14 +53,14 @@ val VadmirNewBlood = card("Vadmir, New Blood") {
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.MENACE, Filters.Self),
-            condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 4)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 4)
         )
     }
 
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.LIFELINK, Filters.Self),
-            condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 4)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 4)
         )
     }
 

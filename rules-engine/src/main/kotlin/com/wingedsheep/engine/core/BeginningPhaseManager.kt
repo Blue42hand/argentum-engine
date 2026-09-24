@@ -413,7 +413,7 @@ class BeginningPhaseManager(
                 c.with(counters.withAdded(CounterType.LORE, 1))
                     .with(updatedSaga)
             }
-            events.add(CountersAddedEvent(entityId, "LORE", 1, cardComponent.name))
+            events.add(CountersAddedEvent(entityId, CounterType.LORE, 1, cardComponent.name))
         }
 
         return ExecutionResult.success(newState, events)
@@ -517,16 +517,7 @@ class BeginningPhaseManager(
         StatePredicate.BecameTappedOnlyOnceThisTurn -> false
         is StatePredicate.HasCounter -> {
             val countersComponent = container.get<CountersComponent>()
-            if (countersComponent == null) {
-                false
-            } else {
-                val counterType = when (predicate.counterType) {
-                    "+1/+1" -> CounterType.PLUS_ONE_PLUS_ONE
-                    "-1/-1" -> CounterType.MINUS_ONE_MINUS_ONE
-                    else -> null
-                }
-                counterType != null && countersComponent.getCount(counterType) > 0
-            }
+            countersComponent != null && countersComponent.getCount(predicate.counterType) > 0
         }
         // Soulbond pairing (CR 702.95b) is plain per-entity state, so unlike the fail-open group
         // below it can be answered exactly here — an "untap each paired creature" filter must not
@@ -555,6 +546,7 @@ class BeginningPhaseManager(
         // true preserves the historical "no constraint" behavior, but the case is now
         // explicit so adding a new StatePredicate variant becomes a compile-time decision.
         StatePredicate.IsOnBattlefield,
+        is StatePredicate.InZone,
         StatePredicate.IsTapped,
         StatePredicate.IsUntapped,
         StatePredicate.IsPrepared,

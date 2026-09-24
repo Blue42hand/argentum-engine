@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.scripting.conditions.Condition
@@ -278,7 +279,7 @@ data class GrantMayCastFromLinkedExile(
         if (oncePerTurn) append(". This ability may be used only once each turn")
         append(".")
         if (entersWithCounter != null) {
-            append(" If you cast a spell this way, that permanent enters with a ${entersWithCounter.name.lowercase()} counter on it.")
+            append(" If you cast a spell this way, that permanent enters with a ${entersWithCounter.printed} counter on it.")
         }
     }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
@@ -347,12 +348,12 @@ data class GrantKeywordToOwnSpells(
 @Serializable
 data class AdditionalManaForEntryCounters(
     val spellFilter: GameObjectFilter = GameObjectFilter.Creature,
-    val counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter =
-        com.wingedsheep.sdk.scripting.events.CounterTypeFilter.PlusOnePlusOne
+    val counterType: CounterType =
+        CounterType.PLUS_ONE_PLUS_ONE
 ) : StaticAbility {
     override val description: String =
         "As an additional cost to cast ${spellFilter.description} spells, you may pay any amount of mana. " +
-            "If you do, that creature enters with that many additional ${counterType.description} counters on it"
+            "If you do, that creature enters with that many additional ${counterType.printed} counters on it"
 
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = spellFilter.applyTextReplacement(replacer)
@@ -554,7 +555,7 @@ data class MayCastFromGraveyard(
         if (lifeCost > 0) append(" by paying $lifeCost life in addition to their other costs")
         if (entersWithCounter != null || addedSubtypeOnEntry != null) {
             append(". If you do, it enters")
-            if (entersWithCounter != null) append(" with a ${entersWithCounter.name.lowercase()} counter on it")
+            if (entersWithCounter != null) append(" with a ${entersWithCounter.printed} counter on it")
             if (entersWithCounter != null && addedSubtypeOnEntry != null) append(" and")
             if (addedSubtypeOnEntry != null) append(" is a $addedSubtypeOnEntry in addition to its other types")
         }

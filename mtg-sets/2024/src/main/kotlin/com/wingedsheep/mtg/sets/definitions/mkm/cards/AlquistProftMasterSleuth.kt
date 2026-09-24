@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Alquist Proft, Master Sleuth — Murders at Karlov Manor #185
@@ -64,8 +64,8 @@ val AlquistProftMasterSleuth = card("Alquist Proft, Master Sleuth") {
             Costs.Sacrifice(GameObjectFilter.Artifact.withSubtype("Clue"))
         )
         effect = Effects.Composite(
-            Effects.DrawCards(DynamicAmount.XValue),
-            Effects.GainLife(DynamicAmount.XValue)
+            Effects.DrawCards(DynamicAmounts.xValue()),
+            Effects.GainLife(DynamicAmounts.xValue())
         )
         description = "{X}{W}{U}{U}, {T}, Sacrifice a Clue: You draw X cards and gain X life."
     }

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,13 +12,11 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kaya, Spirits' Justice
@@ -88,32 +87,29 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
             filter = GameObjectFilter.Creature.youControl(),
             includeTokens = true,
         )
-        target("token you control", Targets.TokenYouControl)
+        val tokenYouControl = target("token you control", Targets.TokenYouControl)
         effect = Effects.Pipeline {
             // "from among them" — the exiled batch, narrowed to creature cards that are still in
             // exile when this resolves.
             val creatureCards = filter(
                 triggerCaptured,
                 GameObjectFilter.Creature.nontoken(),
-                name = "kayaExiledCreatures",
             )
             val stillExiled = filter(
                 creatureCards,
-                CollectionFilter.InZone(Zone.EXILE),
-                name = "kayaChoosable",
+                GameObjectFilter.Any.currentlyIn(Zone.EXILE),
             )
             val chosen = chooseUpTo(
                 1,
                 from = stillExiled,
                 prompt = "You may choose a creature card from among the exiled cards",
                 selectedLabel = "Copy",
-                name = "kayaCopySource",
             )
             run(
                 Effects.EachPermanentBecomesCopyOfTarget(
-                    target = EffectTarget.PipelineTarget(chosen.key),
+                    target = chosen.asTarget,
                     duration = Duration.EndOfTurn,
-                    affected = EffectTarget.ContextTarget(0),
+                    affected = tokenYouControl,
                     sourceFromAnyZone = true,
                     exceptions = CopyExceptions(addedKeywords = setOf(Keyword.FLYING)),
                 )
@@ -137,7 +133,6 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
                 useTargetingUI = true,
                 prompt = "Exile a card from a graveyard",
                 selectedLabel = "Exile",
-                name = "kayaGraveyardExile",
             )
             exile(picked)
         }
@@ -166,17 +161,13 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
             TargetCreature(
                 filter = TargetFilter.CreatureOpponentControls,
                 optional = true,
-                dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent),
+                dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
                 differentControllers = true,
                 id = "one target creature each other player controls",
             ),
         )
-        effect = Effects.Composite(
-            listOf(
-                Effects.Exile(EffectTarget.ContextTarget(0)),
-                Effects.Exile(EffectTarget.ContextTarget(1)),
-            )
-        )
+        // Every chosen target is exiled — yours and one per other player — so exile each of them.
+        effect = Effects.ForEachTarget(Effects.Exile(EffectTarget.ContextTarget(0)))
         description = "Exile target creature you control. For each other player, exile up to one " +
             "target creature that player controls."
     }

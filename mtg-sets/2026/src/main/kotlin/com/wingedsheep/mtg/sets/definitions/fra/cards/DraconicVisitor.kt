@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ReplaceTokenCreationWithToken
-import com.wingedsheep.sdk.scripting.events.ControllerFilter
+import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Draconic Visitor — Reality Fracture #80
@@ -47,7 +47,7 @@ val DraconicVisitor = card("Draconic Visitor") {
                 imageUri = "https://cards.scryfall.io/normal/front/9/9/991a5840-adc7-45b5-8d5f-b24dae384bab.jpg?1789734473"
             ),
             appliesTo = EventPattern.TokenCreationEvent(
-                controller = ControllerFilter.You,
+                controller = Player.You,
                 tokenFilter = GameObjectFilter.Artifact
             )
         )

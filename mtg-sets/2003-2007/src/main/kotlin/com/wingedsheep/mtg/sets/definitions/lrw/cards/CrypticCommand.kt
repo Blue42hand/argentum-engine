@@ -36,7 +36,7 @@ val CrypticCommand = card("Cryptic Command") {
     spell {
         modal(chooseCount = 2) {
             mode("Counter target spell") {
-                target = Targets.Spell
+                val spell = target("target spell", Targets.Spell)
                 effect = Effects.CounterSpell()
             }
             mode("Return target permanent to its owner's hand") {

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,7 +31,7 @@ val CreakwoodSafewright = card("Creakwood Safewright") {
         "creature has a -1/-1 counter on it, remove a -1/-1 counter from this creature."
 
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.MinusOneMinusOne,
+        counterType = CounterType.MINUS_ONE_MINUS_ONE,
         count = 3,
         selfOnly = true
     ))
@@ -41,9 +40,9 @@ val CreakwoodSafewright = card("Creakwood Safewright") {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.All(
             Conditions.GraveyardContainsSubtype(Subtype.ELF),
-            Conditions.SourceHasCounter(CounterTypeFilter.MinusOneMinusOne)
+            Conditions.SourceHasCounter(CounterType.MINUS_ONE_MINUS_ONE)
         )
-        effect = Effects.RemoveCounters(Counters.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

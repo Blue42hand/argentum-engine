@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -62,7 +62,6 @@ val HollowmurkSiege = card("Hollowmurk Siege") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature.youControl(),
-            counterType = Counters.ANY,
             firstTimeEachTurn = false,
         )
         triggerRestriction = SourceChosenModeIs("sultai")
@@ -76,7 +75,7 @@ val HollowmurkSiege = card("Hollowmurk Siege") {
         trigger = Triggers.YouAttack
         triggerRestriction = SourceChosenModeIs("abzan")
         val attacker = target("target attacking creature", Targets.AttackingCreature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, attacker)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker)
             .then(Effects.GrantKeyword(Keyword.MENACE, attacker))
     }
 

@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -59,8 +58,8 @@ val GrandEntrywayElegantRotunda = card("Grand Entryway // Elegant Rotunda") {
         triggeredAbility {
             trigger = Triggers.OnDoorUnlocked
             target("up to two target creatures", TargetCreature(count = 2, optional = true))
-            effect = ForEachTargetEffect(
-                listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            effect = Effects.ForEachTarget(
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
             )
             description = "When you unlock this door, put a +1/+1 counter on each of up to two target creatures."
         }

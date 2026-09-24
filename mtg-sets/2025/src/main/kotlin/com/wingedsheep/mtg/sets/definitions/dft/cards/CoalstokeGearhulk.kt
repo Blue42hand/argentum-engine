@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -67,7 +66,7 @@ val CoalstokeGearhulk = card("Coalstoke Gearhulk") {
             Effects.GrantKeyword(Keyword.MENACE, reanimated, Duration.Permanent),
             Effects.GrantKeyword(Keyword.DEATHTOUCH, reanimated, Duration.Permanent),
             Effects.GrantKeyword(Keyword.HASTE, reanimated, Duration.Permanent),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Exile(reanimated),
                 timing = DelayedTriggerTiming.NEXT_END_STEP,

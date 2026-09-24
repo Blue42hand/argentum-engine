@@ -3,19 +3,16 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.LookAudience
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Doomsday Excruciator
@@ -53,31 +50,23 @@ val DoomsdayExcruciator = card("Doomsday Excruciator") {
 
     // Top (librarySize - 6) cards = everything except the bottom six. Clamp to >= 0 so a library of
     // six or fewer yields zero cards to exile (CR / ruling: nothing happens).
-    val allButBottomSix = DynamicAmount.IfPositive(
-        DynamicAmount.Subtract(
-            DynamicAmount.Count(Player.You, Zone.LIBRARY),
-            DynamicAmount.Fixed(6)
-        )
+    val allButBottomSix = DynamicAmounts.nonNegative(
+        DynamicAmounts.count(Player.You, Zone.LIBRARY) - 6
     )
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         interveningIf = Conditions.WasCast
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(allButBottomSix),
-                    storeAs = "doomsdayExiled",
+            Effects.Pipeline {
+                val doomsdayExiled = gather(
+                    CardSource.TopOfLibrary(allButBottomSix),
                     revealed = false,
                     lookAudience = LookAudience.None
-                ),
-                MoveCollectionEffect(
-                    from = "doomsdayExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    faceDown = FaceDownMode.HIDDEN
                 )
-            )
+                exile(doomsdayExiled, faceDown = FaceDownMode.HIDDEN)
+            }
         )
         description = "When this creature enters, if it was cast, each player exiles all but the " +
             "bottom six cards of their library face down."

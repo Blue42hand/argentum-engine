@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersTapped
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -41,8 +40,8 @@ val StitchedMangler = card("Stitched Mangler") {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature) then
-            GrantKeywordEffect(
-                AbilityFlag.DOESNT_UNTAP.name,
+            Effects.GrantKeyword(
+                AbilityFlag.DOESNT_UNTAP,
                 creature,
                 Duration.UntilAfterAffectedControllersNextUntap
             )

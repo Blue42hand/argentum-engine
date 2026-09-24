@@ -84,7 +84,7 @@ val NightOfTheSweetsRevenge = card("Night of the Sweets' Revenge") {
                     Player.You,
                     GameObjectFilter.Artifact.withSubtype("Food"),
                 ).count(),
-                EffectTarget.Self,
+                EffectTarget.IterationEntity,
             ),
         )
         description = "Creatures you control get +X/+X until end of turn, where X is the number of " +

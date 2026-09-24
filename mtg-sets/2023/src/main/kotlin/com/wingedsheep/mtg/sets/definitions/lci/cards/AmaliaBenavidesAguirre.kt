@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -34,7 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    card of your library; a land goes to your hand (no counter); a nonland puts a +1/+1
  *    counter on Amalia and gives the controller the option to put the card in the graveyard.
  *
- * 2. `ConditionalEffect(Conditions.SourceMatches(GameObjectFilter.Creature.power(20)), ...)` —
+ * 2. `Effects.If(Conditions.SourceMatches(GameObjectFilter.Creature.power(20)), ...)` —
  *    AFTER explore completes, check Amalia's projected power. If exactly 20, destroy all
  *    other creatures. `Patterns.Group.destroyAll(GroupFilter(GameObjectFilter.Creature,
  *    excludeSelf = true))` gathers every creature on the battlefield except the source
@@ -68,9 +67,9 @@ val AmaliaBenavidesAguirre = card("Amalia Benavides Aguirre") {
             Effects.Explore(EffectTarget.Self),
             // Step 2: After explore, check Amalia's projected power. If exactly 20, destroy
             // all other creatures (excludeSelf = true excludes Amalia as the source).
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceMatches(GameObjectFilter.Creature.power(20)),
-                effect = Patterns.Group.destroyAll(GroupFilter(GameObjectFilter.Creature, excludeSelf = true))
+                then = Patterns.Group.destroyAll(GroupFilter(GameObjectFilter.Creature, excludeSelf = true))
             )
         ))
     }

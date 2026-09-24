@@ -23,7 +23,7 @@ val MagesContest = card("Mages' Contest") {
         "The high bidder loses life equal to the high bid. If you win the bidding, counter that spell."
 
     spell {
-        target = TargetSpell()
+        val spell = target("target spell", TargetSpell())
         effect = Effects.OpenLifeBid(Effects.CounterSpell(), Player.ControllerOf("target spell"))
     }
 

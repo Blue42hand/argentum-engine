@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -26,7 +26,7 @@ val BileVialBoggart = card("Bile-Vial Boggart") {
     triggeredAbility {
         trigger = Triggers.Dies
         val creature = target("creature", TargetCreature(count = 1, optional = true))
-        effect = Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature)
     }
 
     metadata {

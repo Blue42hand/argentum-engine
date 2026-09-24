@@ -31,8 +31,8 @@ val DiversionUnit = card("Diversion Unit") {
     keywords(Keyword.FLYING)
 
     activatedAbility {
+        val instantOrSorcerySpell = target("target instant or sorcery spell", Targets.InstantOrSorcerySpell)
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.SacrificeSelf)
-        target = Targets.InstantOrSorcerySpell
         effect = Effects.CounterUnlessPays("{3}")
     }
 

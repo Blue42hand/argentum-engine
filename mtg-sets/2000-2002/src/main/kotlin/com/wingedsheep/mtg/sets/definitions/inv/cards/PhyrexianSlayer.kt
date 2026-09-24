@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -40,7 +39,7 @@ val PhyrexianSlayer = card("Phyrexian Slayer") {
             filter = GameObjectFilter.Creature.withColor(Color.WHITE),
             binding = TriggerBinding.SELF,
         )
-        effect = CantBeRegeneratedEffect(EffectTarget.TriggeringEntity) then
+        effect = Effects.CantBeRegenerated(EffectTarget.TriggeringEntity) then
                 Effects.Move(EffectTarget.TriggeringEntity, Zone.GRAVEYARD, byDestruction = true)
     }
 

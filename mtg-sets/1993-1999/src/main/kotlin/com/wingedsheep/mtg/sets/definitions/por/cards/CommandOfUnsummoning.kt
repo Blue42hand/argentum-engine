@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -32,7 +31,7 @@ val CommandOfUnsummoning = card("Command of Unsummoning") {
         castOnlyDuring(Step.DECLARE_ATTACKERS)
         castOnlyIf(YouWereAttackedThisStep)
         val t = target("target", TargetCreature(count = 2, minCount = 1, filter = TargetFilter.Creature.attacking()))
-        effect = ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)))
+        effect = Effects.ForEachTarget(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND))
     }
     metadata {
         rarity = Rarity.UNCOMMON

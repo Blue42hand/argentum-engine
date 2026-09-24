@@ -22,7 +22,7 @@ import io.kotest.matchers.shouldBe
  *
  * Regression guard (printed ruling): the token check happens ONLY when the trigger fires
  * (attack declaration). If the token leaves before the ability resolves, the pump still
- * applies. The old implementation re-checked at resolution via a ConditionalEffect.
+ * applies. The old implementation re-checked at resolution via a Effects.If.
  */
 class SeasonedWarrenguardTest : FunSpec({
 

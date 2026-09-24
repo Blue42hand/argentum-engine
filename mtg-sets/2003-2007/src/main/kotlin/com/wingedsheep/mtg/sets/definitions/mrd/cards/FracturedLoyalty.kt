@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -51,7 +51,7 @@ val FracturedLoyalty = card("Fractured Loyalty") {
 
     triggeredAbility {
         trigger = Triggers.BecomesTarget(GameObjectFilter.Creature.attachedToBySource())
-        effect = GiveControlToTargetPlayerEffect(
+        effect = Effects.GiveControl(
             permanent = EffectTarget.TriggeringEntity,
             newController = EffectTarget.PlayerRef(Player.ControllerOfTargetingSource)
         )

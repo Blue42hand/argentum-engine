@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Dose of Dawnglow
@@ -29,9 +28,9 @@ val DoseOfDawnglow = card("Dose of Dawnglow") {
         effect = Effects.Composite(
             listOf(
                 Effects.PutOntoBattlefield(creature),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Not(Conditions.IsYourMainPhase),
-                    effect = Patterns.Mechanic.blight(2)
+                    then = Patterns.Mechanic.blight(2)
                 )
             )
         )

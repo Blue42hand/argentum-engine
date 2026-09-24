@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Old Rutstein — Innistrad: Crimson Vow #244
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  * [triggeredAbility] blocks sharing one hoisted effect ([Triggers.EntersBattlefield] +
  * [Triggers.YourUpkeep], the Obsessive Pursuit idiom). The effect mills one card into the "milled"
  * collection ([Patterns.Library.mill]) and then branches on that card's type with three independent
- * [ConditionalEffect] gates (Bonehoard Dracosaur shape). Because exactly one card is milled and the
+ * [Effects.If] gates (Bonehoard Dracosaur shape). Because exactly one card is milled and the
  * three filters — land / creature / (noncreature ∧ nonland) — partition every card type, at most one
  * branch fires per resolution, matching the oracle's mutually-exclusive "If a … card is milled".
  */
@@ -43,14 +42,14 @@ val OldRutstein = card("Old Rutstein") {
         // Mill a card into the "milled" collection (then to the graveyard).
         Patterns.Library.mill(1),
         // If a land card is milled this way, create a Treasure token.
-        ConditionalEffect(
-            condition = Conditions.CollectionContainsMatch("milled", GameObjectFilter.Land),
-            effect = Effects.CreateTreasure()
+        Effects.If(
+            condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.Land),
+            then = Effects.CreateTreasure()
         ),
         // If a creature card is milled this way, create a 1/1 green Insect creature token.
-        ConditionalEffect(
-            condition = Conditions.CollectionContainsMatch("milled", GameObjectFilter.Creature),
-            effect = Effects.CreateToken(
+        Effects.If(
+            condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.Creature),
+            then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.GREEN),
@@ -58,12 +57,11 @@ val OldRutstein = card("Old Rutstein") {
             )
         ),
         // If a noncreature, nonland card is milled this way, create a Blood token.
-        ConditionalEffect(
-            condition = Conditions.CollectionContainsMatch(
-                "milled",
+        Effects.If(
+            condition = Conditions.CollectionContainsMatch(Patterns.Library.milled,
                 GameObjectFilter.Noncreature and GameObjectFilter.Nonland
             ),
-            effect = Effects.CreateBlood()
+            then = Effects.CreateBlood()
         )
     )
 

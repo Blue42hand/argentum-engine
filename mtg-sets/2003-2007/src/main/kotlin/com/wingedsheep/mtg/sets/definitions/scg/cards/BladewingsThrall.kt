@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,7 +52,7 @@ val BladewingsThrall = card("Bladewing's Thrall") {
             binding = TriggerBinding.ANY
         )
         triggerZone = Zone.GRAVEYARD
-        effect = MayEffect(Effects.PutOntoBattlefield(EffectTarget.Self))
+        effect = Effects.May(Effects.PutOntoBattlefield(EffectTarget.Self))
     }
 
     metadata {

@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -29,8 +27,8 @@ val EnterTheEnigma = card("Enter the Enigma") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t),
-            DrawCardsEffect(1)
+            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t),
+            Effects.DrawCards(1)
         )
     }
     metadata {

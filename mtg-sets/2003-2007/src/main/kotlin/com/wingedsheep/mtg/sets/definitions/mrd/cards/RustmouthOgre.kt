@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *   `controlledByTriggeringPlayer()`, which reads projected control so a stolen artifact follows
  *   its current controller. Same shape as Dreadmaw's Ire's granted rider.
  * - The target is locked in when the trigger goes on the stack; the "you may" is the resolution-time
- *   choice, hence [MayEffect] wrapping the destroy rather than an optional trigger.
+ *   choice, hence [Effects.May] wrapping the destroy rather than an optional trigger.
  */
 val RustmouthOgre = card("Rustmouth Ogre") {
     manaCost = "{4}{R}{R}"
@@ -38,7 +37,7 @@ val RustmouthOgre = card("Rustmouth Ogre") {
             "target",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer()))
         )
-        effect = MayEffect(Effects.Destroy(t))
+        effect = Effects.May(Effects.Destroy(t))
     }
 
     metadata {

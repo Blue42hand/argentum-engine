@@ -14,14 +14,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Throne of the Grim Captain // The Grim Captain (CR 702.167, The Lost Caverns of Ixalan #266)
@@ -124,38 +119,32 @@ private val TheGrimCaptain = card("The Grim Captain") {
     // battlefield under your control tapped and attacking.
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = Effects.Composite(
-            listOf(
-                // "each opponent sacrifices a nonland permanent of their choice"
-                Effects.Sacrifice(
-                    GameObjectFilter.NonlandPermanent,
-                    target = EffectTarget.PlayerRef(Player.EachOpponent)
-                ),
-                // "Then you may put an exiled creature card used to craft The Grim Captain onto the
-                // battlefield under your control tapped and attacking."
-                GatherCardsEffect(
-                    source = CardSource.CraftedMaterials,
-                    storeAs = "grimCaptainCrafted"
-                ),
-                SelectFromCollectionEffect(
-                    from = "grimCaptainCrafted",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Creature,
-                    showAllCards = true,
-                    storeSelected = "grimCaptainReturn",
-                    prompt = "Put an exiled creature card used to craft The Grim Captain onto the battlefield tapped and attacking",
-                    selectedLabel = "Put onto the battlefield tapped and attacking"
-                ),
-                MoveCollectionEffect(
-                    from = "grimCaptainReturn",
-                    destination = CardDestination.ToZone(
-                        Zone.BATTLEFIELD,
-                        Player.You,
-                        ZonePlacement.TappedAndAttacking
-                    )
+        effect = Effects.Pipeline {
+            // "each opponent sacrifices a nonland permanent of their choice"
+            run(Effects.Sacrifice(
+                GameObjectFilter.NonlandPermanent,
+                target = EffectTarget.PlayerRef(Player.EachOpponent)
+            ))
+            // "Then you may put an exiled creature card used to craft The Grim Captain onto the
+            // battlefield under your control tapped and attacking."
+            val grimCaptainCrafted = gather(CardSource.CraftedMaterials)
+            val grimCaptainReturn = chooseUpTo(
+                1,
+                from = grimCaptainCrafted,
+                filter = GameObjectFilter.Creature,
+                showAllCards = true,
+                prompt = "Put an exiled creature card used to craft The Grim Captain onto the battlefield tapped and attacking",
+                selectedLabel = "Put onto the battlefield tapped and attacking"
+            )
+            move(
+                grimCaptainReturn,
+                CardDestination.ToZone(
+                    Zone.BATTLEFIELD,
+                    Player.You,
+                    ZonePlacement.TappedAndAttacking
                 )
             )
-        )
+        }
     }
 
     metadata {

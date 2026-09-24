@@ -6,11 +6,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
@@ -70,21 +68,19 @@ val HawkeyeMasterMarksman = card("Hawkeye, Master Marksman") {
     // When you do, choose up to that many —
     triggeredAbility {
         trigger = Triggers.BecomesTapped
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.PayRepeatedly("{1}", upTo = 3),
             optional = true,
-            reflexiveEffect = ModalEffect(
+            reflexiveEffect = Effects.Modal(
                 modes = listOf(
-                    Mode.withTarget(
-                        effect = Effects.CantBlock(EffectTarget.ContextTarget(0)),
-                        target = TargetCreature(),
-                        description = "Net — Target creature can't block this turn."
-                    ),
-                    Mode.withTarget(
-                        effect = Effects.DealDamage(2, EffectTarget.ContextTarget(0)),
-                        target = TargetPlayer(),
-                        description = "Explosive — Hawkeye deals 2 damage to target player."
-                    ),
+                    mode("Net — Target creature can't block this turn.") {
+                        val creature = target("target creature", TargetCreature())
+                        effect = Effects.CantBlock(creature)
+                    },
+                    mode("Explosive — Hawkeye deals 2 damage to target player.") {
+                        val player = target("target player", TargetPlayer())
+                        effect = Effects.DealDamage(2, player)
+                    },
                     Mode.noTarget(
                         effect = Effects.Composite(
                             Patterns.Hand.discardCards(1),

@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Take Out the Trash
@@ -27,9 +25,9 @@ val TakeOutTheTrash = card("Take Out the Trash") {
         val creatureOrPw = target("target creature or planeswalker to deal 3 damage", Targets.CreatureOrPlaneswalker)
         effect = Effects.Composite(listOf(
             Effects.DealDamage(3, creatureOrPw),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.ControlCreatureOfType(Subtype("Raccoon")),
-                effect = MayEffect(
+                then = Effects.May(
                     Effects.Composite(listOf(
                         Patterns.Hand.discardCards(1),
                         Effects.DrawCards(1)

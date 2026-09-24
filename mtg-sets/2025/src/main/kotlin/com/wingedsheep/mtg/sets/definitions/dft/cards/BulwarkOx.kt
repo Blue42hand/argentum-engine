@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,15 +40,15 @@ val BulwarkOx = card("Bulwark Ox") {
         trigger = Triggers.Attacks
         triggerRestriction = Conditions.SourceIsSaddled
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     activatedAbility {
         cost = Costs.SacrificeSelf
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
             )
         )
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    K never changes whether a creature has some *other* keyword J, so evaluating the clauses in
  *    sequence is equivalent to evaluating them simultaneously — there is no ordering hazard to
  *    guard against.
- *  - **The gate is resolution-time, not continuous.** Each clause is a [ConditionalEffect] (which
+ *  - **The gate is resolution-time, not continuous.** Each clause is a [Effects.If] (which
  *    lowers to a `Gate.WhenCondition` state test) rather than the `condition` parameter on
  *    `GrantKeyword`. That parameter is re-evaluated on *every* projection, which would let the
  *    granted keywords blink out the moment the creature that supplied them left the battlefield.
@@ -82,11 +81,11 @@ val OdricLunarchMarshal = card("Odric, Lunarch Marshal") {
         trigger = Triggers.EachCombat
         effect = Effects.Composite(
             SHARED_KEYWORDS.map { keyword ->
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ControlCreatureWithKeyword(keyword),
-                    effect = Effects.ForEachInGroup(
+                    then = Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Creature.youControl()),
-                        Effects.GrantKeyword(keyword, EffectTarget.Self, Duration.EndOfTurn)
+                        Effects.GrantKeyword(keyword, EffectTarget.IterationEntity, Duration.EndOfTurn)
                     )
                 )
             },

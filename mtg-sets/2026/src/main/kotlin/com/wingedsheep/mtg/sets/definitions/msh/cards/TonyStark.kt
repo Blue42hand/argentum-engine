@@ -16,10 +16,8 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tony Stark // The Invincible Iron Man — Marvel Super Heroes #80 (mythic)
@@ -69,7 +67,7 @@ private val TonyStarkFront = card("Tony Stark") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(4),
+            count = 4,
             filter = GameObjectFilter.Artifact,
             prompt = "You may reveal an artifact card and put it into your hand",
             restOrder = CardOrder.Random,
@@ -79,7 +77,7 @@ private val TonyStarkFront = card("Tony Stark") {
     // {4}{U}{R}: Transform Tony Stark. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Mana("{4}{U}{R}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform Tony Stark. Activate only as a sorcery."
     }
@@ -147,7 +145,7 @@ private fun putArtifactFromHandAndAttach(): Effect = Effects.Pipeline {
     )
     run(
         Effects.AttachTargetEquipmentToCreature(
-            equipmentTarget = EffectTarget.PipelineTarget(equipment.key, 0),
+            equipmentTarget = equipment.asTarget,
             creatureTarget = EffectTarget.Self,
         )
     )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mom.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -42,7 +42,7 @@ val RefereeSquad = card("Referee Squad") {
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())
         )
-        effect = Effects.Tap(victim) then Effects.AddCounters(Counters.STUN, 1, victim)
+        effect = Effects.Tap(victim) then Effects.AddCounters(CounterType.STUN, 1, victim)
     }
 
     metadata {

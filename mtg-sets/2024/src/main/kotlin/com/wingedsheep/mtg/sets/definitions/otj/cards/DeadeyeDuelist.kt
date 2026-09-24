@@ -6,9 +6,9 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 
@@ -31,7 +31,7 @@ val DeadeyeDuelist = card("Deadeye Duelist") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
         val t = target("target", TargetOpponent())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
     metadata {
         rarity = Rarity.COMMON

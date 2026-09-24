@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -46,7 +46,7 @@ val FinFangFoom = card("Fin Fang Foom") {
         )
         effect = Effects.Composite(
             Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         )
         description = "Whenever you cast an instant or sorcery spell that targets an artifact or " +
             "land, copy that spell. You may choose new targets for the copy. Put two +1/+1 " +

@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.TurnPart
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -713,7 +712,7 @@ data class GrantCastCreaturesFromGraveyardWithForageEffect(
  * would deal damage to a permanent or player this turn, it deals that much damage plus 2 instead."
  *
  * @param bonusAmount The flat damage bonus to add
- * @param sourceFilter Filter for which sources get the bonus (e.g., SourceFilter.HasColor(Color.RED))
+ * @param sourceFilter Filter for which sources get the bonus (e.g., GameObjectFilter.Any.withColor(Color.RED))
  * @param target The player who gets the damage bonus (default: controller)
  * @param duration How long the bonus lasts (default: EndOfTurn)
  */
@@ -721,7 +720,7 @@ data class GrantCastCreaturesFromGraveyardWithForageEffect(
 @Serializable
 data class GrantDamageBonusEffect(
     val bonusAmount: Int,
-    val sourceFilter: SourceFilter = SourceFilter.Any,
+    val sourceFilter: GameObjectFilter = GameObjectFilter.Any,
     val target: EffectTarget = EffectTarget.Controller,
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
@@ -1115,7 +1114,7 @@ data class ChooseNumberThenEffect(
  * — it writes the same [com.wingedsheep.sdk.scripting.ChoiceSlot.CHOSEN_NUMBER] slot *before* the
  * permanent is on the battlefield (CR 614.1c), so the CDA never reads a default while the permanent
  * briefly sits at its printed P/T. Wrapping this effect in an
- * [com.wingedsheep.sdk.scripting.OnEnterRunEffect] also works but runs *after* placement, so avoid
+ * [com.wingedsheep.sdk.scripting.OnEnterRun] also works but runs *after* placement, so avoid
  * it when the entry choice feeds a P/T-defining CDA.
  *
  * Shapeshifter: "As this enters and at the beginning of your upkeep, choose a number between 0

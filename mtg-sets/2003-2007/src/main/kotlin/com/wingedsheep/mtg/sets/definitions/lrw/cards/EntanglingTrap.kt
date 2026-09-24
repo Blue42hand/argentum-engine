@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Entangling Trap
@@ -42,7 +41,7 @@ val EntanglingTrap = card("Entangling Trap") {
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.Tap(creature),
-            ConditionalEffect(
+            Effects.If(
                 Conditions.YouWonTheClash,
                 Effects.GrantKeyword(
                     AbilityFlag.DOESNT_UNTAP,

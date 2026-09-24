@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -51,7 +51,7 @@ val GollumSilentSlinker = card("Gollum, Silent Slinker") {
             val player = target("player", Targets.Player)
             val creature = target("creature", Targets.UpToCreatures(1))
             effect = Effects.Composite(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
                 Effects.GainLife(2, player)
             )
         }

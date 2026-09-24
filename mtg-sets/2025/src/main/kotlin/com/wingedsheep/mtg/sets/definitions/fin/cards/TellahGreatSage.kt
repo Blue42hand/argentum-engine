@@ -1,19 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -41,24 +37,24 @@ val TellahGreatSage = card("Tellah, Great Sage") {
                 creatureTypes = setOf("Hero"),
                 imageUri = "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030",
             ),
-            ConditionalEffect(
-                condition = Compare(
-                    DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.manaSpentOnTriggeringSpell(),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(4)
+                    4
                 ),
-                effect = DrawCardsEffect(2)
+                then = Effects.DrawCards(2)
             ),
-            ConditionalEffect(
-                condition = Compare(
-                    DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.manaSpentOnTriggeringSpell(),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(8)
+                    8
                 ),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     SacrificeSelfEffect,
-                    DealDamageEffect(
-                        DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
+                    Effects.DealDamage(
+                        DynamicAmounts.manaSpentOnTriggeringSpell(),
                         EffectTarget.PlayerRef(Player.EachOpponent)
                     )
                 )

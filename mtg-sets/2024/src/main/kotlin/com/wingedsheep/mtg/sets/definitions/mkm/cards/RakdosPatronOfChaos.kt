@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Intimidator's wording-identical "target opponent may … If they don't, …". Both halves are effects
  * the choosing player selects between, not a cost they pay, and that distinction is load-bearing here:
  *
- * - A `MayEffect(decisionMaker = opponent, otherwise = draw)` would prompt the right player, but the
+ * - A `Effects.May(decisionMaker = opponent, otherwise = draw)` would prompt the right player, but the
  *   engine evaluates a gate's feasibility against the *ability's controller*, not the decision maker.
  *   Rakdos's controller having two spare permanents would then wrongly enable the option.
  * - Worse, `ForceSacrifice` auto-sacrifices when a player has at most `count` legal permanents, so an

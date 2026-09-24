@@ -1,16 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Compel Brutality
@@ -54,10 +52,7 @@ val CompelBrutality = card("Compel Brutality") {
                     ),
                 )
                 effect = Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(
-                        EntityReference.Target(0),
-                        EntityNumericProperty.Power,
-                    ),
+                    amount = DynamicAmounts.powerOf(yours),
                     target = theirs,
                     damageSource = yours,
                 )
@@ -78,10 +73,7 @@ val CompelBrutality = card("Compel Brutality") {
                     ),
                 )
                 effect = Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(
-                        EntityReference.Target(0),
-                        EntityNumericProperty.CounterCount(CounterTypeFilter.Loyalty),
-                    ),
+                    amount = DynamicAmounts.countersOn(yours, CounterType.LOYALTY),
                     target = theirs,
                     damageSource = yours,
                 )

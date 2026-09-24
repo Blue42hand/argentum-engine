@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Symbiotic Elf
@@ -23,7 +23,7 @@ val SymbioticElf = card("Symbiotic Elf") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = 2,
             power = 1,
             toughness = 1,

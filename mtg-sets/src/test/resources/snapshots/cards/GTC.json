@@ -113,7 +113,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         },
@@ -178,7 +178,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "INDESTRUCTIBLE",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Permanents you control gain indestructible until end of turn"
@@ -306,16 +306,16 @@
                             {
                                 "type": "GatherUntilMatch",
                                 "filter": "land",
-                                "storeMatch": "revealedLand",
-                                "storeRevealed": "allRevealed"
+                                "storeMatch": "matched0",
+                                "storeRevealed": "revealed0"
                             },
                             {
                                 "type": "RevealCollection",
-                                "from": "allRevealed"
+                                "from": "revealed0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "allRevealed",
+                                "from": "revealed0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"
@@ -619,7 +619,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -714,7 +714,7 @@
                     "type": "DrawCards",
                     "count": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 },
@@ -917,12 +917,12 @@
                             "type": "Fixed",
                             "amount": 5
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "REACH",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }

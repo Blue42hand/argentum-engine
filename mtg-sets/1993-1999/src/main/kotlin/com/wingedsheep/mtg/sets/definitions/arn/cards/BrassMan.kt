@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -28,7 +27,7 @@ val BrassMan = card("Brass Man") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = MayPayManaEffect(ManaCost.parse("{1}"), Effects.Untap(EffectTarget.Self))
+        effect = Effects.MayPay(ManaCost.parse("{1}"), Effects.Untap(EffectTarget.Self))
     }
 
     metadata {

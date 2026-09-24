@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * You're Not Alone
@@ -25,10 +24,10 @@ val YoureNotAlone = card("You're Not Alone") {
 
     spell {
         val t = target("target", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.ControlCreaturesAtLeast(3),
-            effect = Effects.ModifyStats(4, 4, t),
-            elseEffect = Effects.ModifyStats(2, 2, t)
+            then = Effects.ModifyStats(4, 4, t),
+            otherwise = Effects.ModifyStats(2, 2, t)
         )
     }
 

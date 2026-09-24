@@ -14,6 +14,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -198,7 +199,7 @@ class ReflexiveTriggerEffectExecutor(
                 .resolvePlayerRef(action.player, context, state)
             val current = playerId
                 ?.let { state.getEntity(it)?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>() }
-                ?.getCount(com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType(action.counterType))
+                ?.getCount(action.counterType)
                 ?: 0
             current >= action.amount
         }
@@ -260,7 +261,7 @@ class ReflexiveTriggerEffectExecutor(
         state: GameState,
         context: EffectContext,
         target: com.wingedsheep.sdk.scripting.targets.EffectTarget,
-        kind: String? = null
+        kind: CounterType? = null
     ): Int? {
         val targetId = context.resolveTarget(target, state) ?: return null
         val counters = state.getEntity(targetId)
@@ -269,9 +270,7 @@ class ReflexiveTriggerEffectExecutor(
         return if (kind == null) {
             counters.counters.values.sum()
         } else {
-            counters.getCount(
-                com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType(kind)
-            )
+            counters.getCount(kind)
         }
     }
 
@@ -413,7 +412,7 @@ class ReflexiveTriggerEffectExecutor(
         }
 
         // Action succeeded synchronously — merge whatever it stashed in the pipeline (e.g.
-        // `EntityReference.AmassedArmy`, Foray of Orcs) into the context before emitting, mirroring
+        // `EffectTarget.AmassedArmy`, Foray of Orcs) into the context before emitting, mirroring
         // CompositeEffectExecutor's sibling-to-sibling propagation.
         val mergedContext = if (
             result.updatedCollections.isNotEmpty() || result.updatedSubtypeGroups.isNotEmpty() ||

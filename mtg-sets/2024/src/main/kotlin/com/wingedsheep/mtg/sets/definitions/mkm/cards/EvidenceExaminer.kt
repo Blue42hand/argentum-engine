@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Evidence Examiner — Murders at Karlov Manor #201
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  * - [Triggers.BeginCombat] is already scoped to your turn (`Step.BEGIN_COMBAT, Player.You`), so the
  *   "on your turn" clause needs no extra condition.
  * - The collect is a bare "you may" with no rider, so it is [Effects.CollectEvidence] under a
- *   [MayEffect] gate rather than a reflexive trigger — there is no "when you do" to put on the
+ *   [Effects.May] gate rather than a reflexive trigger — there is no "when you do" to put on the
  *   stack, and the Clue arrives via the separate payoff trigger instead. Per CR 701.59b the prompt
  *   is skipped entirely when the graveyard can't reach total mana value 4, so a player is never
  *   offered a collection they couldn't complete.
@@ -49,7 +48,7 @@ val EvidenceExaminer = card("Evidence Examiner") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = MayEffect(Effects.CollectEvidence(4))
+        effect = Effects.May(Effects.CollectEvidence(4))
         description = "At the beginning of combat on your turn, you may collect evidence 4."
     }
 

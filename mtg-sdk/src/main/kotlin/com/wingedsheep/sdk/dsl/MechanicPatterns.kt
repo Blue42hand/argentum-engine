@@ -1,7 +1,7 @@
 package com.wingedsheep.sdk.dsl
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.scripting.effects.CLASH_WON
 import com.wingedsheep.sdk.scripting.effects.ClashEffect
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
@@ -88,7 +87,7 @@ object MechanicPatterns {
                     prompt = "Blight $amount — choose a creature $possessive",
                     useTargetingUI = true
                 ),
-                AddCountersToCollectionEffect("blighted", Counters.MINUS_ONE_MINUS_ONE, amount)
+                AddCountersToCollectionEffect("blighted", CounterType.MINUS_ONE_MINUS_ONE, amount)
             )
         )
     }
@@ -116,7 +115,7 @@ object MechanicPatterns {
             ),
             FilterCollectionEffect(
                 from = "bolsterCreatures",
-                filter = CollectionFilter.LeastToughness,
+                collectionFilter = CollectionFilter.LeastToughness,
                 storeMatching = "bolsterLeastToughness"
             ),
             SelectFromCollectionEffect(
@@ -127,7 +126,7 @@ object MechanicPatterns {
                 prompt = "Bolster $amount — choose a creature with the least toughness",
                 useTargetingUI = true
             ),
-            AddCountersToCollectionEffect("bolstered", Counters.PLUS_ONE_PLUS_ONE, amount)
+            AddCountersToCollectionEffect("bolstered", CounterType.PLUS_ONE_PLUS_ONE, amount)
         )
     )
 
@@ -160,7 +159,7 @@ object MechanicPatterns {
             ),
             FilterCollectionEffect(
                 from = "explored",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                filter = GameObjectFilter.Land,
                 storeMatching = "exploredLand",
                 storeNonMatching = "exploredNonland"
             ),
@@ -175,7 +174,7 @@ object MechanicPatterns {
                 then = CompositeEffect(
                     listOf(
                         AddCountersEffect(
-                            counterType = Counters.PLUS_ONE_PLUS_ONE,
+                            counterType = CounterType.PLUS_ONE_PLUS_ONE,
                             count = 1,
                             target = explorer
                         ),
@@ -400,7 +399,7 @@ object MechanicPatterns {
         listOf(
             CreatePredefinedTokenEffect(tokenType = "Incubator", count = 1),
             AddCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = n,
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
@@ -418,7 +417,7 @@ object MechanicPatterns {
         listOf(
             CreatePredefinedTokenEffect(tokenType = "Incubator", count = 1),
             AddDynamicCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = amount,
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
@@ -457,9 +456,9 @@ object MechanicPatterns {
      */
     fun empowerJace(amount: DynamicAmount): CompositeEffect = CompositeEffect(
         listOf(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControl(JACE_PLANESWALKER_TOKEN, negate = true),
-                effect = CreatePredefinedTokenEffect(tokenType = "Jace")
+                then = CreatePredefinedTokenEffect(tokenType = "Jace")
             ),
             GatherCardsEffect(
                 source = CardSource.BattlefieldMatching(JACE_PLANESWALKER_TOKEN, Player.You),
@@ -475,7 +474,7 @@ object MechanicPatterns {
             ),
             AddCountersToCollectionEffect(
                 collectionName = "empower_jace",
-                counterType = Counters.LOYALTY,
+                counterType = CounterType.LOYALTY,
                 amount = amount
             )
         ),

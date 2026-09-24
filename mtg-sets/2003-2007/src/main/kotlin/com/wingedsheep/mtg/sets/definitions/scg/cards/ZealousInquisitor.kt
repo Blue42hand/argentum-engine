@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RedirectNextDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +26,7 @@ val ZealousInquisitor = card("Zealous Inquisitor") {
     activatedAbility {
         cost = Costs.Mana("{1}{W}")
         val creature = target("creature", Targets.Creature)
-        effect = RedirectNextDamageEffect(
+        effect = Effects.RedirectNextDamage(
             protectedTargets = listOf(EffectTarget.Self),
             redirectTo = creature,
             amount = 1

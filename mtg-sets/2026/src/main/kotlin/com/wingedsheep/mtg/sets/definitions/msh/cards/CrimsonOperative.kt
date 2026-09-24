@@ -37,8 +37,7 @@ val CrimsonOperative = card("Crimson Operative") {
         trigger = Triggers.EntersBattlefield
         effect = Patterns.Exile.impulse(
             count = 1,
-            expiry = MayPlayExpiry.UntilEndOfNextTurn,
-            storeAs = "crimsonOperativeExiled"
+            expiry = MayPlayExpiry.UntilEndOfNextTurn
         )
         description = "When this creature enters, exile the top card of your library. Until the " +
             "end of your next turn, you may play that card."

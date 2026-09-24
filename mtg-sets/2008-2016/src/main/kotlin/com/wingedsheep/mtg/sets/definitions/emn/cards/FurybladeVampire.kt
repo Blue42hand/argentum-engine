@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -33,10 +31,10 @@ val FurybladeVampire = card("Furyblade Vampire") {
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.ModifyStats(3, 0, EffectTarget.Self)
+                then = Effects.ModifyStats(3, 0, EffectTarget.Self)
             )
         )
     }

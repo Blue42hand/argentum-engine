@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 /**
  * Bebop & Rocksteady
@@ -27,9 +26,9 @@ val BebopAndRocksteady = card("Bebop & Rocksteady") {
 
     // "sacrifice a permanent unless you discard a card" — pay (discard) to avoid the
     // suffer (sacrifice a permanent you control), Masticore's PayOrSuffer idiom.
-    val sacrificeUnlessDiscard = PayOrSufferEffect(
+    val sacrificeUnlessDiscard = Effects.PayOrSuffer(
         cost = Costs.pay.Discard(),
-        suffer = SacrificeEffect(GameObjectFilter.Any)
+        suffer = Effects.SacrificeOwn(GameObjectFilter.Any)
     )
 
     triggeredAbility {

@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 
 /**
  * Al-abara's Carpet
@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  *
  * {5}, {T}: Prevent all damage that would be dealt to you this turn by attacking creatures without flying.
  *
- * The recipient is the controller alone: [Effects.PreventAllDamageToYouFrom] is the recipient-side
+ * The recipient is the controller alone: `alsoToYou` with no `toGroup` is the recipient-side
  * shield naming only "you", narrowed to damage from attacking creatures without flying. Damage those
  * creatures deal to anything else (a blocker, a planeswalker) is not prevented. Both halves are
  * re-read when damage would be dealt, so a creature that gains flying mid-combat is no longer covered.
@@ -29,8 +29,11 @@ val AlabarasCarpet = card("Al-abara's Carpet") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap)
-        effect = Effects.PreventAllDamageToYouFrom(
-            GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING).attacking())
+        effect = Effects.PreventDamage(
+            alsoToYou = true,
+            sources = PreventionSourceFilter.Matching(
+                GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING).attacking()
+            )
         )
     }
 

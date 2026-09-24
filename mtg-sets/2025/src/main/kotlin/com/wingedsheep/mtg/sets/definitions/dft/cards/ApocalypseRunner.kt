@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -36,7 +35,7 @@ val ApocalypseRunner = card("Apocalypse Runner") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.powerAtMost(2).youControl()))
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.LIFELINK, t),
-            GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
         )
     }
     keywordAbility(KeywordAbility.crew(3))

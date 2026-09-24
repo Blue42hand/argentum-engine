@@ -7,8 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.bro.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 
 
@@ -26,8 +24,8 @@ val ObliteratingBolt = card("Obliterating Bolt") {
     spell {
         val t = target("target", TargetCreatureOrPlaneswalker())
         effect = Effects.Composite(
-            DealDamageEffect(4, t),
-            MarkExileOnDeathEffect(t)
+            Effects.DealDamage(4, t),
+            Effects.MarkExileOnDeath(t)
         )
     }
     metadata {

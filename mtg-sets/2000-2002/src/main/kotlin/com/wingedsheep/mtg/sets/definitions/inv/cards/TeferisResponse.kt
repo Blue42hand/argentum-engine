@@ -26,10 +26,7 @@ val TeferisResponse = card("Teferi's Response") {
         "Draw two cards."
 
     spell {
-        // Targets either a spell or an activated/triggered ability on the stack. The
-        // outer filter pins controller=opponent and requires at least one of the chosen
-        // targets to be a land you control (via CardPredicate.TargetsMatching).
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter(
                 baseFilter = GameObjectFilter(
                     cardPredicates = listOf(
@@ -40,7 +37,10 @@ val TeferisResponse = card("Teferi's Response") {
                 ),
                 zone = Zone.STACK
             ).opponentControls()
-        )
+        ))
+        // Targets either a spell or an activated/triggered ability on the stack. The
+        // outer filter pins controller=opponent and requires at least one of the chosen
+        // targets to be a land you control (via CardPredicate.TargetsMatching).
         effect = Effects.Composite(
             // Destroy the source permanent BEFORE countering — at this point the stack
             // entity still carries its ability component so we can read sourceId.

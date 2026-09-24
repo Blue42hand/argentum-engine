@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,9 +10,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -37,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *    shuffles — matching Unlucky Cabbage Merchant.
  *  - The landfall payoff is an intervening-"if" (CR 603.4): putting the quest counter is mandatory,
  *    and only if the enchantment then has four or more quest counters does the boost happen. The
- *    counter add is sequenced first, then [ConditionalEffect] gates the payoff on the live count
+ *    counter add is sequenced first, then [Effects.If] gates the payoff on the live count
  *    (`SourceCounterCountAtLeast`) so no creature is chosen at all when below the threshold. The
  *    creature is picked at resolution via [SelectTargetEffect] (rather than a reflexive target
  *    requirement) precisely so the choice only happens inside the satisfied gate.
@@ -72,25 +70,22 @@ val EarthbenderAscension = card("Earthbender Ascension") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.QUEST, 1, EffectTarget.Self),
-            ConditionalEffect(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 4),
-                effect = Effects.Composite(
-                    SelectTargetEffect(
-                        requirement = TargetObject(filter = TargetFilter.CreatureYouControl),
-                        storeAs = "boostedCreature"
-                    ),
-                    Effects.AddCounters(
-                        Counters.PLUS_ONE_PLUS_ONE,
+            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
+            Effects.If(
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
+                then = Effects.Pipeline {
+                    val boostedCreature = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl))
+                    run(Effects.AddCounters(
+                        CounterType.PLUS_ONE_PLUS_ONE,
                         1,
-                        EffectTarget.PipelineTarget("boostedCreature")
-                    ),
-                    Effects.GrantKeyword(
+                        boostedCreature.asTarget
+                    ))
+                    run(Effects.GrantKeyword(
                         Keyword.TRAMPLE,
-                        EffectTarget.PipelineTarget("boostedCreature"),
+                        boostedCreature.asTarget,
                         Duration.EndOfTurn
-                    )
-                )
+                    ))
+                }
             )
         )
         description = "Landfall — Whenever a land you control enters, put a quest counter on this enchantment. When you do, if it has four or more quest counters on it, put a +1/+1 counter on target creature you control. It gains trample until end of turn."

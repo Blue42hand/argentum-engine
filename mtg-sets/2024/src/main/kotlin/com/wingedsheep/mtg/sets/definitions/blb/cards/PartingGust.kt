@@ -1,21 +1,19 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Parting Gust
@@ -42,24 +40,24 @@ val PartingGust = card("Parting Gust") {
     spell {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — exile and return at end step with +1/+1 counter
-            Mode.withTarget(
-                Effects.Composite(listOf(
-                    Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
-                    CreateDelayedTriggerEffect(
+            mode("Don't promise a gift — exile target nontoken creature, return it at the next end step with a +1/+1 counter") {
+                val targetNontokenCreature = target("target nontoken creature", nontokenCreature)
+                effect = Effects.Composite(listOf(
+                    Effects.Move(targetNontokenCreature, Zone.EXILE),
+                    Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.Composite(listOf(
-                            Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD),
-                            Effects.AddCounters("+1/+1", 1, EffectTarget.ContextTarget(0))
+                            Effects.Move(targetNontokenCreature, Zone.BATTLEFIELD),
+                            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, targetNontokenCreature)
                         ))
                     )
-                )),
-                nontokenCreature,
-                "Don't promise a gift — exile target nontoken creature, return it at the next end step with a +1/+1 counter"
-            ),
+                ))
+            },
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, exile target permanently
-            Mode.withTarget(
-                CreateTokenEffect(
-                    count = DynamicAmount.Fixed(1),
+            mode("Promise a gift — opponent creates a tapped 1/1 blue Fish token, then exile target nontoken creature permanently") {
+                val targetNontokenCreature = target("target nontoken creature", nontokenCreature)
+                effect = Effects.CreateToken(
+                    count = 1,
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.BLUE),
@@ -67,11 +65,9 @@ val PartingGust = card("Parting Gust") {
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                     tapped = true,
                     imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                ).then(Effects.Exile(EffectTarget.ContextTarget(0)))
-                    .then(Effects.GiftGiven()),
-                nontokenCreature,
-                "Promise a gift — opponent creates a tapped 1/1 blue Fish token, then exile target nontoken creature permanently"
-            )
+                ).then(Effects.Exile(targetNontokenCreature))
+                    .then(Effects.GiftGiven())
+            }
         )
     }
 

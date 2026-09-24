@@ -1,10 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
-import com.wingedsheep.sdk.scripting.effects.RedirectCombatDamageToControllerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,15 +25,15 @@ val GoblinPsychopath = card("Goblin Psychopath") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = FlipCoinEffect(
-            lostEffect = RedirectCombatDamageToControllerEffect(EffectTarget.Self)
+        effect = Effects.FlipCoin(
+            lostEffect = Effects.RedirectCombatDamageToController(EffectTarget.Self)
         )
     }
 
     triggeredAbility {
         trigger = Triggers.Blocks
-        effect = FlipCoinEffect(
-            lostEffect = RedirectCombatDamageToControllerEffect(EffectTarget.Self)
+        effect = Effects.FlipCoin(
+            lostEffect = Effects.RedirectCombatDamageToController(EffectTarget.Self)
         )
     }
 

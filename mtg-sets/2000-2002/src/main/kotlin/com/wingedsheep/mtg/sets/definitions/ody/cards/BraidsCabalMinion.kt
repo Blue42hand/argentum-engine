@@ -4,11 +4,11 @@
 
 package com.wingedsheep.mtg.sets.definitions.ody.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -29,7 +29,7 @@ val BraidsCabalMinion = card("Braids, Cabal Minion") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = ForceSacrificeEffect(GameObjectFilter.Creature, 1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
+        effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
     metadata {
         rarity = Rarity.RARE

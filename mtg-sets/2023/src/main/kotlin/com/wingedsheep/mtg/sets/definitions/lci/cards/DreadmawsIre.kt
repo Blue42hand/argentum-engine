@@ -5,12 +5,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -33,19 +31,16 @@ val DreadmawsIre = card("Dreadmaw's Ire") {
             listOf(
                 Effects.ModifyStats(2, 2, t),
                 Effects.GrantKeyword(Keyword.TRAMPLE, t),
-                GrantTriggeredAbilityEffect(
-                    ability = TriggeredAbility.create(
-                        trigger = Triggers.DealsCombatDamageToPlayer.event,
-                        binding = Triggers.DealsCombatDamageToPlayer.binding,
-                        effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                        // "that player controls" — the player just dealt combat damage, resolved
-                        // via ControllerPredicate.ControlledByTriggeringPlayer.
-                        targetRequirement = TargetPermanent(
+                Effects.GrantTriggeredAbility(
+                    ability = grantedTriggeredAbility {
+                        trigger = Triggers.DealsCombatDamageToPlayer
+                        val artifact = target("target artifact", TargetPermanent(
                             filter = TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer())
-                        ),
-                        descriptionOverride = "Whenever this creature deals combat damage to a player, " +
+                        ))
+                        effect = Effects.Destroy(artifact)
+                        description = "Whenever this creature deals combat damage to a player, " +
                             "destroy target artifact that player controls."
-                    ),
+                    },
                     target = t
                 )
             )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -20,18 +19,18 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * The eleven keywords Super-Adaptoid can absorb, each paired with the keyword counter (CR 122.1b)
  * that grants it. Printed order: haste first, then "do the same for" the other ten.
  */
-private val ADAPTABLE_KEYWORDS: List<Pair<Keyword, String>> = listOf(
-    Keyword.HASTE to Counters.HASTE,
-    Keyword.FLYING to Counters.FLYING,
-    Keyword.FIRST_STRIKE to Counters.FIRST_STRIKE,
-    Keyword.DOUBLE_STRIKE to Counters.DOUBLE_STRIKE,
-    Keyword.DEATHTOUCH to Counters.DEATHTOUCH,
-    Keyword.INDESTRUCTIBLE to Counters.INDESTRUCTIBLE,
-    Keyword.LIFELINK to Counters.LIFELINK,
-    Keyword.MENACE to Counters.MENACE,
-    Keyword.REACH to Counters.REACH,
-    Keyword.TRAMPLE to Counters.TRAMPLE,
-    Keyword.VIGILANCE to Counters.VIGILANCE,
+private val ADAPTABLE_KEYWORDS: List<Pair<Keyword, CounterType>> = listOf(
+    Keyword.HASTE to CounterType.HASTE,
+    Keyword.FLYING to CounterType.FLYING,
+    Keyword.FIRST_STRIKE to CounterType.FIRST_STRIKE,
+    Keyword.DOUBLE_STRIKE to CounterType.DOUBLE_STRIKE,
+    Keyword.DEATHTOUCH to CounterType.DEATHTOUCH,
+    Keyword.INDESTRUCTIBLE to CounterType.INDESTRUCTIBLE,
+    Keyword.LIFELINK to CounterType.LIFELINK,
+    Keyword.MENACE to CounterType.MENACE,
+    Keyword.REACH to CounterType.REACH,
+    Keyword.TRAMPLE to CounterType.TRAMPLE,
+    Keyword.VIGILANCE to CounterType.VIGILANCE,
 )
 
 /**
@@ -44,14 +43,14 @@ private val ADAPTABLE_KEYWORDS: List<Pair<Keyword, String>> = listOf(
  * applies its parts in order against the updated state, so he never stacks two counters for one
  * keyword).
  */
-private fun absorbKeywords(): Effect = Effects.Composite(
+private fun absorbKeywords(creature: EffectTarget): Effect = Effects.Composite(
     ADAPTABLE_KEYWORDS.map { (keyword, counter) ->
-        ConditionalEffect(
+        Effects.If(
             condition = Conditions.All(
-                Conditions.TargetMatchesFilter(GameObjectFilter.Any.withKeyword(keyword)),
+                Conditions.TargetMatchesFilter(GameObjectFilter.Any.withKeyword(keyword), creature),
                 Conditions.Not(Conditions.SourceHasKeyword(keyword)),
             ),
-            effect = Effects.AddCounters(counter, 1, EffectTarget.Self),
+            then = Effects.AddCounters(counter, 1, EffectTarget.Self),
         )
     }
 )
@@ -97,8 +96,8 @@ val SuperAdaptoid = card("Super-Adaptoid") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
-        effect = absorbKeywords()
+        val otherCreature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
+        effect = absorbKeywords(otherCreature)
         description = "Whenever Super-Adaptoid enters, choose another target creature. If that " +
             "creature has haste and Super-Adaptoid doesn't, put a haste counter on " +
             "Super-Adaptoid. Do the same for flying, first strike, double strike, deathtouch, " +
@@ -107,8 +106,8 @@ val SuperAdaptoid = card("Super-Adaptoid") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
-        effect = absorbKeywords()
+        val otherCreature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
+        effect = absorbKeywords(otherCreature)
         description = "Whenever Super-Adaptoid attacks, choose another target creature. If that " +
             "creature has haste and Super-Adaptoid doesn't, put a haste counter on " +
             "Super-Adaptoid. Do the same for flying, first strike, double strike, deathtouch, " +

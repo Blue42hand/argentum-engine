@@ -23,7 +23,7 @@ val ChokingTethers = card("Choking Tethers") {
     oracleText = "Tap up to four target creatures.\nCycling {1}{U}\nWhen you cycle Choking Tethers, you may tap target creature."
 
     spell {
-        target = TargetCreature(count = 4, optional = true, filter = TargetFilter.Creature)
+        val creature = target("target creature", TargetCreature(count = 4, optional = true, filter = TargetFilter.Creature))
         effect = Effects.TapEachTarget()
     }
 

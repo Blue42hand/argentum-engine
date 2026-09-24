@@ -59,9 +59,9 @@ data class DecisionContext(
      * "pay X life or sacrifice it" once per creature, and without this the player sees N identical
      * prompts with no way to tell which creature each one covers.
      *
-     * Set from the enclosing per-entity iteration (`pipeline.iterationTarget` — the same binding
-     * `EffectTarget.Self` reads inside a `ForEachInGroup` body), so any gate raised inside such a
-     * loop names its subject for free.
+     * Set from the enclosing per-entity iteration (`EffectContext.iterationEntityId` — the object
+     * `EffectTarget.IterationEntity` names inside a `ForEachInGroup` body), so any gate raised
+     * inside such a loop names its subject for free.
      *
      * Only the id travels: the client resolves the card through its already-masked state map, so a
      * face-down subject can never leak its name through the prompt.

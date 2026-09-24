@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Eriette, the Beguiler
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * - The trigger is [Triggers.becomesAttached] with an ANY binding (it watches *any* Aura you
  *   control, not just Eriette), gated by the attached-to filter "nonland permanent an opponent
  *   controls with mana value ≤ the Aura's mana value". The mana-value comparison uses
- *   [GameObjectFilter.manaValueAtMostEntity] with [EntityReference.Triggering] = the attaching Aura
+ *   [GameObjectFilter.manaValueAtMostEntity] with [EffectTarget.TriggeringEntity] = the attaching Aura
  *   (the trigger matcher exposes the attachment as the comparison reference).
  * - The payoff gains control of [EffectTarget.AttachedToTriggeringPermanent] (the permanent the
  *   Aura attached to) for [Duration.WhileSourceAttachedToAffected] — the control effect is sourced
@@ -53,7 +52,7 @@ val ErietteTheBeguiler = card("Eriette, the Beguiler") {
             attachmentController = Player.You,
             attachedToFilter = GameObjectFilter.NonlandPermanent
                 .opponentControls()
-                .manaValueAtMostEntity(EntityReference.Triggering),
+                .manaValueAtMostEntity(EffectTarget.TriggeringEntity),
             binding = TriggerBinding.ANY,
         )
         effect = Effects.GainControl(

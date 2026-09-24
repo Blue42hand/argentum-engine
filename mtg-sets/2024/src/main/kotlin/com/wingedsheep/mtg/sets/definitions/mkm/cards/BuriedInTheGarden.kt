@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AdditionalManaOnTap
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Buried in the Garden — Murders at Karlov Manor #191
@@ -58,7 +58,7 @@ val BuriedInTheGarden = card("Buried in the Garden") {
     }
 
     staticAbility {
-        ability = AdditionalManaOnTap(amount = DynamicAmount.Fixed(1), anyColor = true)
+        ability = AdditionalManaOnTap(amount = DynamicAmounts.fixed(1), anyColor = true)
     }
 
     metadata {

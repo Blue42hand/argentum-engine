@@ -4,7 +4,7 @@ import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.event.TriggerDetector
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -49,7 +49,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.countersPlacedOn(
                 filter = heroesYouControl,
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 firstTimeEachTurn = false,
                 binding = TriggerBinding.OTHER,
                 placedBy = Player.You,
@@ -68,7 +68,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.countersPlacedOn(
                 filter = heroesYouControl,
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 firstTimeEachTurn = false,
                 binding = TriggerBinding.OTHER,
                 placedBy = Player.You,
@@ -88,7 +88,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.countersPlacedOn(
                 filter = heroesYouControl,
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 firstTimeEachTurn = true,
                 binding = TriggerBinding.OTHER,
                 placedBy = Player.You,
@@ -108,7 +108,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.countersPlacedOn(
                 filter = heroesYouControl,
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 firstTimeEachTurn = false,
                 binding = TriggerBinding.SELF,
                 placedBy = Player.You,
@@ -158,7 +158,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         entityId: EntityId,
         amount: Int,
         placedBy: EntityId?,
-        counterType: String = Counters.PLUS_ONE_PLUS_ONE,
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
         firstThisTurn: Boolean = true,
     ) = CountersAddedEvent(
         entityId = entityId,
@@ -338,7 +338,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
 
             countersTriggersOf(
                 driver,
-                listOf(placed(heroId, 1, driver.player1, counterType = Counters.MINUS_ONE_MINUS_ONE)),
+                listOf(placed(heroId, 1, driver.player1, counterType = CounterType.MINUS_ONE_MINUS_ONE)),
                 observer
             ) shouldHaveSize 0
         }
@@ -352,7 +352,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
             val triggers = countersTriggersOf(
                 driver,
                 listOf(
-                    placed(heroA, 4, driver.player1, counterType = Counters.MINUS_ONE_MINUS_ONE),
+                    placed(heroA, 4, driver.player1, counterType = CounterType.MINUS_ONE_MINUS_ONE),
                     placed(heroB, 1, driver.player1),
                 ),
                 observer

@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -30,7 +30,7 @@ val GoblinChirurgeon = card("Goblin Chirurgeon") {
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype(Subtype.GOBLIN))
         val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
     }
 
     metadata {

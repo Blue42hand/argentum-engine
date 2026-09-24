@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -52,7 +51,7 @@ val FleetingSpirit = card("Fleeting Spirit") {
         cost = Costs.DiscardCard
         effect = Effects.Composite(
             Effects.Move(EffectTarget.Self, Zone.EXILE),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
             )

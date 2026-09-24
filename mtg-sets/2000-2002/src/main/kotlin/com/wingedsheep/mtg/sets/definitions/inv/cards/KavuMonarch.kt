@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -43,7 +44,7 @@ val KavuMonarch = card("Kavu Monarch") {
             filter = GameObjectFilter.Permanent.withSubtype("Kavu"),
             binding = TriggerBinding.OTHER
         )
-        effect = Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

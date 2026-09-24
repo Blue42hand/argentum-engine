@@ -6,7 +6,6 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
@@ -55,7 +54,7 @@ class InspiredTethermageScenarioTest : ScenarioTestBase() {
             result.error shouldBe null
             withClue("the cost is reported as a loyalty-counter placement by the activating player") {
                 val placed = result.events.filterIsInstance<CountersAddedEvent>()
-                    .single { it.entityId == jace && it.counterType == Counters.LOYALTY }
+                    .single { it.entityId == jace && it.counterType == CounterType.LOYALTY }
                 placed.amount shouldBe 2
                 placed.placedBy shouldBe game.player1Id
             }

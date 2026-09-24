@@ -39,7 +39,7 @@ val HarvesterOfMisery = card("Harvester of Misery") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature, excludeSelf = true),
-            Effects.ModifyStats(-2, -2, EffectTarget.Self)
+            Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
         )
     }
 

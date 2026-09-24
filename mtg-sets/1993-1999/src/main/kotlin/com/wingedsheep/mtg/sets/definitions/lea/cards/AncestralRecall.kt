@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -23,7 +23,7 @@ val AncestralRecall = card("Ancestral Recall") {
     oracleText = "Target player draws three cards."
     spell {
         val t = target("target", TargetPlayer())
-        effect = DrawCardsEffect(3, t)
+        effect = Effects.DrawCards(3, t)
     }
     metadata {
         rarity = Rarity.RARE

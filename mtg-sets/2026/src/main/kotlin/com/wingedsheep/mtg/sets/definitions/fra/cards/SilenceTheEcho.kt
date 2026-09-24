@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val SilenceTheEcho = card("Silence the Echo") {
     manaCost = "{1}{B}"
@@ -23,8 +22,8 @@ val SilenceTheEcho = card("Silence the Echo") {
     )
 
     spell {
-        target = Targets.CreatureOrPlaneswalker
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        val creatureOrPlaneswalker = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        effect = Effects.Destroy(creatureOrPlaneswalker)
     }
 
     metadata {

@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -174,7 +174,7 @@ class ConvergeMechanicTest : FunSpec({
         val predicateEvaluator = PredicateEvaluator()
         val filter = GameObjectFilter.NonlandPermanent
             .opponentControls()
-            .manaValueAtMostColorsSpent(EntityReference.Source)
+            .manaValueAtMostColorsSpent(EffectTarget.Self)
         val context = PredicateContext(controllerId = p, sourceId = spell)
 
         // 2 colors of mana spent: MV1 is a legal target, MV3 is not.
@@ -198,7 +198,7 @@ class ConvergeMechanicTest : FunSpec({
         val predicateEvaluator = PredicateEvaluator()
         val filter = GameObjectFilter.NonlandPermanent
             .opponentControls()
-            .manaValueAtMostColorsSpent(EntityReference.Source)
+            .manaValueAtMostColorsSpent(EffectTarget.Self)
         val context = PredicateContext(controllerId = p, sourceId = spell)
 
         // 0 colors → 1 > 0 → not a legal target (colorless is not a color).

@@ -7,10 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
@@ -107,20 +103,20 @@ val CovetedFalcon = card("Coveted Falcon") {
                 filter = TargetFilter(GameObjectFilter.Permanent.youControl()),
             ),
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "falconGifts"),
-            ForEachInCollectionEffect(
-                collection = "falconGifts",
-                effect = IfYouDoEffect(
-                    action = GiveControlToTargetPlayerEffect(
-                        permanent = EffectTarget.Self,
+        effect = Effects.Pipeline {
+            val falconGifts = gather(CardSource.ChosenTargets)
+            run(Effects.ForEachInCollection(
+                collection = falconGifts,
+                effect = Effects.IfYouDo(
+                    action = Effects.GiveControl(
+                        permanent = EffectTarget.IterationEntity,
                         newController = opponent,
                     ),
-                    ifYouDo = Effects.DrawCards(1),
+                    then = Effects.DrawCards(1),
                     successCriterion = SuccessCriterion.ControlChanged,
                 ),
-            ),
-        )
+            ))
+        }
         description = "When this creature is turned face up, target opponent gains control of any " +
             "number of target permanents you control. Draw a card for each one they gained " +
             "control of this way."

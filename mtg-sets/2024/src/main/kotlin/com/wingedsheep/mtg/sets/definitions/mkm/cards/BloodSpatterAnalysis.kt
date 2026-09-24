@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -38,7 +36,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * sacrificed for having five counters *only while its second ability is resolving*. Get a fifth
  * bloodstain counter onto it some other way (proliferate, a counter-doubler) and nothing happens
  * until the next death batch. That is why the threshold lives inside the trigger's effect as a
- * [ConditionalEffect] over [Conditions.SourceCounterCountAtLeast] rather than as a
+ * [Effects.If] over [Conditions.SourceCounterCountAtLeast] rather than as a
  * state-trigger/SBA — the check is a step in the resolution, not a continuous one.
  *
  * **"When you do" is a genuine reflexive trigger** (CR 603.12), not an inline continuation, so the
@@ -50,7 +48,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * second ruling below calls out by name.
  *
  * The bloodstain counter is a passive storage counter with no inherent rule
- * ([Counters.BLOODSTAIN]) — the card's own trigger both writes and reads it.
+ * ([CounterType.BLOODSTAIN]) — the card's own trigger both writes and reads it.
  */
 val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
     manaCost = "{B}{R}"
@@ -76,23 +74,21 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
     triggeredAbility {
         trigger = Triggers.OneOrMoreCreaturesDie()
         effect = Patterns.Library.mill(1)
-            .then(Effects.AddCounters(Counters.BLOODSTAIN, 1, EffectTarget.Self))
+            .then(Effects.AddCounters(CounterType.BLOODSTAIN, 1, EffectTarget.Self))
             .then(
-                ConditionalEffect(
-                    condition = Conditions.SourceCounterCountAtLeast(Counters.BLOODSTAIN, 5),
-                    effect = ReflexiveTriggerEffect(
+                Effects.If(
+                    condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODSTAIN, 5),
+                    then = Effects.ReflexiveTrigger(
                         action = Effects.SacrificeTarget(EffectTarget.Self),
-                        optional = false,
-                        reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
-                        reflexiveTargetRequirements = listOf(
-                            TargetObject(
-                                filter = TargetFilter(
-                                    baseFilter = GameObjectFilter.Creature.ownedByYou(),
-                                    zone = Zone.GRAVEYARD
-                                )
+                        optional = false) {
+                        val creature = target("target creature", TargetObject(
+                            filter = TargetFilter(
+                                baseFilter = GameObjectFilter.Creature.ownedByYou(),
+                                zone = Zone.GRAVEYARD
                             )
-                        )
-                    )
+                        ))
+                        effect = Effects.ReturnToHand(creature)
+                    }
                 )
             )
         description = "Whenever one or more creatures die, mill a card and put a bloodstain " +

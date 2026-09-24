@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -44,7 +44,7 @@ val DancingFromDarkToDawn = card("Dancing from Dark to Dawn") {
             TargetCreature(filter = TargetFilter.CreatureYouControl)
         )
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmounts.triggeringManaValue(),
             t
         )

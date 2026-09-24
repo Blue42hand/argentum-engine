@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -25,9 +25,8 @@ val Whipcorder = card("Whipcorder") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
         val t = target("target", TargetCreature())
-        effect = TapUntapEffect(
-            target = t,
-            tap = true
+        effect = Effects.Tap(
+            target = t
         )
     }
 

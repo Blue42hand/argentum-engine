@@ -5,12 +5,10 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Incendiary Command
@@ -56,11 +54,11 @@ val IncendiaryCommand = card("Incendiary Command") {
                 effect = Effects.Destroy(land)
             }
             mode("Each player discards all the cards in their hand, then draws that many cards") {
-                effect = ForEachPlayerEffect(
+                effect = Effects.ForEachPlayer(
                     players = Player.Each,
                     effects = listOf(
                         Patterns.Hand.discardHand(),
-                        Effects.DrawCards(DynamicAmount.VariableReference("discardedHand_count"))
+                        Effects.DrawCards(Patterns.Hand.discardedHand.count)
                     )
                 )
             }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Captivating Vampire
@@ -49,13 +48,13 @@ val CaptivatingVampire = card("Captivating Vampire") {
     }
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.TapPermanents(
             count = 5,
             filter = GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl()
         )
-        target = Targets.Creature
-        effect = Effects.GainControl(EffectTarget.ContextTarget(0))
-            .then(Effects.AddCreatureType("Vampire", EffectTarget.ContextTarget(0)))
+        effect = Effects.GainControl(creature)
+            .then(Effects.AddCreatureType("Vampire", creature))
         description = "Gain control of target creature. It becomes a Vampire in addition to its other types."
     }
 

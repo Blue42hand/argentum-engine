@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever a creature an opponent controls dies, that player loses 2 life.
  *
  *  - **ETB** — a per-creature -2/-2 floating effect over every creature an opponent controls at
- *    resolution ([Effects.ForEachInGroup] with the iterated creature as [EffectTarget.Self]).
+ *    resolution ([Effects.ForEachInGroup] with the iterated creature as [EffectTarget.IterationEntity]).
  *    Creatures that enter later are unaffected; the set is fixed when the ability resolves.
  *  - **Death drain** — a [Triggers.leavesBattlefield]-to-graveyard trigger filtered to
  *    opponent-controlled creatures (fires once per death). [Player.TriggeringPlayer] resolves to
@@ -44,7 +44,7 @@ val MassacreWurm = card("Massacre Wurm") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesOpponentsControl,
-            Effects.ModifyStats(power = -2, toughness = -2, target = EffectTarget.Self)
+            Effects.ModifyStats(power = -2, toughness = -2, target = EffectTarget.IterationEntity)
         )
     }
 

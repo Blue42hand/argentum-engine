@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -76,7 +75,7 @@ val ExposeTheCulprit = card("Expose the Culprit") {
                     "face-down creature",
                     TargetPermanent(filter = TargetFilter(GameObjectFilter.Creature.faceDown()))
                 )
-                effect = TurnFaceUpEffect(faceDownCreature)
+                effect = Effects.TurnFaceUp(faceDownCreature)
             }
             mode("Exile any number of face-up creatures you control with disguise, then cloak them") {
                 effect = Effects.Pipeline {

@@ -1,21 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Osseous Exhale
@@ -49,31 +42,23 @@ val OsseousExhale = card("Osseous Exhale") {
             "target attacking or blocking creature",
             TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature)
         )
-        effect = Effects.Composite(
-            listOf(
-                // Optional behold: gather your Dragons and choose up to one of them.
-                GatherCardsEffect(
-                    source = CardSource.FromMultipleZones(
-                        zones = listOf(Zone.BATTLEFIELD, Zone.HAND),
-                        player = Player.You,
-                        filter = Filters.WithSubtype("Dragon")
-                    ),
-                    storeAs = "beholdable"
-                ),
-                SelectFromCollectionEffect(
-                    from = "beholdable",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "beheld",
-                    prompt = "You may behold a Dragon"
-                ),
-                RevealCollectionEffect(from = "beheld"),
-                Effects.DealDamage(5, t),
-                ConditionalEffect(
-                    condition = Conditions.CollectionContainsMatch("beheld"),
-                    effect = Effects.GainLife(2)
+        effect = Effects.Pipeline {
+            // Optional behold: gather your Dragons and choose up to one of them.
+            val beholdable = gather(
+                CardSource.FromMultipleZones(
+                    zones = listOf(Zone.BATTLEFIELD, Zone.HAND),
+                    player = Player.You,
+                    filter = Filters.WithSubtype("Dragon")
                 )
             )
-        )
+            val beheld = chooseUpTo(1, from = beholdable, prompt = "You may behold a Dragon")
+            reveal(beheld)
+            run(Effects.DealDamage(5, t))
+            run(Effects.If(
+                condition = whenMatches(beheld),
+                then = Effects.GainLife(2)
+            ))
+        }
     }
 
     metadata {

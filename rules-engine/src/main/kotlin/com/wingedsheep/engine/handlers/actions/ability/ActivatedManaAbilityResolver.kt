@@ -163,7 +163,7 @@ internal class ActivatedManaAbilityResolver(
             // A mana ability resolves off the stack, so nothing else hands it the last-known
             // information its cost captured. Priest of Yawgmoth ("{T}, Sacrifice an artifact:
             // Add an amount of {B} equal to the sacrificed artifact's mana value") reads the
-            // sacrificed permanent's mana value through EntityReference.Sacrificed after that
+            // sacrificed permanent's mana value through EffectTarget.SacrificedAsCost after that
             // permanent is already in the graveyard (CR 113.7a); without the snapshots the
             // amount resolves to 0 and the ability produces nothing.
             sacrificedPermanents = sacrificedSnapshots,

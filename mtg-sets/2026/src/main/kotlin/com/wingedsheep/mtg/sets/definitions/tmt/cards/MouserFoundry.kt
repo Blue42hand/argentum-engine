@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Mouser Foundry
@@ -23,7 +22,7 @@ val MouserFoundry = card("Mouser Foundry") {
     typeLine = "Artifact"
     oracleText = "When this artifact enters or leaves the battlefield, create a 1/1 colorless Robot artifact creature token.\n{4}{R}, Sacrifice this artifact: It deals 3 damage to target creature."
 
-    val createRobot = CreateTokenEffect(
+    val createRobot = Effects.CreateToken(
         power = 1,
         toughness = 1,
         colors = setOf(),

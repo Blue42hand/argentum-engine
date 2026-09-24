@@ -584,8 +584,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -611,8 +611,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -663,7 +663,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -759,7 +759,7 @@
                             "type": "Fixed",
                             "amount": 3
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -966,7 +966,8 @@
                 "filter": {
                     "baseFilter": "sorcery",
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -1185,7 +1186,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1632,7 +1633,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -2120,7 +2121,7 @@
             },
             "body": {
                 "type": "TapUntap",
-                "target": "Self",
+                "target": "IterationEntity",
                 "tap": false
             }
         },
@@ -2173,8 +2174,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "storeAs": "hand"
@@ -2200,8 +2201,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"
@@ -2338,7 +2339,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3163,7 +3164,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "castRestrictions": [
@@ -3270,7 +3271,7 @@
                             "type": "Fixed",
                             "amount": 4
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]

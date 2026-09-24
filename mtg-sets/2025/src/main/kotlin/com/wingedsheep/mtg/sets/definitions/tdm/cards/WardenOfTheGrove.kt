@@ -1,7 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,13 +11,9 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Warden of the Grove — Tarkir: Dragonstorm #166
@@ -29,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * The second ability endures the *entering* creature ([EffectTarget.TriggeringEntity]),
  * not Warden itself, with N read dynamically as the number of counters on Warden
- * ([DynamicAmount.EntityProperty] of [EntityReference.Source]).
+ * ([DynamicAmount.EntityProperty] of [EffectTarget.Self]).
  */
 val WardenOfTheGrove = card("Warden of the Grove") {
     manaCost = "{2}{G}"
@@ -43,7 +40,7 @@ val WardenOfTheGrove = card("Warden of the Grove") {
 
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "At the beginning of your end step, put a +1/+1 counter on this creature."
     }
 
@@ -59,10 +56,7 @@ val WardenOfTheGrove = card("Warden of the Grove") {
             binding = TriggerBinding.OTHER
         )
         effect = Effects.Endure(
-            amount = DynamicAmount.EntityProperty(
-                EntityReference.Source,
-                EntityNumericProperty.CounterCount(CounterTypeFilter.Any)
-            ),
+            amount = DynamicAmounts.countersOnSelf(null),
             target = EffectTarget.TriggeringEntity
         )
         description = "Whenever another nontoken creature you control enters, it endures X, " +

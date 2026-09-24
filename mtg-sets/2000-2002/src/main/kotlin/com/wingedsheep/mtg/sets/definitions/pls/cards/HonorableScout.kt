@@ -5,14 +5,15 @@
 package com.wingedsheep.mtg.sets.definitions.pls.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -32,14 +33,11 @@ val HonorableScout = card("Honorable Scout") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetOpponent())
-        effect = GainLifeEffect(
-            DynamicAmount.Multiply(
-                DynamicAmount.AggregateBattlefield(
-                    Player.TargetOpponent,
-                    GameObjectFilter.Creature.withAnyColor(Color.BLACK, Color.RED)
-                ),
-                2
-            )
+        effect = Effects.GainLife(
+            DynamicAmounts.battlefield(
+                Player.TargetOpponent,
+                GameObjectFilter.Creature.withAnyColor(Color.BLACK, Color.RED)
+            ).count() * 2
         )
     }
     metadata {

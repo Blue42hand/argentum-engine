@@ -434,7 +434,7 @@ class MjolnirHammerOfThorScenarioTest : ScenarioTestBase() {
          * that announces it belongs on that creature — not on a player.
          *
          * The player-badge path ([DamageUtils.damageDoublersAffectingPlayer]) evaluates only the
-         * `RecipientFilter`. Mjölnir leaves `recipient` at `Any`, so before the fix an unattached
+         * `Recipient`. Mjölnir leaves `recipient` at `Any`, so before the fix an unattached
          * Mjölnir told *both* players "Damage dealt to you is doubled by Mjölnir, Hammer of Thor" —
          * false twice over: an unequipped Equipment doubles nothing, and even equipped it doubles
          * one creature's outgoing damage rather than everything aimed at a player.

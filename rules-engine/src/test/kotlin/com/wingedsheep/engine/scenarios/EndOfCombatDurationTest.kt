@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 
@@ -34,7 +35,7 @@ class EndOfCombatDurationTest : ScenarioTestBase() {
         oracleText = "Target creature gets +2/+0 until end of combat."
         spell {
             target = Targets.Creature
-            effect = Effects.ModifyStats(2, 0, duration = Duration.EndOfCombat)
+            effect = Effects.ModifyStats(2, 0, duration = Duration.EndOfCombat, target = EffectTarget.ContextTarget(0))
         }
     }
 
@@ -46,7 +47,7 @@ class EndOfCombatDurationTest : ScenarioTestBase() {
         oracleText = "Target creature gets +2/+0 until end of turn."
         spell {
             target = Targets.Creature
-            effect = Effects.ModifyStats(2, 0, duration = Duration.EndOfTurn)
+            effect = Effects.ModifyStats(2, 0, duration = Duration.EndOfTurn, target = EffectTarget.ContextTarget(0))
         }
     }
 

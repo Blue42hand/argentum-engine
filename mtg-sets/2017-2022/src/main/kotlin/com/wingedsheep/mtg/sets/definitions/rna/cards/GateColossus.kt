@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -48,7 +47,7 @@ val GateColossus = card("Gate Colossus") {
             binding = TriggerBinding.ANY,
         )
         triggerZone = Zone.GRAVEYARD
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Move(
                 target = EffectTarget.Self,
                 destination = Zone.LIBRARY,

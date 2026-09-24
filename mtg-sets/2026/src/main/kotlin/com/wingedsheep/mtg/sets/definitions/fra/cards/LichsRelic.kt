@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,14 +8,10 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Lich's Relic — Reality Fracture #57
@@ -43,17 +39,17 @@ val LichsRelic = card("Lich's Relic") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
-            action = PayManaCostEffect(ManaCost.parse("{2}")),
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.PayMana("{2}"),
             optional = true,
-            reflexiveEffect = ForEachTargetEffect(
-                listOf(Effects.Destroy(EffectTarget.ContextTarget(0)))
+            reflexiveEffect = Effects.ForEachTarget(
+                Effects.Destroy(EffectTarget.ContextTarget(0))
             ),
             reflexiveTargetRequirements = listOf(
                 TargetObject(
                     filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()),
                     optional = true,
-                    dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent),
+                    dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
                     differentControllers = true,
                     id = "up to one target creature or planeswalker each opponent controls",
                 )

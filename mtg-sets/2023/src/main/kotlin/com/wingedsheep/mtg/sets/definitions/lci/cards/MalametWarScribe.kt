@@ -31,7 +31,7 @@ val MalametWarScribe = card("Malamet War Scribe") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.ModifyStats(2, 1, EffectTarget.Self)
+            Effects.ModifyStats(2, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {

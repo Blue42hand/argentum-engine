@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -77,7 +76,7 @@ val ThePrideOfHullClade = card("The Pride of Hull Clade") {
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, creature),
-            GrantTriggeredAbilityEffect(
+            Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.DealsCombatDamageToPlayer.event,
                     binding = Triggers.DealsCombatDamageToPlayer.binding,

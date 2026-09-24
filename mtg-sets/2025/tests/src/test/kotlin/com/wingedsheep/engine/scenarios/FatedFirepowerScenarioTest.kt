@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.engine.core.CombatResolutionDecision
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -27,7 +28,7 @@ import io.kotest.matchers.shouldBe
  * Exercises (a) the enters-with-X-fire-counters reuse of [CounterType.FIRE]
  * (EntersWithDynamicCounters + XValue), and (b) the new dynamic outgoing-damage
  * amplification (ModifyDamageAmount.dynamicModifier scoped to
- * SourceFilter.YouControl → RecipientFilter.OpponentOrPermanentTheyControl).
+ * GameObjectFilter.Any.youControl() → Recipient.OpponentOrPermanentTheyControl).
  */
 class FatedFirepowerScenarioTest : FunSpec({
 

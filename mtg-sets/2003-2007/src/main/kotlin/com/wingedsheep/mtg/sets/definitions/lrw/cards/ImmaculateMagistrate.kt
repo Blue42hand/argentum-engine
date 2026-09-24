@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -35,7 +35,7 @@ val ImmaculateMagistrate = card("Immaculate Magistrate") {
         cost = Costs.Tap
         val creature = target("target creature", Targets.Creature)
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmounts.battlefield(
                 Player.You,
                 GameObjectFilter.Permanent.withSubtype(Subtype.ELF)

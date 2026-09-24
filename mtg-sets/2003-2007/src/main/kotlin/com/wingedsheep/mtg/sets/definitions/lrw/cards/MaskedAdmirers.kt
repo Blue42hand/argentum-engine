@@ -1,15 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -49,8 +45,8 @@ val MaskedAdmirers = card("Masked Admirers") {
     triggeredAbility {
         trigger = Triggers.youCastSpell(GameObjectFilter.Creature)
         triggerZone = Zone.GRAVEYARD
-        effect = GatedEffect(
-            gate = Gate.MayPay(PayManaCostEffect(ManaCost.parse("{G}{G}"))),
+        effect = Effects.MayPay(
+            cost = Effects.PayMana("{G}{G}"),
             then = Effects.ReturnToHandFromGraveyard(EffectTarget.Self),
         )
     }

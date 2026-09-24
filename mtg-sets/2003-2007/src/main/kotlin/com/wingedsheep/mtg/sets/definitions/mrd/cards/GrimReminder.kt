@@ -11,9 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -68,7 +66,7 @@ val GrimReminder = card("Grim Reminder") {
                 prompt = "Search your library for a nonland card"
             )
             reveal(found, revealToSelf = false)
-            val cardName = storeCardName(found, name = "grimName")
+            val cardName = storeCardName(found)
 
             // Player.You inside the loop is the opponent being processed, so the condition asks
             // that opponent's own cast history. No name captured (failed to find, or an empty
@@ -77,10 +75,10 @@ val GrimReminder = card("Grim Reminder") {
                 Effects.ForEachPlayer(
                     Player.EachOpponent,
                     listOf(
-                        ConditionalEffect(
+                        Effects.If(
                             Conditions.YouCastSpellsThisTurn(
                                 atLeast = 1,
-                                filter = GameObjectFilter.Any.namedFromVariable(cardName.key)
+                                filter = GameObjectFilter.Any.namedFromVariable(cardName)
                             ),
                             Effects.LoseLife(6, EffectTarget.PlayerRef(Player.You))
                         )
@@ -88,7 +86,7 @@ val GrimReminder = card("Grim Reminder") {
                 )
             )
 
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(EmitLibrarySearchedEventEffect)
         }
     }

@@ -5,13 +5,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -34,13 +29,13 @@ val DragonMage = card("Dragon Mage") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                GatherCardsEffect(CardSource.FromZone(Zone.HAND, Player.You), storeAs = "discardedHand"),
-                MoveCollectionEffect("discardedHand", CardDestination.ToZone(Zone.GRAVEYARD, Player.You), moveType = MoveType.Discard),
-                Effects.DrawCards(7)
-            )
+            Effects.Pipeline {
+                val discardedHand = gather(CardSource.FromZone(Zone.HAND, Player.You))
+                discard(discardedHand)
+                run(Effects.DrawCards(7))
+            }
         )
     }
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -35,7 +36,7 @@ val OptimisticScavenger = card("Optimistic Scavenger") {
             binding = TriggerBinding.ANY,
         )
         val targetCreature = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters("+1/+1", 1, targetCreature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, targetCreature)
         description = "Eerie — Whenever an enchantment you control enters, put a +1/+1 counter on target creature."
     }
 
@@ -43,7 +44,7 @@ val OptimisticScavenger = card("Optimistic Scavenger") {
     triggeredAbility {
         trigger = Triggers.RoomFullyUnlocked
         val targetCreature = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters("+1/+1", 1, targetCreature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, targetCreature)
         description = "Eerie — Whenever you fully unlock a Room, put a +1/+1 counter on target creature."
     }
 

@@ -70,8 +70,7 @@ val NettlevineBlight = card("Nettlevine Blight") {
                 effect = Effects.Pipeline {
                     run(Effects.SacrificeTarget(EffectTarget.Self))
                     val hosts = gather(
-                        CardSource.ControlledPermanents(filter = GameObjectFilter.CreatureOrLand),
-                        name = "newHosts"
+                        CardSource.ControlledPermanents(filter = GameObjectFilter.CreatureOrLand)
                     )
                     val newHost = chooseExactly(
                         1,
@@ -83,7 +82,7 @@ val NettlevineBlight = card("Nettlevine Blight") {
                         run(
                             Effects.AttachTargetEquipmentToCreature(
                                 equipmentTarget = EffectTarget.GrantingSource,
-                                creatureTarget = EffectTarget.PipelineTarget(newHost.key)
+                                creatureTarget = newHost.asTarget
                             )
                         )
                     }

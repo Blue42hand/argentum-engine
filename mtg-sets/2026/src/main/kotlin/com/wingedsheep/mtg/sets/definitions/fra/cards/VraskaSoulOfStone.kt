@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -39,7 +38,7 @@ val VraskaSoulOfStone = card("Vraska, Soul of Stone") {
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = emptySet(),

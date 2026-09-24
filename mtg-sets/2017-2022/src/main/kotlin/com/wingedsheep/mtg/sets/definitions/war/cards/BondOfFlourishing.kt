@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bond of Flourishing — War of the Spark #155 (canonical printing)
@@ -33,7 +32,7 @@ val BondOfFlourishing = card("Bond of Flourishing") {
     spell {
         effect = Effects.Composite(
             Patterns.Library.lookAtTopRevealMatchingToHand(
-                count = DynamicAmount.Fixed(3),
+                count = 3,
                 filter = GameObjectFilter.Permanent,
                 prompt = "You may reveal a permanent card from among them and put it into your hand",
                 restOrder = CardOrder.ControllerChooses

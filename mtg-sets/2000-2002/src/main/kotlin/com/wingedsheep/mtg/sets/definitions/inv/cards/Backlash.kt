@@ -28,7 +28,7 @@ val Backlash = card("Backlash") {
         val creature = target("target untapped creature", TargetCreature(filter = TargetFilter.UntappedCreature))
         effect = Effects.Tap(creature) then
             Effects.DealDamage(
-                DynamicAmounts.targetPower(0),
+                DynamicAmounts.powerOf(creature),
                 EffectTarget.TargetController,
                 damageSource = creature
             )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -49,7 +48,7 @@ val FloodpitsDrowner = card("Floodpits Drowner") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
+            Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t)
         )
     }
 
@@ -59,7 +58,7 @@ val FloodpitsDrowner = card("Floodpits Drowner") {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
         val t = target(
             "target",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withCounter(Counters.STUN)))
+            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withCounter(CounterType.STUN)))
         )
         effect = Effects.ShuffleIntoLibrary(EffectTarget.Self)
             .then(Effects.ShuffleIntoLibrary(t))

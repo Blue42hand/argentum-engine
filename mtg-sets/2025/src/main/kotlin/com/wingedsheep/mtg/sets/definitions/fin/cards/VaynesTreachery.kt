@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 
 /**
  * Vayne's Treachery
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  * that creature gets -6/-6 until end of turn instead.
  *
  * Same shape as Vicious Offering: the kicked branch replaces (-2/-2 → -6/-6) rather than
- * stacking, so it is modeled as a [ConditionalEffect] on [WasKicked] with an else branch.
+ * stacking, so it is modeled as a [Effects.If] on [WasKicked] with an else branch.
  */
 val VaynesTreachery = card("Vayne's Treachery") {
     manaCost = "{1}{B}"
@@ -33,10 +32,10 @@ val VaynesTreachery = card("Vayne's Treachery") {
 
     spell {
         val t = target("target", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = ModifyStatsEffect(-6, -6, t, Duration.EndOfTurn),
-            elseEffect = ModifyStatsEffect(-2, -2, t, Duration.EndOfTurn)
+            then = Effects.ModifyStats(-6, -6, t, Duration.EndOfTurn),
+            otherwise = Effects.ModifyStats(-2, -2, t, Duration.EndOfTurn)
         )
     }
 

@@ -8,18 +8,15 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -41,15 +38,15 @@ val VilespawnSpider = card("Vilespawn Spider") {
     keywords(Keyword.REACH)
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.Composite(
-            GatherCardsEffect(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)), storeAs = "milledThisWay"),
-            MoveCollectionEffect(from = "milledThisWay", destination = CardDestination.ToZone(Zone.GRAVEYARD))
-        )
+        effect = Effects.Pipeline {
+            val milledThisWay = gather(CardSource.TopOfLibrary(1))
+            toGraveyard(milledThisWay)
+        }
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{G}{U}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.CreateToken(
-            count = DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature),
+            count = DynamicAmounts.creatureCardsInYourGraveyard(),
             power = 1,
             toughness = 1,
             colors = setOf(Color.GREEN),

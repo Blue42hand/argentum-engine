@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
-import com.wingedsheep.sdk.scripting.effects.MayEffect
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -29,12 +28,12 @@ val ManaEchoes = card("Mana Echoes") {
 
     triggeredAbility {
         trigger = TriggerSpec(ZoneChangeEvent(filter = GameObjectFilter.Creature, to = Zone.BATTLEFIELD), TriggerBinding.OTHER)
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.AddColorlessMana(
-                DynamicAmount.AggregateBattlefield(
-                    player = Player.You,
-                    filter = GameObjectFilter.Creature.sharingCreatureTypeWith(EntityReference.Triggering)
-                )
+                DynamicAmounts.battlefield(
+                    Player.You,
+                    GameObjectFilter.Creature.sharingCreatureTypeWith(EffectTarget.TriggeringEntity)
+                ).count()
             )
         )
     }

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -36,17 +37,15 @@ val ThreeBowlsOfPorridge = card("Three Bowls of Porridge") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         effect = ModalEffect.chooseOneNotYetChosen(
             // • This artifact deals 2 damage to target creature.
-            Mode.withTarget(
-                Effects.DealDamage(2, EffectTarget.ContextTarget(0), damageSource = EffectTarget.Self),
-                Targets.Creature,
-                "This artifact deals 2 damage to target creature"
-            ),
+            mode("This artifact deals 2 damage to target creature") {
+                val creature = target("target creature", Targets.Creature)
+                effect = Effects.DealDamage(2, creature, damageSource = EffectTarget.Self)
+            },
             // • Tap target creature.
-            Mode.withTarget(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                Targets.Creature,
-                "Tap target creature"
-            ),
+            mode("Tap target creature") {
+                val creature = target("target creature", Targets.Creature)
+                effect = Effects.Tap(creature)
+            },
             // • Sacrifice this artifact. You gain 3 life.
             Mode.noTarget(
                 Effects.Composite(

@@ -4,10 +4,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Biblioplex Tomekeeper — Secrets of Strixhaven #247
@@ -36,18 +34,16 @@ val BiblioplexTomekeeper = card("Biblioplex Tomekeeper") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
-                Mode.withTarget(
-                    Effects.BecomePrepared(EffectTarget.ContextTarget(0)),
-                    Targets.Creature,
-                    "Target creature becomes prepared"
-                ),
-                Mode.withTarget(
-                    Effects.Unprepare(EffectTarget.ContextTarget(0)),
-                    Targets.Creature,
-                    "Target creature becomes unprepared"
-                )
+                mode("Target creature becomes prepared") {
+                    val creature = target("target creature", Targets.Creature)
+                    effect = Effects.BecomePrepared(creature)
+                },
+                mode("Target creature becomes unprepared") {
+                    val creature = target("target creature", Targets.Creature)
+                    effect = Effects.Unprepare(creature)
+                }
             ),
             chooseCount = 1,
             minChooseCount = 0,

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tyvar, the Pummeler — {1}{G}{G}
@@ -45,14 +44,14 @@ val TyvarThePummeler = card("Tyvar, the Pummeler") {
     activatedAbility {
         val x = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower()
         cost = Costs.Mana("{3}{G}{G}")
-        effect = Effects.Composite(
-            Effects.StoreNumber("tyvar_pump_x", x),
-            Patterns.Group.modifyStatsForAll(
-                power = DynamicAmount.VariableReference("tyvar_pump_x"),
-                toughness = DynamicAmount.VariableReference("tyvar_pump_x"),
+        effect = Effects.Pipeline {
+            val tyvarPumpX = storeNumber(x)
+            run(Patterns.Group.modifyStatsForAll(
+                power = tyvarPumpX.amount,
+                toughness = tyvarPumpX.amount,
                 filter = GroupFilter.AllCreaturesYouControl
-            )
-        )
+            ))
+        }
         description = "Creatures you control get +X/+X until end of turn, where X is the greatest power among creatures you control."
     }
 

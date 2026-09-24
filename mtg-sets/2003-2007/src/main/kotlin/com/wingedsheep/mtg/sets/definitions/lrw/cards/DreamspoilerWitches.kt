@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Dreamspoiler Witches
@@ -43,7 +42,7 @@ val DreamspoilerWitches = card("Dreamspoiler Witches") {
         trigger = Triggers.YouCastSpell
         triggerRestriction = Conditions.IsNotYourTurn
         val creature = target("target creature", Targets.Creature)
-        effect = MayEffect(Effects.ModifyStats(-1, -1, creature))
+        effect = Effects.May(Effects.ModifyStats(-1, -1, creature))
         description = "Whenever you cast a spell during an opponent's turn, you may have target " +
             "creature get -1/-1 until end of turn."
     }

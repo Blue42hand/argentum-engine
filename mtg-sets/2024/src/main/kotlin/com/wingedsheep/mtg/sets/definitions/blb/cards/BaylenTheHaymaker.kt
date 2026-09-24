@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,7 +42,7 @@ val BaylenTheHaymaker = card("Baylen, the Haymaker") {
 
     activatedAbility {
         cost = Costs.TapPermanents(4, GameObjectFilter.Token)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self)
             .then(Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self))
     }
 

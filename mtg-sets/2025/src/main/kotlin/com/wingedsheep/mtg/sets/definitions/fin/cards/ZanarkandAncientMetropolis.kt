@@ -1,8 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Zanarkand, Ancient Metropolis // Lasting Fayth
@@ -60,8 +60,8 @@ val ZanarkandAncientMetropolis = card("Zanarkand, Ancient Metropolis") {
                 ),
                 Effects.AddCountersToCollection(
                     CREATED_TOKENS,
-                    Counters.PLUS_ONE_PLUS_ONE,
-                    DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land)
+                    CounterType.PLUS_ONE_PLUS_ONE,
+                    DynamicAmounts.landsYouControl()
                 )
             )
         }

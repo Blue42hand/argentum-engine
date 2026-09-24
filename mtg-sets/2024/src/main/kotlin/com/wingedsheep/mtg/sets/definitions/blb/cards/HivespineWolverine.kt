@@ -1,14 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -40,27 +40,27 @@ val HivespineWolverine = card("Hivespine Wolverine") {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
             // Mode 1: Put a +1/+1 counter on target creature you control
-            Mode.withTarget(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)),
-                Targets.CreatureYouControl,
-                "Put a +1/+1 counter on target creature you control"
-            ),
+            mode("Put a +1/+1 counter on target creature you control") {
+                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl)
+            },
             // Mode 2: This creature fights target creature token
-            Mode.withTarget(
-                Effects.Fight(EffectTarget.Self, EffectTarget.ContextTarget(0)),
-                TargetCreature(
+            mode("This creature fights target creature token") {
+                val creature = target("target creature", TargetCreature(
                     filter = TargetFilter(
                         GameObjectFilter(cardPredicates = listOf(CardPredicate.IsCreature, CardPredicate.IsToken))
                     )
-                ),
-                "This creature fights target creature token"
-            ),
+                ))
+                effect = Effects.Fight(EffectTarget.Self, creature)
+            },
             // Mode 3: Destroy target artifact or enchantment
-            Mode.withTarget(
-                Effects.Destroy(EffectTarget.ContextTarget(0)),
-                Targets.ArtifactOrEnchantment,
-                "Destroy target artifact or enchantment"
-            )
+            mode("Destroy target artifact or enchantment") {
+                val artifactOrEnchantment = target(
+                    "target artifact or enchantment",
+                    Targets.ArtifactOrEnchantment
+                )
+                effect = Effects.Destroy(artifactOrEnchantment)
+            }
         )
     }
 

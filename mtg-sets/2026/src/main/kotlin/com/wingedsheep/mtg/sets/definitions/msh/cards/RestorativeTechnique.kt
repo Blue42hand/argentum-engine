@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -51,24 +50,22 @@ val RestorativeTechnique = card("Restorative Technique") {
             Effects.Pipeline {
                 val basics = gather(
                     CardSource.FromZone(Zone.LIBRARY, Player.TargetPlayer, GameObjectFilter.BasicLand),
-                    name = "basicLands",
                     search = true
                 )
                 val found = chooseUpTo(
                     1,
                     from = basics,
                     chooser = Chooser.TargetPlayer,
-                    prompt = "Search your library for a basic land card",
-                    name = "foundBasic"
+                    prompt = "Search your library for a basic land card"
                 )
                 move(
                     found,
                     CardDestination.ToZone(Zone.BATTLEFIELD, Player.TargetPlayer, ZonePlacement.Tapped)
                 )
-                run(ShuffleLibraryEffect(player))
+                run(Effects.ShuffleLibrary(player))
                 run(EmitLibrarySearchedEventEffect)
             },
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         )
     }
 

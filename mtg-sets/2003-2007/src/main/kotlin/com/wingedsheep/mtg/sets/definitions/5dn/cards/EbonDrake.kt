@@ -5,10 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.`5dn`.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -30,7 +30,7 @@ val EbonDrake = card("Ebon Drake") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.AnyPlayerCastsSpell
-        effect = LoseLifeEffect(1, EffectTarget.Controller)
+        effect = Effects.LoseLife(1, EffectTarget.Controller)
     }
     metadata {
         rarity = Rarity.UNCOMMON

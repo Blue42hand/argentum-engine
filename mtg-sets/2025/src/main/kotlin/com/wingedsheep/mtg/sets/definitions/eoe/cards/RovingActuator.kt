@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -55,14 +54,14 @@ val RovingActuator = card("Roving Actuator") {
                 ),
             ),
         )
-        effect = Effects.Composite(
-            Effects.Move(exiledCard, Zone.EXILE),
-            Effects.CopyCardIntoCollection(exiledCard, storeAs = "copy"),
-            MayEffect(
-                Effects.CastFromCollectionWithoutPayingCost("copy"),
+        effect = Effects.Pipeline {
+            run(Effects.Move(exiledCard, Zone.EXILE))
+            val copy = copyCard(exiledCard)
+            run(Effects.May(
+                Effects.CastFromCollectionWithoutPayingCost(copy),
                 descriptionOverride = "You may cast the copy without paying its mana cost.",
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

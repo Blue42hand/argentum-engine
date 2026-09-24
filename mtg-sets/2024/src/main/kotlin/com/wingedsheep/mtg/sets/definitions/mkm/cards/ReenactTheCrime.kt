@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -38,14 +37,14 @@ val ReenactTheCrime = card("Reenact the Crime") {
                 )
             )
         )
-        effect = Effects.Composite(
-            Effects.Move(reenacted, Zone.EXILE, fromZone = Zone.GRAVEYARD),
-            Effects.CopyCardIntoCollection(reenacted, storeAs = "copy"),
-            MayEffect(
-                Effects.CastFromCollectionWithoutPayingCost("copy"),
+        effect = Effects.Pipeline {
+            run(Effects.Move(reenacted, Zone.EXILE, fromZone = Zone.GRAVEYARD))
+            val copy = copyCard(reenacted)
+            run(Effects.May(
+                Effects.CastFromCollectionWithoutPayingCost(copy),
                 descriptionOverride = "You may cast the copy without paying its mana cost."
-            )
-        )
+            ))
+        }
     }
 
     metadata {

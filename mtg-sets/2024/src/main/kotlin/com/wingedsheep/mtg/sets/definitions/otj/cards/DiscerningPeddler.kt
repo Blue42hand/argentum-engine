@@ -4,8 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Discerning Peddler
@@ -25,10 +23,10 @@ val DiscerningPeddler = card("Discerning Peddler") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
-            IfYouDoEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
                 action = Effects.Discard(1),
-                ifYouDo = Effects.DrawCards(1),
+                then = Effects.DrawCards(1),
             ),
         )
         description = "When this creature enters, you may discard a card. If you do, draw a card."

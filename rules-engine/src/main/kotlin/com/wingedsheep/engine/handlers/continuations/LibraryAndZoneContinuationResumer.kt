@@ -1206,7 +1206,7 @@ class LibraryAndZoneContinuationResumer(
             return checkForMore(cleaned, fallbackEvents)
         }
 
-        // The cast initiated. Publish the cast card so an enclosing IfYouDoEffect frame beneath
+        // The cast initiated. Publish the cast card so an enclosing Effects.IfYouDo frame beneath
         // (Kaervek's "If you do, you lose 2 life") sees a non-empty collection.
         val castCollections = continuation.storeCastTo?.let { mapOf(it to listOf(continuation.cardId)) }
             ?: emptyMap()

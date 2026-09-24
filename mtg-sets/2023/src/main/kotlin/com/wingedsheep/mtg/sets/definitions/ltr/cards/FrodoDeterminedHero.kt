@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Composed from existing primitives: the "enters or attacks" ability is modeled as two sibling
  * triggered abilities (the engine has no combined enters-or-attacks trigger), each attaching an
  * optional ("you may … target") Equipment-you-control with mana value 2 or 3 to Frodo (self). The
- * damage shield is a [PreventDamage] replacement scoped to Frodo ([RecipientFilter.Self]) and gated
+ * damage shield is a [PreventDamage] replacement scoped to Frodo ([Recipient.Self]) and gated
  * to your turn ([IsYourTurn] restriction).
  */
 val FrodoDeterminedHero = card("Frodo, Determined Hero") {
@@ -75,7 +75,7 @@ val FrodoDeterminedHero = card("Frodo, Determined Hero") {
     replacementEffect(
         PreventDamage(
             restrictions = listOf(IsYourTurn),
-            appliesTo = EventPattern.DamageEvent(recipient = RecipientFilter.Self)
+            appliesTo = EventPattern.DamageEvent(recipient = Recipient.Self)
         )
     )
 

@@ -15,9 +15,8 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -46,7 +45,7 @@ val QuintessentialKatana = card("Quintessential Katana") {
             TriggeredAbility.create(
                 trigger = DealsDamageEvent(
                     damageType = DamageType.Combat,
-                    recipient = RecipientFilter.Any
+                    recipient = Recipient.Any
                 ),
                 binding = TriggerBinding.SELF,
                 effect = Effects.Untap(EffectTarget.Self)
@@ -64,7 +63,7 @@ val QuintessentialKatana = card("Quintessential Katana") {
             binding = TriggerBinding.ANY
         )
         optional = true
-        effect = AttachEquipmentEffect(EffectTarget.TriggeringEntity)
+        effect = Effects.AttachEquipment(EffectTarget.TriggeringEntity)
         description = "Whenever a Ninja you control enters, you may attach this Equipment to it."
     }
 

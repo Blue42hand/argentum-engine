@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -79,8 +78,8 @@ val TheSkullsporeNexus = card("The Skullspore Nexus") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         val creature = target("creature whose power to double", Targets.Creature)
         effect = Effects.ModifyStats(
-            power = DynamicAmounts.targetPower(0),
-            toughness = DynamicAmount.Fixed(0),
+            power = DynamicAmounts.powerOf(creature),
+            toughness = DynamicAmounts.fixed(0),
             target = creature
         )
     }

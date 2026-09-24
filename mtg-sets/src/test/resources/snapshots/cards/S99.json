@@ -160,7 +160,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -218,7 +218,7 @@
                             "type": "Fixed",
                             "amount": 3
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When this creature enters, it deals 3 damage to each creature without flying."

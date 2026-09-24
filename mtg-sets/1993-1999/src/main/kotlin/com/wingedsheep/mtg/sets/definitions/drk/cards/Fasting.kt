@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -43,11 +42,11 @@ val Fasting = card("Fasting") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.HUNGER, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.HUNGER, 1, EffectTarget.Self),
             // Checked after the counter goes on, so the fifth upkeep is the last one.
-            ConditionalEffect(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.HUNGER, 5),
-                effect = Effects.Destroy(EffectTarget.Self),
+            Effects.If(
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.HUNGER, 5),
+                then = Effects.Destroy(EffectTarget.Self),
             ),
         )
         description = "At the beginning of your upkeep, put a hunger counter on this enchantment. " +

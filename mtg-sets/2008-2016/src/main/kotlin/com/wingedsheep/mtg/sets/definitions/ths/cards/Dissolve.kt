@@ -22,7 +22,7 @@ val Dissolve = card("Dissolve") {
     oracleText = "Counter target spell. Scry 1. (Look at the top card of your library. You may put that card on the bottom.)"
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.Composite(
             Effects.CounterSpell(),
             Effects.Scry(1),

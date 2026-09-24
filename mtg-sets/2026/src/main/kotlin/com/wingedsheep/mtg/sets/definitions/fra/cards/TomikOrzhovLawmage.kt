@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -47,7 +47,7 @@ val TomikOrzhovLawmage = card("Tomik, Orzhov Lawmage") {
         cost = Costs.Tap
         val creature = target(
             "target creature with a +1/+1 counter on it",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE)))
+            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE)))
         )
         effect = Effects.GrantKeyword(Keyword.FLYING, creature)
         description = "{T}: Target creature with a +1/+1 counter on it gains flying until end of turn."

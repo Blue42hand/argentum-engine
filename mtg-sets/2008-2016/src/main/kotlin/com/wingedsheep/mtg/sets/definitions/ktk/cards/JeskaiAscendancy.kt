@@ -3,9 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -31,11 +28,11 @@ val JeskaiAscendancy = card("Jeskai Ascendancy") {
             listOf(
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    ModifyStatsEffect(1, 1, EffectTarget.Self)
+                    Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
                 ),
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    TapUntapEffect(EffectTarget.Self, tap = false)
+                    Effects.Untap(EffectTarget.IterationEntity)
                 )
             )
         )
@@ -43,7 +40,7 @@ val JeskaiAscendancy = card("Jeskai Ascendancy") {
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = MayEffect(Patterns.Hand.loot())
+        effect = Effects.May(Patterns.Hand.loot())
     }
 
     metadata {

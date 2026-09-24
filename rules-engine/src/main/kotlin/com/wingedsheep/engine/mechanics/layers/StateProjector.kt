@@ -723,10 +723,8 @@ class StateProjector(
             // affected entities that currently carry the counter. Per-frame gate; the latch-off is
             // in EndedDurationExpiryCheck so removing then re-adding the counter can't resurrect it.
             (floating.duration as? Duration.WhileAffectedHasCounter)?.let { dur ->
-                val counterType = CounterType.fromName(dur.counterType)
-                validAffectedEntities = if (counterType == null) LinkedHashSet()
-                    else validAffectedEntities.filterTo(LinkedHashSet()) { id ->
-                        (state.getEntity(id)?.get<CountersComponent>()?.getCount(counterType) ?: 0) > 0
+                validAffectedEntities = validAffectedEntities.filterTo(LinkedHashSet()) { id ->
+                        (state.getEntity(id)?.get<CountersComponent>()?.getCount(dur.counterType) ?: 0) > 0
                     }
             }
 

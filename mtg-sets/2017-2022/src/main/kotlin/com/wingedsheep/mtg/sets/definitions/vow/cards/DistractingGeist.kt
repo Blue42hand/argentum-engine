@@ -6,13 +6,12 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.disturb
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Distracting Geist // Clever Distraction (Innistrad: Crimson Vow #9 — the card's earliest
@@ -87,12 +86,14 @@ private val CleverDistraction = card("Clever Distraction") {
 
     staticAbility {
         ability = GrantTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
-                effect = Effects.Tap(EffectTarget.ContextTarget(0)),
-                targetRequirement = Targets.CreatureOpponentControls,
-            )
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.Attacks
+                val creatureOpponentControls = target(
+                    "target creature opponent controls",
+                    Targets.CreatureOpponentControls
+                )
+                effect = Effects.Tap(creatureOpponentControls)
+            }
         )
     }
 

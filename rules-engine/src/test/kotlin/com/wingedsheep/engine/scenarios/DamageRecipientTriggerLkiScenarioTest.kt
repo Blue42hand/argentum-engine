@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -18,7 +18,7 @@ import io.kotest.matchers.shouldBe
  * Regression for the recipient-based damage-trigger last-known-information gap: a creature that
  * dies to the same combat-damage event has its `ControllerComponent` stripped (it's in the
  * graveyard) by the time triggers are detected — combat-damage state-based actions run before
- * trigger detection. Before the fix, `RecipientFilter.CreatureOpponentControls` /
+ * trigger detection. Before the fix, `Recipient.CreatureOpponentControls` /
  * `CreatureYouControl` resolved the recipient's controller from *live* state, so a trigger
  * watching "a creature an opponent controls / you control is dealt combat damage" silently
  * missed the killing blow. The fix captures the recipient's controller + creature-ness at
@@ -37,7 +37,7 @@ class DamageRecipientTriggerLkiScenarioTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.dealsDamage(
                 damageType = DamageType.Combat,
-                recipient = RecipientFilter.CreatureOpponentControls,
+                recipient = Recipient.CreatureOpponentControls,
                 binding = TriggerBinding.ANY,
             )
             effect = Effects.DrawCards(1)
@@ -48,7 +48,7 @@ class DamageRecipientTriggerLkiScenarioTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.dealsDamage(
                 damageType = DamageType.Combat,
-                recipient = RecipientFilter.CreatureYouControl,
+                recipient = Recipient.CreatureYouControl,
                 binding = TriggerBinding.ANY,
             )
             effect = Effects.DrawCards(1)
@@ -60,7 +60,7 @@ class DamageRecipientTriggerLkiScenarioTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.dealsDamage(
                 damageType = DamageType.NonCombat,
-                recipient = RecipientFilter.CreatureOpponentControls,
+                recipient = Recipient.CreatureOpponentControls,
                 binding = TriggerBinding.ANY,
             )
             effect = Effects.DrawCards(1)

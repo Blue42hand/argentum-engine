@@ -41,12 +41,12 @@ val LouisoixsSacrifice = card("Louisoix's Sacrifice") {
     )
 
     spell {
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter.anyOf(
                 TargetFilter.ActivatedOrTriggeredAbilityOnStack,
                 TargetFilter.NoncreatureSpellOnStack,
             )
-        )
+        ))
         effect = Effects.CounterSpellOrAbility()
     }
 

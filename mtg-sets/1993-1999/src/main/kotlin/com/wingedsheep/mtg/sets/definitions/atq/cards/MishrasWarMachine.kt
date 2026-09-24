@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DamageRecipient
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -25,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * - "deals 3 damage to you unless you discard a card" = [PayOrSufferEffect] (discard to avoid the
  *   damage); the damage's source is the creature itself ([EffectTarget.Self]), so the resulting
  *   `DamageDealtEvent` carries its id.
- * - "If it deals damage to you this way, tap it" = an [IfYouDoEffect] whose
+ * - "If it deals damage to you this way, tap it" = an [Effects.IfYouDo] whose
  *   [SuccessCriterion.DamageDealt] (recipient = your controller) gates the tap on damage *actually*
  *   being dealt — if the player discarded, or the damage was prevented/replaced (e.g. a Circle of
  *   Protection), no damage event is emitted and the tap doesn't happen.
@@ -44,8 +42,8 @@ val MishrasWarMachine = card("Mishra's War Machine") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = IfYouDoEffect(
-            action = PayOrSufferEffect(
+        effect = Effects.IfYouDo(
+            action = Effects.PayOrSuffer(
                 cost = Costs.pay.Discard(),
                 suffer = Effects.DealDamage(
                     amount = 3,
@@ -53,7 +51,7 @@ val MishrasWarMachine = card("Mishra's War Machine") {
                     damageSource = EffectTarget.Self
                 )
             ),
-            ifYouDo = Effects.Tap(EffectTarget.Self),
+            then = Effects.Tap(EffectTarget.Self),
             successCriterion = SuccessCriterion.DamageDealt(DamageRecipient.Controller)
         )
         description = "At the beginning of your upkeep, this creature deals 3 damage to you unless you " +

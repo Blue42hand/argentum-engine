@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -25,7 +24,7 @@ val RapturousMoment = card("Rapturous Moment") {
     oracleText = "Draw three cards, then discard two cards. Add {U}{U}{R}{R}{R}."
     spell {
         effect = Effects.Composite(
-            DrawCardsEffect(3),
+            Effects.DrawCards(3),
             Patterns.Hand.discardCards(2),
             Effects.Composite(Effects.AddMana(Color.BLUE, 2), Effects.AddMana(Color.RED, 3))
         )

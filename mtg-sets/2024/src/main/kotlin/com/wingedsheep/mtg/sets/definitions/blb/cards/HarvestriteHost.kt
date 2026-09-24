@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 
 /**
@@ -46,9 +45,9 @@ val HarvestriteHost = card("Harvestrite Host") {
         effect = Effects.ModifyStats(1, 0, creature)
             .then(IncrementAbilityResolutionCountEffect)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    effect = Effects.DrawCards(1)
+                    then = Effects.DrawCards(1)
                 )
             )
     }

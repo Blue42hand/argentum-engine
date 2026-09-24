@@ -46,7 +46,7 @@ val ShroudedShepherd = card("Shrouded Shepherd") {
         spell {
             effect = Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesOpponentsControl,
-                Effects.ModifyStats(-1, -1, EffectTarget.Self)
+                Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)
             )
         }
     }

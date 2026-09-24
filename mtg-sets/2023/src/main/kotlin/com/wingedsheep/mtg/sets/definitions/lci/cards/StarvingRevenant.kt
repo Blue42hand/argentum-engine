@@ -1,14 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Starving Revenant (LCI #123) — {2}{B}{B} Creature — Spirit Horror (rare), 4/4.
@@ -59,9 +60,9 @@ val StarvingRevenant = card("Starving Revenant") {
         effect = Effects.Composite(
             listOf(
                 Effects.Surveil(2),
-                Effects.DrawCards(DynamicAmount.DistinctEntitiesInCollections(listOf("toTop"))),
+                Effects.DrawCards(DynamicAmounts.distinctEntitiesIn("toTop")),
                 Effects.LoseLife(
-                    DynamicAmount.Multiply(DynamicAmount.DistinctEntitiesInCollections(listOf("toTop")), 3),
+                    DynamicAmounts.distinctEntitiesIn("toTop") * 3,
                     EffectTarget.Controller
                 )
             )

@@ -23,7 +23,7 @@ val Disrupt = card("Disrupt") {
     oracleText = "Counter target instant or sorcery spell unless its controller pays {1}.\nDraw a card."
 
     spell {
-        target = Targets.InstantOrSorcerySpell
+        val instantOrSorcerySpell = target("target instant or sorcery spell", Targets.InstantOrSorcerySpell)
         effect = Effects.CounterUnlessPays("{1}") then Effects.DrawCards(1)
     }
 

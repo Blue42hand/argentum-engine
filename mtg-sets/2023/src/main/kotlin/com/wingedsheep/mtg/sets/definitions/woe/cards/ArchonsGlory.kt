@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * gains flying and lifelink until end of turn.
  *
  * The spell-rider shape of bargain (CR 702.166c), the same one [CandyGrapple] uses: the bargained
- * fact is stamped on the spell as it's cast, so the payoff is a [ConditionalEffect] gated on
+ * fact is stamped on the spell as it's cast, so the payoff is a [Effects.If] gated on
  * [Conditions.WasBargained] and read while the spell is still resolving.
  *
  * "Also" rather than "instead" here, so the two halves simply stack: the +2/+2 always applies and
@@ -42,9 +41,9 @@ val ArchonsGlory = card("Archon's Glory") {
         val creature = target("target creature", TargetCreature())
         effect = Effects.Composite(
             Effects.ModifyStats(power = 2, toughness = 2, target = creature),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasBargained,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.GrantKeyword(Keyword.FLYING, creature),
                     Effects.GrantKeyword(Keyword.LIFELINK, creature),
                 ),

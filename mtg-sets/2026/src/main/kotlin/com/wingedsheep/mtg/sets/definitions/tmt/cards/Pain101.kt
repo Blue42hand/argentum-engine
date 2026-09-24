@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -47,7 +46,7 @@ val Pain101 = card("Pain 101") {
         effect = Effects.Composite(
             listOf(
                 Effects.GrantKeyword(Keyword.DEATHTOUCH, creature, Duration.EndOfTurn),
-                GrantTriggeredAbilityEffect(
+                Effects.GrantTriggeredAbility(
                     ability = diesReturnTapped,
                     target = creature,
                     duration = Duration.EndOfTurn,

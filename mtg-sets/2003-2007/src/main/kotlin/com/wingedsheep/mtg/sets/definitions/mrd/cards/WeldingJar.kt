@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -31,7 +31,7 @@ val WeldingJar = card("Welding Jar") {
     activatedAbility {
         cost = Costs.SacrificeSelf
         val t = target("target artifact", TargetPermanent(filter = TargetFilter.Artifact))
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
         description = "Sacrifice this artifact: Regenerate target artifact."
     }
 

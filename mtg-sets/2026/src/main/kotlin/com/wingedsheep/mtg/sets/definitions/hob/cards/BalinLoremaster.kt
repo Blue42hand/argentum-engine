@@ -10,13 +10,8 @@ import com.wingedsheep.sdk.dsl.storied
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Balin, Loremaster
@@ -47,7 +42,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * and dealing 0 damage are both no-ops, so a decline is correctly indistinguishable from discarding
  * an empty hand.
  *
- * The enduring-story clause is a resolution-time state test ([ConditionalEffect] → a
+ * The enduring-story clause is a resolution-time state test ([Effects.If] → a
  * `Gate.WhenCondition`), not an intervening-if: the ability triggers and goes on the stack
  * regardless, and only the damage half checks the designation as it resolves.
  */
@@ -71,16 +66,15 @@ val BalinLoremaster = card("Balin, Loremaster") {
             binding = TriggerBinding.ANY,
         )
         effect = Effects.Composite(
-            GatedEffect(
-                gate = Gate.MayDecide(),
-                then = Patterns.Hand.discardHand(),
+            Effects.May(
+                effect = Patterns.Hand.discardHand(),
                 descriptionOverride = "You may discard your hand.",
             ),
-            Effects.DrawCards(DynamicAmount.VariableReference("discardedHand_count")),
-            ConditionalEffect(
+            Effects.DrawCards(Patterns.Hand.discardedHand.count),
+            Effects.If(
                 condition = Conditions.YouHaveEnduringStory,
-                effect = DealDamageEffect(
-                    amount = DynamicAmount.VariableReference("discardedHand_count"),
+                then = Effects.DealDamage(
+                    amount = Patterns.Hand.discardedHand.count,
                     target = EffectTarget.PlayerRef(Player.EachOpponent),
                 ),
             ),

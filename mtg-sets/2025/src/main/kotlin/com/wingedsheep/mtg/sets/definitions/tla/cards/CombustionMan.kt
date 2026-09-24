@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -43,7 +42,7 @@ val CombustionMan = card("Combustion Man") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val permanent = target("target permanent", Targets.Permanent)
-        effect = ChooseActionEffect(
+        effect = Effects.ChooseAction(
             choices = listOf(
                 EffectChoice(
                     label = "Have Combustion Man deal damage to you equal to his power",

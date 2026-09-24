@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 
 /**
  * Butcher's Glee
@@ -33,7 +32,7 @@ val ButchersGlee = card("Butcher's Glee") {
                 Effects.ModifyStats(3, 0, t),
                 Effects.GrantKeyword(Keyword.LIFELINK, t)
             ),
-            RegenerateEffect(t)
+            Effects.Regenerate(t)
         )
     }
 

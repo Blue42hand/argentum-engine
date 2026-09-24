@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -49,7 +48,7 @@ private val PanickedBystanderFront = card("Panicked Bystander") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouGainedLifeThisTurnAtLeast(3)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "At the beginning of your end step, if you gained 3 or more life this turn, " +
             "transform this creature."
     }

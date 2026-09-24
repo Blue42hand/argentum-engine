@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -56,27 +55,26 @@ val SpiderManToTheRescue = card("Spider-Man, To the Rescue") {
     // nonattacking creature you control gains indestructible until end of turn.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Tap(EffectTarget.Self),
             optional = true,
-            reflexiveEffect = Effects.GrantKeyword(
-                Keyword.INDESTRUCTIBLE,
-                EffectTarget.ContextTarget(0),
-                Duration.EndOfTurn,
-            ),
-            reflexiveTargetRequirements = listOf(
-                TargetCreature(
-                    filter = TargetFilter(
-                        baseFilter = GameObjectFilter.Creature.youControl().copy(
-                            statePredicates = listOf(StatePredicate.Not(StatePredicate.IsAttacking))
-                        ),
-                        excludeSelf = true,
-                    )
-                )
-            ),
             descriptionOverride = "You may tap Spider-Man. When you do, another target " +
                 "nonattacking creature you control gains indestructible until end of turn.",
-        )
+        ) {
+            val creature = target("target creature", TargetCreature(
+                filter = TargetFilter(
+                    baseFilter = GameObjectFilter.Creature.youControl().copy(
+                        statePredicates = listOf(StatePredicate.Not(StatePredicate.IsAttacking))
+                    ),
+                    excludeSelf = true,
+                )
+            ))
+            effect = Effects.GrantKeyword(
+                Keyword.INDESTRUCTIBLE,
+                creature,
+                Duration.EndOfTurn,
+            )
+        }
         description = "No One Dies! — When Spider-Man enters, you may tap him. When you do, " +
             "another target nonattacking creature you control gains indestructible until end of turn."
     }

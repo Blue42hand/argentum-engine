@@ -23,7 +23,8 @@ import com.wingedsheep.engine.core.Outcome
  * "Until end of turn, permanents you control gain "{T}: This permanent deals 1 damage to any target.""
  *
  * The card is a `ForEachInGroup` fan-out of a [GrantActivatedAbilityEffect] onto
- * `EffectTarget.Self`, so everything worth proving is about where "Self" lands:
+ * `EffectTarget.IterationEntity`, and the granted ability's own `Self` is its host, so everything
+ * worth proving is about where that `Self` lands:
  *  - every permanent you control receives the grant — lands included, and a land that entered this
  *    turn can still pay `{T}` because summoning sickness gates only creatures (the card's ruling);
  *  - the `{T}` taps *that* permanent, and it is the source of the damage (CR 113.7);

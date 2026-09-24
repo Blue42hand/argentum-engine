@@ -1,20 +1,20 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Zodiark, Umbral God
@@ -58,21 +58,15 @@ val ZodiarkUmbralGod = card("Zodiark, Umbral God") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                Effects.Sacrifice(
-                    filter = GameObjectFilter.Creature.notSubtype(Subtype.GOD),
-                    count = DynamicAmount.Divide(
-                        numerator = DynamicAmount.AggregateBattlefield(
-                            Player.You,
-                            GameObjectFilter.Creature.notSubtype(Subtype.GOD)
-                        ),
-                        denominator = DynamicAmount.Fixed(2),
-                        roundUp = false
-                    ),
-                    target = EffectTarget.PlayerRef(Player.You)
-                )
+            effect = Effects.Sacrifice(
+                filter = GameObjectFilter.Creature.notSubtype(Subtype.GOD),
+                count = DynamicAmounts.battlefield(
+                    Player.You,
+                    GameObjectFilter.Creature.notSubtype(Subtype.GOD)
+                ).count() / 2,
+                target = EffectTarget.PlayerRef(Player.You)
             )
         )
     }
@@ -85,7 +79,7 @@ val ZodiarkUmbralGod = card("Zodiark, Umbral God") {
             ),
             binding = TriggerBinding.ANY
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

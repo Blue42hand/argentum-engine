@@ -166,7 +166,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Creatures you control get +1/+0 until end of turn."
@@ -305,8 +305,8 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         },
                                         "destination": "Exile"
                                     },
@@ -316,8 +316,8 @@
                                         "effect": {
                                             "type": "MoveToZone",
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target creature"
                                             },
                                             "destination": "Battlefield"
                                         }
@@ -330,7 +330,8 @@
                                     "filter": {
                                         "baseFilter": "creature own:you",
                                         "excludeSelf": true
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Exile another target creature you own. Return it to the battlefield under your control at the beginning of the next end step."
@@ -724,7 +725,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": {
                         "cardPredicates": [
                             "IsCreature",
@@ -919,8 +923,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature or planeswalker"
                             },
                             "filter": {
                                 "cardPredicates": [
@@ -1222,7 +1226,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1484,7 +1488,7 @@
                         "optional": false,
                         "reflexiveEffect": {
                             "type": "AddDynamicCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "amount": "XValue",
                             "target": "Self"
                         },
@@ -1530,7 +1534,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "wish",
+                                "counterType": "WISH",
                                 "self": true
                             }
                         }
@@ -1597,10 +1601,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "wish"
-                },
+                "counterType": "WISH",
                 "count": 3,
                 "selfOnly": true
             }

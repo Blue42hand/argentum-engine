@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -51,9 +51,9 @@ val InnerFlameIgniter = card("Inner-Flame Igniter") {
         effect = Patterns.Group.modifyStatsForAll(1, 0, creaturesYouControl)
             .then(IncrementAbilityResolutionCountEffect)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    effect = Patterns.Group.grantKeywordToAll(Keyword.FIRST_STRIKE, creaturesYouControl)
+                    then = Patterns.Group.grantKeywordToAll(Keyword.FIRST_STRIKE, creaturesYouControl)
                 )
             )
         description = "Creatures you control get +1/+0 until end of turn. If this is the third " +

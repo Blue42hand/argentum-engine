@@ -5,10 +5,8 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DefeatTriggerArmedComponent
 import com.wingedsheep.engine.state.components.battlefield.ProtectorComponent
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 
 /**
  * The battle card type (CR 310) in one place: its defense, its protector, and who may attack it.
@@ -32,7 +30,7 @@ object Battles {
      * The counter kind a battle's defense is made of. Used by the intrinsic entry ability
      * (CR 310.4b), by damage (CR 120.3h), and by the defeat trigger (CR 310.12b).
      */
-    val DEFENSE_COUNTER: CounterTypeFilter = CounterTypeFilter.Named(Counters.DEFENSE)
+    val DEFENSE_COUNTER: CounterType = CounterType.DEFENSE
 
     /** True if [entityId] is a battle on the battlefield, per projected types (CR 310). */
     fun isBattle(state: GameState, entityId: EntityId): Boolean =

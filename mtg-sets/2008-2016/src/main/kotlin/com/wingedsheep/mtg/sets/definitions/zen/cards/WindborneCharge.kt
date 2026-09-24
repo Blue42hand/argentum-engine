@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -29,10 +28,9 @@ val WindborneCharge = card("Windborne Charge") {
             "two target creatures you control",
             TargetCreature(count = 2, filter = TargetFilter.CreatureYouControl),
         )
-        effect = ForEachTargetEffect(listOf(
-            Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)),
-            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.ContextTarget(0)),
-        ))
+        effect = Effects.ForEachTarget(
+        Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)),
+        Effects.GrantKeyword(Keyword.FLYING, EffectTarget.ContextTarget(0)))
     }
 
     metadata {

@@ -34,7 +34,7 @@ val OutOfAir = card("Out of Air") {
         "Counter target spell."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
     }
 

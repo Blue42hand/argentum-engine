@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
@@ -30,7 +29,7 @@ val PropheticBolt = card("Prophetic Bolt") {
     spell {
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
-            DealDamageEffect(4, t),
+            Effects.DealDamage(4, t),
             Patterns.Library.lookAtTopAndKeep(
                 count = 4,
                 keepCount = 1,

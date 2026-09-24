@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -69,7 +68,7 @@ private val SidequestCardCollectionFront = card("Sidequest: Card Collection") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.CardsInGraveyardAtLeast(8)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {

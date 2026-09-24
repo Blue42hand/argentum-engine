@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,10 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
@@ -65,7 +62,7 @@ val SummonFenrir = card("Summon: Fenrir") {
     }
 
     sagaChapter(2) {
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = TriggerSpec(
                 event = EventPattern.SpellCastEvent(
                     spellFilter = GameObjectFilter.Creature,
@@ -74,21 +71,21 @@ val SummonFenrir = card("Summon: Fenrir") {
             ),
             fireOnce = true,
             expiry = DelayedTriggerExpiry.EndOfTurn,
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity),
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity),
         )
     }
 
     sagaChapter(3) {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.All(
                 Conditions.ControlCreature,
-                Compare(
+                Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower(),
                     ComparisonOperator.GTE,
                     DynamicAmounts.battlefield(Player.Each, GameObjectFilter.Creature).maxPower(),
                 ),
             ),
-            effect = Effects.DrawCards(1),
+            then = Effects.DrawCards(1),
         )
     }
 

@@ -11,11 +11,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,11 +50,11 @@ val ThornplateIntimidator = card("Thornplate Intimidator") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val opponent = target("target opponent", Targets.Opponent)
-        effect = ChooseActionEffect(
+        effect = Effects.ChooseAction(
             choices = listOf(
                 EffectChoice(
                     label = "Sacrifice a nonland permanent",
-                    effect = ForceSacrificeEffect(
+                    effect = Effects.Sacrifice(
                         filter = GameObjectFilter.NonlandPermanent,
                         count = 1,
                         target = opponent
@@ -71,7 +68,7 @@ val ThornplateIntimidator = card("Thornplate Intimidator") {
                 ),
                 EffectChoice(
                     label = "Lose 3 life",
-                    effect = LoseLifeEffect(3, opponent)
+                    effect = Effects.LoseLife(3, opponent)
                 )
             ),
             player = opponent

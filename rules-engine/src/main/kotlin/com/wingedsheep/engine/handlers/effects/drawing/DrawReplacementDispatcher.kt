@@ -21,7 +21,7 @@ import com.wingedsheep.engine.core.Outcome
  *
  * Delegates entirely to [ReplacementEffectProcessor], which handles both
  * mandatory replacements (PreventDraw, ModifyDrawAmount, non-optional
- * ReplaceDrawWithEffect) and optional replacements (Parallel Thoughts-style
+ * ReplaceDrawWith) and optional replacements (Parallel Thoughts-style
  * yes/no prompts).
  *
  * The dispatcher is called by [DrawLoop] during each iteration of a multi-draw

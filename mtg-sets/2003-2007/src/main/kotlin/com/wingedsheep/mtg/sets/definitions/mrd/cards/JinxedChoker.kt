@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -8,12 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -44,37 +39,37 @@ val JinxedChoker = card("Jinxed Choker") {
         trigger = Triggers.YourEndStep
         val opponent = target("opponent", TargetOpponent())
         effect = Effects.Composite(
-            GiveControlToTargetPlayerEffect(
+            Effects.GiveControl(
                 permanent = EffectTarget.Self,
                 newController = opponent,
             ),
-            Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self),
         )
     }
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.DealDamage(
-            amount = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE)),
+            amount = DynamicAmounts.countersOnSelf(CounterType.CHARGE),
             target = EffectTarget.Controller,
         )
     }
 
     activatedAbility {
         cost = Costs.Mana("{3}")
-        val addCounter = Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self)
-        effect = ConditionalEffect(
-            condition = Conditions.SourceHasCounter(CounterTypeFilter.Named(Counters.CHARGE)),
-            effect = ChooseActionEffect(
+        val addCounter = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.If(
+            condition = Conditions.SourceHasCounter(CounterType.CHARGE),
+            then = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice("Put a charge counter on Jinxed Choker", addCounter),
                     EffectChoice(
                         "Remove a charge counter from Jinxed Choker",
-                        RemoveCountersEffect(Counters.CHARGE, 1, EffectTarget.Self),
+                        Effects.RemoveCounters(CounterType.CHARGE, 1, EffectTarget.Self),
                     ),
                 ),
             ),
-            elseEffect = addCounter,
+            otherwise = addCounter,
         )
         description = "Put a charge counter on this artifact or remove one from it"
     }

@@ -1,15 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.zen.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Hellfire Mongrel
@@ -32,10 +32,10 @@ val HellfireMongrel = card("Hellfire Mongrel") {
     triggeredAbility {
         trigger = Triggers.EachOpponentUpkeep
         // "That player" is the player whose upkeep it is — bound by the step trigger.
-        interveningIf = Compare(
-            DynamicAmount.Count(Player.TriggeringPlayer, Zone.HAND),
+        interveningIf = Conditions.CompareAmounts(
+            DynamicAmounts.count(Player.TriggeringPlayer, Zone.HAND),
             ComparisonOperator.LTE,
-            DynamicAmount.Fixed(2),
+            2,
         )
         effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }

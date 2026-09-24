@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.rix.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -48,7 +48,7 @@ val ForerunnerOfTheHeralds = card("Forerunner of the Heralds") {
             GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl(),
             TriggerBinding.OTHER
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

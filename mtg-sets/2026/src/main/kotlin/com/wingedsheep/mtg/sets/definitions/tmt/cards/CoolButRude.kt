@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,10 +40,10 @@ val CoolButRude = card("Cool but Rude") {
     // `feasibility` keeps the trigger from asking an unanswerable question on every single attack.
     triggeredAbility {
         trigger = Triggers.YouAttack
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.DrawCards(1)
+                then = Effects.DrawCards(1)
             ),
             feasibility = FeasibilityCheck.HasCardsInZone(Zone.HAND)
         )

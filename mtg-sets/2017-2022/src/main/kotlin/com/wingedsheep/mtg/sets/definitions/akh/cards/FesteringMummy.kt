@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.akh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  * When this creature dies, you may put a -1/-1 counter on target creature.
  *
  * The printed "you may" is the builder's `optional = true`, which lowers into the same
- * `Gate.MayDecide` consent gate a hand-written `MayEffect` would build — the target is still
+ * `Gate.MayDecide` consent gate a hand-written `Effects.May` would build — the target is still
  * chosen as the ability goes on the stack (CR 603.3d), the yes/no is asked at resolution.
  */
 val FesteringMummy = card("Festering Mummy") {
@@ -30,7 +30,7 @@ val FesteringMummy = card("Festering Mummy") {
         trigger = Triggers.Dies
         optional = true
         val t = target("target", Targets.Creature)
-        effect = Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 1, t)
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t)
     }
 
     metadata {

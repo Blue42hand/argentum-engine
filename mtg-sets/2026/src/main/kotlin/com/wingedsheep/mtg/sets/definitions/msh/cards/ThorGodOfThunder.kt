@@ -12,9 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -80,17 +78,11 @@ val ThorGodOfThunder = card("Thor, God of Thunder") {
                 )
             )
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "thorTargeted"),
-                MoveCollectionEffect(
-                    from = "thorTargeted",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    storeMovedAs = "thorExiled",
-                ),
-                Effects.GrantMayPlayFromExile("thorExiled", MayPlayExpiry.UntilEndOfNextTurn),
-            )
-        )
+        effect = Effects.Pipeline {
+            val thorTargeted = gather(CardSource.ChosenTargets)
+            val thorExiled = moveTracked(thorTargeted, CardDestination.ToZone(Zone.EXILE))
+            run(Effects.GrantMayPlayFromExile(thorExiled, MayPlayExpiry.UntilEndOfNextTurn))
+        }
         description = "When Thor enters, exile target Equipment, instant, or sorcery card from " +
             "your graveyard. Until the end of your next turn, you may play that card."
     }

@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.pcy.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -23,7 +23,7 @@ val SearingWind = card("Searing Wind") {
     oracleText = "Searing Wind deals 10 damage to any target."
     spell {
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(10, t)
+        effect = Effects.DealDamage(10, t)
     }
     metadata {
         rarity = Rarity.RARE
