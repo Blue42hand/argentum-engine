@@ -6,11 +6,9 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.targets.*
-
 
 /**
  * Presents the decision an "as this permanent enters, choose …" replacement effect asks for

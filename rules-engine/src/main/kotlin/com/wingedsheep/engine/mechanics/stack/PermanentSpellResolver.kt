@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.targets.*
 
-
 /**
  * Resolves a permanent spell (CR 608.3): asks the "as this enters" questions its replacement effects
  * pose (CR 614.12) — pausing for each — and then puts it onto the battlefield through [PermanentEntry].

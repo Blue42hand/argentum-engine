@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.targets.*
 
-
 /**
  * Resolves a spell (CR 608.2): re-checks its targets (CR 608.2b), fizzles it when every target has
  * become illegal, and otherwise routes it to [PermanentSpellResolver] or [NonPermanentSpellResolver]

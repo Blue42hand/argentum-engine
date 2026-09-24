@@ -14,8 +14,6 @@ import com.wingedsheep.engine.mechanics.SpliceCasts
 import com.wingedsheep.engine.mechanics.targeting.TargetValidator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.engine.state.permissions.addMayPlayPermission
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -24,13 +22,13 @@ import com.wingedsheep.engine.state.components.identity.DoubleFacedComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.state.components.identity.TextReplacementComponent
 import com.wingedsheep.engine.state.components.stack.*
+import com.wingedsheep.engine.state.permissions.addMayPlayPermission
 import com.wingedsheep.engine.state.permissions.removeMayPlayPermissionsForCard
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.AdditionalCost
+import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.*
-
 
 /**
  * Resolves an instant or sorcery spell (CR 608.2c–n): runs its effect (and any spliced text,

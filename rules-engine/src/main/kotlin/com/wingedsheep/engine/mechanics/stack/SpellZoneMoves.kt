@@ -2,18 +2,16 @@ package com.wingedsheep.engine.mechanics.stack
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.permissions.addMayPlayPermission
 import com.wingedsheep.engine.state.ZoneKey
-import com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.state.components.identity.PlottedComponent
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.engine.state.permissions.MayPlayPermission
+import com.wingedsheep.engine.state.permissions.addMayPlayPermission
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.conditions.SourcePlottedOnPriorTurn
 import com.wingedsheep.sdk.scripting.targets.*
-
 
 /**
  * Zone-move tails shared by a spell's resolution, fizzle and counter paths: shuffling a card into

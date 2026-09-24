@@ -8,12 +8,11 @@ import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.effects.library.ChooseCreatureTypePipelineExecutor
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.*
-
 
 /**
  * Resolves a triggered or activated ability (CR 608.2): the intervening-"if" re-check (CR 608.2a)

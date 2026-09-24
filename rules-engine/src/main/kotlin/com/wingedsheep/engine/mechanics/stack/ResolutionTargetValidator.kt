@@ -10,7 +10,6 @@ import com.wingedsheep.engine.mechanics.ControllerGrants
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.targeting.HexproofSuppression
 import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
-import com.wingedsheep.engine.mechanics.targeting.TargetValidator
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CantBeTargetedByOpponentAbilitiesComponent
@@ -22,7 +21,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.*
-
 
 /**
  * The CR 608.2b target re-check a spell or ability makes as it resolves: every target is checked

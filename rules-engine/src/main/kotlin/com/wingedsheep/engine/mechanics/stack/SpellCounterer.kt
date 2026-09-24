@@ -5,7 +5,6 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.permissions.addMayPlayPermission
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent
 import com.wingedsheep.engine.state.components.identity.CantBeCounteredComponent
@@ -14,12 +13,11 @@ import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.engine.state.permissions.MayPlayPermission
+import com.wingedsheep.engine.state.permissions.addMayPlayPermission
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GrantCantBeCountered
-import com.wingedsheep.sdk.scripting.conditions.SourcePlottedOnPriorTurn
 import com.wingedsheep.sdk.scripting.targets.*
-
 
 /**
  * Removes a spell or ability from the stack without resolving it: countering (CR 701.6) — to the

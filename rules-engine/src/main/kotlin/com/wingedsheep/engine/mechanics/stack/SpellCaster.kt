@@ -9,32 +9,27 @@ import com.wingedsheep.engine.mechanics.SpliceCasts
 import com.wingedsheep.engine.mechanics.layers.ContinuousEffectSourceComponent
 import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
-import com.wingedsheep.engine.state.FACE_DOWN_DISPLAY_NAME
 import com.wingedsheep.engine.state.ComponentContainer
+import com.wingedsheep.engine.state.FACE_DOWN_DISPLAY_NAME
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.permissions.removeMayPlayPermissionsForCard
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
-import com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.CopyOfComponent
 import com.wingedsheep.engine.state.components.identity.DoubleFacedComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.HasMorphAbilityComponent
-import com.wingedsheep.engine.state.components.identity.MorphDataComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
 import com.wingedsheep.engine.state.components.stack.*
 import com.wingedsheep.engine.state.nameVisibleToAll
+import com.wingedsheep.engine.state.permissions.removeMayPlayPermissionsForCard
 import com.wingedsheep.engine.view.EventPresentationFactory
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.targets.*
-
 
 /**
  * Puts a *cast* spell on the stack (CR 601.2): moves the card from the zone it was cast from, applies

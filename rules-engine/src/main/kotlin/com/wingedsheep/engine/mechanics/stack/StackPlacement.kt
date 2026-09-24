@@ -12,7 +12,6 @@ import com.wingedsheep.engine.state.nameVisibleToAll
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.targets.*
 
-
 /**
  * Puts the non-cast stack objects on the stack — a copy of a spell (CR 707.10), a triggered
  * ability, an activated ability — and owns the "becomes the target" announcement every stack
