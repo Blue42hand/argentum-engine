@@ -325,7 +325,9 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
                 Folds.dropModeDescriptions(
                     Folds.dropPresentation(
                         Folds.flattenComposites(
-                            canonicalizeGrantedAbilities(canonicalizeAbilities(normalizeSlots(tree))),
+                            Folds.renamePipelineKeys(
+                                canonicalizeGrantedAbilities(canonicalizeAbilities(normalizeSlots(tree))),
+                            ),
                         ),
                     ),
                 ),
@@ -691,7 +693,10 @@ internal object Folds {
         is JsonObject -> {
             val walked = JsonObject(element.mapValues { flattenComposites(it.value) })
             if (isPlainComposite(walked)) {
-                JsonObject(walked + ("effects" to JsonArray(spliceMembers(walked))))
+                // A plain composite of one effect runs exactly that effect — `Effects.Pipeline { move(…) }`
+                // in a branch is the bare step it wraps.
+                spliceMembers(walked).singleOrNull()
+                    ?: JsonObject(walked + ("effects" to JsonArray(spliceMembers(walked))))
             } else {
                 walked
             }
@@ -699,6 +704,105 @@ internal object Folds {
 
         is JsonArray -> JsonArray(element.map(::flattenComposites))
         else -> element
+    }
+
+    /**
+     * **Pipeline keys are names, not meaning.** A pipeline step writes a collection (or number, or
+     * chosen value) under a key and a later step reads it back by that key; which string links the
+     * two says nothing about the model. Kotlin cards write pipelines with `Effects.Pipeline { }`,
+     * whose keys are generated (`gathered0`, `selected1`), while the grammar mints readable ones
+     * (`graveyards`, `exiled`) — the same situation [normalizeSlotNames] already folds for target
+     * slots. Each write gets a fresh positional name and each read takes the name of the latest
+     * write of its key, in document order (a key written twice is two slots). An optional secondary
+     * output nobody reads (`storeRemainder`, `storeNonMatching`, `storeMovedAs`) is dropped: the
+     * builder only emits one when a later step asks for the handle, and an unread write changes
+     * nothing. Keys a step reads but nothing in the tree wrote — engine-seeded collections, a
+     * pattern's fixed output — are left as they are, so a difference in *those* still diverges.
+     */
+    fun renamePipelineKeys(element: JsonElement): JsonElement {
+        val reads = PipelineKeyWalker(consumedIds = null).also { it.walk(element) }.consumed
+        return PipelineKeyWalker(consumedIds = reads).walk(element)
+    }
+
+    private val PIPELINE_WRITERS = setOf(
+        "storeAs", "storeSelected", "storeRemainder", "storeMatching", "storeNonMatching", "storeMatch",
+        "storeRevealed", "storeChosenAs", "storeOtherAs", "storeMovedAs", "countVariable", "storeCastTo",
+        "storeCountAs", "excessDamageVariable", "storeHeadsAs", "storeGuessedRightAs", "storeWinsAs",
+        "storeDestroyedAs", "storeExiledAs", "storeDiscoveredAs",
+    )
+    private val OPTIONAL_WRITERS = setOf("storeRemainder", "storeNonMatching", "storeMovedAs")
+    private val PIPELINE_READERS = setOf(
+        "from", "collection", "collectionName", "variableName", "pileA", "pileB", "otherCollectionName",
+        "originalCollection", "controllerSnapshot", "collections", "carryCollections", "fromChosenValueKey",
+        "chosenSubtypeKey", "groupName", "listName", "chosenValueKey", "promptNameVariable",
+    )
+
+    /** One document-order pass; the second pass (with [consumedIds]) rewrites and drops. */
+    private class PipelineKeyWalker(private val consumedIds: Set<Int>?) {
+        private val current = HashMap<String, Int>()
+        private var written = 0
+        val consumed = HashSet<Int>()
+        private val names = HashMap<Int, String>()
+
+        private fun nameOf(id: Int) = names.getOrPut(id) { "pipeline_${names.size}" }
+
+        private fun write(key: String): Int {
+            written += 1
+            current[key] = written
+            return written
+        }
+
+        private fun read(value: String): String {
+            val (base, suffix) = if (value.endsWith("_count") && value.removeSuffix("_count") in current) {
+                value.removeSuffix("_count") to "_count"
+            } else {
+                value to ""
+            }
+            val id = current[base] ?: return value
+            consumed += id
+            return nameOf(id) + suffix
+        }
+
+        fun walk(element: JsonElement): JsonElement = when (element) {
+            is JsonObject -> walkObject(element)
+            is JsonArray -> JsonArray(element.map(::walk))
+            else -> element
+        }
+
+        private fun walkObject(obj: JsonObject): JsonObject {
+            val isStoreNumber = (obj["type"] as? JsonPrimitive)?.content == "StoreNumber"
+            val out = LinkedHashMap<String, JsonElement>()
+            for ((field, value) in obj) {
+                if (field == "collectCollections") continue
+                val text = (value as? JsonPrimitive)?.takeIf { it.isString }?.content
+                when {
+                    text != null && (field in PIPELINE_WRITERS || (isStoreNumber && field == "name")) -> {
+                        val id = write(text)
+                        if (consumedIds != null && field in OPTIONAL_WRITERS && id !in consumedIds) continue
+                        out[field] = JsonPrimitive(nameOf(id))
+                    }
+                    text != null && field in PIPELINE_READERS -> out[field] = JsonPrimitive(read(text))
+                    value is JsonArray && field in PIPELINE_READERS -> out[field] = JsonArray(
+                        value.map { item ->
+                            val itemText = (item as? JsonPrimitive)?.takeIf { it.isString }?.content
+                            if (itemText != null) JsonPrimitive(read(itemText)) else walk(item)
+                        },
+                    )
+                    else -> out[field] = walk(value)
+                }
+            }
+            // A per-iteration collection unioned into an aggregate: read the inner, write the outer.
+            (obj["collectCollections"] as? JsonObject)?.let { collected ->
+                out["collectCollections"] = JsonObject(
+                    collected.entries.associate { (inner, aggregate) ->
+                        val innerName = read(inner)
+                        val aggregateId = write((aggregate as JsonPrimitive).content)
+                        innerName to JsonPrimitive(nameOf(aggregateId))
+                    },
+                )
+            }
+            return JsonObject(out)
+        }
     }
 
     /** A composite with nothing said about how it runs or reads — the only shape safe to splice. */
