@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
@@ -63,20 +61,15 @@ val DanceOfMany = card("Dance of Many") {
 
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.BattlefieldMatching(
+        effect = Effects.Pipeline {
+            val danceToken = gather(
+                CardSource.BattlefieldMatching(
                     filter = GameObjectFilter.Any.createdBySource(),
                     player = Player.Each,
-                ),
-                storeAs = "danceToken",
-            ),
-            MoveCollectionEffect(
-                from = "danceToken",
-                destination = CardDestination.ToZone(Zone.EXILE),
-                moveType = MoveType.Default,
-            ),
-        )
+                )
+            )
+            move(danceToken, CardDestination.ToZone(Zone.EXILE), moveType = MoveType.Default)
+        }
         description = "When this enchantment leaves the battlefield, exile the token."
     }
 

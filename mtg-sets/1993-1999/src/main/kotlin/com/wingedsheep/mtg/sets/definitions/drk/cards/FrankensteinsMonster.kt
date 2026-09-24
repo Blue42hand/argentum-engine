@@ -9,15 +9,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.OnEnterRunEffect
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -78,25 +72,17 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
                     ComparisonOperator.GTE,
                     DynamicAmount.XValue,
                 ),
-                then = Effects.Composite(
-                    GatherCardsEffect(
-                        source = CardSource.FromZone(
+                then = Effects.Pipeline {
+                    val fmCandidates = gather(
+                        CardSource.FromZone(
                             zone = Zone.GRAVEYARD,
                             player = Player.You,
                             filter = GameObjectFilter.Creature,
-                        ),
-                        storeAs = "fmCandidates",
-                    ),
-                    SelectFromCollectionEffect(
-                        from = "fmCandidates",
-                        selection = SelectionMode.ChooseExactly(DynamicAmount.XValue),
-                        storeSelected = "fmExiled",
-                    ),
-                    MoveCollectionEffect(
-                        from = "fmExiled",
-                        destination = CardDestination.ToZone(Zone.EXILE),
-                    ),
-                    ModalEffect(
+                        )
+                    )
+                    val fmExiled = chooseExactly(DynamicAmount.XValue, from = fmCandidates)
+                    exile(fmExiled)
+                    run(ModalEffect(
                         modes = listOf(
                             Mode(
                                 description = "Put a +2/+0 counter on this creature",
@@ -115,8 +101,8 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
                         countsAsModalSpell = false,
                         dynamicChooseCount = DynamicAmount.XValue,
                         dynamicMinChooseCount = DynamicAmount.XValue,
-                    ),
-                ),
+                    ))
+                },
                 // Not a sacrifice and not a destruction: the card says "put into its owner's
                 // graveyard", so nothing here should be stoppable by indestructible or by a
                 // "can't be sacrificed" clause.
