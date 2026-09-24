@@ -76,6 +76,115 @@
     ]
 }
 
+// Auratouched Mage
+{
+    "name": "Auratouched Mage",
+    "manaCost": "{5}{W}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "When this creature enters, search your library for an Aura card that could enchant it. If this creature is still on the battlefield, put that Aura card onto the battlefield attached to it. Otherwise, reveal the Aura card and put it into your hand. Then shuffle.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsEnchantment",
+                                        {
+                                            "type": "HasSubtype",
+                                            "subtype": "Aura"
+                                        },
+                                        {
+                                            "type": "CouldEnchant",
+                                            "reference": "Source"
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search for an Aura card that could enchant Auratouched Mage"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "SourceInZone",
+                                    "zones": [
+                                        "Battlefield"
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield"
+                                },
+                                "attachTo": "Self"
+                            },
+                            "otherwise": {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                },
+                                "revealed": true
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "UNCOMMON",
+        "artist": "Jeff Miracola",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/4/942d6414-11e1-4822-9c5d-e4f96846a85f.jpg?1783943709",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "Any Aura card you find must be able to enchant Auratouched Mage as it currently exists, or as it most recently existed on the battlefield if it's no longer on the battlefield. If an effect has made the Mage an artifact, for example, you could search for an Aura with \"enchant artifact.\""
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Autochthon Wurm
 {
     "name": "Autochthon Wurm",
@@ -4385,6 +4494,51 @@
     ]
 }
 
+// Dream Leash
+{
+    "name": "Dream Leash",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant permanent\nYou can't choose an untapped permanent as this spell's target as you cast it.\nYou control enchanted permanent.",
+    "script": {
+        "staticAbilities": [
+            "ControlEnchantedPermanent"
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "permanent"
+            }
+        },
+        "auraCastTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "permanent tapped"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "RARE",
+        "artist": "Alex Horley-Orlandelli",
+        "flavorText": "The tendrils of sorcery find easy purchase on the soft underbelly of dreams.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0de4fa3d-a144-4918-b032-7495ab2e1c8c.jpg?1783943688",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "The restriction that the permanent must be tapped is checked only if you cast Dream Leash as a spell. Once Dream Leash is on the battlefield, it doesn't matter if the enchanted permanent becomes untapped."
+            },
+            {
+                "date": "2005-10-01",
+                "text": "If an effect puts Dream Leash onto the battlefield or moves it to another permanent, the permanent it becomes attached to need not be tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Drift of Phantasms
 {
     "name": "Drift of Phantasms",
@@ -5640,6 +5794,138 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Flickerform
+{
+    "name": "Flickerform",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\n{2}{W}{W}: Exile enchanted creature and all Auras attached to it. At the beginning of the next end step, return that card to the battlefield under its owner's control. If you do, return the other cards exiled this way to the battlefield under their owners' control attached to that creature.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{W}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttachedToBySource"
+                                    ]
+                                }
+                            },
+                            "storeAs": "flickerHost"
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "AttachedToTarget",
+                                "host": "EnchantedCreature",
+                                "filter": "enchantment Aura"
+                            },
+                            "storeAs": "flickerAuras"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "flickerHost",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "flickerAuras",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "CreateDelayedTrigger",
+                            "step": "END",
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "flickerHost",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield"
+                                        },
+                                        "underOwnersControl": true
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "flickerAuras",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield"
+                                        },
+                                        "underOwnersControl": true,
+                                        "attachTo": {
+                                            "type": "PipelineTarget",
+                                            "collectionName": "flickerHost"
+                                        }
+                                    }
+                                ]
+                            },
+                            "carryCollections": [
+                                "flickerHost",
+                                "flickerAuras"
+                            ]
+                        }
+                    ]
+                },
+                "descriptionOverride": "{2}{W}{W}: Exile enchanted creature and all Auras attached to it. At the beginning of the next end step, return that card to the battlefield under its owner's control. If you do, return the other cards exiled this way to the battlefield under their owners' control attached to that creature."
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "rarity": "RARE",
+        "artist": "Ron Spears",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/1/6165de5d-57f0-419b-95a1-02bd53e5a0c5.jpg?1783943701",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "The card that was enchanted comes back onto the battlefield first, regardless of whether it's still a creature. Then any Auras exiled that can legally enchant that card come back. Any Auras that can't enchant that permanent remain exiled."
+            },
+            {
+                "date": "2005-10-01",
+                "text": "If the enchanted creature was a token, it ceased to exist when it was exiled. Any Auras that were attached to it (including Flickerform) remain exiled."
+            },
+            {
+                "date": "2014-02-01",
+                "text": "If the enchanted creature was enchanted by any Auras with bestow or any Licids, those cards will return to the battlefield unattached as creatures."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -8426,6 +8712,43 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Leashling
+{
+    "name": "Leashling",
+    "manaCost": "{6}",
+    "typeLine": "Artifact Creature — Dog",
+    "oracleText": "Put a card from your hand on top of your library: Return this creature to its owner's hand.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": "AtomPutFromHandOnTopOfLibrary"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand"
+                },
+                "descriptionOverride": "Put a card from your hand on top of your library: Return this creature to its owner's hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "265",
+        "rarity": "UNCOMMON",
+        "artist": "Carl Critchlow",
+        "flavorText": "Constructed of leather and irony.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/3/132551d3-ef8e-4ed0-a363-53db4f0621f0.jpg?1783943596"
+    },
+    "colorIdentityOverride": []
 }
 
 // Leave No Trace
