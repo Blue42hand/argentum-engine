@@ -8314,6 +8314,9 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
     source-read damage keyword is a one-line addition rather than a new hunt for read sites. Combat damage is
     deliberately *not* wired this way: a combat-damage source is always a permanent, which projection already
     covers.
+  - **SPLIT_SECOND** — read by the engine's `SplitSecond` lock for as long as the granted spell is on the stack
+    and its controller still controls the granter (**Samut, Tyrant of Naktamun** →
+    `GrantKeywordToOwnSpells(SPLIT_SECOND, InstantOrSorcery)`). See §11 "Keywords" → Split second.
   **Gating this with a condition is silently inert today.** `staticAbility { condition = … }`
   wraps the ability in a `ConditionalStaticAbility`, and `GrantedKeywordResolver` matches the bare type
   without unwrapping it — so the grant never applies rather than applying conditionally. Teach
@@ -8747,6 +8750,20 @@ copy of it (CR 707.10e). The activated-ability analogue of the spell-level `cant
 > doesn't rebound again. **Ojer Pakpatiq, Deepest Epoch** grants it to instants you cast from hand via
 > `Triggers.youCastSpell(GameObjectFilter.Instant, requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))`
 > → `GrantKeywordToSpellEffect(Keyword.REBOUND, EffectTarget.TriggeringEntity)`.
+
+> **Split second** (`Keyword.SPLIT_SECOND`, CR 702.61). "As long as this spell is on the stack,
+> players can't cast other spells or activate abilities that aren't mana abilities." A plain
+> `keywords(Keyword.SPLIT_SECOND)` on the card; nothing else to wire. The engine's `SplitSecond` object
+> is the single read point: while any spell on the stack has the keyword — printed, stamped on by a
+> one-shot `GrantKeywordToSpellEffect` (`SpellGrantedKeywordsComponent`), or granted continuously by
+> `GrantKeywordToOwnSpells(SPLIT_SECOND, filter)` on a permanent the spell's controller controls — the
+> legal-action enumerator withholds every `CastSpell`, non-mana `ActivateAbility`, cycling, typecycling,
+> crew and saddle offer, and `ActionProcessor.validate` / `ActivationValidator` reject the same actions
+> if submitted anyway. It binds every player, the caster included. Mana abilities and special actions
+> (turning a face-down permanent up, plot, foretell, suspend, unlocking a door) stay legal, and
+> triggered abilities trigger and go on the stack as normal (CR 702.61b). A face-down spell has no
+> abilities and never locks. **Samut, Tyrant of Naktamun** = `GrantKeywordToOwnSpells(SPLIT_SECOND,
+> GameObjectFilter.InstantOrSorcery)`. Engine test: `SplitSecondKeywordScenarioTest`.
 
 > **Enduring** (Duskmourn Glimmer cycle). `card { enduring() }` wires the full mechanic: "When this
 > permanent dies, if it was a creature, return it to the battlefield under its owner's control. It's an
