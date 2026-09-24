@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Bathe in Dragonfire
@@ -20,8 +19,8 @@ val BatheInDragonfire = card("Bathe in Dragonfire") {
     oracleText = "Bathe in Dragonfire deals 4 damage to target creature."
 
     spell {
-        target = Targets.Creature
-        effect = Effects.DealDamage(4, EffectTarget.ContextTarget(0))
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.DealDamage(4, creature)
     }
 
     metadata {

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -7,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Magmakin Artillerist — Aetherdrift #137
@@ -42,7 +41,7 @@ val MagmakinArtillerist = card("Magmakin Artillerist") {
     triggeredAbility {
         trigger = Triggers.YouDiscardOneOrMore
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCARD_COUNT),
+            amount = DynamicAmounts.triggerDiscardCount(),
             target = EffectTarget.PlayerRef(Player.EachOpponent),
             damageSource = EffectTarget.Self,
         )

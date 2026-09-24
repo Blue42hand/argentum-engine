@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.dsl.Costs
 
 /**
@@ -31,10 +30,10 @@ val CinderStrike = card("Cinder Strike") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.BlightWasPaid,
-            effect = Effects.DealDamage(4, creature),
-            elseEffect = Effects.DealDamage(2, creature)
+            then = Effects.DealDamage(4, creature),
+            otherwise = Effects.DealDamage(2, creature)
         )
     }
 

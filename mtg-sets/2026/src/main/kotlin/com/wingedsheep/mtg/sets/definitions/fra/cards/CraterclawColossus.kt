@@ -10,9 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
-private const val ARTIFACT_COUNT = "craterclawArtifactCount"
 
 val CraterclawColossus = card("Craterclaw Colossus") {
     manaCost = "{4}{R}{R}{R}"
@@ -30,23 +28,16 @@ val CraterclawColossus = card("Craterclaw Colossus") {
     // the trample grant (Overrun's shape — see Patterns.Group.pumpAndGrantToAll).
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            Effects.StoreNumber(
-                ARTIFACT_COUNT,
-                DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
-            ),
-            Effects.ForEachInGroup(
+        effect = Effects.Pipeline {
+            val artifactCount = storeNumber(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count())
+            run(Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
                 Effects.Composite(
-                    Effects.ModifyStats(
-                        DynamicAmount.VariableReference(ARTIFACT_COUNT),
-                        DynamicAmount.Fixed(0),
-                        EffectTarget.Self
-                    ),
-                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                    Effects.ModifyStats(artifactCount.amount, DynamicAmounts.fixed(0), EffectTarget.IterationEntity),
+                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
                 )
-            )
-        )
+            ))
+        }
     }
 
     metadata {

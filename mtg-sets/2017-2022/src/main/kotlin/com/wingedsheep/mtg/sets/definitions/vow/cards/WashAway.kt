@@ -40,8 +40,8 @@ val WashAway = card("Wash Away") {
     keywordAbility(KeywordAbility.cleave("{1}{U}{U}"))
 
     spell {
+        val spell = target("target spell", TargetSpell(filter = TargetFilter.SpellOnStack.notCastFromZone(Zone.HAND)))
         // Printed (brackets present): counter target spell that wasn't cast from its owner's hand.
-        target = TargetSpell(filter = TargetFilter.SpellOnStack.notCastFromZone(Zone.HAND))
         effect = Effects.CounterSpell()
 
         // Cleaved (brackets removed): counter target spell. CounterSpell counters the first

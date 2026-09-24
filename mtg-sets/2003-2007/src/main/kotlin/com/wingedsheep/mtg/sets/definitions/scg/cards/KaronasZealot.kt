@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RedirectNextDamageEffect
 import com.wingedsheep.sdk.scripting.effects.RedirectScope
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -28,7 +28,7 @@ val KaronasZealot = card("Karona's Zealot") {
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
         val creature = target("target creature", Targets.Creature)
-        effect = RedirectNextDamageEffect(
+        effect = Effects.RedirectNextDamage(
             protectedTargets = listOf(EffectTarget.Self),
             redirectTo = creature,
             amount = null,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Sauron, the Necromancer — The Lord of the Rings: Tales of Middle-earth #106
@@ -56,7 +55,7 @@ val SauronTheNecromancer = card("Sauron, the Necromancer") {
         effect = Effects.Composite(listOf(
             Effects.Exile(card),
             Effects.CreateTokenCopyOfTarget(
-                target = EffectTarget.ContextTarget(0),
+                target = card,
                 overridePower = 3,
                 overrideToughness = 3,
                 overrideColors = setOf(Color.BLACK),

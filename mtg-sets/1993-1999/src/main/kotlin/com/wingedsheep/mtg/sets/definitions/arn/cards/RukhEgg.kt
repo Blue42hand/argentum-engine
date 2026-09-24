@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 
 /**
  * Rukh Egg
@@ -27,7 +26,7 @@ val RukhEgg = card("Rukh Egg") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.END,
             effect = Effects.CreateToken(
                 power = 4,

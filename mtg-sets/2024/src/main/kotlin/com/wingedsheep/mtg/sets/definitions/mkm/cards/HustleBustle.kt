@@ -7,14 +7,9 @@ import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Hustle // Bustle — Murders at Karlov Manor #249
@@ -49,30 +44,28 @@ val HustleBustle = card("Hustle // Bustle") {
             "turn a creature you control face up."
 
         spell {
-            effect = Effects.Composite(
-                Effects.ForEachInGroup(
+            effect = Effects.Pipeline {
+                run(Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
                     Effects.Composite(
-                        Effects.ModifyStats(2, 2, EffectTarget.Self),
-                        Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self),
+                        Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+                        Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
                     ),
-                ),
-                GatherCardsEffect(
-                    source = CardSource.BattlefieldMatching(
+                ))
+                val faceDownCreatures = gather(
+                    CardSource.BattlefieldMatching(
                         filter = GameObjectFilter.Creature.faceDown(),
                         player = Player.You,
-                    ),
-                    storeAs = "faceDownCreatures",
-                ),
-                SelectFromCollectionEffect(
-                    from = "faceDownCreatures",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "turnFaceUp",
+                    )
+                )
+                val turnFaceUp = chooseUpTo(
+                    1,
+                    from = faceDownCreatures,
                     prompt = "You may turn a creature you control face up",
-                    useTargetingUI = true,
-                ),
-                TurnFaceUpEffect(EffectTarget.PipelineTarget("turnFaceUp", 0)),
-            )
+                    useTargetingUI = true
+                )
+                run(Effects.TurnFaceUp(turnFaceUp.asTarget))
+            }
         }
     }
 

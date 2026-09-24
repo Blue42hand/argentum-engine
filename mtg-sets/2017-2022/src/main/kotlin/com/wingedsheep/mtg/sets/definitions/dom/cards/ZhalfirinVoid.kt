@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 
 /**
  * Zhalfirin Void
@@ -26,7 +26,7 @@ val ZhalfirinVoid = card("Zhalfirin Void") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddColorlessManaEffect(1)
+        effect = Effects.AddColorlessMana(1)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Chaotic Strike
@@ -29,10 +27,10 @@ val ChaoticStrike = card("Chaotic Strike") {
         "Draw a card."
 
     spell {
+        val creature = target("target creature", Targets.Creature)
         castOnlyDuring(Step.DECLARE_BLOCKERS)
-        target = Targets.Creature
-        effect = FlipCoinEffect(
-            wonEffect = Effects.ModifyStats(1, 1, EffectTarget.ContextTarget(0))
+        effect = Effects.FlipCoin(
+            wonEffect = Effects.ModifyStats(1, 1, creature)
         ) then Effects.DrawCards(1)
     }
 

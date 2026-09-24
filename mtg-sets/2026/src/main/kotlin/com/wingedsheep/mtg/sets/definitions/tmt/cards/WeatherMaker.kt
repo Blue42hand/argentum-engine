@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -29,7 +29,7 @@ val WeatherMaker = card("Weather Maker") {
 
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
-        effect = Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     activatedAbility {
@@ -42,7 +42,7 @@ val WeatherMaker = card("Weather Maker") {
     activatedAbility {
         cost = Costs.Composite(
             Costs.Tap,
-            Costs.RemoveCounterFromSelf(Counters.CHARGE, 2)
+            Costs.RemoveCounterFromSelf(CounterType.CHARGE, 2)
         )
         effect = Effects.AddColorlessMana(2)
         manaAbility = true
@@ -52,7 +52,7 @@ val WeatherMaker = card("Weather Maker") {
     activatedAbility {
         cost = Costs.Composite(
             Costs.Tap,
-            Costs.RemoveCounterFromSelf(Counters.CHARGE, 3)
+            Costs.RemoveCounterFromSelf(CounterType.CHARGE, 3)
         )
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(3, anyTarget)

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -63,7 +62,7 @@ val SorinSolemnVisitor = card("Sorin, Solemn Visitor") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.EachOpponentUpkeep.event,
                 binding = Triggers.EachOpponentUpkeep.binding,
-                effect = ForceSacrificeEffect(
+                effect = Effects.Sacrifice(
                     filter = GameObjectFilter.Creature,
                     count = 1,
                     target = EffectTarget.PlayerRef(Player.TriggeringPlayer)

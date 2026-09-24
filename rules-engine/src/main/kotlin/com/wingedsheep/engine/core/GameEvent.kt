@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.core
 
 import com.wingedsheep.sdk.core.BendType
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.TypeLine
@@ -136,16 +137,13 @@ data class DamageDealtEvent(
     val targetIsPlayer: Boolean = false,
     val targetWasFaceDown: Boolean = false,
     /**
-     * The recipient's controller at the instant the damage was dealt (CR 603.10 last-known
-     * information). Lets recipient-based damage triggers ("whenever a creature you control / an
-     * opponent controls is dealt damage") still match a recipient that left the battlefield to
-     * the same damage event — combat-damage state-based actions strip the dead creature's
-     * `ControllerComponent` before trigger detection runs. `null` for players and for events
-     * emitted before this was captured.
+     * The recipient permanent as it was at the instant the damage was dealt (CR 603.10). Lets
+     * recipient-based damage triggers ("whenever a creature you control / an opponent controls is
+     * dealt damage") still match a recipient that left the battlefield to the same damage event —
+     * combat-damage state-based actions move the dead creature (and sweep a dead token out of
+     * existence) before trigger detection runs. `null` for players.
      */
-    val targetControllerId: EntityId? = null,
-    /** Whether the recipient was a creature when the damage was dealt (LKI, see [targetControllerId]). */
-    val targetWasCreature: Boolean = false,
+    val targetLastKnown: com.wingedsheep.engine.state.components.stack.EntitySnapshot? = null,
     /**
      * Excess damage (CR 120.4a). For a creature: damage in excess of what it needed to be
      * destroyed — `max(0, amount - max(0, projectedToughness - markedDamageBeforeThisHit))`, or
@@ -771,6 +769,12 @@ data class AbilityActivatedEvent(
     val isExhaust: Boolean = false,
     /** True for a loyalty ability (CR 606) — "whenever you activate a loyalty ability". */
     val isLoyalty: Boolean = false,
+    /**
+     * How many loyalty counters the activation's cost removed (CR 606.4): N for a [−N] cost, the
+     * chosen X for [−X], 0 for [+N] / [0] and for every non-loyalty ability. Read by "if you
+     * removed two or more loyalty counters to activate it" (Way of the Mind Sculptor).
+     */
+    val loyaltyCountersRemoved: Int = 0,
 ) : GameEvent
 
 /**
@@ -919,7 +923,7 @@ data class SagaChapterResolvedEvent(
  * priority round before it resolves — instead of resolving inline/atomically with no response window.
  *
  * @property carriedPipeline Pipeline state the action produced (e.g. `Amass`'s army reference, a
- * discard's resolved count) that the reflexive effect may read via `EntityReference`/
+ * discard's resolved count) that the reflexive effect may read via `EffectTarget.SingleEntity`/
  * `VariableReference` — carried across the stack round-trip since the reflexive ability builds a
  * fresh [com.wingedsheep.engine.handlers.EffectContext] when it resolves.
  */
@@ -1428,7 +1432,7 @@ data class PhasedInEvent(
 @SerialName("CountersAddedEvent")
 data class CountersAddedEvent(
     val entityId: EntityId,
-    val counterType: String,
+    val counterType: CounterType,
     val amount: Int,
     val entityName: String = "",
     /**
@@ -1465,7 +1469,7 @@ data class CountersAddedEvent(
 @SerialName("CountersRemovedEvent")
 data class CountersRemovedEvent(
     val entityId: EntityId,
-    val counterType: String,
+    val counterType: CounterType,
     val amount: Int,
     val entityName: String = "",
     val remainingCount: Int? = null,

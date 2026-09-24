@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
 /**
@@ -27,8 +25,8 @@ val VampiricRites = card("Vampiric Rites") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{B}"), Costs.Sacrifice(GameObjectFilter.Creature))
         effect = Effects.Composite(
-            GainLifeEffect(1),
-            DrawCardsEffect(1)
+            Effects.GainLife(1),
+            Effects.DrawCards(1)
         )
     }
     metadata {

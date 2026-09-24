@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -40,7 +38,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The counters are spent by an ATTACHED-bound "becomes untapped" trigger. Tapping the Equipment
  * to bait it means the pole can only be baited once per untap cycle, and the trigger's
- * [IfYouDoEffect] correctly makes no Fish when there is no bait counter to remove.
+ * [Effects.IfYouDo] correctly makes no Fish when there is no bait counter to remove.
  */
 val FishingPole = card("Fishing Pole") {
     manaCost = "{1}"
@@ -61,7 +59,7 @@ val FishingPole = card("Fishing Pole") {
                     Costs.Tap,
                     Costs.TapGrantingPermanent,
                 ),
-                effect = AddCountersEffect(Counters.BAIT, 1, EffectTarget.GrantingSource),
+                effect = Effects.AddCounters(CounterType.BAIT, 1, EffectTarget.GrantingSource),
             )
             // filter defaults to GroupFilter.attachedCreature() — "equipped creature has ..."
         )
@@ -69,12 +67,12 @@ val FishingPole = card("Fishing Pole") {
 
     triggeredAbility {
         trigger = Triggers.becomesUntapped(binding = TriggerBinding.ATTACHED)
-        effect = IfYouDoEffect(
-            action = Effects.RemoveCounters(Counters.BAIT, 1, EffectTarget.Self),
+        effect = Effects.IfYouDo(
+            action = Effects.RemoveCounters(CounterType.BAIT, 1, EffectTarget.Self),
             // A counter removal is not a zone move, so Auto can't infer it — and "if you do" here
             // really can fail: no bait counter means no Fish.
             successCriterion = SuccessCriterion.CountersRemoved,
-            ifYouDo = Effects.CreateToken(
+            then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.BLUE),

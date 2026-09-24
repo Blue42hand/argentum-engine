@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.tmp.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TakeExtraTurnEffect
 
 /**
  * Time Warp
@@ -19,7 +19,7 @@ val TimeWarp = card("Time Warp") {
 
     spell {
         val player = target("player", Targets.Player)
-        effect = TakeExtraTurnEffect(target = player)
+        effect = Effects.TakeExtraTurn(target = player)
     }
 
     metadata {

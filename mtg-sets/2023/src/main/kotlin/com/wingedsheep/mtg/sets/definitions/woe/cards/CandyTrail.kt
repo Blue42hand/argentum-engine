@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
 /**
@@ -33,8 +31,8 @@ val CandyTrail = card("Candy Trail") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.Composite(
-            GainLifeEffect(3),
-            DrawCardsEffect(1)
+            Effects.GainLife(3),
+            Effects.DrawCards(1)
         )
     }
     metadata {

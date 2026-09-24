@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dredger's Insight
@@ -50,7 +49,7 @@ val DredgersInsight = card("Dredger's Insight") {
         effect = Effects.Pipeline {
             // "mill four cards"
             val milled = gather(
-                CardSource.TopOfLibrary(DynamicAmount.Fixed(4), Player.You, isMill = true)
+                CardSource.TopOfLibrary(4, Player.You, isMill = true)
             )
             toGraveyard(milled)
             // "You may put an artifact, creature, or land card from among the milled cards into your hand."

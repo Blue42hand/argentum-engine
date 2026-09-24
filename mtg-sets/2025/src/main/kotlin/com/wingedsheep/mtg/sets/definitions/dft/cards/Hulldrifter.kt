@@ -5,11 +5,11 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -31,7 +31,7 @@ val Hulldrifter = card("Hulldrifter") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = DrawCardsEffect(2)
+        effect = Effects.DrawCards(2)
     }
     keywordAbility(KeywordAbility.crew(3))
     metadata {

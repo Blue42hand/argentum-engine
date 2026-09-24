@@ -64,7 +64,7 @@ val NagaoBoundByHonor = card("Nagao, Bound by Honor") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.SAMURAI).youControl()),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
         description = "Whenever Nagao attacks, Samurai creatures you control get +1/+1 until end of turn."
     }

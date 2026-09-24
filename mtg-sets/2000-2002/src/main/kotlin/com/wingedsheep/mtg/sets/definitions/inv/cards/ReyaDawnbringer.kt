@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
+
 /**
  * Reya Dawnbringer
  * {6}{W}{W}{W}
@@ -30,7 +30,7 @@ val ReyaDawnbringer = card("Reya Dawnbringer") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         val t = target("target creature card from your graveyard", Targets.CreatureCardInYourGraveyard)
-        effect = MayEffect(Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD))
+        effect = Effects.May(Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD))
     }
 
     metadata {

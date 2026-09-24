@@ -3,11 +3,11 @@ package com.wingedsheep.engine.scenarios
 import com.wingedsheep.engine.core.LibraryShuffledEvent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.engine.state.components.player.CantSearchLibrariesComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -37,7 +37,7 @@ class ShadowOfDoubtScenarioTest : FunSpec({
         name = "Optional Tutor",
         manaCost = ManaCost.parse("{B}"),
         oracleText = "You may search your library for a card, put it into your hand, then shuffle.",
-        script = CardScript.spell(effect = MayEffect(Patterns.Library.searchLibrary(GameObjectFilter.Any)))
+        script = CardScript.spell(effect = Effects.May(Patterns.Library.searchLibrary(GameObjectFilter.Any)))
     )
     // "Search your library for a card, put it into your hand, then shuffle."
     val mandatoryTutor = CardDefinition.sorcery(

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Shoreline Looter
@@ -31,9 +30,9 @@ val ShorelineLooter = card("Shoreline Looter") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.DrawCards(1)
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Conditions.Not(Conditions.CardsInGraveyardAtLeast(7)),
-                effect = Patterns.Hand.discardCards(1)
+                then = Patterns.Hand.discardCards(1)
             ))
     }
 

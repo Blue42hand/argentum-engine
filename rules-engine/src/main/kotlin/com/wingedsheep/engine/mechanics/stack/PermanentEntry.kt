@@ -37,7 +37,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.MoveTrackedBattlefieldObjectEffect
 import com.wingedsheep.sdk.scripting.effects.WarpExileEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.*
 
 /**
@@ -636,7 +635,7 @@ internal class PermanentEntry(
         val intrinsicEntryCounters = if (cardDef != null && !spellComponent.castFaceDown) {
             when {
                 cardDef.startingLoyalty != null ->
-                    CounterTypeFilter.Loyalty to cardDef.startingLoyalty!!
+                    CounterType.LOYALTY to cardDef.startingLoyalty!!
                 cardDef.startingDefense != null ->
                     com.wingedsheep.engine.mechanics.battle.Battles.DEFENSE_COUNTER to cardDef.startingDefense!!
                 else -> null

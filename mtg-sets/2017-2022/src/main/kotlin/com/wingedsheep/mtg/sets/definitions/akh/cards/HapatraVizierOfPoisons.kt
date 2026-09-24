@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.akh.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -39,13 +39,13 @@ val HapatraVizierOfPoisons = card("Hapatra, Vizier of Poisons") {
         trigger = Triggers.DealsCombatDamageToPlayer
         optional = true
         val t = target("target", Targets.Creature)
-        effect = Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 1, t)
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t)
     }
 
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature,
-            counterType = Counters.MINUS_ONE_MINUS_ONE,
+            counterType = CounterType.MINUS_ONE_MINUS_ONE,
             firstTimeEachTurn = false,
             placedBy = Player.You,
         )

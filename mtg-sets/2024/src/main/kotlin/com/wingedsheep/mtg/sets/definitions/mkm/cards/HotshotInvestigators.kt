@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -45,13 +44,13 @@ val HotshotInvestigators = card("Hotshot Investigators") {
                 filter = TargetFilter.OtherCreature
             )
         )
-        effect = ConditionalEffect(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl()),
-            effect = Effects.Composite(
+        effect = Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), creature),
+            then = Effects.Composite(
                 Effects.ReturnToHand(creature),
                 Effects.Investigate()
             ),
-            elseEffect = Effects.ReturnToHand(creature)
+            otherwise = Effects.ReturnToHand(creature)
         )
     }
 

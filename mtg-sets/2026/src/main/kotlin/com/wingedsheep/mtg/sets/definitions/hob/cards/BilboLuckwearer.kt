@@ -60,7 +60,7 @@ val BilboLuckwearer = card("Bilbo, Luckwearer") {
             "(Then exile this card. You may cast the creature later from exile.)"
 
         spell {
-            target(
+            val (first, second) = targets(
                 "two target nonland permanents that share a card type",
                 TargetPermanent(
                     count = 2,
@@ -68,7 +68,7 @@ val BilboLuckwearer = card("Bilbo, Luckwearer") {
                     sameCardType = true
                 )
             )
-            effect = Effects.ExchangeControl()
+            effect = Effects.ExchangeControl(first, second)
         }
     }
 

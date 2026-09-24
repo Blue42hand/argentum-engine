@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -30,9 +30,9 @@ val MarshViper = card("Marsh Viper") {
         "counters. (A player with ten or more poison counters loses the game.)"
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(recipient = RecipientFilter.AnyPlayer)
+        trigger = Triggers.dealsDamage(recipient = Recipient.AnyPlayer)
         effect = Effects.AddCounters(
-            counterType = Counters.POISON,
+            counterType = CounterType.POISON,
             count = 2,
             target = EffectTarget.PlayerRef(Player.TriggeringPlayer),
         )

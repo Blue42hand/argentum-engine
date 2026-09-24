@@ -5,10 +5,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Elite Interceptor // Rejoinder — Secrets of Strixhaven #12
@@ -25,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * [com.wingedsheep.sdk.model.CardLayout.PREPARE] + the `prepare(name) { }` DSL.
  *
  * "You may tap or untap target creature" — the target is chosen at cast time; at resolution the
- * controller may decline ([MayEffect]) or choose one of two modes ([ModalEffect.chooseOne]) that
+ * controller may decline ([Effects.May]) or choose one of two modes ([ModalEffect.chooseOne]) that
  * both act on the already-chosen target ([EffectTarget.ContextTarget]). The draw is unconditional,
  * outside the may-clause.
  */
@@ -45,16 +43,16 @@ val EliteInterceptor = card("Elite Interceptor") {
         typeLine = "Sorcery"
         oracleText = "You may tap or untap target creature.\nDraw a card."
         spell {
-            target = Targets.Creature
+            val creature = target("target creature", Targets.Creature)
             effect = Effects.Composite(
-                MayEffect(
+                Effects.May(
                     ModalEffect.chooseOne(
                         Mode.noTarget(
-                            Effects.Tap(EffectTarget.ContextTarget(0)),
+                            Effects.Tap(creature),
                             "Tap that creature"
                         ),
                         Mode.noTarget(
-                            Effects.Untap(EffectTarget.ContextTarget(0)),
+                            Effects.Untap(creature),
                             "Untap that creature"
                         ),
                         countsAsModalSpell = false

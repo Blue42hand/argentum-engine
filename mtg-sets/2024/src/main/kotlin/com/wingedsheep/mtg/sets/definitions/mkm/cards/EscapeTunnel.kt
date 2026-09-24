@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 /**
@@ -46,7 +46,7 @@ val EscapeTunnel = card("Escape Tunnel") {
             Costs.SacrificeSelf
         )
         val target = target("target creature with power 2 or less", Targets.CreatureWithPowerAtMost(2))
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, target)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, target)
         manaAbility = false
         description = "Target creature with power 2 or less can't be blocked this turn."
     }

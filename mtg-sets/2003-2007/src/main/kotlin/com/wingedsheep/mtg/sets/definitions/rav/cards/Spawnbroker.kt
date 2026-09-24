@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 val Spawnbroker = card("Spawnbroker") {
     manaCost = "{2}{U}"
@@ -24,7 +23,7 @@ val Spawnbroker = card("Spawnbroker") {
         val theirs = target(
             "opponent's creature with power no greater than your chosen creature",
             TargetCreature(filter = Targets.Unified.creature {
-                opponentControls().powerAtMostEntity(EntityReference.Target(0))
+                opponentControls().powerAtMostEntity(yours)
             })
         )
         effect = Effects.ExchangeControl(yours, theirs)

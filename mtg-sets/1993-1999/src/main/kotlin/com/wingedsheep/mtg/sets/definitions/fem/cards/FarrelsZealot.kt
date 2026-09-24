@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -37,11 +35,11 @@ val FarrelsZealot = card("Farrel's Zealot") {
     triggeredAbility {
         trigger = Triggers.AttacksAndIsntBlocked
         val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.DealDamage(3, t),
-                GrantKeywordEffect(
-                    AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE.name,
+                Effects.GrantKeyword(
+                    AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                     EffectTarget.Self,
                     Duration.EndOfTurn,
                 ),

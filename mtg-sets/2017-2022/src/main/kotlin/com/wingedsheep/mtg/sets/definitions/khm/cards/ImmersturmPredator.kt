@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.khm.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
@@ -48,7 +49,7 @@ val ImmersturmPredator = card("Immersturm Predator") {
         val exiled = target("target card in a graveyard", TargetObject(optional = true, filter = TargetFilter.CardInGraveyard))
         effect = Effects.Composite(
             Effects.Move(exiled, Zone.EXILE),
-            Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
 

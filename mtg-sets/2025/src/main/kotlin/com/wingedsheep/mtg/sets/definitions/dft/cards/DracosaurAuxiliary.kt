@@ -6,11 +6,11 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -35,7 +35,7 @@ val DracosaurAuxiliary = card("Dracosaur Auxiliary") {
         trigger = Triggers.Attacks
         triggerRestriction = Conditions.SourceIsSaddled
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
     keywordAbility(KeywordAbility.saddle(3))
     metadata {

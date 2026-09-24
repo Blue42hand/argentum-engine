@@ -8,7 +8,6 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -18,7 +17,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -89,7 +87,7 @@ class ClashScenarioTest : FunSpec({
         power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.WheneverYouClash
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 
@@ -100,7 +98,7 @@ class ClashScenarioTest : FunSpec({
         power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.WheneverYouClashAndWin
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 
@@ -123,10 +121,10 @@ class ClashScenarioTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.WheneverYouClash
             effect = Effects.Composite(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                ConditionalEffect(
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                Effects.If(
                     Conditions.YouWonTheClash,
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
             )
         }
@@ -140,9 +138,9 @@ class ClashScenarioTest : FunSpec({
         power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 Conditions.YouWonTheClash,
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
         }
     }

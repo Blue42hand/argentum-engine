@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
@@ -34,7 +34,7 @@ val AirdropCondor = card("Airdrop Condor") {
             Costs.Sacrifice(GameObjectFilter.Creature.withSubtype("Goblin"))
         )
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             amount = DynamicAmounts.sacrificedPower(),
             target = t
         )

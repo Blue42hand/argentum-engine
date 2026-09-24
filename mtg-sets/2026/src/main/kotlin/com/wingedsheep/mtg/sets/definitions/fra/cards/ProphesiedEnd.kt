@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val ProphesiedEnd = card("Prophesied End") {
@@ -20,13 +19,13 @@ val ProphesiedEnd = card("Prophesied End") {
         // The attacking check has to read the creature while it is still on the battlefield, so the
         // branch is picked first and each branch destroys before anything else. "Its controller"
         // then resolves through last-known information.
-        effect = ConditionalEffect(
-            condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature.attacking())),
-            effect = Effects.Composite(
+        effect = Effects.If(
+            condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature.attacking(), creature)),
+            then = Effects.Composite(
                 Effects.Destroy(creature),
                 Effects.DrawCards(1, EffectTarget.TargetController),
             ),
-            elseEffect = Effects.Destroy(creature),
+            otherwise = Effects.Destroy(creature),
         )
     }
 

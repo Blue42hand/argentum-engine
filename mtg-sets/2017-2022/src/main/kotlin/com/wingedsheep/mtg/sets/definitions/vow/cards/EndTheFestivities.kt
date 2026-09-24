@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -27,7 +26,7 @@ val EndTheFestivities = card("End the Festivities") {
             // 1 damage to each creature and planeswalker those opponents control
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()),
-                DealDamageEffect(1, EffectTarget.Self)
+                Effects.DealDamage(1, EffectTarget.IterationEntity)
             )
         )
     }

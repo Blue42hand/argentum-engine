@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,7 +29,7 @@ val YdwenEfreet = card("Ydwen Efreet") {
 
     triggeredAbility {
         trigger = Triggers.Blocks
-        effect = FlipCoinEffect(
+        effect = Effects.FlipCoin(
             lostEffect = Effects
                 .RemoveFromCombat(EffectTarget.Self, unblockSoleBlockedAttackers = true)
                 .then(Effects.CantBlock(EffectTarget.Self)),

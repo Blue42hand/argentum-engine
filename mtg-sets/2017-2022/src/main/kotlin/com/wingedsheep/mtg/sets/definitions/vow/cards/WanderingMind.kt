@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wandering Mind
@@ -34,7 +33,7 @@ val WanderingMind = card("Wandering Mind") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(6),
+            count = 6,
             filter = GameObjectFilter.Noncreature and GameObjectFilter.Nonland,
             prompt = "You may reveal a noncreature, nonland card and put it into your hand"
         )

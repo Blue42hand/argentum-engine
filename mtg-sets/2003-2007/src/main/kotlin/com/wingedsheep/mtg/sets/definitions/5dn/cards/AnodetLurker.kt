@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.`5dn`.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
 /**
@@ -26,7 +26,7 @@ val AnodetLurker = card("Anodet Lurker") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = GainLifeEffect(3)
+        effect = Effects.GainLife(3)
     }
     metadata {
         rarity = Rarity.COMMON

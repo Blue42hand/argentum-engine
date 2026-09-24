@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Byway Barterer {2}{R}
@@ -28,7 +27,7 @@ val BywayBarterer = card("Byway Barterer") {
 
     triggeredAbility {
         trigger = Triggers.Expend(4)
-        effect = MayEffect(
+        effect = Effects.May(
             Patterns.Hand.discardHand().then(Effects.DrawCards(2))
         )
     }

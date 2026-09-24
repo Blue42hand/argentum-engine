@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.MustAttack
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * "Ferocious" is an ability word (no rules meaning); the gate is the intervening-if
  * [Conditions.YouControl] over a power-4+ creature (CR 603.4), checked when the trigger would fire
  * and again at resolution. The trigger fires while the card is in the graveyard
- * (`triggerZone = GRAVEYARD`); the optional {R} is modeled as [MayPayManaEffect] whose consequence
+ * (`triggerZone = GRAVEYARD`); the optional {R} is modeled as [Effects.MayPay] whose consequence
  * moves the card from the graveyard to the battlefield.
  */
 val FlamewakePhoenix = card("Flamewake Phoenix") {
@@ -50,9 +49,9 @@ val FlamewakePhoenix = card("Flamewake Phoenix") {
         trigger = Triggers.BeginCombat
         triggerZone = Zone.GRAVEYARD
         interveningIf = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
-            effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
+            then = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
         )
     }
 

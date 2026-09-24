@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -30,7 +29,7 @@ val AdventurersAirship = card("Adventurer's Airship") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.Composite(
-            DrawCardsEffect(1),
+            Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)
         )
     }

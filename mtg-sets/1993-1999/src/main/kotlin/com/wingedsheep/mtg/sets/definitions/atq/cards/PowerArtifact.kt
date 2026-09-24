@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.atq.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ReduceActivatedAbilityCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Power Artifact
@@ -34,7 +34,7 @@ val PowerArtifact = card("Power Artifact") {
     staticAbility {
         ability = ReduceActivatedAbilityCost(
             filter = GroupFilter.attachedCreature(),
-            amount = DynamicAmount.Fixed(2),
+            amount = DynamicAmounts.fixed(2),
             manaFloor = 1
         )
     }

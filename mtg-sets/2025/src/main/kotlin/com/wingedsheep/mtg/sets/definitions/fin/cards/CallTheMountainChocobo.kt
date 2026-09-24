@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -39,7 +38,7 @@ val CallTheMountainChocobo = card("Call the Mountain Chocobo") {
                 destination = SearchDestination.HAND,
                 reveal = true
             ),
-            CreateTokenEffect(
+            Effects.CreateToken(
                 power = 2,
                 toughness = 2,
                 colors = setOf(Color.GREEN),

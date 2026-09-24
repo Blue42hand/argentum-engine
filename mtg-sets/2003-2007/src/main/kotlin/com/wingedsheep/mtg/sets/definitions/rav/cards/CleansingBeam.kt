@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Cleansing Beam
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Radiance is an ability word: one target, and a resolution-time group relative to it. The
  * target is damaged directly; the group is every *other* creature sharing a color with the
- * target — `sharingColorWith(EntityReference.Target(0))` for the colour test, `otherThanTarget()`
+ * target — `sharingColorWith(EffectTarget.ContextTarget(0))` for the colour test, `otherThanTarget()`
  * so the target isn't hit twice. A colorless target shares a color with nothing (Scryfall ruling
  * 2005-10-01), so only the target is damaged. The group is checked as the spell resolves, and if
  * the target has become illegal the whole spell fizzles and no other creature is affected.
@@ -37,7 +36,7 @@ val CleansingBeam = card("Cleansing Beam") {
             Patterns.Group.dealDamageToAll(
                 2,
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EntityReference.Target(0))
+                    GameObjectFilter.Creature.sharingColorWith(victim)
                 ).otherThanTarget()
             )
     }

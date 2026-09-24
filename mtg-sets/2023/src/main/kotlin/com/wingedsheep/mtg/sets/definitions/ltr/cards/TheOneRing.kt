@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -56,7 +55,7 @@ val TheOneRing = card("The One Ring") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.LoseLife(
-            DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.BURDEN)),
+            DynamicAmounts.countersOnSelf(CounterType.BURDEN),
             EffectTarget.Controller
         )
     }
@@ -66,8 +65,8 @@ val TheOneRing = card("The One Ring") {
         cost = Costs.Tap
         effect = Effects.Composite(
             listOf(
-                Effects.AddCounters(Counters.BURDEN, 1, EffectTarget.Self),
-                Effects.DrawCards(DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.BURDEN)))
+                Effects.AddCounters(CounterType.BURDEN, 1, EffectTarget.Self),
+                Effects.DrawCards(DynamicAmounts.countersOnSelf(CounterType.BURDEN))
             )
         )
     }

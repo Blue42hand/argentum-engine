@@ -7,8 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -27,9 +25,9 @@ val FlickACoin = card("Flick a Coin") {
     spell {
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
-            DealDamageEffect(1, t),
+            Effects.DealDamage(1, t),
             Effects.CreateTreasure(),
-            DrawCardsEffect(1)
+            Effects.DrawCards(1)
         )
     }
     metadata {

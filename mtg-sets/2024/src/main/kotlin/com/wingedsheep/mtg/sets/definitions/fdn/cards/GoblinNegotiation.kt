@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Goblin Negotiation
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Composed from existing atoms (mirrors Hell to Pay): [Effects.DealXDamage] deals X to the target
  * and marks the damage, then [Effects.CreateToken] reads the post-damage excess via
- * `EntityProperty(EntityReference.Target(0), ExcessMarkedDamage)` — `max(0, marked − toughness)`
+ * `EntityProperty(EffectTarget.ContextTarget(0), ExcessMarkedDamage)` — `max(0, marked − toughness)`
  * (CR 120.4a). CompositeEffect resolves its steps sequentially with no interleaved SBA pass, so
  * the marked damage in scope at the second step is exactly the X this spell just dealt.
  */
@@ -35,10 +34,7 @@ val GoblinNegotiation = card("Goblin Negotiation") {
         effect = Effects.Composite(
             Effects.DealXDamage(creature),
             Effects.CreateToken(
-                count = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0),
-                    EntityNumericProperty.ExcessMarkedDamage
-                ),
+                count = DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),

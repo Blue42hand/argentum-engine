@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sunhome Enforcer
@@ -34,7 +33,7 @@ val SunhomeEnforcer = card("Sunhome Enforcer") {
 
     triggeredAbility {
         trigger = Triggers.dealsDamage(DamageType.Combat)
-        effect = Effects.GainLife(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
+        effect = Effects.GainLife(DynamicAmounts.triggerDamageAmount())
     }
 
     activatedAbility {

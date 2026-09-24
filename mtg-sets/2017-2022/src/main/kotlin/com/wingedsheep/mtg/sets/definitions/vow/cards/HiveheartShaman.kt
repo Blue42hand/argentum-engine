@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -61,7 +61,7 @@ val HiveheartShaman = card("Hiveheart Shaman") {
         effect = Effects.Composite(
             Effects.CreateToken(power = 1, toughness = 1, colors = setOf(Color.GREEN), creatureTypes = setOf("Insect")),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmounts.domain(),
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )

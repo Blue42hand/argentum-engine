@@ -1,7 +1,9 @@
 package com.wingedsheep.sdk.serialization
 
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.TypeLine
+import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.StaticAbility
@@ -27,6 +29,17 @@ import kotlinx.serialization.json.jsonPrimitive
  *   `TargetChooser.Opponent` outside an activated ability ([checkOpponentChoosers]), an
  *   `EntityMatches` role the evaluator doesn't dispatch, or an attach-scope filter on a card that
  *   can never be attached ([checkAttachedScope]).
+ *
+ * ## Who needs the name-based half
+ *
+ * Kotlin card definitions no longer spell pipeline keys: a pipeline is written with
+ * `Effects.Pipeline { }`, whose steps hand out typed handles, so a read of a collection nobody
+ * wrote cannot be expressed there (and `FacadeBoundaryTest` forbids the raw string-keyed steps in
+ * card code). The name-based checks stay because card trees also arrive as JSON from outside
+ * Kotlin — Argentum Assay's compiled output and the Scenario Builder's custom-card sandbox — and
+ * because a few names still legitimately cross scopes (a cost's `storeAs` read by the effect, the
+ * engine-seeded collections such as `trigger.captured`), where only a whole-card walk can connect
+ * writer and reader.
  *
  * ## How it works
  *
@@ -97,6 +110,7 @@ object CardLinter {
         checkSlots(card.name, slots, findings)
         checkOpponentChoosers(card.name, explicitTree, withinActivatedAbility = false, findings)
         checkAttachedScope(card, findings)
+        checkProwessTrigger(card, findings)
         checkManaAbilityClassification(card.name, fullTree, findings)
         return findings
     }
@@ -408,6 +422,36 @@ object CardLinter {
     }
 
     /**
+     * `Keyword.PROWESS` on its own is display-only: the "+1/+1 whenever you cast a noncreature
+     * spell" trigger is added by the `prowess()` builder, not read off the keyword. A card that
+     * lists the keyword through `keywords(...)` compiles, shows "Prowess", and never pumps — as
+     * thirteen cards across the corpus once did. Checked per face, since each face carries its
+     * own keywords and triggers.
+     */
+    private fun checkProwessTrigger(
+        card: CardDefinition,
+        findings: MutableList<CardValidationError>
+    ) {
+        fun missing(keywords: Set<Keyword>, script: CardScript) =
+            Keyword.PROWESS in keywords &&
+                script.triggeredAbilities.none { it.trigger == Triggers.YouCastNoncreature.event }
+
+        val offends = missing(card.keywords, card.script) ||
+            card.cardFaces.any { missing(it.keywords, it.script) }
+        if (offends) {
+            findings.add(
+                CardValidationError.ProwessWithoutTrigger(
+                    cardName = card.name,
+                    message = "'${card.name}' has Keyword.PROWESS but no \"whenever you cast a " +
+                        "noncreature spell\" trigger, so its prowess is display-only. Use the " +
+                        "prowess() builder, which adds both the keyword and the trigger."
+                )
+            )
+        }
+        card.backFace?.let { checkProwessTrigger(it, findings) }
+    }
+
+    /**
      * The card's printed static abilities across every face — the ones that describe the card as
      * printed, and so must make sense for the card as printed. Class levels count: an unlocked
      * level's statics are printed on the Class, just gated behind the level.
@@ -646,7 +690,6 @@ object CardLinter {
         put("ControllerOfPipelineTarget" to "collectionName", read(Space.COLLECTION))
         put("StoredCardManaValue" to "collectionName", read(Space.COLLECTION))
         put("ManaValueSumOfCollection" to "collectionName", read(Space.COLLECTION))
-        put("FromCostStorage" to "collectionName", read(Space.COLLECTION))
         put("RetargetChooser.OwnerOfStored" to "collectionName", read(Space.COLLECTION))
         put("TapUntapCollection" to "collectionName", read(Space.COLLECTION))
         put("AddCountersToCollection" to "collectionName", read(Space.COLLECTION))
@@ -719,15 +762,14 @@ object CardLinter {
                 type == "CreateTokenCopyOfTarget" || type == "CreateTokenCopyOfSource" ->
                 listOf(Kind.WRITE to (Space.COLLECTION to "createdTokens"))
             // Amass publishes the Army it chose under this well-known name (CR 701.47c), so a
-            // sibling step can address "the amassed Army" — either as
-            // DynamicAmount.EntityProperty(EntityReference.AmassedArmy, …) or, when it needs it
-            // as a target, EffectTarget.PipelineTarget(AmassedArmy.STORAGE_KEY) (Goblin Plate
-            // Mail's "then attach this Equipment to the amassed Army").
+            // sibling step can address "the amassed Army" as EffectTarget.AmassedArmy — to read
+            // it (Foray of Orcs' damage equal to its power) or to act on it (Goblin Plate Mail's
+            // "then attach this Equipment to the amassed Army").
             type == "Amass" ->
                 listOf(
                     Kind.WRITE to (
-                        Space.COLLECTION to com.wingedsheep.sdk.scripting.values
-                            .EntityReference.AmassedArmy.STORAGE_KEY
+                        Space.COLLECTION to com.wingedsheep.sdk.scripting.targets
+                            .EffectTarget.AmassedArmy.STORAGE_KEY
                         ),
                 )
             // The scry / surveil macros are opaque nodes on the card, but the engine expands each
@@ -892,7 +934,7 @@ object CardLinter {
 
     private data class TargetRef(
         val nodeType: String,
-        val index: Int?, // ContextTarget / EntityReference.Target
+        val index: Int?, // ContextTarget
         val boundName: String?, // BoundVariable
     )
 
@@ -1225,7 +1267,9 @@ object CardLinter {
         "EnchantedCreature",
         "EquippedCreature",
         "ContextTarget",
+        "BoundVariable",
         "TriggeringEntity",
+        "IterationEntity",
         "DiscardedAsCost",
         "LibraryTop",
         "LinkedExiledCard",
@@ -1237,8 +1281,6 @@ object CardLinter {
 
         when (type) {
             "ContextTarget" -> (obj["index"] as? JsonPrimitive)?.contentOrNull?.toIntOrNull()
-                ?.let { scope.targetRefs.add(TargetRef(type, it, null)) }
-            "Target" -> (obj["index"] as? JsonPrimitive)?.contentOrNull?.toIntOrNull()
                 ?.let { scope.targetRefs.add(TargetRef(type, it, null)) }
             "BoundVariable" -> (obj["name"] as? JsonPrimitive)?.contentOrNull
                 ?.let { scope.targetRefs.add(TargetRef(type, null, it)) }

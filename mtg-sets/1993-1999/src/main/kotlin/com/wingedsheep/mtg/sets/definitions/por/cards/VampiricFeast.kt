@@ -7,8 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.por.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -26,8 +24,8 @@ val VampiricFeast = card("Vampiric Feast") {
     spell {
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
-            DealDamageEffect(4, t),
-            GainLifeEffect(4)
+            Effects.DealDamage(4, t),
+            Effects.GainLife(4)
         )
     }
     metadata {

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Quill-Blade Laureate // Twofold Intent — Secrets of Strixhaven #27
@@ -40,10 +39,10 @@ val QuillBladeLaureate = card("Quill-Blade Laureate") {
         typeLine = "Sorcery"
         oracleText = "Target creature gets +1/+0 and gains double strike until end of turn."
         spell {
-            target = Targets.Creature
+            val creature = target("target creature", Targets.Creature)
             effect = Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
-                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
+                Effects.ModifyStats(1, 0, creature),
+                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
             )
         }
     }

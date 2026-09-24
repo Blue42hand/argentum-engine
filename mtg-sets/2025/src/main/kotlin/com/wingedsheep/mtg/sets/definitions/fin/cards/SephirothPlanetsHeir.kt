@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The enters debuff applies a per-creature -2/-2 floating effect to every creature an
  * opponent controls at resolution ([Effects.ForEachInGroup] over [GroupFilter], with the
- * iterated creature as [EffectTarget.Self]); creatures that enter later are unaffected, as
+ * iterated creature as [EffectTarget.IterationEntity]); creatures that enter later are unaffected, as
  * the affected set is fixed when the ability resolves. The death trigger is a
  * [Triggers.leavesBattlefield] to the graveyard, filtered to opponent-controlled creatures
  * with [TriggerBinding.ANY].
@@ -44,7 +44,7 @@ val SephirothPlanetsHeir = card("Sephiroth, Planet's Heir") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
-            Effects.ModifyStats(power = -2, toughness = -2, target = EffectTarget.Self)
+            Effects.ModifyStats(power = -2, toughness = -2, target = EffectTarget.IterationEntity)
         )
     }
 
@@ -54,7 +54,7 @@ val SephirothPlanetsHeir = card("Sephiroth, Planet's Heir") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

@@ -107,8 +107,8 @@ private val RoarOfTheFifthPeople = card("Roar of the Fifth People") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype("Dinosaur").youControl()),
             Effects.Composite(
-                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self),
+                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
             ),
         )
     }

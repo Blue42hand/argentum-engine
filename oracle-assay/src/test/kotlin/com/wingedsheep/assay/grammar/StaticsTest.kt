@@ -3,6 +3,7 @@ package com.wingedsheep.assay.grammar
 import com.wingedsheep.assay.syntax.ParseOutcome
 import com.wingedsheep.assay.syntax.parseLine
 import com.wingedsheep.assay.syntax.printLine
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardScript
@@ -274,7 +275,7 @@ class StaticsTest : StringSpec({
                     GroupFilter.source(),
                 ),
                 condition = com.wingedsheep.sdk.scripting.conditions
-                    .PutCounterKindOnCreatureThisTurn("+1/+1"),
+                    .PutCounterKindOnCreatureThisTurn(CounterType.PLUS_ONE_PLUS_ONE),
             )
         )
         roundTrips("~ has trample as long as you've put one or more +1/+1 counters on a creature this turn.")

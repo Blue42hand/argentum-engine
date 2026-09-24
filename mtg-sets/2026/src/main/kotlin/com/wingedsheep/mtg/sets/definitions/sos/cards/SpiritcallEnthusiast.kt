@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -47,8 +46,8 @@ val SpiritcallEnthusiast = card("Spiritcall Enthusiast") {
         typeLine = "Sorcery"
         oracleText = "One or two target creatures each get +2/+2 until end of turn."
         spell {
-            effect = ForEachTargetEffect(
-                listOf(Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)))
+            effect = Effects.ForEachTarget(
+                Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
             )
             target = TargetCreature(count = 2, minCount = 1)
         }

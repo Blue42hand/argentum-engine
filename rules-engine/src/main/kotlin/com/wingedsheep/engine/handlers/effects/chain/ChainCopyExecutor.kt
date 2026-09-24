@@ -139,13 +139,13 @@ class ChainCopyExecutor(
         // Build the yes/no decision
         val sourceName = context.sourceId?.let { sourceId ->
             state.getEntity(sourceId)?.get<CardComponent>()?.name
-        } ?: effect.spellName
+        } ?: "this spell"
 
         val copyCost = effect.copyCost
         val prompt = if (copyCost == null) {
-            "Copy ${effect.spellName} and choose a new target?"
+            "Copy $sourceName and choose a new target?"
         } else {
-            "${copyCost.description.replaceFirstChar { it.uppercase() }} to copy ${effect.spellName} and choose a new target?"
+            "${copyCost.description.replaceFirstChar { it.uppercase() }} to copy $sourceName and choose a new target?"
         }
 
         val (yesText, noText) = if (copyCost == null) {

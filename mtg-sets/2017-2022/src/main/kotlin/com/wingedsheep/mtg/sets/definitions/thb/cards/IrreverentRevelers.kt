@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -33,11 +34,10 @@ val IrreverentRevelers = card("Irreverent Revelers") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                target = Targets.Artifact,
-                description = "Destroy target artifact."
-            ),
+            mode("Destroy target artifact.") {
+                val artifact = target("target artifact", Targets.Artifact)
+                effect = Effects.Destroy(artifact)
+            },
             Mode.noTarget(
                 effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self),
                 description = "This creature gains haste until end of turn."

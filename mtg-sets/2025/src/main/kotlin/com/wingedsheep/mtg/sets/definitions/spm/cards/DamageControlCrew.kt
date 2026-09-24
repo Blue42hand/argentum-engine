@@ -4,12 +4,11 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -42,23 +41,21 @@ val DamageControlCrew = card("Damage Control Crew") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND),
-                target = TargetObject(
+            mode("Repair — Return target card with mana value 4 or greater from your graveyard to your hand.") {
+                val cardInGraveyard = target("target card in graveyard", TargetObject(
                     filter = TargetFilter(
                         GameObjectFilter.Any.ownedByYou().manaValueAtLeast(4),
                         zone = Zone.GRAVEYARD
                     )
-                ),
-                description = "Repair — Return target card with mana value 4 or greater from your graveyard to your hand."
-            ),
-            Mode.withTarget(
-                effect = Effects.Exile(EffectTarget.ContextTarget(0)),
-                target = TargetPermanent(
+                ))
+                effect = Effects.Move(cardInGraveyard, Zone.HAND)
+            },
+            mode("Impound — Exile target artifact or enchantment.") {
+                val artifact = target("target artifact", TargetPermanent(
                     filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment)
-                ),
-                description = "Impound — Exile target artifact or enchantment."
-            )
+                ))
+                effect = Effects.Exile(artifact)
+            }
         )
         description = "When this creature enters, choose one — Repair — Return target card with mana value 4 or greater from your graveyard to your hand. • Impound — Exile target artifact or enchantment."
     }

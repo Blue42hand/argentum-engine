@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -59,7 +58,6 @@ val TheGreatGoblin = card("The Great Goblin") {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature.youControl()
                 .withAnySubtype("Goblin", "Orc", "Army"),
-            counterType = Counters.ANY,
             firstTimeEachTurn = false,
             binding = TriggerBinding.ANY,
             placedBy = Player.You,

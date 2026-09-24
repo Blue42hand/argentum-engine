@@ -19,7 +19,7 @@ val Stifle = card("Stifle") {
     oracleText = "Counter target activated or triggered ability. (Mana abilities can't be targeted.)"
 
     spell {
-        target = Targets.ActivatedOrTriggeredAbility
+        val activatedOrTriggeredAbility = target("target activated or triggered ability", Targets.ActivatedOrTriggeredAbility)
         effect = Effects.CounterAbility()
     }
 

@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -23,7 +23,7 @@ val GaeasProtector = card("Gaea's Protector") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MustBeBlockedEffect(EffectTarget.Self, allCreatures = false)
+        effect = Effects.MustBeBlocked(EffectTarget.Self, allCreatures = false)
     }
 
     metadata {

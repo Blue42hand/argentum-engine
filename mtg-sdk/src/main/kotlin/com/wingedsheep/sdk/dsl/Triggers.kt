@@ -1,7 +1,7 @@
 package com.wingedsheep.sdk.dsl
 
 import com.wingedsheep.sdk.core.BendType
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -12,11 +12,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TapReason
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.events.AbilityTargetMatch
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 
 import com.wingedsheep.sdk.scripting.references.Player
@@ -551,7 +549,7 @@ object Triggers {
      * When this creature deals combat damage to a player. Binding: SELF.
      */
     val DealsCombatDamageToPlayer: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = RecipientFilter.AnyPlayer),
+        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = Recipient.AnyPlayer),
         binding = TriggerBinding.SELF
     )
 
@@ -559,7 +557,7 @@ object Triggers {
      * When this creature deals combat damage to a creature. Binding: SELF.
      */
     val DealsCombatDamageToCreature: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = RecipientFilter.AnyCreature),
+        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = Recipient.AnyCreature),
         binding = TriggerBinding.SELF
     )
 
@@ -621,21 +619,21 @@ object Triggers {
      *
      * Examples:
      * - "Whenever a creature you control deals combat damage to a player":
-     *   `dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer,
+     *   `dealsDamage(DamageType.Combat, Recipient.AnyPlayer,
      *                GameObjectFilter.Creature.youControl(), TriggerBinding.ANY)`
      * - "Whenever enchanted creature deals damage":
      *   `dealsDamage(binding = TriggerBinding.ATTACHED)`
      * - "Whenever this deals combat damage to a player or planeswalker":
-     *   `dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayerOrPlaneswalker)`
+     *   `dealsDamage(DamageType.Combat, Recipient.AnyPlayerOrPlaneswalker)`
      * - "Whenever one or more creatures your opponents control are dealt excess
      *   noncombat damage" (batch wording, CR 603.2c — fires once per event batch,
      *   not once per damaged creature; ANY binding only):
-     *   `dealsDamage(DamageType.NonCombat, RecipientFilter.CreatureOpponentControls,
+     *   `dealsDamage(DamageType.NonCombat, Recipient.CreatureOpponentControls,
      *                binding = TriggerBinding.ANY, requireExcess = true, batch = true)`
      */
     fun dealsDamage(
         damageType: DamageType = DamageType.Any,
-        recipient: RecipientFilter = RecipientFilter.Any,
+        recipient: Recipient = Recipient.Any,
         sourceFilter: GameObjectFilter? = null,
         binding: TriggerBinding = TriggerBinding.SELF,
         requireExcess: Boolean = false,
@@ -1324,6 +1322,17 @@ object Triggers {
     )
 
     /**
+     * Whenever you activate a loyalty ability, if you removed [atLeast] or more loyalty counters to
+     * activate it (CR 606.4) — Way of the Mind Sculptor. Reads the counters the activation's cost
+     * actually removed: a [−N] cost removes N, a [−X] cost removes the chosen X, and a [+N] or [0]
+     * cost removes none.
+     */
+    fun YouActivateLoyaltyAbilityRemovingAtLeast(atLeast: Int): TriggerSpec = TriggerSpec(
+        event = AbilityActivatedEvent(player = Player.You, requireLoyalty = true, minLoyaltyRemoved = atLeast),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * Whenever an opponent activates a loyalty ability (CR 606) — Gideon the Oathless. "That
      * player" in the effect is [com.wingedsheep.sdk.scripting.targets.EffectTarget.PlayerRef] of
      * `Player.TriggeringPlayer`, the activating opponent.
@@ -1403,11 +1412,11 @@ object Triggers {
 
     /**
      * Whenever you activate an ability whose chosen targets satisfy [targetMatch] — e.g.
-     * [AbilityTargetMatch.CreatureOrPlayer] for Ertha Jo, Frontier Mentor's
+     * [Recipient.CreatureOrPlayer] for Ertha Jo, Frontier Mentor's
      * "Whenever you activate an ability that targets a creature or player". A non-targeting
      * ability (a tap-for-mana, etc.) never matches.
      */
-    fun youActivateAbilityTargeting(targetMatch: AbilityTargetMatch): TriggerSpec = TriggerSpec(
+    fun youActivateAbilityTargeting(targetMatch: Recipient): TriggerSpec = TriggerSpec(
         event = AbilityActivatedEvent(player = Player.You, targetMatch = targetMatch),
         binding = TriggerBinding.ANY
     )
@@ -1471,7 +1480,7 @@ object Triggers {
      */
     val PlusOneCountersPlacedOnYourCreature: TriggerSpec = TriggerSpec(
         event = CountersPlacedEvent(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             filter = GameObjectFilter.Creature.youControl()
         ),
         binding = TriggerBinding.ANY
@@ -1500,7 +1509,7 @@ object Triggers {
      */
     fun countersPlacedOn(
         filter: GameObjectFilter = GameObjectFilter.Creature.youControl(),
-        counterType: String = Counters.ANY,
+        counterType: CounterType? = null,
         batch: Boolean = false,
         firstTimeEachTurn: Boolean = !batch,
         binding: TriggerBinding = TriggerBinding.ANY,
@@ -1524,7 +1533,7 @@ object Triggers {
      */
     val CountersPlacedOnThis: TriggerSpec = TriggerSpec(
         event = CountersPlacedEvent(
-            counterType = Counters.ANY,
+            counterType = null,
             filter = GameObjectFilter.Any,
             firstTimeEachTurn = false,
         ),
@@ -1542,7 +1551,7 @@ object Triggers {
      */
     fun countersRemovedFrom(
         filter: GameObjectFilter = GameObjectFilter.Any,
-        counterType: String = Counters.ANY,
+        counterType: CounterType? = null,
         lastRemoved: Boolean = false,
         byDamagePrevention: Boolean = false,
         binding: TriggerBinding = TriggerBinding.ANY,
@@ -1611,7 +1620,7 @@ object Triggers {
      * is dealt damage": `takesDamage(binding = TriggerBinding.ATTACHED)`).
      */
     fun takesDamage(
-        source: SourceFilter = SourceFilter.Any,
+        source: GameObjectFilter = GameObjectFilter.Any,
         binding: TriggerBinding = TriggerBinding.SELF,
     ): TriggerSpec = TriggerSpec(
         event = DamageReceivedEvent(source = source),
@@ -1630,7 +1639,7 @@ object Triggers {
      * Use [damageDealtToYou] to restrict which sources count.
      */
     val YouAreDealtDamage: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(recipient = RecipientFilter.You),
+        event = DealsDamageEvent(recipient = Recipient.You),
         binding = TriggerBinding.ANY
     )
 
@@ -1653,7 +1662,7 @@ object Triggers {
     ): TriggerSpec = TriggerSpec(
         event = DealsDamageEvent(
             damageType = damageType,
-            recipient = RecipientFilter.You,
+            recipient = Recipient.You,
             sourceFilter = sourceFilter,
         ),
         binding = TriggerBinding.ANY
@@ -2500,6 +2509,20 @@ object Triggers {
         filter: GameObjectFilter = GameObjectFilter.Creature
     ): TriggerSpec = TriggerSpec(
         event = OneOrMoreDealCombatDamageToYouEvent(sourceFilter = filter),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
+     * Whenever one or more of your opponents are dealt combat damage — by any source. Batching
+     * trigger: fires at most once per combat-damage step no matter how many opponents were hit.
+     * `triggeringPlayerId` is one of the damaged opponents. Narrow with
+     * `triggerRestriction = Conditions.IsYourTurn` for "during your turn".
+     *
+     * Example: "When one or more of your opponents are dealt combat damage during your turn, draw
+     * two cards." (Fblthp, Impossibly Lost)
+     */
+    val OneOrMoreOpponentsDealtCombatDamage: TriggerSpec = TriggerSpec(
+        event = OpponentsDealtCombatDamageEvent,
         binding = TriggerBinding.ANY
     )
 

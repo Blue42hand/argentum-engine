@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -53,7 +52,7 @@ val SpittingSlug = card("Spitting Slug") {
             // Runs whether or not the cost is paid; the unpaid branch below hands first strike to
             // the partners instead, so the Slug never keeps it for free.
             Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self),
-            PayOrSufferEffect(
+            Effects.PayOrSuffer(
                 cost = Costs.pay.Mana("{1}{G}"),
                 suffer = Effects.Composite(
                     Effects.RemoveKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self),

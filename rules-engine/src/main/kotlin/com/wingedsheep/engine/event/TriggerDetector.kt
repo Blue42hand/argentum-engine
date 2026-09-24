@@ -56,7 +56,7 @@ import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.*
 import com.wingedsheep.sdk.scripting.predicates.evaluateWith
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.decayed
 
@@ -80,7 +80,7 @@ class TriggerDetector(
     private val matcher = TriggerMatcher(predicateEvaluator, conditionEvaluator)
     private val abilityResolver = TriggerAbilityResolver(cardRegistry, abilityRegistry, predicateEvaluator = predicateEvaluator)
     private val deathAndLeaveDetector = DeathAndLeaveTriggerDetector(abilityResolver, matcher)
-    private val damageDetector = DamageTriggerDetector(abilityResolver, matcher)
+    private val damageDetector = DamageTriggerDetector(abilityResolver, matcher, predicateEvaluator = predicateEvaluator)
     private val attachmentDetector = AttachmentTriggerDetector(abilityResolver, matcher)
 
     /**
@@ -146,14 +146,13 @@ class TriggerDetector(
                     val trigger = ability.trigger
                     if (trigger is EventPattern.DealsDamageEvent && ability.binding == TriggerBinding.ANY) {
                         // Every "… deals damage to you" observer goes to the damage-to-you index,
-                        // with or without a sourceFilter — `RecipientFilter.You` is unmatchable in
-                        // the general observer path (TriggerMatcher.matchesDealsDamageTrigger
-                        // returns false for it), so a source-filtered one routed anywhere else
-                        // would silently never fire (Farsight Mask).
-                        if (trigger.recipient == RecipientFilter.You) {
+                        // with or without a sourceFilter, and only there: that path binds the
+                        // damage *source* as the triggering entity ("…exile it", Farsight Mask), and
+                        // routing it to the general observers as well would fire it twice.
+                        if (trigger.recipient == Recipient.You) {
                             damageToYou.add(entry)
                         } else if (trigger.damageType == DamageType.Combat &&
-                            trigger.recipient == RecipientFilter.AnyPlayer &&
+                            trigger.recipient == Recipient.AnyPlayer &&
                             trigger.sourceFilter != null &&
                             trigger.sourceFilter is GameObjectFilter &&
                             (trigger.sourceFilter as GameObjectFilter).cardPredicates.any {
@@ -563,7 +562,7 @@ class TriggerDetector(
                     // A step-based trigger has no event to name a triggering entity, so the one it
                     // was told to watch stands in — "destroy all creatures that blocked or were
                     // blocked by *it* this turn" (Gaze of the Gorgon) reads the watched creature
-                    // through EntityReference.Triggering.
+                    // through EffectTarget.TriggeringEntity.
                     triggeringEntityId = delayed.fireOnPlayerId ?: delayed.watchedEntityId,
                     triggeringPlayerId = delayed.fireOnPlayerId
                 ),
@@ -1083,7 +1082,7 @@ class TriggerDetector(
                 // Recipient-scoped ("…to *that player* this turn"): the damaged entity must be
                 // the baked recipient. The spec's recipient filter still applies on top.
                 if (watchedRecipientId != null && event.targetId != watchedRecipientId) return false
-                matcher.matchesDealsDamageTrigger(specEvent, event, state, controllerId)
+                matcher.matchesDealsDamageTrigger(specEvent, event, state, controllerId, sourceId)
             }
             // "When damage is prevented this way": fires only for this delayed trigger's own
             // shield, matched by the linkId echoed back on the DamagePreventedEvent.
@@ -2988,6 +2987,28 @@ class TriggerDetector(
                     continue
                 }
 
+                // "One or more of your opponents are dealt combat damage" — keyed on the damaged
+                // players, any source: one trigger per batch however many opponents were hit.
+                if (trigger is EventPattern.OpponentsDealtCombatDamageEvent) {
+                    val controllerId = entry.controllerId
+                    val hit = combatDamageByDamagedPlayer.entries
+                        .firstOrNull { (playerId, _) -> state.isOpponentOf(playerId, controllerId) }
+                        ?: continue
+                    triggers.add(
+                        PendingTrigger(
+                            ability = ability,
+                            sourceId = entry.entityId,
+                            sourceName = entry.cardComponent.name,
+                            controllerId = controllerId,
+                            triggerContext = TriggerContext(
+                                triggeringEntityId = hit.value.first().sourceId,
+                                triggeringPlayerId = hit.key
+                            )
+                        )
+                    )
+                    continue
+                }
+
                 if (trigger !is EventPattern.OneOrMoreDealCombatDamageToPlayerEvent) continue
 
                 val controllerId = entry.controllerId
@@ -3475,7 +3496,7 @@ class TriggerDetector(
         val registry = cardRegistry
 
         // Find all LORE counter addition events
-        val loreEvents = events.filterIsInstance<CountersAddedEvent>().filter { it.counterType == "LORE" }
+        val loreEvents = events.filterIsInstance<CountersAddedEvent>().filter { it.counterType == CounterType.LORE }
         if (loreEvents.isEmpty()) return
 
         for (event in loreEvents) {

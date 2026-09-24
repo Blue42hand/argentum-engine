@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,10 +8,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.events.ControllerFilter
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -43,11 +41,11 @@ val RosieCottonOfSouthLane = card("Rosie Cotton of South Lane") {
 
     triggeredAbility {
         trigger = TriggerSpec(
-            event = EventPattern.TokenCreationEvent(controller = ControllerFilter.You),
+            event = EventPattern.TokenCreationEvent(controller = Player.You),
             binding = TriggerBinding.ANY
         )
-        target("creature you control other than Rosie Cotton", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
-        effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
+        val otherCreatureYouControl = target("creature you control other than Rosie Cotton", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, otherCreatureYouControl)
     }
 
     metadata {

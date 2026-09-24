@@ -735,7 +735,7 @@ val BlazingTorch = card("Blazing Torch") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -764,7 +764,7 @@ val BloodcrazedNeonate = card("Bloodcrazed Neonate") {
     }
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -985,9 +985,9 @@ val Bramblecrush = card("Bramblecrush") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
@@ -1006,10 +1006,10 @@ val BrimstoneVolley = card("Brimstone Volley") {
     oracleText = "Brimstone Volley deals 3 damage to any target.\nMorbid — Brimstone Volley deals 5 damage instead if a creature died this turn."
     spell {
         val t = target("target", AnyTarget())
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CreatureDiedThisTurn,
-            effect = DealDamageEffect(5, t),
-            elseEffect = DealDamageEffect(3, t)
+            then = DealDamageEffect(5, t),
+            otherwise = DealDamageEffect(3, t)
         )
     }
     metadata {
@@ -1238,7 +1238,7 @@ val CellarDoor = card("Cellar Door") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -1268,7 +1268,7 @@ val ChampionOfTheParish = card("Champion of the Parish") {
             filter = GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(),
             binding = TriggerBinding.OTHER
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
@@ -2599,7 +2599,7 @@ val EvilTwin = card("Evil Twin") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -2627,7 +2627,7 @@ val FalkenrathMarauders = card("Falkenrath Marauders") {
     keywords(Keyword.FLYING, Keyword.HASTE)
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
@@ -3177,7 +3177,7 @@ val GalvanicJuggernaut = card("Galvanic Juggernaut") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -3210,7 +3210,7 @@ val GavonyTownship = card("Gavony Township") {
         cost = Costs.Composite(Costs.Mana("{2}{G}{W}"), Costs.Tap)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -3919,14 +3919,14 @@ val HamletCaptain = card("Hamlet Captain") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(), excludeSelf = true),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     triggeredAbility {
         trigger = Triggers.Blocks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(), excludeSelf = true),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -4159,7 +4159,7 @@ val HystericalBlindness = card("Hysterical Blindness") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
-            Effects.ModifyStats(-4, 0, EffectTarget.Self)
+            Effects.ModifyStats(-4, 0, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -5237,7 +5237,7 @@ val MidnightHaunting = card("Midnight Haunting") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -5266,7 +5266,7 @@ val MikaeusTheLunarch = card("Mikaeus, the Lunarch") {
     replacementEffect(EntersWithDynamicCounters(count = DynamicAmount.XValue))
     activatedAbility {
         cost = Costs.Tap
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     // STRUCTURE needs human wiring: activated-cost
     metadata {
@@ -6382,7 +6382,7 @@ val RageThrower = card("Rage Thrower") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -6391,7 +6391,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -6412,11 +6412,11 @@ val RakishHeir = card("Rakish Heir") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             DamageType.Combat,
-            RecipientFilter.AnyPlayer,
+            Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -6458,7 +6458,7 @@ val RallyThePeasants = card("Rally the Peasants") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.ModifyStats(2, 0, EffectTarget.Self)
+            Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
         )
     }
     keywordAbility(KeywordAbility.flashback("{2}{R}"))
@@ -6671,7 +6671,7 @@ val RollingTemblor = card("Rolling Temblor") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            DealDamageEffect(2, EffectTarget.Self)
+            DealDamageEffect(2, EffectTarget.IterationEntity)
         )
     }
     keywordAbility(KeywordAbility.flashback("{4}{R}{R}"))
@@ -6886,7 +6886,7 @@ val SelflessCathar = card("Selfless Cathar") {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.SacrificeSelf)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -8009,7 +8009,7 @@ val StonySilence = card("Stony Silence") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8040,7 +8040,7 @@ val StromkirkNoble = card("Stromkirk Noble") {
     }
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
@@ -8058,7 +8058,7 @@ val StromkirkNoble = card("Stromkirk Noble") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8082,7 +8082,7 @@ val StromkirkPatrol = card("Stromkirk Patrol") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -8316,7 +8316,7 @@ val TraitorousBlood = card("Traitorous Blood") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8342,7 +8342,7 @@ val TravelPreparations = card("Travel Preparations") {
     spell {
         val t = target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
         effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
         )
     }
     keywordAbility(KeywordAbility.flashback("{1}{W}"))
@@ -8824,8 +8824,8 @@ val VampiricFury = card("Vampiric Fury") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl()),
             Effects.Composite(
-                Effects.ModifyStats(2, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self)
+                Effects.ModifyStats(2, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.IterationEntity)
             )
         )
     }
@@ -8925,7 +8925,7 @@ val VillageBellRinger = card("Village Bell-Ringer") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Untap(EffectTarget.Self)
+            Effects.Untap(EffectTarget.IterationEntity)
         )
     }
     metadata {

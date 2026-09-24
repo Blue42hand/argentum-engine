@@ -8,11 +8,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -40,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * creature of their choice" mode is [ForEachPlayerEffect] over [ForceSacrificeEffect] with
  * `target = Controller` so each player chooses their own. The back's activated ability pumps every
  * creature you control that has flying, deathtouch, and/or lifelink via [Effects.ForEachInGroup]
- * over a keyword-union [GroupFilter], applying +1/+0 to each ([EffectTarget.Self] inside the group).
+ * over a keyword-union [GroupFilter], applying +1/+0 to each ([EffectTarget.IterationEntity] inside the group).
  * The back is a transformed face with no mana cost, so its color comes from a color indicator
  * (CR 204): `colorIndicator = "B"`.
  */
@@ -64,14 +61,12 @@ private val HenrikaDomnathiFront = card("Henrika Domnathi") {
         effect = ModalEffect.chooseOneNotYetChosen(
             // • Each player sacrifices a creature of their choice.
             Mode.noTarget(
-                ForEachPlayerEffect(
+                Effects.ForEachPlayer(
                     players = Player.Each,
-                    effects = listOf(
-                        ForceSacrificeEffect(
-                            filter = GameObjectFilter.Creature,
-                            count = 1,
-                            target = EffectTarget.Controller,
-                        ),
+                    effect = Effects.Sacrifice(
+                        filter = GameObjectFilter.Creature,
+                        count = 1,
+                        target = EffectTarget.Controller,
                     ),
                 ),
                 "Each player sacrifices a creature of their choice",
@@ -83,7 +78,7 @@ private val HenrikaDomnathiFront = card("Henrika Domnathi") {
             ),
             // • Transform Henrika.
             Mode.noTarget(
-                TransformEffect(EffectTarget.Self),
+                Effects.Transform(EffectTarget.Self),
                 "Transform Henrika",
             ),
         )
@@ -119,7 +114,7 @@ private val HenrikaInfernalSeer = card("Henrika, Infernal Seer") {
                     GameObjectFilter.Creature.youControl().withKeyword(Keyword.DEATHTOUCH) or
                     GameObjectFilter.Creature.youControl().withKeyword(Keyword.LIFELINK),
             ),
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
+            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
         )
         description = "Each creature you control with flying, deathtouch, and/or lifelink gets +1/+0 " +
             "until end of turn."

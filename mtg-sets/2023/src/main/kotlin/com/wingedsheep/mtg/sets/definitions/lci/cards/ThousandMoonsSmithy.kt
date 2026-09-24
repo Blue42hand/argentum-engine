@@ -11,12 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TapUntapCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Costs
@@ -46,7 +40,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    the token itself ([GroupFilter.source]), counting artifacts and/or creatures you control — so it
  *    updates continuously, not a snapshot at creation (BonnyPall Clearcutter's idiom). The same token
  *    factory feeds both the front ETB and the back cast trigger.
- *  - The first-main "you may tap five … If you do, transform" is an [OptionalCostEffect] whose payable
+ *  - The first-main "you may tap five … If you do, transform" is an [Effects.MayPay] whose payable
  *    cost is the Gather → Select-exactly-5 → Tap pipeline (Caparocti Sunborn's idiom), transforming on
  *    payment.
  *  - Barracks' cast trigger uses [SpellCastPredicate.PaidWithManaFromSource] — the mana-source
@@ -94,28 +88,24 @@ private val ThousandMoonsSmithyFront = card("Thousand Moons Smithy") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        val tapCost = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.ControlledPermanents(
-                        player = Player.You,
-                        filter = (GameObjectFilter.Artifact or GameObjectFilter.Creature).untapped(),
-                    ),
-                    storeAs = "smithyTapPool",
-                ),
-                SelectFromCollectionEffect(
-                    from = "smithyTapPool",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(5)),
-                    storeSelected = "smithyToTap",
-                    prompt = "Tap five untapped artifacts and/or creatures you control",
-                    useTargetingUI = true,
-                ),
-                TapUntapCollectionEffect("smithyToTap", tap = true),
-            ),
-        )
-        effect = OptionalCostEffect(
+        val tapCost = Effects.Pipeline {
+            val smithyTapPool = gather(
+                CardSource.ControlledPermanents(
+                    player = Player.You,
+                    filter = (GameObjectFilter.Artifact or GameObjectFilter.Creature).untapped(),
+                )
+            )
+            val smithyToTap = chooseExactly(
+                5,
+                from = smithyTapPool,
+                prompt = "Tap five untapped artifacts and/or creatures you control",
+                useTargetingUI = true
+            )
+            run(Effects.TapCollection(smithyToTap, tap = true))
+        }
+        effect = Effects.MayPay(
             cost = tapCost,
-            ifPaid = TransformEffect(EffectTarget.Self),
+            then = Effects.Transform(EffectTarget.Self),
             descriptionOverride = "You may tap five untapped artifacts and/or creatures you control. " +
                 "If you do, transform Thousand Moons Smithy.",
         )

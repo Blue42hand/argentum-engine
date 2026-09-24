@@ -4,7 +4,6 @@ import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
@@ -20,7 +19,6 @@ import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -54,8 +52,8 @@ class StationMechanicTest : ScenarioTestBase() {
         activatedAbility {
             cost = Costs.TapPermanents(count = 1, filter = GameObjectFilter.Creature, excludeSelf = true)
             effect = Effects.AddDynamicCounters(
-                counterType = Counters.CHARGE,
-                amount = DynamicAmount.EntityProperty(EntityReference.TappedAsCost(), EntityNumericProperty.Power),
+                counterType = CounterType.CHARGE,
+                amount = DynamicAmount.EntityProperty(EffectTarget.TappedAsCost(), EntityNumericProperty.Power),
                 target = EffectTarget.Self
             )
             timing = TimingRule.SorcerySpeed

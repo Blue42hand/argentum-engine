@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -28,14 +28,11 @@ val SettleTheScore = card("Settle the Score") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        effect = Effects.Exile(creature)
-            .then(Effects.SelectTarget(
-                requirement = TargetObject(
-                    filter = TargetFilter(GameObjectFilter.Planeswalker.youControl())
-                ),
-                storeAs = "chosenPW"
-            ))
-            .then(Effects.AddCountersToCollection("chosenPW", Counters.LOYALTY, 2))
+        effect = Effects.Pipeline {
+            run(Effects.Exile(creature))
+            val chosenPW = selectTarget(TargetObject(filter = TargetFilter(GameObjectFilter.Planeswalker.youControl())))
+            run(Effects.AddCountersToCollection(chosenPW, CounterType.LOYALTY, 2))
+        }
     }
 
     metadata {

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Basilica Skullbomb
@@ -30,11 +29,11 @@ val BasilicaSkullbomb = card("Basilica Skullbomb") {
     }
 
     activatedAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         cost = Costs.Composite(Costs.Mana("{2}{W}"), Costs.SacrificeSelf)
-        target = Targets.CreatureYouControl
         effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)),
-            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.ContextTarget(0)),
+            Effects.ModifyStats(2, 2, creatureYouControl),
+            Effects.GrantKeyword(Keyword.FLYING, creatureYouControl),
             Effects.DrawCards(1)
         )
         timing = TimingRule.SorcerySpeed

@@ -1263,7 +1263,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1447,7 +1447,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "SHROUD",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {

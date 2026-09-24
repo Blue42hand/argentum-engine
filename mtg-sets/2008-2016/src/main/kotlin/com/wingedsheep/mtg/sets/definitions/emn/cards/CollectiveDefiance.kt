@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOpponentOrPlaneswalker
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /** Collective Defiance — Eldritch Moon #123. */
 val CollectiveDefiance = card("Collective Defiance") {
@@ -26,7 +25,7 @@ val CollectiveDefiance = card("Collective Defiance") {
                 val player = target("wheel player", TargetPlayer())
                 effect = Effects.Composite(
                     Patterns.Hand.discardHand(player),
-                    Effects.DrawCards(DynamicAmount.VariableReference("discardedHand_count"), player),
+                    Effects.DrawCards(Patterns.Hand.discardedHand.count, player),
                 )
             }
             mode("Collective Defiance deals 4 damage to target creature.") {

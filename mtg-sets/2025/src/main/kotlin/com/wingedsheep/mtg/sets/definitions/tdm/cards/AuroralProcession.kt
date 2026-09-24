@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -22,10 +21,10 @@ val AuroralProcession = card("Auroral Procession") {
     oracleText = "Return target card from your graveyard to your hand."
 
     spell {
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD)
-        )
-        effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+        ))
+        effect = Effects.ReturnToHand(target)
     }
 
     metadata {

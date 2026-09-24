@@ -56,7 +56,7 @@ val GoblinShrine = card("Goblin Shrine") {
         trigger = Triggers.LeavesBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN)),
-            Effects.DealDamage(1, EffectTarget.Self),
+            Effects.DealDamage(1, EffectTarget.IterationEntity),
         )
         description = "When this Aura leaves the battlefield, it deals 1 damage to each Goblin creature."
     }

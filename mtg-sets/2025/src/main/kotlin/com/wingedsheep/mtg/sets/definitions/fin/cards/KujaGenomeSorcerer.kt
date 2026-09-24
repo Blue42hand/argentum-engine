@@ -12,11 +12,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -36,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The token carries its noncreature-cast trigger via [CreateTokenEffect.triggeredAbilities]
  * (Sidequest: Raise a Chocobo's pattern). The "Then if" transform check is a
- * [ConditionalEffect] *after* the token creation in the same resolution, so the freshly
+ * [Effects.If] *after* the token creation in the same resolution, so the freshly
  * created Wizard counts toward the four. Flare Star is the Gratuitous Violence shape
  * ([DoubleDamage]) restricted to Wizards you control; per the official ruling the doubled
  * damage is still dealt by the original source, which the replacement preserves.
@@ -55,9 +50,9 @@ private val TranceKujaFateDefied = card("Trance Kuja, Fate Defied") {
     replacementEffect(
         DoubleDamage(
             appliesTo = EventPattern.DamageEvent(
-                source = SourceFilter.Matching(
+                source = 
                     GameObjectFilter.Creature.withSubtype("Wizard").youControl()
-                ),
+                ,
             )
         )
     )
@@ -86,7 +81,7 @@ private val KujaGenomeSorcererFront = card("Kuja, Genome Sorcerer") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         effect = Effects.Composite(
-            CreateTokenEffect(
+            Effects.CreateToken(
                 power = 0,
                 toughness = 1,
                 colors = setOf(Color.BLACK),
@@ -97,16 +92,16 @@ private val KujaGenomeSorcererFront = card("Kuja, Genome Sorcerer") {
                     TriggeredAbility.create(
                         trigger = Triggers.YouCastNoncreature.event,
                         binding = TriggerBinding.ANY,
-                        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+                        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
                     ),
                 ),
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControlAtLeast(
                     4,
                     GameObjectFilter.Creature.withSubtype("Wizard")
                 ),
-                effect = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
     }

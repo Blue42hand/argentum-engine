@@ -52,7 +52,7 @@ class DistributeCountersAmongTargetsExecutor(
             return EffectResult.success(state)
         }
 
-        val counterType = resolveCounterType(effect.counterType)
+        val counterType = effect.counterType
 
         // Calculate distribution: each target gets at least minPerTarget, remainder to first
         val distribution = calculateDistribution(totalCounters, targetIds.size)
@@ -74,7 +74,7 @@ class DistributeCountersAmongTargetsExecutor(
             currentState = currentState.updateEntity(targetId) { container ->
                 container.with(current.withAdded(counterType, modifiedCount))
             }
-            currentState = DamageUtils.markCounterPlacedOnCreature(currentState, context.controllerId, targetId, counterTypeToString(counterType))
+            currentState = DamageUtils.markCounterPlacedOnCreature(currentState, context.controllerId, targetId, counterType)
 
             val entityName = state.getEntity(targetId)?.get<CardComponent>()?.name ?: ""
             events.add(CountersAddedEvent(targetId, effect.counterType, modifiedCount, entityName, firstThisTurn, placedBy = context.controllerId))

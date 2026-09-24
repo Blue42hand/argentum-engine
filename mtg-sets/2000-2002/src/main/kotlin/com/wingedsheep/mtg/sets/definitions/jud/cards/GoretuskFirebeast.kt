@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.jud.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
 
 
@@ -28,7 +28,7 @@ val GoretuskFirebeast = card("Goretusk Firebeast") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetPlayerOrPlaneswalker())
-        effect = DealDamageEffect(4, t)
+        effect = Effects.DealDamage(4, t)
     }
     metadata {
         rarity = Rarity.COMMON

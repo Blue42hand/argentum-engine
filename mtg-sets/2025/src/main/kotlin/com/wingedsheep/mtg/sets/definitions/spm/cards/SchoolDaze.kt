@@ -3,8 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 /**
@@ -23,13 +21,13 @@ val SchoolDaze = card("School Daze") {
     spell {
         modal(chooseCount = 1) {
             mode("Do Homework — Draw three cards") {
-                effect = DrawCardsEffect(3)
+                effect = Effects.DrawCards(3)
             }
             mode("Fight Crime — Counter target spell. Draw a card") {
                 val t = target("target", TargetSpell())
                 effect = Effects.Composite(
-                    CounterEffect(),
-                    DrawCardsEffect(1)
+                    Effects.CounterSpell(),
+                    Effects.DrawCards(1)
                 )
             }
         }

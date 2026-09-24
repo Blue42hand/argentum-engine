@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val SurgicalPrecision = card("Surgical Precision") {
@@ -17,11 +17,13 @@ val SurgicalPrecision = card("Surgical Precision") {
 
     spell {
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.Composite(Effects.Destroy(EffectTarget.ContextTarget(0)), Effects.GainLife(1)),
-                TargetCreature(filter = TargetFilter.Creature.toughnessAtLeast(4)),
-                "Destroy target creature with toughness 4 or greater. You gain 1 life."
-            ),
+            mode("Destroy target creature with toughness 4 or greater. You gain 1 life.") {
+                val creature = target(
+                    "target creature",
+                    TargetCreature(filter = TargetFilter.Creature.toughnessAtLeast(4))
+                )
+                effect = Effects.Composite(Effects.Destroy(creature), Effects.GainLife(1))
+            },
             Mode(
                 effect = Effects.Composite(Effects.DrawCards(1), Effects.GainLife(2)),
                 description = "You draw a card and gain 2 life."

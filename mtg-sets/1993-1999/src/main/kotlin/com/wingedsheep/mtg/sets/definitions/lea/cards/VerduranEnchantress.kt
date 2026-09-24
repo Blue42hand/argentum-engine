@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -27,7 +27,7 @@ val VerduranEnchantress = card("Verduran Enchantress") {
     triggeredAbility {
         trigger = Triggers.YouCastEnchantment
         optional = true
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.RARE

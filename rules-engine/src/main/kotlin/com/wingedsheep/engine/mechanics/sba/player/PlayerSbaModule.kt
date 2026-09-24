@@ -10,6 +10,7 @@ class PlayerSbaModule(private val zones: ZoneTransitionService) : StateBasedActi
         AscendCitysBlessingCheck(),
         StoriedEnduringStoryCheck(),
         PlayerLifeLossCheck(predicateEvaluator = zones.predicateEvaluator),
+        EmptyLibraryDrawLossCheck(predicateEvaluator = zones.predicateEvaluator),
         CommanderDamageLossCheck(predicateEvaluator = zones.predicateEvaluator),
         PoisonLossCheck(predicateEvaluator = zones.predicateEvaluator),
         TeamLossPropagationCheck(),

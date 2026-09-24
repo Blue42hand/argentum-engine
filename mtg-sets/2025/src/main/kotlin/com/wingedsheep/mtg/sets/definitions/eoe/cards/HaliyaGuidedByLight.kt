@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,10 +10,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.EventPattern.*
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Haliya, Guided by Light
@@ -50,10 +49,10 @@ val HaliyaGuidedByLight = card("Haliya, Guided by Light") {
     // At the beginning of your end step, draw a card if you've gained 3 or more life this turn.
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        triggerRestriction = Compare(
+        triggerRestriction = Conditions.CompareAmounts(
             DynamicAmounts.lifeGainedThisTurn(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(3)
+            3
         )
         effect = Effects.DrawCards(1)
     }

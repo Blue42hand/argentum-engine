@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -34,9 +34,9 @@ val QarsiRevenant = card("Qarsi Revenant") {
     renew("{2}{B}") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.Composite(listOf(
-            Effects.AddCounters(Counters.FLYING, 1, creature),
-            Effects.AddCounters(Counters.DEATHTOUCH, 1, creature),
-            Effects.AddCounters(Counters.LIFELINK, 1, creature)
+            Effects.AddCounters(CounterType.FLYING, 1, creature),
+            Effects.AddCounters(CounterType.DEATHTOUCH, 1, creature),
+            Effects.AddCounters(CounterType.LIFELINK, 1, creature)
         ))
     }
 

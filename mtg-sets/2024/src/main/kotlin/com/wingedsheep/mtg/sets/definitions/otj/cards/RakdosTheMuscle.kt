@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -11,17 +11,11 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Rakdos, the Muscle
@@ -40,7 +34,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  * - Flying/trample keywords.
  * - The sacrifice trigger ([Triggers.YouSacrificeOneOrMore] over creatures) targets a player and
  *   impulse-exiles the top X of that player's library, where X is the sacrificed creature's mana
- *   value — read via [EntityReference.Triggering] (the sacrificed creature is the triggering
+ *   value — read via [EffectTarget.TriggeringEntity] (the sacrificed creature is the triggering
  *   entity; its `CardComponent.manaValue` survives in the graveyard). It then grants a may-play
  *   permission expiring at the controller's next end step ([MayPlayExpiry.UntilNextEndStep]) with
  *   `withAnyManaType = true` — the same impulse-play-with-any-mana primitive Laughing Jasper Flint
@@ -50,7 +44,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *   ([ActivationRestriction.OncePerTurn]). Activating it also satisfies the sacrifice trigger above.
  */
 private val rakdosManaValueX: DynamicAmount =
-    DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.ManaValue)
+    DynamicAmounts.triggeringManaValue()
 
 val RakdosTheMuscle = card("Rakdos, the Muscle") {
     manaCost = "{2}{B}{B}{R}"
@@ -70,26 +64,20 @@ val RakdosTheMuscle = card("Rakdos, the Muscle") {
     triggeredAbility {
         trigger = Triggers.YouSacrificeOneOrMore(GameObjectFilter.Creature)
         val targetPlayer = target("target player", Targets.Player)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(
-                        count = rakdosManaValueX,
-                        player = Player.ContextPlayer(0),
-                    ),
-                    storeAs = "rakdosExiled",
-                ),
-                MoveCollectionEffect(
-                    from = "rakdosExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0)),
-                ),
-                GrantMayPlayFromExileEffect(
-                    from = "rakdosExiled",
-                    expiry = MayPlayExpiry.UntilNextEndStep,
-                    withAnyManaType = true,
-                ),
+        effect = Effects.Pipeline {
+            val rakdosExiled = gather(
+                CardSource.TopOfLibrary(
+                    count = rakdosManaValueX,
+                    player = targetPlayer.asPlayer,
+                )
             )
-        )
+            exile(rakdosExiled, targetPlayer.asPlayer)
+            run(Effects.GrantMayPlayFromExile(
+                from = rakdosExiled,
+                expiry = MayPlayExpiry.UntilNextEndStep,
+                withAnyManaType = true,
+            ))
+        }
         description = "Whenever you sacrifice another creature, exile cards equal to its mana value " +
             "from the top of target player's library. Until your next end step, you may play those " +
             "cards, and mana of any type can be spent to cast those spells."

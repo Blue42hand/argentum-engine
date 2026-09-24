@@ -1,18 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Outrageous Robbery — Murders at Karlov Manor #97
@@ -33,22 +29,15 @@ val OutrageousRobbery = card("Outrageous Robbery") {
 
     spell {
         target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.XValue, Player.TargetOpponent),
-                storeAs = "robbedCards",
-            ),
-            MoveCollectionEffect(
-                from = "robbedCards",
-                destination = CardDestination.ToZone(Zone.EXILE, Player.TargetOpponent),
-                faceDown = FaceDownMode.HIDDEN,
-            ),
-            Effects.GrantMayPlayFromExile(
-                from = "robbedCards",
+        effect = Effects.Pipeline {
+            val robbedCards = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue(), Player.TargetOpponent))
+            exile(robbedCards, Player.TargetOpponent, faceDown = FaceDownMode.HIDDEN)
+            run(Effects.GrantMayPlayFromExile(
+                from = robbedCards,
                 expiry = MayPlayExpiry.Permanent,
                 withAnyManaType = true,
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Winnow
@@ -29,9 +28,9 @@ val Winnow = card("Winnow") {
 
     spell {
         val permanent = target("target nonland permanent", Targets.NonlandPermanent)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.AnotherPermanentWithSameNameAsTarget(),
-            effect = Effects.Destroy(permanent),
+            then = Effects.Destroy(permanent),
         ) then Effects.DrawCards(1)
     }
 

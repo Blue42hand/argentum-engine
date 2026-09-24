@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -24,7 +24,7 @@ val CosmiumBlast = card("Cosmium Blast") {
     oracleText = "Cosmium Blast deals 4 damage to target attacking or blocking creature."
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature))
-        effect = DealDamageEffect(4, t)
+        effect = Effects.DealDamage(4, t)
     }
     metadata {
         rarity = Rarity.COMMON

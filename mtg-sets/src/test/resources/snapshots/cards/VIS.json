@@ -151,12 +151,15 @@
                 "amount": 4
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "any target"
             }
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ],
         "selfAlternativeCost": {
             "manaCost": "{0}",
@@ -371,7 +374,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -834,11 +837,14 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "targetRequirements": [
-            "TargetOpponent"
+            {
+                "type": "TargetOpponent",
+                "id": "target opponent"
+            }
         ]
     },
     "metadata": {
@@ -937,7 +943,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1137,7 +1143,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },

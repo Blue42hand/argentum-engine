@@ -151,7 +151,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -191,7 +191,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 }
@@ -893,11 +893,11 @@
                         "type": "FromZone",
                         "zone": "Hand"
                     },
-                    "storeAs": "hand"
+                    "storeAs": "gathered1"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "hand",
+                    "from": "gathered1",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -905,12 +905,12 @@
                             "amount": 2
                         }
                     },
-                    "storeSelected": "discarded",
+                    "storeSelected": "selected2",
                     "prompt": "Choose two cards to discard"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "discarded",
+                    "from": "selected2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard"
@@ -1552,7 +1552,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "loyalty",
+                    "counterType": "LOYALTY",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1602,7 +1602,7 @@
                             "binding": "ANY",
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -1626,15 +1626,15 @@
                             "source": {
                                 "type": "ControlledPermanents",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 }
                             },
-                            "storeAs": "their_permanents"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "their_permanents",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1643,19 +1643,19 @@
                                 }
                             },
                             "chooser": "TargetPlayer",
-                            "storeSelected": "chosen",
+                            "storeSelected": "selected1",
                             "prompt": "Choose a permanent you control to return to its owner's hand",
                             "useTargetingUI": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "chosen",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 }
                             }
                         },
@@ -1664,22 +1664,22 @@
                             "source": {
                                 "type": "ControlledPermanents",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 },
                                 "filter": "nonland permanent"
                             },
-                            "storeAs": "their_nonlands"
+                            "storeAs": "gathered3"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "their_nonlands",
+                            "from": "gathered3",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 },
                                 "placement": "Shuffled"
                             }
@@ -2176,7 +2176,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",

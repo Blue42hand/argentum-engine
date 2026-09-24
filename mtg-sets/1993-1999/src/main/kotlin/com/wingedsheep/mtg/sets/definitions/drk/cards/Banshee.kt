@@ -1,13 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
+import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Banshee
@@ -39,11 +41,11 @@ val Banshee = card("Banshee") {
         val victim = target("any target", Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(
-                DynamicAmount.Divide(DynamicAmount.XValue, DynamicAmount.Fixed(2), roundUp = false),
+                DynamicAmounts.xValue() / 2,
                 victim,
             ),
             Effects.DealDamage(
-                DynamicAmount.Divide(DynamicAmount.XValue, DynamicAmount.Fixed(2), roundUp = true),
+                DynamicAmounts.xValue() divRoundedUp 2,
                 EffectTarget.PlayerRef(Player.You),
             ),
         )

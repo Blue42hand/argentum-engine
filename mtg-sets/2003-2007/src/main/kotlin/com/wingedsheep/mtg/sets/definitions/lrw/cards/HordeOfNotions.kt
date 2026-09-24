@@ -3,11 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GrantFreeCastTargetFromExileEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -48,12 +47,12 @@ val HordeOfNotions = card("Horde of Notions") {
     keywords(Keyword.VIGILANCE, Keyword.TRAMPLE, Keyword.HASTE)
 
     activatedAbility {
-        cost = Costs.Mana("{W}{U}{B}{R}{G}")
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter.CardInGraveyard.withSubtype(Subtype.ELEMENTAL).ownedByYou(),
             id = "elemental"
-        )
-        effect = GrantFreeCastTargetFromExileEffect(target = EffectTarget.ContextTarget(0))
+        ))
+        cost = Costs.Mana("{W}{U}{B}{R}{G}")
+        effect = Effects.GrantFreeCastTargetFromExile(target = target)
         description = "You may play target Elemental card from your graveyard without paying its mana cost."
     }
 

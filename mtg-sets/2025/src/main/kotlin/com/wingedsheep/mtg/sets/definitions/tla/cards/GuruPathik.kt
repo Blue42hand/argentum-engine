@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Guru Pathik
@@ -36,7 +35,7 @@ val GuruPathik = card("Guru Pathik") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(5),
+            count = 5,
             filter = GameObjectFilter.Any.withAnySubtype("Lesson", "Saga", "Shrine"),
             prompt = "You may reveal a Lesson, Saga, or Shrine card to put into your hand"
         )
@@ -51,7 +50,7 @@ val GuruPathik = card("Guru Pathik") {
             "another target creature you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     metadata {

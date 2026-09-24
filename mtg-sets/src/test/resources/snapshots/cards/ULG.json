@@ -645,7 +645,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -1026,7 +1026,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -1234,7 +1235,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1630,7 +1631,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Graveyard",
                 "byDestruction": true
             }
@@ -1819,7 +1820,7 @@
                             "type": "Fixed",
                             "amount": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }

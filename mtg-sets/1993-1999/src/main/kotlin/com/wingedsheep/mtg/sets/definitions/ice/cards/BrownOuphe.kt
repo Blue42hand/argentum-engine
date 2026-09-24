@@ -27,11 +27,11 @@ val BrownOuphe = card("Brown Ouphe") {
         "(Mana abilities can't be targeted.)"
 
     activatedAbility {
-        cost = Costs.Composite(Costs.Mana("{1}{G}"), Costs.Tap)
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter.ActivatedAbilityOnStack
                 .abilitySourceMatches(GameObjectFilter.Artifact)
-        )
+        ))
+        cost = Costs.Composite(Costs.Mana("{1}{G}"), Costs.Tap)
         effect = Effects.CounterAbility()
         description = "{1}{G}, {T}: Counter target activated ability from an artifact source."
     }

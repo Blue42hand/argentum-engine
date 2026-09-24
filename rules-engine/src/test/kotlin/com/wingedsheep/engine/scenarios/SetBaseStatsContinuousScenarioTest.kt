@@ -7,7 +7,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.stats.SetBaseStatsExecu
 import com.wingedsheep.sdk.scripting.values.contextScopedReferenceIn
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.ScenarioTestBase
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Costs
@@ -21,7 +21,6 @@ import com.wingedsheep.sdk.scripting.effects.SetBaseStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -122,7 +121,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
         oracleText = "Put a +1/+1 counter on target creature."
         spell {
             val creature = target("creature", Targets.Creature)
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         }
     }
 
@@ -429,13 +428,13 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
             // triggering object — the exact shape Belligerent Yearling uses in snapshot mode —
             // has nothing to resolve against and would read 0 on every pass forever.
             val triggeringPower = DynamicAmount.EntityProperty(
-                EntityReference.Triggering,
+                EffectTarget.TriggeringEntity,
                 EntityNumericProperty.Power,
             )
 
             withClue("the scan finds a context-scoped reference at any depth, and only there") {
                 contextScopedReferenceIn(DynamicAmounts.cardsInYourHand()) shouldBe null
-                contextScopedReferenceIn(triggeringPower) shouldBe "Triggering"
+                contextScopedReferenceIn(triggeringPower) shouldBe "TriggeringEntity"
                 contextScopedReferenceIn(DynamicAmount.XValue) shouldBe "XValue"
                 contextScopedReferenceIn(
                     DynamicAmount.Add(DynamicAmounts.cardsInYourHand(), DynamicAmount.XValue)
@@ -445,7 +444,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
                         DynamicAmounts.cardsInYourHand(),
                         DynamicAmount.Multiply(triggeringPower, 2),
                     )
-                ) shouldBe "Triggering"
+                ) shouldBe "TriggeringEntity"
             }
 
             val game = build("Hill Giant")
@@ -469,7 +468,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
                     reevaluateContinuously = true
                 )
             }
-            thrown.message!! shouldContain "Triggering"
+            thrown.message!! shouldContain "TriggeringEntity"
 
             withClue("the check is on the flag, not the amount: a nested one is caught too") {
                 shouldThrow<IllegalArgumentException> {
@@ -483,7 +482,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
                         duration = Duration.EndOfTurn,
                         reevaluateContinuously = true,
                     )
-                }.message!! shouldContain "Triggering"
+                }.message!! shouldContain "TriggeringEntity"
             }
         }
     }

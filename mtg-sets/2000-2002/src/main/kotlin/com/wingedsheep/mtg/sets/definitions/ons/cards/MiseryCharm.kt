@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -51,7 +50,7 @@ val MiseryCharm = card("Misery Charm") {
             }
             mode("Target player loses 2 life") {
                 val t = target("target", TargetPlayer())
-                effect = LoseLifeEffect(2, t)
+                effect = Effects.LoseLife(2, t)
             }
         }
     }

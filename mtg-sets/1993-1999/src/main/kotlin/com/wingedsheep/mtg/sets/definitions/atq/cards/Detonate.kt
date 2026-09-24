@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.atq.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Detonate
@@ -34,7 +34,7 @@ val Detonate = card("Detonate") {
             "artifact with mana value X",
             TargetObject(filter = TargetFilter.Artifact.manaValueEqualsX())
         )
-        effect = Effects.DealDamage(DynamicAmount.XValue, EffectTarget.TargetController)
+        effect = Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.TargetController)
             .then(Effects.Destroy(artifact, noRegenerate = true))
     }
 

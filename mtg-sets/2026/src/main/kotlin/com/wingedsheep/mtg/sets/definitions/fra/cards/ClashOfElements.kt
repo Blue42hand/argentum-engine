@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -32,7 +31,7 @@ val ClashOfElements = card("Clash of Elements") {
     spell {
         val permanent = target("target nonland permanent", TargetPermanent(filter = TargetFilter.NonlandPermanent))
         val owner = EffectTarget.PlayerRef(Player.OwnerOf("target nonland permanent"))
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Composite(
                 Effects.PutOnTopOfLibrary(permanent),
                 Effects.DealDamage(2, owner),

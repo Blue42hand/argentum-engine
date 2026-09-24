@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPla
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -50,7 +49,7 @@ val ElegyAcolyte = card("Elegy Acolyte") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.Void
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(),

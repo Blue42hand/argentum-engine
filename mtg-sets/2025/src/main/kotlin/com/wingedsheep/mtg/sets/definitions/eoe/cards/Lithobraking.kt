@@ -4,9 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -28,12 +25,12 @@ val Lithobraking = card("Lithobraking") {
 
     spell {
         effect = Effects.CreateLander().then(
-            ReflexiveTriggerEffect(
-                action = SacrificeEffect(GameObjectFilter.Artifact),
+            Effects.ReflexiveTrigger(
+                action = Effects.SacrificeOwn(GameObjectFilter.Artifact),
                 optional = true,
                 reflexiveEffect = Effects.ForEachInGroup(
                     GroupFilter.AllCreatures,
-                    DealDamageEffect(2, EffectTarget.Self)
+                    Effects.DealDamage(2, EffectTarget.IterationEntity)
                 )
             )
         )

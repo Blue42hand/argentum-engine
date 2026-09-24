@@ -71,7 +71,7 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaValue"
                             },
                             "target": {
@@ -227,7 +227,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "quest",
+                        "counterType": "QUEST",
                         "count": 1,
                         "target": "Self"
                     }
@@ -249,13 +249,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "quest"
-                            }
+                            "counterType": "QUEST"
                         }
                     },
                     "operator": "GTE",
@@ -513,7 +510,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",
@@ -595,7 +595,7 @@
                     "type": "Fixed",
                     "amount": 13
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "staticAbilities": [
@@ -777,7 +777,7 @@
                     "type": "Fixed",
                     "amount": 6
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -824,19 +824,19 @@
                             "targetDescription": "target permanent"
                         }
                     },
-                    "storeAs": "revealed",
+                    "storeAs": "gathered1",
                     "revealed": true
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "revealed",
+                    "from": "gathered1",
                     "selection": "SelectAll",
                     "filter": "permanent",
-                    "storeSelected": "permanentCard"
+                    "storeSelected": "selected2"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "permanentCard",
+                    "from": "selected2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"
@@ -986,11 +986,11 @@
                                 },
                                 "player": "Each"
                             },
-                            "storeAs": "exiledCards"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiledCards",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -998,16 +998,13 @@
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "exiledCards",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "nonland"
-                            },
-                            "storeMatching": "castable"
+                            "from": "gathered0",
+                            "filter": "nonland",
+                            "storeMatching": "matching2"
                         },
                         {
                             "type": "CastAnyNumberFromCollectionWithoutPayingCost",
-                            "from": "castable"
+                            "from": "matching2"
                         }
                     ]
                 }
@@ -1090,11 +1087,11 @@
                                     "amount": 3
                                 }
                             },
-                            "storeAs": "hideawayTopA"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTopA",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1102,15 +1099,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPickedA",
-                            "storeRemainder": "hideawayRestA",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPickedA",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1120,7 +1117,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRestA",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -1149,11 +1146,11 @@
                                     "amount": 3
                                 }
                             },
-                            "storeAs": "hideawayTopB"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTopB",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1161,15 +1158,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPickedB",
-                            "storeRemainder": "hideawayRestB",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPickedB",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1179,7 +1176,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRestB",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -1195,7 +1192,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -1203,15 +1203,15 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "hideawayLinked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GrantPlayWithoutPayingCost",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         }
                     ]
                 }
@@ -1340,12 +1340,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1422,8 +1422,8 @@
                             "type": "Fight",
                             "target1": "Self",
                             "target2": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target grothama"
                             }
                         }
                     },
@@ -1431,7 +1431,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature name:Grothama, All-Devouring"
-                        }
+                        },
+                        "id": "target grothama"
                     }
                 },
                 "filter": {
@@ -1551,16 +1552,16 @@
                                         "IsPermanent",
                                         {
                                             "type": "ManaValueAtMostEntity",
-                                            "reference": "Triggering"
+                                            "reference": "TriggeringEntity"
                                         }
                                     ]
                                 }
                             },
-                            "storeAs": "kodama_candidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "kodama_candidates",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -1568,12 +1569,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "kodama_putting",
+                            "storeSelected": "selected1",
                             "prompt": "Choose a permanent card with equal or lesser mana value to put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "kodama_putting",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -1639,7 +1640,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "RepeatDynamicTimes",
@@ -1868,13 +1872,13 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": "creature ctrl:you"
                 },
                 "binding": "ANY",
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "growth",
+                    "counterType": "GROWTH",
                     "amount": {
                         "type": "ContextProperty",
                         "key": "TRIGGER_COUNTERS_PLACED_AMOUNT"
@@ -1897,13 +1901,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "growth"
-                            }
+                            "counterType": "GROWTH"
                         }
                     },
                     "operator": "GTE",
@@ -1926,7 +1927,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2026,7 +2027,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -2124,10 +2125,13 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "creature"
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -70,14 +71,13 @@ val BreechesEagerPillager = card("Breeches, Eager Pillager") {
                 "Create a Treasure token",
             ),
             // • Target creature can't block this turn.
-            Mode.withTarget(
-                Effects.CantBlock(),
-                Targets.Creature,
-                "Target creature can't block this turn",
-            ),
+            mode("Target creature can't block this turn") {
+                val creature = target("target creature", Targets.Creature)
+                effect = Effects.CantBlock(target = creature)
+            },
             // • Exile the top card of your library. You may play it this turn.
             Mode.noTarget(
-                Patterns.Exile.impulse(count = 1, storeAs = "breechesExiled"),
+                Patterns.Exile.impulse(count = 1),
                 "Exile the top card of your library. You may play it this turn",
             ),
         )

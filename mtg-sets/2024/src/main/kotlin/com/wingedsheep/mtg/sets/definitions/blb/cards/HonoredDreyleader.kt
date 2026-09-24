@@ -1,9 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Honored Dreyleader
@@ -45,8 +45,8 @@ val HonoredDreyleader = card("Honored Dreyleader") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.AggregateBattlefield(Player.You, squirrelOrFoodFilter, excludeSelf = true),
+            CounterType.PLUS_ONE_PLUS_ONE,
+            DynamicAmounts.battlefield(Player.You, squirrelOrFoodFilter, excludeSelf = true).count(),
             EffectTarget.Self
         )
     }
@@ -60,7 +60,7 @@ val HonoredDreyleader = card("Honored Dreyleader") {
             ),
             binding = TriggerBinding.OTHER
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

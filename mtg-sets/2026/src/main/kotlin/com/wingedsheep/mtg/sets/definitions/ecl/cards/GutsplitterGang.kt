@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -29,10 +28,10 @@ val GutsplitterGang = card("Gutsplitter Gang") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = Patterns.Mechanic.blight(2),
-            ifPaid = Effects.Composite(emptyList()),
-            ifNotPaid = Effects.LoseLife(3, EffectTarget.Controller),
+            then = Effects.Composite(emptyList()),
+            otherwise = Effects.LoseLife(3, EffectTarget.Controller),
             descriptionOverride = "You may blight 2. If you don't, you lose 3 life"
         )
     }

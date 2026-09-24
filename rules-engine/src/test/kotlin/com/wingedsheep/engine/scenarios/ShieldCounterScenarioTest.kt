@@ -5,7 +5,6 @@ import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -88,7 +87,7 @@ class ShieldCounterScenarioTest : ScenarioTestBase() {
         oracleText = "Put a shield counter on target creature."
         spell {
             val t = target("target creature", Targets.Creature)
-            effect = Effects.AddCounters(Counters.SHIELD, 1, t)
+            effect = Effects.AddCounters(CounterType.SHIELD, 1, t)
         }
     }
 

@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
@@ -42,8 +41,8 @@ val ServantOfTheStinger = card("Servant of the Stinger") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         interveningIf = Conditions.YouCommittedCrimeThisTurn
-        effect = GatedEffect(
-            gate = Gate.MayPay(SacrificeSelfEffect),
+        effect = Effects.MayPay(
+            cost = SacrificeSelfEffect,
             then = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any,
                 count = 1,

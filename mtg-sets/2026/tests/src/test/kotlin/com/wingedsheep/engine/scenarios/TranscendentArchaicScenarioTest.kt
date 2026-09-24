@@ -20,7 +20,7 @@ import com.wingedsheep.engine.core.Outcome
  *
  * Pins the Converge-driven ETB looter:
  *  - X = `DynamicAmount.DistinctColorsManaSpent`, read off the entering creature's recorded payment.
- *  - The draw is optional (a `MayEffect` yes/no). Declining draws and discards nothing.
+ *  - The draw is optional (a `Effects.May` yes/no). Declining draws and discards nothing.
  *  - The discard is gated on "you drew one or more this way" — i.e. X >= 1. A `yes` with X = 0
  *    (all-colourless payment) draws nothing and must NOT force the discard.
  */

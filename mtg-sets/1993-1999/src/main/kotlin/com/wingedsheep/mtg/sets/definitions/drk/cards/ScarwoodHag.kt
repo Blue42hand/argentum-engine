@@ -33,16 +33,16 @@ val ScarwoodHag = card("Scarwood Hag") {
         "{T}: Target creature loses forestwalk until end of turn."
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(Costs.Mana("{G}{G}{G}{G}"), Costs.Tap)
-        target = Targets.Creature
-        effect = Effects.GrantKeyword(Keyword.FORESTWALK)
+        effect = Effects.GrantKeyword(Keyword.FORESTWALK, target = creature)
         description = "{G}{G}{G}{G}, {T}: Target creature gains forestwalk until end of turn."
     }
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Tap
-        target = Targets.Creature
-        effect = Effects.RemoveKeyword(Keyword.FORESTWALK)
+        effect = Effects.RemoveKeyword(Keyword.FORESTWALK, target = creature)
         description = "{T}: Target creature loses forestwalk until end of turn."
     }
 

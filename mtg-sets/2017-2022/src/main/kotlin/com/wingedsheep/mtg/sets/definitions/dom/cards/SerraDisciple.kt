@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -29,7 +29,7 @@ val SerraDisciple = card("Serra Disciple") {
 
     triggeredAbility {
         trigger = Triggers.YouCastHistoric
-        effect = ModifyStatsEffect(1, 1, EffectTarget.Self, Duration.EndOfTurn)
+        effect = Effects.ModifyStats(1, 1, EffectTarget.Self, Duration.EndOfTurn)
     }
 
     metadata {

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * "Cards drawn this way" is the actual number drawn, not the number asked for: a short library or
@@ -29,19 +28,19 @@ val RiseOfTheDeathbringer = card("Rise of the Deathbringer") {
         "• All creatures get -3/-3 until end of turn."
 
     spell {
-        val drawnThisTurn = DynamicAmount.TurnTracking(Player.You, TurnTracker.CARDS_DRAWN)
+        val drawnThisTurn = DynamicAmounts.cardsDrawnThisTurn(Player.You)
         effect = ModalEffect.chooseOne(
             Mode(
-                effect = Effects.Composite(
-                    Effects.StoreNumber("drawnBefore", drawnThisTurn),
-                    Effects.DrawCards(
+                effect = Effects.Pipeline {
+                    val drawnBefore = storeNumber(drawnThisTurn)
+                    run(Effects.DrawCards(
                         DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower()
-                    ),
-                    Effects.LoseLife(
-                        DynamicAmount.Subtract(drawnThisTurn, DynamicAmount.VariableReference("drawnBefore")),
+                    ))
+                    run(Effects.LoseLife(
+                        drawnThisTurn - drawnBefore.amount,
                         EffectTarget.Controller
-                    )
-                ),
+                    ))
+                },
                 description = "Draw cards equal to the greatest power among creatures you control. You lose " +
                     "life equal to the number of cards drawn this way."
             ),

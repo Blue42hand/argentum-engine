@@ -87,8 +87,8 @@
                 "amount": 4
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -96,7 +96,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -128,6 +129,30 @@
         "triggeredAbilities": [
             {
                 "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Self"
+                }
+            },
+            {
+                "id": "ability_2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -581,8 +606,8 @@
                 "condition": {
                     "type": "EntityMatches",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "creature card from your graveyard"
                     },
                     "filter": "creature Zombie"
                 }
@@ -681,12 +706,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "MENACE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -735,7 +760,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "t1"
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -805,15 +833,15 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "reveal opponent"
                                     }
                                 },
-                                "storeAs": "opponentHand"
+                                "storeAs": "gathered1"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "opponentHand",
+                                "from": "gathered1",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -822,20 +850,20 @@
                                     }
                                 },
                                 "filter": "instant|sorcery",
-                                "storeSelected": "toDiscard",
+                                "storeSelected": "selected2",
                                 "prompt": "Choose an instant or sorcery card to discard",
                                 "showAllCards": true,
                                 "alwaysPrompt": true
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "toDiscard",
+                                "from": "selected2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "reveal opponent"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -971,8 +999,8 @@
                                             "type": "FromZone",
                                             "zone": "Hand",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "wheel player"
                                             }
                                         },
                                         "storeAs": "discardedHand"
@@ -984,8 +1012,8 @@
                                             "type": "ToZone",
                                             "zone": "Graveyard",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "wheel player"
                                             }
                                         },
                                         "moveType": "Discard"
@@ -1350,12 +1378,12 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1415,15 +1443,15 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
-                            "storeAs": "hand"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hand",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1432,14 +1460,14 @@
                                 }
                             },
                             "filter": "nonland mv<=3",
-                            "storeSelected": "cheap",
+                            "storeSelected": "selected2",
                             "prompt": "Choose a nonland card with mana value 3 or less",
                             "showAllCards": true,
                             "alwaysPrompt": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hand",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1448,33 +1476,33 @@
                                 }
                             },
                             "filter": "mv>=4",
-                            "storeSelected": "expensive",
+                            "storeSelected": "selected3",
                             "prompt": "Choose a card with mana value 4 or greater",
                             "showAllCards": true,
                             "alwaysPrompt": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "cheap",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "expensive",
+                            "from": "selected3",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"
@@ -1718,7 +1746,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1824,7 +1852,7 @@
                                         },
                                         "right": {
                                             "type": "EntityProperty",
-                                            "entity": "Sacrificed",
+                                            "entity": "SacrificedAsCost",
                                             "numericProperty": "ManaValue"
                                         }
                                     }
@@ -2598,7 +2626,10 @@
                                 "baseFilter": "creature ctrl:opponent"
                             }
                         },
-                        "body": "MarkMustAttackThisTurn"
+                        "body": {
+                            "type": "MarkMustAttackThisTurn",
+                            "target": "IterationEntity"
+                        }
                     },
                     "descriptionOverride": "Creatures your opponents control attack this turn if able."
                 }
@@ -3332,7 +3363,7 @@
                         "type": "CounterCondition.UnlessPaysDynamic",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": "Power"
                         }
                     }
@@ -3343,7 +3374,8 @@
                         "filter": {
                             "baseFilter": "instant|sorcery",
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target instant or sorcery spell"
                     }
                 ],
                 "descriptionOverride": "Counter target instant or sorcery spell unless its controller pays {X}, where X is this creature's power."
@@ -3676,7 +3708,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "TRAMPLE",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -3736,7 +3768,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -3803,7 +3835,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3872,7 +3904,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "CreateToken",
@@ -4089,8 +4124,8 @@
                         {
                             "type": "CreateTokenCopyOfTarget",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature card from your graveyard"
                             },
                             "overridePower": 1,
                             "overrideToughness": 1,
@@ -4113,12 +4148,18 @@
                             ],
                             "dynamicPower": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature card from your graveyard"
+                                },
                                 "numericProperty": "Power"
                             },
                             "dynamicToughness": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature card from your graveyard"
+                                },
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -4200,14 +4241,14 @@
                             {
                                 "type": "GatherCards",
                                 "source": "FromLinkedExile",
-                                "storeAs": "quelledCard"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "Gated",
                                 "gate": "Gate.MayDecide",
                                 "then": {
                                     "type": "CastFromCollectionWithoutPayingCost",
-                                    "from": "quelledCard"
+                                    "from": "gathered0"
                                 },
                                 "descriptionOverride": "Cast the exiled card without paying its mana cost"
                             }
@@ -4277,11 +4318,11 @@
                         "zone": "Graveyard",
                         "filter": "land"
                     },
-                    "storeAs": "graveyard_lands"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "graveyard_lands",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield",
@@ -4471,7 +4512,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -4556,7 +4600,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -4938,12 +4982,15 @@
                     "type": "ExchangeLifeAndStat",
                     "stat": "TOUGHNESS",
                     "player": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target opponent"
                     }
                 },
                 "targetRequirements": [
-                    "TargetOpponent"
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target opponent"
+                    }
                 ],
                 "descriptionOverride": "Exchange target opponent's life total with this creature's toughness"
             }

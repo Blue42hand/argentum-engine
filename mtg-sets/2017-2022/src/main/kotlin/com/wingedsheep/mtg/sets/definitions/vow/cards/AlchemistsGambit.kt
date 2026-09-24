@@ -5,9 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
-import com.wingedsheep.sdk.scripting.effects.TakeExtraTurnEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -52,7 +50,7 @@ val AlchemistsGambit = card("Alchemist's Gambit") {
     spell {
         // Delayed trigger shared by both modes: at the start of the extra turn (the controller's
         // next turn), make damage impossible to prevent for that whole turn.
-        val damageCantBePrevented = CreateDelayedTriggerEffect(
+        val damageCantBePrevented = Effects.CreateDelayedTrigger(
             step = Step.UPKEEP,
             effect = Effects.DamageCantBePreventedThisTurn(),
             fireOnPlayer = EffectTarget.PlayerRef(Player.You),
@@ -61,13 +59,13 @@ val AlchemistsGambit = card("Alchemist's Gambit") {
 
         // Printed (brackets present): extra turn, no prevention, lose at that turn's end step.
         effect = Effects.Composite(
-            TakeExtraTurnEffect(loseAtEndStep = true),
+            Effects.TakeExtraTurn(loseAtEndStep = true),
             damageCantBePrevented,
         )
 
         // Cleaved (brackets removed): extra turn, no prevention, but no lose-the-game drawback.
         cleaveEffect = Effects.Composite(
-            TakeExtraTurnEffect(loseAtEndStep = false),
+            Effects.TakeExtraTurn(loseAtEndStep = false),
             damageCantBePrevented,
         )
 

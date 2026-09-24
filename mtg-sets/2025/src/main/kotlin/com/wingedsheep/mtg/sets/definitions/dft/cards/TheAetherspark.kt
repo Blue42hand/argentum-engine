@@ -1,7 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,12 +10,10 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeAttackedWhileAttached
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Aetherspark — Aetherdrift #231
@@ -40,13 +39,13 @@ val TheAetherspark = card("The Aetherspark") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.Any,
+            recipient = Recipient.Any,
             binding = TriggerBinding.ATTACHED,
         )
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.AddDynamicCounters(
-            Counters.LOYALTY,
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            CounterType.LOYALTY,
+            DynamicAmounts.triggerDamageAmount(),
             EffectTarget.Self,
         )
         description = "Whenever equipped creature deals combat damage during your turn, put that " +
@@ -59,7 +58,7 @@ val TheAetherspark = card("The Aetherspark") {
             TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
         )
         effect = Effects.AttachEquipment(creature) then
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     loyaltyAbility(-5) {

@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 
@@ -28,7 +28,7 @@ val WanderguardSentry = card("Wanderguard Sentry") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetOpponent())
-        effect = LookAtTargetHandEffect(t)
+        effect = Effects.LookAtHand(t)
     }
     metadata {
         rarity = Rarity.COMMON

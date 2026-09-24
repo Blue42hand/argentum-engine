@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 
@@ -32,7 +31,7 @@ val ErodedCanyon = card("Eroded Canyon") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetOpponent())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
     activatedAbility {
         cost = Costs.Tap

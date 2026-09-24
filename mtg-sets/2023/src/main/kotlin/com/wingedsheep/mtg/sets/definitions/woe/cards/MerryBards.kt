@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Merry Bards
@@ -37,9 +36,9 @@ val MerryBards = card("Merry Bards") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val targetCreature = target("target creature you control", Targets.CreatureYouControl)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.CreateRoleToken("Young Hero Role", targetCreature)
+            then = Effects.CreateRoleToken("Young Hero Role", targetCreature)
         )
     }
 

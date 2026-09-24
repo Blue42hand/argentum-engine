@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wail of the Forgotten
@@ -49,10 +49,10 @@ val WailOfTheForgotten = card("Wail of the Forgotten") {
         modal(
             chooseCount = 3,
             minChooseCount = 1,
-            dynamicChooseCount = DynamicAmount.Conditional(
+            dynamicChooseCount = DynamicAmounts.conditional(
                 condition = Conditions.CardsInGraveyardMatchingAtLeast(8, GameObjectFilter.Permanent),
-                ifTrue = DynamicAmount.Fixed(3),
-                ifFalse = DynamicAmount.Fixed(1)
+                ifTrue = 3,
+                ifFalse = 1
             )
         ) {
             mode("Return target nonland permanent to its owner's hand") {

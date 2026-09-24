@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 val MasterOfBarbs = card("Master of Barbs") {
@@ -26,7 +26,7 @@ val MasterOfBarbs = card("Master of Barbs") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.NonCombat,
-            recipient = RecipientFilter.Opponent,
+            recipient = Recipient.Opponent,
             binding = TriggerBinding.ANY,
             batch = true,
         )

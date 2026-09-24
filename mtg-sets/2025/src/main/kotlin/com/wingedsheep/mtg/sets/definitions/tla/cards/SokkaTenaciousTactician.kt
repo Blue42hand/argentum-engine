@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -61,9 +60,9 @@ val SokkaTenaciousTactician = card("Sokka, Tenacious Tactician") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.YouCastNoncreature.event,
                 binding = Triggers.YouCastNoncreature.binding,
-                effect = ModifyStatsEffect(
-                    powerModifier = 1,
-                    toughnessModifier = 1,
+                effect = Effects.ModifyStats(
+                    power = 1,
+                    toughness = 1,
                     target = EffectTarget.Self,
                 ),
             ),

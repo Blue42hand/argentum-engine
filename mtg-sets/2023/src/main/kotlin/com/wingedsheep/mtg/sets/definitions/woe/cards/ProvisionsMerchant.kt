@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever this creature attacks, you may sacrifice a Food. If you do, attacking creatures get
  * +1/+1 and gain trample until end of turn.
  *
- * The attack ability is the [BristlebudFarmer] shape: a [MayEffect] wrapping
+ * The attack ability is the [BristlebudFarmer] shape: a [Effects.May] wrapping
  * `Sacrifice(Food).then(payoff)`, so declining — or simply controlling no Food — skips the payoff
  * without the ability fizzling. "If you do" (not "When you do") means the pump happens in the same
  * resolution rather than as a reflexive trigger.
@@ -53,7 +52,7 @@ val ProvisionsMerchant = card("Provisions Merchant") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Sacrifice(
                 GameObjectFilter.Artifact.withSubtype("Food"),
                 count = 1,

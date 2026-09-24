@@ -9,8 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 
@@ -46,10 +45,10 @@ private val EffectCapWarden = card("Effect Cap Warden") {
 
     triggeredAbility {
         trigger = TriggerSpec(
-            DealsDamageEvent(recipient = RecipientFilter.CreatureYouControl),
+            DealsDamageEvent(recipient = Recipient.CreatureYouControl),
             TriggerBinding.ANY,
         )
-        effect = MayEffect(Effects.GainLife(2))
+        effect = Effects.May(Effects.GainLife(2))
         effectOncePerTurn = true
     }
 
@@ -68,10 +67,10 @@ private val TriggerCapWarden = card("Trigger Cap Warden") {
 
     triggeredAbility {
         trigger = TriggerSpec(
-            DealsDamageEvent(recipient = RecipientFilter.CreatureYouControl),
+            DealsDamageEvent(recipient = Recipient.CreatureYouControl),
             TriggerBinding.ANY,
         )
-        effect = MayEffect(Effects.GainLife(2))
+        effect = Effects.May(Effects.GainLife(2))
         oncePerTurn = true
     }
 

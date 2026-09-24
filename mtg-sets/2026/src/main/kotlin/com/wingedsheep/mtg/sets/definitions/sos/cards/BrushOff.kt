@@ -33,7 +33,7 @@ val BrushOff = card("Brush Off") {
         "Counter target spell."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
     }
 

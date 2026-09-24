@@ -6,10 +6,10 @@ package com.wingedsheep.mtg.sets.definitions.uds.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -30,7 +30,7 @@ val BloodshotCyclops = card("Bloodshot Cyclops") {
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.Sacrifice(GameObjectFilter.Creature))
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(DynamicAmounts.sacrificedPower(), t)
+        effect = Effects.DealDamage(DynamicAmounts.sacrificedPower(), t)
     }
     metadata {
         rarity = Rarity.RARE

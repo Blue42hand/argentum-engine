@@ -42,7 +42,7 @@
                             "player": "Each",
                             "filter": "creature attacking"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -190,8 +190,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -201,7 +201,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "permanent"
-                        }
+                        },
+                        "id": "target permanent"
                     }
                 ],
                 "descriptionOverride": "{7}, {T}, Sacrifice this artifact: Destroy target permanent."

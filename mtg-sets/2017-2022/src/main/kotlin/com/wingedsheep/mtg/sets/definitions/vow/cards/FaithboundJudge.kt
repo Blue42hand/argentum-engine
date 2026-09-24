@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CanAttackDespiteDefender
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,7 +45,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    difference is printed. The Judge's clause gates the trigger *and* is rechecked on resolution,
  *    so it rides `interveningIf`; a fourth counter can therefore never land. The Aura's clause is
  *    the word "Then", which is checked only while the ability resolves and *after* the counter has
- *    been added — so it is a [ConditionalEffect] sequenced behind the add, and the third counter
+ *    been added — so it is a [Effects.If] sequenced behind the add, and the third counter
  *    kills the enchanted player on the very upkeep it lands.
  *  - **"three or more"/"two or fewer" are counter-count conditions on the source**, not board
  *    conditions: [Conditions.SourceCounterCountAtLeast] and its downward twin
@@ -81,8 +80,8 @@ private val FaithboundJudgeFront = card("Faithbound Judge") {
     // put a judgment counter on it.
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        interveningIf = Conditions.SourceCounterCountAtMost(Counters.JUDGMENT, 2)
-        effect = Effects.AddCounters(Counters.JUDGMENT, 1, EffectTarget.Self)
+        interveningIf = Conditions.SourceCounterCountAtMost(CounterType.JUDGMENT, 2)
+        effect = Effects.AddCounters(CounterType.JUDGMENT, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, if this creature has two or fewer " +
             "judgment counters on it, put a judgment counter on it."
     }
@@ -91,7 +90,7 @@ private val FaithboundJudgeFront = card("Faithbound Judge") {
     // it didn't have defender.
     staticAbility {
         ability = CanAttackDespiteDefender(
-            condition = Conditions.SourceCounterCountAtLeast(Counters.JUDGMENT, 3)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.JUDGMENT, 3)
         )
     }
 
@@ -128,10 +127,10 @@ private val SinnersJudgment = card("Sinner's Judgment") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.JUDGMENT, 1, EffectTarget.Self),
-            ConditionalEffect(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.JUDGMENT, 3),
-                effect = Effects.LoseGame(
+            Effects.AddCounters(CounterType.JUDGMENT, 1, EffectTarget.Self),
+            Effects.If(
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.JUDGMENT, 3),
+                then = Effects.LoseGame(
                     target = EffectTarget.PlayerRef(Player.EnchantedPlayer),
                     message = "Sinner's Judgment"
                 ),

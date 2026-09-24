@@ -5,7 +5,10 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
@@ -30,7 +33,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
@@ -304,9 +306,9 @@ class CardLinterTest : DescribeSpec({
             val card = instant(
                 "Unkicked",
                 CardScript(
-                    spellEffect = ConditionalEffect(
+                    spellEffect = Effects.If(
                         condition = CastChoiceMade(ChoiceSlot.KICKED),
-                        effect = DealDamageEffect(DynamicAmount.Fixed(3), EffectTarget.ContextTarget(0)),
+                        then = DealDamageEffect(DynamicAmount.Fixed(3), EffectTarget.ContextTarget(0)),
                     ),
                     targetRequirements = listOf(AnyTarget()),
                 ),
@@ -321,9 +323,9 @@ class CardLinterTest : DescribeSpec({
             val card = instant(
                 "Kicked",
                 CardScript(
-                    spellEffect = ConditionalEffect(
+                    spellEffect = Effects.If(
                         condition = CastChoiceMade(ChoiceSlot.KICKED),
-                        effect = DealDamageEffect(DynamicAmount.Fixed(3), EffectTarget.ContextTarget(0)),
+                        then = DealDamageEffect(DynamicAmount.Fixed(3), EffectTarget.ContextTarget(0)),
                     ),
                     kickerSpellEffect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                     targetRequirements = listOf(AnyTarget()),
@@ -440,9 +442,9 @@ class CardLinterTest : DescribeSpec({
             val card = instant(
                 "Unsupported Role",
                 CardScript(
-                    spellEffect = ConditionalEffect(
+                    spellEffect = Effects.If(
                         condition = EntityMatches(EffectTarget.Controller, GameObjectFilter.Creature),
-                        effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
+                        then = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                     ),
                     targetRequirements = listOf(AnyTarget()),
                 ),
@@ -459,23 +461,23 @@ class CardLinterTest : DescribeSpec({
                 CardScript(
                     spellEffect = CompositeEffect(
                         listOf(
-                            ConditionalEffect(
+                            Effects.If(
                                 condition = EntityMatches(EffectTarget.Self, GameObjectFilter.Creature),
-                                effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
+                                then = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                             ),
-                            ConditionalEffect(
+                            Effects.If(
                                 condition = EntityMatches(
                                     EffectTarget.EquippedCreature,
                                     GameObjectFilter.Creature,
                                 ),
-                                effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
+                                then = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                             ),
-                            ConditionalEffect(
+                            Effects.If(
                                 condition = EntityMatches(
                                     EffectTarget.ContextTarget(0),
                                     GameObjectFilter.Creature,
                                 ),
-                                effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
+                                then = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                             ),
                         ),
                     ),
@@ -864,6 +866,34 @@ class CardLinterTest : DescribeSpec({
                 ),
             )
             findings(beast(CardScript(), back = back)).shouldBeEmpty()
+        }
+    }
+
+    describe("prowess keyword without its trigger") {
+
+        fun findings(card: CardDefinition) = CardLinter.lint(card)
+            .filterIsInstance<CardValidationError.ProwessWithoutTrigger>()
+
+        it("flags a card that lists Keyword.PROWESS through keywords(...)") {
+            val card = card("Display Prowess") {
+                manaCost = "{1}{R}"
+                typeLine = "Creature — Human Monk"
+                power = 1
+                toughness = 1
+                keywords(Keyword.PROWESS)
+            }
+            findings(card).shouldHaveSize(1)
+        }
+
+        it("accepts the prowess() builder, which adds the trigger") {
+            val card = card("Real Prowess") {
+                manaCost = "{1}{R}"
+                typeLine = "Creature — Human Monk"
+                power = 1
+                toughness = 1
+                prowess()
+            }
+            findings(card).shouldBeEmpty()
         }
     }
 })

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -40,11 +39,11 @@ val BurrogBarrage = card("Burrog Barrage") {
             "up to one target creature an opponent controls",
             TargetCreature(filter = TargetFilter.CreatureOpponentControls, optional = true),
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.YouCastSpellsThisTurn(2, GameObjectFilter.InstantOrSorcery),
-            effect = Effects.ModifyStats(1, 0, own),
+            then = Effects.ModifyStats(1, 0, own),
         ) then Effects.DealDamage(
-            DynamicAmounts.targetPower(0),
+            DynamicAmounts.powerOf(own),
             foe,
             damageSource = own,
         )

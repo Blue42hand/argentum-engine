@@ -5,10 +5,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Deceiver Exarch
@@ -43,16 +42,17 @@ val DeceiverExarch = card("Deceiver Exarch") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                effect = Effects.Untap(EffectTarget.ContextTarget(0)),
-                target = Targets.PermanentYouControl,
-                description = "Untap target permanent you control."
-            ),
-            Mode.withTarget(
-                effect = Effects.Tap(EffectTarget.ContextTarget(0)),
-                target = Targets.PermanentOpponentControls,
-                description = "Tap target permanent an opponent controls."
-            )
+            mode("Untap target permanent you control.") {
+                val permanentYouControl = target("target permanent you control", Targets.PermanentYouControl)
+                effect = Effects.Untap(permanentYouControl)
+            },
+            mode("Tap target permanent an opponent controls.") {
+                val permanentOpponentControls = target(
+                    "target permanent opponent controls",
+                    Targets.PermanentOpponentControls
+                )
+                effect = Effects.Tap(permanentOpponentControls)
+            }
         )
         description = "When this creature enters, choose one — Untap target permanent you control; " +
             "or tap target permanent an opponent controls."

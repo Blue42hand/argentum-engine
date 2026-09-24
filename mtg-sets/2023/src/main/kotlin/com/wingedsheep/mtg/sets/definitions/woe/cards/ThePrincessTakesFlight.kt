@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -58,14 +56,10 @@ val ThePrincessTakesFlight = card("The Princess Takes Flight") {
     }
 
     sagaChapter(3) {
-        effect = Effects.Composite(
-            GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "princessExiled"),
-            MoveCollectionEffect(
-                from = "princessExiled",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                underOwnersControl = true
-            )
-        )
+        effect = Effects.Pipeline {
+            val princessExiled = gather(CardSource.FromLinkedExile())
+            move(princessExiled, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
+        }
     }
 
     metadata {

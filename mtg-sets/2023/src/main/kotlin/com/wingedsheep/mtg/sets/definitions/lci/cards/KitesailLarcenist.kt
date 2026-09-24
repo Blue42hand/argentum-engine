@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -126,7 +125,7 @@ val KitesailLarcenist = card("Kitesail Larcenist") {
         )
 
         effect = Effects.Composite(
-            BecomeArtifactEffect(
+            Effects.BecomeArtifact(
                 target = yours,
                 cardTypes = setOf("ARTIFACT"),
                 subtypes = setOf("Treasure"),
@@ -135,7 +134,7 @@ val KitesailLarcenist = card("Kitesail Larcenist") {
                 grantedAbility = treasureManaAbility,
                 duration = whileKitesailRemains
             ),
-            BecomeArtifactEffect(
+            Effects.BecomeArtifact(
                 target = theirs,
                 cardTypes = setOf("ARTIFACT"),
                 subtypes = setOf("Treasure"),

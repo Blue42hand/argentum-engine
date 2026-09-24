@@ -1,16 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -40,16 +38,13 @@ val GenerousPlunderer = card("Generous Plunderer") {
     // "you may create a Treasure token. When you do, target opponent creates a tapped Treasure token."
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.CreateTreasure(1),
             optional = true,
-            reflexiveEffect = CreatePredefinedTokenEffect(
-                "Treasure",
-                controller = EffectTarget.ContextTarget(0),
-                tapped = true,
-            ),
-            reflexiveTargetRequirements = listOf(Targets.Opponent),
-        )
+        ) {
+            val opponent = target("target opponent", Targets.Opponent)
+            effect = Effects.CreateTreasure(controller = opponent, tapped = true)
+        }
     }
 
     // "Whenever this creature attacks, it deals damage to defending player equal
@@ -57,10 +52,10 @@ val GenerousPlunderer = card("Generous Plunderer") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.DealDamage(
-            amount = DynamicAmount.AggregateBattlefield(
+            amount = DynamicAmounts.battlefield(
                 Player.DefendingPlayer,
                 GameObjectFilter.Artifact,
-            ),
+            ).count(),
             target = EffectTarget.PlayerRef(Player.DefendingPlayer),
         )
     }

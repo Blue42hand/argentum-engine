@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -48,7 +48,7 @@ val Emptiness = card("Emptiness") {
         trigger = Triggers.EntersBattlefield
         interveningIf = Conditions.ManaSpentToCastIncludes(requiredBlack = 2)
         val creature = target("creature to put three -1/-1 counters on", TargetCreature(count = 1, optional = true))
-        effect = Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 3, creature)
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 3, creature)
     }
 
     metadata {

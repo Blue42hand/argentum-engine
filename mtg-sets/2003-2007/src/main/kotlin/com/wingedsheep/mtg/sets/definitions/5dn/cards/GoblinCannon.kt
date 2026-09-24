@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
@@ -28,7 +27,7 @@ val GoblinCannon = card("Goblin Cannon") {
         cost = Costs.Mana("{2}")
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
-            DealDamageEffect(1, t),
+            Effects.DealDamage(1, t),
             SacrificeSelfEffect
         )
     }

@@ -2,10 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -36,9 +35,9 @@ val OrcishCaptain = card("Orcish Captain") {
             "target Orc creature",
             TargetCreature(filter = TargetFilter.Creature.withSubtype(Subtype.ORC))
         )
-        effect = FlipCoinEffect(
-            wonEffect = ModifyStatsEffect(2, 0, t),
-            lostEffect = ModifyStatsEffect(0, -2, t),
+        effect = Effects.FlipCoin(
+            wonEffect = Effects.ModifyStats(2, 0, t),
+            lostEffect = Effects.ModifyStats(0, -2, t),
         )
     }
 

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -25,9 +24,9 @@ val FrenziedTilling = card("Frenzied Tilling") {
         "put that card onto the battlefield tapped, then shuffle."
 
     spell {
-        target = TargetPermanent(filter = TargetFilter.Land)
+        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter.Land))
         effect = Effects.Composite(
-            Effects.Destroy(EffectTarget.ContextTarget(0)),
+            Effects.Destroy(permanent),
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
                 count = 1,

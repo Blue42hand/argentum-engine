@@ -10,9 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
-import com.wingedsheep.sdk.scripting.effects.DamageToTargetCantBePreventedThisTurnEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Whippoorwill
@@ -48,11 +45,11 @@ val Whippoorwill = card("Whippoorwill") {
         "permanent or player. When the creature dies this turn, exile the creature."
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(Costs.Mana("{G}{G}"), Costs.Tap)
-        target = Targets.Creature
         effect = Effects.Composite(
-            CantBeRegeneratedEffect(EffectTarget.ContextTarget(0)),
-            DamageToTargetCantBePreventedThisTurnEffect(EffectTarget.ContextTarget(0)),
+            Effects.CantBeRegenerated(creature),
+            Effects.DamageCantBePreventedThisTurn(creature),
             Effects.GrantReplacementEffect(
                 replacement = RedirectZoneChange(
                     newDestination = Zone.EXILE,
@@ -62,7 +59,7 @@ val Whippoorwill = card("Whippoorwill") {
                         to = Zone.GRAVEYARD,
                     ),
                 ),
-                target = EffectTarget.ContextTarget(0),
+                target = creature,
                 duration = Duration.EndOfTurn,
             ),
         )

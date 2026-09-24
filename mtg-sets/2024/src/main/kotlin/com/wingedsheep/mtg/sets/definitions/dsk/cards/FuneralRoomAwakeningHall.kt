@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -58,21 +56,16 @@ val FuneralRoomAwakeningHall = card("Funeral Room // Awakening Hall") {
 
         triggeredAbility {
             trigger = Triggers.OnDoorUnlocked
-            effect = Effects.Composite(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
+            effect = Effects.Pipeline {
+                val graveyardCreatures = gather(
+                    CardSource.FromZone(
                         zone = Zone.GRAVEYARD,
                         player = Player.You,
                         filter = GameObjectFilter.Creature
-                    ),
-                    storeAs = "graveyardCreatures"
-                ),
-                MoveCollectionEffect(
-                    from = "graveyardCreatures",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                    underOwnersControl = true
+                    )
                 )
-            )
+                move(graveyardCreatures, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
+            }
         }
     }
 

@@ -504,12 +504,13 @@ data class TargetObject(
      */
     val sameOwner: Boolean = false,
     /**
-     * When true and more than one target is chosen for this requirement, the chosen permanent
-     * targets must all share at least one creature type with one another — "two target creatures
-     * you control that share a creature type" (Secret Tunnel). Enforced cross-target by
-     * `TargetValidator` using each permanent's *projected* creature subtypes (so granted/changed
-     * types via continuous effects count); a no-op for single-target requirements and for
-     * non-permanent targets. Defaults to false.
+     * When true and more than one target is chosen for this requirement, the chosen targets must
+     * all share at least one creature type with one another — "two target creatures you control
+     * that share a creature type" (Secret Tunnel), "two target creature cards that share a creature
+     * type" (Unbury). Enforced cross-target by `TargetValidator`: a permanent reads its *projected*
+     * creature subtypes (so granted/changed types via continuous effects count), a card in another
+     * zone its printed creature types (a changeling card has all of them, CR 702.73a). A no-op for
+     * single-target requirements. Defaults to false.
      */
     val sameCreatureType: Boolean = false,
     /**

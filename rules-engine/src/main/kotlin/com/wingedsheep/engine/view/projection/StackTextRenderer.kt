@@ -81,7 +81,7 @@ internal class StackTextRenderer(
                     storedCollections = buildBeheldStoredCollections(spellOnStack.beheldCards, cardDef)
                 )
             )
-            // Resolve ConditionalEffect at stack-time: opponents see only the branch that
+            // Resolve Effects.If at stack-time: opponents see only the branch that
             // will fire (e.g., Cinder Strike shows "deals 4 damage" vs "deals 2 damage"
             // depending on whether the optional Blight cost was paid) instead of the full
             // "if X, do Y. Otherwise, do Z." description.
@@ -93,7 +93,7 @@ internal class StackTextRenderer(
     }
 
     /**
-     * Recursively replace [ConditionalEffect]s in [effect] with the branch the spell will
+     * Recursively replace [Effects.If]s in [effect] with the branch the spell will
      * actually take, using [context] to evaluate each condition. Composite branches are
      * resolved one level deep so nested conditions also collapse. Conditions that depend
      * on state not yet captured at cast time fall through to the original effect.
@@ -293,7 +293,7 @@ internal class StackTextRenderer(
     /**
      * Generate runtime text for a triggered ability on the stack. Builds an [EffectContext] with
      * the triggering-entity fields populated so dynamic amounts referencing
-     * [com.wingedsheep.sdk.scripting.values.EntityReference.Triggering] (e.g., "deals damage equal
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity] (e.g., "deals damage equal
      * to its power") render the correct value instead of falling back to 0.
      */
     fun runtimeAbilityText(
@@ -323,7 +323,7 @@ internal class StackTextRenderer(
      * An ability's targets are locked in when it's put on the stack, so text rendered for it can
      * read them — "double its power" on a 5/5 should say "+5/+5", not fall back to the amount's
      * wording. The spell path does the same thing; omitting it here left every
-     * [com.wingedsheep.sdk.scripting.values.EntityReference.Target]-relative amount undeterminable
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget]-relative amount undeterminable
      * on the stack, where it is in fact known.
      */
     private fun chosenTargetsOf(state: GameState, abilityEntityId: EntityId) =
@@ -334,7 +334,7 @@ internal class StackTextRenderer(
 
     /**
      * Build an [EffectContext] mirroring how [TriggerProcessor] does at resolution time, so
-     * stack-text rendering can evaluate `EntityReference.Triggering`-based dynamic amounts (e.g.,
+     * stack-text rendering can evaluate `EffectTarget.TriggeringEntity`-based dynamic amounts (e.g.,
      * "deals damage equal to its power") with the actual triggering entity instead of a null.
      */
     private fun triggeredAbilityContext(

@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -28,7 +28,7 @@ val EtherealArmor = card("Ethereal Armor") {
 
     staticAbility {
         val enchantmentCount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Enchantment).count()
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = enchantmentCount,
             toughnessBonus = enchantmentCount

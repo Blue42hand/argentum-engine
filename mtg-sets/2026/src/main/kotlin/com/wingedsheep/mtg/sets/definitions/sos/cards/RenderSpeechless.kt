@@ -1,25 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Render Speechless — Secrets of Strixhaven #220
@@ -43,36 +33,28 @@ val RenderSpeechless = card("Render Speechless") {
         "player discards that card.\nPut two +1/+1 counters on up to one target creature."
 
     spell {
-        target("target opponent", TargetOpponent())
+        val opponent = target("target opponent", TargetOpponent())
         val creature = target("up to one target creature", TargetCreature(optional = true))
         effect = Effects.Composite(
             // Targeted discard: reveal the opponent's hand (target 0), the controller chooses a nonland
             // card from it, that player discards it. The opponent is the first chosen target, addressed
             // by Player.ContextPlayer(0) for both the gather source and the discard destination.
-            Effects.Composite(
-                RevealHandEffect(EffectTarget.ContextTarget(0)),
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
-                    storeAs = "opponentHand",
-                ),
-                SelectFromCollectionEffect(
-                    from = "opponentHand",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
+            Effects.Pipeline {
+                run(Effects.RevealHand(opponent))
+                val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
+                val toDiscard = chooseExactly(
+                    1,
+                    from = opponentHand,
                     chooser = Chooser.Controller,
                     filter = GameObjectFilter.Nonland,
-                    storeSelected = "toDiscard",
                     prompt = "Choose a nonland card to discard",
                     alwaysPrompt = true,
-                    showAllCards = true,
-                ),
-                MoveCollectionEffect(
-                    from = "toDiscard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                    moveType = MoveType.Discard,
-                ),
-            ),
+                    showAllCards = true
+                )
+                discard(toDiscard, opponent.asPlayer)
+            },
             // Two +1/+1 counters on the optional creature (target 1). No-ops when no creature is chosen.
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
         )
     }
 

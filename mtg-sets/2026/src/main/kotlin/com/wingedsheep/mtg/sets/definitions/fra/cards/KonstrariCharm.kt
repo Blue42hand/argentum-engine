@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -30,7 +30,7 @@ val KonstrariCharm = card("Konstrari Charm") {
             mode("Put two +1/+1 counters on target creature. It gains trample until end of turn") {
                 val t = target("target creature", Targets.Creature)
                 effect = Effects.Composite(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, t),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t),
                     Effects.GrantKeyword(Keyword.TRAMPLE, t)
                 )
             }

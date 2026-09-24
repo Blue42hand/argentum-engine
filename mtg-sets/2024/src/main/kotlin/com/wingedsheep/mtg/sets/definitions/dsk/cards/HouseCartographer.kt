@@ -1,20 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 
 /**
  * House Cartographer
@@ -42,31 +34,14 @@ val HouseCartographer = card("House Cartographer") {
     triggeredAbility {
         trigger = Triggers.YourPostcombatMain
         interveningIf = Conditions.SourceIsTapped
-        effect = Effects.Composite(
-            listOf(
-                GatherUntilMatchEffect(
-                    filter = GameObjectFilter.Land,
-                    storeMatch = "revealedLand",
-                    storeRevealed = "allRevealed"
-                ),
-                RevealCollectionEffect(from = "allRevealed"),
-                // allRevealed includes the matched land, so subtract it before bottoming.
-                FilterCollectionEffect(
-                    from = "allRevealed",
-                    filter = CollectionFilter.ExcludeOtherCollection("revealedLand"),
-                    storeMatching = "nonLandRevealed"
-                ),
-                MoveCollectionEffect(
-                    from = "revealedLand",
-                    destination = CardDestination.ToZone(Zone.HAND)
-                ),
-                MoveCollectionEffect(
-                    from = "nonLandRevealed",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                    order = CardOrder.Random
-                )
-            )
-        )
+        effect = Effects.Pipeline {
+            val (revealedLand, allRevealed) = gatherUntilMatch(GameObjectFilter.Land)
+            reveal(allRevealed)
+            // allRevealed includes the matched land, so subtract it before bottoming.
+            val nonLandRevealed = exclude(allRevealed, minus = revealedLand)
+            toHand(revealedLand)
+            toLibraryBottom(nonLandRevealed, order = CardOrder.Random)
+        }
         description = "Survival — At the beginning of your second main phase, if this creature is " +
             "tapped, reveal cards from the top of your library until you reveal a land card. Put " +
             "that card into your hand and the rest on the bottom of your library in a random order."

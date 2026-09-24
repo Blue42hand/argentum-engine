@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -54,8 +52,8 @@ val TianaShipsCaretaker = card("Tiana, Ship's Caretaker") {
             ),
             binding = TriggerBinding.ANY
         )
-        effect = MayEffect(
-            CreateDelayedTriggerEffect(
+        effect = Effects.May(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(
                     target = EffectTarget.TriggeringEntity,

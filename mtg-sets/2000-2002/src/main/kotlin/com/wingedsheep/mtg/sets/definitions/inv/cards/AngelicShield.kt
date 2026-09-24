@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Angelic Shield
@@ -36,9 +35,9 @@ val AngelicShield = card("Angelic Shield") {
 
     // Sacrifice this enchantment: Return target creature to its owner's hand.
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.SacrificeSelf
-        target = Targets.Creature
-        effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+        effect = Effects.ReturnToHand(creature)
     }
 
     metadata {

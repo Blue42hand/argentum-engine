@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -37,7 +38,7 @@ val IllicitMasquerade = card("Illicit Masquerade") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            Effects.AddCounters(IMPOSTOR_COUNTER, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.IMPOSTOR, 1, EffectTarget.IterationEntity),
         )
         description = "When this enchantment enters, put an impostor counter on each creature " +
             "you control."
@@ -45,7 +46,7 @@ val IllicitMasquerade = card("Illicit Masquerade") {
 
     triggeredAbility {
         trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl().withCounter(IMPOSTOR_COUNTER),
+            filter = GameObjectFilter.Creature.youControl().withCounter(CounterType.IMPOSTOR),
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY,
         )
@@ -77,5 +78,3 @@ val IllicitMasquerade = card("Illicit Masquerade") {
         )
     }
 }
-
-private const val IMPOSTOR_COUNTER = "IMPOSTOR"

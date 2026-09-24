@@ -33,21 +33,21 @@ import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersAsCopy
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.EntersWithDevour
-import com.wingedsheep.sdk.scripting.OnEnterRunEffect
+import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Applies a permanent's own "as-enters" replacements — [EntersWithChoice] (CR 614.12 — choose a
  * color / creature type / mode / … as the permanent enters), [EntersAsCopy], and the generic
- * [OnEnterRunEffect] — to an entity that has *already* been placed on the battlefield
+ * [OnEnterRun] — to an entity that has *already* been placed on the battlefield
  * **directly**, i.e. not cast as a spell that resolves off the stack.
  *
  * **Each caller uses a different subset — this is a toolbox, not one entry point.** Which of the
  * two helper families is wired where today:
  *
  *  - [com.wingedsheep.engine.handlers.actions.land.PlayLandHandler] — a land played directly.
- *    Both: [pauseForEntersWithChoice] / [entersAsCopyCandidates], and [OnEnterRunEffect] inline
+ *    Both: [pauseForEntersWithChoice] / [entersAsCopyCandidates], and [OnEnterRun] inline
  *    (sharing this object's [onEnterRunEffectFor] lookup).
  *  - [com.wingedsheep.engine.handlers.effects.token.TokenFromDefinition] — a token minted from a
  *    card definition (e.g. the Momir Basic avatar's random-creature token).
@@ -57,7 +57,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *    [runOnEnterRunEffect] only.
  *  - [com.wingedsheep.engine.mechanics.stack.StackResolver] — a permanent *cast as a spell*, run
  *    just after `enterPermanentOnBattlefield`. [runOnEnterRunEffect] only. Added for Nameless
- *    Race; until then [OnEnterRunEffect] was silently inert on every cast permanent, which went
+ *    Race; until then [OnEnterRun] was silently inert on every cast permanent, which went
  *    unnoticed because its only two users were lands (played, not cast).
  *  - [com.wingedsheep.engine.handlers.continuations.ModalAndCloneContinuationResumer]'s
  *    `resumeEntersWithChoiceSpell` — the same cast-as-a-spell entry, finished on the *other* side
@@ -118,7 +118,7 @@ object PermanentEntryReplacements {
     }
 
     /**
-     * The single [OnEnterRunEffect] a card definition contributes, or `null` if it has none.
+     * The single [OnEnterRun] a card definition contributes, or `null` if it has none.
      *
      * **First one wins.** Both entry paths consult only the first, so a card that needs two
      * "as ~ enters" clauses must fold them into one composite inside a single replacement — see
@@ -159,13 +159,13 @@ object PermanentEntryReplacements {
         }
     }
 
-    fun onEnterRunEffectFor(cardDef: CardDefinition?): OnEnterRunEffect? =
+    fun onEnterRunEffectFor(cardDef: CardDefinition?): OnEnterRun? =
         cardDef?.script?.replacementEffects
-            ?.filterIsInstance<OnEnterRunEffect>()
+            ?.filterIsInstance<OnEnterRun>()
             ?.firstOrNull()
 
     /**
-     * Run a permanent's own [OnEnterRunEffect] — the generic "as ~ enters, run [effect]"
+     * Run a permanent's own [OnEnterRun] — the generic "as ~ enters, run [effect]"
      * self-replacement — on an entity that has *already* been placed on the battlefield.
      *
      * [com.wingedsheep.engine.handlers.actions.land.PlayLandHandler] runs this inline for a land
@@ -186,7 +186,7 @@ object PermanentEntryReplacements {
      * @param resolutionDepth the calling effect's depth, carried into the fresh context so the
      *   registry's runaway-recursion backstop still counts a self-perpetuating entry loop.
      * @return the [EffectResult] of running the replacement, or `null` if the card has no
-     *   [OnEnterRunEffect] — the caller then completes entry normally.
+     *   [OnEnterRun] — the caller then completes entry normally.
      */
     fun runOnEnterRunEffect(
         state: GameState,

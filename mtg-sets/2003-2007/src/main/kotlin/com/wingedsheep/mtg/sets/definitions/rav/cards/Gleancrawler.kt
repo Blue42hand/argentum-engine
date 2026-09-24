@@ -51,7 +51,6 @@ val Gleancrawler = card("Gleancrawler") {
                     player = Player.You,
                     filter = GameObjectFilter.Creature.putIntoGraveyardFromBattlefieldThisTurn(),
                 ),
-                name = "fallen",
             )
             toHand(fallen)
         }

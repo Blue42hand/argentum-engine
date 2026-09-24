@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,12 +40,12 @@ val ThundercloudShaman = card("Thundercloud Shaman") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.GIANT)),
-            DealDamageEffect(
+            Effects.DealDamage(
                 DynamicAmounts.battlefield(
                     Player.You,
                     GameObjectFilter.Permanent.withSubtype(Subtype.GIANT)
                 ).count(),
-                EffectTarget.Self,
+                EffectTarget.IterationEntity,
             )
         )
         description = "it deals damage equal to the number of Giants you control to each non-Giant creature."

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ala.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 
 /**
  * Metallurgeon
@@ -29,7 +29,7 @@ val Metallurgeon = card("Metallurgeon") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
         val t = target("target", Targets.Artifact)
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
     }
 
     metadata {

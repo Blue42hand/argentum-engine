@@ -42,8 +42,8 @@ import kotlin.reflect.KClass
  * was conniving when the action began, not to whatever `Self`/`TriggeringEntity` would resolve to
  * after the pause.
  *
- * @param recurse registry entry point for delegating the Composite (wired via
- *   `PermanentExecutors.initializeRecursion`).
+ * @param recurse registry entry point for delegating the Composite (handed to [PermanentExecutors]
+ *   by the registry at construction).
  */
 class ConniveEffectExecutor(
     private val recurse: (GameState, Effect, EffectContext) -> EffectResult,

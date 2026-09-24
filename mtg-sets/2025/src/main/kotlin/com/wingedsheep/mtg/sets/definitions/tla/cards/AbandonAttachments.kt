@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Abandon Attachments — {1}{U/R}
@@ -18,7 +17,7 @@ val AbandonAttachments = card("Abandon Attachments") {
     oracleText = "You may discard a card. If you do, draw two cards."
 
     spell {
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(listOf(
                 Patterns.Hand.discardCards(1),
                 Effects.DrawCards(2)

@@ -12,10 +12,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 private val MayorOfAvabruckFront = card("Mayor of Avabruck") {
     manaCost = "{1}{G}"
@@ -41,9 +39,9 @@ private val MayorOfAvabruckFront = card("Mayor of Avabruck") {
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(0),
+            0,
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {
@@ -93,9 +91,9 @@ private val HowlpackAlpha = card("Howlpack Alpha") {
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(2),
+            2,
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {

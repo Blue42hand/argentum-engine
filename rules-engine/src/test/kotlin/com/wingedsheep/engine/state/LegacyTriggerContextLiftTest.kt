@@ -11,6 +11,7 @@ import com.wingedsheep.engine.event.TriggerContext
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
@@ -60,7 +61,7 @@ class LegacyTriggerContextLiftTest : FunSpec({
         diedBatchTotalPower = 11,
         lastKnownSubtypes = setOf("Elf", "Warrior"),
         lastKnownCardTypes = setOf("CREATURE"),
-        lastKnownCounters = mapOf("+1/+1" to 2, "revival" to 1),
+        lastKnownCounters = mapOf(CounterType.PLUS_ONE_PLUS_ONE to 2, CounterType.REVIVAL to 1),
         lastKnownDamageDealtByPlayers = mapOf(p1 to 3),
         lastKnownBlockingOrBlockedByIds = listOf(EntityId("blocker")),
         modesChosenCount = 2,

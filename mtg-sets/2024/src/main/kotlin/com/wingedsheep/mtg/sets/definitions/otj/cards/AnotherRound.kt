@@ -1,15 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Another Round
@@ -59,7 +58,7 @@ val AnotherRound = card("Another Round") {
         effect = Effects.Composite(
             listOf(
                 oneRound,
-                RepeatDynamicTimesEffect(amount = DynamicAmount.XValue, body = oneRound)
+                Effects.Repeat(amount = DynamicAmounts.xValue(), body = oneRound)
             )
         )
     }

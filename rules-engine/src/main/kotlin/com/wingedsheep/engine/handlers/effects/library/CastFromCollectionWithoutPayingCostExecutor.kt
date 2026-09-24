@@ -159,7 +159,7 @@ class CastFromCollectionWithoutPayingCostExecutor(
         }
 
         // The cast initiated (synchronously or pausing for X / further input). Publish the cast
-        // card so an enclosing IfYouDoEffect can gate a follow-up on "if you do" (Kaervek).
+        // card so an enclosing Effects.IfYouDo can gate a follow-up on "if you do" (Kaervek).
         val castCollections = storeCastTo?.let { mapOf(it to listOf(cardId)) } ?: emptyMap()
 
         if (castResult.pendingDecision != null) {
@@ -172,7 +172,7 @@ class CastFromCollectionWithoutPayingCostExecutor(
         }
 
         // CastSpellHandler already detected + stacked this cast's triggers; propagate the flag so a
-        // resuming caller (e.g. the gated MayEffect resumer -> SubmitDecisionHandler) doesn't re-scan
+        // resuming caller (e.g. the gated Effects.May resumer -> SubmitDecisionHandler) doesn't re-scan
         // the SpellCastEvent and double-fire "whenever you cast a spell" triggers.
         return EffectResult.success(castResult.state, castResult.events)
             .copy(

@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Galvanize — Murders at Karlov Manor #128
@@ -29,10 +29,10 @@ val Galvanize = card("Galvanize") {
     spell {
         val t = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
-            DynamicAmount.Conditional(
+            DynamicAmounts.conditional(
                 condition = Conditions.YouDrewCardsThisTurn(2),
-                ifTrue = DynamicAmount.Fixed(5),
-                ifFalse = DynamicAmount.Fixed(3)
+                ifTrue = 5,
+                ifFalse = 3
             ),
             t
         )

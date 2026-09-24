@@ -1,15 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 
 /**
@@ -30,12 +29,10 @@ val LootTheNexus = card("Loot, the Nexus") {
         cost = Costs.Tap
         effect = Effects.AddManaOfChoice(
             colorSet = ManaColorSet.AnyColor,
-            amount = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature,
-                aggregation = Aggregation.DISTINCT_VALUES,
-                property = CardNumericProperty.POWER,
-            ),
+            amount = DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature,
+            ).distinctValues(CardNumericProperty.POWER),
         )
         manaAbility = true
         timing = TimingRule.ManaAbility

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Explosive Growth
@@ -28,10 +27,10 @@ val ExplosiveGrowth = card("Explosive Growth") {
 
     spell {
         val t = target("target", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = Effects.ModifyStats(5, 5, t),
-            elseEffect = Effects.ModifyStats(2, 2, t)
+            then = Effects.ModifyStats(5, 5, t),
+            otherwise = Effects.ModifyStats(2, 2, t)
         )
     }
 

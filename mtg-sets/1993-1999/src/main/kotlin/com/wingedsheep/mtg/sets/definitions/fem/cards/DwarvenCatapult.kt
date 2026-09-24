@@ -1,14 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dwarven Catapult
@@ -36,14 +37,10 @@ val DwarvenCatapult = card("Dwarven Catapult") {
     spell {
         target = TargetOpponent()
         effect = Patterns.Group.dealDamageToAll(
-            amount = DynamicAmount.Divide(
-                numerator = DynamicAmount.XValue,
-                denominator = DynamicAmount.AggregateBattlefield(
-                    Player.TargetOpponent,
-                    GameObjectFilter.Creature
-                ),
-                roundUp = false
-            ),
+            amount = DynamicAmounts.xValue() / DynamicAmounts.battlefield(
+                Player.TargetOpponent,
+                GameObjectFilter.Creature
+            ).count(),
             filter = GroupFilter(
                 GameObjectFilter.Creature.copy(
                     controllerPredicate = ControllerPredicate.ControlledByTargetOpponent

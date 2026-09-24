@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,11 +9,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Skulking Killer — Innistrad: Crimson Vow #130
@@ -23,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * that opponent controls no other creatures.
  *
  * A targeted ETB trigger with a **resolution-time** intervening condition (the "if" is checked as
- * the ability resolves, not as it triggers, so a [ConditionalEffect] rather than a
+ * the ability resolves, not as it triggers, so a [Effects.If] rather than a
  * `interveningIf`). "That opponent controls no other creatures" is expressed as: the target's
  * controller controls exactly one creature — the target itself — via
  * `AggregateBattlefield(Player.ControllerOf("target creature"), Creature) == 1`. If they control any
@@ -42,16 +40,16 @@ val SkulkingKiller = card("Skulking Killer") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                DynamicAmount.AggregateBattlefield(
+                DynamicAmounts.battlefield(
                     Player.ControllerOf("target creature an opponent controls"),
                     GameObjectFilter.Creature
-                ),
+                ).count(),
                 ComparisonOperator.EQ,
-                DynamicAmount.Fixed(1)
+                1
             ),
-            effect = ModifyStatsEffect(-2, -2, creature)
+            then = Effects.ModifyStats(-2, -2, creature)
         )
         description = "When this creature enters, target creature an opponent controls gets -2/-2 " +
             "until end of turn if that opponent controls no other creatures."

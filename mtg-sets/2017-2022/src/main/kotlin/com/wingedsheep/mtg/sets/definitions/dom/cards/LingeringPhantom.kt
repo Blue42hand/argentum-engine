@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -28,9 +27,9 @@ val LingeringPhantom = card("Lingering Phantom") {
     triggeredAbility {
         trigger = Triggers.YouCastHistoric
         triggerZone = Zone.GRAVEYARD
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            effect = Effects.ReturnToHandFromGraveyard(EffectTarget.Self)
+            then = Effects.ReturnToHandFromGraveyard(EffectTarget.Self)
         )
     }
 

@@ -6,10 +6,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -40,24 +38,24 @@ val QuistisTrepe = card("Quistis Trepe") {
         "put into a graveyard, exile it instead."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard,
-        )
-        effect = Effects.Composite(
+        ))
+        trigger = Triggers.EntersBattlefield
+        effect = Effects.Pipeline {
             // Exile the targeted card from its graveyard.
-            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
+            run(Effects.Move(target, Zone.EXILE))
             // Gather it into a named collection so the may-play grant can key off it.
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "borrowed"),
+            val borrowed = gather(CardSource.ChosenTargets)
             // "You may cast ... and mana of any type can be spent" + "if it would be put into a
             // graveyard, exile it instead."
-            Effects.GrantMayPlayFromExile(
-                from = "borrowed",
+            run(Effects.GrantMayPlayFromExile(
+                from = borrowed,
                 expiry = MayPlayExpiry.EndOfTurn,
                 withAnyManaType = true,
                 exileAfterResolve = true,
-            ),
-        )
+            ))
+        }
         description = "Blue Magic — When Quistis Trepe enters, you may cast target instant or sorcery " +
             "card from a graveyard, and mana of any type can be spent to cast that spell. If that spell " +
             "would be put into a graveyard, exile it instead."

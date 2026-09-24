@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
@@ -37,13 +38,13 @@ val ChampionsOfTheShoal = card("Champions of the Shoal") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val victim = target("creature", TargetCreature(optional = true))
-        effect = Effects.Tap(victim).then(Effects.AddCounters("STUN", 1, victim))
+        effect = Effects.Tap(victim).then(Effects.AddCounters(CounterType.STUN, 1, victim))
     }
 
     triggeredAbility {
         trigger = Triggers.BecomesTapped
         val victim = target("creature", TargetCreature(optional = true))
-        effect = Effects.Tap(victim).then(Effects.AddCounters("STUN", 1, victim))
+        effect = Effects.Tap(victim).then(Effects.AddCounters(CounterType.STUN, 1, victim))
     }
 
     triggeredAbility {

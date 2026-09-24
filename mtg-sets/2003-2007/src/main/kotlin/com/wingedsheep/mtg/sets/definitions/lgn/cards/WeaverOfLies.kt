@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.TurnFaceDownEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -33,8 +32,8 @@ val WeaverOfLies = card("Weaver of Lies") {
             unlimited = true,
             filter = TargetFilter(GameObjectFilter.Creature.withMorph().faceUp()).other()
         ))
-        effect = ForEachTargetEffect(
-            effects = listOf(TurnFaceDownEffect(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.TurnFaceDown(EffectTarget.ContextTarget(0))
         )
     }
 

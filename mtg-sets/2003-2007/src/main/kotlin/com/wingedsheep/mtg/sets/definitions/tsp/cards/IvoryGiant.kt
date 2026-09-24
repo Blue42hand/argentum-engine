@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * "Tap all nonwhite creatures" is symmetric — no controller predicate — so it is
  * [Effects.ForEachInGroup] over `Creature.notColor(WHITE)` with [Effects.Tap] on
- * [EffectTarget.Self], which inside the loop resolves to the current iteration entity.
+ * [EffectTarget.IterationEntity], which inside the loop resolves to the current iteration entity.
  */
 val IvoryGiant = card("Ivory Giant") {
     manaCost = "{5}{W}{W}"
@@ -35,7 +35,7 @@ val IvoryGiant = card("Ivory Giant") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.notColor(Color.WHITE)),
-            effect = Effects.Tap(EffectTarget.Self)
+            effect = Effects.Tap(EffectTarget.IterationEntity)
         )
     }
 

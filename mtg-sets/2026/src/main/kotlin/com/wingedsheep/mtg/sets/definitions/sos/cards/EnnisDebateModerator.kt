@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -43,17 +42,17 @@ val EnnisDebateModerator = card("Ennis, Debate Moderator") {
 
     // ETB: exile up to one other target creature you control, return at next end step.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetCreature(
+        val creature = target("target creature", TargetCreature(
             count = 1,
             optional = true,
             filter = TargetFilter.OtherCreatureYouControl,
-        )
+        ))
+        trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
-            Effects.Exile(EffectTarget.ContextTarget(0)),
-            CreateDelayedTriggerEffect(
+            Effects.Exile(creature),
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
-                effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD),
+                effect = Effects.Move(creature, Zone.BATTLEFIELD),
             ),
         )
     }
@@ -63,7 +62,7 @@ val EnnisDebateModerator = card("Ennis, Debate Moderator") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.CardsPutIntoExileThisTurn()
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

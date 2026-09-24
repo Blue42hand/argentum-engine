@@ -31,7 +31,7 @@ val QuandrixCharm = card("Quandrix Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Counter target spell unless its controller pays {2}") {
-                target = Targets.Spell
+                val spell = target("target spell", Targets.Spell)
                 effect = Effects.CounterUnlessPays("{2}")
             }
             mode("Destroy target enchantment") {

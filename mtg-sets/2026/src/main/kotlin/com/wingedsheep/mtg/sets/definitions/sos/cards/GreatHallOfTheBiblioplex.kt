@@ -11,12 +11,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Great Hall of the Biblioplex
@@ -59,17 +55,17 @@ val GreatHallOfTheBiblioplex = card("Great Hall of the Biblioplex") {
 
     activatedAbility {
         cost = Costs.Mana("{5}")
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.Not(Conditions.SourceMatches(GameObjectFilter.Creature)),
-            effect = Effects.Composite(
-                BecomeCreatureEffect(
+            then = Effects.Composite(
+                Effects.BecomeCreature(
                     target = EffectTarget.Self,
-                    power = DynamicAmount.Fixed(2),
-                    toughness = DynamicAmount.Fixed(4),
+                    power = 2,
+                    toughness = 4,
                     creatureTypes = setOf("Wizard"),
                     duration = Duration.Permanent,
                 ),
-                GrantTriggeredAbilityEffect(
+                Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
                         trigger = Triggers.YouCastInstantOrSorcery.event,
                         binding = TriggerBinding.SELF,

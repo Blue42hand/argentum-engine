@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *  1. [Effects.PutOntoBattlefield] moves the targeted card out of the controller's graveyard. The
  *     bound target survives the zone change, so the two riders land on the new permanent rather
  *     than on a stale graveyard object.
- *  2. A **flying counter** ([Counters.FLYING]) — the keyword counter, not a granted keyword. That
+ *  2. A **flying counter** ([CounterType.FLYING]) — the keyword counter, not a granted keyword. That
  *     distinction matters: the counter rides along through copy effects and survives an effect
  *     that removes all abilities, and it is removed only by removing the counter.
  *  3. **Spirit** is added with [Effects.AddSubtype] at [Duration.Permanent] — "in addition to its
@@ -57,7 +57,7 @@ val CallASurpriseWitness = card("Call a Surprise Witness") {
             )
         )
         effect = Effects.PutOntoBattlefield(witness)
-            .then(Effects.AddCounters(Counters.FLYING, 1, witness))
+            .then(Effects.AddCounters(CounterType.FLYING, 1, witness))
             .then(Effects.AddSubtype("Spirit", target = witness, duration = Duration.Permanent))
     }
 

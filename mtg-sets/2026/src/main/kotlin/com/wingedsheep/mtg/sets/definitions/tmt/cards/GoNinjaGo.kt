@@ -1,15 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Go Ninja Go
@@ -38,12 +36,10 @@ val GoNinjaGo = card("Go Ninja Go") {
             mode("Go Ninja Go deals damage equal to the greatest power among creatures you control to target creature an opponent controls") {
                 val opponentCreature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
                 effect = Effects.DealDamage(
-                    DynamicAmount.AggregateBattlefield(
+                    DynamicAmounts.battlefield(
                         Player.You,
-                        GameObjectFilter.Creature,
-                        Aggregation.MAX,
-                        CardNumericProperty.POWER
-                    ),
+                        GameObjectFilter.Creature
+                    ).maxPower(),
                     opponentCreature
                 )
             }

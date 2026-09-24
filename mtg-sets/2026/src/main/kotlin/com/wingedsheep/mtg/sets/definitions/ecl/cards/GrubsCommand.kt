@@ -1,25 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Grub's Command
@@ -65,29 +57,13 @@ val GrubsCommand = card("Grub's Command") {
                 effect = Effects.Destroy(perm)
             }
             mode("Target player mills five cards, then puts each Goblin card milled this way into their hand") {
-                target("target player", TargetPlayer())
-                effect = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.TopOfLibrary(DynamicAmount.Fixed(5), Player.ContextPlayer(0)),
-                            storeAs = "milled"
-                        ),
-                        MoveCollectionEffect(
-                            from = "milled",
-                            destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0))
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "milled",
-                            selection = SelectionMode.All,
-                            filter = GameObjectFilter.Any.withSubtype("Goblin"),
-                            storeSelected = "milledGoblins"
-                        ),
-                        MoveCollectionEffect(
-                            from = "milledGoblins",
-                            destination = CardDestination.ToZone(Zone.HAND, Player.ContextPlayer(0))
-                        )
-                    )
-                )
+                val player = target("target player", TargetPlayer())
+                effect = Effects.Pipeline {
+                    val milled = gather(CardSource.TopOfLibrary(5, player.asPlayer))
+                    toGraveyard(milled, player.asPlayer)
+                    val milledGoblins = selectAll(from = milled, filter = GameObjectFilter.Any.withSubtype("Goblin"))
+                    toHand(milledGoblins, player.asPlayer)
+                }
             }
         }
     }

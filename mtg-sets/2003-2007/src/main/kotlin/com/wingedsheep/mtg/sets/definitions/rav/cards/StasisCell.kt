@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Stasis Cell
@@ -45,9 +44,9 @@ val StasisCell = card("Stasis Cell") {
     }
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Mana("{3}{U}")
-        target = Targets.Creature
-        effect = Effects.AttachEquipment(EffectTarget.ContextTarget(0))
+        effect = Effects.AttachEquipment(creature)
         description = "{3}{U}: Attach this Aura to target creature."
     }
 

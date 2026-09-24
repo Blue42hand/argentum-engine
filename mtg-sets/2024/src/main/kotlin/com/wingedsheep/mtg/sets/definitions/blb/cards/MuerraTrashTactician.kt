@@ -2,20 +2,15 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Muerra, Trash Tactician
@@ -46,10 +41,10 @@ val MuerraTrashTactician = card("Muerra, Trash Tactician") {
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
         effect = Effects.AddDynamicMana(
-            amount = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature.withSubtype(Subtype.of("Raccoon"))
-            ),
+            amount = DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature.withSubtype(Subtype.of("Raccoon"))
+            ).count(),
             allowedColors = setOf(Color.RED, Color.GREEN)
         )
     }
@@ -64,19 +59,11 @@ val MuerraTrashTactician = card("Muerra, Trash Tactician") {
     // Until the end of your next turn, you may play those cards.
     triggeredAbility {
         trigger = Triggers.Expend(8)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(2)),
-                    storeAs = "exiledCards"
-                ),
-                MoveCollectionEffect(
-                    from = "exiledCards",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                ),
-                GrantMayPlayFromExileEffect(from = "exiledCards", expiry = MayPlayExpiry.UntilEndOfNextTurn)
-            )
-        )
+        effect = Effects.Pipeline {
+            val exiledCards = gather(CardSource.TopOfLibrary(2))
+            exile(exiledCards)
+            run(Effects.GrantMayPlayFromExile(from = exiledCards, expiry = MayPlayExpiry.UntilEndOfNextTurn))
+        }
     }
 
     metadata {

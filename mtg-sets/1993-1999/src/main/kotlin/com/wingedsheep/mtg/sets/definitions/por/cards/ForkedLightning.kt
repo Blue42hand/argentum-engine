@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
@@ -23,7 +23,7 @@ val ForkedLightning = card("Forked Lightning") {
     oracleText = "Forked Lightning deals 4 damage divided as you choose among one, two, or three target creatures."
     spell {
         target = TargetCreature(count = 3, minCount = 1)
-        effect = DividedDamageEffect(totalDamage = 4, minTargets = 1, maxTargets = 3)
+        effect = Effects.DividedDamage(total = 4, minTargets = 1, maxTargets = 3)
     }
     metadata {
         rarity = Rarity.RARE

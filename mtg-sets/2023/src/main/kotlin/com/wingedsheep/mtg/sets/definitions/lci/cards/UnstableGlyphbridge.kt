@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,18 +10,10 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Unstable Glyphbridge // Sandswirl Wanderglyph (CR 702.167, The Lost Caverns of Ixalan)
@@ -90,34 +81,27 @@ private val UnstableGlyphbridgeFront = card("Unstable Glyphbridge") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         interveningIf = Conditions.WasCast
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.ActivePlayerFirst,
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.ControlledPermanents(
+            Effects.Pipeline {
+                val playerCreatures = gather(
+                    CardSource.ControlledPermanents(
                         player = Player.You,
                         filter = GameObjectFilter.Creature
-                    ),
-                    storeAs = "playerCreatures"
-                ),
+                    )
+                )
                 // The ability's controller (not the iterated player) chooses; only creatures
                 // with power 2 or less are selectable. No eligible creature -> nothing spared.
-                SelectFromCollectionEffect(
-                    from = "playerCreatures",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
+                val (_, doomed) = chooseExactlySplit(
+                    1,
+                    from = playerCreatures,
                     chooser = Chooser.SourceController,
                     filter = GameObjectFilter.Creature.powerAtMost(2),
-                    storeSelected = "spared",
-                    storeRemainder = "doomed",
                     prompt = "Choose a creature with power 2 or less this player controls",
                     useTargetingUI = true
-                ),
-                MoveCollectionEffect(
-                    from = "doomed",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD),
-                    moveType = MoveType.Destroy
                 )
-            )
+                destroy(doomed)
+            }
         )
     }
 

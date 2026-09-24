@@ -1,17 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Mossborn Hydra
@@ -33,7 +30,7 @@ val MossbornHydra = card("Mossborn Hydra") {
     keywords(Keyword.TRAMPLE)
 
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.PlusOnePlusOne,
+        counterType = CounterType.PLUS_ONE_PLUS_ONE,
         count = 1,
         selfOnly = true
     ))
@@ -42,11 +39,8 @@ val MossbornHydra = card("Mossborn Hydra") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.AddDynamicCounters(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
-            amount = DynamicAmount.EntityProperty(
-                EntityReference.Source,
-                EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)
-            ),
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
+            amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
             target = EffectTarget.Self
         )
     }

@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.scripting.CantBeBlocked
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -62,10 +60,8 @@ val SecretTunnel = card("Secret Tunnel") {
         // rebinds ContextTarget(0) to each target in turn; GrantKeywordEffect snapshots that concrete
         // per-iteration target into its continuous grant (the IcyBlast idiom for granting an
         // AbilityFlag to multiple targets — GrantStaticAbility does not iterate correctly here).
-        effect = ForEachTargetEffect(
-            effects = listOf(
-                GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.ContextTarget(0))
         )
     }
 

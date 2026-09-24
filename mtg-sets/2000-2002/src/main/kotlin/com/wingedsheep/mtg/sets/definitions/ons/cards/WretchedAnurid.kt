@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -28,7 +28,7 @@ val WretchedAnurid = card("Wretched Anurid") {
 
     triggeredAbility {
         trigger = TriggerSpec(ZoneChangeEvent(filter = GameObjectFilter.Creature, to = Zone.BATTLEFIELD), TriggerBinding.OTHER)
-        effect = LoseLifeEffect(1, EffectTarget.Controller)
+        effect = Effects.LoseLife(1, EffectTarget.Controller)
     }
 
     metadata {

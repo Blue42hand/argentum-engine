@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -44,19 +42,18 @@ val CerebralConfiscation = card("Cerebral Confiscation") {
             mode("Target opponent reveals their hand — you choose a nonland card to discard") {
                 val opponent = target("target opponent", TargetOpponent())
                 effect = Effects.Pipeline {
-                    run(RevealHandEffect(opponent))
-                    val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)), name = "opponentHand")
+                    run(Effects.RevealHand(opponent))
+                    val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
                     val chosen = chooseExactly(
                         1, from = hand,
                         filter = GameObjectFilter.Nonland,
                         prompt = "Choose a nonland card to discard",
                         alwaysPrompt = true,
-                        showAllCards = true,
-                        name = "toDiscard"
+                        showAllCards = true
                     )
                     move(
                         chosen,
-                        CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
+                        CardDestination.ToZone(Zone.GRAVEYARD, opponent.asPlayer),
                         moveType = MoveType.Discard
                     )
                 }

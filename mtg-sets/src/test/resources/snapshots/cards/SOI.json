@@ -287,8 +287,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target"
             },
             "destination": "Exile"
         },
@@ -297,7 +297,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "artifact|creature|enchantment"
-                }
+                },
+                "id": "target"
             }
         ],
         "additionalCosts": [
@@ -454,7 +455,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Creatures you control gain indestructible until end of turn."
@@ -535,7 +536,7 @@
                                         "type": "Fixed",
                                         "amount": 3
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -718,12 +719,12 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -785,16 +786,19 @@
                                     "type": "DealDamage",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": "Power"
                                     },
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target any"
                                     }
                                 },
                                 "targetRequirements": [
-                                    "AnyTarget"
+                                    {
+                                        "type": "AnyTarget",
+                                        "id": "target any"
+                                    }
                                 ],
                                 "descriptionOverride": "{T}: This creature deals damage equal to its power to any target."
                             }
@@ -947,7 +951,7 @@
                     "type": "Fixed",
                     "amount": -2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -989,11 +993,14 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1027,13 +1034,20 @@
                         "excludeSelf": true
                     }
                 },
-                "effect": "AttachEquipment",
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirements": [
                     {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -1960,15 +1974,15 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "creature you control"
                             },
                             "filter": "Spirit"
                         }
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -2025,7 +2039,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3104,9 +3118,9 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3208,7 +3222,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3257,8 +3271,8 @@
                         "amount": 2
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 "targetRequirement": {
@@ -3266,7 +3280,8 @@
                     "filter": {
                         "baseFilter": "creature Human ctrl:you",
                         "excludeSelf": true
-                    }
+                    },
+                    "id": "target"
                 }
             }
         ]
@@ -3582,7 +3597,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 }
@@ -3659,10 +3674,10 @@
                     "numericProperty": "Power"
                 },
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "creature you don't control"
                 },
-                "damageSource": "Self"
+                "damageSource": "IterationEntity"
             }
         },
         "targetRequirements": [
@@ -3706,8 +3721,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -3717,7 +3732,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature tapped"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -4028,6 +4044,34 @@
         "FLYING",
         "PROWESS"
     ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
     "metadata": {
         "collectorNumber": "76",
         "artist": "Nils Hamm",
@@ -4084,7 +4128,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FIRST_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4110,7 +4154,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FLYING",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4136,7 +4180,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "DEATHTOUCH",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4162,7 +4206,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "DOUBLE_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4188,7 +4232,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4214,7 +4258,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HEXPROOF",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4240,7 +4284,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "INDESTRUCTIBLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4266,7 +4310,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "LIFELINK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4292,7 +4336,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "MENACE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4318,7 +4362,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "REACH",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4344,7 +4388,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4370,7 +4414,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "VIGILANCE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -4653,7 +4697,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -4829,8 +4873,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "storeAs": "hand"
@@ -4856,8 +4900,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "moveType": "Discard"
@@ -4995,6 +5039,34 @@
     "keywords": [
         "PROWESS"
     ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
     "metadata": {
         "collectorNumber": "178",
         "artist": "David Gaillet",
@@ -5085,7 +5157,7 @@
             },
             "body": {
                 "type": "CreateTokenCopyOfTarget",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5313,8 +5385,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Hand"
                 },
@@ -5323,7 +5395,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "permanent Spirit ctrl:you"
-                        }
+                        },
+                        "id": "target"
                     }
                 ]
             }
@@ -5404,13 +5477,16 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature Vampire ctrl:you"
                 },
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "TriggeringEntity"
                 }
@@ -5762,8 +5838,8 @@
                         "amount": 2
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 {
@@ -5804,7 +5880,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -6017,7 +6094,7 @@
                     "effects": [
                         {
                             "type": "RemoveCounters",
-                            "counterType": "ice",
+                            "counterType": "ICE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -6029,13 +6106,10 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "ice"
-                                            }
+                                            "counterType": "ICE"
                                         }
                                     },
                                     "operator": "LTE",
@@ -6055,10 +6129,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "ice"
-                },
+                "counterType": "ICE",
                 "count": 4,
                 "selfOnly": true
             }
@@ -6246,7 +6317,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -6695,8 +6766,8 @@
                     "type": "GrantKeyword",
                     "keyword": "INDESTRUCTIBLE",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 "targetRequirements": [
@@ -6704,7 +6775,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature Wolf|Werewolf attacking"
-                        }
+                        },
+                        "id": "target"
                     }
                 ]
             }
@@ -6959,8 +7031,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "storeAs": "hand"
@@ -6986,8 +7058,8 @@
                                 "type": "ToZone",
                                 "zone": "Exile",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -7052,8 +7124,8 @@
                                             "amount": 3
                                         },
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         },
                                         "isMill": true
                                     },
@@ -7066,8 +7138,8 @@
                                         "type": "ToZone",
                                         "zone": "Graveyard",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         }
                                     }
                                 }

@@ -119,7 +119,7 @@ object TokenFromDefinition {
                     cardDefinitionId = cardDef.name,
                     controllerId = controllerId,
                     multiplier = devour.multiplier,
-                    counterType = devour.counterType.description
+                    counterType = devour.counterType
                 )
 
                 return EffectResult.from(state.suspendForDecision(decision, continuation, emptyList()))

@@ -19,9 +19,9 @@ val BattlewiseValor = card("Battlewise Valor") {
     oracleText = "Target creature gets +2/+2 until end of turn. Scry 1. (Look at the top card of your library. You may put that card on the bottom.)"
 
     spell {
-        target = Targets.Creature
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.Composite(
-            Effects.ModifyStats(2, 2),
+            Effects.ModifyStats(2, 2, target = creature),
             Effects.Scry(1),
         )
     }

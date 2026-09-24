@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sonar Strike
@@ -32,10 +32,10 @@ val SonarStrike = card("Sonar Strike") {
         ))
         effect = Effects.DealDamage(4, t)
             .then(Effects.GainLife(
-                DynamicAmount.Conditional(
+                DynamicAmounts.conditional(
                     condition = Conditions.ControlCreatureOfType(Subtype("Bat")),
-                    ifTrue = DynamicAmount.Fixed(3),
-                    ifFalse = DynamicAmount.Fixed(0)
+                    ifTrue = 3,
+                    ifFalse = 0
                 )
             ))
     }

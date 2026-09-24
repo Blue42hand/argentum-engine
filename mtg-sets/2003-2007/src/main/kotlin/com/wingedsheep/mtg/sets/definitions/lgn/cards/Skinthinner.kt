@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Effects
@@ -29,7 +28,7 @@ val Skinthinner = card("Skinthinner") {
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
         val t = target("nonblack creature", TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK)))
-        effect = CantBeRegeneratedEffect(t) then
+        effect = Effects.CantBeRegenerated(t) then
                 Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
 

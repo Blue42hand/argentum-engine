@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -33,7 +33,7 @@ val AlchemistsAssistant = card("Alchemist's Assistant") {
     keywords(Keyword.LIFELINK)
 
     renew("{1}{B}") {
-        effect = Effects.AddCounters(Counters.LIFELINK, 1, target("creature", Targets.Creature))
+        effect = Effects.AddCounters(CounterType.LIFELINK, 1, target("creature", Targets.Creature))
     }
 
     metadata {

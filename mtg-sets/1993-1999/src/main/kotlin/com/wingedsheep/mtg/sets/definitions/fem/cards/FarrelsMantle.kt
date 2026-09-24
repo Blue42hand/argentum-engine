@@ -1,22 +1,19 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Farrel's Mantle
@@ -48,21 +45,15 @@ val FarrelsMantle = card("Farrel's Mantle") {
             "another target creature",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.notAttachedToBySource()))
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.DealDamage(
-                    DynamicAmount.Add(
-                        DynamicAmount.EntityProperty(
-                            EntityReference.EnchantedCreature,
-                            EntityNumericProperty.Power
-                        ),
-                        DynamicAmount.Fixed(2)
-                    ),
+                    DynamicAmounts.enchantedCreaturePower() + 2,
                     t,
                     damageSource = EffectTarget.EnchantedPermanent,
                 ),
-                GrantKeywordEffect(
-                    AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE.name,
+                Effects.GrantKeyword(
+                    AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                     EffectTarget.EnchantedPermanent,
                     Duration.EndOfTurn,
                 ),

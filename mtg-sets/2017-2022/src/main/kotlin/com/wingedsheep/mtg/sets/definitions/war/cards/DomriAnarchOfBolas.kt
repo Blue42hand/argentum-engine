@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -51,16 +50,12 @@ val DomriAnarchOfBolas = card("Domri, Anarch of Bolas") {
         val theirs = target("creature you don't control", Targets.CreatureOpponentControls)
         // Fight requires both targets to be legal at resolution; if either is illegal,
         // no creature deals or is dealt damage (per the printed ruling on this card).
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.All(
-                Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.youControl(), targetIndex = 0
-                ),
-                Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.opponentControls(), targetIndex = 1
-                )
+                Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), yours),
+                Conditions.TargetMatchesFilter(GameObjectFilter.Creature.opponentControls(), theirs)
             ),
-            effect = Effects.Fight(yours, theirs)
+            then = Effects.Fight(yours, theirs)
         )
     }
 

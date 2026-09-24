@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -42,11 +41,11 @@ val SynchronizedCharge = card("Synchronized Charge") {
             Effects.DistributeCountersAmongTargets(totalCounters = 2),
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withAnyCounter()),
-                effect = GrantKeywordEffect(Keyword.VIGILANCE, EffectTarget.Self)
+                effect = Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withAnyCounter()),
-                effect = GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.Self)
+                effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
         ))
     }

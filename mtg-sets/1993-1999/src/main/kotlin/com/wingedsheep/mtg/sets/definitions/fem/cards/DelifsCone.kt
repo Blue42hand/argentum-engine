@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,16 +10,10 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Delif's Cone
@@ -46,19 +41,16 @@ val DelifsCone = card("Delif's Cone") {
             "target creature you control",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
         )
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.AttacksAndIsntBlocked.copy(binding = TriggerBinding.ANY),
             watchedTarget = t,
-            effect = MayEffect(
+            effect = Effects.May(
                 Effects.Composite(
                     Effects.GainLife(
-                        DynamicAmount.EntityProperty(
-                            EntityReference.Triggering,
-                            EntityNumericProperty.Power
-                        )
+                        DynamicAmounts.triggeringPower()
                     ),
-                    GrantKeywordEffect(
-                        AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE.name,
+                    Effects.GrantKeyword(
+                        AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                         EffectTarget.TriggeringEntity,
                         Duration.EndOfTurn,
                     ),

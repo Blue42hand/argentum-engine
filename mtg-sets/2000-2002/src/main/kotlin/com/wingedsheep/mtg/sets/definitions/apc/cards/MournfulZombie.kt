@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.apc.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -28,7 +28,7 @@ val MournfulZombie = card("Mournful Zombie") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
         val t = target("target", TargetPlayer())
-        effect = GainLifeEffect(1, t)
+        effect = Effects.GainLife(1, t)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -190,7 +190,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         val decisionResult = decisionHandler.createCardSelectionDecision(
@@ -268,7 +267,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         return EffectResult.from(state.suspendForDecision(decision, continuation))
@@ -323,7 +321,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         return EffectResult.from(state.suspendForDecision(decision, continuation))
@@ -370,7 +367,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         val decisionResult = decisionHandler.createCardSelectionDecision(
@@ -434,7 +430,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         val decisionResult = decisionHandler.createCardSelectionDecision(
@@ -502,7 +497,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         val decisionResult = decisionHandler.createCardSelectionDecision(
@@ -574,7 +568,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         val decisionResult = decisionHandler.createCardSelectionDecision(
@@ -689,7 +682,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         return EffectResult.from(state.suspendForDecision(decision, continuation, events = listOf()))
@@ -745,7 +737,6 @@ class PayOrSufferExecutor(
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
             storedCollections = context.pipeline.storedCollections,
-            iterationEntityId = context.pipeline.iterationTarget
         )
 
         return EffectResult.from(state.suspendForDecision(decision, continuation))
@@ -786,7 +777,6 @@ class PayOrSufferExecutor(
             triggeringEntityId = context.triggeringEntityId,
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
-            iterationEntityId = context.pipeline.iterationTarget,
             zone = cost.zone
         )
 
@@ -860,7 +850,6 @@ class PayOrSufferExecutor(
             triggeringEntityId = context.triggeringEntityId,
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
-            iterationEntityId = context.pipeline.iterationTarget,
             manaCost = cost.cost
         )
 
@@ -925,7 +914,6 @@ class PayOrSufferExecutor(
             triggeringEntityId = context.triggeringEntityId,
             triggeringPlayerId = context.triggeringPlayerId,
             abilityControllerId = context.controllerId,
-            iterationEntityId = context.pipeline.iterationTarget,
             // Carried so the follow-up prompt for the chosen cost asks in the same words as this
             // one. Dropping it here is invisible until a card routes `player` elsewhere, and then
             // the second question silently reverts to the controller's-side phrasing.
@@ -1044,9 +1032,7 @@ class PayOrSufferExecutor(
                         PredicateContext(controllerId = playerId, sourceId = sourceId),
                         predicateEvaluator = predicateEvaluator
                     )
-                    val counterType = atom.counterType?.let {
-                        com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType(it)
-                    }
+                    val counterType = atom.counterType
                     val required = (atom.count as? com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed)?.amount ?: 0
                     val total = candidates.sumOf { permId ->
                         val counters = state.getEntity(permId)?.get<CountersComponent>() ?: return@sumOf 0

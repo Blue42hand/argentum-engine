@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -43,7 +43,7 @@ val RoxxonBrutes = card("Roxxon Brutes") {
     triggeredAbility {
         trigger = Triggers.NthCardDrawn(2)
         val creature = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     keywordAbility(KeywordAbility.basicLandcycling("{2}"))

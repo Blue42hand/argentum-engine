@@ -3,10 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -36,20 +35,19 @@ val UntimelyMalfunction = card("Untimely Malfunction") {
         "• One or two target creatures can't block this turn."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
-                Mode.withTarget(
-                    effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                    target = Targets.Artifact,
-                    description = "Destroy target artifact"
-                ),
+                mode("Destroy target artifact") {
+                    val artifact = target("target artifact", Targets.Artifact)
+                    effect = Effects.Destroy(artifact)
+                },
                 Mode.withTarget(
                     effect = Effects.ChangeTarget(),
                     target = Targets.SpellOrAbilityWithSingleTarget,
                     description = "Change the target of target spell or ability with a single target"
                 ),
                 Mode.withTarget(
-                    effect = ForEachTargetEffect(listOf(Effects.CantBlock(EffectTarget.ContextTarget(0)))),
+                    effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0))),
                     target = TargetCreature(count = 2, minCount = 1),
                     description = "One or two target creatures can't block this turn"
                 )

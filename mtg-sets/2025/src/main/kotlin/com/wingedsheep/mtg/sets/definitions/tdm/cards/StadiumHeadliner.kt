@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mobilize
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Stadium Headliner — Tarkir: Dragonstorm #122
@@ -44,7 +44,7 @@ val StadiumHeadliner = card("Stadium Headliner") {
         cost = Costs.Composite(Costs.Mana("{1}{R}"), Costs.SacrificeSelf)
         val t = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
-            DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, Filters.Creature),
+            DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, Filters.Creature),
             t
         )
     }

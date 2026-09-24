@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Innocent Bystander — Murders at Karlov Manor #133
@@ -43,9 +42,9 @@ val InnocentBystander = card("Innocent Bystander") {
     triggeredAbility {
         trigger = Triggers.TakesDamage
         triggerRestriction = Conditions.CompareAmounts(
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            DynamicAmounts.triggerDamageAmount(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(3),
+            3,
         )
         effect = Effects.Investigate()
         description = "Whenever this creature is dealt 3 or more damage, investigate."

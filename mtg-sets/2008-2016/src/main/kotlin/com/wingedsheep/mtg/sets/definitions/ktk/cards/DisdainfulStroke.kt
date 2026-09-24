@@ -18,7 +18,7 @@ val DisdainfulStroke = card("Disdainful Stroke") {
     oracleText = "Counter target spell with mana value 4 or greater."
 
     spell {
-        target = Targets.SpellWithManaValueAtLeast(4)
+        val spellWithManaValueAtLeast = target("target spell with mana value at least", Targets.SpellWithManaValueAtLeast(4))
         effect = Effects.CounterSpell()
     }
 

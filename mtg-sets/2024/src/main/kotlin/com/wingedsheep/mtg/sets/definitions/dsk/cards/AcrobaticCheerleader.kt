@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -32,7 +32,7 @@ val AcrobaticCheerleader = card("Acrobatic Cheerleader") {
         trigger = Triggers.YourPostcombatMain
         interveningIf = Conditions.SourceIsTapped
         triggersOnce = true
-        effect = Effects.AddCounters(Counters.FLYING, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.FLYING, 1, EffectTarget.Self)
     }
 
     metadata {

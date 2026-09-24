@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -40,16 +40,16 @@ val SkyknightSquire = card("Skyknight Squire") {
 
     triggeredAbility {
         trigger = Triggers.OtherCreatureEnters
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever another creature you control enters, put a +1/+1 counter on this creature."
     }
 
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 3)
         ability = GrantKeyword(Keyword.FLYING, Filters.Self)
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 3)
         ability = GrantSubtype("Knight", Filters.Self)
     }
 

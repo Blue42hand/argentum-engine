@@ -1,14 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -24,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * instead.)
  *
  * Attack trigger that targets an opponent's creature, taps it, then offers an optional
- * resolution-time sacrifice. The sacrifice is modeled with `OptionalCostEffect`
+ * resolution-time sacrifice. The sacrifice is modeled with `Effects.MayPay`
  * (`Gate.MayPay`) so declining (or having nothing to sacrifice) skips the stun counter —
  * matching the "you may … if you do" wording.
  */
@@ -46,12 +43,12 @@ val VengefulVillagers = card("Vengeful Villagers") {
         )
         effect = Effects.Composite(
             Effects.Tap(chosen),
-            OptionalCostEffect(
-                cost = SacrificeEffect(
+            Effects.MayPay(
+                cost = Effects.SacrificeOwn(
                     filter = GameObjectFilter.Artifact.or(GameObjectFilter.Creature),
                     count = 1
                 ),
-                ifPaid = AddCountersEffect(counterType = Counters.STUN, count = 1, target = chosen)
+                then = Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = chosen)
             )
         )
         description = "Whenever this creature attacks, choose target creature an opponent controls. " +

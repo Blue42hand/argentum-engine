@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.mmq.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -28,7 +28,7 @@ val ShockTroops = card("Shock Troops") {
     activatedAbility {
         cost = Costs.SacrificeSelf
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
     metadata {
         rarity = Rarity.COMMON

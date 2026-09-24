@@ -84,7 +84,7 @@ class MyrPrototypeScenarioTest : FunSpec({
     }
 
     test("counters on another creature don't raise the price") {
-        // The amount is EntityReference.Source, not a board aggregate: a fat bystander is irrelevant.
+        // The amount is EffectTarget.Self, not a board aggregate: a fat bystander is irrelevant.
         val d = driver()
         val attacker = d.activePlayer!!
         val defender = d.getOpponent(attacker)

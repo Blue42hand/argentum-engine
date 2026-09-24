@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever this creature deals combat damage to a player, you may pay {2}. If you do, create a 2/2
  * black Zombie creature token and each opponent mills two cards.
  *
- * "You may pay {2}. If you do, …" is [MayPayManaEffect] — one gate whose consequence runs only when
+ * "You may pay {2}. If you do, …" is [Effects.MayPay] — one gate whose consequence runs only when
  * the mana is actually paid, rather than an `optional` trigger wrapped around a payment. The
  * consequence is a single sentence with two halves, so both live in one [Effects.Composite].
  *
@@ -44,9 +43,9 @@ val NecromasterDragon = card("Necromaster Dragon") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.CreateToken(
                     power = 2,
                     toughness = 2,

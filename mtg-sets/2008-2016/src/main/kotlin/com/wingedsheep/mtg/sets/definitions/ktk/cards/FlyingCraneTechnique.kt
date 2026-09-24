@@ -3,8 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -26,15 +24,15 @@ val FlyingCraneTechnique = card("Flying Crane Technique") {
             listOf(
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    TapUntapEffect(EffectTarget.Self, tap = false)
+                    Effects.Untap(EffectTarget.IterationEntity)
                 ),
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    GrantKeywordEffect(Keyword.FLYING, EffectTarget.Self)
+                    Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)
                 ),
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    GrantKeywordEffect(Keyword.DOUBLE_STRIKE, EffectTarget.Self)
+                    Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity)
                 )
             )
         )

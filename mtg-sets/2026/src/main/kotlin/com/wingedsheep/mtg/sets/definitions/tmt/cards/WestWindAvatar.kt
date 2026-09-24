@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -39,7 +38,7 @@ val WestWindAvatar = card("West Wind Avatar") {
             CardPredicate.Or(listOf(CardPredicate.IsToken, CardPredicate.IsLand))
         )
     )
-    val sacrificeForLife = MayEffect(
+    val sacrificeForLife = Effects.May(
         Effects.Sacrifice(tokenOrLand, count = 1, target = EffectTarget.Controller)
             .then(Effects.GainLife(3))
     )

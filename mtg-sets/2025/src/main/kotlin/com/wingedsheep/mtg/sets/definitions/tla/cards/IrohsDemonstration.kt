@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -29,7 +28,7 @@ val IrohsDemonstration = card("Iroh's Demonstration") {
             mode("Iroh's Demonstration deals 1 damage to each creature your opponents control.") {
                 effect = Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesOpponentsControl,
-                    effect = DealDamageEffect(1, EffectTarget.Self),
+                    effect = Effects.DealDamage(1, EffectTarget.IterationEntity),
                 )
             }
             mode("Iroh's Demonstration deals 4 damage to target creature.") {

@@ -576,7 +576,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -884,7 +884,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1003,7 +1003,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1889,7 +1889,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2279,7 +2279,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -2374,7 +2374,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "MoveToZone",
@@ -2475,11 +2478,11 @@
                                 "zone": "Graveyard",
                                 "filter": "creature|planeswalker"
                             },
-                            "storeAs": "takenumaGraveyard"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "takenumaGraveyard",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -2487,13 +2490,13 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "takenumaReturned",
+                            "storeSelected": "selected2",
                             "prompt": "Choose a creature or planeswalker card to return to your hand",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "takenumaReturned",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -13,8 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,8 +34,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Implementation:
  *  - Attacks-alone trigger via [Triggers.attacks]`(Creature.youControl(), requires =
  *    AttackPredicate.Alone, binding = ANY)`; the lone attacker is [EffectTarget.TriggeringEntity].
- *    Effect grants deathtouch + lifelink (until end of turn), adds a [Counters.DREAD] counter to
- *    Self, then a [ConditionalEffect] on [Conditions.SourceCounterCountAtLeast]`(dread, 3)` flips
+ *    Effect grants deathtouch + lifelink (until end of turn), adds a [CounterType.DREAD] counter to
+ *    Self, then a [Effects.If] on [Conditions.SourceCounterCountAtLeast]`(dread, 3)` flips
  *    it. Same shape as Team Avatar's attacks-alone pump + The Emperor of Palamecia's threshold flip.
  *  - Back land: `{T}: Add {B}` mana ability + a `{B}, {T}, Remove a dread counter` ability
  *    ([Costs.RemoveCounterFromSelf]) that draws a card and loses 1 life.
@@ -60,10 +58,10 @@ private val GraspingShadowsFront = card("Grasping Shadows") {
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity),
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity),
-            Effects.AddCounters(Counters.DREAD, 1, EffectTarget.Self),
-            ConditionalEffect(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.DREAD, 3),
-                effect = TransformEffect(EffectTarget.Self),
+            Effects.AddCounters(CounterType.DREAD, 1, EffectTarget.Self),
+            Effects.If(
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.DREAD, 3),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "Whenever a creature you control attacks alone, it gains deathtouch and " +
@@ -97,7 +95,7 @@ private val ShadowsLair = card("Shadows' Lair") {
         cost = Costs.Composite(
             Costs.Mana("{B}"),
             Costs.Tap,
-            Costs.RemoveCounterFromSelf(Counters.DREAD, 1),
+            Costs.RemoveCounterFromSelf(CounterType.DREAD, 1),
         )
         effect = Effects.Composite(
             Effects.DrawCards(1),

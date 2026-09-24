@@ -9,12 +9,10 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -50,17 +48,17 @@ val ManifoldMouse = card("Manifold Mouse") {
     // At the beginning of combat on your turn, target Mouse you control gains
     // your choice of double strike or trample until end of turn.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
-        target = TargetCreature(
+        val creature = target("target creature", TargetCreature(
             filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Mouse").youControl())
-        )
+        ))
+        trigger = Triggers.BeginCombat
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                GrantKeywordEffect(Keyword.DOUBLE_STRIKE, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
+                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
                 "Double strike"
             ),
             Mode.noTarget(
-                GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
+                Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
                 "Trample"
             )
         )

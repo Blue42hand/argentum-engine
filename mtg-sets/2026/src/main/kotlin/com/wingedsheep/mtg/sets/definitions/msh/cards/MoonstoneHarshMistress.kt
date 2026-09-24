@@ -1,18 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 
 /**
  * Moonstone, Harsh Mistress — Marvel Super Heroes #107
@@ -26,7 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
  * one resolution fires it three times and each firing binds *its* card as the triggering entity
  * (CR 400.7e — the trigger can find the object the discarded card became in the graveyard). That
  * makes [CardSource.TriggeringEntity] "that card", feeding the Norin, Swift Survivalist
- * gather → exile → grant pipeline wrapped in a [MayEffect] for the optional "you may exile".
+ * gather → exile → grant pipeline wrapped in a [Effects.May] for the optional "you may exile".
  *
  * The permission is granted only on the exiled card, and playing it still costs its mana. Its
  * expiry is [MayPlayExpiry.UntilEndOfNextTurn] — `UntilControllerStep(CLEANUP,
@@ -51,23 +45,15 @@ val MoonstoneHarshMistress = card("Moonstone, Harsh Mistress") {
 
     triggeredAbility {
         trigger = Triggers.YouDiscard
-        effect = MayEffect(
-            Effects.Composite(
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.TriggeringEntity,
-                        storeAs = "moonstoneDiscarded"
-                    ),
-                    MoveCollectionEffect(
-                        from = "moonstoneDiscarded",
-                        destination = CardDestination.ToZone(Zone.EXILE)
-                    ),
-                    GrantMayPlayFromExileEffect(
-                        "moonstoneDiscarded",
-                        MayPlayExpiry.UntilEndOfNextTurn
-                    )
-                )
-            ),
+        effect = Effects.May(
+            Effects.Pipeline {
+                val moonstoneDiscarded = gather(CardSource.TriggeringEntity)
+                exile(moonstoneDiscarded)
+                run(Effects.GrantMayPlayFromExile(
+                    moonstoneDiscarded,
+                    MayPlayExpiry.UntilEndOfNextTurn
+                ))
+            },
             descriptionOverride = "Exile that card from your graveyard? You may play it until the " +
                 "end of your next turn."
         )

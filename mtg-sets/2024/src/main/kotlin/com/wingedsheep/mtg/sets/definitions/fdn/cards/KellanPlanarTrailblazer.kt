@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -33,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   restriction** (Scryfall ruling: "You can activate Kellan's abilities regardless of what
  *   creature types he currently has. Each ability checks Kellan's creature types when it
  *   resolves."). So each ability is freely activatable and its body is wrapped in a
- *   [ConditionalEffect] over [Conditions.SourceHasSubtype] — which lowers to a
+ *   [Effects.If] over [Conditions.SourceHasSubtype] — which lowers to a
  *   `Gate.WhenCondition` and evaluates the source against **projected** state, so step 2 sees the
  *   Detective type that step 1's Layer-4 type change conferred. Activating out of order (or
  *   twice) is legal and simply does nothing.
@@ -69,19 +67,19 @@ val KellanPlanarTrailblazer = card("Kellan, Planar Trailblazer") {
     // that card this turn."
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceHasSubtype(Subtype.SCOUT),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.SetCreatureSubtypes(
                     subtypes = setOf(Subtype.HUMAN.value, Subtype.FAERIE.value, Subtype.DETECTIVE.value),
                     target = EffectTarget.Self,
                     duration = Duration.Permanent
                 ),
-                GrantTriggeredAbilityEffect(
+                Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
                         trigger = Triggers.DealsCombatDamageToPlayer.event,
                         binding = Triggers.DealsCombatDamageToPlayer.binding,
-                        effect = Patterns.Exile.impulse(count = 1, storeAs = "kellanImpulseExiled"),
+                        effect = Patterns.Exile.impulse(count = 1),
                         descriptionOverride = "Whenever Kellan deals combat damage to a player, " +
                             "exile the top card of your library. You may play that card this turn."
                     ),
@@ -98,9 +96,9 @@ val KellanPlanarTrailblazer = card("Kellan, Planar Trailblazer") {
     // {2}{R}: If Kellan is a Detective, it becomes a 3/2 Human Faerie Rogue and gains double strike.
     activatedAbility {
         cost = Costs.Mana("{2}{R}")
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceHasSubtype(Subtype.DETECTIVE),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.SetBasePowerAndToughness(
                     power = 3,
                     toughness = 2,

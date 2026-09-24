@@ -2,14 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.tsp.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -45,8 +41,8 @@ val BrassGnat = card("Brass Gnat") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = GatedEffect(
-            gate = Gate.MayPay(PayManaCostEffect(ManaCost.parse("{1}"))),
+        effect = Effects.MayPay(
+            cost = Effects.PayMana("{1}"),
             then = Effects.Untap(EffectTarget.Self),
         )
     }

@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val RoboticsMastery = card("Robotics Mastery") {
     manaCost = "{4}{U}"
@@ -25,8 +24,8 @@ val RoboticsMastery = card("Robotics Mastery") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
-            count = DynamicAmount.Fixed(2),
+        effect = Effects.CreateToken(
+            count = 2,
             power = 1,
             toughness = 1,
             colors = emptySet(),

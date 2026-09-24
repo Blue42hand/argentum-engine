@@ -259,8 +259,7 @@ class MiscContinuationResumer(
         val events = mutableListOf<GameEvent>()
 
         val chosen = response.number.coerceAtLeast(0)
-        val counterType = com.wingedsheep.engine.handlers.effects.permanent.counters
-            .resolveCounterType(continuation.counterType)
+        val counterType = continuation.counterType
 
         if (chosen > 0) {
             val current = newState.getEntity(continuation.playerId)
@@ -748,17 +747,7 @@ class MiscContinuationResumer(
             return ExecutionResult.error(state, "Expected distribution response for counter distribution")
         }
 
-        val counterType = try {
-            com.wingedsheep.sdk.core.CounterType.valueOf(
-                continuation.counterType.uppercase()
-                    .replace(' ', '_')
-                    .replace('+', 'P')
-                    .replace('-', 'M')
-                    .replace("/", "_")
-            )
-        } catch (e: IllegalArgumentException) {
-            com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
-        }
+        val counterType = continuation.counterType
 
         val distribution = response.distribution
         val totalMoved = distribution.values.sum()
@@ -808,7 +797,7 @@ class MiscContinuationResumer(
                     .recordCounterPlacement(
                         newState,
                         targetId,
-                        com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(counterType),
+                        counterType,
                         placerId = continuation.controllerId,
                     )
                 newState = afterMark
@@ -832,8 +821,7 @@ class MiscContinuationResumer(
             return ExecutionResult.error(state, "Expected number response for convert-counters-to-tokens")
         }
 
-        val counterType = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-            .resolveCounterType(continuation.counterType)
+        val counterType = continuation.counterType
         val available = state.getEntity(continuation.sourceId)
             ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
             ?.getCount(counterType) ?: 0
@@ -850,7 +838,7 @@ class MiscContinuationResumer(
         val events = mutableListOf<GameEvent>(
             com.wingedsheep.engine.core.CountersRemovedEvent(
                 continuation.sourceId,
-                continuation.counterType.description,
+                continuation.counterType,
                 chosen,
                 state.getEntity(continuation.sourceId)
                     ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name ?: ""
@@ -936,8 +924,7 @@ class MiscContinuationResumer(
         }
 
         val chosen = response.number.coerceIn(0, continuation.currentMaxAmount)
-        val counterType = com.wingedsheep.engine.handlers.effects.permanent.counters
-            .resolveCounterType(continuation.currentCounterType)
+        val counterType = continuation.currentCounterType
 
         var newState = state
         val events = mutableListOf<GameEvent>()
@@ -979,7 +966,7 @@ class MiscContinuationResumer(
                         .recordCounterPlacement(
                             newState,
                             continuation.destinationId,
-                            com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(counterType),
+                            counterType,
                             placerId = continuation.controllerId,
                         )
                     newState = afterMark
@@ -1007,7 +994,7 @@ class MiscContinuationResumer(
         val nextPrompt = continuation.remainingCounterTypes
             .map { (type, _) ->
                 type to (live?.getCount(
-                    com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType(type)
+                    type
                 ) ?: 0)
             }
             .firstOrNull { it.second > 0 }
@@ -1021,7 +1008,7 @@ class MiscContinuationResumer(
             val question = { decisionId: String -> ChooseNumberDecision(
                 id = decisionId,
                 playerId = continuation.controllerId,
-                prompt = "Move how many $nextType counters from ${continuation.sourceName} onto ${continuation.destinationName}? (0-$nextMax)",
+                prompt = "Move how many ${nextType.printed} counters from ${continuation.sourceName} onto ${continuation.destinationName}? (0-$nextMax)",
                 context = DecisionContext(
                     sourceId = continuation.sourceId,
                     sourceName = continuation.sourceName,

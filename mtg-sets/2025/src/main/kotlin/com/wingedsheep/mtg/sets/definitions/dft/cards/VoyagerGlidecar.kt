@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -58,7 +58,7 @@ val VoyagerGlidecar = card("Voyager Glidecar") {
                 keywords = setOf(Keyword.FLYING),
                 duration = Duration.EndOfTurn
             ),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
         description = "Tap three other untapped creatures you control: Until end of turn, this " +
             "Vehicle becomes an artifact creature and gains flying. Put a +1/+1 counter on it."

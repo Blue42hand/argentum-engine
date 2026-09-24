@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
@@ -66,7 +64,7 @@ val JudithCarnageConnoisseur = card("Judith, Carnage Connoisseur") {
                 "That spell gains deathtouch and lifelink"
             ),
             Mode.noTarget(
-                CreateTokenEffect(
+                Effects.CreateToken(
                     power = 2,
                     toughness = 2,
                     colors = setOf(Color.RED),
@@ -76,7 +74,7 @@ val JudithCarnageConnoisseur = card("Judith, Carnage Connoisseur") {
                         TriggeredAbility.create(
                             trigger = Triggers.Dies.event,
                             binding = Triggers.Dies.binding,
-                            effect = DealDamageEffect(2, EffectTarget.PlayerRef(Player.EachOpponent))
+                            effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent))
                         )
                     )
                 ),

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AdditionalManaOnTap
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fertile Ground
@@ -27,7 +27,7 @@ val FertileGround = card("Fertile Ground") {
     auraTarget = Targets.Land
 
     staticAbility {
-        ability = AdditionalManaOnTap(amount = DynamicAmount.Fixed(1), anyColor = true)
+        ability = AdditionalManaOnTap(amount = DynamicAmounts.fixed(1), anyColor = true)
     }
 
     metadata {

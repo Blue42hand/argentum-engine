@@ -7,7 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.rix.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -27,7 +26,7 @@ val MomentOfTriumph = card("Moment of Triumph") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, t),
-            GainLifeEffect(2)
+            Effects.GainLife(2)
         )
     }
     metadata {

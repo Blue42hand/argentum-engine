@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The enters trigger reads [DynamicAmount.CastX] rather than `XValue`: the X belongs to the spell
@@ -26,7 +26,7 @@ val AjanisAnguish = card("Ajani's Anguish") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("any target", Targets.Any)
-        effect = Effects.DealDamage(DynamicAmount.CastX, t)
+        effect = Effects.DealDamage(DynamicAmounts.castX(), t)
     }
 
     staticAbility {

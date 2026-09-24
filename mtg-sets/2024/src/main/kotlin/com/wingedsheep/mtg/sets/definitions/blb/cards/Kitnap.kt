@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.dsl.gift
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ControlEnchantedPermanent
 import com.wingedsheep.sdk.scripting.GiftKind
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,9 +44,9 @@ val Kitnap = card("Kitnap") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Not(Conditions.GiftWasPromised),
-                    effect = Effects.AddCounters("STUN", 3, EffectTarget.EnchantedCreature)
+                    then = Effects.AddCounters(CounterType.STUN, 3, EffectTarget.EnchantedCreature)
                 )
             )
     }

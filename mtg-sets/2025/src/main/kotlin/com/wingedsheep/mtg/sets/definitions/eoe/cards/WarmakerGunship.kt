@@ -1,7 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
 
@@ -46,7 +46,7 @@ val WarmakerGunship = card("Warmaker Gunship") {
         trigger = Triggers.EntersBattlefield
         val t = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Artifact),
+            amount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
             target = t,
             damageSource = EffectTarget.Self
         )
@@ -59,13 +59,13 @@ val WarmakerGunship = card("Warmaker Gunship") {
 
     // Conditional type change: artifact creature at 6+ charge counters
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 6)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 6)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
 
     // Conditional keyword: flying at 6+ charge counters
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 6)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 6)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
 

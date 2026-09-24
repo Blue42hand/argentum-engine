@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -38,12 +37,12 @@ val RiseOfExtus = card("Rise of Extus") {
 
     spell {
         val creature = target("target creature", Targets.Creature)
-        target(
+        val instantOrSorceryInGraveyard = target(
             "up to one target instant or sorcery card from a graveyard",
             TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard, optional = true)
         )
         effect = Effects.Exile(creature) then
-            Effects.Exile(EffectTarget.ContextTarget(1)) then
+            Effects.Exile(instantOrSorceryInGraveyard) then
             Patterns.Mechanic.learn()
     }
 

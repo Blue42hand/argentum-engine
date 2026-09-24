@@ -214,10 +214,6 @@ class SacrificeAndPayContinuationResumer(
                 pipeline = PipelineState(
                     namedTargets = continuation.namedTargets,
                     storedCollections = continuation.storedCollections,
-                    // Rebind the enclosing ForEach loop's entity: the consequence may refer back to it
-                    // (Tidal Flats' "creatures you control blocking *that creature*"), and a null here
-                    // matches nothing at all rather than failing loudly.
-                    iterationTarget = continuation.iterationEntityId
                 ),
                 triggeringEntityId = continuation.triggeringEntityId,
                 triggeringPlayerId = continuation.triggeringPlayerId
@@ -241,10 +237,6 @@ class SacrificeAndPayContinuationResumer(
             pipeline = PipelineState(
                 namedTargets = continuation.namedTargets,
                 storedCollections = continuation.storedCollections,
-                // Rebind the enclosing ForEach loop's entity: the consequence may refer back to it
-                // (Tidal Flats' "creatures you control blocking *that creature*"), and a null here
-                // matches nothing at all rather than failing loudly.
-                iterationTarget = continuation.iterationEntityId
             ),
             triggeringEntityId = continuation.triggeringEntityId,
             triggeringPlayerId = continuation.triggeringPlayerId
@@ -472,10 +464,8 @@ class SacrificeAndPayContinuationResumer(
             return executePayOrSufferConsequence(state, continuation, checkForMore)
         }
 
-        val counterName = continuation.counterType
+        val counterType = continuation.counterType
             ?: return ExecutionResult.error(state, "Put-counters payment has no counter type")
-        val counterType = com.wingedsheep.engine.handlers.effects.permanent.counters
-            .resolveCounterType(counterName)
 
         // Counters put on to pay a cost are an ordinary counter placement (CR 121.6), so this runs
         // the same four-step chokepoint as CostHandler's PutCountersOnSelf and AddCountersExecutor:
@@ -498,16 +488,12 @@ class SacrificeAndPayContinuationResumer(
             newState = newState.updateEntity(permanentId) { c ->
                 c.with(counters.withAdded(counterType, modifiedCount))
             }.let {
-                DamageUtils.markCounterPlacedOnCreature(
-                    it, placerId, permanentId,
-                    com.wingedsheep.engine.handlers.effects.permanent.counters
-                        .counterTypeToString(counterType)
-                )
+                DamageUtils.markCounterPlacedOnCreature(it, placerId, permanentId, counterType)
             }
             events.add(
                 CountersAddedEvent(
                     permanentId,
-                    counterName,
+                    counterType,
                     modifiedCount,
                     container.get<CardComponent>()?.name ?: "Permanent",
                     firstThisTurn,
@@ -794,10 +780,6 @@ class SacrificeAndPayContinuationResumer(
                 // Carried across the pause so a collection-reading suffer effect still resolves —
                 // Wand of Ith discards "the card revealed this way".
                 storedCollections = continuation.storedCollections,
-                // Rebind the enclosing ForEach loop's entity: the consequence may refer back to it
-                // (Tidal Flats' "creatures you control blocking *that creature*"), and a null here
-                // matches nothing at all rather than failing loudly.
-                iterationTarget = continuation.iterationEntityId
             ),
             triggeringEntityId = continuation.triggeringEntityId,
             triggeringPlayerId = continuation.triggeringPlayerId
@@ -892,13 +874,7 @@ class SacrificeAndPayContinuationResumer(
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences.authorize(priorEvents),
             controllerId = continuation.controllerId,
-            pipeline = PipelineState(
-                storedCollections = continuation.storedCollections,
-                // The enclosing per-permanent loop's current entity, so a consequence written as
-                // `EffectTarget.Self` still means that permanent after the pay-or-decline pause
-                // (Cleansing: "for each land, destroy that land unless any player pays 1 life").
-                iterationTarget = continuation.iterationTarget
-            ),
+            pipeline = PipelineState(storedCollections = continuation.storedCollections),
             triggeringEntityId = continuation.triggeringEntityId,
             triggeringPlayerId = continuation.triggeringPlayerId
         )

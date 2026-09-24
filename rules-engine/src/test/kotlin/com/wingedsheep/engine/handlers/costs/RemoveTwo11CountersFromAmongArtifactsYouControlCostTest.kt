@@ -50,7 +50,7 @@ class RemoveTwo11CountersFromAmongArtifactsYouControlCostTest : FunSpec({
 
         activatedAbility {
             cost = AbilityCost.Atom(CostAtom.RemoveCounters(
-                counterType = "+1/+1",
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = DynamicAmount.Fixed(2),
                 filter = GameObjectFilter.Artifact
             ))

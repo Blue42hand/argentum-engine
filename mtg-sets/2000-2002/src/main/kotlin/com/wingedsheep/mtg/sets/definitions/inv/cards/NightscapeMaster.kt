@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
  * Nightscape Master
@@ -33,7 +32,7 @@ val NightscapeMaster = card("Nightscape Master") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}{R}"), Costs.Tap)
         val t = target("target", Targets.Creature)
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
 
     metadata {

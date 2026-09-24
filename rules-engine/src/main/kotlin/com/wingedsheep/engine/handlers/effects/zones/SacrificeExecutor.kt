@@ -162,7 +162,7 @@ class SacrificeExecutor(
         // last known information) so a follow-up sibling effect can read the sacrificed
         // permanent's characteristics: e.g. Serendib Djinn's "if you sacrifice an Island this way,
         // ~ deals 3 damage to you" (subtypes via [Conditions.SacrificedHadSubtype] /
-        // [DynamicAmount.EntityProperty(Sacrificed, ...)]), or Exploit's `EmitExploitedEventEffect`
+        // [DynamicAmount.EntityProperty(SacrificedAsCost, ...)]), or Exploit's `EmitExploitedEventEffect`
         // reading `wasToken` for Skull Skaab's "exploits a nontoken creature". The GameState overload
         // is used so token-ness (a [TokenComponent] fact, not a projected value) is recorded too.
         val snapshots = if (permanentIds.isNotEmpty()) {

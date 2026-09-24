@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -33,14 +34,13 @@ val RetreatToHagra = card("Retreat to Hagra") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.Composite(
-                    Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
-                    Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.ContextTarget(0)),
-                ),
-                TargetCreature(),
-                "Target creature gets +1/+0 and gains deathtouch until end of turn",
-            ),
+            mode("Target creature gets +1/+0 and gains deathtouch until end of turn") {
+                val creature = target("target creature", TargetCreature())
+                effect = Effects.Composite(
+                    Effects.ModifyStats(1, 0, creature),
+                    Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
+                )
+            },
             Mode.noTarget(
                 Effects.Composite(
                     Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),

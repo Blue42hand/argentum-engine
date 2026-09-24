@@ -1,14 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.eld.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Keeper of Fables
@@ -30,12 +30,12 @@ val KeeperOfFables = card("Keeper of Fables") {
         // CR 603.2c batch trigger: one draw no matter how many of them connect at once.
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Creature.youControl().notSubtype(Subtype.HUMAN),
             binding = TriggerBinding.ANY,
             batch = true,
         )
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
         description = "Whenever one or more non-Human creatures you control deal combat damage to a " +
             "player, draw a card."
     }

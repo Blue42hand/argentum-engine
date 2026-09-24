@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -40,7 +40,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * eaten by their own ability are the intended engine.
  *
  * The sacrifice ability reads [DynamicAmounts.sourcePower], which is `LIVE_THEN_LKI` for
- * [com.wingedsheep.sdk.scripting.values.EntityReference.Source]: the sacrifice is a *cost*, so
+ * [com.wingedsheep.sdk.scripting.targets.EffectTarget.Self]: the sacrifice is a *cost*, so
  * Syr Ginger is already in the graveyard when the ability resolves and the read falls through to
  * the snapshot captured at cost-payment time. That is exactly the printed ruling — "use its power
  * from when it was last on the battlefield" — so counters accumulated by the middle ability, and
@@ -80,7 +80,7 @@ val SyrGingerTheMealEnder = card("Syr Ginger, the Meal Ender") {
             binding = TriggerBinding.OTHER,
         )
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Patterns.Library.scry(1),
         )
         description = "Whenever another artifact you control is put into a graveyard from the " +

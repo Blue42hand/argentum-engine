@@ -7,8 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.ptk.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -25,8 +23,8 @@ val AmbitionsCost = card("Ambition's Cost") {
     oracleText = "You draw three cards and you lose 3 life."
     spell {
         effect = Effects.Composite(
-            DrawCardsEffect(3),
-            LoseLifeEffect(3, EffectTarget.Controller)
+            Effects.DrawCards(3),
+            Effects.LoseLife(3, EffectTarget.Controller)
         )
     }
     metadata {

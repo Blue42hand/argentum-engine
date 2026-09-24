@@ -14,8 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.MayCastFromGraveyard
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -69,24 +67,23 @@ val CaseOfTheUneatenFeast = card("Case of the Uneaten Feast") {
 
     solvedActivatedAbility {
         cost = Costs.SacrificeSelf
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(
+        effect = Effects.Pipeline {
+            val creatures = gather(
+                CardSource.FromZone(
                     zone = Zone.GRAVEYARD,
                     player = Player.You,
                     filter = GameObjectFilter.Creature
-                ),
-                storeAs = "uneatenFeast.creatures"
-            ),
-            ForEachInCollectionEffect(
-                collection = "uneatenFeast.creatures",
-                effect = Effects.GrantStaticAbility(
-                    ability = MayCastFromGraveyard(filter = GameObjectFilter.Creature),
-                    target = EffectTarget.Self,
-                    duration = Duration.EndOfTurn
                 )
             )
-        )
+            run(Effects.ForEachInCollection(
+                creatures,
+                Effects.GrantStaticAbility(
+                    ability = MayCastFromGraveyard(filter = GameObjectFilter.Creature),
+                    target = EffectTarget.IterationEntity,
+                    duration = Duration.EndOfTurn
+                )
+            ))
+        }
         description = "Sacrifice this Case: Creature cards in your graveyard gain \"You may cast " +
             "this card from your graveyard\" until end of turn."
     }

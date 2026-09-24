@@ -28,7 +28,7 @@ import com.wingedsheep.engine.core.Outcome
  *  - "When Wolverine enters, he fights up to one other target creature." (an optional-target
  *    `Effects.Fight` off an ETB trigger), and
  *  - "If damage would be dealt to Wolverine, instead that damage is dealt, but all other damage
- *    already dealt to him is healed." — the `RecipientFilter.Self` `HealOtherDamage` replacement
+ *    already dealt to him is healed." — the `Recipient.Self` `HealOtherDamage` replacement
  *    (CR 701.69a), wired on both creature-damage paths.
  *
  * Mechanism-level coverage of the replacement lives in `HealOtherDamageReplacementTest`; this file

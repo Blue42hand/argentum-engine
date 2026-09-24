@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
@@ -47,7 +47,7 @@ val KidLoki = card("Kid Loki") {
             keyword = Keyword.HEXPROOF,
             filter = Filters.Group.creatures {
                 youControl().receivedCounterThisTurn(
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     placedByController = true,
                 )
             },
@@ -56,7 +56,7 @@ val KidLoki = card("Kid Loki") {
 
     triggeredAbility {
         trigger = Triggers.NthCardDrawn(2)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you draw your second card each turn, put a +1/+1 counter on Kid Loki."
     }
 

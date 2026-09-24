@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Crawling Infestation — Innistrad: Crimson Vow #193
@@ -41,7 +40,7 @@ val CrawlingInfestation = card("Crawling Infestation") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = MayEffect(Patterns.Library.mill(2))
+        effect = Effects.May(Patterns.Library.mill(2))
         description = "At the beginning of your upkeep, you may mill two cards."
     }
 

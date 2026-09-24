@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * At the beginning of your end step, untap all nonland permanents you control.
  *
  * A group untap, not a targeted one: [Effects.ForEachInGroup] over
- * [GroupFilter.AllNonlandPermanents]`.youControl()` rebinds [EffectTarget.Self] to each iterated
+ * [GroupFilter.AllNonlandPermanents]`.youControl()` binds [EffectTarget.IterationEntity] to each iterated
  * permanent, so nothing is targeted and no shroud/protection check applies. The enchantment itself
  * is in the group (it's a nonland permanent you control) — untapping an untapped permanent is a
  * no-op, which is exactly what the rules say happens.
@@ -29,7 +29,7 @@ val UnstoppablePlan = card("Unstoppable Plan") {
         trigger = Triggers.YourEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter.AllNonlandPermanents.youControl(),
-            Effects.Untap(EffectTarget.Self)
+            Effects.Untap(EffectTarget.IterationEntity)
         )
         description = "At the beginning of your end step, untap all nonland permanents you control."
     }

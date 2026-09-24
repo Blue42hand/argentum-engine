@@ -28,7 +28,7 @@ val SunstarExpansionist = card("Sunstar Expansionist") {
     //
     // The "if" stands *between* the trigger event and the effect, so CR 603.4's intervening-"if"
     // rule applies: the ability triggers only when the condition already holds, and it is checked
-    // again as the ability resolves. It used to be a `ConditionalEffect`, which is the model for the
+    // again as the ability resolves. It used to be a `Effects.If`, which is the model for the
     // *trailing* "if" ("create a Lander token if an opponent controls more lands than you") — that
     // one always triggers and decides on resolution. Found by the Assay differential.
     triggeredAbility {

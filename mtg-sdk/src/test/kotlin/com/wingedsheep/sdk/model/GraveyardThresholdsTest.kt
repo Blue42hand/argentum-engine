@@ -4,12 +4,12 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.serialization.CardSerialization
@@ -67,7 +67,7 @@ class GraveyardThresholdsTest : DescribeSpec({
 
     describe("deliriumThreshold") {
         it("finds delirium inside a spell effect") {
-            instant(CardScript(spellEffect = ConditionalEffect(Conditions.Delirium(), draw(2), draw(1))))
+            instant(CardScript(spellEffect = Effects.If(Conditions.Delirium(), draw(2), draw(1))))
                 .deliriumThreshold shouldBe 4
         }
 
@@ -83,7 +83,7 @@ class GraveyardThresholdsTest : DescribeSpec({
         }
 
         it("is derived data, never part of the card's JSON") {
-            val card = instant(CardScript(spellEffect = ConditionalEffect(Conditions.Delirium(), draw(2))))
+            val card = instant(CardScript(spellEffect = Effects.If(Conditions.Delirium(), draw(2))))
             card.deliriumThreshold shouldBe 4
             val json = CardSerialization.json.encodeToString(CardDefinition.serializer(), card)
             json shouldNotContain "deliriumThreshold"

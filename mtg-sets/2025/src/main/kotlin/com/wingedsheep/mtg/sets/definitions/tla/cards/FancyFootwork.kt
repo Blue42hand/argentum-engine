@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -24,11 +23,9 @@ val FancyFootwork = card("Fancy Footwork") {
         // "one or two target creatures" = count 2, minCount 1.
         target = TargetCreature(count = 2, minCount = 1)
         // Apply to each chosen creature: untap, then +2/+2 until end of turn.
-        effect = ForEachTargetEffect(
-            effects = listOf(
-                Effects.Untap(EffectTarget.ContextTarget(0)),
-                Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.Untap(EffectTarget.ContextTarget(0)),
+            Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
         )
     }
 

@@ -24,8 +24,8 @@
                 "effect": {
                     "type": "PreventDamageShield",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -132,8 +132,8 @@
                 "effect": {
                     "type": "PreventDamageShield",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target artifact creature"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -192,10 +192,19 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact creature"
+                        "cardPredicates": [
+                            "IsArtifact",
+                            "IsCreature"
+                        ]
                     }
                 }
             }
@@ -229,10 +238,18 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 }
             }
@@ -267,7 +284,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "doom",
+                    "counterType": "DOOM",
                     "count": 1,
                     "target": "Self"
                 },
@@ -284,13 +301,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "doom"
-                            }
+                            "counterType": "DOOM"
                         }
                     },
                     "target": {
@@ -313,7 +327,7 @@
                 },
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "doom",
+                    "counterType": "DOOM",
                     "count": 1,
                     "target": "Self"
                 },
@@ -458,10 +472,18 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientEnchantedCreature",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsAttachedToBySource"
+                            ]
+                        }
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 }
             }
@@ -615,7 +637,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -802,6 +824,7 @@
                         "filter": {
                             "baseFilter": "land"
                         },
+                        "id": "target permanent",
                         "dynamicMaxCount": "XValue"
                     }
                 ],
@@ -840,8 +863,12 @@
                 "effect": {
                     "type": "PreventDamageShield",
                     "sourceFilter": {
-                        "type": "ChosenSourceMatching",
-                        "filter": "artifact"
+                        "type": "PreventFromChosen",
+                        "eligible": {
+                            "cardPredicates": [
+                                "IsArtifact"
+                            ]
+                        }
                     },
                     "nextInstanceOnly": true
                 },
@@ -887,7 +914,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -970,7 +997,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "+1/+0",
+                    "counterType": "PLUS_ONE_PLUS_ZERO",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1018,7 +1045,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+0",
+                    "counterType": "PLUS_ONE_PLUS_ZERO",
                     "amount": {
                         "type": "IfPositive",
                         "amount": {
@@ -1032,10 +1059,10 @@
                                 },
                                 "right": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": {
                                         "type": "CounterCount",
-                                        "counterType": "PlusOnePlusZero"
+                                        "counterType": "PLUS_ONE_PLUS_ZERO"
                                     }
                                 }
                             }
@@ -1056,7 +1083,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "PlusOnePlusZero",
+                "counterType": "PLUS_ONE_PLUS_ZERO",
                 "count": 4,
                 "selfOnly": true
             }
@@ -1212,7 +1239,10 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target artifact"
+                        },
                         "numericProperty": "ManaValue"
                     },
                     "target": "TargetController"
@@ -1403,11 +1433,11 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "drafna_cards"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "drafna_cards",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -1521,7 +1551,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2206,10 +2236,14 @@
                 "redirectTo": "Self",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "You",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 },
                 "condition": {
@@ -2296,8 +2330,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 },
                                 "isMill": true
                             },
@@ -2310,8 +2344,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         }
@@ -2911,7 +2945,7 @@
                     "color": "BLACK",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "ManaValue"
                     }
                 },
@@ -3088,8 +3122,8 @@
                         {
                             "type": "PreventDamageShield",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "any target"
                             },
                             "amount": {
                                 "type": "Fixed",
@@ -3907,18 +3941,18 @@
                                         ]
                                     }
                                 },
-                                "storeAs": "tetraviteTokens"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "tetraviteTokens",
+                                "from": "gathered0",
                                 "selection": "ChooseAnyNumber",
-                                "storeSelected": "exiledTokens",
+                                "storeSelected": "selected1",
                                 "prompt": "Exile any number of Tetravite tokens created with this creature"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "exiledTokens",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -3926,10 +3960,10 @@
                             },
                             {
                                 "type": "AddDynamicCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "amount": {
                                     "type": "VariableReference",
-                                    "variableName": "exiledTokens_count"
+                                    "variableName": "selected1_count"
                                 },
                                 "target": "Self"
                             }
@@ -4134,11 +4168,11 @@
                         "type": "BattlefieldMatching",
                         "filter": "artifact ctrl:you"
                     },
-                    "storeAs": "sacrificeable"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "sacrificeable",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -4146,12 +4180,12 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "sacrificed",
+                    "storeSelected": "selected1",
                     "prompt": "Sacrifice an artifact"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "sacrificed",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard"
@@ -4164,7 +4198,7 @@
                         "type": "Gate.WhenCondition",
                         "condition": {
                             "type": "CollectionContainsMatch",
-                            "collection": "sacrificed"
+                            "collection": "selected1"
                         }
                     },
                     "then": {
@@ -4177,12 +4211,12 @@
                                     "zone": "Library",
                                     "filter": "artifact"
                                 },
-                                "storeAs": "searchable",
+                                "storeAs": "gathered3",
                                 "search": true
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "searchable",
+                                "from": "gathered3",
                                 "selection": {
                                     "type": "ChooseUpTo",
                                     "count": {
@@ -4190,7 +4224,7 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found",
+                                "storeSelected": "selected4",
                                 "prompt": "Search your library for an artifact card"
                             },
                             {
@@ -4201,22 +4235,27 @@
                                         "type": "Compare",
                                         "left": {
                                             "type": "StoredCardManaValue",
-                                            "collectionName": "found"
+                                            "collectionName": "selected4"
                                         },
                                         "operator": "LTE",
                                         "right": {
                                             "type": "StoredCardManaValue",
-                                            "collectionName": "sacrificed"
+                                            "collectionName": "selected1"
                                         }
                                     }
                                 },
                                 "then": {
-                                    "type": "MoveCollection",
-                                    "from": "found",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    }
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "selected4",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Battlefield"
+                                            }
+                                        }
+                                    ]
                                 },
                                 "otherwise": {
                                     "type": "Gated",
@@ -4228,30 +4267,40 @@
                                                 "type": "Subtract",
                                                 "left": {
                                                     "type": "StoredCardManaValue",
-                                                    "collectionName": "found"
+                                                    "collectionName": "selected4"
                                                 },
                                                 "right": {
                                                     "type": "StoredCardManaValue",
-                                                    "collectionName": "sacrificed"
+                                                    "collectionName": "selected1"
                                                 }
                                             }
                                         }
                                     },
                                     "then": {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield"
-                                        }
+                                        "type": "Composite",
+                                        "effects": [
+                                            {
+                                                "type": "MoveCollection",
+                                                "from": "selected4",
+                                                "destination": {
+                                                    "type": "ToZone",
+                                                    "zone": "Battlefield"
+                                                }
+                                            }
+                                        ]
                                     },
                                     "otherwise": {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        }
+                                        "type": "Composite",
+                                        "effects": [
+                                            {
+                                                "type": "MoveCollection",
+                                                "from": "selected4",
+                                                "destination": {
+                                                    "type": "ToZone",
+                                                    "zone": "Graveyard"
+                                                }
+                                            }
+                                        ]
                                     }
                                 }
                             }
@@ -4292,7 +4341,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "self": true
                     }
                 },

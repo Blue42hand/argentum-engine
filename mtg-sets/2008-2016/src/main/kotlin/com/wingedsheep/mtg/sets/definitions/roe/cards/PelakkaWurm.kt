@@ -5,11 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.roe.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
 /**
@@ -31,11 +30,11 @@ val PelakkaWurm = card("Pelakka Wurm") {
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = GainLifeEffect(7)
+        effect = Effects.GainLife(7)
     }
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -3,17 +3,16 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tend the Sprigs
@@ -44,13 +43,13 @@ val TendTheSprigs = card("Tend the Sprigs") {
                 entersTapped = true,
                 shuffleAfter = true
             ),
-            ConditionalEffect(
-                condition = Compare(
-                    DynamicAmount.AggregateBattlefield(Player.You, landsAndTreefolk),
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.battlefield(Player.You, landsAndTreefolk).count(),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(7)
+                    7
                 ),
-                effect = Effects.CreateToken(
+                then = Effects.CreateToken(
                     power = 3,
                     toughness = 4,
                     colors = setOf(Color.GREEN),

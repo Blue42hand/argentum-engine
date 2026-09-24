@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Blazing Bomb
@@ -49,11 +47,11 @@ val BlazingBomb = card("Blazing Bomb") {
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
+            DynamicAmounts.manaSpentOnTriggeringSpell(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(4),
+            4,
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     // Blow Up — {T}, Sacrifice this creature: It deals damage equal to its power to target

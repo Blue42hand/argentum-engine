@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -24,7 +24,7 @@ val StrengthOfUnity = card("Strength of Unity") {
     auraTarget = Targets.Creature
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = DynamicAmounts.domain(),
             toughnessBonus = DynamicAmounts.domain()

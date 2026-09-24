@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.mir.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
 
 
@@ -25,7 +25,7 @@ val TelimTorsDarts = card("Telim'Tor's Darts") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         val t = target("target", TargetPlayerOrPlaneswalker())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

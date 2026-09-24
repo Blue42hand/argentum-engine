@@ -6,10 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.GainControlEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 
 /**
  * Insurrection
@@ -26,9 +23,9 @@ val Insurrection = card("Insurrection") {
 
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter.AllCreatures, GainControlEffect(EffectTarget.Self, Duration.EndOfTurn)),
-            Effects.ForEachInGroup(GroupFilter.AllCreatures, TapUntapEffect(EffectTarget.Self, tap = false)),
-            Effects.ForEachInGroup(GroupFilter.AllCreatures, GrantKeywordEffect(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn))
+            Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.GainControl(EffectTarget.IterationEntity, Duration.EndOfTurn)),
+            Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.Untap(EffectTarget.IterationEntity)),
+            Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn))
         )
     }
 

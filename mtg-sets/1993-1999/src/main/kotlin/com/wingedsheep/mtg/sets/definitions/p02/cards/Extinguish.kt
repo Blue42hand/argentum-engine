@@ -25,7 +25,7 @@ val Extinguish = card("Extinguish") {
     oracleText = "Counter target sorcery spell."
 
     spell {
-        target = TargetSpell(filter = TargetFilter.SorcerySpellOnStack)
+        val spell = target("target spell", TargetSpell(filter = TargetFilter.SorcerySpellOnStack))
         effect = Effects.CounterSpell()
     }
 

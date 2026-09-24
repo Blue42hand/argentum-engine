@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GrantSupertype
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -25,12 +24,10 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * "attach ... to it" — one attach per chosen Equipment. [EffectTarget.Self] is the granted
  * ability's source, i.e. the enchanted creature.
  */
-private val attachEquipmentToSelf = ForEachTargetEffect(
-    listOf(
-        Effects.AttachTargetEquipmentToCreature(
-            equipmentTarget = EffectTarget.ContextTarget(0),
-            creatureTarget = EffectTarget.Self,
-        )
+private val attachEquipmentToSelf = Effects.ForEachTarget(
+    Effects.AttachTargetEquipmentToCreature(
+        equipmentTarget = EffectTarget.ContextTarget(0),
+        creatureTarget = EffectTarget.Self,
     )
 )
 

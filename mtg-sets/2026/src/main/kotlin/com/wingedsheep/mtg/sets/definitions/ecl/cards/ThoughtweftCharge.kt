@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -29,13 +28,13 @@ val ThoughtweftCharge = card("Thoughtweft Charge") {
         val creature = target("creature", Targets.Creature)
 
         effect = Effects.ModifyStats(3, 3, creature)
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Exists(
                     Player.You,
                     Zone.BATTLEFIELD,
                     GameObjectFilter.Creature.youControl().enteredThisTurn()
                 ),
-                effect = Effects.DrawCards(1)
+                then = Effects.DrawCards(1)
             ))
     }
 

@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -32,7 +31,7 @@ val Winterflame = card("Winterflame") {
             }
             mode("Winterflame deals 2 damage to target creature") {
                 val t = target("creature to damage", TargetCreature())
-                effect = DealDamageEffect(2, t)
+                effect = Effects.DealDamage(2, t)
             }
         }
     }

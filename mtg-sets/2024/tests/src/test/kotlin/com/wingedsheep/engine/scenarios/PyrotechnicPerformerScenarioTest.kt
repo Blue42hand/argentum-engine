@@ -29,7 +29,7 @@ import io.kotest.matchers.shouldBe
  *   with a SELF-excluding OTHER binding.
  * - **The amount comes from the flipped creature, not the Performer.** The second test flips a
  *   different, larger creature while the Performer sits face up on the battlefield, so a
- *   mis-bound `EntityReference.Source` would deal 3 instead of the other creature's power.
+ *   mis-bound `EffectTarget.Self` would deal 3 instead of the other creature's power.
  */
 class PyrotechnicPerformerScenarioTest : FunSpec({
 

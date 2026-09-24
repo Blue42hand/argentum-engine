@@ -1,15 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.TriggeredAbility
 
 /**
  * Commando Raid
@@ -27,13 +24,15 @@ val CommandoRaid = card("Commando Raid") {
 
     spell {
         val t = target("target", Targets.CreatureYouControl)
-        effect = GrantTriggeredAbilityEffect(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.DealsCombatDamageToPlayer.event,
-                binding = Triggers.DealsCombatDamageToPlayer.binding,
-                effect = MayEffect(DealDamageEffect(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0))),
-                targetRequirement = Targets.CreatureOpponentControls
-            ),
+        effect = Effects.GrantTriggeredAbility(
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.DealsCombatDamageToPlayer
+                val creatureOpponentControls = target(
+                    "target creature opponent controls",
+                    Targets.CreatureOpponentControls
+                )
+                effect = Effects.May(Effects.DealDamage(DynamicAmounts.sourcePower(), creatureOpponentControls))
+            },
             target = t
         )
     }

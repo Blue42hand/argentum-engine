@@ -30,6 +30,7 @@ import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.legalactions.TapForGenericPermanentData
 import com.wingedsheep.engine.mechanics.mana.TapForGeneric
 import com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.engine.mechanics.stack.SpellCounterer
 import com.wingedsheep.engine.registry.CardRegistry
@@ -102,7 +103,7 @@ class WardCounterEffectExecutor(
         // Resolve any DynamicLife component to a fixed Life amount at ward-resolution time
         // (CR 702.21b): "Ward—Pay life equal to ~" reads the live value now — e.g. Raubahn's
         // power, using last-known information if Raubahn has left the battlefield (handled by
-        // EntityReference.Source's LkiPolicy). All downstream payment / continuation machinery
+        // EffectTarget.Self's LkiPolicy). All downstream payment / continuation machinery
         // then operates on a plain WardCost.Life, so no other branch needs to change.
         val resolvedCost = resolveDynamicLife(state, effect.cost, context)
 
@@ -268,7 +269,7 @@ class WardCounterEffectExecutor(
             state: GameState,
             spellEntityId: EntityId,
             payingPlayerId: EntityId,
-            counterType: String,
+            counterType: CounterType,
             amount: Int,
             remainingParts: List<WardCost>,
             wardSourceId: EntityId?,

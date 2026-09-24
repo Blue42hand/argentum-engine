@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,11 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Hunter's Talent {G}
@@ -43,11 +40,8 @@ val HuntersTalent = card("Hunter's Talent") {
         trigger = Triggers.EntersBattlefield
         val myCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
-        effect = DealDamageEffect(
-            amount = DynamicAmount.EntityProperty(
-                EntityReference.Target(0),
-                EntityNumericProperty.Power
-            ),
+        effect = Effects.DealDamage(
+            amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,
             damageSource = myCreature
         )

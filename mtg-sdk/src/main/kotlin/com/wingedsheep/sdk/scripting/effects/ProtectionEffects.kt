@@ -172,14 +172,14 @@ fun ProtectionScope.protectionDescription(): String = when (this) {
  *
  * The set is read once, at resolution, and granted as ordinary keyword grants for [duration], so
  * the gained protections outlast the creature that supplied them. Fan it over a group with
- * `Effects.ForEachInGroup(group, Effects.GrantProtectionsSharedByGroup(group))`. An empty group,
- * or one with no protection, grants nothing.
+ * `Effects.ForEachInGroup(group, Effects.GrantProtectionsSharedByGroup(group, IterationEntity))`.
+ * An empty group, or one with no protection, grants nothing.
  */
 @SerialName("GrantProtectionsSharedByGroup")
 @Serializable
 data class GrantProtectionsSharedByGroupEffect(
     val group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-    val target: EffectTarget = EffectTarget.Self,
+    val target: EffectTarget,
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String = buildString {

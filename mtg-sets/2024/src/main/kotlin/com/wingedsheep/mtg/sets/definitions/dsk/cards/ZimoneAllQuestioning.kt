@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,10 +10,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Zimone, All-Questioning
@@ -55,15 +53,15 @@ val ZimoneAllQuestioning = card("Zimone, All-Questioning") {
             Conditions.CompareAmounts(
                 DynamicAmounts.landsEnteredUnderControlThisTurn(Player.You),
                 com.wingedsheep.sdk.scripting.conditions.ComparisonOperator.GTE,
-                DynamicAmount.Fixed(1),
+                1,
             ),
             // "and you control a prime number of lands"
             Conditions.AmountIsPrime(
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land),
+                DynamicAmounts.landsYouControl(),
             ),
         )
-        effect = CreateTokenEffect(
-            count = DynamicAmount.Fixed(1),
+        effect = Effects.CreateToken(
+            count = 1,
             power = 0,
             toughness = 0,
             colors = setOf(Color.GREEN, Color.BLUE),
@@ -73,8 +71,8 @@ val ZimoneAllQuestioning = card("Zimone, All-Questioning") {
             imageUri = "https://cards.scryfall.io/normal/front/c/9/c990db6b-e1f2-4802-b8b1-80a8b768be0e.jpg?1775827823",
         ).then(
             Effects.AddDynamicCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land),
+                CounterType.PLUS_ONE_PLUS_ONE,
+                DynamicAmounts.landsYouControl(),
                 EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
             ),
         )

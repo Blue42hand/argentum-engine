@@ -58,16 +58,16 @@
                                 "amount": 2
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             }
                         },
                         {
                             "type": "GrantKeyword",
                             "keyword": "FLYING",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             }
                         },
                         {
@@ -84,7 +84,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:you"
-                        }
+                        },
+                        "id": "target creature you control"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -450,8 +451,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature card in your graveyard"
                             },
                             "destination": "Hand"
                         },
@@ -470,7 +471,8 @@
                         "filter": {
                             "baseFilter": "creature own:you",
                             "zone": "Graveyard"
-                        }
+                        },
+                        "id": "target creature card in your graveyard"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -782,16 +784,16 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             }
                         },
                         {
                             "type": "GrantKeyword",
                             "keyword": "TRAMPLE",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             }
                         },
                         {
@@ -808,7 +810,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:you"
-                        }
+                        },
+                        "id": "target creature you control"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -1163,7 +1166,7 @@
                             "type": "CreateToken",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaValue"
                             },
                             "power": 1,
@@ -1186,7 +1189,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -1324,7 +1327,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1770,8 +1773,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "destination": "Hand"
                         },
@@ -1789,7 +1792,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ],
                 "timing": "SorcerySpeed"

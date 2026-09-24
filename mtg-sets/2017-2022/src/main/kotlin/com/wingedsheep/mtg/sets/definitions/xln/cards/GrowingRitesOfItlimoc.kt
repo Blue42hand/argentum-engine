@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.xln.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,10 +13,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun (Ixalan — the card's earliest
@@ -58,7 +57,7 @@ private val GrowingRitesOfItlimocFront = card("Growing Rites of Itlimoc") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(4),
+            count = 4,
             filter = GameObjectFilter.Creature,
             prompt = "You may reveal a creature card and put it into your hand",
             restOrder = CardOrder.ControllerChooses,
@@ -69,7 +68,7 @@ private val GrowingRitesOfItlimocFront = card("Growing Rites of Itlimoc") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouControlAtLeast(4, GameObjectFilter.Creature)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "At the beginning of your end step, if you control four or more " +
             "creatures, transform Growing Rites of Itlimoc."
     }
@@ -100,7 +99,7 @@ private val ItlimocCradleOfTheSun = card("Itlimoc, Cradle of the Sun") {
         cost = Costs.Tap
         effect = Effects.AddMana(
             Color.GREEN,
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
+            DynamicAmounts.creaturesYouControl(),
         )
         manaAbility = true
         timing = TimingRule.ManaAbility

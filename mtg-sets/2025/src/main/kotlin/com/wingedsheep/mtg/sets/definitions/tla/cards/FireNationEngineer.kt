@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -46,7 +46,7 @@ val FireNationEngineer = card("Fire Nation Engineer") {
                 )
             )
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
         description = "Raid — At the beginning of your end step, if you attacked this turn, put a " +
             "+1/+1 counter on another target creature or Vehicle you control."
     }

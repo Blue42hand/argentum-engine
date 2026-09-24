@@ -646,7 +646,7 @@
                             "type": "Fixed",
                             "amount": 3
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1331,8 +1331,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -1358,8 +1358,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -2009,7 +2009,7 @@
                                 "type": "Fixed",
                                 "amount": 0
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +2/+0 until end of turn"
@@ -2074,7 +2074,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FLYING",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -2684,7 +2684,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 2,
                         "target": "TriggeringEntity"
                     }
@@ -3796,7 +3796,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -4676,22 +4676,22 @@
                             "type": "Fixed",
                             "amount": 5
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "LIFELINK",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -4777,7 +4777,7 @@
             "body": {
                 "type": "GrantKeyword",
                 "keyword": "SHROUD",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },

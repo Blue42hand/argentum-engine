@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -49,19 +48,19 @@ val VitoFanaticOfAclazotz = card("Vito, Fanatic of Aclazotz") {
         effect = Effects.Composite(
             IncrementAbilityResolutionCountEffect,
             // 1st time — you gain 2 life.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceAbilityResolvedNTimes(1),
-                effect = Effects.GainLife(2),
+                then = Effects.GainLife(2),
             ),
             // 2nd time — each opponent loses 2 life.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceAbilityResolvedNTimes(2),
-                effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
+                then = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
             ),
             // 3rd time — create a 4/3 white and black Vampire Demon creature token with flying.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceAbilityResolvedNTimes(3),
-                effect = Effects.CreateToken(
+                then = Effects.CreateToken(
                     power = 4,
                     toughness = 3,
                     colors = setOf(Color.WHITE, Color.BLACK),

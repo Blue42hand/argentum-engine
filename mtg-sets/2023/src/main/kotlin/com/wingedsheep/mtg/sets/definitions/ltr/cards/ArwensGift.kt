@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
@@ -9,10 +11,8 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Arwen's Gift
@@ -34,13 +34,10 @@ val ArwensGift = card("Arwen's Gift") {
             target = SpellCostTarget.SelfCast,
             modification = CostModification.ReduceGeneric(1),
             gating = CostGating.OnlyIf(
-                Compare(
-                    left = DynamicAmount.AggregateBattlefield(
-                        player = Player.You,
-                        filter = GameObjectFilter.Creature.legendary()
-                    ),
+                Conditions.CompareAmounts(
+                    left = DynamicAmounts.legendaryCreaturesYouControl(),
                     operator = ComparisonOperator.GTE,
-                    right = DynamicAmount.Fixed(2)
+                    right = 2
                 )
             )
         )

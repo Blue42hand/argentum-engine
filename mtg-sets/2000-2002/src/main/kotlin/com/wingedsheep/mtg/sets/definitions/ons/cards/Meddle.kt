@@ -18,7 +18,7 @@ val Meddle = card("Meddle") {
     oracleText = "If target spell has only one target and that target is a creature, change that spell's target to another creature."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.ChangeSpellTarget()
     }
 

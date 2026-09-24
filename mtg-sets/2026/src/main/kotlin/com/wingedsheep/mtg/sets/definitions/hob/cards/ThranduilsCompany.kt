@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -56,7 +56,7 @@ val ThranduilsCompany = card("Thranduil's Company") {
             "target creature you control to get two +1/+1 counters and vigilance",
             TargetCreature(filter = TargetFilter.CreatureYouControl)
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, t)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
             .then(Effects.GrantKeyword(Keyword.VIGILANCE, t))
         description = "Landfall — Whenever a land you control enters, put two +1/+1 counters on " +
             "target creature you control. It gains vigilance until end of turn."

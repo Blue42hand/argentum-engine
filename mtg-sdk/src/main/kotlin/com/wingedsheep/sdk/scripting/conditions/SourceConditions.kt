@@ -3,7 +3,6 @@ package com.wingedsheep.sdk.scripting.conditions
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -177,7 +176,7 @@ data object NoManaSpentToCast : Condition {
  *
  * True iff **every** captured permanent satisfies [NoManaSpentToCast] (was put onto the
  * battlefield without being cast, or was cast with zero total mana spent). An empty capture is
- * vacuously true. Use as a resolution-time gate ([ConditionalEffect]) on a
+ * vacuously true. Use as a resolution-time gate ([Effects.If]) on a
  * [com.wingedsheep.sdk.dsl.Triggers.OneOrMorePermanentsEnter] payoff — Satoru, the Infiltrator
  * ("Whenever Satoru and/or one or more other nontoken creatures you control enter, if none of
  * them were cast or no mana was spent to cast them, draw a card.").

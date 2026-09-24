@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 
 /**
  * Wing Shards
@@ -23,7 +23,7 @@ val WingShards = card("Wing Shards") {
 
     spell {
         val player = target("target player", Targets.Player)
-        effect = ForceSacrificeEffect(GameObjectFilter.Creature.attacking(), 1, player)
+        effect = Effects.Sacrifice(GameObjectFilter.Creature.attacking(), 1, player)
     }
 
     keywords(Keyword.STORM)

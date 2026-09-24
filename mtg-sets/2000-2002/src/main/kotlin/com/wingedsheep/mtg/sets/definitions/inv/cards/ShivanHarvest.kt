@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -24,8 +23,7 @@ val ShivanHarvest = card("Shivan Harvest") {
     oracleText = "{1}{R}, Sacrifice a creature: Destroy target nonbasic land."
 
     activatedAbility {
-        cost = Costs.Composite(Costs.Mana("{1}{R}"), Costs.Sacrifice(Filters.Creature))
-        target = TargetPermanent(
+        val permanent = target("target permanent", TargetPermanent(
             filter = TargetFilter(
                 GameObjectFilter(
                     cardPredicates = listOf(
@@ -34,8 +32,9 @@ val ShivanHarvest = card("Shivan Harvest") {
                     )
                 )
             )
-        )
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        ))
+        cost = Costs.Composite(Costs.Mana("{1}{R}"), Costs.Sacrifice(Filters.Creature))
+        effect = Effects.Destroy(permanent)
         description = "{1}{R}, Sacrifice a creature: Destroy target nonbasic land."
     }
 

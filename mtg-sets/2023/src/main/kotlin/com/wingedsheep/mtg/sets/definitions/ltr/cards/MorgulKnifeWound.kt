@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Costs
 
@@ -41,7 +40,7 @@ val MorgulKnifeWound = card("Morgul-Knife Wound") {
             TriggeredAbility.create(
                 trigger = Triggers.YourUpkeep.event,
                 binding = Triggers.YourUpkeep.binding,
-                effect = PayOrSufferEffect(
+                effect = Effects.PayOrSuffer(
                     cost = Costs.pay.PayLife(2),
                     suffer = Effects.Exile(EffectTarget.Self)
                 )

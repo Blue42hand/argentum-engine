@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 import com.wingedsheep.sdk.model.CardScript
@@ -442,7 +441,7 @@ class StepsTest : StringSpec({
     }
 
     // The mass effects: one iteration over a GroupFilter with the per-member effect written against
-    // EffectTarget.Self. Four printed shapes for one model, which is why the templates are
+    // EffectTarget.IterationEntity. Four printed shapes for one model, which is why the templates are
     // enumerated and the group filter is Filters slotted whole.
     "a group effect is one iteration over a filter" {
         fragment("Creatures you control get +1/+1 until end of turn.") shouldBe CardFragment(
@@ -451,7 +450,7 @@ class StepsTest : StringSpec({
                     com.wingedsheep.sdk.scripting.filters.unified.GroupFilter(
                         GameObjectFilter.Creature.youControl()
                     ),
-                    Effects.ModifyStats(1, 1, com.wingedsheep.sdk.scripting.targets.EffectTarget.Self),
+                    Effects.ModifyStats(1, 1, com.wingedsheep.sdk.scripting.targets.EffectTarget.IterationEntity),
                 )
             )
         )
@@ -686,12 +685,12 @@ class StepsTest : StringSpec({
     }
 
     // The causative moves the subject inside "have" and drops the verb's agreement, and the model
-    // gains a `MayEffect` — which is why it is a parameter on the row and not an `alsoSpelled`.
+    // gains a `Effects.May` — which is why it is a parameter on the row and not an `alsoSpelled`.
     "the causative sacrifice prints its own sentence rather than the composed may" {
         fragment("You may have target opponent sacrifice a creature of their choice.") shouldBe
             CardFragment(
                 script = CardScript(
-                    spellEffect = MayEffect(
+                    spellEffect = Effects.May(
                         Effects.Sacrifice(GameObjectFilter.Creature, 1, Targets.bound()),
                     ),
                     targetRequirements = listOf(Targets.opponent()),

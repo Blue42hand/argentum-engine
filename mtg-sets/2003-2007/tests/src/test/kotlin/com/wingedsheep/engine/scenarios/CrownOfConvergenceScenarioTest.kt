@@ -24,7 +24,6 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.collections.shouldContain
@@ -87,7 +86,7 @@ class CrownOfConvergenceScenarioTest : FunSpec({
         d.replaceState(d.state.copy(zones = d.state.zones + (ZoneKey(d.player1, Zone.LIBRARY) to emptyList())))
         d.state.projectedState.getPower(wolf) shouldBe 3
         val ctx = EffectContext(controllerId = d.player1, sourceId = crown)
-        TargetResolutionUtils.resolveEntityReference(EntityReference.LibraryTop(), ctx, d.state) shouldBe null
+        TargetResolutionUtils.resolveEntity(EffectTarget.LibraryTop(), ctx, d.state) shouldBe null
         d.giveMana(d.player1, Color.GREEN)
         d.giveMana(d.player1, Color.WHITE)
         d.submitSuccess(ActivateAbility(d.player1, crown, CrownOfConvergence.activatedAbilities.single().id))
@@ -149,7 +148,7 @@ class CrownOfConvergenceScenarioTest : FunSpec({
         val d = driver()
         val top = d.putCardOnTopOfLibrary(d.player2, "Watchwolf")
         val ctx = EffectContext(sourceId = null, controllerId = d.player1)
-        TargetResolutionUtils.resolveEntityReference(EntityReference.LibraryTop(Player.AnOpponent), ctx, d.state) shouldBe top
+        TargetResolutionUtils.resolveEntity(EffectTarget.LibraryTop(Player.AnOpponent), ctx, d.state) shouldBe top
         TargetResolutionUtils.resolveTarget(EffectTarget.LibraryTop(Player.AnOpponent), ctx, d.state) shouldBe top
         PredicateEvaluator(cardRegistry = null).conditions.evaluate(d.state,
             Conditions.EntityMatches(EffectTarget.LibraryTop(Player.AnOpponent), GameObjectFilter.Creature), ctx) shouldBe true

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -91,7 +90,7 @@ val GrolnokTheOmnivore = card("Grolnok, the Omnivore") {
     // on them.
     staticAbility {
         ability = MayPlayCardsFromExile(
-            filter = GameObjectFilter.Any.ownedByYou().withCounter(Counters.CROAK),
+            filter = GameObjectFilter.Any.ownedByYou().withCounter(CounterType.CROAK),
         )
     }
 

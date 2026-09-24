@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * [Triggers.anyPlayerCasts] — the same shape as Bog-Strider Ash and Elvish Handservant. The spell
  * filter is [GameObjectFilter.Any] rather than `.Creature`: a Kithkin spell is any spell with the
  * subtype, and Lorwyn prints Kindred noncreature ones (Militia's Pride is a Kithkin enchantment
- * spell). The "you may" is `optional = true`, which the builder lowers to a MayEffect; the yes/no
+ * spell). The "you may" is `optional = true`, which the builder lowers to a Effects.May; the yes/no
  * is asked as the ability goes on the stack, before targets are chosen, so declining never forces
  * a pointless target.
  */

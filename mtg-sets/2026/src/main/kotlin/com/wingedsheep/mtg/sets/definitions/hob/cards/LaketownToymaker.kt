@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * The "if you've drawn two or more cards this turn" clause is an intervening-if (CR 603.4) —
  * checked both when the trigger would go on the stack and again on resolution — so it's
- * [interveningIf], not a [com.wingedsheep.sdk.scripting.effects.ConditionalEffect]. It reads the
+ * [interveningIf], not a [com.wingedsheep.sdk.dsl.Effects.If]. It reads the
  * controller's `CardsDrawnThisTurnComponent`, which counts every draw this turn regardless of source.
  */
 val LaketownToymaker = card("Lake-town Toymaker") {

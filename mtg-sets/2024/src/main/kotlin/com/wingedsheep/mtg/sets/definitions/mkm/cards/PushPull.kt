@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -46,27 +44,26 @@ val PushPull = card("Push // Pull") {
             "They gain haste until end of turn. Sacrifice them at the beginning of the next end step."
 
         spell {
-            target = TargetObject(
+            val target = target("target", TargetObject(
                 count = 2,
                 optional = true,
                 filter = TargetFilter.CreatureInGraveyard,
                 sameOwner = true,
-            )
+            ))
             effect = Effects.Pipeline {
-                val targets = gather(CardSource.ChosenTargets, name = "pullTargets")
+                val targets = gather(CardSource.ChosenTargets)
                 val entered = moveTracked(
                     from = targets,
                     destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                    name = "pullEntered",
                 )
                 run(
-                    ForEachInCollectionEffect(
-                        collection = entered.key,
-                        effect = Effects.Composite(
-                            Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn),
-                            CreateDelayedTriggerEffect(
+                    Effects.ForEachInCollection(
+                        entered,
+                        Effects.Composite(
+                            Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn),
+                            Effects.CreateDelayedTrigger(
                                 step = Step.END,
-                                effect = Effects.SacrificeTarget(EffectTarget.Self),
+                                effect = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                             ),
                         ),
                     ),

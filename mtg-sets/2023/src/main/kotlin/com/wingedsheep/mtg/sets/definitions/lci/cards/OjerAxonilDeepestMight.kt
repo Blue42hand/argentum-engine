@@ -15,10 +15,8 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.SetMinimumDamage
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -68,8 +66,8 @@ private val OjerAxonilDeepestMightFront = card("Ojer Axonil, Deepest Might") {
         SetMinimumDamage(
             dynamicMinimum = DynamicAmounts.sourcePower(),
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Opponent,
-                source = SourceFilter.Matching(GameObjectFilter.Any.withColor(Color.RED).youControl()),
+                recipient = Recipient.Opponent,
+                source = GameObjectFilter.Any.withColor(Color.RED).youControl(),
                 damageType = DamageType.NonCombat,
             ),
         )
@@ -108,7 +106,7 @@ private val TempleOfPower = card("Temple of Power") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.Tap)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(

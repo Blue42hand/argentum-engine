@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Vigilante Justice
@@ -29,12 +28,12 @@ val VigilanteJustice = card("Vigilante Justice") {
     oracleText = "Whenever a Human you control enters, this enchantment deals 1 damage to any target."
 
     triggeredAbility {
+        val anyTarget = target("any target", Targets.Any)
         trigger = Triggers.entersBattlefield(
             filter = GameObjectFilter.Permanent.withSubtype("Human").youControl(),
             binding = TriggerBinding.ANY
         )
-        target = Targets.Any
-        effect = Effects.DealDamage(1, EffectTarget.ContextTarget(0))
+        effect = Effects.DealDamage(1, anyTarget)
     }
 
     metadata {

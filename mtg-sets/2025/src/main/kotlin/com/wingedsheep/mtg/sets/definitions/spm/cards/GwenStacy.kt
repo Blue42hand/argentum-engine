@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
@@ -16,15 +16,10 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gwen Stacy // Ghost-Spider — Marvel's Spider-Man #78 (mythic)
@@ -84,23 +79,15 @@ private val GwenStacyFront = card("Gwen Stacy") {
     // long as you control this creature.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "gwenExiled",
-                ),
-                MoveCollectionEffect(
-                    from = "gwenExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                ),
-                Effects.GrantMayPlayFromExile(
-                    from = "gwenExiled",
-                    expiry = MayPlayExpiry.Permanent,
-                    condition = YouControlSource,
-                ),
-            )
-        )
+        effect = Effects.Pipeline {
+            val gwenExiled = gather(CardSource.TopOfLibrary(1))
+            exile(gwenExiled)
+            run(Effects.GrantMayPlayFromExile(
+                from = gwenExiled,
+                expiry = MayPlayExpiry.Permanent,
+                condition = YouControlSource,
+            ))
+        }
         description = "When Gwen Stacy enters, exile the top card of your library. You may play " +
             "that card for as long as you control this creature."
     }
@@ -108,7 +95,7 @@ private val GwenStacyFront = card("Gwen Stacy") {
     // {2}{U}{R}{W}: Transform Gwen Stacy. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Mana("{2}{U}{R}{W}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform Gwen Stacy. Activate only as a sorcery."
     }
@@ -143,7 +130,7 @@ private val GhostSpider = card("Ghost-Spider") {
         trigger = Triggers.youCastSpell(
             requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)),
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you cast a spell from exile, put a +1/+1 counter on Ghost-Spider."
     }
 
@@ -157,14 +144,14 @@ private val GhostSpider = card("Ghost-Spider") {
             ),
             binding = TriggerBinding.ANY,
         ).youControl()
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you play a land from exile, put a +1/+1 counter on Ghost-Spider."
     }
 
     // Remove two counters from Ghost-Spider: Exile the top card of your library. You may play that
     // card this turn.
     activatedAbility {
-        cost = Costs.RemoveCounterFromSelf(Counters.PLUS_ONE_PLUS_ONE, count = 2)
+        cost = Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE, count = 2)
         effect = Patterns.Exile.impulse(count = 1, expiry = MayPlayExpiry.EndOfTurn)
         description = "Exile the top card of your library. You may play that card this turn."
     }

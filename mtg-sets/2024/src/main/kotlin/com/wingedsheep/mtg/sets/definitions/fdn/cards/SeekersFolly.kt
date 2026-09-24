@@ -36,7 +36,7 @@ val SeekersFolly = card("Seeker's Folly") {
             mode("Creatures your opponents control get -1/-1 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.opponentControls()),
-                    Effects.ModifyStats(-1, -1, EffectTarget.Self)
+                    Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)
                 )
             }
         }

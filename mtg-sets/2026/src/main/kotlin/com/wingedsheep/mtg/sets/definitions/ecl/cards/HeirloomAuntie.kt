@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,7 +34,7 @@ val HeirloomAuntie = card("Heirloom Auntie") {
         "(To surveil 1, look at the top card of your library. You may put it into your graveyard.)"
 
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.MinusOneMinusOne,
+        counterType = CounterType.MINUS_ONE_MINUS_ONE,
         count = 2,
         selfOnly = true
     ))
@@ -50,7 +49,7 @@ val HeirloomAuntie = card("Heirloom Auntie") {
             binding = TriggerBinding.OTHER
         )
         effect = Patterns.Library.surveil(1) then
-            Effects.RemoveCounters(Counters.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
+            Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

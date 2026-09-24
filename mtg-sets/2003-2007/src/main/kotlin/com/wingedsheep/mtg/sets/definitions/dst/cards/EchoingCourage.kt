@@ -29,7 +29,7 @@ val EchoingCourage = card("Echoing Courage") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature, excludeSelf = true),
-            Effects.ModifyStats(2, 2, EffectTarget.Self)
+            Effects.ModifyStats(2, 2, EffectTarget.IterationEntity)
         )
     }
     metadata {

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Jet's Brainwashing — {R}
@@ -33,9 +32,9 @@ val JetsBrainwashing = card("Jet's Brainwashing") {
         val t = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.CantBlock(t),
-            ConditionalEffect(
+            Effects.If(
                 condition = WasKicked,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.GainControl(t, Duration.EndOfTurn),
                     Effects.Untap(t),
                     Effects.GrantKeyword(Keyword.HASTE, t),

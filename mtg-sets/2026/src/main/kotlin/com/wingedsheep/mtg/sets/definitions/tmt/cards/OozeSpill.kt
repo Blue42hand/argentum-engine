@@ -21,7 +21,7 @@ val OozeSpill = card("Ooze Spill") {
     oracleText = "Counter target spell. Create a Mutagen token. (It's an artifact with \"{1}, {T}, Sacrifice this token: Put a +1/+1 counter on target creature. Activate only as a sorcery.\")"
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         // Counter the spell, then create the Mutagen token. The spell is the only
         // target, so if it is an illegal target on resolution (CR 608.2b) Ooze Spill
         // is removed and neither effect happens.

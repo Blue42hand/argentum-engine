@@ -257,7 +257,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1052,16 +1052,16 @@
                                 {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature you control"
                                     },
                                     "filter": "creature ctrl:you"
                                 },
                                 {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 1
+                                        "type": "BoundVariable",
+                                        "name": "creature you don't control"
                                     },
                                     "filter": "creature ctrl:opponent"
                                 }
@@ -1218,7 +1218,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 }
@@ -1560,11 +1560,11 @@
                             "zone": "Battlefield",
                             "filter": "land"
                         },
-                        "storeAs": "lands"
+                        "storeAs": "gathered2"
                     },
                     {
                         "type": "SelectFromCollection",
-                        "from": "lands",
+                        "from": "gathered2",
                         "selection": {
                             "type": "ChooseUpTo",
                             "count": {
@@ -1572,13 +1572,13 @@
                                 "amount": 5
                             }
                         },
-                        "storeSelected": "landsToUntap",
+                        "storeSelected": "selected3",
                         "prompt": "Choose up to five lands to untap",
                         "showAllCards": true
                     },
                     {
                         "type": "TapUntapCollection",
-                        "collectionName": "landsToUntap",
+                        "collectionName": "selected3",
                         "tap": false
                     },
                     "RemoveMaximumHandSize"
@@ -1621,7 +1621,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 }
@@ -1639,7 +1639,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "loyalty",
+                    "counterType": "LOYALTY",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1715,7 +1715,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1757,12 +1757,15 @@
                 "amount": 4
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "any target"
             }
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ],
         "additionalCosts": [
             {
@@ -1866,7 +1869,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2016,7 +2019,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -2267,7 +2270,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "gathered0",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "kept1"
                             },
@@ -2582,7 +2585,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 },
@@ -2604,7 +2607,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -2994,7 +2997,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -3093,7 +3096,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": {
                         "type": "BoundVariable",
@@ -3214,7 +3217,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3267,7 +3270,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }

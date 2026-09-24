@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ptk.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Borrowing the East Wind
@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The Famine shape: one printed sentence, two halves joined by [Effects.Composite]. The board half
  * is [Effects.ForEachInGroup] over the horsemanship creatures with the damage aimed at
- * [EffectTarget.Self] — the current iteration entity — and the player half is the corpus' symmetric
+ * [EffectTarget.IterationEntity] — the current iteration entity — and the player half is the corpus' symmetric
  * player sweep, [Effects.ForEachPlayer] over [Player.Each], each iteration rebinding the controller
  * so [EffectTarget.Controller] is the player being processed.
  */
@@ -32,11 +32,11 @@ val BorrowingTheEastWind = card("Borrowing the East Wind") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.HORSEMANSHIP)),
-                Effects.DealDamage(DynamicAmount.XValue, EffectTarget.Self)
+                Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,
-                listOf(Effects.DealDamage(DynamicAmount.XValue, EffectTarget.Controller))
+                listOf(Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.Controller))
             )
         )
     }

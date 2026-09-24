@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val Dread = card("Dread") {
@@ -36,7 +35,7 @@ val Dread = card("Dread") {
         )
         // Shuffle even if the card has left the graveyard before this resolves.
         effect = Effects.Move(EffectTarget.Self, Zone.LIBRARY, fromZone = Zone.GRAVEYARD) then
-            ShuffleLibraryEffect()
+            Effects.ShuffleLibrary()
     }
 
     metadata {

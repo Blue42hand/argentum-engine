@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -55,14 +54,14 @@ val ObsessivePursuit = card("Obsessive Pursuit") {
         val attacker = target("attacking creature", Targets.AttackingCreature)
         effect = Effects.Composite(
             Effects.AddDynamicCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmounts.permanentsSacrificedThisTurn(),
                 attacker,
             ),
             // X is the per-controller "permanents sacrificed this turn" count; lifelink only when X >= 3.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouSacrificedPermanentsThisTurn(atLeast = 3),
-                effect = Effects.GrantKeyword(Keyword.LIFELINK, attacker),
+                then = Effects.GrantKeyword(Keyword.LIFELINK, attacker),
             ),
         )
     }

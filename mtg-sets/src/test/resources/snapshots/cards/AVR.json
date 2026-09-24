@@ -120,7 +120,7 @@
                             },
                             "body": {
                                 "type": "MoveToZone",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "destination": "Exile"
                             }
                         },
@@ -134,11 +134,11 @@
                                         "zone": "Graveyard",
                                         "filter": "creature Human"
                                     },
-                                    "storeAs": "graveyard_lands"
+                                    "storeAs": "gathered0"
                                 },
                                 {
                                     "type": "MoveCollection",
-                                    "from": "graveyard_lands",
+                                    "from": "gathered0",
                                     "destination": {
                                         "type": "ToZone",
                                         "zone": "Battlefield"
@@ -246,16 +246,16 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         },
                         "filter": "mv>=4"
                     },
-                    "storeAs": "mv4Plus"
+                    "storeAs": "gathered1"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "mv4Plus",
+                    "from": "gathered1",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -263,18 +263,18 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "chosenCard",
+                    "storeSelected": "selected2",
                     "prompt": "Choose a card with mana value 4 or greater to exile"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "chosenCard",
+                    "from": "selected2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Exile",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     }
                 }
@@ -407,7 +407,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -507,7 +507,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -704,9 +704,9 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -968,7 +968,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -991,7 +991,7 @@
                                     "player": "You",
                                     "filter": "creature"
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -1025,16 +1025,16 @@
                 {
                     "type": "TapUntap",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 {
                     "type": "GrantKeyword",
                     "keyword": "DOESNT_UNTAP",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     },
                     "duration": "UntilAfterAffectedControllersNextUntap"
                 },
@@ -1052,7 +1052,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -1663,11 +1664,11 @@
                                 "type": "BattlefieldMatching",
                                 "filter": "ctrl:you"
                             },
-                            "storeAs": "yourPermanents"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "yourPermanents",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1675,12 +1676,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "returned",
+                            "storeSelected": "selected1",
                             "prompt": "Choose a permanent you control to return to its owner's hand"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "returned",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -1813,11 +1814,14 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1837,10 +1841,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "PlusOnePlusOne"
+                            "counterType": "PLUS_ONE_PLUS_ONE"
                         }
                     },
                     "target": {
@@ -2087,8 +2091,8 @@
                                     "effect": {
                                         "type": "TapUntap",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target permanent"
                                         }
                                     }
                                 },
@@ -2096,8 +2100,8 @@
                                     "effect": {
                                         "type": "TapUntap",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target permanent"
                                         },
                                         "tap": false
                                     }
@@ -2110,7 +2114,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "permanent"
-                        }
+                        },
+                        "id": "target permanent"
                     }
                 }
             }
@@ -2172,7 +2177,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -2481,11 +2486,14 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -2693,7 +2701,7 @@
                     },
                     "otherwise": {
                         "type": "SacrificeTarget",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     "descriptionOverride": "Pay life to keep this creature, or sacrifice it."
                 }
@@ -3168,8 +3176,8 @@
                     "effect": {
                         "type": "CantBlockTargetCreatures",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -3177,7 +3185,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -4088,7 +4097,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -4136,8 +4145,8 @@
                                     "amount": 5
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -4150,8 +4159,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -4487,7 +4496,10 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target"
+                        },
                         "numericProperty": "Toughness"
                     }
                 }
@@ -5068,7 +5080,10 @@
                     "id": "ability_3",
                     "trigger": {
                         "type": "DealsDamageEvent",
-                        "recipient": "RecipientOpponent"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "EachOpponent"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",
@@ -5222,7 +5237,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -5519,11 +5534,14 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
-                "targetRequirement": "AnyTarget"
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "any target"
+                }
             }
         ]
     },

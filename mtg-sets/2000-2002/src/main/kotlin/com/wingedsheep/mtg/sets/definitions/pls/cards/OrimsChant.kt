@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
@@ -34,9 +33,9 @@ val OrimsChant = card("Orim's Chant") {
     spell {
         val opponent = target("target player", TargetPlayer())
         effect = Effects.CantCastSpells(opponent) then
-            ConditionalEffect(
+            Effects.If(
                 condition = WasKicked,
-                effect = Effects.CantAttackGroup(GroupFilter.AllCreatures),
+                then = Effects.CantAttackGroup(GroupFilter.AllCreatures),
             )
     }
 

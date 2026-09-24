@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.dsl
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
@@ -520,14 +521,14 @@ object Costs {
      * Delegates to [RemoveCounters].
      */
     fun RemovePlusOnePlusOneCounters(filter: GameObjectFilter, count: Int): AbilityCost =
-        AbilityCost.Atom(CostAtom.RemoveCounters("+1/+1", DynamicAmount.Fixed(count), filter))
+        AbilityCost.Atom(CostAtom.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmount.Fixed(count), filter))
 
     /**
      * Remove one or more counters of the specified type from this permanent.
      * Used for artifacts with charge/gem counters as activation costs.
      * Delegates to [RemoveCounters] with [self] = true.
      */
-    fun RemoveCounterFromSelf(counterType: String?, count: Int = 1): AbilityCost =
+    fun RemoveCounterFromSelf(counterType: CounterType?, count: Int = 1): AbilityCost =
         AbilityCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), self = true))
 
     /**
@@ -535,7 +536,7 @@ object Costs {
      * "{T}, Put a page counter on this artifact: Scry 1" (Mazemind Tome). The accruing mirror of
      * [RemoveCounterFromSelf]; always payable, since it costs the player nothing they must have.
      */
-    fun PutCounterOnSelf(counterType: String, count: Int = 1): AbilityCost =
+    fun PutCounterOnSelf(counterType: CounterType, count: Int = 1): AbilityCost =
         AbilityCost.Atom(CostAtom.PutCountersOnSelf(counterType, count))
 
     /**
@@ -544,14 +545,14 @@ object Costs {
      * (default), counters of any type may be removed in any combination.
      *
      * Examples:
-     * - `Costs.RemoveCounters(count = 2, counterType = "+1/+1", filter = Filters.Artifact)`
+     * - `Costs.RemoveCounters(count = 2, counterType = CounterType.PLUS_ONE_PLUS_ONE, filter = Filters.Artifact)`
      *   — "Remove two +1/+1 counters from among artifacts you control"
      * - `Costs.RemoveCounters(count = 3, filter = Filters.Creature)`
      *   — "Remove three counters from among creatures you control" (any type)
      */
     fun RemoveCounters(
         count: Int = 1,
-        counterType: String? = null,
+        counterType: CounterType? = null,
         filter: GameObjectFilter = GameObjectFilter.Permanent
     ): AbilityCost = AbilityCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), filter))
 
@@ -565,7 +566,7 @@ object Costs {
      * permanents, which is wrong — and unpayable — for a self-scoped cost.
      */
     fun RemoveXCounters(
-            counterType: String? = null,
+            counterType: CounterType? = null,
             count: DynamicAmount = DynamicAmount.XValue,
             filter: GameObjectFilter = GameObjectFilter.Permanent,
             self: Boolean = false
@@ -864,7 +865,7 @@ object Costs {
          */
         fun RemoveCounters(
             count: Int = 1,
-            counterType: String? = null,
+            counterType: CounterType? = null,
             filter: GameObjectFilter = GameObjectFilter.Permanent
         ): AdditionalCost = AdditionalCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), filter))
 
@@ -946,7 +947,7 @@ object Costs {
          * control". Unpayable when they control no matching permanent.
          */
         fun PutCountersOnPermanent(
-            counterType: String,
+            counterType: CounterType,
             count: Int = 1,
             filter: GameObjectFilter = GameObjectFilter.Permanent
         ): PayCost = PayCost.Atom(CostAtom.PutCountersOnPermanent(counterType, count, filter))
@@ -996,7 +997,7 @@ object Costs {
          */
         fun RemoveCounters(
             count: Int = 1,
-            counterType: String? = null,
+            counterType: CounterType? = null,
             filter: GameObjectFilter = GameObjectFilter.Permanent
         ): PayCost = PayCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), filter))
     }

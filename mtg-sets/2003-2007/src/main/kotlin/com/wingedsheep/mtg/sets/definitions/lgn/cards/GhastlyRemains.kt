@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithRevealCounters
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -35,9 +34,9 @@ val GhastlyRemains = card("Ghastly Remains") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         triggerZone = Zone.GRAVEYARD
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{B}{B}{B}"),
-            effect = Effects.Move(EffectTarget.Self, Zone.HAND)
+            then = Effects.Move(EffectTarget.Self, Zone.HAND)
         )
     }
 

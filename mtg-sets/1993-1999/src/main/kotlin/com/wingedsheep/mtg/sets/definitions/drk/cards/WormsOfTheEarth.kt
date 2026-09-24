@@ -8,11 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LandsCantEnterTheBattlefield
 import com.wingedsheep.sdk.scripting.PlayersCantPlayLands
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -53,13 +48,10 @@ val WormsOfTheEarth = card("Worms of the Earth") {
 
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = ForEachEffect(
-            space = IterationSpace.Players(Player.ActivePlayerFirst),
-            body = GatedEffect(
-                gate = Gate.MayDecide(
-                    prompt = "Buy your way out of Worms of the Earth?",
-                ),
-                then = ModalEffect(
+        effect = Effects.ForEachPlayer(
+            Player.ActivePlayerFirst,
+            Effects.May(
+                effect = Effects.Modal(
                     modes = listOf(
                         Mode(
                             description = "Sacrifice two lands",
@@ -71,8 +63,8 @@ val WormsOfTheEarth = card("Worms of the Earth") {
                             // walking out of the lock for free. That player is exactly who the lock
                             // is working on, so it was the common case, not a corner one. Printed,
                             // their only way out is the 5-damage mode.
-                            effect = GatedEffect(
-                                gate = Gate.WhenCondition(Conditions.ControlLandsAtLeast(2)),
+                            effect = Effects.If(
+                                condition = Conditions.ControlLandsAtLeast(2),
                                 then = Effects.Composite(
                                     Effects.Sacrifice(
                                         GameObjectFilter.Land,
@@ -94,6 +86,7 @@ val WormsOfTheEarth = card("Worms of the Earth") {
                     countsAsModalSpell = false,
                 ),
                 decisionMaker = EffectTarget.Controller,
+                prompt = "Buy your way out of Worms of the Earth?",
             ),
         )
         description = "At the beginning of each upkeep, any player may sacrifice two lands of " +

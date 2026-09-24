@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,7 +35,7 @@ val ThrullRetainer = card("Thrull Retainer") {
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        effect = RegenerateEffect(EffectTarget.EnchantedPermanent)
+        effect = Effects.Regenerate(EffectTarget.EnchantedPermanent)
         description = "Sacrifice this Aura: Regenerate enchanted creature."
     }
 

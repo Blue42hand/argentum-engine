@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.util.numberToWord
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -488,14 +488,14 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      */
     @SerialName("ManaValueAtMostEntity")
     @Serializable
-    data class ManaValueAtMostEntity(val reference: EntityReference) : CardPredicate {
+    data class ManaValueAtMostEntity(val reference: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = "with mana value less than or equal to ${reference.description}"
     }
 
     /**
      * Mana value at most the amount of mana actually spent to cast a referenced entity.
      *
-     * Resolves the reference (typically [EntityReference.Source]) and reads its mana-spent
+     * Resolves the reference (typically [EffectTarget.Self]) and reads its mana-spent
      * record: the live `SpellOnStackComponent` buckets while the source is still a spell, or
      * the `CastRecordComponent` snapshot once it has resolved into a permanent. Returns no
      * match when neither is present (e.g., the source was put onto the battlefield without
@@ -507,7 +507,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      */
     @SerialName("ManaValueAtMostEntityManaSpent")
     @Serializable
-    data class ManaValueAtMostEntityManaSpent(val reference: EntityReference) : CardPredicate {
+    data class ManaValueAtMostEntityManaSpent(val reference: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String =
             "with mana value less than or equal to the mana spent to cast ${reference.description}"
     }
@@ -522,7 +522,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      */
     @SerialName("ManaValueAtMostColorsSpent")
     @Serializable
-    data class ManaValueAtMostColorsSpent(val reference: EntityReference) : CardPredicate {
+    data class ManaValueAtMostColorsSpent(val reference: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String =
             "with mana value less than or equal to the number of colors of mana spent to cast ${reference.description}"
     }
@@ -789,11 +789,11 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      *
      * Used by Éowyn, Fearless Knight: "exile target creature an opponent controls with
      * greater power" — the candidate's power is compared against Éowyn's
-     * ([EntityReference.Source]) at target choice and at resolution-time legality re-check.
+     * ([EffectTarget.Self]) at target choice and at resolution-time legality re-check.
      */
     @SerialName("PowerGreaterThanEntity")
     @Serializable
-    data class PowerGreaterThanEntity(val reference: EntityReference) : CardPredicate {
+    data class PowerGreaterThanEntity(val reference: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = "with power greater than ${reference.description}"
         override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
     }
@@ -809,7 +809,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      */
     @SerialName("CouldEnchant")
     @Serializable
-    data class CouldEnchant(val reference: EntityReference) : CardPredicate {
+    data class CouldEnchant(val reference: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = "that could enchant ${reference.description}"
         override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
     }
@@ -822,11 +822,11 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      *
      * Used by Old Man of the Sea: "target creature with power less than or equal to this
      * creature's power" — the candidate's power is compared against the Old Man's
-     * ([EntityReference.Source]) at target choice and at resolution-time legality re-check.
+     * ([EffectTarget.Self]) at target choice and at resolution-time legality re-check.
      */
     @SerialName("PowerAtMostEntity")
     @Serializable
-    data class PowerAtMostEntity(val reference: EntityReference) : CardPredicate {
+    data class PowerAtMostEntity(val reference: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = "with power less than or equal to ${reference.description}"
         override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
     }
@@ -837,7 +837,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      */
     @SerialName("PowerLessThanEntity")
     @Serializable
-    data class PowerLessThanEntity(val reference: EntityReference) : CardPredicate {
+    data class PowerLessThanEntity(val reference: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = "with power less than ${reference.description}"
         override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
     }
@@ -947,10 +947,10 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     /** Matches creatures that share a creature subtype with the referenced entity */
     @SerialName("SharesCreatureTypeWith")
     @Serializable
-    data class SharesCreatureTypeWith(val entity: EntityReference) : CardPredicate {
+    data class SharesCreatureTypeWith(val entity: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = when (entity) {
-            is EntityReference.Source -> "that shares a creature type with this creature"
-            is EntityReference.Triggering -> "that shares a creature type with it"
+            is EffectTarget.Self -> "that shares a creature type with this creature"
+            is EffectTarget.TriggeringEntity -> "that shares a creature type with it"
             else -> "that shares a creature type with ${entity.description}"
         }
     }
@@ -958,7 +958,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     /**
      * Matches objects that share a **card type** with the referenced entity — "that shares a card
      * type with it" (Confusion in the Ranks). The card-type sibling of [SharesCreatureTypeWith]
-     * over the same [EntityReference] vocabulary: same shape, one axis up the type line.
+     * over the same [EffectTarget.SingleEntity] vocabulary: same shape, one axis up the type line.
      *
      * Both sides read *projected* types, so an animated artifact land shares "Creature" with an
      * entering creature and a permanent that has lost a type through a type-changing effect stops
@@ -970,10 +970,10 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      */
     @SerialName("SharesCardTypeWith")
     @Serializable
-    data class SharesCardTypeWith(val entity: EntityReference) : CardPredicate {
+    data class SharesCardTypeWith(val entity: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = when (entity) {
-            is EntityReference.Source -> "that shares a card type with this permanent"
-            is EntityReference.Triggering -> "that shares a card type with it"
+            is EffectTarget.Self -> "that shares a card type with this permanent"
+            is EffectTarget.TriggeringEntity -> "that shares a card type with it"
             else -> "that shares a card type with ${entity.description}"
         }
     }
@@ -982,7 +982,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      * Matches objects that share a card type with **any** card exiled with the asking ability's
      * source — "shares a card type with a card exiled with this creature" (Cemetery Illuminator).
      *
-     * The pile-wide form of [SharesCardTypeWith]`(EntityReference.LinkedExiledCard())`, which reads
+     * The pile-wide form of [SharesCardTypeWith]`(EffectTarget.LinkedExiledCard())`, which reads
      * one index. Cemetery Illuminator exiles on every enter *and* every attack, so its pile grows
      * and "a card exiled with this creature" means any of them — an index can't say that. Its
      * cycle-mate Cemetery Prowler already reads the same whole pile on the cost side
@@ -1004,7 +1004,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      * source — "spells with the same name as a card exiled with Circu" (Circu, Dimir Lobotomist).
      *
      * The name axis of [SharesCardTypeWithLinkedExile], and the pile-wide form of
-     * [SharesNameWith]`(EntityReference.LinkedExiledCard())`, which reads one index. Circu exiles on
+     * [SharesNameWith]`(EffectTarget.LinkedExiledCard())`, which reads one index. Circu exiles on
      * every blue *and* every black spell you cast, so its pile grows without bound and "a card
      * exiled with Circu" means any of them — an index can't say that.
      *
@@ -1023,10 +1023,10 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     /** Matches objects that share a color with the referenced entity */
     @SerialName("SharesColorWith")
     @Serializable
-    data class SharesColorWith(val entity: EntityReference) : CardPredicate {
+    data class SharesColorWith(val entity: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = when (entity) {
-            is EntityReference.Source -> "that shares a color with this permanent"
-            is EntityReference.Triggering -> "that shares a color with it"
+            is EffectTarget.Self -> "that shares a color with this permanent"
+            is EffectTarget.TriggeringEntity -> "that shares a color with it"
             else -> "that shares a color with ${entity.description}"
         }
     }
@@ -1034,7 +1034,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     /**
      * Matches objects whose mana value **equals** the referenced entity's mana value — "that shares
      * a mana value with the exiled card" (Thought Prison). The mana-value sibling of
-     * [SharesColorWith] over the same [EntityReference] vocabulary, so the two compose into the
+     * [SharesColorWith] over the same [EffectTarget.SingleEntity] vocabulary, so the two compose into the
      * "shares a color or mana value with X" wording without either half knowing about the other.
      *
      * Both sides are read from base card data (mana value is not a projected characteristic — no
@@ -1044,10 +1044,10 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      */
     @SerialName("SharesManaValueWith")
     @Serializable
-    data class SharesManaValueWith(val entity: EntityReference) : CardPredicate {
+    data class SharesManaValueWith(val entity: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = when (entity) {
-            is EntityReference.Source -> "that shares a mana value with this permanent"
-            is EntityReference.Triggering -> "that shares a mana value with it"
+            is EffectTarget.Self -> "that shares a mana value with this permanent"
+            is EffectTarget.TriggeringEntity -> "that shares a mana value with it"
             else -> "that shares a mana value with ${entity.description}"
         }
     }
@@ -1055,7 +1055,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     /**
      * Matches objects whose name **equals** the referenced entity's name — "a land with the same
      * name as the exiled card" (Extraplanar Lens). The name sibling of [SharesManaValueWith] over
-     * the same [EntityReference] vocabulary, and the entity-referencing counterpart of
+     * the same [EffectTarget.SingleEntity] vocabulary, and the entity-referencing counterpart of
      * [SharesNameWithPermanentYouControl], which searches a filter over your battlefield instead
      * of naming one object.
      *
@@ -1068,11 +1068,11 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      */
     @SerialName("SharesNameWith")
     @Serializable
-    data class SharesNameWith(val entity: EntityReference) : CardPredicate {
+    data class SharesNameWith(val entity: EffectTarget.SingleEntity) : CardPredicate {
         override val description: String = when (entity) {
-            is EntityReference.Source -> "with the same name as this permanent"
-            is EntityReference.Triggering -> "with the same name as it"
-            is EntityReference.LinkedExiledCard -> "with the same name as the exiled card"
+            is EffectTarget.Self -> "with the same name as this permanent"
+            is EffectTarget.TriggeringEntity -> "with the same name as it"
+            is EffectTarget.LinkedExiledCard -> "with the same name as the exiled card"
             else -> "with the same name as ${entity.description}"
         }
     }

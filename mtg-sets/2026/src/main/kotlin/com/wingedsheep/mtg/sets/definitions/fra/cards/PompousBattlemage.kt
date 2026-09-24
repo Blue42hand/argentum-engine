@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 val PompousBattlemage = card("Pompous Battlemage") {
     manaCost = "{R}"
@@ -16,7 +14,7 @@ val PompousBattlemage = card("Pompous Battlemage") {
     toughness = 1
     oracleText = "Prowess\nThis creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)"
 
-    keywords(Keyword.PROWESS)
+    prowess()
     keywords(Keyword.PREPARED)
 
     prepare("Improvised Act") {
@@ -24,10 +22,10 @@ val PompousBattlemage = card("Pompous Battlemage") {
         typeLine = "Sorcery"
         oracleText = "You may discard a card. If you do, draw a card."
         spell {
-            effect = MayEffect(
-                effect = IfYouDoEffect(
+            effect = Effects.May(
+                effect = Effects.IfYouDo(
                     action = Patterns.Hand.discardCards(1),
-                    ifYouDo = Effects.DrawCards(1),
+                    then = Effects.DrawCards(1),
                 ),
                 descriptionOverride = "You may discard a card. If you do, draw a card.",
             )

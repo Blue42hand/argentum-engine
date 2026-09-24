@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -28,7 +27,7 @@ val StormscapeApprentice = card("Stormscape Apprentice") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
         val t = target("target", Targets.Creature)
-        effect = TapUntapEffect(target = t, tap = true)
+        effect = Effects.Tap(target = t)
     }
 
     activatedAbility {

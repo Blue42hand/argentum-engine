@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Satoru, the Infiltrator
@@ -40,9 +39,9 @@ val SatoruTheInfiltrator = card("Satoru, the Infiltrator") {
 
     triggeredAbility {
         trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Creature.nontoken())
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.NoManaSpentToCastEntered,
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
         description = "Whenever Satoru and/or one or more other nontoken creatures you control " +
             "enter, if none of them were cast or no mana was spent to cast them, draw a card."

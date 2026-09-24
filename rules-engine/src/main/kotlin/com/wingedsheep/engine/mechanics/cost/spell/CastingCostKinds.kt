@@ -17,7 +17,6 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.ExiledFromZoneComponent
 import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -48,11 +47,11 @@ private fun blight(ledger: SpellCostLedger, targetId: EntityId, amount: Int) {
         c.with(counters.withAdded(CounterType.MINUS_ONE_MINUS_ONE, amount))
     }
     ledger.state = DamageUtils.markCounterPlacedOnCreature(
-        ledger.state, ledger.playerId, targetId, Counters.MINUS_ONE_MINUS_ONE
+        ledger.state, ledger.playerId, targetId, CounterType.MINUS_ONE_MINUS_ONE
     )
     ledger.events.add(CountersAddedEvent(
         entityId = targetId,
-        counterType = Counters.MINUS_ONE_MINUS_ONE,
+        counterType = CounterType.MINUS_ONE_MINUS_ONE,
         amount = amount,
         entityName = targetContainer.get<CardComponent>()?.name ?: "Creature",
         firstThisTurn = firstThisTurn,

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.ForEachEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
@@ -164,7 +163,7 @@ object Graveyard {
      */
     private val putTargetFromThatPlayersGraveyard: Phrase<CardScript> = run {
         val script = CardScript(
-            spellEffect = MayEffect(Effects.PutOntoBattlefieldUnderYourControl(Targets.bound())),
+            spellEffect = Effects.May(Effects.PutOntoBattlefieldUnderYourControl(Targets.bound())),
             targetRequirements = listOf(
                 TargetObject(filter = TargetFilter.CreatureInGraveyard.ownedByOpponent(), id = Targets.SLOT)
             ),
@@ -397,7 +396,7 @@ object Graveyard {
      *
      * CR 607 makes this ability *linked* to a later one that says "the exiled card", and the SDK
      * carries that fact twice — on the move (`MoveCollectionEffect.linkToSource`) and on the read
-     * (`EntityReference.LinkedExiledCard`). Only the read is printed. So this rule builds the plain
+     * (`EffectTarget.LinkedExiledCard`). Only the read is printed. So this rule builds the plain
      * move and [CardFragment.deriveExileLinkage] sets the flag when some other line on the same
      * card turns out to read the pile, which is this module's "a value the SDK carries twice is
      * derived, not spelled" applied one scope out: the deriving evidence is on a different line, so

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -33,9 +32,9 @@ val Genesis = card("Genesis") {
         trigger = Triggers.YourUpkeep
         triggerZone = Zone.GRAVEYARD
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{G}"),
-            effect = Effects.ReturnToHand(t),
+            then = Effects.ReturnToHand(t),
         )
         description = "At the beginning of your upkeep, if this creature is in your graveyard, " +
             "you may pay {2}{G}. If you do, return target creature card from your graveyard to your hand."

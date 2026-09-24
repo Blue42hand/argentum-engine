@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.tmp.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -23,7 +23,7 @@ val LightningBlast = card("Lightning Blast") {
     oracleText = "Lightning Blast deals 4 damage to any target."
     spell {
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(4, t)
+        effect = Effects.DealDamage(4, t)
     }
     metadata {
         rarity = Rarity.COMMON

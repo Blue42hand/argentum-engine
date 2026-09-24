@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -56,13 +56,13 @@ val RescueSkiff = card("Rescue Skiff") {
 
     // Conditional type change: artifact creature at 10+ charge counters
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 10)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
 
     // Conditional keyword: flying at 10+ charge counters
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 10)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
 

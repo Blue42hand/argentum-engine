@@ -95,7 +95,7 @@ data class DrainLifeEffect(
 
 /**
  * Pay life cost effect.
- * Used as a cost in OptionalCostEffect.
+ * Used as a cost in Effects.MayPay.
  */
 @SerialName("PayLife")
 @Serializable

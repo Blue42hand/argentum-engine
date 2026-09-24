@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Break Down the Door
@@ -36,12 +35,12 @@ val BreakDownTheDoor = card("Break Down the Door") {
     spell {
         modal(chooseCount = 1) {
             mode("Exile target artifact") {
-                target("target", Targets.Artifact)
-                effect = Effects.Exile(EffectTarget.ContextTarget(0))
+                val artifact = target("target", Targets.Artifact)
+                effect = Effects.Exile(artifact)
             }
             mode("Exile target enchantment") {
-                target("target", Targets.Enchantment)
-                effect = Effects.Exile(EffectTarget.ContextTarget(0))
+                val enchantment = target("target", Targets.Enchantment)
+                effect = Effects.Exile(enchantment)
             }
             mode(
                 "Manifest dread. (Look at the top two cards of your library. Put one onto the " +

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Stir Up Trouble — The Hobbit #84
@@ -35,8 +34,8 @@ val StirUpTrouble = card("Stir Up Trouble") {
     )
 
     spell {
-        target = Targets.Creature
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.Destroy(creature)
     }
 
     metadata {

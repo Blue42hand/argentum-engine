@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Searslicer Goblin
@@ -32,7 +32,7 @@ val SearslicerGoblin = card("Searslicer Goblin") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouAttackedThisTurn
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(Color.RED),

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -49,7 +48,7 @@ val SummonPrimalOdin = card("Summon: Primal Odin") {
 
     // II — Zantetsuken — grant this creature the "combat damage to a player → that player loses" trigger.
     sagaChapter(2) {
-        effect = GrantTriggeredAbilityEffect(
+        effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsCombatDamageToPlayer.event,
                 binding = Triggers.DealsCombatDamageToPlayer.binding,

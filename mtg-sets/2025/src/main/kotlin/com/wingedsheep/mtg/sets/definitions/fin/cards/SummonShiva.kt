@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -33,14 +33,14 @@ val SummonShiva = card("Summon: Shiva") {
         val t = target("creature", TargetObject(filter = TargetFilter.CreatureOpponentControls))
         effect = Effects.Composite(
             Effects.Tap(t),
-            Effects.AddCounters(Counters.STUN, 1, t),
+            Effects.AddCounters(CounterType.STUN, 1, t),
         )
     }
     sagaChapter(2) {
         val t = target("creature", TargetObject(filter = TargetFilter.CreatureOpponentControls))
         effect = Effects.Composite(
             Effects.Tap(t),
-            Effects.AddCounters(Counters.STUN, 1, t),
+            Effects.AddCounters(CounterType.STUN, 1, t),
         )
     }
     sagaChapter(3) {

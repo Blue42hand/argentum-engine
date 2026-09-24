@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.GrantChosenColor
 import com.wingedsheep.sdk.scripting.OverrideEnchantedLandManaColor
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Shimmerwilds Growth
@@ -43,7 +43,7 @@ val ShimmerwildsGrowth = card("Shimmerwilds Growth") {
     staticAbility {
         ability = AdditionalManaOnTap(
             color = null,
-            amount = DynamicAmount.Fixed(1)
+            amount = DynamicAmounts.fixed(1)
         )
     }
 

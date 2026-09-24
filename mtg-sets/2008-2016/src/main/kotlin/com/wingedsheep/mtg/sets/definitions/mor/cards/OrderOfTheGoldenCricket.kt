@@ -1,13 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.mor.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -17,7 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * 2/2
  * Whenever this creature attacks, you may pay {W}. If you do, it gains flying until end of turn.
  *
- * The "you may pay {W}" gate is an [OptionalCostEffect] (same shape as Descendant of Storms);
+ * The "you may pay {W}" gate is an [Effects.MayPay] (same shape as Descendant of Storms);
  * "it" is the attacker itself, so the granted keyword lands on [EffectTarget.Self].
  */
 val OrderOfTheGoldenCricket = card("Order of the Golden Cricket") {
@@ -30,9 +27,9 @@ val OrderOfTheGoldenCricket = card("Order of the Golden Cricket") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = OptionalCostEffect(
-            cost = PayManaCostEffect(ManaCost.parse("{W}")),
-            ifPaid = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
+        effect = Effects.MayPay(
+            cost = Effects.PayMana("{W}"),
+            then = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
         )
         description = "Whenever this creature attacks, you may pay {W}. If you do, it gains flying until end of turn."
     }

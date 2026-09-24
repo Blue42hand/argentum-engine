@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Targets
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -40,7 +39,7 @@ val CometCrawler = card("Comet Crawler") {
                 ).other()
             )
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget) then Effects.ModifyStats(2, 0, EffectTarget.Self)
         )
     }

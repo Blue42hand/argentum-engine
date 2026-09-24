@@ -10,7 +10,6 @@ import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.CostPaymentChoices
 import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
 import com.wingedsheep.engine.handlers.effects.bend.BendEvents
-import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.engine.mechanics.mana.AlternativePaymentHandler
 import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
@@ -19,14 +18,13 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.NotedCreatureTypesComponent
-import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
-import com.wingedsheep.engine.state.components.stack.projectedTypeLine
+import com.wingedsheep.engine.state.components.stack.captureLastKnown
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
@@ -38,7 +36,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 internal data class ActivationCostSnapshots(
     val sacrificed: List<EntitySnapshot>,
     val tapped: List<EntitySnapshot>,
-    val lastKnownSourceCounters: Map<String, Int>,
+    val lastKnownSourceCounters: Map<CounterType, Int>,
     val lastKnownSourceSnapshot: EntitySnapshot?,
     val lastKnownSourceAttachments: List<EntityId>,
     val revealedNotedCreatureType: String?,
@@ -219,12 +217,12 @@ internal class ActivationCostPayer(
             // cost, not an effect, so counter-placement replacements (Doubling Season) don't
             // apply — CostHandler already added exactly `change` counters.
             val (marked, firstThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(
-                currentState, action.sourceId, Counters.LOYALTY, placerId = action.playerId
+                currentState, action.sourceId, CounterType.LOYALTY, placerId = action.playerId
             )
             currentState = marked
             events.add(
                 com.wingedsheep.engine.core.CountersAddedEvent(
-                    action.sourceId, Counters.LOYALTY, abilityCost.change, activation.sourceName,
+                    action.sourceId, CounterType.LOYALTY, abilityCost.change, activation.sourceName,
                     firstThisTurn, placedBy = action.playerId
                 )
             )
@@ -415,7 +413,7 @@ internal class ActivationCostPayer(
         // A *forced* sacrifice (candidates <= count) never pauses for a choice, so the action
         // arrives with no chosen permanents and CostHandler auto-picks them during payment. Snapshot
         // that same set here, or "deals damage equal to the sacrificed creature's power" (Brion
-        // Stoutarm with exactly one other creature) resolves EntityReference.Sacrificed to nothing
+        // Stoutarm with exactly one other creature) resolves EffectTarget.SacrificedAsCost to nothing
         // and deals 0.
         val sacrificeCost = effectiveCost.extractSacrificeCost()
         val chosenSacrifices = action.costPayment?.sacrificedPermanents ?: emptyList()
@@ -444,13 +442,12 @@ internal class ActivationCostPayer(
         // Snapshot the source's counters before a self-exile / self-sacrifice cost wipes them
         // (CR 113.7a / 122.2), so the effect can read the pre-cost count via
         // DynamicAmount.LastKnownSourceCounters (Lost Isle Calling).
-        val lastKnownSourceCounters: Map<String, Int> =
+        val lastKnownSourceCounters: Map<CounterType, Int> =
             if (movesSource) {
                 state.getEntity(action.sourceId)
                     ?.get<CountersComponent>()
                     ?.counters
-                    ?.filterValues { it > 0 }
-                    ?.mapKeys { (type, _) -> counterTypeToString(type) } ?: emptyMap()
+                    ?.filterValues { it > 0 } ?: emptyMap()
             } else emptyMap()
 
         // Snapshot the source's projected characteristics before a self-exile / self-sacrifice cost
@@ -468,20 +465,8 @@ internal class ActivationCostPayer(
         // `CardPredicate.AbilitySourceMatches` in PredicateEvaluator. Reading the *projected* type
         // line here also gets the animated-artifact / crewed-Vehicle source right.
         //
-        // The state-aware `captureEntitySnapshots` overload already freezes token-ness and the
-        // name; only the projected type line, keywords and card-definition id are layered on top.
         val lastKnownSourceSnapshot: EntitySnapshot? =
-            if (movesSource) {
-                captureEntitySnapshots(listOf(action.sourceId), state)
-                    .firstOrNull()
-                    ?.copy(
-                        typeLine = projectedTypeLine(state, action.sourceId),
-                        keywords = state.projectedState.getKeywords(action.sourceId),
-                        cardDefinitionId = state.getEntity(action.sourceId)
-                            ?.get<CardComponent>()
-                            ?.cardDefinitionId,
-                    )
-            } else null
+            if (movesSource) captureLastKnown(state, action.sourceId) else null
 
         // Snapshot the entity ids attached to the source before a self-exile / self-sacrifice cost
         // moves it off the battlefield (CR 113.7a). The host's live AttachmentsComponent is gone by

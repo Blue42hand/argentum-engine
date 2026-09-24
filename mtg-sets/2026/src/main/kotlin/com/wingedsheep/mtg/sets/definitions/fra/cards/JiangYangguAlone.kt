@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -43,7 +43,7 @@ val JiangYangguAlone = card("Jiang Yanggu, Alone") {
             Patterns.Hand.discardCards(1),
             Effects.DrawCards(1),
             Effects.AddDynamicCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmounts.cardsDiscardedThisTurn(),
                 EffectTarget.TriggeringEntity
             )

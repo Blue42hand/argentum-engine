@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -38,14 +37,14 @@ val WarBarge = card("War Barge") {
         "player controls an Island.)"
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Mana("{3}")
-        target = Targets.Creature
         effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.ISLANDWALK, EffectTarget.ContextTarget(0)),
-            CreateDelayedTriggerEffect(
+            Effects.GrantKeyword(Keyword.ISLANDWALK, creature),
+            Effects.CreateDelayedTrigger(
                 trigger = Triggers.LeavesBattlefield,
                 watchedTarget = EffectTarget.Self,
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0), noRegenerate = true),
+                effect = Effects.Destroy(creature, noRegenerate = true),
                 expiry = DelayedTriggerExpiry.EndOfTurn,
             ),
         )

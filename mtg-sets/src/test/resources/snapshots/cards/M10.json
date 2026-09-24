@@ -935,7 +935,7 @@
                                     "type": "Fixed",
                                     "amount": 3
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -1095,7 +1095,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -1282,7 +1282,10 @@
         "spellEffect": {
             "type": "PreventDamageShield",
             "recipientGroup": {
-                "baseFilter": "creature ctrl:you"
+                "cardPredicates": [
+                    "IsCreature"
+                ],
+                "controllerPredicate": "ControlledByYou"
             },
             "recipientGroupIncludesController": true
         }
@@ -1534,8 +1537,8 @@
                             "amount": 5
                         },
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         },
                         "isMill": true
                     },
@@ -1548,8 +1551,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     }
                 }

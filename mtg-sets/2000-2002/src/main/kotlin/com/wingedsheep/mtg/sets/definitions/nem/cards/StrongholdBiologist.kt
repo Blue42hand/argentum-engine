@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.nem.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
@@ -29,7 +29,7 @@ val StrongholdBiologist = card("Stronghold Biologist") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{U}{U}"), Costs.Tap, Costs.DiscardCard)
         val t = target("target", TargetSpell(filter = TargetFilter.CreatureSpellOnStack))
-        effect = CounterEffect()
+        effect = Effects.CounterSpell()
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.MoveType
 
 /**
@@ -51,30 +50,23 @@ val BreakTheSpell = card("Break the Spell") {
             descriptionOverride = "Destroy target enchantment. If a permanent you controlled or " +
                 "a token was destroyed this way, draw a card."
         ) {
-            val targeted = gather(CardSource.ChosenTargets, name = "breakSpellTarget")
+            val targeted = gather(CardSource.ChosenTargets)
 
             // "a permanent you controlled or a token" — snapshotted while it is still in play.
             val (_, neither) = filterSplit(
                 targeted,
-                GameObjectFilter.Any.youControl() or GameObjectFilter.Token,
-                name = "breakSpellYoursOrToken",
-                restName = "breakSpellNeither"
+                GameObjectFilter.Any.youControl() or GameObjectFilter.Token
             )
 
             // "destroyed this way" — indestructible / regenerated permanents drop out here.
             val destroyed = moveTracked(
                 targeted,
                 CardDestination.ToZone(Zone.GRAVEYARD),
-                moveType = MoveType.Destroy,
-                name = "breakSpellDestroyed"
+                moveType = MoveType.Destroy
             )
 
             // destroyed ∖ (neither yours nor a token) = destroyed ∩ (yours or a token)
-            val qualifying = filter(
-                destroyed,
-                CollectionFilter.ExcludeOtherCollection(neither.key),
-                name = "breakSpellQualifyingDestroyed"
-            )
+            val qualifying = exclude(destroyed, minus = neither)
 
             ifNotEmpty(qualifying) {
                 run(Effects.DrawCards(1))

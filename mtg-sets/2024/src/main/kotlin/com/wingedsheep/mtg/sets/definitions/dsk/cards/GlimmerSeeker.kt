@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Glimmer Seeker
@@ -33,10 +32,10 @@ val GlimmerSeeker = card("Glimmer Seeker") {
     triggeredAbility {
         trigger = Triggers.YourPostcombatMain
         interveningIf = Conditions.SourceIsTapped
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Glimmer")),
-            effect = Effects.DrawCards(1),
-            elseEffect = Effects.CreateToken(
+            then = Effects.DrawCards(1),
+            otherwise = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.WHITE),

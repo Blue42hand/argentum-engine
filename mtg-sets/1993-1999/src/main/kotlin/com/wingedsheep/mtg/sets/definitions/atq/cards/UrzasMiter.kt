@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Urza's Miter
@@ -38,7 +37,7 @@ val UrzasMiter = card("Urza's Miter") {
             binding = TriggerBinding.ANY,
             excludeSacrifice = true,
         )
-        effect = MayPayManaEffect(ManaCost.parse("{3}"), Effects.DrawCards(1))
+        effect = Effects.MayPay(ManaCost.parse("{3}"), Effects.DrawCards(1))
     }
 
     metadata {

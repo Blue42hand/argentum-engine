@@ -24,7 +24,6 @@ import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.core.Zone
@@ -46,7 +45,6 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
 import com.wingedsheep.sdk.scripting.StationUsingToughness
 import com.wingedsheep.sdk.scripting.StaticAbility
 import com.wingedsheep.sdk.scripting.conditions.Condition
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -79,7 +77,7 @@ class ConditionalControllerGrantsTest : FunSpec({
     val player = EntityId.generate()
 
     /** Cheap, easy-to-flip gate: "as long as this permanent has a shield counter on it". */
-    val gate: Condition = Conditions.SourceHasCounter(CounterTypeFilter.Named(Counters.SHIELD))
+    val gate: Condition = Conditions.SourceHasCounter(CounterType.SHIELD)
 
     /**
      * One marker under test: the SDK ability that produces it, and how to read the stamped

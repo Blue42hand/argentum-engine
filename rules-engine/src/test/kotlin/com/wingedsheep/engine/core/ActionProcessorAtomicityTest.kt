@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -134,7 +133,7 @@ class ActionProcessorAtomicityTest : ScenarioTestBase() {
 
         test("a nested continuation that pauses keeps its in-flight state and events") {
             val (game, decision) = gameAwaitingDividedDamage(
-                then = MayEffect(Effects.GainLife(1, EffectTarget.Controller))
+                then = Effects.May(Effects.GainLife(1, EffectTarget.Controller))
             )
 
             val result = game.submitDecision(

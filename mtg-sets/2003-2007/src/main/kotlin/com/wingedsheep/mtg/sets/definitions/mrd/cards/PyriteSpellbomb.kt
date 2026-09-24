@@ -5,10 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -27,11 +26,11 @@ val PyriteSpellbomb = card("Pyrite Spellbomb") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

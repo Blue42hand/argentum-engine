@@ -431,7 +431,7 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
             listOf(
                 marked to container(
                     playerA, creature(playerA),
-                    ReceivedCountersThisTurnComponent(counterTypes = setOf("stun"))
+                    ReceivedCountersThisTurnComponent(counterTypes = setOf(CounterType.STUN))
                 ),
                 // Unreachable in practice — `recordCounterPlacement` requires a counter kind, so
                 // every stamped marker names at least one. Present here to pin the widest reading
@@ -454,16 +454,16 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
             listOf(
                 gotPlusOne to container(
                     playerA, creature(playerA),
-                    ReceivedCountersThisTurnComponent(counterTypes = setOf("+1/+1"))
+                    ReceivedCountersThisTurnComponent(counterTypes = setOf(CounterType.PLUS_ONE_PLUS_ONE))
                 ),
                 gotStun to container(
                     playerA, creature(playerA),
-                    ReceivedCountersThisTurnComponent(counterTypes = setOf("stun"))
+                    ReceivedCountersThisTurnComponent(counterTypes = setOf(CounterType.STUN))
                 )
             )
         )
         val matched = resolver.resolveAffectedEntities(
-            state, gotPlusOne, filterWith(StatePredicate.ReceivedCounterThisTurn(counterType = "+1/+1"))
+            state, gotPlusOne, filterWith(StatePredicate.ReceivedCounterThisTurn(counterType = CounterType.PLUS_ONE_PLUS_ONE))
         )
         matched shouldContainExactlyInAnyOrder setOf(gotPlusOne)
     }
@@ -476,21 +476,21 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
                 youPlaced to container(
                     playerA, creature(playerA),
                     ReceivedCountersThisTurnComponent(
-                        counterTypes = setOf("+1/+1"),
-                        typesFromController = setOf("+1/+1")
+                        counterTypes = setOf(CounterType.PLUS_ONE_PLUS_ONE),
+                        typesFromController = setOf(CounterType.PLUS_ONE_PLUS_ONE)
                     )
                 ),
                 // An opponent proliferating your creature records the kind but not the placer leg.
                 opponentPlaced to container(
                     playerA, creature(playerA),
-                    ReceivedCountersThisTurnComponent(counterTypes = setOf("+1/+1"))
+                    ReceivedCountersThisTurnComponent(counterTypes = setOf(CounterType.PLUS_ONE_PLUS_ONE))
                 )
             )
         )
         val matched = resolver.resolveAffectedEntities(
             state,
             youPlaced,
-            filterWith(StatePredicate.ReceivedCounterThisTurn("+1/+1", placedByController = true))
+            filterWith(StatePredicate.ReceivedCounterThisTurn(CounterType.PLUS_ONE_PLUS_ONE, placedByController = true))
         )
         matched shouldContainExactlyInAnyOrder setOf(youPlaced)
     }
@@ -506,8 +506,8 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
                 hadCounter to container(
                     playerA, creature(playerA),
                     ReceivedCountersThisTurnComponent(
-                        counterTypes = setOf("+1/+1"),
-                        typesFromController = setOf("+1/+1")
+                        counterTypes = setOf(CounterType.PLUS_ONE_PLUS_ONE),
+                        typesFromController = setOf(CounterType.PLUS_ONE_PLUS_ONE)
                     )
                 ),
                 neverHad to container(
@@ -519,7 +519,7 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
         val matched = resolver.resolveAffectedEntities(
             state,
             hadCounter,
-            filterWith(StatePredicate.ReceivedCounterThisTurn("+1/+1", placedByController = true))
+            filterWith(StatePredicate.ReceivedCounterThisTurn(CounterType.PLUS_ONE_PLUS_ONE, placedByController = true))
         )
         // The creature that merely *has* a +1/+1 counter (e.g. it entered play with one on a
         // previous turn) carries no marker and must not match.
@@ -536,12 +536,12 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
                 bare to container(playerA, creature(playerA), ReceivedCountersThisTurnComponent()),
                 typed to container(
                     playerA, creature(playerA),
-                    ReceivedCountersThisTurnComponent(counterTypes = setOf("+1/+1"))
+                    ReceivedCountersThisTurnComponent(counterTypes = setOf(CounterType.PLUS_ONE_PLUS_ONE))
                 )
             )
         )
         val matched = resolver.resolveAffectedEntities(
-            state, typed, filterWith(StatePredicate.ReceivedCounterThisTurn("+1/+1"))
+            state, typed, filterWith(StatePredicate.ReceivedCounterThisTurn(CounterType.PLUS_ONE_PLUS_ONE))
         )
         matched shouldContainExactlyInAnyOrder setOf(typed)
     }
@@ -591,7 +591,7 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
                 )
             )
         )
-        val matched = resolver.resolveAffectedEntities(state, withLoyalty, filterWith(StatePredicate.HasCounter("LOYALTY")))
+        val matched = resolver.resolveAffectedEntities(state, withLoyalty, filterWith(StatePredicate.HasCounter(CounterType.LOYALTY)))
         matched shouldContainExactlyInAnyOrder setOf(withLoyalty)
     }
 
@@ -610,7 +610,7 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
                 )
             )
         )
-        val matched = resolver.resolveAffectedEntities(state, withP1P1, filterWith(StatePredicate.HasCounter("+1/+1")))
+        val matched = resolver.resolveAffectedEntities(state, withP1P1, filterWith(StatePredicate.HasCounter(CounterType.PLUS_ONE_PLUS_ONE)))
         matched shouldContainExactlyInAnyOrder setOf(withP1P1)
     }
 
@@ -629,7 +629,7 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
                 )
             )
         )
-        val matched = resolver.resolveAffectedEntities(state, withM1M1, filterWith(StatePredicate.HasCounter("-1/-1")))
+        val matched = resolver.resolveAffectedEntities(state, withM1M1, filterWith(StatePredicate.HasCounter(CounterType.MINUS_ONE_MINUS_ONE)))
         matched shouldContainExactlyInAnyOrder setOf(withM1M1)
     }
 
@@ -643,7 +643,7 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
                 )
             )
         )
-        val matched = resolver.resolveAffectedEntities(state, withP1P1, filterWith(StatePredicate.HasCounter("NOT_A_REAL_COUNTER_TYPE_XYZ")))
+        val matched = resolver.resolveAffectedEntities(state, withP1P1, filterWith(StatePredicate.HasCounter(CounterType("NOT_A_REAL_COUNTER_TYPE_XYZ"))))
         matched shouldBe emptySet()
     }
 

@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.hou.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 /**
  * Feral Prowler
@@ -23,7 +23,7 @@ val FeralProwler = card("Feral Prowler") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
         description = "When this creature dies, draw a card."
     }
 

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -31,7 +30,7 @@ val BlastingStation = card("Blasting Station") {
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.Sacrifice(GameObjectFilter.Creature))
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
     triggeredAbility {
         trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Creature, binding = TriggerBinding.ANY)

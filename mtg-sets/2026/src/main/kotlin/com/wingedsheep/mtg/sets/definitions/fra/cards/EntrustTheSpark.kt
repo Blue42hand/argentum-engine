@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -26,8 +24,8 @@ val EntrustTheSpark = card("Entrust the Spark") {
         "card, put it onto the battlefield, then shuffle."
 
     spell {
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Effects.Pipeline {
                     val planeswalkers = gather(GameObjectFilter.Planeswalker, player = Player.You)
                     val chosen = chooseExactly(
@@ -38,7 +36,7 @@ val EntrustTheSpark = card("Entrust the Spark") {
                     )
                     sacrifice(chosen)
                 },
-                ifYouDo = Patterns.Library.searchLibrary(
+                then = Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.Planeswalker,
                     destination = SearchDestination.BATTLEFIELD,
                 ),

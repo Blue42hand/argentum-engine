@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -34,7 +34,7 @@ val VenomspoutBrackus = card("Venomspout Brackus") {
         val t = target("target", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Creature.attackingOrBlocking().withKeyword(Keyword.FLYING))
         ))
-        effect = DealDamageEffect(5, t)
+        effect = Effects.DealDamage(5, t)
     }
 
     morph = "{3}{G}{G}"

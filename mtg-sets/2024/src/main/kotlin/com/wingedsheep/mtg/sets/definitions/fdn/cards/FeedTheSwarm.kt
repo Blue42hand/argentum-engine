@@ -1,14 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Feed the Swarm
@@ -32,7 +30,7 @@ val FeedTheSwarm = card("Feed the Swarm") {
         effect = Effects.Composite(
             Effects.Destroy(t),
             Effects.LoseLife(
-                DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
+                DynamicAmounts.manaValueOf(t),
                 EffectTarget.Controller
             )
         )

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -51,7 +50,7 @@ val BlackPantherVanguard = card("Black Panther, Vanguard") {
             filter = GameObjectFilter.Permanent.withSubtype(Subtype.HERO).youControl().nontoken(),
             binding = TriggerBinding.OTHER,
         )
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(
                     Effects.CreateToken(

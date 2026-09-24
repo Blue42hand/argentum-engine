@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Inverted Iceberg // Iceberg Titan (CR 702.167, The Lost Caverns of Ixalan #60)
@@ -35,7 +34,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  *    cost at sorcery speed; resolution returns the source from exile transformed via
  *    [com.wingedsheep.sdk.scripting.effects.ReturnSelfFromExileTransformedEffect].
  *  - Back attack trigger: declared target ([Targets.CreatureOrArtifact], chosen when the
- *    trigger goes on the stack) with a [MayEffect]-wrapped two-mode [ModalEffect]
+ *    trigger goes on the stack) with a [Effects.May]-wrapped two-mode [ModalEffect]
  *    (tap / untap via [TapUntapEffect]) decided at resolution — the same idiom as
  *    Sewer-veillance Cam / Gandalf the Grey's "you may tap or untap target ..." clause.
  */
@@ -82,13 +81,13 @@ private val IcebergTitan = card("Iceberg Titan") {
     oracleText = "Whenever this creature attacks, you may tap or untap target artifact or creature."
 
     // Whenever this creature attacks, you may tap or untap target artifact or creature.
-    // MayEffect + Effects.ChooseAction is the proven tap-or-untap idiom (Gandalf the Grey);
+    // Effects.May + Effects.ChooseAction is the proven tap-or-untap idiom (Gandalf the Grey);
     // the engine asks the may-question and locks the target when the trigger goes on the
     // stack, then the tap/untap choice is made at resolution.
     triggeredAbility {
         trigger = Triggers.Attacks
         val permanent = target("target artifact or creature", Targets.CreatureOrArtifact)
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.ChooseAction(
                 listOf(
                     EffectChoice("Tap it", Effects.Tap(permanent)),

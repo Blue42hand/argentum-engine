@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -70,10 +69,10 @@ val CamelliaTheSeedmiser = card("Camellia, the Seedmiser") {
                 GameObjectFilter.Permanent.withSubtype("Squirrel").youControl(),
                 excludeSelf = true
             ),
-            effect = AddCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+            effect = Effects.AddCounters(
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

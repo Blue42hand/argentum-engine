@@ -72,7 +72,7 @@ class MoveCountersEachKindMissingExecutor(
             newState = newState.updateEntity(sourceId) { container ->
                 container.with(curSource.withRemoved(counterType, 1))
             }
-            events.add(CountersRemovedEvent(sourceId, counterTypeToString(counterType), 1, sourceName))
+            events.add(CountersRemovedEvent(sourceId, counterType, 1, sourceName))
 
             // Add one of this kind to the destination (honoring placement replacements).
             val modified = ReplacementEffectUtils.applyCounterPlacementModifiers(
@@ -87,10 +87,10 @@ class MoveCountersEachKindMissingExecutor(
             // CR 122.5 — moving a counter *puts* it on the destination, so the moving effect's
             // controller is the placer; record both axes for the placer-/kind-scoped readings.
             val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(
-                newState, destinationId, counterTypeToString(counterType), placerId = context.controllerId
+                newState, destinationId, counterType, placerId = context.controllerId
             )
             newState = afterMark
-            events.add(CountersAddedEvent(destinationId, counterTypeToString(counterType), modified, destName, firstThisTurn, placedBy = context.controllerId))
+            events.add(CountersAddedEvent(destinationId, counterType, modified, destName, firstThisTurn, placedBy = context.controllerId))
         }
 
         return EffectResult.success(newState, events)

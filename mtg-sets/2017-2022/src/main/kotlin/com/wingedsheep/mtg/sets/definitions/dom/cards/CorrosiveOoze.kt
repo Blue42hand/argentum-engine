@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,7 +26,7 @@ val CorrosiveOoze = card("Corrosive Ooze") {
 
     triggeredAbility {
         trigger = Triggers.BlocksOrBecomesBlockedBy(GameObjectFilter.Creature.equipped())
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,
             effect = Effects.DestroyAllEquipmentOnTarget(EffectTarget.TriggeringEntity)
         )

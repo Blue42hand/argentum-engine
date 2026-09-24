@@ -1,15 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -51,14 +48,15 @@ val IcewroughtSentry = card("Icewrought Sentry") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ReflexiveTriggerEffect(
-            action = PayManaCostEffect(ManaCost.parse("{1}{U}")),
-            optional = true,
-            reflexiveEffect = Effects.Tap(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.PayMana("{1}{U}"),
+            optional = true) {
+            val creature = target(
+                "target creature",
                 TargetCreature(filter = TargetFilter.Creature.opponentControls())
             )
-        )
+            effect = Effects.Tap(creature)
+        }
         description = "Whenever this creature attacks, you may pay {1}{U}. When you do, tap target " +
             "creature an opponent controls."
     }

@@ -5,15 +5,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -36,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  * `otherwise` is "lose 3 life" — declining (the "who doesn't") runs the life loss. The
  * [FeasibilityCheck.HasCardsInZone] on the gate makes an empty-handed player skip the
  * pointless prompt and take the 3 life loss directly (they can't discard, so they "don't").
- * The [GatedEffect] is built directly because the `MayEffect` facade doesn't expose the
+ * The [GatedEffect] is built directly because the `Effects.May` facade doesn't expose the
  * `feasibility` slot needed for that empty-hand branch.
  *
  * Chapter III targets "any number of target players" ([TargetPlayer] `unlimited`) and, per
@@ -61,17 +54,13 @@ val TheDeathOfGwenStacy = card("The Death of Gwen Stacy") {
 
     // II — Each player may discard a card. Each player who doesn't loses 3 life.
     sagaChapter(2) {
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                GatedEffect(
-                    gate = Gate.MayDecide(
-                        feasibility = FeasibilityCheck.HasCardsInZone(Zone.HAND)
-                    ),
-                    then = Effects.Discard(1, EffectTarget.Controller),
-                    otherwise = Effects.LoseLife(3, EffectTarget.Controller),
-                    descriptionOverride = "You may discard a card. If you don't, you lose 3 life."
-                )
+            effect = Effects.May(
+                effect = Effects.Discard(1, EffectTarget.Controller),
+                otherwise = Effects.LoseLife(3, EffectTarget.Controller),
+                descriptionOverride = "You may discard a card. If you don't, you lose 3 life.",
+                feasibility = FeasibilityCheck.HasCardsInZone(Zone.HAND)
             )
         )
     }
@@ -79,17 +68,11 @@ val TheDeathOfGwenStacy = card("The Death of Gwen Stacy") {
     // III — Exile any number of target players' graveyards.
     sagaChapter(3) {
         target("any number of target players", TargetPlayer(unlimited = true))
-        effect = ForEachTargetEffect(
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                    storeAs = "gwenTargetGraveyard"
-                ),
-                MoveCollectionEffect(
-                    from = "gwenTargetGraveyard",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                )
-            )
+        effect = Effects.ForEachTarget(
+            Effects.Pipeline {
+            val gwenTargetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
+            exile(gwenTargetGraveyard)
+        }
         )
     }
 

@@ -13,10 +13,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -95,13 +91,13 @@ private val ArchangelAvacynFront = card("Archangel Avacyn") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY,
         )
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.UPKEEP,
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 condition = Conditions.SourceMatches(
                     GameObjectFilter.Any.named("Archangel Avacyn"),
                 ),
-                effect = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "Transform Archangel Avacyn at the beginning of the next upkeep."
@@ -143,7 +139,7 @@ private val AvacynThePurifier = card("Avacyn, the Purifier") {
         trigger = Triggers.TransformsToBack
         effect = Effects.ForEachInGroup(
             GroupFilter.AllOtherCreatures,
-            DealDamageEffect(3, EffectTarget.Self),
+            Effects.DealDamage(3, EffectTarget.IterationEntity),
         ) then Effects.DealDamage(3, EffectTarget.PlayerRef(Player.EachOpponent))
         description = "Avacyn, the Purifier deals 3 damage to each other creature and each opponent."
     }

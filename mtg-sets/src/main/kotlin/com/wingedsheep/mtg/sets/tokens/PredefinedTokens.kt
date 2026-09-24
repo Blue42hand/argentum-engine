@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.tokens
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.model.CardDefinition.Companion.doubleFacedPermanent
 import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -485,7 +484,7 @@ object PredefinedTokens {
                 EffectTarget.EnchantedCreature,
                 GameObjectFilter.Creature.toughnessAtMost(3)
             )
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EnchantedCreature)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EnchantedCreature)
         }
 
         metadata {
@@ -624,9 +623,9 @@ object PredefinedTokens {
         typeLine = "Artifact"
 
         triggeredAbility {
+            val anyTarget = target("any target", Targets.Any)
             trigger = Triggers.LeavesBattlefield
-            target = Targets.Any
-            effect = Effects.DealDamage(2, EffectTarget.ContextTarget(0))
+            effect = Effects.DealDamage(2, anyTarget)
             description = "When this token leaves the battlefield, it deals 2 damage to any target."
         }
 
@@ -653,7 +652,7 @@ object PredefinedTokens {
                 Costs.Tap,
                 Costs.SacrificeSelf
             )
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
             timing = TimingRule.SorcerySpeed
         }
 
@@ -794,7 +793,7 @@ object PredefinedTokens {
 
         triggeredAbility {
             trigger = Triggers.LandYouControlEnters
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             description = "Landfall — Whenever a land you control enters, put a +1/+1 counter on Zabu."
         }
 
@@ -820,7 +819,7 @@ object PredefinedTokens {
 
         triggeredAbility {
             trigger = Triggers.attacks()
-            effect = MayEffect(Patterns.Library.mill(1))
+            effect = Effects.May(Patterns.Library.mill(1))
             description = "Whenever this token attacks, you may mill a card."
         }
 

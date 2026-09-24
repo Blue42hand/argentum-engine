@@ -5,15 +5,16 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -34,8 +35,8 @@ val ChupacabraEcho = card("Chupacabra Echo") {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.ModifyStats(
-            DynamicAmount.Multiply(DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent), -1),
-            DynamicAmount.Multiply(DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent), -1),
+            -DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),
+            -DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),
             t
         )
     }

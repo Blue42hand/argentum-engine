@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -28,7 +27,7 @@ val GrappleWithDeath = card("Grapple with Death") {
         val t = target("target", TargetPermanent(filter = TargetFilter.CreatureOrArtifact))
         effect = Effects.Composite(
             Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            GainLifeEffect(1)
+            Effects.GainLife(1)
         )
     }
     metadata {

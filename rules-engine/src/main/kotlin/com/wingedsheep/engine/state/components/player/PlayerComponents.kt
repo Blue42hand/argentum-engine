@@ -3,6 +3,7 @@ package com.wingedsheep.engine.state.components.player
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.TurnPart
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.HijackScope
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.ManaSpellRider
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import kotlinx.serialization.Serializable
 
@@ -558,6 +558,18 @@ data class PlayerLostComponent(
 ) : Component
 
 /**
+ * Marks that a player attempted to draw a card from a library with no cards in it since state-based
+ * actions were last checked (CR 121.4). The draw itself does **not** end the player's game: the loss
+ * is the state-based action of CR 704.5b, applied by
+ * [com.wingedsheep.engine.mechanics.sba.player.EmptyLibraryDrawLossCheck], which consumes this
+ * marker. Deferring it is what lets an effect that makes the drawing player win later in the same
+ * resolution take effect first — Fblthp, Impossibly Lost's "draw two cards. If your library has no
+ * cards in it, you win the game" (CR 104.2b) wins even when the second draw found an empty library.
+ */
+@Serializable
+data object AttemptedDrawFromEmptyLibraryComponent : Component
+
+/**
  * Marks that a player who lost the game has already had the "leaving the game"
  * processing (CR 800.4a–c) applied — their owned objects removed, their stack objects
  * cleared, and control effects involving them ended.
@@ -986,6 +998,33 @@ data class EquipActivationsThisTurnComponent(
 @Serializable
 data class ExhaustAbilitiesActivatedThisTurnComponent(
     val count: Int = 0
+) : Component
+
+/**
+ * Number of loyalty abilities (CR 606) this player has activated during the current turn. Reset to
+ * 0 for every player at turn start by TurnManager. Backs
+ * [com.wingedsheep.sdk.scripting.values.TurnTracker.LOYALTY_ABILITIES_ACTIVATED] — "if you've
+ * activated a loyalty ability this turn" (Kiora of Salt and Sand). Unlike the per-planeswalker
+ * CR 606.3 tally on `AbilityActivatedThisTurnComponent`, this lives on the player, so it survives
+ * the planeswalker leaving the battlefield.
+ */
+@Serializable
+data class LoyaltyAbilitiesActivatedThisTurnComponent(
+    val count: Int = 0
+) : Component
+
+/**
+ * Turn-scoped permission to activate loyalty abilities of planeswalkers matching any of [filters]
+ * on any player's turn, any time this player could cast an instant (Jace's Machinations). Lifts
+ * only the sorcery-timing half of CR 606.3; the once-per-turn limit still applies. Written by
+ * [com.wingedsheep.sdk.scripting.effects.GrantInstantSpeedLoyaltyAbilitiesEffect]; grants stack
+ * by appending filters, and the component is removed whole at cleanup when [removeOn] is
+ * [PlayerEffectRemoval.EndOfTurn].
+ */
+@Serializable
+data class InstantSpeedLoyaltyGrantsComponent(
+    val filters: List<GameObjectFilter> = emptyList(),
+    val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
 ) : Component
 
 /**
@@ -1484,10 +1523,10 @@ data class PermanentsEnteredUnderControlThisTurnComponent(
  */
 @Serializable
 data class PutCounterOnCreatureThisTurnComponent(
-    val kinds: Set<String> = emptySet()
+    val kinds: Set<CounterType> = emptySet()
 ) : Component {
     /** This turn's record plus one more placement of [kind]. */
-    fun with(kind: String): PutCounterOnCreatureThisTurnComponent =
+    fun with(kind: CounterType): PutCounterOnCreatureThisTurnComponent =
         if (kind in kinds) this else copy(kinds = kinds + kind)
 }
 
@@ -1660,13 +1699,13 @@ data class LoseAtEndStepComponent(
  * would deal damage to a permanent or player this turn, it deals that much damage plus 2 instead."
  *
  * @param bonusAmount The flat bonus to add to damage
- * @param sourceFilter Which sources get the bonus (e.g., SourceFilter.HasColor(Color.RED) for red sources)
+ * @param sourceFilter Which sources get the bonus (e.g., GameObjectFilter.Any.withColor(Color.RED) for red sources)
  * @param removeOn When this component should be removed
  */
 @Serializable
 data class DamageBonusComponent(
     val bonusAmount: Int,
-    val sourceFilter: SourceFilter = SourceFilter.Any,
+    val sourceFilter: GameObjectFilter = GameObjectFilter.Any,
     val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
 ) : Component
 

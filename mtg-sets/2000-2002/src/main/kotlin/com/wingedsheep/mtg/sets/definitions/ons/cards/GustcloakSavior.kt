@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Gustcloak Savior
@@ -32,7 +31,7 @@ val GustcloakSavior = card("Gustcloak Savior") {
             filter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Untap(EffectTarget.TriggeringEntity) then Effects.RemoveFromCombat(EffectTarget.TriggeringEntity)
         )
     }

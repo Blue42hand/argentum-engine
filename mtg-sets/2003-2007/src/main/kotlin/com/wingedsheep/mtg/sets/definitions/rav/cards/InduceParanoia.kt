@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -36,13 +35,13 @@ val InduceParanoia = card("Induce Paranoia") {
         "controller mills X cards, where X is the spell's mana value."
 
     spell {
-        target("target spell", Targets.Spell)
+        val spellTarget = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ManaSpentToCastIncludes(requiredBlack = 1),
-                    effect = Patterns.Library.mill(
-                        DynamicAmounts.targetManaValue(0),
+                    then = Patterns.Library.mill(
+                        DynamicAmounts.manaValueOf(spellTarget),
                         EffectTarget.PlayerRef(Player.ControllerOf("target spell"))
                     )
                 )

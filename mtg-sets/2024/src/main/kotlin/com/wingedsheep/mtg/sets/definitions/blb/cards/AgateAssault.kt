@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 
 /**
  * Agate Assault
@@ -28,7 +27,7 @@ val AgateAssault = card("Agate Assault") {
         modal(chooseCount = 1) {
             mode("Agate Assault deals 4 damage to target creature. If that creature would die this turn, exile it instead") {
                 val creature = target("target creature", Targets.Creature)
-                effect = MarkExileOnDeathEffect(creature)
+                effect = Effects.MarkExileOnDeath(creature)
                     .then(Effects.DealDamage(4, creature))
             }
             mode("Exile target artifact") {

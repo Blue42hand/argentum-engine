@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -49,7 +50,7 @@ val GiantBeaver = card("Giant Beaver") {
             "target creature that saddled it this turn",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn()))
         )
-        effect = Effects.AddCounters("+1/+1", 1, saddler)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, saddler)
     }
 
     metadata {

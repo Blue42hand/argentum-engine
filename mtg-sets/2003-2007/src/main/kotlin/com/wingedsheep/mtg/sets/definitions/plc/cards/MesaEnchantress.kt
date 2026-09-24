@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Mesa Enchantress
@@ -23,7 +22,7 @@ val MesaEnchantress = card("Mesa Enchantress") {
 
     triggeredAbility {
         trigger = Triggers.YouCastEnchantment
-        effect = MayEffect(Effects.DrawCards(1))
+        effect = Effects.May(Effects.DrawCards(1))
     }
 
     metadata {

@@ -7,17 +7,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fblthp, Knows the Way — Reality Fracture #258
@@ -45,27 +38,21 @@ val FblthpKnowsTheWay = card("Fblthp, Knows the Way") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.BasicLand),
-                storeAs = "searchable",
+        effect = Effects.Pipeline {
+            val searchable = gather(
+                CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.BasicLand),
                 search = true
-            ),
-            SelectFromCollectionEffect(
-                from = "searchable",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.XValue),
-                storeSelected = "found",
+            )
+            val found = chooseUpTo(
+                DynamicAmounts.xValue(),
+                from = searchable,
                 restrictions = listOf(SelectionRestriction.OnePerCardName),
                 prompt = "Search for up to X basic land cards with different names"
-            ),
-            MoveCollectionEffect(
-                from = "found",
-                destination = CardDestination.ToZone(Zone.HAND),
-                revealed = true
-            ),
-            ShuffleLibraryEffect(),
-            EmitLibrarySearchedEventEffect
-        )
+            )
+            toHand(found, revealed = true)
+            run(Effects.ShuffleLibrary())
+            run(EmitLibrarySearchedEventEffect)
+        }
         description = "When Fblthp enters, search your library for up to X basic land cards with " +
             "different names, reveal them, put them into your hand, then shuffle."
     }

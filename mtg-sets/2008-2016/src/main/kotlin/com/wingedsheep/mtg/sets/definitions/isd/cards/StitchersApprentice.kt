@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 
 /**
@@ -36,7 +35,7 @@ val StitchersApprentice = card("Stitcher's Apprentice") {
                 colors = setOf(Color.BLUE),
                 creatureTypes = setOf("Homunculus")
             ),
-            SacrificeEffect(GameObjectFilter.Creature)
+            Effects.SacrificeOwn(GameObjectFilter.Creature)
         )
     }
     metadata {

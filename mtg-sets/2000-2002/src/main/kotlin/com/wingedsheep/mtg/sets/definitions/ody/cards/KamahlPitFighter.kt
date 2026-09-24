@@ -6,9 +6,9 @@ package com.wingedsheep.mtg.sets.definitions.ody.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -31,7 +31,7 @@ val KamahlPitFighter = card("Kamahl, Pit Fighter") {
     activatedAbility {
         cost = Costs.Tap
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(3, t)
+        effect = Effects.DealDamage(3, t)
     }
     metadata {
         rarity = Rarity.RARE

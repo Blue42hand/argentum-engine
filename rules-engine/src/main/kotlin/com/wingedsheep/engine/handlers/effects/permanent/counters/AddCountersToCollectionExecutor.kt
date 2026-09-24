@@ -33,7 +33,7 @@ class AddCountersToCollectionExecutor(
 
         if (entityIds.isEmpty()) return EffectResult.success(state)
 
-        val counterType = resolveCounterType(effect.counterType)
+        val counterType = effect.counterType
 
         // A dynamic [amount] overrides the static [count] — evaluated once at resolution.
         val baseCount = effect.amount?.let { amountEvaluator.evaluate(state, it, context) }
@@ -56,7 +56,7 @@ class AddCountersToCollectionExecutor(
             currentState = currentState.updateEntity(entityId) { container ->
                 container.with(current.withAdded(counterType, modifiedCount))
             }
-            currentState = DamageUtils.markCounterPlacedOnCreature(currentState, context.controllerId, entityId, counterTypeToString(counterType))
+            currentState = DamageUtils.markCounterPlacedOnCreature(currentState, context.controllerId, entityId, counterType)
 
             val entityName = currentState.getEntity(entityId)?.get<CardComponent>()?.name ?: ""
             events.add(CountersAddedEvent(entityId, effect.counterType, modifiedCount, entityName, firstThisTurn, placedBy = context.controllerId))

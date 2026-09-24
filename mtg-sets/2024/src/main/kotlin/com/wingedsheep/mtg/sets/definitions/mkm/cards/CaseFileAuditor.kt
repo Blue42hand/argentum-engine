@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.SpendAnyManaTypeForSpells
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Case File Auditor — Murders at Karlov Manor #7
@@ -97,7 +96,7 @@ val CaseFileAuditor = card("Case File Auditor") {
  * effect trees rather than one shared instance.
  */
 private fun lookAtSixForAnEnchantment() = Effects.Pipeline {
-    val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(6)))
+    val looked = gather(CardSource.TopOfLibrary(6))
     val (kept, rest) = chooseUpToSplit(
         count = 1,
         from = looked,

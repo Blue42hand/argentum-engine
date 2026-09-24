@@ -8,11 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -115,19 +111,19 @@ private val ZenosYaeGalvusFront = card("Zenos yae Galvus") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures.other().otherThanTarget(),
-                effect = ModifyStatsEffect(-2, -2, EffectTarget.Self)
+                effect = Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.EntityMatches(
-                    EffectTarget.ContextTarget(0),
+                    chosen,
                     GameObjectFilter.Creature
                 ),
-                effect = CreateDelayedTriggerEffect(
+                then = Effects.CreateDelayedTrigger(
                     trigger = Triggers.LeavesBattlefield,
                     watchedTarget = chosen,
                     fireOnce = true,
                     expiry = DelayedTriggerExpiry.Never,
-                    effect = TransformEffect(EffectTarget.Self)
+                    effect = Effects.Transform(EffectTarget.Self)
                 )
             )
         )

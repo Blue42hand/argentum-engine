@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.AdditionalManaOnSourceTap
 import com.wingedsheep.sdk.scripting.Durations
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TappedForManaType
-import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 
 /**
  * Ultima, Origin of Oblivion
@@ -68,8 +67,8 @@ val UltimaOriginOfOblivion = card("Ultima, Origin of Oblivion") {
         trigger = Triggers.Attacks
         val land = target("target land", Targets.Land)
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.BLIGHT, 1, land),
-            BecomeArtifactEffect(
+            Effects.AddCounters(CounterType.BLIGHT, 1, land),
+            Effects.BecomeArtifact(
                 target = land,
                 cardTypes = null,       // keep the land's card types (stays a land; keeps e.g. artifact)
                 subtypes = emptySet(),  // "loses all land types" (subtypes)
@@ -81,7 +80,7 @@ val UltimaOriginOfOblivion = card("Ultima, Origin of Oblivion") {
                     isManaAbility = true,
                     descriptionOverride = "{T}: Add {C}."
                 ),
-                duration = Durations.whileAffectedHasCounter(Counters.BLIGHT)
+                duration = Durations.whileAffectedHasCounter(CounterType.BLIGHT)
             )
         )
         description = "Whenever Ultima attacks, put a blight counter on target land. For as long " +

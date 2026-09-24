@@ -19,7 +19,7 @@ val Dismiss = card("Dismiss") {
     oracleText = "Counter target spell.\nDraw a card."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell() then Effects.DrawCards(1)
     }
 

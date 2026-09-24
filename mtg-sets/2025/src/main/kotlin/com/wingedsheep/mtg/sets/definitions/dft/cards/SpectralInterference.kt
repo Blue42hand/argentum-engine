@@ -26,9 +26,9 @@ val SpectralInterference = card("Spectral Interference") {
     oracleText = "Counter target artifact or creature spell unless its controller pays {4}."
 
     spell {
-        target = TargetSpell(
+        val spell = target("target spell", TargetSpell(
             filter = TargetFilter(GameObjectFilter.CreatureOrArtifact, zone = Zone.STACK)
-        )
+        ))
         effect = Effects.CounterUnlessPays("{4}")
     }
 

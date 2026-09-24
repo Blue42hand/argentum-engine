@@ -1,14 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -30,18 +27,14 @@ val InfernalCaretaker = card("Infernal Caretaker") {
 
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Any.withSubtype("Zombie")),
-                    storeAs = "zombies"
-                ),
-                MoveCollectionEffect(
-                    from = "zombies",
-                    destination = CardDestination.ToZone(Zone.HAND, Player.You)
+            Effects.Pipeline {
+                val zombies = gather(
+                    CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Any.withSubtype("Zombie"))
                 )
-            )
+                toHand(zombies)
+            }
         )
     }
 

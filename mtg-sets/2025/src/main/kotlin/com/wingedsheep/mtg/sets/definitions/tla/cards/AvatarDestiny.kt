@@ -9,17 +9,12 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantAdditionalTypesToGroup
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Avatar Destiny
@@ -56,7 +51,7 @@ val AvatarDestiny = card("Avatar Destiny") {
 
     // Enchanted creature gets +1/+1 for each creature card in your graveyard.
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = DynamicAmounts.creatureCardsInYourGraveyard(),
             toughnessBonus = DynamicAmounts.creatureCardsInYourGraveyard()
@@ -78,37 +73,24 @@ val AvatarDestiny = card("Avatar Destiny") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ATTACHED
         )
-        effect = Effects.Composite(
-            listOf(
-                // Mill cards equal to its power (last-known power of the dying creature).
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmounts.triggeringPower()),
-                    storeAs = "milled"
-                ),
-                MoveCollectionEffect(
-                    from = "milled",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD)
-                ),
-                // Return this card (the Aura) to its owner's hand.
-                Effects.Move(EffectTarget.Self, Zone.HAND),
-                // Up to one creature card milled this way to the battlefield under your control.
-                SelectFromCollectionEffect(
-                    from = "milled",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Creature,
-                    storeSelected = "reanimated",
-                    showAllCards = true,
-                    prompt = "Put up to one creature card milled this way onto the battlefield",
-                    selectedLabel = "Put onto the battlefield",
-                    remainderLabel = "Leave in graveyard"
-                ),
-                MoveCollectionEffect(
-                    from = "reanimated",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                    markEnteredViaSourceAbility = true
-                )
+        effect = Effects.Pipeline {
+            // Mill cards equal to its power (last-known power of the dying creature).
+            val milled = gather(CardSource.TopOfLibrary(DynamicAmounts.triggeringPower()))
+            toGraveyard(milled)
+            // Return this card (the Aura) to its owner's hand.
+            run(Effects.Move(EffectTarget.Self, Zone.HAND))
+            // Up to one creature card milled this way to the battlefield under your control.
+            val reanimated = chooseUpTo(
+                1,
+                from = milled,
+                filter = GameObjectFilter.Creature,
+                showAllCards = true,
+                prompt = "Put up to one creature card milled this way onto the battlefield",
+                selectedLabel = "Put onto the battlefield",
+                remainderLabel = "Leave in graveyard"
             )
-        )
+            move(reanimated, CardDestination.ToZone(Zone.BATTLEFIELD), markEnteredViaSourceAbility = true)
+        }
     }
 
     metadata {

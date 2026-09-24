@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Glen Elendra Pranksters
@@ -41,7 +40,7 @@ val GlenElendraPranksters = card("Glen Elendra Pranksters") {
         trigger = Triggers.YouCastSpell
         triggerRestriction = Conditions.IsNotYourTurn
         val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = MayEffect(Effects.ReturnToHand(creature))
+        effect = Effects.May(Effects.ReturnToHand(creature))
         description = "Whenever you cast a spell during an opponent's turn, you may return target " +
             "creature you control to its owner's hand."
     }

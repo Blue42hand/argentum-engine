@@ -1,20 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -41,23 +35,15 @@ val MoriaMarauder = card("Moria Marauder") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc").youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "exiledCard"
-                ),
-                MoveCollectionEffect(
-                    from = "exiledCard",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                ),
-                GrantMayPlayFromExileEffect("exiledCard")
-            )
-        )
+        effect = Effects.Pipeline {
+            val exiledCard = gather(CardSource.TopOfLibrary(1))
+            exile(exiledCard)
+            run(Effects.GrantMayPlayFromExile(exiledCard))
+        }
     }
 
     metadata {

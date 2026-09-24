@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Frontline Strategist
@@ -28,7 +28,7 @@ val FrontlineStrategist = card("Frontline Strategist") {
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
         effect = Effects.PreventCombatDamageFrom(
-            source = Filters.Group.creatures { notSubtype(Subtype("Soldier")) },
+            source = GameObjectFilter.Creature.notSubtype(Subtype("Soldier")),
             duration = Duration.EndOfTurn
         )
     }

@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyDrawAmount
-import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
+import com.wingedsheep.sdk.scripting.ReplaceDrawWith
 import com.wingedsheep.sdk.scripting.ReplacementEffect
 import com.wingedsheep.sdk.scripting.ReplacementPriorityGroup
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
@@ -99,10 +99,10 @@ class ReplacementChoiceTest : FunSpec({
 
         var state = d.state
         state = state.withReplacementPermanent(
-            me, "Replacer A", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(1))
+            me, "Replacer A", ReplaceDrawWith(replacementEffect = DrawCardsEffect(1))
         )
         state = state.withReplacementPermanent(
-            me, "Replacer B", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(2))
+            me, "Replacer B", ReplaceDrawWith(replacementEffect = DrawCardsEffect(2))
         )
 
         val processor = ReplacementEffectProcessor(conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
@@ -175,10 +175,10 @@ class ReplacementChoiceTest : FunSpec({
 
         var state = d.state
         state = state.withReplacementPermanent(
-            me, "Replacer A", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(1))
+            me, "Replacer A", ReplaceDrawWith(replacementEffect = DrawCardsEffect(1))
         )
         state = state.withReplacementPermanent(
-            me, "Replacer B", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(2))
+            me, "Replacer B", ReplaceDrawWith(replacementEffect = DrawCardsEffect(2))
         )
 
         val result = ReplacementEffectProcessor(conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions).process(
@@ -200,10 +200,10 @@ class ReplacementChoiceTest : FunSpec({
 
         var state = d.state
         state = state.withReplacementPermanent(
-            me, "Replacer A", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(1))
+            me, "Replacer A", ReplaceDrawWith(replacementEffect = DrawCardsEffect(1))
         )
         state = state.withReplacementPermanent(
-            me, "Replacer B", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(2))
+            me, "Replacer B", ReplaceDrawWith(replacementEffect = DrawCardsEffect(2))
         )
 
         val result = ReplacementEffectProcessor(conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions).process(state, PendingGameEvent.DrawPending(me, 1), EffectContext(EntityId.generate(), me))

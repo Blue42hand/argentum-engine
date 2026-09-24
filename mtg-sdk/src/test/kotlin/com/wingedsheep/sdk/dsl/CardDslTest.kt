@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
@@ -25,10 +24,9 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.EventPattern
@@ -803,8 +801,8 @@ class CardDslTest : DescribeSpec({
             val counterAdder = ModifyCounterPlacement(
                 modifier = 1,
                 appliesTo = EventPattern.CounterPlacementEvent(
-                    counterType = CounterTypeFilter.PlusOnePlusOne,
-                    recipient = RecipientFilter.CreatureYouControl
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                    recipient = Recipient.CreatureYouControl
                 )
             )
             counterAdder.modifier shouldBe 1
@@ -828,11 +826,11 @@ class CardDslTest : DescribeSpec({
 
             // Combat damage from red sources to creatures you control
             val damageFilter = EventPattern.DamageEvent(
-                recipient = RecipientFilter.CreatureYouControl,
-                source = SourceFilter.HasColor(com.wingedsheep.sdk.core.Color.RED),
+                recipient = Recipient.CreatureYouControl,
+                source = GameObjectFilter.Any.withColor(com.wingedsheep.sdk.core.Color.RED),
                 damageType = DamageType.Combat
             )
-            damageFilter.recipient shouldBe RecipientFilter.CreatureYouControl
+            damageFilter.recipient shouldBe Recipient.CreatureYouControl
             damageFilter.damageType shouldBe DamageType.Combat
         }
 
@@ -850,20 +848,20 @@ class CardDslTest : DescribeSpec({
     describe("Optional Cost Effects") {
 
         it("should support may-pay pattern") {
-            val optionalEffect = OptionalCostEffect(
+            val optionalEffect = Effects.MayPay(
                 cost = PayLifeEffect(2),
-                ifPaid = DrawCardsEffect(1),
-                ifNotPaid = null
+                then = DrawCardsEffect(1),
+                otherwise = null
             )
 
             optionalEffect.description shouldBe "You may pay 2 life. If you do, draw a card"
         }
 
         it("should support may-pay-or-else pattern") {
-            val optionalEffect = OptionalCostEffect(
+            val optionalEffect = Effects.MayPay(
                 cost = SacrificeEffect(GameObjectFilter.Creature),
-                ifPaid = DealDamageEffect(3, EffectTarget.ContextTarget(0)),
-                ifNotPaid = LoseLifeEffect(3, EffectTarget.Controller)
+                then = DealDamageEffect(3, EffectTarget.ContextTarget(0)),
+                otherwise = LoseLifeEffect(3, EffectTarget.Controller)
             )
 
             optionalEffect.description shouldBe "You may sacrifice a creature. If you do, deal 3 damage to target. Otherwise, you lose 3 life"

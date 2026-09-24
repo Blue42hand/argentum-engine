@@ -12,20 +12,10 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Trystan, Callous Cultivator // Trystan, Penitent Culler
@@ -49,45 +39,37 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 private val millThenGainLifeIfElf = Effects.Composite(
     listOf(
         Patterns.Library.mill(3),
-        ConditionalEffect(
+        Effects.If(
             condition = Conditions.GraveyardContainsSubtype(Subtype.ELF),
-            effect = Effects.GainLife(2)
+            then = Effects.GainLife(2)
         )
     )
 )
 
-private val millThenExileElfThenDrain = Effects.Composite(
-    listOf(
-        Patterns.Library.mill(3),
-        GatherCardsEffect(
-            source = CardSource.FromZone(
-                zone = Zone.GRAVEYARD,
-                player = Player.You,
-                filter = GameObjectFilter.Any.withSubtype(Subtype.ELF)
-            ),
-            storeAs = "elfChoices"
-        ),
-        SelectFromCollectionEffect(
-            from = "elfChoices",
-            selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-            chooser = Chooser.Controller,
-            storeSelected = "exiledElf",
-            prompt = "Exile an Elf card from your graveyard (or cancel)",
-            alwaysPrompt = true
-        ),
-        MoveCollectionEffect(
-            from = "exiledElf",
-            destination = CardDestination.ToZone(Zone.EXILE)
-        ),
-        ConditionalOnCollectionEffect(
-            collection = "exiledElf",
-            ifNotEmpty = Effects.LoseLife(
-                amount = 2,
-                target = EffectTarget.PlayerRef(Player.EachOpponent)
-            )
+private val millThenExileElfThenDrain = Effects.Pipeline {
+    run(Patterns.Library.mill(3))
+    val elfChoices = gather(
+        CardSource.FromZone(
+            zone = Zone.GRAVEYARD,
+            player = Player.You,
+            filter = GameObjectFilter.Any.withSubtype(Subtype.ELF)
         )
     )
-)
+    val exiledElf = chooseUpTo(
+        1,
+        from = elfChoices,
+        chooser = Chooser.Controller,
+        prompt = "Exile an Elf card from your graveyard (or cancel)",
+        alwaysPrompt = true
+    )
+    exile(exiledElf)
+    ifNotEmpty(exiledElf) {
+        run(Effects.LoseLife(
+            amount = 2,
+            target = EffectTarget.PlayerRef(Player.EachOpponent)
+        ))
+    }
+}
 
 private val TrystanPenitentCuller = card("Trystan, Penitent Culler") {
     manaCost = ""
@@ -108,9 +90,9 @@ private val TrystanPenitentCuller = card("Trystan, Penitent Culler") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -146,9 +128,9 @@ private val TrystanCallousCultivatorFrontFace = card("Trystan, Callous Cultivato
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 

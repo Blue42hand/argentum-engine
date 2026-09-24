@@ -11,6 +11,7 @@ import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.stack.captureLastKnown
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.DealtCombatDamageToPlayersThisTurnComponent
@@ -62,7 +63,6 @@ internal class CombatDamageManager(
         PreventAllDamageFromSourceModifier(),
         PreventCombatDamageToAndByModifier(),
         PreventCombatDamageFromGroupModifier(predicateEvaluator = predicateEvaluator),
-        PreventDamageFromAttackingCreaturesModifier(),
         ProtectionModifier(predicateEvaluator = predicateEvaluator),
         PlayerProtectionModifier(predicateEvaluator = predicateEvaluator),
         RedirectToControllerModifier()
@@ -1168,7 +1168,7 @@ internal class CombatDamageManager(
             newState = newState.updateEntity(targetId) { container ->
                 container.with(counters.withAdded(CounterType.POISON, toxicAmount))
             }
-            events.add(CountersAddedEvent(targetId, CounterType.POISON.name, toxicAmount, "Player"))
+            events.add(CountersAddedEvent(targetId, CounterType.POISON, toxicAmount, "Player"))
         }
 
         // Reflection (Harsh Justice)
@@ -1258,14 +1258,15 @@ internal class CombatDamageManager(
         val defaultName = if (counterType == com.wingedsheep.sdk.core.CounterType.LOYALTY) "Planeswalker" else "Battle"
         val targetName = newState.getEntity(targetId)?.get<CardComponent>()?.name ?: defaultName
         events.add(DamageDealtEvent(sourceId, targetId, amount, true,
-            sourceName = sourceName, targetName = targetName, targetIsPlayer = false))
+            sourceName = sourceName, targetName = targetName, targetIsPlayer = false,
+            targetLastKnown = captureLastKnown(state, targetId)))
         val removed = amount.coerceAtMost(currentCount)
         if (counterType == com.wingedsheep.sdk.core.CounterType.LOYALTY) {
             events.add(LoyaltyChangedEvent(targetId, targetName, -removed))
         } else if (removed > 0) {
             events.add(
                 com.wingedsheep.engine.core.CountersRemovedEvent(
-                    targetId, counterType.name, removed, targetName,
+                    targetId, counterType, removed, targetName,
                     remainingCount = currentCount - removed
                 )
             )
@@ -1390,7 +1391,7 @@ internal class CombatDamageManager(
                 newState = newState.updateEntity(targetId) { container ->
                     container.with(counters.withAdded(CounterType.POISON, toxicAmount))
                 }
-                events.add(CountersAddedEvent(targetId, CounterType.POISON.name, toxicAmount, "Player"))
+                events.add(CountersAddedEvent(targetId, CounterType.POISON, toxicAmount, "Player"))
             }
         } else if (isPlaneswalker || isBattle) {
             if (targetId !in newState.getBattlefield()) return newState
@@ -1428,13 +1429,11 @@ internal class CombatDamageManager(
                     com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(
                         newState,
                         targetId,
-                        com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(
-                            com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE
-                        ),
+                        com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE,
                         placerId = projected.getController(sourceId),
                     )
                 newState = afterMark
-                events.add(CountersAddedEvent(targetId, com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE.name, amount,
+                events.add(CountersAddedEvent(targetId, com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE, amount,
                     newState.getEntity(targetId)?.get<CardComponent>()?.name ?: "Creature", firstThisTurn,
                     placedBy = projected.getController(sourceId)))
                 // Wither only changes the FORM of the damage (CR 702.80a); the creature was still
@@ -1487,15 +1486,13 @@ internal class CombatDamageManager(
             val sourceName = newState.getEntity(sourceId)?.get<CardComponent>()?.name ?: "Creature"
             val targetName = newState.getEntity(targetId)?.get<CardComponent>()?.name ?: "Creature"
             val targetIsFaceDown = newState.getEntity(targetId)?.has<FaceDownComponent>() == true
-            // Capture the recipient's controller + creature-ness now, while it's still on the
-            // battlefield. Combat-damage SBAs strip the dead creature's ControllerComponent
-            // before trigger detection, so recipient-based triggers ("a creature you control /
-            // an opponent controls is dealt damage") rely on this LKI to still match (CR 603.10).
-            val targetControllerId = projected.getController(targetId)
-            val targetWasCreature = projected.isCreature(targetId)
+            // Capture the recipient as it is now, while it's still on the battlefield. Combat-damage
+            // SBAs move a dead creature (and sweep a dead token) before trigger detection, so
+            // recipient-based triggers ("a creature you control / an opponent controls is dealt
+            // damage") rely on this last-known information to still match (CR 603.10).
             events.add(DamageDealtEvent(sourceId, targetId, amount, true,
                 sourceName = sourceName, targetName = targetName, targetIsPlayer = false, targetWasFaceDown = targetIsFaceDown,
-                targetControllerId = targetControllerId, targetWasCreature = targetWasCreature, excessAmount = excess))
+                targetLastKnown = captureLastKnown(newState, targetId), excessAmount = excess))
         }
 
         return newState
@@ -1637,7 +1634,7 @@ internal class CombatDamageManager(
 
             if (blockedBy == null) {
                 val defenderId = attackingComponent.defenderId
-                if (!isProtectedFromAttackingCreatureDamage(state, defenderId) &&
+                if (!DamageUtils.isPreventedByRecipientGroupShield(state, defenderId, attackerId, isCombatDamage = true, predicateEvaluator = predicateEvaluator) &&
                     !isCombatDamagePreventedByGroupFilter(state, attackerId, projected)) {
                     val amplified = DamageUtils.applyStaticDamageAmplification(zones.cardRegistry, state, defenderId, attackerPower, attackerId, isCombatDamage = true, predicateEvaluator = predicateEvaluator)
                     incomingDamage.getOrPut(defenderId) { mutableMapOf() }
@@ -1801,13 +1798,6 @@ internal class CombatDamageManager(
     private fun isAllCombatDamagePrevented(state: GameState): Boolean {
         return state.floatingEffects.any { floatingEffect ->
             floatingEffect.effect.modification is SerializableModification.PreventAllCombatDamage
-        }
-    }
-
-    private fun isProtectedFromAttackingCreatureDamage(state: GameState, playerId: EntityId): Boolean {
-        return state.floatingEffects.any { floatingEffect ->
-            floatingEffect.effect.modification is SerializableModification.PreventDamageFromAttackingCreatures &&
-                playerId in floatingEffect.effect.affectedEntities
         }
     }
 

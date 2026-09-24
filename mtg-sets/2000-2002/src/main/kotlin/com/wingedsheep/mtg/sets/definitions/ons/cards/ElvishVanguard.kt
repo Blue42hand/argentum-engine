@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
@@ -32,8 +32,8 @@ val ElvishVanguard = card("Elvish Vanguard") {
                 ZoneChangeEvent(filter = GameObjectFilter.Creature.withSubtype(Subtype("Elf")), to = Zone.BATTLEFIELD),
                 TriggerBinding.OTHER
             )
-        effect = AddCountersEffect(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+        effect = Effects.AddCounters(
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = EffectTarget.Self
         )

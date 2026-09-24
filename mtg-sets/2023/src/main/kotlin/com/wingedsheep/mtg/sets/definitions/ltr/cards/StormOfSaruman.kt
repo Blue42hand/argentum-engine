@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CopyTargetSpellEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -29,7 +29,7 @@ val StormOfSaruman = card("Storm of Saruman") {
 
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, player = Player.You)
-        effect = CopyTargetSpellEffect(
+        effect = Effects.CopyTargetSpell(
             target = EffectTarget.TriggeringEntity,
             removeLegendary = true
         )

@@ -392,7 +392,7 @@ class PlayLandHandler(
             ownEvents + globalEvents
         } else emptyList()
 
-        // OnEnterRunEffect — generic "as ~ enters, run [effect]" replacement.
+        // OnEnterRun — generic "as ~ enters, run [effect]" replacement.
         // Runs BEFORE the EntersTapped check so effects like
         // Effects.Tap(EffectTarget.Self) (Game Trail's "otherwise" rider) apply
         // synchronously with entry. May pause for player input via continuations.

@@ -36,7 +36,7 @@ val ArtisticRefusal = card("Artistic Refusal") {
     spell {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Counter target spell") {
-                target = Targets.Spell
+                val spell = target("target spell", Targets.Spell)
                 effect = Effects.CounterSpell()
             }
             mode("Draw two cards, then discard a card") {

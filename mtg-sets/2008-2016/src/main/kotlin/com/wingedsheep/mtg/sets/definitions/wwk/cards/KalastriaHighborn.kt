@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * "This creature or another Vampire you control" is exactly "a Vampire you control" — the source is
  * itself a Vampire — so the trigger is a Vampire-filtered dies event with [TriggerBinding.ANY], which
  * fires off the source's own death via last-known information. The target player is chosen when the
- * ability goes on the stack; the {B} payment is the resolution-time gate ([MayPayManaEffect]) for the
+ * ability goes on the stack; the {B} payment is the resolution-time gate ([Effects.MayPay]) for the
  * drain.
  */
 val KalastriaHighborn = card("Kalastria Highborn") {
@@ -45,9 +44,9 @@ val KalastriaHighborn = card("Kalastria Highborn") {
             binding = TriggerBinding.ANY,
         )
         val player = target("target player", Targets.Player)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.LoseLife(2, player),
                 Effects.GainLife(2, EffectTarget.Controller),
             ),

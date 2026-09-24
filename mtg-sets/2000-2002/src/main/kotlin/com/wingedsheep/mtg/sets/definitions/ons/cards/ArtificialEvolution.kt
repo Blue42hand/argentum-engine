@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ChangeCreatureTypeTextEffect
 import com.wingedsheep.sdk.scripting.targets.TargetSpellOrPermanent
 
 /**
@@ -21,7 +21,7 @@ val ArtificialEvolution = card("Artificial Evolution") {
 
     spell {
         val t = target("target", TargetSpellOrPermanent())
-        effect = ChangeCreatureTypeTextEffect(
+        effect = Effects.ChangeCreatureTypeText(
             target = t,
             excludedTypes = listOf("Wall")
         )

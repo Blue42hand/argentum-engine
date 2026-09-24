@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -35,7 +34,7 @@ val FeverCharm = card("Fever Charm") {
             }
             mode("Fever Charm deals 3 damage to target Wizard creature") {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature.withSubtype("Wizard")))
-                effect = DealDamageEffect(3, t)
+                effect = Effects.DealDamage(3, t)
             }
         }
     }

@@ -370,7 +370,7 @@ data class DiscoverMayCastContinuation(
  * @property cardId The card being cast for free
  * @property casterId The controller of the effect (also the decision-maker)
  * @property storeCastTo When set, the cast card's id is published to this pipeline collection
- *   once the cast initiates, so an enclosing `IfYouDoEffect` can gate a follow-up.
+ *   once the cast initiates, so an enclosing `Effects.IfYouDo` can gate a follow-up.
  * @property grantedPermissionId The [com.wingedsheep.engine.state.permissions.MayPlayPermission]
  *   created for this synthesized cast, so a failed cast can revoke exactly that grant (a blanket
  *   per-card removal could clobber an unrelated permission covering the same card).

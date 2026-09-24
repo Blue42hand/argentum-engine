@@ -4,9 +4,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -30,7 +28,7 @@ val BreakingOfTheFellowship = card("Breaking of the Fellowship") {
         "another target creature that player controls. The Ring tempts you."
 
     spell {
-        target(
+        val (firstCreatureOpponentControls, secondCreatureOpponentControls) = targets(
             "creatures an opponent controls",
             TargetCreature(
                 count = 2,
@@ -38,10 +36,10 @@ val BreakingOfTheFellowship = card("Breaking of the Fellowship") {
                 sameController = true
             )
         )
-        effect = DealDamageEffect(
-            amount = DynamicAmounts.targetPower(0),
-            target = EffectTarget.ContextTarget(1),
-            damageSource = EffectTarget.ContextTarget(0)
+        effect = Effects.DealDamage(
+            amount = DynamicAmounts.powerOf(firstCreatureOpponentControls),
+            target = secondCreatureOpponentControls,
+            damageSource = firstCreatureOpponentControls
         ).then(Effects.TheRingTemptsYou())
     }
 

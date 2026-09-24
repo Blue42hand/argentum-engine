@@ -23,7 +23,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -83,9 +82,9 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
             val damaged = target("target creature", TargetCreature())
             effect = Effects.Composite(
                 Effects.DealDamage(2, damaged),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.WasBargained,
-                    effect = Effects.DealDamage(2, damaged),
+                    then = Effects.DealDamage(2, damaged),
                 ),
             )
         }
@@ -105,7 +104,7 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = Conditions.WasBargained
-            effect = Effects.AddCounters("+1/+1", 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 
@@ -159,7 +158,7 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = WasKicked
-            effect = Effects.AddCounters("+1/+1", 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 

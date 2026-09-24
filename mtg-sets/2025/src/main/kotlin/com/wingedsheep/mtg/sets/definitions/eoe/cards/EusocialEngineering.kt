@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Eusocial Engineering
@@ -21,7 +21,7 @@ val EusocialEngineering = card("Eusocial Engineering") {
 
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(), // colorless

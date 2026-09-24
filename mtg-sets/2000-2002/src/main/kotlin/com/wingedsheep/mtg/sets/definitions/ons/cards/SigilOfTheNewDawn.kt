@@ -6,8 +6,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.dsl.Effects
+
 /**
  * Sigil of the New Dawn
  * {3}{W}
@@ -23,9 +23,9 @@ val SigilOfTheNewDawn = card("Sigil of the New Dawn") {
 
     triggeredAbility {
         trigger = Triggers.YourCreatureDies
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{W}"),
-            effect = Effects.Move(EffectTarget.TriggeringEntity, Zone.HAND)
+            then = Effects.Move(EffectTarget.TriggeringEntity, Zone.HAND)
         )
     }
 

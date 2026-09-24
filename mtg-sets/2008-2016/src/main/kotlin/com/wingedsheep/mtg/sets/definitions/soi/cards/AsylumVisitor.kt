@@ -1,16 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.soi.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.madness
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /** Asylum Visitor — Shadows over Innistrad #99. */
 val AsylumVisitor = card("Asylum Visitor") {
@@ -42,8 +41,8 @@ val AsylumVisitor = card("Asylum Visitor") {
     }
 }
 
-private fun activePlayerHasEmptyHand() = Compare(
-    DynamicAmount.Count(Player.TriggeringPlayer, Zone.HAND),
+private fun activePlayerHasEmptyHand() = Conditions.CompareAmounts(
+    DynamicAmounts.count(Player.TriggeringPlayer, Zone.HAND),
     ComparisonOperator.EQ,
-    DynamicAmount.Fixed(0),
+    0,
 )

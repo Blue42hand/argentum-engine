@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -37,11 +36,11 @@ val DisruptiveStormbrood = card("Disruptive Stormbrood") {
     // ETB: destroy up to one target artifact or enchantment.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target(
+        val artifactOrEnchantment = target(
             "up to one target artifact or enchantment",
             TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment, count = 1, optional = true)
         )
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        effect = Effects.Destroy(artifactOrEnchantment)
     }
 
     // Omen: Petty Revenge — Sorcery. Destroy target creature with power 3 or less.

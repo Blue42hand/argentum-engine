@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 
 /**
  * Verduran Emissary
@@ -32,7 +31,7 @@ val VerduranEmissary = card("Verduran Emissary") {
         trigger = Triggers.EntersBattlefield
         interveningIf = WasKicked
         val t = target("artifact", Targets.Artifact)
-        effect = CantBeRegeneratedEffect(t) then Effects.Destroy(t)
+        effect = Effects.CantBeRegenerated(t) then Effects.Destroy(t)
     }
 
     metadata {

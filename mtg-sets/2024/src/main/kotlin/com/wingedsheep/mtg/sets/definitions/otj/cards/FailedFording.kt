@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Failed Fording
@@ -18,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  * Return target nonland permanent to its owner's hand. If you control a Desert, surveil 1.
  *
  * The "If you control a Desert, surveil 1" clause is a one-shot resolution-time state test, not
- * an intervening-if trigger — modeled as a [ConditionalEffect] (lowers to a `Gate.WhenCondition`)
+ * an intervening-if trigger — modeled as a [Effects.If] (lowers to a `Gate.WhenCondition`)
  * chained after the bounce. The Desert check uses [Conditions.YouControl] over Lands with the
  * Desert subtype.
  */
@@ -33,11 +32,11 @@ val FailedFording = card("Failed Fording") {
         val permanent = target("target nonland permanent", Targets.NonlandPermanent)
         effect = Effects.ReturnToHand(permanent)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControl(
                         GameObjectFilter.Land.withSubtype(Subtype.DESERT)
                     ),
-                    effect = Patterns.Library.surveil(1)
+                    then = Patterns.Library.surveil(1)
                 )
             )
     }

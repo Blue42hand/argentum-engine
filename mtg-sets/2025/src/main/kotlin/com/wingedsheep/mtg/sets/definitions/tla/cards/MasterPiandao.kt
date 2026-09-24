@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Master Piandao
@@ -43,7 +42,7 @@ val MasterPiandao = card("Master Piandao") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(4),
+            count = 4,
             filter = GameObjectFilter.Any.withAnySubtype("Ally", "Equipment", "Lesson"),
             prompt = "You may reveal an Ally, Equipment, or Lesson card to put into your hand"
         )

@@ -10,12 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Vindictive Triumph — Reality Fracture #162
@@ -45,33 +40,24 @@ val VindictiveTriumph = card("Vindictive Triumph") {
     oracleText = "Exile target creature or planeswalker. If that permanent's mana value was 3 or less, " +
         "return it to the battlefield tapped under your control. Exile it at the beginning of the next end step."
 
-    val returned = EffectTarget.PipelineTarget("vindictiveTriumphReturned")
-
     spell {
         val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
-        effect = ConditionalEffect(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.manaValueAtMost(3)),
-            effect = Effects.Composite(
-                listOf(
-                    GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "vindictiveTriumphTarget"),
-                    MoveCollectionEffect(
-                        from = "vindictiveTriumphTarget",
-                        destination = CardDestination.ToZone(Zone.EXILE),
-                        storeMovedAs = "vindictiveTriumphExiled"
-                    ),
-                    MoveCollectionEffect(
-                        from = "vindictiveTriumphExiled",
-                        destination = CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped),
-                        filter = GameObjectFilter.Any.nontoken(),
-                        storeMovedAs = "vindictiveTriumphReturned"
-                    ),
-                    CreateDelayedTriggerEffect(
-                        step = Step.END,
-                        effect = Effects.Exile(returned)
-                    )
+        effect = Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.manaValueAtMost(3), permanent),
+            then = Effects.Pipeline {
+                val targeted = gather(CardSource.ChosenTargets)
+                val exiled = moveTracked(targeted, CardDestination.ToZone(Zone.EXILE))
+                val returned = moveTracked(
+                    exiled,
+                    CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped),
+                    filter = GameObjectFilter.Any.nontoken()
                 )
-            ),
-            elseEffect = Effects.Exile(permanent)
+                run(Effects.CreateDelayedTrigger(
+                    step = Step.END,
+                    effect = Effects.Exile(returned.asTarget)
+                ))
+            },
+            otherwise = Effects.Exile(permanent)
         )
     }
 

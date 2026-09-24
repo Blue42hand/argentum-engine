@@ -1,8 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,13 +12,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Symbiote Spider-Man
@@ -42,8 +39,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * battlefield creature anyway.
  */
 private fun symbioteDigEffect(): Effect = Patterns.Library.lookAtTopAndKeep(
-    count = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
-    keepCount = DynamicAmount.Fixed(1)
+    count = DynamicAmounts.triggerDamageAmount(),
+    keepCount = DynamicAmounts.fixed(1)
 )
 
 private const val DIG_DESCRIPTION =
@@ -80,8 +77,8 @@ val SymbioteSpiderMan = card("Symbiote Spider-Man") {
         cost = Costs.Composite(Costs.Mana("{2}{U/B}"), Costs.ExileSelf)
         val creature = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = creature),
-            GrantTriggeredAbilityEffect(
+            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = creature),
+            Effects.GrantTriggeredAbility(
                 ability = symbioteCombatDamageTrigger(),
                 target = creature,
                 duration = Duration.Permanent,

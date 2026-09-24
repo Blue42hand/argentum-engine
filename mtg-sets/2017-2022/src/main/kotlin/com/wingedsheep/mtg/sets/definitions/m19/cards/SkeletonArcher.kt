@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.m19.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -28,7 +28,7 @@ val SkeletonArcher = card("Skeleton Archer") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Heart-Piercer Bow
@@ -30,8 +29,8 @@ val HeartPiercerBow = card("Heart-Piercer Bow") {
     triggeredAbility {
         trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
         val creature = target("creature defending player controls", Targets.CreatureOpponentControls)
-        effect = DealDamageEffect(
-            amount = DynamicAmount.Fixed(1),
+        effect = Effects.DealDamage(
+            amount = 1,
             target = creature,
             damageSource = EffectTarget.Self
         )

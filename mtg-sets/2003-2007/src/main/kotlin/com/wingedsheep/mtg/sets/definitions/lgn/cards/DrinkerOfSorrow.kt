@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBlock
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
@@ -30,7 +30,7 @@ val DrinkerOfSorrow = card("Drinker of Sorrow") {
 
     triggeredAbility {
         trigger = Triggers.dealsDamage(damageType = DamageType.Combat)
-        effect = SacrificeEffect(GameObjectFilter.Permanent)
+        effect = Effects.SacrificeOwn(GameObjectFilter.Permanent)
     }
 
     metadata {

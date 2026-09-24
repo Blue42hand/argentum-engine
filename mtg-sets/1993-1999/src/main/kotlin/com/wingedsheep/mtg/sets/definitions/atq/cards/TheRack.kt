@@ -5,12 +5,12 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Rack
@@ -43,10 +43,7 @@ val TheRack = card("The Rack") {
     triggeredAbility {
         trigger = Triggers.ChosenOpponentUpkeep
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Subtract(
-                DynamicAmount.Fixed(3),
-                DynamicAmounts.zone(Player.ChosenOpponent, Zone.HAND).count()
-            ),
+            amount = 3 - DynamicAmounts.zone(Player.ChosenOpponent, Zone.HAND).count(),
             target = EffectTarget.PlayerRef(Player.ChosenOpponent)
         )
         description = "At the beginning of the chosen player's upkeep, The Rack deals damage to " +

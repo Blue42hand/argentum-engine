@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Quiet Contemplation
@@ -27,12 +24,12 @@ val QuietContemplation = card("Quiet Contemplation") {
     oracleText = "Whenever you cast a noncreature spell, you may pay {1}. If you do, tap target creature an opponent controls. It doesn't untap during its controller's next untap step."
 
     triggeredAbility {
+        val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
         trigger = Triggers.YouCastNoncreature
-        target = Targets.CreatureOpponentControls
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.Tap(EffectTarget.ContextTarget(0)) then
-                GrantKeywordEffect(AbilityFlag.DOESNT_UNTAP.name, EffectTarget.ContextTarget(0), Duration.UntilAfterAffectedControllersNextUntap)
+            then = Effects.Tap(creatureOpponentControls) then
+                Effects.GrantKeyword(AbilityFlag.DOESNT_UNTAP, creatureOpponentControls, Duration.UntilAfterAffectedControllersNextUntap)
         )
     }
 

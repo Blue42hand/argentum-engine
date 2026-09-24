@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -20,13 +19,13 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Implementation:
  *  - `trigger = Triggers.BeginCombat` fires at the start of combat on the controller's turn.
  *  - No target is declared at the `triggeredAbility` level. The "another creature you control"
- *    is selected mid-resolution — inside the `MayEffect` — via `Effects.SelectTarget`. This
+ *    is selected mid-resolution — inside the `Effects.May` — via `Effects.SelectTarget`. This
  *    ensures the explore always runs unconditionally, and target selection happens only if the
  *    player accepts the copy step.
  *  - `Effects.Explore(EffectTarget.Self)` runs first (CR 701.44): reveals the top library card;
  *    a land goes to the hand, a nonland puts a +1/+1 counter on Deepfathom Echo and the
  *    controller may put that card into the graveyard.
- *  - `MayEffect(...)` wraps the copy step. The engine asks the controller yes/no; if yes:
+ *  - `Effects.May(...)` wraps the copy step. The engine asks the controller yes/no; if yes:
  *    `Effects.SelectTarget(Targets.OtherCreatureYouControl, "copySource")` prompts for another
  *    creature the controller controls (Deepfathom Echo is excluded by `OtherCreatureYouControl`
  *    which carries `excludeSelf = true` via `TargetFilter.OtherCreatureYouControl`). When only
@@ -57,15 +56,17 @@ val DeepfathomEcho = card("Deepfathom Echo") {
             // nonland → +1/+1 counter on this creature + optional graveyard put (CR 701.44).
             Effects.Explore(EffectTarget.Self),
             // Step 2: The controller may have this creature become a copy of another creature
-            // they control until end of turn. Target selection happens inside the MayEffect so
+            // they control until end of turn. Target selection happens inside the Effects.May so
             // it is only asked when the player accepts, and does not bind at stack-placement time.
-            MayEffect(
-                Effects.SelectTarget(Targets.OtherCreatureYouControl, "copySource")
-                    .then(Effects.EachPermanentBecomesCopyOfTarget(
-                        target = EffectTarget.PipelineTarget("copySource"),
+            Effects.May(
+                Effects.Pipeline {
+                    val copySource = selectTarget(Targets.OtherCreatureYouControl)
+                    run(Effects.EachPermanentBecomesCopyOfTarget(
+                        target = copySource.asTarget,
                         duration = Duration.EndOfTurn,
                         affected = EffectTarget.Self
                     ))
+                }
             )
         ))
     }

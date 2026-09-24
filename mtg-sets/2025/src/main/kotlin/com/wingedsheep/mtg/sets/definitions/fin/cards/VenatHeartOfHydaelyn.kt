@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -58,13 +56,13 @@ private val HydaelynTheMothercrystal = card("Hydaelyn, the Mothercrystal") {
         trigger = Triggers.BeginCombat
         val creature = target("creature", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.UntilYourNextTurn),
-            ConditionalEffect(
+            Effects.If(
                 // "If that creature is legendary, draw a card." The +1/+1 target is the first (only)
                 // chosen target, so test it via ContextTarget(0) like Blessing of Belzenlok.
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary()),
-                effect = Effects.DrawCards(1),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creature),
+                then = Effects.DrawCards(1),
             ),
         )
     }
@@ -104,7 +102,7 @@ private val VenatHeartOfHydaelynFront = card("Venat, Heart of Hydaelyn") {
         val victim = target("nonland permanent", TargetPermanent(filter = TargetFilter.NonlandPermanent))
         effect = Effects.Composite(
             Effects.Exile(victim),
-            TransformEffect(EffectTarget.Self),
+            Effects.Transform(EffectTarget.Self),
         )
     }
 

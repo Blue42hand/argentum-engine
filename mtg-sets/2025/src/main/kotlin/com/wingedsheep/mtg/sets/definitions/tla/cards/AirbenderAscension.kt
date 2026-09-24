@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -49,22 +47,19 @@ val AirbenderAscension = card("Airbender Ascension") {
 
     triggeredAbility {
         trigger = Triggers.OtherCreatureEnters
-        effect = Effects.AddCounters(Counters.QUEST, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self)
         description = "Whenever a creature you control enters, put a quest counter on this enchantment."
     }
 
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        effect = ConditionalEffect(
-            condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 4),
-            effect = Effects.Composite(
-                SelectTargetEffect(
-                    requirement = TargetObject(filter = TargetFilter.CreatureYouControl, optional = true),
-                    storeAs = "flickered"
-                ),
-                Effects.Move(EffectTarget.PipelineTarget("flickered"), Zone.EXILE),
-                Effects.Move(EffectTarget.PipelineTarget("flickered"), Zone.BATTLEFIELD)
-            )
+        effect = Effects.If(
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
+            then = Effects.Pipeline {
+                val flickered = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl, optional = true))
+                run(Effects.Move(flickered.asTarget, Zone.EXILE))
+                run(Effects.Move(flickered.asTarget, Zone.BATTLEFIELD))
+            }
         )
         description = "At the beginning of your end step, if this enchantment has four or more quest counters on it, exile up to one target creature you control, then return it to the battlefield under its owner's control."
     }

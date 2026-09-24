@@ -10,10 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -70,37 +66,33 @@ val GhostVacuum = card("Ghost Vacuum") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{6}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
+        effect = Effects.Pipeline {
             // Gather the linked-exile pile before the sacrifice (CR 400.7).
-            GatherCardsEffect(
-                source = CardSource.FromLinkedExile(),
-                storeAs = "exiledPile",
-            ),
+            val exiledPile = gather(CardSource.FromLinkedExile())
             // Put each creature card from the pile onto the battlefield under your control with a
             // flying counter; non-creature cards stay exiled (filter).
-            MoveCollectionEffect(
-                from = "exiledPile",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
+            val spirits = moveTracked(
+                exiledPile,
+                CardDestination.ToZone(Zone.BATTLEFIELD),
                 filter = GameObjectFilter.Creature,
-                addCounterType = CounterType.FLYING,
-                storeMovedAs = "spirits",
-            ),
+                addCounterType = CounterType.FLYING
+            )
             // Each of them is a 1/1 Spirit in addition to its other types (lasting).
-            ForEachEffect(
-                space = IterationSpace.Collection("spirits"),
-                body = Effects.Composite(
+            run(Effects.ForEachInCollection(
+                spirits,
+                Effects.Composite(
                     Effects.SetBasePowerAndToughness(
                         power = 1,
                         toughness = 1,
-                        target = EffectTarget.Self,
+                        target = EffectTarget.IterationEntity,
                         duration = com.wingedsheep.sdk.scripting.Duration.Permanent,
                     ),
-                    Effects.AddCreatureType("Spirit", EffectTarget.Self),
+                    Effects.AddCreatureType("Spirit", EffectTarget.IterationEntity),
                 ),
-            ),
+            ))
             // Sacrifice this artifact (modeled in-effect; see KDoc).
-            Effects.SacrificeTarget(EffectTarget.Self),
-        )
+            run(Effects.SacrificeTarget(EffectTarget.Self))
+        }
         description = "Put each creature card exiled with this artifact onto the battlefield under " +
             "your control with a flying counter on it. Each of them is a 1/1 Spirit in addition to " +
             "its other types. Activate only as a sorcery."

@@ -331,13 +331,13 @@ class TriggerProcessor(
             return processTargetedTrigger(currentState, trigger, targetRequirement)
         }
 
-        // If the effect is a MayPayManaEffect AND has targets, ask payment first, then targets.
+        // If the effect is a Effects.MayPay AND has targets, ask payment first, then targets.
         // This reverses the old flow where targets were chosen before the pay question.
         if (targetRequirement != null && ability.effect.asOptionalManaPayment() != null) {
             return processMayPayManaThenTargetTrigger(currentState, trigger, targetRequirement)
         }
 
-        // If the effect is a bare "may" (lowered MayEffect) AND has targets, ask may first before
+        // If the effect is a bare "may" (lowered Effects.May) AND has targets, ask may first before
         // target selection. This gives the player a chance to decline before having to pick targets.
         if (targetRequirement != null && ability.effect.asMayDecide() != null) {
             return processMayThenTargetTrigger(currentState, trigger, targetRequirement)
@@ -387,7 +387,7 @@ class TriggerProcessor(
     }
 
     /**
-     * Process a triggered ability that has both MayEffect and targets.
+     * Process a triggered ability that has both Effects.May and targets.
      *
      * Asks the player yes/no first. If they say yes, proceeds to target selection
      * via MayTriggerContinuation. If they say no, the trigger is skipped.
@@ -518,7 +518,7 @@ class TriggerProcessor(
     }
 
     /**
-     * Process a triggered ability that has both MayPayManaEffect and targets.
+     * Process a triggered ability that has both Effects.MayPay and targets.
      *
      * Asks "Pay {cost}?" first. If the player says yes, proceeds to mana source selection,
      * then target selection. If the player says no, the trigger is skipped entirely.

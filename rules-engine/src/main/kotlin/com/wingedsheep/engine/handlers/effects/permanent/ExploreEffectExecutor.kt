@@ -7,7 +7,6 @@ import com.wingedsheep.engine.handlers.effects.KeywordActionReplacements
 import com.wingedsheep.engine.handlers.effects.ReplaceableKeywordAction
 import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -35,14 +34,14 @@ import kotlin.reflect.KClass
  *
  * Before the explore proper, applicable [com.wingedsheep.sdk.scripting.ModifyKeywordAction]
  * replacements (CR 614) on the battlefield are consulted via [KeywordActionReplacements] — like
- * [com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect], explore isn't a generic replaceable
+ * [com.wingedsheep.sdk.scripting.ReplaceDrawWith], explore isn't a generic replaceable
  * event, so it's checked here directly. A match re-issues the explore as
  * `Composite(prefixEffect, ExploreEffect(sameCreature, replacementsApplied = true))` through the
  * registry [recurse] runner, reusing the composite executor's pause-sequencing (a Scry prefix
  * finishes its top/bottom decision before the explore runs).
  *
- * @param recurse registry entry point for delegating the Composite (nullable-free; wired via
- *   `PermanentExecutors.initializeRecursion`).
+ * @param recurse registry entry point for delegating the Composite (handed to [PermanentExecutors]
+ *   by the registry at construction).
  */
 class ExploreEffectExecutor(
     private val zones: ZoneTransitionService,
@@ -198,14 +197,14 @@ class ExploreEffectExecutor(
             com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(
                 updated,
                 creatureId,
-                counterTypeToString(CounterType.PLUS_ONE_PLUS_ONE),
+                CounterType.PLUS_ONE_PLUS_ONE,
                 placerId = context.controllerId,
             )
         val name = state.getEntity(creatureId)?.get<CardComponent>()?.name ?: ""
         return newState to listOf(
             CountersAddedEvent(
                 creatureId,
-                counterTypeToString(CounterType.PLUS_ONE_PLUS_ONE),
+                CounterType.PLUS_ONE_PLUS_ONE,
                 count,
                 name,
                 firstThisTurn,

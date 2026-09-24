@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.kld.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tidy Conclusion
@@ -29,7 +29,7 @@ val TidyConclusion = card("Tidy Conclusion") {
         val t = target("target", TargetCreature())
         effect = Effects.Composite(
             Effects.Destroy(t),
-            Effects.GainLife(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Artifact))
+            Effects.GainLife(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count())
         )
     }
 

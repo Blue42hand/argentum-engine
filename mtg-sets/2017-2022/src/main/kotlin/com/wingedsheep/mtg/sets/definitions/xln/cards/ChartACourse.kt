@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Chart a Course — Ixalan #48 (canonical printing)
@@ -24,9 +23,9 @@ val ChartACourse = card("Chart a Course") {
 
     spell {
         effect = Effects.DrawCards(2).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.Not(Conditions.YouAttackedThisTurn),
-                effect = Effects.Discard(1),
+                then = Effects.Discard(1),
             )
         )
     }

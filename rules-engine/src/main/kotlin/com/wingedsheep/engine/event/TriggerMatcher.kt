@@ -9,7 +9,6 @@ import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
-import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -24,6 +23,7 @@ import com.wingedsheep.engine.state.components.player.ManaSpentOnSpellsThisTurnC
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.state.components.stack.TargetsComponent
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
@@ -243,7 +243,7 @@ class TriggerMatcher(
             is EventPattern.DamageReceivedEvent -> {
                 // Generic (source=Any) DamageReceivedEvent can match in the main loop
                 // Specific source-filtered ones are handled in detectDamagedBySourceTriggers
-                if (trigger.source != SourceFilter.Any) return false
+                if (trigger.source != GameObjectFilter.Any) return false
                 event is DamageDealtEvent && (binding != TriggerBinding.SELF || event.targetId == sourceId)
             }
             is EventPattern.SpellCastEvent -> {
@@ -310,6 +310,7 @@ class TriggerMatcher(
                 if (event !is AbilityActivatedEvent) return false
                 if (!matchesPlayer(state, trigger.player, event.controllerId, controllerId)) return false
                 if (trigger.requireLoyalty && !event.isLoyalty) return false
+                if (event.loyaltyCountersRemoved < trigger.minLoyaltyRemoved) return false
                 if (trigger.requireExhaust) {
                     if (!event.isExhaust) return false
                     // Plain "whenever you activate an exhaust ability" counts an exhaust mana
@@ -456,7 +457,7 @@ class TriggerMatcher(
                     )
                 ) return false
                 // The attached-to permanent must match the attached-to filter, with the attachment
-                // exposed as EntityReference.Triggering so relative predicates (mana value at most
+                // exposed as EffectTarget.TriggeringEntity so relative predicates (mana value at most
                 // the Aura's mana value — Eriette) resolve against it.
                 if (trigger.attachedToFilter != GameObjectFilter.Any) {
                     val attachedToCtx = com.wingedsheep.engine.handlers.PredicateContext(
@@ -485,7 +486,7 @@ class TriggerMatcher(
                         state, state.projectedState, event.attachmentId, trigger.attachmentFilter, attachmentCtx
                     )
                 ) return false
-                // The former host, with the attachment exposed as EntityReference.Triggering so
+                // The former host, with the attachment exposed as EffectTarget.TriggeringEntity so
                 // relative predicates resolve against it (mirrors BecomesAttachedEvent). A host that
                 // left the battlefield can't satisfy a battlefield filter, so an unfiltered trigger
                 // (Stitcher's Graft) is the shape that still fires in that case — matching the
@@ -832,6 +833,7 @@ class TriggerMatcher(
             // Combat damage batch triggers are handled by detectCombatDamageBatchTriggers
             is EventPattern.OneOrMoreDealCombatDamageToPlayerEvent -> false
             is EventPattern.OneOrMoreDealCombatDamageToYouEvent -> false
+            is EventPattern.OpponentsDealtCombatDamageEvent -> false
             // Leave battlefield without dying batch triggers are handled by detectLeaveBattlefieldWithoutDyingBatchTriggers
             is EventPattern.LeaveBattlefieldWithoutDyingEvent -> false
             // Creatures-you-control-die batch triggers are handled by detectCreaturesDiedBatchTriggers
@@ -853,9 +855,8 @@ class TriggerMatcher(
                 if (event.amount <= 0) return false
                 if (binding == TriggerBinding.SELF && event.entityId != sourceId) return false
                 if (binding == TriggerBinding.OTHER && event.entityId == sourceId) return false
-                // Counters.ANY is the wildcard "counters of any type" sentinel.
-                if (trigger.counterType != com.wingedsheep.sdk.core.Counters.ANY &&
-                    !counterTypesMatch(trigger.counterType, event.counterType)) return false
+                // A null counterType is the wildcard "counters of any type".
+                if (trigger.counterType != null && trigger.counterType != event.counterType) return false
                 // "…removed from this creature **this way**": only the removal a
                 // PreventDamageByRemovingCounter replacement performed counts (Magma Pummeler).
                 if (trigger.byDamagePrevention && !event.byDamagePrevention) return false
@@ -998,12 +999,7 @@ class TriggerMatcher(
 
         // Controller of the freshly-created token (owner == controller at creation; prefer projected).
         val tokenController = state.projectedState.getController(event.entityId) ?: event.ownerId
-        val controllerMatches = when (trigger.controller) {
-            is ControllerFilter.You -> tokenController == controllerId
-            is ControllerFilter.Opponent -> tokenController != controllerId
-            is ControllerFilter.Any -> true
-        }
-        if (!controllerMatches) return false
+        if (!matchesPlayer(state, trigger.controller, tokenController, controllerId)) return false
 
         val filter = trigger.tokenFilter
         if (filter != null && !predicateEvaluator.matches(
@@ -1569,72 +1565,25 @@ class TriggerMatcher(
         trigger: EventPattern.DealsDamageEvent,
         event: DamageDealtEvent,
         state: GameState,
-        controllerId: EntityId? = null,
+        controllerId: EntityId,
         /**
-         * The permanent bearing the observing ability. Only [RecipientFilter.EnchantedPlayer] reads
-         * it — that filter scopes the recipient by the source's *attachment* rather than by its
-         * controller — so callers that can't supply it leave it null and that filter fails closed.
+         * The permanent bearing the observing ability — what the recipient's source-relative
+         * readings (`Recipient.EnchantedPlayer`, `Recipient.Self`, an `attachedToBySource()`
+         * filter) are relative to. Null when there is none, and those readings then fail closed.
          */
         abilitySourceId: EntityId? = null
     ): Boolean {
         val combatMatches = trigger.damageType == DamageType.Any ||
             (trigger.damageType == DamageType.Combat && event.isCombatDamage) ||
             (trigger.damageType == DamageType.NonCombat && !event.isCombatDamage)
-        val recipientMatches = when (trigger.recipient) {
-            RecipientFilter.Any -> true
-            RecipientFilter.AnyPlayer -> event.targetId in state.turnOrder
-            RecipientFilter.AnyPlayerOrPlaneswalker -> {
-                event.targetId in state.turnOrder ||
-                    state.projectedState.isPlaneswalker(event.targetId)
-            }
-            RecipientFilter.AnyCreature -> event.targetId !in state.turnOrder
-            RecipientFilter.You -> false // handled separately in detectDamageToControllerTriggers
-            RecipientFilter.Opponent -> {
-                event.targetId in state.turnOrder && event.targetId != controllerId
-            }
-            RecipientFilter.CreatureOpponentControls -> {
-                val targetController = recipientControllerLki(event, state)
-                recipientIsCreatureLki(event, state) && targetController != null && targetController != controllerId
-            }
-            RecipientFilter.CreatureYouControl -> {
-                recipientIsCreatureLki(event, state) && recipientControllerLki(event, state) == controllerId
-            }
-            RecipientFilter.PermanentYouControl -> {
-                recipientControllerLki(event, state) == controllerId
-            }
-            RecipientFilter.AnyPermanent -> event.targetId !in state.turnOrder
-            is RecipientFilter.Matching -> {
-                // "deals damage to a [filtered] creature/permanent" (East-Mark Cavalier,
-                // Mauhur, Spider-Slayer). Evaluate the filter against the recipient in projected
-                // state — mirrors DamageCalculator's Matching handling. A recipient that left the
-                // battlefield to the same damage is no longer projectable, but there is nothing
-                // left to act on ("destroy that creature"), so a live match is sufficient. A null
-                // controller can't evaluate controller-relative filters (e.g. "a creature an
-                // opponent controls"), so require it rather than passing an empty sentinel id.
-                val filter = (trigger.recipient as RecipientFilter.Matching).filter
-                controllerId != null &&
-                    event.targetId !in state.turnOrder &&
-                    state.getEntity(event.targetId) != null &&
-                    predicateEvaluator.matches(
-                        state, state.projectedState, event.targetId, filter,
-                        PredicateContext(controllerId = controllerId)
-                    )
-            }
-            // "deals combat damage to enchanted player" (Curse of Hospitality). The recipient must
-            // be the player the observing Aura is attached to, so this reads `abilitySourceId`, not
-            // `controllerId`. The `in state.turnOrder` check is what keeps a planeswalker the
-            // enchanted player controls out: only a player id survives it.
-            RecipientFilter.EnchantedPlayer -> {
-                val enchanted = abilitySourceId
-                    ?.let { state.getEntity(it) }
-                    ?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
-                    ?.targetId
-                    ?.takeIf { it in state.turnOrder }
-                enchanted != null && event.targetId == enchanted
-            }
-            RecipientFilter.Self -> false // handled elsewhere
-            else -> false
-        }
+        // The recipient is read as it was when the damage was dealt when it has since left the
+        // battlefield — a creature destroyed by this very damage is still "a creature an opponent
+        // controls" (CR 603.10), even a token already swept out of existence.
+        val recipientMatches = predicateEvaluator.matchesRecipient(
+            state, state.projectedState, event.targetId, trigger.recipient,
+            PredicateContext(controllerId = controllerId, sourceId = abilitySourceId),
+            lastKnown = event.targetLastKnown,
+        )
         // Check sourceFilter (e.g., "creature you control" for Gossip's Talent)
         val sourceMatches = matchesDamageSourceFilter(trigger.sourceFilter, event, state, controllerId)
         // "Excess damage" triggers (Fall of Cair Andros) fire only when the recipient took
@@ -1677,23 +1626,6 @@ class TriggerMatcher(
             state, state.projectedState, event.sourceId, sourceFilter, predicateContext
         )
     }
-
-    /**
-     * The damage recipient's controller, preferring live state but falling back to the controller
-     * captured at damage time ([DamageDealtEvent.targetControllerId]). A creature destroyed by the
-     * same damage event has already moved to the graveyard — losing its [ControllerComponent] — by
-     * the time combat-damage triggers are detected, so without the LKI fallback a recipient-based
-     * trigger ("a creature you control / an opponent controls is dealt damage") would silently miss
-     * the killing blow (CR 603.10).
-     */
-    private fun recipientControllerLki(event: DamageDealtEvent, state: GameState): EntityId? =
-        state.getEntity(event.targetId)?.get<ControllerComponent>()?.playerId
-            ?: event.targetControllerId
-
-    /** Whether the damage recipient was a creature, with the same LKI fallback as [recipientControllerLki]. */
-    private fun recipientIsCreatureLki(event: DamageDealtEvent, state: GameState): Boolean =
-        state.getEntity(event.targetId)?.get<CardComponent>()?.typeLine?.isCreature == true ||
-            event.targetWasCreature
 
     fun matchesStepTrigger(
         trigger: EventPattern,
@@ -1788,7 +1720,7 @@ class TriggerMatcher(
      */
     private fun matchesAbilityTargetConstraint(
         abilityEntityId: EntityId?,
-        match: AbilityTargetMatch,
+        match: Recipient,
         sourceId: EntityId,
         controllerId: EntityId,
         state: GameState
@@ -1798,36 +1730,24 @@ class TriggerMatcher(
         return targets.any { target -> matchesAbilityTarget(target, match, sourceId, controllerId, state) }
     }
 
-    /** True if a single chosen target satisfies the [match] constraint. */
+    /** True if a single chosen target — a player or an object — is the [match] recipient. */
     private fun matchesAbilityTarget(
         target: ChosenTarget,
-        match: AbilityTargetMatch,
+        match: Recipient,
         sourceId: EntityId,
         controllerId: EntityId,
         state: GameState
-    ): Boolean = when (match) {
-        is AbilityTargetMatch.AnyPlayer -> target is ChosenTarget.Player
-        is AbilityTargetMatch.AnyOf -> match.options.any {
-            matchesAbilityTarget(target, it, sourceId, controllerId, state)
+    ): Boolean {
+        val targetId = when (target) {
+            is ChosenTarget.Permanent -> target.entityId
+            is ChosenTarget.Card -> target.cardId
+            is ChosenTarget.Spell -> target.spellEntityId
+            is ChosenTarget.Player -> target.playerId
         }
-        is AbilityTargetMatch.ObjectMatching -> {
-            val objectId = when (target) {
-                is ChosenTarget.Permanent -> target.entityId
-                is ChosenTarget.Card -> target.cardId
-                is ChosenTarget.Spell -> target.spellEntityId
-                is ChosenTarget.Player -> null
-            }
-            if (objectId == null) false
-            else {
-                val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
-                    controllerId = controllerId,
-                    sourceId = sourceId
-                )
-                predicateEvaluator.matches(
-                    state, state.projectedState, objectId, match.filter, predicateContext
-                )
-            }
-        }
+        return predicateEvaluator.matchesRecipient(
+            state, state.projectedState, targetId, match,
+            PredicateContext(controllerId = controllerId, sourceId = sourceId)
+        )
     }
 
     /**
@@ -2177,14 +2097,10 @@ class TriggerMatcher(
             // gone; gate against the counters captured on the event (LKI). For non-leave triggers
             // (e.g. ETB, to=BATTLEFIELD) the entity is live, so read its current counters.
             if (event.fromZone == Zone.BATTLEFIELD) {
-                (event.lastKnown?.counters ?: emptyMap()).any { (type, count) ->
-                    count > 0 && counterTypesMatch(predicate.counterType, type)
-                }
+                (event.lastKnown?.counters?.get(predicate.counterType) ?: 0) > 0
             } else {
                 val counters = state.getEntity(event.entityId)?.get<CountersComponent>()
-                counters?.counters?.entries?.any { (type, count) ->
-                    count > 0 && counterTypesMatch(predicate.counterType, counterTypeToString(type))
-                } ?: false
+                (counters?.getCount(predicate.counterType) ?: 0) > 0
             }
         }
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasAnyCounter -> {
@@ -2337,6 +2253,7 @@ class TriggerMatcher(
         // state). Returning true preserves the prior "don't gate" behavior, but listing
         // every variant forces a compile-time choice when a new predicate is added.
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsOnBattlefield,
+        is com.wingedsheep.sdk.scripting.predicates.StatePredicate.InZone,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasLockedDoor,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsTapped,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsUntapped,
@@ -2434,12 +2351,8 @@ class TriggerMatcher(
         // / "whenever you put counters on ~"). OTHER restricts to any *other* permanent.
         if (binding == TriggerBinding.SELF && event.entityId != sourceId) return false
         if (binding == TriggerBinding.OTHER && event.entityId == sourceId) return false
-        // Counters.ANY is the wildcard "counters of any type" sentinel.
-        if (trigger.counterType != com.wingedsheep.sdk.core.Counters.ANY &&
-            !counterTypesMatch(trigger.counterType, event.counterType)
-        ) {
-            return false
-        }
+        // A null counterType is the wildcard "counters of any type".
+        if (trigger.counterType != null && trigger.counterType != event.counterType) return false
         // "First time counters this turn" intervening-if (Stalwart Successor).
         if (trigger.firstTimeEachTurn && !event.firstThisTurn) return false
         // Placer restriction (CR 122.6 / 122.6a): "Whenever YOU put counters ...". A placement the
@@ -2466,33 +2379,12 @@ class TriggerMatcher(
     }
 
     /**
-     * Compare counter type strings, normalizing different representations to allow matching
-     * between trigger specs (e.g., "+1/+1") and event strings (which may be "+1/+1",
-     * "plus_one_plus_one", "PLUS_ONE_PLUS_ONE", etc.).
-     */
-    private fun counterTypesMatch(triggerType: String, eventType: String): Boolean {
-        if (triggerType == eventType) return true
-        return normalizeCounterType(triggerType) == normalizeCounterType(eventType)
-    }
-
-    /**
      * How many counters of [counterType] [entityId] still has — the "did that removal take the
-     * last one?" half of [EventPattern.CountersRemovedEvent.lastRemoved]. Counter names are stored
-     * normalized on the component, so the lookup goes through the same normalization the type
-     * match uses. A missing entity counts as zero: a permanent that has already left has none.
+     * last one?" half of [EventPattern.CountersRemovedEvent.lastRemoved]. A missing entity counts as
+     * zero: a permanent that has already left has none.
      */
-    private fun remainingCounters(state: GameState, entityId: EntityId, counterType: String): Int {
-        val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return 0
-        return counters.counters.entries
-            .filter { (type, _) -> counterTypesMatch(counterType, counterTypeToString(type)) }
-            .sumOf { (_, count) -> count }
-    }
-
-    private fun normalizeCounterType(type: String): String =
-        type.lowercase()
-            .replace("+1/+1", "plus_one_plus_one")
-            .replace("-1/-1", "minus_one_minus_one")
-            .replace(" ", "_")
+    private fun remainingCounters(state: GameState, entityId: EntityId, counterType: CounterType): Int =
+        state.getEntity(entityId)?.get<CountersComponent>()?.getCount(counterType) ?: 0
 
     /**
      * Live check for whether [entityId] has an Equipment (or, when [equipment] is false, an Aura)

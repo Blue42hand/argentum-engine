@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -32,7 +32,7 @@ val BlackPoplarShaman = card("Black Poplar Shaman") {
             "target Treefolk",
             TargetPermanent(filter = TargetFilter.Permanent.withSubtype(Subtype.TREEFOLK))
         )
-        effect = RegenerateEffect(treefolk)
+        effect = Effects.Regenerate(treefolk)
         description = "{2}{B}: Regenerate target Treefolk."
     }
 

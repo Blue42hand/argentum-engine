@@ -5,10 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.dmu.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -31,7 +31,7 @@ val BiteDown = card("Bite Down") {
             "target creature or planeswalker you don't control",
             TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())),
         )
-        effect = DealDamageEffect(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+        effect = Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -31,9 +30,9 @@ val ThallidOmnivore = card("Thallid Omnivore") {
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
         effect = Effects.ModifyStats(2, 2, EffectTarget.Self)
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Conditions.SacrificedHadSubtype("Saproling"),
-                effect = Effects.GainLife(2)
+                then = Effects.GainLife(2)
             ))
     }
 

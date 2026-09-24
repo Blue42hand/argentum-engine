@@ -1425,12 +1425,15 @@
                     "type": "DealDamage",
                     "amount": "XValue",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
                 "targetRequirements": [
-                    "AnyTarget"
+                    {
+                        "type": "AnyTarget",
+                        "id": "any target"
+                    }
                 ],
                 "descriptionOverride": "{X}{R}, {T}, Sacrifice this creature: It deals X damage to any target."
             }
@@ -4437,7 +4440,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -5281,7 +5284,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -5647,7 +5650,10 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "BoundVariable",
+                            "name": "target nonblack creature"
+                        },
                         "numericProperty": "Toughness"
                     },
                     "target": "Controller"
@@ -5769,8 +5775,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "storeAs": "hand"
@@ -5796,8 +5802,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "moveType": "Discard"

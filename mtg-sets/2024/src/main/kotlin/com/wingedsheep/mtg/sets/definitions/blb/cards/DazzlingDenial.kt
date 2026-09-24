@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -25,10 +24,10 @@ val DazzlingDenial = card("Dazzling Denial") {
 
     spell {
         target("target spell", Targets.Spell)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withSubtype("Bird")),
-            effect = Effects.CounterUnlessPays("{4}"),
-            elseEffect = Effects.CounterUnlessPays("{2}")
+            then = Effects.CounterUnlessPays("{4}"),
+            otherwise = Effects.CounterUnlessPays("{2}")
         )
     }
 

@@ -46,8 +46,8 @@ class CollectionNonEmptyCriterionScenarioTest : ScenarioTestBase() {
                     ),
                     MoveCollectionEffect(from = "exiled", destination = CardDestination.ToZone(Zone.EXILE)),
                 ),
-                ifYouDo = Effects.DrawCards(1),
-                ifYouDont = LoseLifeEffect(DynamicAmount.Fixed(1), EffectTarget.Controller),
+                then = Effects.DrawCards(1),
+                otherwise = LoseLifeEffect(DynamicAmount.Fixed(1), EffectTarget.Controller),
                 successCriterion = SuccessCriterion.CollectionNonEmpty("exiled"),
             )
         }

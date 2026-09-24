@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,7 +35,7 @@ val MoltingSnakeskin = card("Molting Snakeskin") {
             ability = ActivatedAbility(
                 id = AbilityId.generate(),
                 cost = Costs.Mana("{2}{B}"),
-                effect = RegenerateEffect(EffectTarget.Self)
+                effect = Effects.Regenerate(EffectTarget.Self)
             )
         )
     }

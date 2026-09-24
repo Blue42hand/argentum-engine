@@ -1,14 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.arn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Khabál Ghoul
@@ -29,11 +29,9 @@ val KhabalGhoul = card("Khabál Ghoul") {
     triggeredAbility {
         trigger = Triggers.EachEndStep
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.Add(
-                DynamicAmounts.creaturesDiedThisTurn(Player.You),
+            CounterType.PLUS_ONE_PLUS_ONE,
+            DynamicAmounts.creaturesDiedThisTurn(Player.You) +
                 DynamicAmounts.creaturesDiedThisTurn(Player.EachOpponent),
-            ),
             EffectTarget.Self,
         )
     }

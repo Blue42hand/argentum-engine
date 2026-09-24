@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Alaborn Cavalier
@@ -13,7 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  * Creature — Human Knight
  *
  * The Portal "tapper on attack" shape — Seasoned Marshal in Portal, Flanking Troops in
- * Portal Three Kingdoms. The optional clause is [MayEffect] around the tap, so the gate is the
+ * Portal Three Kingdoms. The optional clause is [Effects.May] around the tap, so the gate is the
  * consent and the tap is the whole of the then-branch.
  */
 val AlabornCavalier = card("Alaborn Cavalier") {
@@ -27,7 +26,7 @@ val AlabornCavalier = card("Alaborn Cavalier") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val creature = target("target", Targets.Creature)
-        effect = MayEffect(Effects.Tap(creature))
+        effect = Effects.May(Effects.Tap(creature))
     }
 
     metadata {

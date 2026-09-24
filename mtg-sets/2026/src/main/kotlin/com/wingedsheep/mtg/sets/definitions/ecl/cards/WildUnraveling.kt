@@ -25,7 +25,7 @@ val WildUnraveling = card("Wild Unraveling") {
     additionalCost(Costs.additional.BlightOrPay(blightAmount = 2, alternativeManaCost = "{1}"))
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
     }
 

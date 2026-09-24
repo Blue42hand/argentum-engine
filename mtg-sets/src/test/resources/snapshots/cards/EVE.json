@@ -193,7 +193,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -202,8 +202,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target artifact or enchantment"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -213,7 +213,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "artifact|enchantment"
-                        }
+                        },
+                        "id": "target artifact or enchantment"
                     }
                 ]
             }
@@ -221,7 +222,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 1,
                 "selfOnly": true
             }

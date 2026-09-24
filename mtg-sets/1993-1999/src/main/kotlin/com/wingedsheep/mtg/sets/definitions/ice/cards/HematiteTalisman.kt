@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Hematite Talisman
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  *
  * One of Ice Age's five Talismans — the cycle is a single shape with the spell filter recoloured.
  * "A player" is every player, this artifact's controller included, so the trigger is
- * [Triggers.anyPlayerCasts] (binding ANY, `Player.Each`); the ransom is [MayPayManaEffect], whose
+ * [Triggers.anyPlayerCasts] (binding ANY, `Player.Each`); the ransom is [Effects.MayPay], whose
  * yes/no and mana payment both happen on resolution. The permanent is a real target declared on the
  * ability, so it is locked in when the trigger goes on the stack, before anyone decides to pay.
  */
@@ -32,7 +31,7 @@ val HematiteTalisman = card("Hematite Talisman") {
     triggeredAbility {
         trigger = Triggers.anyPlayerCasts(GameObjectFilter.Any.withColor(Color.RED))
         val permanent = target("target", Targets.Permanent)
-        effect = MayPayManaEffect(ManaCost.parse("{3}"), Effects.Untap(permanent))
+        effect = Effects.MayPay(ManaCost.parse("{3}"), Effects.Untap(permanent))
         description = "Whenever a player casts a red spell, you may pay {3}. " +
             "If you do, untap target permanent."
     }

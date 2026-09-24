@@ -1109,7 +1109,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FLYING",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1285,10 +1285,8 @@
             "scope": "CombatOnly",
             "direction": "FromTarget",
             "sourceFilter": {
-                "type": "FromGroup",
-                "filter": {
-                    "baseFilter": "creature attacking"
-                }
+                "type": "PreventFromMatching",
+                "filter": "creature attacking"
             }
         }
     },
@@ -1534,7 +1532,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -2078,7 +2076,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -2446,7 +2444,7 @@
                     "type": "Fixed",
                     "amount": -1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -2640,7 +2638,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }

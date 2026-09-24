@@ -14,13 +14,11 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ownsConsentGate
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -932,10 +930,10 @@ class CardBuilder(private val name: String) {
             else -> null
         }
 
-        // Build the script — wrap spell effect in ConditionalEffect if condition is set
+        // Build the script — wrap spell effect in Effects.If if condition is set
         val rawSpellEffect = spellBuilder?.effect
         val spellEffect = if (spellBuilder?.condition != null && rawSpellEffect != null) {
-            ConditionalEffect(spellBuilder!!.condition!!, rawSpellEffect)
+            Effects.If(spellBuilder!!.condition!!, rawSpellEffect)
         } else {
             rawSpellEffect
         }
@@ -1152,8 +1150,8 @@ class SpellBuilder {
      * battlefield transformed under its owner's control with a finality counter on it." See
      * [CardScript.returnTransformedFromGraveyardOnResolve].
      */
-    fun returnTransformedFromGraveyard(vararg counters: CounterType) {
-        returnTransformedFromGraveyard = ReturnTransformedFromGraveyard(counters.toList())
+    fun returnTransformedFromGraveyard(counters: List<CounterType>) {
+        returnTransformedFromGraveyard = ReturnTransformedFromGraveyard(counters)
     }
 
     internal val returnTransformedFromGraveyardMarker: ReturnTransformedFromGraveyard?
@@ -1454,32 +1452,79 @@ class ModalBuilder(
 }
 
 /**
- * Builder for a single mode within a modal spell.
+ * An effect together with the targets it declares for itself — the body of a mode, of a
+ * reflexive trigger ("when you do, … target …"), of a delayed trigger that targets. Declare each
+ * target with [target] / [targets] and read it back through the returned handle, exactly as in a
+ * `spell { }` or `triggeredAbility { }` block:
+ *
+ * ```kotlin
+ * val creature = target("target creature", Targets.Creature)
+ * effect = Effects.Destroy(creature)
+ * ```
  */
 @CardDsl
-class ModeBuilder(private val description: String) {
+open class TargetedEffectBuilder {
     var effect: Effect? = null
-    var target: TargetRequirement? = null
-    private val targets: MutableList<TargetRequirement> = mutableListOf()
+    private val declared: MutableList<TargetRequirement> = mutableListOf()
 
-    /**
-     * Add a named target for this mode and get an EffectTarget reference.
-     */
+    /** Declare a target of this effect and get the handle its effects read it through. */
     fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        targets.add(requirement.withId(name))
+        declared.add(requirement.withId(name))
         return EffectTarget.BoundVariable(name)
     }
 
+    /**
+     * Declare a multi-target requirement ("two target creatures") and get one handle per chosen
+     * target: `val (first, second) = targets("target creatures", TargetCreature(count = 2))`.
+     */
+    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
+        declared.add(requirement.withId(name))
+        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
+    }
+
+    /** The requirements declared so far, in declaration order. */
+    internal val declaredTargets: List<TargetRequirement> get() = declared.toList()
+
+    internal fun requireEffect(what: String): Effect = requireNotNull(effect) { "$what must have an effect" }
+}
+
+/**
+ * Builder for a single mode within a modal spell.
+ */
+@CardDsl
+class ModeBuilder(private val description: String) : TargetedEffectBuilder() {
+    var target: TargetRequirement? = null
+
+    /** An additional mana cost paid as you cast the spell when this mode is chosen (Spree). */
+    var additionalManaCost: String? = null
+
+    /** Additional non-mana costs paid when this mode is chosen. */
+    var additionalCosts: List<com.wingedsheep.sdk.scripting.AdditionalCost>? = null
+
     internal fun build(): Mode {
-        requireNotNull(effect) { "Mode '$description' must have an effect" }
-        val allTargets = if (targets.isNotEmpty()) {
-            targets.toList()
-        } else {
-            listOfNotNull(target)
-        }
-        return Mode(effect!!, allTargets, description)
+        val effect = requireEffect("Mode '$description'")
+        val allTargets = declaredTargets.ifEmpty { listOfNotNull(target) }
+        return Mode(effect, allTargets, description, additionalManaCost, additionalCosts)
     }
 }
+
+/**
+ * Build one mode of a modal effect outside a `modal { }` block — the modes handed to
+ * `ModalEffect.chooseOne(…)`, `Effects.Modal(listOf(…))` or `Patterns.Mechanic.giftSpell(…)`:
+ *
+ * ```kotlin
+ * ModalEffect.chooseOne(
+ *     mode("Destroy target artifact.") {
+ *         val artifact = target("target artifact", Targets.Artifact)
+ *         effect = Effects.Destroy(artifact)
+ *     },
+ *     Mode.noTarget(Effects.DrawCards(1), "Draw a card."),
+ * )
+ * ```
+ *
+ * The mode's targets belong to the mode, so its handles never collide with the ability's own.
+ */
+fun mode(description: String, init: ModeBuilder.() -> Unit): Mode = ModeBuilder(description).apply(init).build()
 
 // =============================================================================
 // Tiered Builder (CR 702.183)
@@ -1541,7 +1586,7 @@ class TriggeredAbilityBuilder {
      * used to exist beside the gate and the engine read it and built the gate anyway, so the two
      * spellings were one fact and a card could be written either way. The shorthand survives because
      * `optional = true` beside `effect = Effects.Destroy(…)` reads better than nesting the effect,
-     * but it produces exactly one model: `MayEffect(effect, otherwise = elseEffect)`.
+     * but it produces exactly one model: `Effects.May(effect, otherwise = elseEffect)`.
      *
      * Consequences of it being a lowering rather than a flag:
      *
@@ -1618,6 +1663,15 @@ class TriggeredAbilityBuilder {
         return EffectTarget.BoundVariable(name)
     }
 
+    /**
+     * Declare a multi-target requirement and get one handle per chosen target:
+     * `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
+     */
+    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
+        namedTargets.add(name to requirement.withId(name))
+        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
+    }
+
     fun build(): TriggeredAbility {
         val declared = requireNotNull(effect) { "Triggered ability must have an effect" }
         require(!optional || !declared.ownsConsentGate()) {
@@ -1657,7 +1711,7 @@ class TriggeredAbilityBuilder {
             // runtime. Removing either copy silently degrades that layer's text rather than
             // failing a build; if you are here to de-duplicate, that is the trap.
             effect = if (optional) {
-                MayEffect(declared, descriptionOverride = description, otherwise = elseEffect)
+                Effects.May(declared, descriptionOverride = description, otherwise = elseEffect)
             } else {
                 declared
             },
@@ -1808,6 +1862,15 @@ class ActivatedAbilityBuilder {
         return EffectTarget.BoundVariable(name)
     }
 
+    /**
+     * Declare a multi-target requirement and get one handle per chosen target:
+     * `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
+     */
+    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
+        namedTargets.add(name to requirement.withId(name))
+        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
+    }
+
     internal val targetRequirements: List<TargetRequirement>
         get() = if (namedTargets.isNotEmpty()) {
             namedTargets.map { it.second }
@@ -1910,6 +1973,14 @@ class LoyaltyAbilityBuilder(private val loyaltyCost: AbilityCost) {
     var effect: Effect? = null
     var target: TargetRequirement? = null
     var description: String? = null
+
+    /**
+     * Activation restrictions on top of the loyalty rules — "Activate only if there are twenty-five
+     * or more loyalty counters among Jaces you control" (Jace, Reality Sculptor) is an
+     * [ActivationRestriction.OnlyIfCondition]. CR 606.3's timing and once-per-turn limit are not
+     * restrictions here; the engine applies them to every loyalty ability.
+     */
+    var restrictions: List<ActivationRestriction> = emptyList()
     private val namedTargets: MutableList<Pair<String, TargetRequirement>> = mutableListOf()
 
     /**
@@ -1918,6 +1989,15 @@ class LoyaltyAbilityBuilder(private val loyaltyCost: AbilityCost) {
     fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
         namedTargets.add(name to requirement.withId(name))
         return EffectTarget.BoundVariable(name)
+    }
+
+    /**
+     * Declare a multi-target requirement and get one handle per chosen target:
+     * `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
+     */
+    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
+        namedTargets.add(name to requirement.withId(name))
+        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
     }
 
     fun build(): ActivatedAbility {
@@ -1934,6 +2014,7 @@ class LoyaltyAbilityBuilder(private val loyaltyCost: AbilityCost) {
             targetRequirements = targetReqs,
             isPlaneswalkerAbility = true,
             timing = TimingRule.SorcerySpeed,
+            restrictions = restrictions,
             descriptionOverride = description
         )
     }
@@ -1950,6 +2031,25 @@ class LoyaltyAbilityBuilder(private val loyaltyCost: AbilityCost) {
  */
 fun grantedLoyaltyAbility(loyaltyChange: Int, init: LoyaltyAbilityBuilder.() -> Unit): ActivatedAbility =
     LoyaltyAbilityBuilder(loyaltyChange).apply(init).build()
+
+/**
+ * Build an activated ability to hand to another object — an Equipment's "equipped creature has
+ * '{T}: This creature deals 1 damage to any target'", a token's own ability, an emblem's. Pass the
+ * result to [com.wingedsheep.sdk.scripting.GrantActivatedAbility], `Effects.GrantActivatedAbility`
+ * or a token's `activatedAbilities`. The same builder as [CardBuilder.activatedAbility], so the
+ * ability's targets are declared with `target(…)` and read through their handles.
+ */
+fun grantedActivatedAbility(init: ActivatedAbilityBuilder.() -> Unit): ActivatedAbility =
+    ActivatedAbilityBuilder().apply(init).build()
+
+/**
+ * Build a triggered ability to hand to another object ("… gains 'Whenever this creature attacks,
+ * tap target creature an opponent controls'"). The same builder as [CardBuilder.triggeredAbility];
+ * pass the result to [com.wingedsheep.sdk.scripting.GrantTriggeredAbility],
+ * `Effects.GrantTriggeredAbility` or a token's `triggeredAbilities`.
+ */
+fun grantedTriggeredAbility(init: TriggeredAbilityBuilder.() -> Unit): TriggeredAbility =
+    TriggeredAbilityBuilder().apply(init).build()
 
 // =============================================================================
 // Class Level Builder
@@ -2029,6 +2129,15 @@ class SagaChapterBuilder(private val chapter: Int) {
     fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
         namedTargets.add(name to requirement.withId(name))
         return EffectTarget.BoundVariable(name)
+    }
+
+    /**
+     * Declare a multi-target requirement and get one handle per chosen target:
+     * `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
+     */
+    fun targets(name: String, requirement: TargetRequirement): List<EffectTarget.BoundVariable> {
+        namedTargets.add(name to requirement.withId(name))
+        return (0 until requirement.count).map { i -> EffectTarget.BoundVariable("$name[$i]") }
     }
 
     fun build(): SagaChapterAbility {
@@ -2176,7 +2285,7 @@ class CardFaceBuilder(private val name: String) {
         val parsedTypeLine = TypeLine.parse(typeLine)
         val rawSpellEffect = spellBuilder?.effect
         val spellEffect = if (spellBuilder?.condition != null && rawSpellEffect != null) {
-            ConditionalEffect(spellBuilder!!.condition!!, rawSpellEffect)
+            Effects.If(spellBuilder!!.condition!!, rawSpellEffect)
         } else {
             rawSpellEffect
         }

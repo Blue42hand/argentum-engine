@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Biomechan Engineer
@@ -35,7 +34,7 @@ val BiomechanEngineer = card("Biomechan Engineer") {
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(2),
-                CreateTokenEffect(
+                Effects.CreateToken(
                     power = 2,
                     toughness = 2,
                     colors = setOf(),

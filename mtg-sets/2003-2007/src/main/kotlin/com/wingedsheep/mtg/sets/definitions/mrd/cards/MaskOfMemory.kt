@@ -5,9 +5,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Mask of Memory — Mirrodin #203
@@ -18,7 +17,7 @@ import com.wingedsheep.sdk.scripting.events.RecipientFilter
  * Equip {1}
  *
  * The "if you do" isn't a second choice — declining the draw is the only out, so the whole
- * draw-then-discard package sits inside one [MayEffect]. Accepting always costs the discard, which
+ * draw-then-discard package sits inside one [Effects.May]. Accepting always costs the discard, which
  * is what makes this a filtering Equipment rather than raw card advantage.
  */
 val MaskOfMemory = card("Mask of Memory") {
@@ -32,10 +31,10 @@ val MaskOfMemory = card("Mask of Memory") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             binding = TriggerBinding.ATTACHED,
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 listOf(
                     Effects.DrawCards(2),

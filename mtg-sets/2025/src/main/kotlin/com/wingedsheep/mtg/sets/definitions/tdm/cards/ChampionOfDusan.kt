@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -36,8 +36,8 @@ val ChampionOfDusan = card("Champion of Dusan") {
 
     renew("{1}{G}") {
         val creature = target("creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.AddCounters(Counters.TRAMPLE, 1, creature))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
+            .then(Effects.AddCounters(CounterType.TRAMPLE, 1, creature))
     }
 
     metadata {

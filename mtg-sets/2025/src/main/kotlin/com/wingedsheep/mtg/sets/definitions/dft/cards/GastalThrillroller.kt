@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
@@ -63,7 +63,7 @@ val GastalThrillroller = card("Gastal Thrillroller") {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.DiscardCard)
         effect = Effects.Composite(
             Effects.PutOntoBattlefield(EffectTarget.Self),
-            Effects.AddCounters(Counters.FINALITY, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.FINALITY, 1, EffectTarget.Self)
         )
         activateFromZone = Zone.GRAVEYARD
         timing = TimingRule.SorcerySpeed

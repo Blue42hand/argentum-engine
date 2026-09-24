@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Master of Lake-town — The Hobbit #77
@@ -51,7 +50,7 @@ val TheMasterOfLakeTown = card("The Master of Lake-town") {
     triggeredAbility {
         trigger = Triggers.AnyPlayerLosesLife
         effect = Patterns.Library.mill(
-            count = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST),
+            count = DynamicAmounts.triggerLifeLost(),
             target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
         )
         description = "Whenever a player loses life, that player mills that many cards."
@@ -60,7 +59,7 @@ val TheMasterOfLakeTown = card("The Master of Lake-town") {
     triggeredAbility {
         trigger = Triggers.Dies
         effect = Effects.DrawCards(
-            DynamicAmount.CountPlayersWith(
+            DynamicAmounts.countPlayersWith(
                 scope = Player.Each,
                 condition = Conditions.CardsInGraveyardAtLeast(7)
             )

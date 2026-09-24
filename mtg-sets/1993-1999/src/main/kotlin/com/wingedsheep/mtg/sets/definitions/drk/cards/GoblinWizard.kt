@@ -47,9 +47,9 @@ val GoblinWizard = card("Goblin Wizard") {
     }
 
     activatedAbility {
+        val target = target("target", TargetObject(filter = TargetFilter.Permanent.withSubtype(Subtype.GOBLIN)))
         cost = Costs.Mana("{R}")
-        target = TargetObject(filter = TargetFilter.Permanent.withSubtype(Subtype.GOBLIN))
-        effect = Effects.GrantProtectionFromColor(Color.WHITE)
+        effect = Effects.GrantProtectionFromColor(Color.WHITE, target = target)
         description = "{R}: Target Goblin gains protection from white until end of turn."
     }
 

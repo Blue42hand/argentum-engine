@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -44,11 +43,11 @@ val Cloudthresher = card("Cloudthresher") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-                DealDamageEffect(2, EffectTarget.Self)
+                Effects.DealDamage(2, EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,
-                listOf(DealDamageEffect(2, EffectTarget.Controller))
+                listOf(Effects.DealDamage(2, EffectTarget.Controller))
             )
         )
         description = "it deals 2 damage to each creature with flying and each player."

@@ -125,7 +125,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "flying",
+                    "counterType": "FLYING",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -497,7 +497,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -935,8 +935,8 @@
                     "effect": {
                         "type": "TapUntap",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -944,7 +944,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 },
@@ -994,7 +995,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "trample",
+                    "counterType": "TRAMPLE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1114,7 +1115,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "first strike",
+                    "counterType": "FIRST_STRIKE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1484,8 +1485,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target enchantment"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -1495,7 +1496,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "enchantment"
-                            }
+                            },
+                            "id": "target enchantment"
                         }
                     ],
                     "description": "Destroy target enchantment."
@@ -1503,11 +1505,11 @@
                 {
                     "effect": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -1515,7 +1517,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Put a +1/+1 counter on target creature."
@@ -1601,7 +1604,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -1649,15 +1653,16 @@
                         "amount": 2
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "permanent Human ctrl:you"
-                    }
+                    },
+                    "id": "target"
                 }
             }
         ]
@@ -1701,7 +1706,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1873,7 +1878,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "Gated",
@@ -2042,7 +2050,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "first strike",
+                    "counterType": "FIRST_STRIKE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2336,7 +2344,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "lifelink",
+                    "counterType": "LIFELINK",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2391,7 +2399,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "flying",
+                    "counterType": "FLYING",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2506,7 +2514,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2630,7 +2638,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "trample",
+                    "counterType": "TRAMPLE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2684,7 +2692,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "deathtouch",
+                    "counterType": "DEATHTOUCH",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",

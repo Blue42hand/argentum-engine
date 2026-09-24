@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 
 /**
  * Necrobite
@@ -30,7 +29,7 @@ val Necrobite = card("Necrobite") {
         val creature = target("target", Targets.Creature)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
-            RegenerateEffect(creature)
+            Effects.Regenerate(creature)
         )
     }
 

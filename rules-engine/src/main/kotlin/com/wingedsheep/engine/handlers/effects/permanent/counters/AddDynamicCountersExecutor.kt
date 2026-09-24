@@ -38,7 +38,7 @@ class AddDynamicCountersExecutor(
             return EffectResult.success(state, emptyList())
         }
 
-        val counterType = resolveCounterType(effect.counterType)
+        val counterType = effect.counterType
 
         val current = state.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()
 
@@ -51,7 +51,7 @@ class AddDynamicCountersExecutor(
 
         val newState = state.updateEntity(targetId) { container ->
             container.with(current.withAdded(counterType, modifiedCount))
-        }.let { DamageUtils.markCounterPlacedOnCreature(it, context.controllerId, targetId, counterTypeToString(counterType)) }
+        }.let { DamageUtils.markCounterPlacedOnCreature(it, context.controllerId, targetId, counterType) }
 
         val entityName = state.getEntity(targetId)?.get<CardComponent>()?.name ?: ""
 

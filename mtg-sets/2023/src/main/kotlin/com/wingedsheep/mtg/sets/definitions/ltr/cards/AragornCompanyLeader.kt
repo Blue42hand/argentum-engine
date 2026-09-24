@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -54,19 +54,19 @@ val AragornCompanyLeader = card("Aragorn, Company Leader") {
             listOf(
                 EffectChoice(
                     label = "First strike counter",
-                    effect = Effects.AddCounters(Counters.FIRST_STRIKE, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.FIRST_STRIKE, 1, EffectTarget.Self),
                 ),
                 EffectChoice(
                     label = "Vigilance counter",
-                    effect = Effects.AddCounters(Counters.VIGILANCE, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.VIGILANCE, 1, EffectTarget.Self),
                 ),
                 EffectChoice(
                     label = "Deathtouch counter",
-                    effect = Effects.AddCounters(Counters.DEATHTOUCH, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.DEATHTOUCH, 1, EffectTarget.Self),
                 ),
                 EffectChoice(
                     label = "Lifelink counter",
-                    effect = Effects.AddCounters(Counters.LIFELINK, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.LIFELINK, 1, EffectTarget.Self),
                 ),
             )
         )
@@ -77,13 +77,13 @@ val AragornCompanyLeader = card("Aragorn, Company Leader") {
 
     triggeredAbility {
         trigger = Triggers.CountersPlacedOnThis
-        target("up to one other target creature", TargetOther(TargetCreature(count = 1, minCount = 0, optional = true)))
+        val upToOneOtherCreature = target("up to one other target creature", TargetOther(TargetCreature(count = 1, minCount = 0, optional = true)))
         effect = Effects.Composite(
             listOf(
-                Effects.AddCounters(Counters.FIRST_STRIKE, 1, EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(Counters.VIGILANCE, 1, EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(Counters.DEATHTOUCH, 1, EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(Counters.LIFELINK, 1, EffectTarget.ContextTarget(0)),
+                Effects.AddCounters(CounterType.FIRST_STRIKE, 1, upToOneOtherCreature),
+                Effects.AddCounters(CounterType.VIGILANCE, 1, upToOneOtherCreature),
+                Effects.AddCounters(CounterType.DEATHTOUCH, 1, upToOneOtherCreature),
+                Effects.AddCounters(CounterType.LIFELINK, 1, upToOneOtherCreature),
             )
         )
         description = "Whenever you put one or more counters on Aragorn, put one of each of those " +

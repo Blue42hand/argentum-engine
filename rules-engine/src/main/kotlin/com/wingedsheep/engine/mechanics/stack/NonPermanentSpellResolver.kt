@@ -217,7 +217,7 @@ internal class NonPermanentSpellResolver(
             controllerId = spellComponent.casterId,
             targets = mainTargets,
             // Position-preserving view (null in slots dropped by 608.2b) so positional
-            // references — ContextTarget(n), EntityReference.Target(n), ContextPlayer(n) —
+            // references — ContextTarget(n), ContextPlayer(n) —
             // resolve by ORIGINAL slot and don't shift onto a later still-valid target.
             alignedTargets = mainAlignedTargets,
             // A pay-X-life additional cost (AdditionalCost.PayXLife, e.g. Vicious Rivalry) feeds
@@ -655,7 +655,7 @@ internal class NonPermanentSpellResolver(
         return allocatedState.addDelayedTrigger(
             com.wingedsheep.engine.event.DelayedTriggeredAbility(
                 id = triggerId,
-                effect = com.wingedsheep.sdk.scripting.effects.MayEffect(
+                effect = com.wingedsheep.sdk.dsl.Effects.May(
                     com.wingedsheep.sdk.scripting.effects.CompositeEffect(
                         listOf(
                             com.wingedsheep.sdk.scripting.effects.GatherCardsEffect(
@@ -773,7 +773,7 @@ internal class NonPermanentSpellResolver(
                     ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
                 c.with(current.withAdded(counterType, 1))
             }
-            events.add(CountersAddedEvent(cardId, counterType.name, 1, cardName))
+            events.add(CountersAddedEvent(cardId, counterType, 1, cardName))
         }
         return updated
     }

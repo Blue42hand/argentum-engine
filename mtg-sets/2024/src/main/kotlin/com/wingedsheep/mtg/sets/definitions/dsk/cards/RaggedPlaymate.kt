@@ -6,9 +6,9 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -30,7 +30,7 @@ val RaggedPlaymate = card("Ragged Playmate") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.powerAtMost(2)))
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
     metadata {
         rarity = Rarity.COMMON

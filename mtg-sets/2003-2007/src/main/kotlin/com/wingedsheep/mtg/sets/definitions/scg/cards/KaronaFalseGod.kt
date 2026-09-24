@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainControlByActivePlayerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,7 +34,7 @@ val KaronaFalseGod = card("Karona, False God") {
         trigger = Triggers.EachUpkeep
         effect = Effects.Composite(
             Effects.Untap(EffectTarget.Self),
-            GainControlByActivePlayerEffect(EffectTarget.Self)
+            Effects.GainControlByActivePlayer(EffectTarget.Self)
         )
     }
 

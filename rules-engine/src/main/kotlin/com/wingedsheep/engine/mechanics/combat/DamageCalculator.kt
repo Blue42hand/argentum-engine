@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
 
 /**
  * Calculates combat damage assignments according to MTG rules (CR 510).
@@ -357,24 +356,10 @@ class DamageCalculator(
                 }
                 if (!damageTypeMatches) continue
 
-                val recipientMatches = when (val recipient = damageEvent.recipient) {
-                    is RecipientFilter.Self -> targetId == entityId
-                    is RecipientFilter.EnchantedCreature, is RecipientFilter.EquippedCreature -> {
-                        val attachedTo = container.get<AttachedToComponent>()?.targetId
-                        targetId == attachedTo
-                    }
-                    is RecipientFilter.Matching -> {
-                        val context = PredicateContext(controllerId = sourceControllerId)
-                        predicateEvaluator.matches(state, projected, targetId, recipient.filter, context)
-                    }
-                    is RecipientFilter.CreatureYouControl -> {
-                        val isCreature = projected.isCreature(targetId)
-                        val isControlled = projected.getController(targetId) == sourceControllerId
-                        isCreature && isControlled
-                    }
-                    is RecipientFilter.Any -> true
-                    else -> false
-                }
+                val recipientMatches = predicateEvaluator.matchesRecipient(
+                    state, projected, targetId, damageEvent.recipient,
+                    PredicateContext(controllerId = sourceControllerId, sourceId = entityId),
+                )
 
                 if (recipientMatches) {
                     totalPrevention += effect.amount ?: 0

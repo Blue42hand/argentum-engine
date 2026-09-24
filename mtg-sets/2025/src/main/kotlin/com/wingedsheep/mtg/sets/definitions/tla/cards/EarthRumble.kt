@@ -3,9 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -44,17 +42,22 @@ val EarthRumble = card("Earth Rumble") {
 
     spell {
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Earthbend(2, land),
             optional = false,
-            reflexiveEffect = Effects.Fight(EffectTarget.ContextTarget(0), EffectTarget.ContextTarget(1)),
-            reflexiveTargetRequirements = listOf(
-                TargetCreature(count = 1, optional = true, filter = TargetFilter.CreatureYouControl),
-                TargetCreature(filter = TargetFilter.CreatureOpponentControls)
-            ),
             descriptionOverride = "Earthbend 2. When you do, up to one target creature you control " +
                 "fights target creature an opponent controls."
-        )
+        ) {
+            val creatureYouControl = target(
+                "target creature you control",
+                TargetCreature(count = 1, optional = true, filter = TargetFilter.CreatureYouControl)
+            )
+            val creatureOpponentControls = target(
+                "target creature opponent controls",
+                TargetCreature(filter = TargetFilter.CreatureOpponentControls)
+            )
+            effect = Effects.Fight(creatureYouControl, creatureOpponentControls)
+        }
     }
 
     metadata {

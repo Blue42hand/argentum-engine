@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -55,7 +55,7 @@ val AppliedGeometry = card("Applied Geometry") {
                 addCardTypes = setOf("CREATURE"),
                 addedSubtypes = setOf(Subtype.FRACTAL),
             ),
-            Effects.AddCountersToCollection(CREATED_TOKENS, Counters.PLUS_ONE_PLUS_ONE, 6),
+            Effects.AddCountersToCollection(CREATED_TOKENS, CounterType.PLUS_ONE_PLUS_ONE, 6),
         )
     }
 

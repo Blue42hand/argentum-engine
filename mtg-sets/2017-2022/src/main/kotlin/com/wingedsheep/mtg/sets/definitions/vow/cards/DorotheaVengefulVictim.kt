@@ -16,8 +16,6 @@ import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -75,13 +73,13 @@ private val DorotheaVengefulVictimFront = card("Dorothea, Vengeful Victim") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = CreateDelayedTriggerEffect(step = Step.END_COMBAT, effect = SacrificeSelfEffect)
+        effect = Effects.CreateDelayedTrigger(step = Step.END_COMBAT, effect = SacrificeSelfEffect)
         description = "When Dorothea attacks or blocks, sacrifice it at end of combat."
     }
 
     triggeredAbility {
         trigger = Triggers.Blocks
-        effect = CreateDelayedTriggerEffect(step = Step.END_COMBAT, effect = SacrificeSelfEffect)
+        effect = Effects.CreateDelayedTrigger(step = Step.END_COMBAT, effect = SacrificeSelfEffect)
         description = "When Dorothea attacks or blocks, sacrifice it at end of combat."
     }
 
@@ -114,7 +112,7 @@ private val DorotheasRetribution = card("Dorothea's Retribution") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.Attacks.event,
                 binding = Triggers.Attacks.binding,
-                effect = CreateTokenEffect(
+                effect = Effects.CreateToken(
                     power = 4,
                     toughness = 4,
                     colors = setOf(Color.WHITE),
@@ -123,7 +121,7 @@ private val DorotheasRetribution = card("Dorothea's Retribution") {
                     tapped = true,
                     attacking = true,
                 ).then(
-                    CreateDelayedTriggerEffect(
+                    Effects.CreateDelayedTrigger(
                         step = Step.END_COMBAT,
                         effect = Effects.SacrificeTarget(EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
                     ),

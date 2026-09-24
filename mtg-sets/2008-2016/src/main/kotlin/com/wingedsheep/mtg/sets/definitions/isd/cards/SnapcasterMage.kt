@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -42,11 +41,11 @@ val SnapcasterMage = card("Snapcaster Mage") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()
-        )
-        effect = Effects.GrantFlashback(EffectTarget.ContextTarget(0))
+        ))
+        trigger = Triggers.EntersBattlefield
+        effect = Effects.GrantFlashback(target)
         description = "When this creature enters, target instant or sorcery card in your " +
             "graveyard gains flashback until end of turn. The flashback cost is equal to its " +
             "mana cost."

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Dragon Wings
@@ -48,7 +47,7 @@ val DragonWings = card("Dragon Wings") {
             binding = TriggerBinding.ANY
         )
         triggerZone = Zone.GRAVEYARD
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.ReturnSelfToBattlefieldAttached(),
             descriptionOverride = "Attach Dragon Wings to this creature?",
             sourceRequiredZone = Zone.GRAVEYARD,

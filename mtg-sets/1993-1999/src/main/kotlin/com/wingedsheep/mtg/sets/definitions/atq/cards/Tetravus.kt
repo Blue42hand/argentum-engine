@@ -10,13 +10,10 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConvertCountersToTokensEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tetravus
@@ -59,7 +56,7 @@ val Tetravus = card("Tetravus") {
 
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.PlusOnePlusOne,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 3,
             selfOnly = true
         )
@@ -69,10 +66,10 @@ val Tetravus = card("Tetravus") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         optional = true
-        effect = ConvertCountersToTokensEffect(
-            counterType = CounterTypeFilter.PlusOnePlusOne,
-            tokenFactory = CreateTokenEffect(
-                count = DynamicAmount.Fixed(1),
+        effect = Effects.ConvertCountersToTokens(
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
+            tokenFactory = Effects.CreateToken(
+                count = 1,
                 power = 1,
                 toughness = 1,
                 colors = emptySet(),
@@ -97,19 +94,17 @@ val Tetravus = card("Tetravus") {
                 CardSource.BattlefieldMatching(
                     filter = GameObjectFilter.Any.createdBySource(),
                     player = Player.Each
-                ),
-                name = "tetraviteTokens"
+                )
             )
             val chosen = chooseAnyNumber(
                 from = mine,
-                name = "exiledTokens",
                 prompt = "Exile any number of Tetravite tokens created with this creature"
             )
             exile(chosen)
             run(
                 Effects.AddDynamicCounters(
-                    counterType = "+1/+1",
-                    amount = DynamicAmount.VariableReference("${chosen.key}_count"),
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                    amount = chosen.count,
                     target = EffectTarget.Self
                 )
             )

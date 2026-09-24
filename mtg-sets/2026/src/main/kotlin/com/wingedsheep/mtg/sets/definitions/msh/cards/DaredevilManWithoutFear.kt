@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -31,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    one trigger no matter how many creatures attack), *not* a per-attacker `attacks()`.
  *  - The trigger body is the Bonehoard Dracosaur shape wrapped in a "you may": `Patterns.Exile.impulse`
  *    exiles the top card into the `daredevilExiled` collection and grants play-this-turn permission
- *    ("You may play that card this turn"), then a [ConditionalEffect] reads that same collection to
+ *    ("You may play that card this turn"), then a [Effects.If] reads that same collection to
  *    decide the +2/+1. Declining the may skips the exile entirely, so no pump and no permission —
  *    exactly the printed sequencing.
  *  - "Hero card" is a subtype match on any card type (Hero is a creature type in this set), the
@@ -60,19 +58,16 @@ val DaredevilManWithoutFear = card("Daredevil, Man Without Fear") {
     // Whenever you attack, you may exile the top card of your library. …
     triggeredAbility {
         trigger = Triggers.YouAttack
-        effect = MayEffect(
-            Effects.Composite(
-                listOf(
-                    Patterns.Exile.impulse(count = 1, storeAs = "daredevilExiled"),
-                    ConditionalEffect(
-                        condition = Conditions.CollectionContainsMatch(
-                            "daredevilExiled",
-                            GameObjectFilter.Any.withSubtype(Subtype.HERO),
-                        ),
-                        effect = Effects.ModifyStats(2, 1, EffectTarget.Self),
-                    ),
-                ),
-            ),
+        effect = Effects.May(
+            Effects.Pipeline {
+                val exiled = runStoringCollection { Patterns.Exile.impulse(count = 1, storeAs = it) }
+                run(
+                    Effects.If(
+                        condition = whenMatches(exiled, GameObjectFilter.Any.withSubtype(Subtype.HERO)),
+                        then = Effects.ModifyStats(2, 1, EffectTarget.Self),
+                    )
+                )
+            },
             descriptionOverride = "You may exile the top card of your library. If that card is a " +
                 "Hero card, Daredevil gets +2/+1 until end of turn. You may play that card this turn.",
         )

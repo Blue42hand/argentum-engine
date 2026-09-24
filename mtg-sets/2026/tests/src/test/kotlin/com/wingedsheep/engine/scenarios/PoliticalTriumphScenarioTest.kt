@@ -82,7 +82,7 @@ class PoliticalTriumphScenarioTest : FunSpec({
     }
 
     // The client renders an intervening-if condition as a "current/required" badge. It used to be
-    // evaluated with sourceId = null, so any condition reading EntityReference.Source — counters on
+    // evaluated with sourceId = null, so any condition reading EffectTarget.Self — counters on
     // this permanent, its power, whether it's attacking — resolved to 0 and the badge sat at "0/4"
     // forever while the ability itself worked. Pin the badge against the real counter count.
     test("the trigger-condition badge tracks the real plan-counter count") {

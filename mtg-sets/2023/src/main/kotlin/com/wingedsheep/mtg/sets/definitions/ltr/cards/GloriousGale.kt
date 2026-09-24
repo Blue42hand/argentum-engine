@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Glorious Gale
@@ -26,10 +25,10 @@ val GloriousGale = card("Glorious Gale") {
     oracleText = "Counter target creature spell. If it was a legendary spell, the Ring tempts you."
 
     spell {
-        target("creature spell", Targets.CreatureSpell)
-        effect = ConditionalEffect(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), 0),
-            effect = Effects.TheRingTemptsYou()
+        val creatureSpell = target("creature spell", Targets.CreatureSpell)
+        effect = Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creatureSpell),
+            then = Effects.TheRingTemptsYou()
         ).then(Effects.CounterSpell())
     }
 

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Unwanted Remake
@@ -38,9 +37,9 @@ val UnwantedRemake = card("Unwanted Remake") {
         "up any time for its mana cost.)"
 
     spell {
-        target("target creature", Targets.Creature)
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.Composite(
-            Effects.Destroy(EffectTarget.ContextTarget(0)),
+            Effects.Destroy(creature),
             // Its controller manifests dread — run the shared recipe under the target's controller.
             Effects.ForEachPlayer(
                 players = Player.ControllerOf("target creature"),

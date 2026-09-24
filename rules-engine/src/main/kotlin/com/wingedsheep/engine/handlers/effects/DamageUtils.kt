@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.core.applyPreventByRemovingCounterToDamage
@@ -26,6 +27,7 @@ import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.LastKnownPermanentComponent
+import com.wingedsheep.engine.state.components.stack.captureLastKnown
 import com.wingedsheep.engine.state.components.battlefield.DealtDamageToThisGameComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtByPlayersThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtToCreaturesThisTurnComponent
@@ -80,8 +82,7 @@ import com.wingedsheep.sdk.scripting.ReplaceDamageWithMill
 import com.wingedsheep.sdk.scripting.ReplacementEffect
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -134,32 +135,12 @@ object DamageUtils {
         controllerOfObject(state, entityId)
 
     /**
-     * Controller of the object *dealing* damage — the other half of the "a source you control"
-     * question ([SourceFilter.YouControl]). A damage source is not always a battlefield permanent:
-     * a burn spell resolving off the stack and an ability's source are damage sources too (CR
-     * 609.7), and neither has a projected entry, which is why this falls back to the base
-     * [ControllerComponent] the same way [replacementHostController] does.
-     */
-    private fun damageSourceController(
-        state: GameState,
-        entityId: EntityId,
-        projected: ProjectedState = state.projectedState
-    ): EntityId? = controllerOfObject(state, entityId, projected)
-
-    /**
      * Projected controller of an object, falling back to its base [ControllerComponent] for
      * objects outside the battlefield (stack, exile) that have no projected entry, and then to the
-     * *last-known* controller of one that has left the battlefield altogether.
-     *
-     * That last step is load-bearing on the source side. A permanent sacrificed to pay its own
-     * ability's cost (Fanatical Firebrand: "{T}, Sacrifice this creature: It deals 1 damage to any
-     * target") deals its damage from the graveyard, where `stripBattlefieldComponents` has already
-     * taken its [ControllerComponent] away — so the projected and base lookups both come back
-     * empty. CR 113.7a and CR 608.2h say the source's last known information answers "a source you
-     * control" in exactly that case; without this fallback every [SourceFilter.YouControl]
-     * replacement (Soul-Scar Mage, Twinflame Tyrant) silently declined for a self-sacrificing
-     * source, while the same ability from a source that stayed on the battlefield (Prodigal
-     * Sorcerer) worked.
+     * *last-known* controller of one that has left the battlefield altogether (CR 608.2h). The
+     * damage *source*'s side of "a source you control" reads the same ladder through the filter's
+     * controller predicate ([PredicateEvaluator]), which is what keeps a self-sacrificed source
+     * (Fanatical Firebrand) answering to Soul-Scar Mage and Twinflame Tyrant.
      *
      * @param projected the projection to read control off — [GameState.projectedState] for ordinary
      *   callers, the in-flight one for a mid-projection caller.
@@ -447,7 +428,7 @@ object DamageUtils {
             if (removed > 0) {
                 events.add(
                     com.wingedsheep.engine.core.CountersRemovedEvent(
-                        targetId, CounterType.DEFENSE.name, removed, targetName,
+                        targetId, CounterType.DEFENSE, removed, targetName,
                         remainingCount = currentDefense - removed
                     )
                 )
@@ -475,7 +456,7 @@ object DamageUtils {
                 }
                 // CR 702.80 / 122.6a: the -1/-1 counters are put on the creature by the wither
                 // source's controller, so "whenever you put counters" triggers see them as yours.
-                events.add(CountersAddedEvent(targetId, CounterType.MINUS_ONE_MINUS_ONE.name, effectiveAmount,
+                events.add(CountersAddedEvent(targetId, CounterType.MINUS_ONE_MINUS_ONE, effectiveAmount,
                     newState.getEntity(targetId)?.get<CardComponent>()?.name ?: "Creature",
                     placedBy = newState.projectedState.getController(sourceId)))
                 // Wither only changes the FORM of the damage (CR 702.80a); the creature was still
@@ -543,8 +524,9 @@ object DamageUtils {
         val targetName = targetContainer?.get<CardComponent>()?.name
         val targetIsPlayer = targetContainer?.get<LifeTotalComponent>() != null
         val targetIsFaceDown = targetContainer?.has<FaceDownComponent>() == true
-        // Capture the recipient's controller + creature-ness now, while it's still on the
-        // battlefield, so recipient-based triggers match even if it dies to this damage (LKI).
+        // Capture the recipient as it is now, while it's still on the battlefield, so
+        // recipient-based triggers match even if it dies to this damage (CR 603.10).
+        val targetLastKnown = if (targetIsPlayer) null else captureLastKnown(state, targetId)
         val targetControllerId = projected.getController(targetId)
         val targetWasCreature = projected.isCreature(targetId)
         // Capture the recipient creature's toughness as it last existed (CR 603.10) — read from the
@@ -573,8 +555,7 @@ object DamageUtils {
                 targetName = targetName,
                 targetIsPlayer = targetIsPlayer,
                 targetWasFaceDown = targetIsFaceDown,
-                targetControllerId = targetControllerId,
-                targetWasCreature = targetWasCreature,
+                targetLastKnown = targetLastKnown,
                 excessAmount = creatureExcessDamage,
                 targetToughnessAtDamage = targetToughnessAtDamage,
                 sourceTargetIdsAtDamage = sourceTargetIds,
@@ -933,7 +914,7 @@ object DamageUtils {
         state: GameState,
         placerId: EntityId,
         targetId: EntityId,
-        counterType: String
+        counterType: CounterType
     ): GameState {
         if (!state.projectedState.isCreature(targetId)) return state
         val byController = state.projectedState.getController(targetId) == placerId
@@ -997,7 +978,7 @@ object DamageUtils {
     fun recordCounterPlacement(
         state: GameState,
         targetId: EntityId,
-        counterType: String,
+        counterType: CounterType,
         placerId: EntityId? = null,
         byController: Boolean = false
     ): Pair<GameState, Boolean> {
@@ -1287,7 +1268,7 @@ object DamageUtils {
      * (`DamageEvent()`, source and recipient both `Any` — Leyline of Punishment, Sunspine Lynx)
      * still shuts prevention off for everyone; a scoped one only covers the damage instances its
      * pattern names, so Excruciator's "damage that would be dealt by **this creature** can't be
-     * prevented" (`SourceFilter.Self`) leaves every other source's damage preventable. Reading
+     * prevented" (`GameObjectFilter.Any.sourceItself()`) leaves every other source's damage preventable. Reading
      * `appliesTo` here is what keeps that promise — the scan used to answer `true` for any
      * `DamageCantBePrevented` on the battlefield at all.
      *
@@ -1324,11 +1305,11 @@ object DamageUtils {
                 val pattern = effect.appliesTo as? EventPattern.DamageEvent ?: continue
                 // Unscoped: the printed "damage can't be prevented" with no source or recipient
                 // clause. Answers for every instance, including the ones this call knows nothing about.
-                if (pattern.source is SourceFilter.Any && pattern.recipient is RecipientFilter.Any) {
+                if (pattern.source == GameObjectFilter.Any && pattern.recipient == Recipient.Any) {
                     return true
                 }
                 val recipient = recipientId ?: continue
-                if (pattern.source !is SourceFilter.Any && sourceId == null) continue
+                if (pattern.source != GameObjectFilter.Any && sourceId == null) continue
                 val hostControllerId = replacementHostController(state, entityId) ?: continue
                 if (!damageSourceMatches(
                         state, projected, pattern.source, sourceId,
@@ -1350,6 +1331,43 @@ object DamageUtils {
             }
         }
         return false
+    }
+
+    /**
+     * Is damage from [sourceId] to [targetId] prevented by a recipient-group shield
+     * ([SerializableModification.PreventAllDamageToGroup] — "prevent all damage that would be dealt
+     * to creatures you control this turn", "… to you this turn by attacking creatures")?
+     *
+     * The recipient filter is re-evaluated now against projected state, with the shield's
+     * controller as the "you" reference, so permanents that came under control later this turn are
+     * protected too. Honours the combat-only variant, the "you and …" player recipient (a player
+     * never matches a permanent filter, so it is checked separately — and a null filter is the
+     * "to you" shield that names no permanent at all), and an optional source filter ("… by
+     * creatures") evaluated against the damage source the same way.
+     */
+    fun isPreventedByRecipientGroupShield(
+        state: GameState,
+        targetId: EntityId,
+        sourceId: EntityId?,
+        isCombatDamage: Boolean,
+        predicateEvaluator: PredicateEvaluator
+    ): Boolean {
+        val evaluator = predicateEvaluator
+        return state.floatingEffects.any { fe ->
+            val mod = fe.effect.modification
+            if (mod !is SerializableModification.PreventAllDamageToGroup) return@any false
+            if (mod.combatOnly && !isCombatDamage) return@any false
+            val predicateContext = PredicateContext(controllerId = fe.controllerId)
+            val recipientMatches = (mod.includesController && targetId == fe.controllerId) ||
+                (mod.filter != null && evaluator.matches(state, state.projectedState, targetId, mod.filter, predicateContext))
+            if (!recipientMatches) return@any false
+            // Fail closed on an unidentifiable source: a "by creatures" shield must not swallow
+            // damage it can't attribute to a creature.
+            mod.sourceFilter == null || (
+                sourceId != null &&
+                    evaluator.matches(state, state.projectedState, sourceId, mod.sourceFilter, predicateContext)
+                )
+        }
     }
 
     /**
@@ -1389,44 +1407,7 @@ object DamageUtils {
             return state to 0
         }
 
-        // Recipient-group shields ("prevent all damage that would be dealt to creatures you control
-        // this turn"): the filter is re-evaluated now against projected state, with the shield's
-        // controller as the "you" reference, so permanents that came under control later this turn
-        // are protected too. Honours the combat-only variant, the "you and …" player recipient
-        // (a player never matches a permanent filter, so it is checked separately — and a null
-        // filter is the "to you" shield that names no permanent at all), and an optional source
-        // filter ("… by creatures") evaluated against the damage source the same way.
-        val groupShieldEvaluator = predicateEvaluator
-        if (updatedEffects.any { fe ->
-                val mod = fe.effect.modification
-                if (mod !is SerializableModification.PreventAllDamageToGroup) return@any false
-                if (mod.combatOnly && !isCombatDamage) return@any false
-                val predicateContext = PredicateContext(controllerId = fe.controllerId)
-                val recipientFilter = mod.filter
-                val recipientMatches = (mod.includesController && targetId == fe.controllerId) ||
-                    (
-                        recipientFilter != null && groupShieldEvaluator.matches(
-                            state,
-                            state.projectedState,
-                            targetId,
-                            recipientFilter,
-                            predicateContext
-                        )
-                        )
-                if (!recipientMatches) return@any false
-                // Fail closed on an unidentifiable source: a "by creatures" shield must not swallow
-                // damage it can't attribute to a creature.
-                val sourceMatches = mod.sourceFilter == null || (
-                    sourceId != null && groupShieldEvaluator.matches(
-                        state,
-                        state.projectedState,
-                        sourceId,
-                        mod.sourceFilter,
-                        predicateContext
-                    )
-                    )
-                sourceMatches
-            }) {
+        if (isPreventedByRecipientGroupShield(state, targetId, sourceId, isCombatDamage, predicateEvaluator = predicateEvaluator)) {
             return state to 0
         }
 
@@ -1452,25 +1433,29 @@ object DamageUtils {
             }
         }
 
-        // Check for creature-type-specific prevention shields (Circle of Solace)
+        // Single-instance shields over sources matching a filter (Circle of Solace: "the next time a
+        // creature of the chosen type would deal damage to you"). The filter is judged against
+        // projected state now, with the shield's controller as "you"; the whole instance is
+        // prevented and the shield is spent.
         if (remainingDamage > 0 && sourceId != null) {
-            val projected = state.projectedState
-            val sourceSubtypes = projected.getSubtypes(sourceId).map { it.uppercase() }.toSet()
-            val sourceCard = state.getEntity(sourceId)?.get<CardComponent>()
-            if (sourceCard != null && sourceCard.isCreature) {
-                for (i in updatedEffects.indices) {
-                    if (remainingDamage <= 0) break
-                    if (i in toRemove) continue
-                    val effect = updatedEffects[i]
-                    val mod = effect.effect.modification
-                    if (mod is SerializableModification.PreventNextDamageFromCreatureType &&
-                        targetId in effect.effect.affectedEntities &&
-                        mod.creatureType.uppercase() in sourceSubtypes
-                    ) {
-                        // Prevent all damage from this instance and consume the shield
-                        remainingDamage = 0
-                        toRemove.add(i)
-                    }
+            val sourceEvaluator = predicateEvaluator
+            for (i in updatedEffects.indices) {
+                if (remainingDamage <= 0) break
+                if (i in toRemove) continue
+                val effect = updatedEffects[i]
+                val mod = effect.effect.modification
+                if (mod is SerializableModification.PreventNextDamageFromMatching &&
+                    targetId in effect.effect.affectedEntities &&
+                    sourceEvaluator.matches(
+                        state,
+                        state.projectedState,
+                        sourceId,
+                        mod.filter,
+                        PredicateContext(controllerId = effect.controllerId)
+                    )
+                ) {
+                    remainingDamage = 0
+                    toRemove.add(i)
                 }
             }
         }
@@ -1646,29 +1631,18 @@ object DamageUtils {
                 if (!damageTypeMatches) continue
                 if (!damageEvent.amount.matches(amount)) continue
 
-                val sourceMatches = when (val source = damageEvent.source) {
-                    is SourceFilter.Any -> true
-                    is SourceFilter.Matching -> {
-                        val context = PredicateContext(controllerId = sourceControllerId, sourceId = entityId, recipientId = targetId)
-                        predicateEvaluator.matches(state, projected, sourceId, source.filter, context)
-                    }
-                    else -> false
-                }
+                val sourceMatches = damageSourceMatches(
+                    state, projected, damageEvent.source, sourceId,
+                    hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
+                )
                 if (!sourceMatches) continue
 
-                val recipientMatches = when (val recipient = damageEvent.recipient) {
-                    is RecipientFilter.Any -> true
-                    is RecipientFilter.You -> targetId == sourceControllerId
-                    is RecipientFilter.Self -> targetId == entityId
-                    is RecipientFilter.Matching -> {
-                        val context = PredicateContext(controllerId = sourceControllerId, sourceId = entityId)
-                        predicateEvaluator.matches(state, projected, targetId, recipient.filter, context)
-                    }
-                    is RecipientFilter.CreatureYouControl -> {
-                        projected.isCreature(targetId) && projected.getController(targetId) == sourceControllerId
-                    }
-                    else -> false
-                }
+                val recipientMatches = damageRecipientMatches(
+                    state, projected, damageEvent.recipient, targetId,
+                    hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
+                )
                 if (!recipientMatches) continue
 
                 // Optional condition gate evaluated against the replacement *source* — e.g.
@@ -1894,13 +1868,13 @@ object DamageUtils {
     }
 
     /**
-     * Whether the source of a damage instance matches a damage replacement's [SourceFilter].
+     * Whether the source of a damage instance matches a damage replacement's source filter.
      *
      * Shared by every `EventPattern.DamageEvent`-scoped replacement scan below (prevention,
-     * doubling, flat/dynamic modification) so the three cannot drift apart — a filter supported by
-     * one is supported by all. That drift was a real bug: [DoubleDamage] silently ignored
-     * [SourceFilter.YouControl] and fell through to "no match", so Twinflame Tyrant never doubled
-     * anything.
+     * doubling, redirection, capping, flooring, flat/dynamic modification) so they cannot drift
+     * apart — a filter supported by one is supported by all. That drift was a real bug: [DoubleDamage]
+     * once silently ignored "a source you control" and fell through to "no match", so Twinflame
+     * Tyrant never doubled anything.
      *
      * @param hostId the permanent hosting the replacement effect
      * @param hostControllerId that permanent's *current* controller — the "you" in "a source you
@@ -1910,51 +1884,26 @@ object DamageUtils {
     private fun damageSourceMatches(
         state: GameState,
         projected: ProjectedState,
-        filter: SourceFilter,
+        filter: GameObjectFilter,
         sourceId: EntityId?,
         hostId: EntityId,
         hostControllerId: EntityId,
         recipientId: EntityId,
         predicateEvaluator: PredicateEvaluator
-    ): Boolean = when (filter) {
-        is SourceFilter.Any -> true
-        is SourceFilter.Self -> sourceId != null && sourceId == hostId
-        // "Enchanted creature" / "equipped creature" on the source side — damage dealt *by* the
-        // permanent this replacement's host is attached to. Same lookup for both, mirroring how
-        // [damageRecipientMatches] shares a branch for the RecipientFilter pair.
-        is SourceFilter.EnchantedCreature, is SourceFilter.EquippedCreature -> {
-            val attachedTo = state.getEntity(hostId)?.get<AttachedToComponent>()?.targetId
-            sourceId != null && sourceId == attachedTo
-        }
-        // "A source you control" — any source (permanent, spell, or ability) whose controller is
-        // this replacement's controller. Projected control for battlefield permanents, the base
-        // ControllerComponent for spells and abilities on the stack, and last-known information for
-        // a source that has left the battlefield (see [controllerOfObject]).
-        is SourceFilter.YouControl ->
-            sourceId != null && damageSourceController(state, sourceId, projected) == hostControllerId
-        // A spell deals its damage while it resolves, and it stays on the stack until its
-        // resolution is over, so "a spell" is a source still carrying its stack component.
-        is SourceFilter.Spell ->
-            sourceId != null && state.getEntity(sourceId)?.has<SpellOnStackComponent>() == true
-        is SourceFilter.SpellYouControl ->
-            sourceId != null && state.getEntity(sourceId)?.has<SpellOnStackComponent>() == true &&
-                damageSourceController(state, sourceId, projected) == hostControllerId
-        is SourceFilter.Matching -> {
-            if (sourceId == null) false
-            else {
-                val context = PredicateContext(
-                    controllerId = hostControllerId,
-                    sourceId = hostId,
-                    recipientId = recipientId,
-                )
-                predicateEvaluator.matches(state, projected, sourceId, filter.filter, context)
-            }
-        }
-        else -> false
-    }
+    ): Boolean = filter == GameObjectFilter.Any || (
+        sourceId != null && predicateEvaluator.matches(
+            state, projected, sourceId, filter,
+            // The host answers "this permanent" / "enchanted creature" (sourceItself(),
+            // attachedToBySource()), its controller "a source you control" — for a spell on the
+            // stack or a source that has left the battlefield too, through the controller
+            // predicate's stack and last-known fallbacks — and the recipient
+            // sharingColorWithRecipient().
+            PredicateContext(controllerId = hostControllerId, sourceId = hostId, recipientId = recipientId),
+        )
+    )
 
     /**
-     * Whether the recipient of a damage instance matches a damage replacement's [RecipientFilter].
+     * Whether the recipient of a damage instance matches a damage replacement's [Recipient].
      * Companion to [damageSourceMatches]; see that doc for why the matching is shared.
      *
      * @param hostId the permanent hosting the replacement effect
@@ -1964,58 +1913,18 @@ object DamageUtils {
     private fun damageRecipientMatches(
         state: GameState,
         projected: ProjectedState,
-        filter: RecipientFilter,
+        recipient: Recipient,
         targetId: EntityId,
         hostId: EntityId,
         hostControllerId: EntityId,
         predicateEvaluator: PredicateEvaluator
-    ): Boolean {
-        // Projected control for battlefield permanents, base control for anything else (a
-        // planeswalker mid-zone-change, a stack object). Null for players.
-        fun controllerOf(entityId: EntityId): EntityId? = projected.getController(entityId)
-            ?: state.getEntity(entityId)?.get<ControllerComponent>()?.playerId
-
-        return when (filter) {
-            is RecipientFilter.Any -> true
-            is RecipientFilter.Self -> targetId == hostId
-            is RecipientFilter.You -> targetId == hostControllerId
-            is RecipientFilter.Opponent -> targetId in state.turnOrder && targetId != hostControllerId
-            is RecipientFilter.AnyPlayer -> targetId in state.turnOrder
-            is RecipientFilter.AnyPlayerOrPlaneswalker ->
-                targetId in state.turnOrder || projected.isPlaneswalker(targetId)
-            // The attachment target, whatever it is: a creature for the first two, a player for
-            // EnchantedPlayer. The `in state.turnOrder` check on the last one is what keeps the
-            // player-scoped filter from matching a permanent the Aura happens to be on.
-            is RecipientFilter.EnchantedCreature, is RecipientFilter.EquippedCreature -> {
-                val attachedTo = state.getEntity(hostId)?.get<AttachedToComponent>()?.targetId
-                targetId == attachedTo
-            }
-            is RecipientFilter.EnchantedPlayer -> {
-                val attachedTo = state.getEntity(hostId)?.get<AttachedToComponent>()?.targetId
-                attachedTo != null && attachedTo in state.turnOrder && targetId == attachedTo
-            }
-            is RecipientFilter.AnyCreature -> projected.isCreature(targetId)
-            is RecipientFilter.CreatureYouControl ->
-                projected.isCreature(targetId) && controllerOf(targetId) == hostControllerId
-            is RecipientFilter.CreatureOpponentControls ->
-                projected.isCreature(targetId) &&
-                    controllerOf(targetId).let { it != null && it != hostControllerId }
-            is RecipientFilter.AnyPermanent -> targetId in state.getBattlefield()
-            is RecipientFilter.PermanentYouControl ->
-                targetId in state.getBattlefield() && controllerOf(targetId) == hostControllerId
-            // "An opponent or a permanent an opponent controls" (Twinflame Tyrant, Fated Firepower).
-            is RecipientFilter.OpponentOrPermanentTheyControl ->
-                if (targetId in state.turnOrder) targetId != hostControllerId
-                else controllerOf(targetId).let { it != null && it != hostControllerId }
-            is RecipientFilter.Matching -> {
-                // sourceId is the permanent that owns the replacement (e.g. Camel), so
-                // source-relative recipient predicates like InSameBandAsSource can resolve
-                // "this creature and creatures banded with it".
-                val context = PredicateContext(controllerId = hostControllerId, sourceId = hostId)
-                predicateEvaluator.matches(state, projected, targetId, filter.filter, context)
-            }
-        }
-    }
+    ): Boolean = predicateEvaluator.matchesRecipient(
+        state, projected, targetId, recipient,
+        // sourceId is the permanent that owns the replacement (a Camel, an Aura), so
+        // source-relative recipients — "this creature", "enchanted creature", "creatures banded
+        // with it" — resolve against it.
+        PredicateContext(controllerId = hostControllerId, sourceId = hostId),
+    )
 
     /**
      * Whether a [DoubleDamage]'s source filter is attachment-scoped — "damage *equipped/enchanted
@@ -2023,15 +1932,15 @@ object DamageUtils {
      *
      * These are the one source shape that is a property of a *specific* creature rather than of the
      * damage's recipient, which is why [damageDoublersAffectingPlayer] excludes them and
-     * [damageDoublersAffectingSource] owns them instead. No other [SourceFilter] paired with a
-     * [DoubleDamage] in the catalog is source-specific — every one of them is
-     * [SourceFilter.Matching] scoped by controller (Twinflame Tyrant, Gratuitous Violence, The
-     * Rollercrusher Ride, Collective Inferno, Kuja, Neriv) — so "damage dealt to you can be doubled"
-     * stays honest for those without a concrete source in hand. [SourceFilter.Self] would be the
-     * next shape to need this treatment if a card ever pairs it with doubling.
+     * [damageDoublersAffectingSource] owns them instead. No other source filter paired with a
+     * [DoubleDamage] in the catalog is source-specific — every one of them is scoped by controller
+     * (Twinflame Tyrant, Gratuitous Violence, The Rollercrusher Ride, Collective Inferno, Kuja,
+     * Neriv) — so "damage dealt to you can be doubled" stays honest for those without a concrete
+     * source in hand. A `sourceItself()` filter would be the next shape to need this treatment if a
+     * card ever pairs it with doubling.
      */
-    private fun isAttachmentScopedSource(filter: SourceFilter): Boolean =
-        filter is SourceFilter.EquippedCreature || filter is SourceFilter.EnchantedCreature
+    private fun isAttachmentScopedSource(filter: GameObjectFilter): Boolean =
+        com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsAttachedToBySource in filter.statePredicates
 
     /**
      * Battlefield permanents whose [DoubleDamage] replacement currently applies to damage dealt to
@@ -2107,7 +2016,7 @@ object DamageUtils {
      * case — overwhelmingly the common one — costs a single component lookup.
      *
      * Only the Equipment half is reachable from the current catalog; no card pairs [DoubleDamage]
-     * with [SourceFilter.EnchantedCreature] yet, so the Aura half is generality carried by the shared
+     * with `GameObjectFilter.Any.attachedToBySource()` yet, so the Aura half is generality carried by the shared
      * matcher rather than behaviour under test.
      */
     fun damageDoublersAffectingSource(state: GameState, sourceId: EntityId, predicateEvaluator: PredicateEvaluator): List<ActiveDamageDoubler> {
@@ -2472,19 +2381,9 @@ object DamageUtils {
                 if (sourceController != playerId) continue
 
                 // Check if the source matches the source filter
-                val sourceMatches = when (val filter = damageBonusComponent.sourceFilter) {
-                    is SourceFilter.Any -> true
-                    is SourceFilter.HasColor -> {
-                        // Check projected state first (for battlefield permanents), fall back to base colors
-                        // (for spells on the stack or other non-battlefield entities)
-                        hasColorForSource(state, projected, sourceId, filter.color)
-                    }
-                    is SourceFilter.Matching -> {
-                        val context = PredicateContext(controllerId = playerId)
-                        predicateEvaluator.matches(state, projected, sourceId, filter.filter, context)
-                    }
-                    else -> false
-                }
+                val sourceMatches = predicateEvaluator.matches(
+                    state, projected, sourceId, damageBonusComponent.sourceFilter, PredicateContext(controllerId = playerId)
+                )
                 if (!sourceMatches) continue
 
                 amplifiedAmount += damageBonusComponent.bonusAmount
@@ -2558,31 +2457,18 @@ object DamageUtils {
                 if (!damageTypeMatches) continue
                 if (!damageEvent.amount.matches(amplifiedAmount)) continue
 
-                val sourceMatches = when (val source = damageEvent.source) {
-                    is SourceFilter.Any -> true
-                    is SourceFilter.Matching -> {
-                        if (sourceId == null) false
-                        else {
-                            val context = PredicateContext(controllerId = sourceControllerId, sourceId = entityId, recipientId = targetId)
-                            predicateEvaluator.matches(state, projected, sourceId, source.filter, context)
-                        }
-                    }
-                    else -> false
-                }
+                val sourceMatches = damageSourceMatches(
+                    state, projected, damageEvent.source, sourceId,
+                    hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
+                )
                 if (!sourceMatches) continue
 
-                val recipientMatches = when (val recipient = damageEvent.recipient) {
-                    is RecipientFilter.Any -> true
-                    is RecipientFilter.Self -> targetId == entityId
-                    is RecipientFilter.Matching -> {
-                        val context = PredicateContext(controllerId = sourceControllerId, sourceId = entityId)
-                        predicateEvaluator.matches(state, projected, targetId, recipient.filter, context)
-                    }
-                    is RecipientFilter.CreatureYouControl -> {
-                        projected.isCreature(targetId) && projected.getController(targetId) == sourceControllerId
-                    }
-                    else -> false
-                }
+                val recipientMatches = damageRecipientMatches(
+                    state, projected, damageEvent.recipient, targetId,
+                    hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
+                )
                 if (!recipientMatches) continue
 
                 amplifiedAmount = effect.maxAmount
@@ -2621,28 +2507,18 @@ object DamageUtils {
                 if (!damageTypeMatches) continue
                 if (!damageEvent.amount.matches(amplifiedAmount)) continue
 
-                val sourceMatches = when (val source = damageEvent.source) {
-                    is SourceFilter.Any -> true
-                    is SourceFilter.Matching -> {
-                        if (sourceId == null) false
-                        else {
-                            val context = PredicateContext(controllerId = sourceControllerId, sourceId = entityId, recipientId = targetId)
-                            predicateEvaluator.matches(state, projected, sourceId, source.filter, context)
-                        }
-                    }
-                    else -> false
-                }
+                val sourceMatches = damageSourceMatches(
+                    state, projected, damageEvent.source, sourceId,
+                    hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
+                )
                 if (!sourceMatches) continue
 
-                val recipientMatches = when (val recipient = damageEvent.recipient) {
-                    is RecipientFilter.Any -> true
-                    is RecipientFilter.Opponent -> targetId in state.turnOrder && targetId != sourceControllerId
-                    is RecipientFilter.Matching -> {
-                        val context = PredicateContext(controllerId = sourceControllerId, sourceId = entityId)
-                        predicateEvaluator.matches(state, projected, targetId, recipient.filter, context)
-                    }
-                    else -> false
-                }
+                val recipientMatches = damageRecipientMatches(
+                    state, projected, damageEvent.recipient, targetId,
+                    hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
+                )
                 if (!recipientMatches) continue
 
                 amplifiedAmount = floor
@@ -2757,22 +2633,6 @@ object DamageUtils {
                 action(effect)
             }
         }
-    }
-
-    /**
-     * Check if a source entity has a specific color — checks projected state first,
-     * then falls back to base CardComponent colors (for spells on the stack).
-     */
-    private fun hasColorForSource(
-        state: GameState,
-        projected: com.wingedsheep.engine.mechanics.layers.ProjectedState,
-        sourceId: EntityId,
-        color: com.wingedsheep.sdk.core.Color
-    ): Boolean {
-        if (projected.hasColor(sourceId, color)) return true
-        val sourceEntity = state.getEntity(sourceId) ?: return false
-        val card = sourceEntity.components[CardComponent::class.java] as? CardComponent ?: return false
-        return card.colors.contains(color)
     }
 
     /**
@@ -2935,7 +2795,7 @@ object DamageUtils {
                 val recipientMatches = damageRecipientMatches(
                     state = state,
                     projected = state.projectedState,
-                    filter = damageEvent.recipient,
+                    recipient = damageEvent.recipient,
                     targetId = targetId,
                     hostId = entityId,
                     hostControllerId = sourceControllerId,
@@ -2960,11 +2820,7 @@ object DamageUtils {
                 val events = mutableListOf<EngineGameEvent>()
                 var newState = state
 
-                // Convert the printed counter name to its CounterType. `fromName` is the shared
-                // parse: it knows the symbolic stat names ("+1/+1", "-1/-1") that `valueOf` alone
-                // cannot reach.
-                val counterType = CounterType.fromName(effect.counterType)
-                    ?: CounterType.PLUS_ONE_PLUS_ONE
+                val counterType = effect.counterType
 
                 val currentCounters = counterHolder.get<CountersComponent>() ?: CountersComponent()
                 val updatedCounters = currentCounters.withAdded(counterType, amount)
@@ -3053,26 +2909,18 @@ object DamageUtils {
                 if (damageEvent !is EventPattern.DamageEvent) continue
                 if (!damageEvent.amount.matches(amount)) continue
 
-                val sourceMatches = when (val source = damageEvent.source) {
-                    is SourceFilter.Any -> true
-                    is SourceFilter.Matching -> {
-                        val context = PredicateContext(controllerId = sourceControllerId, sourceId = entityId, recipientId = targetId)
-                        zones.predicateEvaluator.matches(state, projected, sourceId, source.filter, context)
-                    }
-                    else -> false
-                }
+                val sourceMatches = damageSourceMatches(
+                    state, projected, damageEvent.source, sourceId,
+                    hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = zones.predicateEvaluator
+                )
                 if (!sourceMatches) continue
 
-                val recipientMatches = when (val recipient = damageEvent.recipient) {
-                    is RecipientFilter.Any -> true
-                    is RecipientFilter.Opponent -> targetId in state.turnOrder && targetId != sourceControllerId
-                    is RecipientFilter.You -> targetId == sourceControllerId
-                    is RecipientFilter.Matching -> {
-                        val context = PredicateContext(controllerId = sourceControllerId, sourceId = entityId)
-                        zones.predicateEvaluator.matches(state, projected, targetId, recipient.filter, context)
-                    }
-                    else -> false
-                }
+                val recipientMatches = damageRecipientMatches(
+                    state, projected, damageEvent.recipient, targetId,
+                    hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = zones.predicateEvaluator
+                )
                 if (!recipientMatches) continue
 
                 // Replace the damage: each opponent of the controller mills `amount` cards. Snapshot

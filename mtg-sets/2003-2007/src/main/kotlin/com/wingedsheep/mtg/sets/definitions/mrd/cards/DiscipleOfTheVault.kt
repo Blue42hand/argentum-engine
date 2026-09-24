@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Disciple of the Vault
@@ -23,10 +22,10 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  * *creatures* and artifact tokens count: both are artifacts put into a graveyard from the
  * battlefield.
  *
- * The "you may" is an explicit [MayEffect] rather than `optional = true` on the ability. With a
+ * The "you may" is an explicit [Effects.May] rather than `optional = true` on the ability. With a
  * *player* target the bare `optional` flag is silently lost: `TriggerProcessor` auto-selects the
  * sole legal opponent and puts the trigger straight on the stack, skipping the target-selection
- * decision that would otherwise carry the decline. A `MayEffect` owns its own consent gate, so
+ * decision that would otherwise carry the decline. A `Effects.May` owns its own consent gate, so
  * the trigger routes through the may-then-target path and always asks.
  */
 val DiscipleOfTheVault = card("Disciple of the Vault") {
@@ -45,7 +44,7 @@ val DiscipleOfTheVault = card("Disciple of the Vault") {
             binding = TriggerBinding.ANY
         )
         val opponent = target("target opponent", Targets.Opponent)
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.LoseLife(1, opponent),
             descriptionOverride = "You may have target opponent lose 1 life"
         )

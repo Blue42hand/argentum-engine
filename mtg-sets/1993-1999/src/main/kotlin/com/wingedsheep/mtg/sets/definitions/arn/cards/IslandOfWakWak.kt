@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.arn.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Island of Wak-Wak
@@ -27,7 +27,7 @@ val IslandOfWakWak = card("Island of Wak-Wak") {
             "target creature with flying",
             TargetObject(filter = TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)))
         )
-        effect = Effects.SetBasePower(creature, DynamicAmount.Fixed(0), Duration.EndOfTurn)
+        effect = Effects.SetBasePower(creature, DynamicAmounts.fixed(0), Duration.EndOfTurn)
     }
 
     metadata {

@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -28,8 +26,8 @@ val SoulShred = card("Soul Shred") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK)))
         effect = Effects.Composite(
-            DealDamageEffect(3, t),
-            GainLifeEffect(3)
+            Effects.DealDamage(3, t),
+            Effects.GainLife(3)
         )
     }
     metadata {

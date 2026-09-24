@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Costs
@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -37,7 +36,7 @@ val SleepCursedFaerie = card("Sleep-Cursed Faerie") {
 
     replacementEffect(EntersTapped())
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.Named(Counters.STUN),
+        counterType = CounterType.STUN,
         count = 3,
         selfOnly = true
     ))

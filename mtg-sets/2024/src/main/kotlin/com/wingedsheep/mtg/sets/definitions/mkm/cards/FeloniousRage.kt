@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 
 /**
@@ -38,7 +37,7 @@ val FeloniousRage = card("Felonious Rage") {
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, t),
             Effects.GrantKeyword(Keyword.HASTE, t),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 effect = Effects.CreateToken(
                     power = 2,
                     toughness = 2,

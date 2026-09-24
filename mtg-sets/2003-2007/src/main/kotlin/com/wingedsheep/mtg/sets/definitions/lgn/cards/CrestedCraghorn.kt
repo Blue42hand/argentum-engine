@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Crested Craghorn
@@ -28,10 +27,10 @@ val CrestedCraghorn = card("Crested Craghorn") {
     keywords(Keyword.HASTE, Keyword.PROVOKE)
 
     triggeredAbility {
+        val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
         trigger = Triggers.Attacks
         optional = true
-        target = Targets.CreatureOpponentControls
-        effect = Effects.Provoke(EffectTarget.ContextTarget(0))
+        effect = Effects.Provoke(creatureOpponentControls)
     }
 
     metadata {

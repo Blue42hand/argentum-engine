@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -49,7 +49,7 @@ val AdditiveEvolution = card("Additive Evolution") {
             imageUri = "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
         ).then(
             Effects.AddCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 3,
                 EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
@@ -61,7 +61,7 @@ val AdditiveEvolution = card("Additive Evolution") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
             .then(Effects.GrantKeyword(Keyword.VIGILANCE, creature))
         description = "At the beginning of combat on your turn, put a +1/+1 counter on target " +
             "creature you control. It gains vigilance until end of turn."

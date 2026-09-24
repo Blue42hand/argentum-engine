@@ -8,9 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Vow to Erebor — The Hobbit #31
@@ -37,16 +35,13 @@ val VowToErebor = card("Vow to Erebor") {
         "If it's a Dwarf, you may attach an Equipment you control to it."
 
     spell {
-        target = Targets.CreatureYouControl
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
-            Effects.Untap(EffectTarget.ContextTarget(0)),
-            Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
-            ConditionalEffect(
-                condition = Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.withSubtype(Subtype.DWARF),
-                    targetIndex = 0
-                ),
-                effect = Effects.Pipeline {
+            Effects.Untap(creatureYouControl),
+            Effects.ModifyStats(2, 2, creatureYouControl, Duration.EndOfTurn),
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.DWARF), creatureYouControl),
+                then = Effects.Pipeline {
                     val equipment = gather(
                         filter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT),
                         player = Player.You,
@@ -61,8 +56,8 @@ val VowToErebor = card("Vow to Erebor") {
                     )
                     run(
                         Effects.AttachTargetEquipmentToCreature(
-                            equipmentTarget = EffectTarget.PipelineTarget(chosen.key),
-                            creatureTarget = EffectTarget.ContextTarget(0)
+                            equipmentTarget = chosen.asTarget,
+                            creatureTarget = creatureYouControl
                         )
                     )
                 }

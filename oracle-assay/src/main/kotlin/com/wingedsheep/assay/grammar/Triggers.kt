@@ -6,8 +6,10 @@ import com.wingedsheep.assay.syntax.alternate
 import com.wingedsheep.assay.syntax.bind
 import com.wingedsheep.assay.syntax.oneOf
 import com.wingedsheep.assay.syntax.phrase
+import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.AbilityId
@@ -16,7 +18,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.TriggerSpec
@@ -130,7 +131,7 @@ object Triggers {
      *
      * **"You may …" needs nothing done to it here, and that is new.** A triggered ability used to
      * spell the controller's choice with an `optional` flag of its own while a spell spelled the
-     * identical English as a `MayEffect`, so this function had to lower one into the other — one
+     * identical English as a `Effects.May`, so this function had to lower one into the other — one
      * sentence, two SDK spellings, and a rule per spelling would have been two readings of one text.
      * `TriggeredAbility.optional` is gone; the gate the engine always built from it is the model
      * now, and a trigger's effect clause is the same value a spell's clause is. The lowering, its
@@ -223,7 +224,7 @@ object Triggers {
         // card's trigger-time-only gate as a condition the engine re-checks on resolution — the
         // reversible-but-wrong class this module's fail-closed matching exists to catch.
         spellEffect = ability.interveningIf
-            ?.let { ConditionalEffect(condition = it, effect = ability.effect) }
+            ?.let { Effects.If(condition = it, then = ability.effect) }
             ?: ability.effect,
         targetRequirements = listOfNotNull(ability.targetRequirement) +
             ability.additionalTargetRequirements,
@@ -627,7 +628,7 @@ object Triggers {
         recipient: Phrase<GameObjectFilter>?,
         placedBy: Player?,
     ): Prefix {
-        fun spec(kind: String, filter: GameObjectFilter) = SdkTriggers.countersPlacedOn(
+        fun spec(kind: CounterType, filter: GameObjectFilter) = SdkTriggers.countersPlacedOn(
             filter = filter,
             counterType = kind,
             firstTimeEachTurn = false,
@@ -644,8 +645,9 @@ object Triggers {
                 }
                 match { triggerSpec ->
                     val event = triggerSpec.event as? EventPattern.CountersPlacedEvent ?: return@match null
-                    if (spec(event.counterType, event.filter) != triggerSpec) return@match null
-                    bind("kind" to event.counterType, "recipient" to event.filter)
+                    val kind = event.counterType ?: return@match null
+                    if (spec(kind, event.filter) != triggerSpec) return@match null
+                    bind("kind" to kind, "recipient" to event.filter)
                 }
             },
             Steps.step,
@@ -796,7 +798,7 @@ object Triggers {
         ),
         // "Whenever this creature deals damage to a Vampire, …" — the *recipient* as a noun phrase
         // rather than one of the two nouns the three constants above freeze ("a player", "a
-        // creature"). `RecipientFilter.Matching` is the SDK's own slot for it, so this is one
+        // creature"). `Recipient.Object` is the SDK's own slot for it, so this is one
         // [slottedTriggerRule] over the whole filter vocabulary and not a row per tribe: Vampire
         // Slayer, Dinosaur Hunter, Spider-Slayer and East-Mark Cavalier's "a Goblin or Orc" are four
         // values of one slot.
@@ -815,10 +817,10 @@ object Triggers {
             noun = Filters.indefinite,
             effect = Steps.triggeredStep,
             valueOf = { spec ->
-                ((spec.event as? EventPattern.DealsDamageEvent)?.recipient as? RecipientFilter.Matching)
+                ((spec.event as? EventPattern.DealsDamageEvent)?.recipient as? Recipient.Object)
                     ?.filter
             },
-            spec = { SdkTriggers.dealsDamage(recipient = RecipientFilter.Matching(it)) },
+            spec = { SdkTriggers.dealsDamage(recipient = Recipient.Object(it)) },
         ),
         triggerRule("whenever ${Normalizer.SELF} is dealt damage", SdkTriggers.TakesDamage),
         // Valiant, and one row rather than a shape over `BecomesTargetEvent`'s six flags: the SDK

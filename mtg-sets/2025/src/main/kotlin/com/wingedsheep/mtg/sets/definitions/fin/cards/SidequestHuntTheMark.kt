@@ -3,21 +3,18 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sidequest: Hunt the Mark // Yiazmat, Ultimate Mark — Final Fantasy #119
@@ -35,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The end-step trigger's intervening-"if" reads the opponents' creatures-died-this-turn
  * tracker ([DynamicAmount.TurnTracking] over [Player.EachOpponent] sums across opponents);
- * the "Then if" Treasure-count check is a resolution-time [ConditionalEffect], evaluated
+ * the "Then if" Treasure-count check is a resolution-time [Effects.If], evaluated
  * after the Treasure is created.
  */
 private val YiazmatUltimateMark = card("Yiazmat, Ultimate Mark") {
@@ -96,15 +93,15 @@ private val SidequestHuntTheMarkFront = card("Sidequest: Hunt the Mark") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmount.TurnTracking(Player.EachOpponent, TurnTracker.CREATURES_DIED),
+            DynamicAmounts.creaturesDiedThisTurn(Player.EachOpponent),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(1),
+            1,
         )
         effect = Effects.Composite(
             Effects.CreateTreasure(1),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact.withSubtype("Treasure")),
-                effect = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
     }

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -43,7 +42,7 @@ val QuakefootCyclops = card("Quakefoot Cyclops") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = ForEachTargetEffect(listOf(Effects.CantBlock(EffectTarget.ContextTarget(0))))
+        effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0)))
     }
 
     triggeredAbility {

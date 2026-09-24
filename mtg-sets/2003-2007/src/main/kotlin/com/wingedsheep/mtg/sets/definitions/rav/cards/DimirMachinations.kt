@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.transmute
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dimir Machinations
@@ -35,7 +34,7 @@ val DimirMachinations = card("Dimir Machinations") {
         target("target player", Targets.Player)
         effect = Effects.Pipeline {
             val looked = gather(
-                CardSource.TopOfLibrary(DynamicAmount.Fixed(3), Player.TargetPlayer)
+                CardSource.TopOfLibrary(3, Player.TargetPlayer)
             )
             val (exiled, rest) = chooseAnyNumberSplit(
                 from = looked,

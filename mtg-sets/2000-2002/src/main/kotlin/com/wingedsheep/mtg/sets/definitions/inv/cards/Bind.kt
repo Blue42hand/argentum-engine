@@ -23,7 +23,7 @@ val Bind = card("Bind") {
     oracleText = "Counter target activated ability. (Mana abilities can't be targeted.)\nDraw a card."
 
     spell {
-        target = Targets.ActivatedAbility
+        val activatedAbility = target("target activated ability", Targets.ActivatedAbility)
         effect = Effects.CounterAbility() then Effects.DrawCards(1)
     }
 

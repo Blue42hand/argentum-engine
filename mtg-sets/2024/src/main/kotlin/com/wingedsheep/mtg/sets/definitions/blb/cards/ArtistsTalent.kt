@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.NoncombatDamageBonus
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -38,11 +36,11 @@ val ArtistsTalent = card("Artist's Talent") {
     // Level 1: Whenever you cast a noncreature spell, you may discard a card. If you do, draw a card.
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 listOf(
                     Patterns.Hand.discardCards(1),
-                    DrawCardsEffect(1, EffectTarget.Controller)
+                    Effects.DrawCards(1, EffectTarget.Controller)
                 )
             )
         )

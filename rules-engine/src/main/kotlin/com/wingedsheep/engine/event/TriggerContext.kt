@@ -18,6 +18,7 @@ import com.wingedsheep.engine.core.TurnFaceUpEvent
 import com.wingedsheep.engine.core.UntappedEvent
 import com.wingedsheep.engine.core.PhasedInEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
@@ -89,12 +90,12 @@ data class TriggerContext(
      */
     val lastKnownCardTypes: Set<String>? = null,
     /**
-     * Last-known counter map (counter-type-string → count) when the triggering source left
+     * Last-known counter map (kind → count) when the triggering source left
      * the battlefield. Used by triggers that move every counter onto another permanent
      * (e.g., Essence Channeler's "put its counters on target creature you control").
      * Null when the trigger's source never left the battlefield (or had no counters).
      */
-    val lastKnownCounters: Map<String, Int>? = null,
+    val lastKnownCounters: Map<CounterType, Int>? = null,
     /**
      * Per-player damage dealt to the triggering source this turn, captured at LTB time.
      * Read by LTB effects like Grothama's "each player draws X cards where X is the damage
@@ -260,7 +261,7 @@ data class TriggerContext(
                 )
                 is DamageDealtEvent -> TriggerContext(
                     triggeringEntityId = event.targetId,
-                    triggeringPlayerId = event.targetControllerId,
+                    triggeringPlayerId = event.targetLastKnown?.controllerId,
                     damageAmount = event.amount,
                     excessDamageAmount = event.excessAmount.takeIf { it > 0 },
                     recipientToughnessAtDamage = event.targetToughnessAtDamage

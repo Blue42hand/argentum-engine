@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 
 
@@ -27,8 +25,8 @@ val BroadsideBarrage = card("Broadside Barrage") {
     spell {
         val t = target("target", TargetCreatureOrPlaneswalker())
         effect = Effects.Composite(
-            DealDamageEffect(5, t),
-            DrawCardsEffect(1),
+            Effects.DealDamage(5, t),
+            Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)
         )
     }

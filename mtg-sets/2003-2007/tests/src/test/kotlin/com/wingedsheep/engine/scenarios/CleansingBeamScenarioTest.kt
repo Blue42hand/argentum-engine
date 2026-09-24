@@ -21,7 +21,7 @@ import com.wingedsheep.engine.core.Outcome
  * each other creature that shares a color with it."
  *
  * The radiance group is a resolution-time battlefield filter relative to the spell's own target
- * (`sharingColorWith(EntityReference.Target(0))`), which is what these tests pin down: a
+ * (`sharingColorWith(EffectTarget.ContextTarget(0))`), which is what these tests pin down: a
  * multicolor target radiates to every creature sharing *any* of its colors, on both sides of
  * the table; a colorless target radiates to nothing (ruling 2005-10-01); and the target itself
  * is damaged exactly once.

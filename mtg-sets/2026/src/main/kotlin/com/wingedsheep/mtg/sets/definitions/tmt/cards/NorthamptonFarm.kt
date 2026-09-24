@@ -8,14 +8,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Northampton Farm
@@ -51,32 +46,22 @@ val NorthamptonFarm = card("Northampton Farm") {
     // your control; everything else exiled with it goes to its owner's hand.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "exiled"),
-                SelectFromCollectionEffect(
-                    from = "exiled",
-                    // "Return a creature card" is mandatory when one is available (ChooseExactly clamps
-                    // to the eligible cards: auto-selects the lone creature, no-ops on an empty pile).
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Creature,
-                    showAllCards = true,
-                    storeSelected = "toBattlefield",
-                    storeRemainder = "toHand",
-                    prompt = "Return a creature card to the battlefield under your control",
-                    selectedLabel = "Return to the battlefield",
-                    remainderLabel = "Return to owner's hand"
-                ),
-                MoveCollectionEffect(
-                    from = "toBattlefield",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You)
-                ),
-                MoveCollectionEffect(
-                    from = "toHand",
-                    destination = CardDestination.ToZone(Zone.HAND)
-                )
+        effect = Effects.Pipeline {
+            val exiled = gather(CardSource.FromLinkedExile())
+            // "Return a creature card" is mandatory when one is available (ChooseExactly clamps
+            // to the eligible cards: auto-selects the lone creature, no-ops on an empty pile).
+            val (toBattlefield, toHandCards) = chooseExactlySplit(
+                1,
+                from = exiled,
+                filter = GameObjectFilter.Creature,
+                showAllCards = true,
+                prompt = "Return a creature card to the battlefield under your control",
+                selectedLabel = "Return to the battlefield",
+                remainderLabel = "Return to owner's hand"
             )
-        )
+            move(toBattlefield, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+            toHand(toHandCards)
+        }
     }
 
     metadata {

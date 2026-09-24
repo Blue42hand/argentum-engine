@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GrantToEnchantedCreatureTypeGroupEffect
 import com.wingedsheep.sdk.scripting.ModifyStats
 
 /**
@@ -30,7 +30,7 @@ val CrownOfSuspicion = card("Crown of Suspicion") {
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        effect = GrantToEnchantedCreatureTypeGroupEffect(
+        effect = Effects.GrantToEnchantedCreatureTypeGroup(
             powerModifier = 2,
             toughnessModifier = -1
         )

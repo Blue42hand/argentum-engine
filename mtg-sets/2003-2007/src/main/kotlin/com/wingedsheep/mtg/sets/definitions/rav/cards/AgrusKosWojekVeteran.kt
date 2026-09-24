@@ -33,11 +33,11 @@ val AgrusKosWojekVeteran = card("Agrus Kos, Wojek Veteran") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withColor(Color.RED).attacking()),
-                Effects.ModifyStats(2, 0, EffectTarget.Self)
+                Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withColor(Color.WHITE).attacking()),
-                Effects.ModifyStats(0, 2, EffectTarget.Self)
+                Effects.ModifyStats(0, 2, EffectTarget.IterationEntity)
             )
         )
     }

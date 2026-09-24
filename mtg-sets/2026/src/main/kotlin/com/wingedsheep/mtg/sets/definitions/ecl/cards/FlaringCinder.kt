@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -31,7 +30,7 @@ val FlaringCinder = card("Flaring Cinder") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Patterns.Hand.discardCards(1)
                 .then(Effects.DrawCards(1)),
             descriptionOverride = "You may discard a card. If you do, draw a card."
@@ -46,7 +45,7 @@ val FlaringCinder = card("Flaring Cinder") {
             ),
             TriggerBinding.ANY
         )
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Patterns.Hand.discardCards(1)
                 .then(Effects.DrawCards(1)),
             descriptionOverride = "You may discard a card. If you do, draw a card."

@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -25,7 +24,7 @@ val MijaeDjinn = card("Mijae Djinn") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = FlipCoinEffect(
+        effect = Effects.FlipCoin(
             lostEffect = Effects.RemoveFromCombat(EffectTarget.Self).then(Effects.Tap(EffectTarget.Self)),
         )
     }

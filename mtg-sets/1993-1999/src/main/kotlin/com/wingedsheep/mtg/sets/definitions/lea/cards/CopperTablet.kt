@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -25,7 +25,7 @@ val CopperTablet = card("Copper Tablet") {
     oracleText = "At the beginning of each player's upkeep, this artifact deals 1 damage to that player."
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
     metadata {
         rarity = Rarity.UNCOMMON

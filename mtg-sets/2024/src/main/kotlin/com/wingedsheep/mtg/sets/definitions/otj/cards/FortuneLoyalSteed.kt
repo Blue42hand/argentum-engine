@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 
 /**
  * Fortune, Loyal Steed
@@ -63,7 +62,7 @@ val FortuneLoyalSteed = card("Fortune, Loyal Steed") {
     triggeredAbility {
         trigger = Triggers.Attacks
         triggerRestriction = Conditions.SourceIsSaddled
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,
             effect = Effects.Pipeline {
                 // Up to one of the creatures that saddled Fortune this turn.

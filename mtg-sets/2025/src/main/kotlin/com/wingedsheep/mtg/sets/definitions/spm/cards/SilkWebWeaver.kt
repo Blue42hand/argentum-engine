@@ -50,8 +50,8 @@ val SilkWebWeaver = card("Silk, Web Weaver") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(2, 2, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
+                Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
             )
         )
         description = "Creatures you control get +2/+2 and gain vigilance until end of turn."

@@ -29,8 +29,8 @@ val HaradrimSpearmaster = card("Haradrim Spearmaster") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
-        effect = Effects.ModifyStats(1, 0)
+        val anotherCreatureYouControl = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        effect = Effects.ModifyStats(1, 0, target = anotherCreatureYouControl)
     }
 
     metadata {

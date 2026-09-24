@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -52,7 +52,7 @@ val UnderwaterTunnelSlimyAquarium = card("Underwater Tunnel // Slimy Aquarium") 
             effect = Effects.Composite(
                 Patterns.Library.manifestDread(),
                 Effects.AddCounters(
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     1,
                     EffectTarget.PipelineTarget("manifestDreadManifested")
                 )

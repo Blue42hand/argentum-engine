@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 /**
  * Tragedy Feaster — Secrets of Strixhaven #102
@@ -42,7 +42,7 @@ val TragedyFeaster = card("Tragedy Feaster") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         triggerRestriction = Conditions.Not(Conditions.YouGainedLifeThisTurn)
-        effect = SacrificeEffect(GameObjectFilter.Permanent)
+        effect = Effects.SacrificeOwn(GameObjectFilter.Permanent)
         description = "Infusion — At the beginning of your end step, sacrifice a permanent unless " +
             "you gained life this turn."
     }

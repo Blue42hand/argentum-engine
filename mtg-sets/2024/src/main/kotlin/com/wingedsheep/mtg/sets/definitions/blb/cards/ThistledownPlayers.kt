@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +26,7 @@ val ThistledownPlayers = card("Thistledown Players") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val nonland = target("nonland permanent", Targets.NonlandPermanent)
-        effect = TapUntapEffect(nonland, tap = false)
+        effect = Effects.Untap(nonland)
     }
 
     metadata {

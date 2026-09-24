@@ -7,7 +7,6 @@ import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.targeting.PlayerProtectionRules
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -80,19 +79,6 @@ internal class PreventCombatDamageFromGroupModifier(
     }
 }
 
-/** Prevents damage from attacking creatures to protected players (Deep Wood). */
-internal class PreventDamageFromAttackingCreaturesModifier : CombatDamageModifier {
-    override fun modify(state: GameState, projected: ProjectedState, assignments: List<CombatDamageAssignment>): List<CombatDamageAssignment> {
-        val protectedPlayers = state.floatingEffects
-            .filter { it.effect.modification is SerializableModification.PreventDamageFromAttackingCreatures }
-            .flatMap { it.effect.affectedEntities }
-            .toSet()
-        if (protectedPlayers.isEmpty()) return assignments
-        val attackerIds = state.findEntitiesWith<AttackingComponent>().map { it.first }.toSet()
-        return assignments.filter { !(it.sourceId in attackerIds && it.targetId in protectedPlayers) }
-    }
-}
-
 /** Prevents damage blocked by protection from color/subtype (Rule 702.16). */
 internal class ProtectionModifier(
     private val predicateEvaluator: PredicateEvaluator
@@ -133,8 +119,7 @@ internal class ProtectionModifier(
  * [DamageUtils.dealDamageToTarget] — the prevention has to happen here, by dropping the assignment.
  *
  * The protected player is the assignment target, the attacking creature its source; this mirrors
- * the keyword [ProtectionModifier] and the floating-effect [PreventDamageFromAttackingCreaturesModifier]
- * (Deep Wood). [PlayerProtectionRules.isProtectedFromSource] is false for any non-player or
+ * the keyword [ProtectionModifier]. [PlayerProtectionRules.isProtectedFromSource] is false for any non-player or
  * unprotected target, so creature assignments pass through untouched. Protection prevents damage
  * (CR 702.16e), but damage that simply can't be prevented still reduces life — so this is skipped
  * when prevention is globally disabled (Fear, Fire, Foes! / Sunspine Lynx); cf. The One Ring's

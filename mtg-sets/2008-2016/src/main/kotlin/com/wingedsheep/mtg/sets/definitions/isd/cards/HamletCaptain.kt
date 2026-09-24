@@ -32,14 +32,14 @@ val HamletCaptain = card("Hamlet Captain") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(), excludeSelf = true),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     triggeredAbility {
         trigger = Triggers.Blocks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(), excludeSelf = true),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {

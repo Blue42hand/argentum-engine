@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -33,8 +31,8 @@ val MagmaGiant = card("Magma Giant") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.Self)),
-            ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(2, EffectTarget.Controller)))
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(2, EffectTarget.IterationEntity)),
+            Effects.ForEachPlayer(Player.Each, Effects.DealDamage(2, EffectTarget.Controller))
         )
     }
     metadata {

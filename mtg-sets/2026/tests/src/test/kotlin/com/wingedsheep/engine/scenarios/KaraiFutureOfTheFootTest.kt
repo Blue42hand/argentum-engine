@@ -23,7 +23,7 @@ import com.wingedsheep.engine.core.Outcome
  * target creature card from your graveyard to your hand. If her sneak cost was paid this turn,
  * instead return that card to the battlefield."
  *
- * Both branches of the trigger's [com.wingedsheep.sdk.scripting.effects.ConditionalEffect] are
+ * Both branches of the trigger's [com.wingedsheep.sdk.dsl.Effects.If] are
  * exercised: the default (cast normally → return to hand) and the "instead" branch (cast for her
  * sneak cost → put onto the battlefield, since a creature can only be put onto the battlefield by
  * its sneak cost on the very turn it's sneaked in, exactly when the ANDed `SourceEnteredThisTurn`

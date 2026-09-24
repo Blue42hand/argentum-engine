@@ -4,14 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterCondition
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
@@ -32,11 +28,11 @@ val ConfusticateAndBebother = card("Confusticate and Bebother") {
         modal(chooseCount = 1) {
             mode("Counter target spell unless its controller pays {4}") {
                 val t = target("target", TargetSpell())
-                effect = CounterEffect(condition = CounterCondition.UnlessPaysMana(ManaCost.parse("{4}")))
+                effect = Effects.CounterUnlessPays("{4}")
             }
             mode("Draw two cards, then discard a card") {
                 effect = Effects.Composite(
-                    DrawCardsEffect(2),
+                    Effects.DrawCards(2),
                     Patterns.Hand.discardCards(1)
                 )
             }

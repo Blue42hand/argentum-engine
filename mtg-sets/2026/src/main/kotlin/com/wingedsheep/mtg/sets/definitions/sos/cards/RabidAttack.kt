@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -34,18 +32,16 @@ val RabidAttack = card("Rabid Attack") {
 
     spell {
         target = TargetCreature(filter = TargetFilter.Creature.youControl(), unlimited = true)
-        effect = ForEachTargetEffect(
-            listOf(
-                Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
-                GrantTriggeredAbilityEffect(
-                    ability = TriggeredAbility.create(
-                        trigger = Triggers.Dies.event,
-                        binding = Triggers.Dies.binding,
-                        effect = Effects.DrawCards(1),
-                        descriptionOverride = "When this creature dies, draw a card.",
-                    ),
-                    target = EffectTarget.ContextTarget(0),
+        effect = Effects.ForEachTarget(
+            Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
+            Effects.GrantTriggeredAbility(
+                ability = TriggeredAbility.create(
+                    trigger = Triggers.Dies.event,
+                    binding = Triggers.Dies.binding,
+                    effect = Effects.DrawCards(1),
+                    descriptionOverride = "When this creature dies, draw a card.",
                 ),
+                target = EffectTarget.ContextTarget(0),
             ),
         )
     }

@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -8,18 +7,11 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Waltz of Rage
@@ -32,7 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Two clauses:
  *  - The chosen creature deals damage equal to its power to each OTHER creature: a
  *    [ForEachInGroupEffect] over [GroupFilter.AllCreatures] with `.otherThanTarget()` (excludes the
- *    chosen creature), each iterated creature ([EffectTarget.Self]) taking [DynamicAmounts.targetPower]
+ *    chosen creature), each iterated creature ([EffectTarget.IterationEntity]) taking [DynamicAmounts.targetPower]
  *    damage *from the chosen creature itself* (`damageSource = ContextTarget(0)` — so combat keywords
  *    like deathtouch / lifelink on the chosen creature apply, and "dealt damage by" triggers see the
  *    correct source).
@@ -56,29 +48,23 @@ val WaltzOfRage = card("Waltz of Rage") {
             // Target creature you control deals damage equal to its power to each other creature.
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
-                effect = DealDamageEffect(
-                    amount = DynamicAmounts.targetPower(0),
-                    target = EffectTarget.Self,
+                effect = Effects.DealDamage(
+                    amount = DynamicAmounts.powerOf(chosen),
+                    target = EffectTarget.IterationEntity,
                     damageSource = chosen
                 )
             ),
             // Until end of turn, whenever a creature you control dies, exile the top card of your
             // library. You may play it until the end of your next turn.
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 trigger = Triggers.YourCreatureDies,
                 expiry = DelayedTriggerExpiry.EndOfTurn,
                 fireOnce = false,
-                effect = Effects.Composite(
-                    GatherCardsEffect(
-                        source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                        storeAs = "waltzExiled"
-                    ),
-                    MoveCollectionEffect(
-                        from = "waltzExiled",
-                        destination = CardDestination.ToZone(Zone.EXILE)
-                    ),
-                    GrantMayPlayFromExileEffect("waltzExiled", MayPlayExpiry.UntilEndOfNextTurn)
-                )
+                effect = Effects.Pipeline {
+                    val waltzExiled = gather(CardSource.TopOfLibrary(1))
+                    exile(waltzExiled)
+                    run(Effects.GrantMayPlayFromExile(waltzExiled, MayPlayExpiry.UntilEndOfNextTurn))
+                }
             )
         )
     }

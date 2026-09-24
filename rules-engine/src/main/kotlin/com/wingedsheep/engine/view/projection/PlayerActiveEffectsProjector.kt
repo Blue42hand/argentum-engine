@@ -81,8 +81,7 @@ internal class PlayerActiveEffectsProjector(
         var preventDamageTotal = 0
         var preventsAllDamage = false
         var preventsAllCombatDamage = false
-        var preventsAttackingCreatureDamage = false
-        val preventedCreatureTypes = mutableSetOf<String>()
+        val preventedNextFromMatching = mutableSetOf<String>()
         val preventedCombatDamageSources = mutableSetOf<String>()
         val preventedAllDamageSources = mutableSetOf<String>()
         val preventedFromSources = mutableSetOf<EntityId>()
@@ -116,16 +115,11 @@ internal class PlayerActiveEffectsProjector(
                 is SerializableModification.PreventAllDamageTo -> {
                     tally.preventsAllDamage = true
                 }
-                // Deep Wood. Unlike the two above this one is scoped to the shield's controller,
-                // so it badges only the protected player.
-                is SerializableModification.PreventDamageFromAttackingCreatures -> {
-                    tally.preventsAttackingCreatureDamage = true
-                }
                 is SerializableModification.PreventNextDamage -> {
                     tally.preventDamageTotal += modification.remainingAmount
                 }
-                is SerializableModification.PreventNextDamageFromCreatureType -> {
-                    tally.preventedCreatureTypes.add(modification.creatureType)
+                is SerializableModification.PreventNextDamageFromMatching -> {
+                    tally.preventedNextFromMatching.add(modification.filter.description)
                 }
                 is SerializableModification.PreventAllDamageFromSource -> {
                     tally.preventedFromSources.add(modification.damageSourceId)
@@ -163,16 +157,6 @@ internal class PlayerActiveEffectsProjector(
                 )
             )
         }
-        if (preventsAttackingCreatureDamage) {
-            effects.add(
-                ClientPlayerEffect(
-                    effectId = "prevent_damage_from_attackers",
-                    name = "No Attacker Damage",
-                    description = "Damage that attacking creatures would deal to you this turn is prevented",
-                    icon = "prevent-damage"
-                )
-            )
-        }
         for (sourceDescription in preventedCombatDamageSources) {
             effects.add(
                 ClientPlayerEffect(
@@ -203,12 +187,12 @@ internal class PlayerActiveEffectsProjector(
                 )
             )
         }
-        for (creatureType in preventedCreatureTypes) {
+        for (sourceDescription in preventedNextFromMatching) {
             effects.add(
                 ClientPlayerEffect(
-                    effectId = "prevent_damage_from_${creatureType.lowercase()}",
-                    name = "Prevent $creatureType",
-                    description = "The next time a $creatureType would deal damage to you this turn, prevent that damage",
+                    effectId = "prevent_next_damage_from_${sourceDescription.lowercase().replace(' ', '_')}",
+                    name = "Prevent Next",
+                    description = "The next time a $sourceDescription would deal damage to you this turn, prevent that damage",
                     icon = "prevent-damage"
                 )
             )
@@ -423,6 +407,19 @@ internal class PlayerActiveEffectsProjector(
                     effectId = "flash_grants_this_turn",
                     name = "Flash",
                     description = "You may cast $spellPhrase this turn as though they had flash",
+                    icon = "lightning"
+                )
+            )
+        }
+
+        // Instant-speed loyalty activations (Jace's Machinations).
+        container.get<com.wingedsheep.engine.state.components.player.InstantSpeedLoyaltyGrantsComponent>()?.let { component ->
+            val rendered = component.filters.joinToString(" or ") { "${it.description}s" }
+            effects.add(
+                ClientPlayerEffect(
+                    effectId = "instant_speed_loyalty",
+                    name = "Instant-speed loyalty",
+                    description = "You may activate loyalty abilities of $rendered any time you could cast an instant this turn",
                     icon = "lightning"
                 )
             )

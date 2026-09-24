@@ -25,9 +25,9 @@ val SummitIntimidator = card("Summit Intimidator") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
+        val creature = target("target creature", Targets.Creature)
         trigger = Triggers.EntersBattlefield
-        target = Targets.Creature
-        effect = Effects.CantBlock()
+        effect = Effects.CantBlock(target = creature)
     }
 
     metadata {

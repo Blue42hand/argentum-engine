@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -26,7 +26,7 @@ val EpfPointSquad = card("EPF Point Squad") {
 
     triggeredAbility {
         trigger = Triggers.OtherCreatureEnters
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Alliance — Whenever another creature you control enters, put a +1/+1 counter on this creature."
     }
 

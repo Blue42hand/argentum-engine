@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Purging Stormbrood // Absorb Essence — Tarkir: Dragonstorm #213
@@ -40,8 +39,8 @@ val PurgingStormbrood = card("Purging Stormbrood") {
     // ETB: remove all counters from up to one target creature.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target("up to one target creature", Targets.UpToCreatures(1))
-        effect = Effects.RemoveAllCounters(EffectTarget.ContextTarget(0))
+        val upToOneCreature = target("up to one target creature", Targets.UpToCreatures(1))
+        effect = Effects.RemoveAllCounters(upToOneCreature)
     }
 
     // Omen: Absorb Essence — Instant. Target creature gets +2/+2 and gains lifelink and hexproof.

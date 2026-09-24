@@ -54,9 +54,9 @@ val ConcealedWeapon = card("Concealed Weapon") {
     disguise = "{2}{R}"
 
     triggeredAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         trigger = Triggers.TurnedFaceUp
-        target = Targets.CreatureYouControl
-        effect = Effects.AttachEquipment()
+        effect = Effects.AttachEquipment(target = creatureYouControl)
         description = "When this Equipment is turned face up, attach it to target creature you control."
     }
 

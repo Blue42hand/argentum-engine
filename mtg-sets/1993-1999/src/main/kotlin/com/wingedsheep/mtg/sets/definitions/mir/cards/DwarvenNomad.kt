@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.mir.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 
 /**
  * Dwarven Nomad
@@ -25,7 +25,7 @@ val DwarvenNomad = card("Dwarven Nomad") {
     activatedAbility {
         cost = Costs.Tap
         val t = target("target", Targets.CreatureWithPowerAtMost(2))
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
 
     metadata {

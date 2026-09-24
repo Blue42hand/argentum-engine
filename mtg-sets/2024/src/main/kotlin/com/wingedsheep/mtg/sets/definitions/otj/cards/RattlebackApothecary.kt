@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -44,8 +44,8 @@ val RattlebackApothecary = card("Rattleback Apothecary") {
         trigger = Triggers.YouCommitCrime
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = ModalEffect.chooseOne(
-            Mode.noTarget(GrantKeywordEffect(Keyword.MENACE, t, Duration.EndOfTurn), "Menace"),
-            Mode.noTarget(GrantKeywordEffect(Keyword.LIFELINK, t, Duration.EndOfTurn), "Lifelink")
+            Mode.noTarget(Effects.GrantKeyword(Keyword.MENACE, t, Duration.EndOfTurn), "Menace"),
+            Mode.noTarget(Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn), "Lifelink")
         )
         description = "Whenever you commit a crime, target creature you control gains your choice of " +
             "menace or lifelink until end of turn."

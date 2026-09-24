@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.tmp.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -32,7 +31,7 @@ val RecklessSpite = card("Reckless Spite") {
         // ContextTarget(0) and ContextTarget(1) by hand said the same thing only for exactly two.
         effect = Effects.Composite(
             listOf(
-                ForEachTargetEffect(listOf(Effects.Destroy(EffectTarget.ContextTarget(0)))),
+                Effects.ForEachTarget(Effects.Destroy(EffectTarget.ContextTarget(0))),
                 Effects.LoseLife(5, EffectTarget.Controller)
             )
         )

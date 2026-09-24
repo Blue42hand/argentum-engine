@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttackUnless
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -37,7 +36,7 @@ val IslandFishJasconius = card("Island Fish Jasconius") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = MayPayManaEffect(ManaCost.parse("{U}{U}{U}"), Effects.Untap(EffectTarget.Self))
+        effect = Effects.MayPay(ManaCost.parse("{U}{U}{U}"), Effects.Untap(EffectTarget.Self))
     }
 
     staticAbility {

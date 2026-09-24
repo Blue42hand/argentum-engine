@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Otherwise, Garna deals 1 damage to each opponent.
  *
  * One trigger, one branch: the two clauses are mutually exclusive halves of a single ability, so
- * this is a [ConditionalEffect] on the dying creature's combat status rather than two triggers
+ * this is a [Effects.If] on the dying creature's combat status rather than two triggers
  * with mirrored intervening-if clauses (which would each check at both trigger and resolution
  * time, CR 603.4, and could diverge).
  *
@@ -49,13 +48,13 @@ val GarnaBloodfistOfKeld = card("Garna, Bloodfist of Keld") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.OTHER,
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.EntityMatches(
                 EffectTarget.TriggeringEntity,
                 GameObjectFilter.Any.attacking(),
             ),
-            effect = Effects.DrawCards(1),
-            elseEffect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+            then = Effects.DrawCards(1),
+            otherwise = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
         )
     }
 

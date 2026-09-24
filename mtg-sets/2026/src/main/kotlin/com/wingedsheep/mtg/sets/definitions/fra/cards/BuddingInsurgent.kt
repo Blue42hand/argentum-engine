@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Budding Insurgent — "If that permanent was a legendary enchantment" is checked after the destroy,
@@ -34,9 +33,9 @@ val BuddingInsurgent = card("Budding Insurgent") {
         val permanent = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
         effect = Effects.Composite(
             Effects.Destroy(permanent),
-            ConditionalEffect(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment.legendary()),
-                effect = Effects.DrawCards(1),
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment.legendary(), permanent),
+                then = Effects.DrawCards(1),
             ),
         )
         timing = TimingRule.SorcerySpeed

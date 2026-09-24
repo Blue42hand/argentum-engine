@@ -1,12 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.wwk.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 
 /**
  * Seer's Sundial
@@ -15,7 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
  * Landfall — Whenever a land you control enters, you may pay {2}. If you do, draw a card.
  *
  * Landfall is [Triggers.LandYouControlEnters]. The "you may pay {2}. If you do, …" is an
- * [OptionalCostEffect] — a [com.wingedsheep.sdk.scripting.effects.Gate.MayPay] gate whose cost is
+ * [Effects.MayPay] — a [com.wingedsheep.sdk.scripting.effects.Gate.MayPay] gate whose cost is
  * [PayManaCostEffect] and whose `ifPaid` branch is [Effects.DrawCards]. That is a different gate
  * from the bare "you may" of a card like Grazing Gladehart: the consent here is the payment, so the
  * draw is conditioned on the mana actually being spent rather than on a yes/no answer.
@@ -28,9 +25,9 @@ val SeerSSundial = card("Seer's Sundial") {
 
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
-        effect = OptionalCostEffect(
-            cost = PayManaCostEffect(ManaCost.parse("{2}")),
-            ifPaid = Effects.DrawCards(1)
+        effect = Effects.MayPay(
+            cost = Effects.PayMana("{2}"),
+            then = Effects.DrawCards(1)
         )
     }
 

@@ -245,7 +245,6 @@ class AnyPlayerMayPayExecutor(
         storedCollections = context.pipeline.storedCollections,
         triggeringEntityId = context.triggeringEntityId,
         triggeringPlayerId = context.triggeringPlayerId,
-        iterationTarget = context.pipeline.iterationTarget,
         objectReferences = context.objectReferences
     )
 

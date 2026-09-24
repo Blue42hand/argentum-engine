@@ -8,18 +8,11 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Price of Freedom — {1}{R} Sorcery — Lesson
@@ -31,7 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * Same Path-to-Exile-style compensation shape as [com.wingedsheep.mtg.sets.definitions.fin.cards.Sandworm]:
  * the destroy resolves first, then the destroyed permanent's controller — not the caster —
- * gets the optional basic-land search, so the [MayEffect] gate and the search pipeline are
+ * gets the optional basic-land search, so the [Effects.May] gate and the search pipeline are
  * delegated to [EffectTarget.TargetController] / [Player.ControllerOf]. "Its controller"
  * resolves from the targeted permanent at resolution; since it has just left the battlefield,
  * it falls back to its owner (last-known controller for a permanent that left play). Finally
@@ -46,38 +39,30 @@ val PriceOfFreedom = card("Price of Freedom") {
         "Draw a card."
 
     spell {
-        target = TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactOrLand.opponentControls()))
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactOrLand.opponentControls())))
+        effect = Effects.Destroy(permanent)
             .then(
-                MayEffect(
-                    effect = Effects.Composite(
-                        listOf(
-                            GatherCardsEffect(
-                                source = CardSource.FromZone(
-                                    zone = Zone.LIBRARY,
-                                    player = Player.ControllerOf("target"),
-                                    filter = GameObjectFilter.BasicLand,
-                                ),
-                                storeAs = "searchable",
-                                search = true,
+                Effects.May(
+                    effect = Effects.Pipeline {
+                        val searchable = gather(
+                            CardSource.FromZone(
+                                zone = Zone.LIBRARY,
+                                player = Player.ControllerOf("target"),
+                                filter = GameObjectFilter.BasicLand,
                             ),
-                            SelectFromCollectionEffect(
-                                from = "searchable",
-                                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                                chooser = Chooser.ControllerOfTarget,
-                                storeSelected = "found",
-                            ),
-                            MoveCollectionEffect(
-                                from = "found",
-                                destination = CardDestination.ToZone(
-                                    zone = Zone.BATTLEFIELD,
-                                    player = Player.ControllerOf("target"),
-                                    placement = ZonePlacement.Tapped,
-                                ),
-                            ),
-                            ShuffleLibraryEffect(target = EffectTarget.TargetController),
-                        ),
-                    ),
+                            search = true
+                        )
+                        val found = chooseUpTo(1, from = searchable, chooser = Chooser.ControllerOfTarget)
+                        move(
+                            found,
+                            CardDestination.ToZone(
+                                zone = Zone.BATTLEFIELD,
+                                player = Player.ControllerOf("target"),
+                                placement = ZonePlacement.Tapped,
+                            )
+                        )
+                        run(Effects.ShuffleLibrary(target = EffectTarget.TargetController))
+                    },
                     decisionMaker = EffectTarget.TargetController,
                 ),
             )

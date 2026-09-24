@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.OnEnterRunEffect
+import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * As this land enters, you may behold a Jace. If you don't, this land enters tapped.
  * {2}{U}, {T}: Empower Jace 2.
  *
- * The shadowland / Lorwyn reveal-land shape ([OnEnterRunEffect] around an optional choice whose
+ * The shadowland / Lorwyn reveal-land shape ([OnEnterRun] around an optional choice whose
  * "if you don't" rider taps the land), with [Effects.Behold] in place of a hand reveal: behold
  * (CR 701.4a) also accepts a Jace permanent you control, such as a Jace token. The {U} ability
  * comes from the Island subtype.
@@ -32,7 +32,7 @@ val TheoristsSanctum = card("Theorist's Sanctum") {
         "{2}{U}, {T}: Empower Jace 2."
 
     replacementEffect(
-        OnEnterRunEffect(
+        OnEnterRun(
             Effects.Behold(
                 filter = GameObjectFilter.Any.withSubtype("Jace"),
                 otherwise = Effects.Tap(EffectTarget.Self),

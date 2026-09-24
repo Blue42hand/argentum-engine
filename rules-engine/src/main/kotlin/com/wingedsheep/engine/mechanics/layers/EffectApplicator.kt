@@ -203,7 +203,7 @@ internal class EffectApplicator(
                         ?: state.getEntity(effect.sourceId)?.get<ControllerComponent>()?.playerId
                         ?: effect.controllerId
                     val donorId = controllerId?.let {
-                        com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.resolveEntityReference(
+                        com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.resolveEntity(
                             mod.source,
                             EffectContext(
                                 sourceId = effect.sourceId,

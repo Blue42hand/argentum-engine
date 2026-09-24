@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * graveyard to your hand. Return that card to the battlefield instead if you control a Mount.
  *
  * The destination is chosen at resolution: if you control a Mount when the ability resolves, the
- * targeted card enters the battlefield; otherwise it goes to your hand ([ConditionalEffect] gating
+ * targeted card enters the battlefield; otherwise it goes to your hand ([Effects.If] gating
  * on [Conditions.YouControl] for a Mount — "control a Mount" is "control at least one"). "Permanent
  * card … from your graveyard" is a
  * single printed target restricted to permanent cards (type-line check) you own, of mana value 3
@@ -53,12 +52,12 @@ val ShepherdOfTheClouds = card("Shepherd of the Clouds") {
                 ),
             ),
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.YouControl(
                 GameObjectFilter.Creature.withSubtype(Subtype("Mount")),
             ),
-            effect = Effects.PutOntoBattlefield(card),
-            elseEffect = Effects.ReturnToHand(card),
+            then = Effects.PutOntoBattlefield(card),
+            otherwise = Effects.ReturnToHand(card),
         )
         description = "When this creature enters, return target permanent card with mana value 3 " +
             "or less from your graveyard to your hand. Return that card to the battlefield instead " +

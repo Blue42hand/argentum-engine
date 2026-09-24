@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Darklight Phoenix — a graveyard begin-combat trigger (as on Flamewake Phoenix) gated as an
@@ -33,7 +32,7 @@ val DarklightPhoenix = card("Darklight Phoenix") {
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.creaturesDiedThisTurn(Player.Each),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(2),
+            2,
         )
         effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
         description = "At the beginning of combat on your turn, if two or more creatures died this turn, return this card from your graveyard to the battlefield."

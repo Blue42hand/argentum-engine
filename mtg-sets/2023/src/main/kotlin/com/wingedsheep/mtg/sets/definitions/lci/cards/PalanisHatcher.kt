@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -61,7 +60,7 @@ val PalanisHatcher = card("Palani's Hatcher") {
         trigger = Triggers.BeginCombat
         interveningIf = Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Egg"))
         effect = Effects.Composite(listOf(
-            ForceSacrificeEffect(
+            Effects.Sacrifice(
                 filter = GameObjectFilter.Creature.withSubtype("Egg"),
                 count = 1,
                 target = EffectTarget.PlayerRef(Player.You)

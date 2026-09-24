@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.war.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -27,7 +27,7 @@ val SpellgorgerWeird = card("Spellgorger Weird") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON

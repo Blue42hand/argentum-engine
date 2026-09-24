@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -13,12 +14,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Aclazotz, Deepest Betrayal // Temple of the Dead (The Lost Caverns of Ixalan)
@@ -70,12 +68,12 @@ private val AclazotzDeepestBetrayalFront = card("Aclazotz, Deepest Betrayal") {
         effect = Effects.Composite(
             // Draw for each opponent who can't discard (empty hand), snapshotted before the discards.
             Effects.DrawCards(
-                DynamicAmount.CountPlayersWith(
+                DynamicAmounts.countPlayersWith(
                     scope = Player.EachOpponent,
-                    condition = Compare(
-                        left = DynamicAmount.Count(Player.You, Zone.HAND),
+                    condition = Conditions.CompareAmounts(
+                        left = DynamicAmounts.cardsInYourHand(),
                         operator = ComparisonOperator.LTE,
-                        right = DynamicAmount.Fixed(0),
+                        right = 0,
                     ),
                 )
             ),
@@ -132,22 +130,22 @@ private val TempleOfTheDead = card("Temple of the Dead") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.Tap)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
                 // At least one player (any) has one or fewer cards in hand.
                 Conditions.CompareAmounts(
-                    DynamicAmount.CountPlayersWith(
+                    DynamicAmounts.countPlayersWith(
                         scope = Player.Each,
-                        condition = Compare(
-                            left = DynamicAmount.Count(Player.You, Zone.HAND),
+                        condition = Conditions.CompareAmounts(
+                            left = DynamicAmounts.cardsInYourHand(),
                             operator = ComparisonOperator.LTE,
-                            right = DynamicAmount.Fixed(1),
+                            right = 1,
                         ),
                     ),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(1),
+                    1,
                 )
             )
         )

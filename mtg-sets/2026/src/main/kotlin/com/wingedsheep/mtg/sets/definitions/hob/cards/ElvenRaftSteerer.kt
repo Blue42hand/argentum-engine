@@ -7,13 +7,12 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
@@ -36,16 +35,20 @@ val ElvenRaftSteerer = card("Elven Raft-Steerer") {
     triggeredAbility {
         trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                TargetCreature(filter = TargetFilter.Creature.opponentControls()),
-                "Tap target creature an opponent controls"
-            ),
-            Mode.withTarget(
-                Effects.Untap(EffectTarget.ContextTarget(0)),
-                TargetCreature(filter = TargetFilter.Creature.youControl()),
-                "Untap target creature you control"
-            )
+            mode("Tap target creature an opponent controls") {
+                val creature = target(
+                    "target creature",
+                    TargetCreature(filter = TargetFilter.Creature.opponentControls())
+                )
+                effect = Effects.Tap(creature)
+            },
+            mode("Untap target creature you control") {
+                val creature = target(
+                    "target creature",
+                    TargetCreature(filter = TargetFilter.Creature.youControl())
+                )
+                effect = Effects.Untap(creature)
+            }
         )
     }
     metadata {

@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -31,8 +29,8 @@ val WayOfTheDeathbringer = card("Way of the Deathbringer") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = grantedLoyaltyAbility(-2) {
-                effect = MayEffect(
-                    effect = IfYouDoEffect(
+                effect = Effects.May(
+                    effect = Effects.IfYouDo(
                         action = Effects.Pipeline {
                             val creatures = gather(GameObjectFilter.Creature, player = Player.You)
                             val chosen = chooseExactly(
@@ -43,7 +41,7 @@ val WayOfTheDeathbringer = card("Way of the Deathbringer") {
                             )
                             sacrifice(chosen)
                         },
-                        ifYouDo = Effects.CreateToken(
+                        then = Effects.CreateToken(
                             power = 4,
                             toughness = 4,
                             colors = setOf(Color.GREEN),

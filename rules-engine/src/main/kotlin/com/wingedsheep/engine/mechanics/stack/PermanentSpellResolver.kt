@@ -10,6 +10,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.*
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EntersAsCopy
@@ -230,7 +231,7 @@ internal class PermanentSpellResolver(
                         SelectCardsDecision(
                             id = decisionId,
                             playerId = controllerId,
-                            prompt = "Reveal cards from your ${revealCountersEffect.revealSource.name.lowercase()} that match ${cardComponent.name} (${revealCountersEffect.countersPerReveal} ${revealCountersEffect.counterType} counter${if (revealCountersEffect.countersPerReveal > 1) "s" else ""} each)",
+                            prompt = "Reveal cards from your ${revealCountersEffect.revealSource.name.lowercase()} that match ${cardComponent.name} (${revealCountersEffect.countersPerReveal} ${revealCountersEffect.counterType.printed} counter${if (revealCountersEffect.countersPerReveal > 1) "s" else ""} each)",
                             context = DecisionContext(
                                 sourceId = spellId,
                                 sourceName = cardComponent.name,
@@ -282,7 +283,7 @@ internal class PermanentSpellResolver(
                     spellId = spellId,
                     controllerId = controllerId,
                     ownerId = ownerId,
-                    counterType = exileCountersEffect.counterType.description,
+                    counterType = exileCountersEffect.counterType,
                     countersPerCard = exileCountersEffect.countersPerCard
                 )
                 return state.suspendForDecision(
@@ -333,7 +334,7 @@ internal class PermanentSpellResolver(
                     controllerId = controllerId,
                     ownerId = ownerId,
                     multiplier = devourEffect.multiplier,
-                    counterType = devourEffect.counterType.description
+                    counterType = devourEffect.counterType
                 )
                 return state.suspendForDecision(
                     question = { decisionId ->
@@ -397,7 +398,7 @@ internal class PermanentSpellResolver(
 
     /**
      * Put the permanent onto the battlefield ([PermanentEntry]) once no "as this enters" question
-     * is outstanding, then run its generic `OnEnterRunEffect` replacement.
+     * is outstanding, then run its generic `OnEnterRun` replacement.
      */
     private fun enterBattlefield(
         state: GameState,
@@ -410,12 +411,12 @@ internal class PermanentSpellResolver(
         // Normal permanent entry
         val (enteredState, enterEvents) = permanentEntry.enterPermanentOnBattlefield(state, spellId, spellComponent, cardComponent, cardDef)
         val sagaEvents = if (cardDef != null && !spellComponent.castFaceDown && cardDef.isSaga) {
-            listOf(CountersAddedEvent(spellId, "LORE", 1, cardDef.name))
+            listOf(CountersAddedEvent(spellId, CounterType.LORE, 1, cardDef.name))
         } else {
             emptyList()
         }
 
-        // The generic "as this permanent enters, …" replacement ([OnEnterRunEffect]). The move path
+        // The generic "as this permanent enters, …" replacement ([OnEnterRun]). The move path
         // (MoveToZoneEffectExecutor) and the land path (PlayLandHandler) already run it; a permanent
         // *cast as a spell* did not, which made the replacement silently inert on every creature and
         // enchantment carrying it — Nameless Race's "as this creature enters, pay any amount of

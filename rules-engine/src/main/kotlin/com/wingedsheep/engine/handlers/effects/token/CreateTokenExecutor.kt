@@ -20,7 +20,6 @@ import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.TypeLine
@@ -93,18 +92,54 @@ class CreateTokenExecutor(
         )
     }
 
-    /** Create [baseCount] tokens (pre-replacement) under [tokenControllerId]'s control. */
+    /**
+     * Create [count] tokens of [substitute] under [tokenControllerId]'s control *in place of* tokens
+     * a [com.wingedsheep.sdk.scripting.ReplaceTokenCreationWithToken] replaced ("that many 5/5 red
+     * Dragon creature tokens with flying are created instead" — Draconic Visitor). Shared by every
+     * token-creation executor that reads the substitution, so the substitute tokens are built by
+     * the one creature-token path.
+     *
+     * [count] is already final — a doubler scaled the replaced event before the substitution — so
+     * no count replacement runs again, and the substitution isn't re-checked (no loop). The
+     * substitute's own `count`, `controller`, `tapped` and `attacking` are ignored: "that many",
+     * under the player the replaced tokens were for, with none of the replaced effect's riders.
+     */
+    internal fun createSubstituteTokens(
+        state: GameState,
+        substitute: CreateTokenEffect,
+        context: EffectContext,
+        count: Int,
+        tokenControllerId: EntityId
+    ): EffectResult {
+        if (count <= 0) return EffectResult.success(state)
+        val normalized = substitute.copy(
+            count = com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed(count),
+            controller = null,
+            tapped = false,
+            attacking = false
+        )
+        return createTokensFor(state, normalized, context, count, tokenControllerId, substituted = true)
+    }
+
+    /**
+     * Create [baseCount] tokens (pre-replacement) under [tokenControllerId]'s control.
+     *
+     * @param substituted true when these tokens are themselves the substitute of a
+     *   [com.wingedsheep.sdk.scripting.ReplaceTokenCreationWithToken] — see [createSubstituteTokens].
+     */
     private fun createTokensFor(
         state: GameState,
         effect: CreateTokenEffect,
         context: EffectContext,
         baseCount: Int,
-        tokenControllerId: EntityId
+        tokenControllerId: EntityId,
+        substituted: Boolean = false
     ): EffectResult {
         // Apply token-count replacements (Doubling Season / Exalted Sunborn,
         // and per-N modifiers) before downstream replacements get a look.
-        val requestedCount = TokenCreationReplacementHelper.applyCountReplacements(
-            state, tokenControllerId, baseCount
+        val requestedCount = if (substituted) baseCount else TokenCreationReplacementHelper.applyCountReplacements(
+            state, tokenControllerId, baseCount,
+            predicateEvaluator = amountEvaluator.predicates
         )
         if (requestedCount <= 0) return EffectResult.success(state)
 
@@ -141,6 +176,32 @@ class CreateTokenExecutor(
         val tokenName = effect.name ?: defaultName
         val tokenPower = effect.dynamicPower?.let { amountEvaluator.evaluate(state, it, context) } ?: effect.power
         val tokenToughness = effect.dynamicToughness?.let { amountEvaluator.evaluate(state, it, context) } ?: effect.toughness
+        val typeLinePrefix = buildString {
+            if (effect.legendary) append("Legendary ")
+            if (effect.artifactToken) append("Artifact ")
+            if (effect.enchantmentToken) append("Enchantment ")
+            append("Creature")
+        }
+        val tokenTypeLine = TypeLine.parse("$typeLinePrefix - ${effectiveCreatureTypes.joinToString(" ")}")
+        val tokenCardDefinitionId = "token:${effectiveCreatureTypes.joinToString("-")}"
+
+        // "If one or more artifact tokens would be created under your control, that many 5/5 red
+        // Dragon creature tokens with flying are created instead" (Draconic Visitor): swap the whole
+        // batch for the substitute before any of it is created.
+        if (!substituted) {
+            val prospective = CardComponent(
+                cardDefinitionId = tokenCardDefinitionId,
+                name = tokenName,
+                manaCost = ManaCost.ZERO,
+                typeLine = tokenTypeLine,
+                baseStats = CreatureStats(tokenPower, tokenToughness),
+                baseKeywords = effect.keywords,
+                colors = effectiveColors,
+                ownerId = tokenControllerId
+            )
+            TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective, predicateEvaluator = amountEvaluator.predicates)
+                ?.let { return createSubstituteTokens(state, it, context, count, tokenControllerId) }
+        }
 
         // Art: an explicit per-card override wins, then the art printed by the set the creating
         // card came from (so a reprint mints its own set's token), then the engine-wide generic
@@ -174,17 +235,11 @@ class CreateTokenExecutor(
             newState = stateWithId
             createdTokens.add(tokenId)
 
-            val typeLinePrefix = buildString {
-                if (effect.legendary) append("Legendary ")
-                if (effect.artifactToken) append("Artifact ")
-                if (effect.enchantmentToken) append("Enchantment ")
-                append("Creature")
-            }
             val tokenComponent = CardComponent(
-                cardDefinitionId = "token:${effectiveCreatureTypes.joinToString("-")}",
+                cardDefinitionId = tokenCardDefinitionId,
                 name = tokenName,
                 manaCost = ManaCost.ZERO,
-                typeLine = TypeLine.parse("$typeLinePrefix - ${effectiveCreatureTypes.joinToString(" ")}"),
+                typeLine = tokenTypeLine,
                 baseStats = CreatureStats(tokenPower, tokenToughness),
                 baseKeywords = effect.keywords,
                 colors = effectiveColors,
@@ -240,23 +295,11 @@ class CreateTokenExecutor(
                 // creation, not as a separate placement event.
                 var history = com.wingedsheep.engine.state.components.battlefield
                     .ReceivedCountersThisTurnComponent()
-                for ((counterTypeStr, amount) in effect.initialCounters) {
-                    val counterType = try {
-                        CounterType.valueOf(
-                            counterTypeStr.uppercase()
-                                .replace(' ', '_')
-                                .replace('+', 'P')
-                                .replace('-', 'M')
-                                .replace("/", "_")
-                        )
-                    } catch (e: IllegalArgumentException) {
-                        CounterType.PLUS_ONE_PLUS_ONE
-                    }
+                for ((counterType, amount) in effect.initialCounters) {
                     counters = counters.withAdded(counterType, amount)
                     if (amount > 0) {
                         history = history.with(
-                            com.wingedsheep.engine.handlers.effects.permanent.counters
-                                .counterTypeToString(counterType),
+                            counterType,
                             byController = true,
                         )
                     }

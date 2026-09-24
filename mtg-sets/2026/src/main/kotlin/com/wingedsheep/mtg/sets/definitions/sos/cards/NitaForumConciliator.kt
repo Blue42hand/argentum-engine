@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -52,34 +51,34 @@ val NitaForumConciliator = card("Nita, Forum Conciliator") {
         trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.NotOwnedByController))
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "Whenever you cast a spell you don't own, put a +1/+1 counter on each creature you control."
     }
 
     activatedAbility {
+        val target = target("target", TargetObject(
+            filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByOpponent(),
+        ))
         cost = Costs.Composite(
             Costs.Mana("{2}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature),
         )
-        target = TargetObject(
-            filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByOpponent(),
-        )
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
+        effect = Effects.Pipeline {
             // Exile the targeted card from the opponent's graveyard.
-            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
+            run(Effects.Move(target, Zone.EXILE))
             // Gather it back into a named collection so the may-play grant can key off it.
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "borrowed"),
+            val borrowed = gather(CardSource.ChosenTargets)
             // "You may cast it this turn, mana of any type" + "if it would be put into a graveyard,
             // exile it instead."
-            Effects.GrantMayPlayFromExile(
-                from = "borrowed",
+            run(Effects.GrantMayPlayFromExile(
+                from = borrowed,
                 expiry = MayPlayExpiry.EndOfTurn,
                 withAnyManaType = true,
                 exileAfterResolve = true,
-            ),
-        )
+            ))
+        }
         description = "{2}, Sacrifice another creature: Exile target instant or sorcery card from an " +
             "opponent's graveyard. You may cast it this turn, and mana of any type can be spent to cast " +
             "that spell. If that spell would be put into a graveyard, exile it instead. Activate only as a sorcery."

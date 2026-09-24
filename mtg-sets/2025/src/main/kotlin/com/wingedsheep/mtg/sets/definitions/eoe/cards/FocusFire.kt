@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Focus Fire
@@ -31,13 +31,10 @@ val FocusFire = card("Focus Fire") {
     spell {
         val t = target("target", TargetPermanent(filter = TargetFilter.AttackingOrBlockingCreature))
         effect = Effects.DealDamage(
-            DynamicAmount.Add(
-                DynamicAmount.Fixed(2),
-                DynamicAmounts.battlefield(
-                    Player.You,
-                    GameObjectFilter.Creature or GameObjectFilter.Permanent.withSubtype("Spacecraft")
-                ).count()
-            ),
+            2 + DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature or GameObjectFilter.Permanent.withSubtype("Spacecraft")
+            ).count(),
             t
         )
     }

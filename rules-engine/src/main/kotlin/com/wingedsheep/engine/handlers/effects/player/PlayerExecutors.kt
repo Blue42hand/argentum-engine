@@ -63,6 +63,7 @@ class PlayerExecutors(
         ForagedExecutor(),
         GrantCastCreaturesFromGraveyardWithForageExecutor(),
         GrantFlashToSpellsExecutor(),
+        GrantInstantSpeedLoyaltyAbilitiesExecutor(),
         GrantSpellKeywordExecutor(),
         GrantSpellsCantBeCounteredExecutor(),
         GrantDamageBonusExecutor(),

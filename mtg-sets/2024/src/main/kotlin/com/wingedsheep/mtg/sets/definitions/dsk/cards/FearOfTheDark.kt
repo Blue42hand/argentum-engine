@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fear of the Dark
@@ -37,12 +37,12 @@ val FearOfTheDark = card("Fear of the Dark") {
     triggeredAbility {
         trigger = Triggers.Attacks
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmount.AggregateBattlefield(
+            DynamicAmounts.battlefield(
                 Player.DefendingPlayer,
                 GameObjectFilter.Creature.withSubtype("Glimmer")
-            ),
+            ).count(),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(0)
+            0
         )
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self),

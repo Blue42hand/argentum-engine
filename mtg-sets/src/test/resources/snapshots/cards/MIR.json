@@ -571,7 +571,7 @@
             },
             "body": {
                 "type": "TapUntap",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -720,35 +720,35 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "targets"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "CaptureControllers",
-                    "from": "targets",
-                    "storeAs": "preControllers"
+                    "from": "gathered0",
+                    "storeAs": "controllers1"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "targets",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard"
                     },
                     "moveType": "Destroy",
-                    "storeMovedAs": "destroyed"
+                    "storeMovedAs": "moved2"
                 },
                 {
                     "type": "ForEachCapturedController",
-                    "collection": "destroyed",
-                    "originalCollection": "targets",
-                    "controllerSnapshot": "preControllers",
-                    "countVariable": "killCount",
+                    "collection": "moved2",
+                    "originalCollection": "gathered0",
+                    "controllerSnapshot": "controllers1",
+                    "countVariable": "count3",
                     "effects": [
                         {
                             "type": "DealDamage",
                             "amount": {
                                 "type": "VariableReference",
-                                "variableName": "killCount"
+                                "variableName": "count3"
                             },
                             "target": "Controller"
                         }
@@ -763,6 +763,7 @@
                 "filter": {
                     "baseFilter": "artifact"
                 },
+                "id": "target permanent",
                 "dynamicMaxCount": "XValue"
             }
         ]
@@ -948,8 +949,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target permanent"
                             },
                             "filter": {
                                 "cardPredicates": [
@@ -974,8 +975,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -995,7 +996,8 @@
                             }
                         ]
                     }
-                }
+                },
+                "id": "target permanent"
             }
         ]
     },
@@ -2266,7 +2268,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3066,7 +3068,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3309,18 +3311,18 @@
                         "targetDescription": "target creature"
                     },
                     "filter": "creature",
-                    "storeMatch": "found",
-                    "storeRevealed": "allRevealed"
+                    "storeMatch": "matched2",
+                    "storeRevealed": "revealed2"
                 },
                 {
                     "type": "RevealCollection",
-                    "from": "allRevealed",
+                    "from": "revealed2",
                     "fromZone": "Library",
                     "toZone": "Battlefield"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "found",
+                    "from": "matched2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield",
@@ -3622,7 +3624,7 @@
             "body": {
                 "type": "DealDamage",
                 "amount": "XValue",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4240,7 +4242,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -4317,7 +4319,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -4333,7 +4335,7 @@
                             "type": "Subtract",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "BlockerCount"
                             },
                             "right": {
@@ -4393,7 +4395,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }

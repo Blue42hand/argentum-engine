@@ -15,19 +15,13 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.LookAudience
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Etrata, Deadly Fugitive — Murders at Karlov Manor #200
@@ -95,19 +89,18 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
                 cost = Costs.Mana("{2}{U}{B}"),
-                effect = IfYouDoEffect(
-                    action = TurnFaceUpEffect(EffectTarget.Self),
-                    ifYouDo = Effects.Composite(emptyList()),
-                    ifYouDont = Effects.Pipeline {
+                effect = Effects.IfYouDo(
+                    action = Effects.TurnFaceUp(EffectTarget.Self),
+                    then = Effects.Composite(emptyList()),
+                    otherwise = Effects.Pipeline {
                         val thisCreature = gather(CardSource.Self)
                         val exiled = moveTracked(
                             thisCreature,
                             CardDestination.ToZone(Zone.EXILE),
-                            name = "etrataExiled",
                         )
                         run(
-                            MayEffect(
-                                Effects.CastFromCollectionWithoutPayingCost(exiled.key),
+                            Effects.May(
+                                Effects.CastFromCollectionWithoutPayingCost(exiled),
                                 descriptionOverride = "You may cast the exiled card without " +
                                     "paying its mana cost.",
                             )
@@ -127,25 +120,20 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.Opponent,
+            recipient = Recipient.Opponent,
             sourceFilter = GameObjectFilter.Creature.withSubtype(Subtype.ASSASSIN).youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(1),
+        effect = Effects.Pipeline {
+            val etrataCloaked = gather(
+                CardSource.TopOfLibrary(
+                    count = 1,
                     player = Player.TriggeringPlayer,
                 ),
-                storeAs = "etrataCloaked",
-                lookAudience = LookAudience.None,
-            ),
-            MoveCollectionEffect(
-                from = "etrataCloaked",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                faceDown = FaceDownMode.CLOAK,
-            ),
-        )
+                lookAudience = LookAudience.None
+            )
+            move(etrataCloaked, CardDestination.ToZone(Zone.BATTLEFIELD), faceDown = FaceDownMode.CLOAK)
+        }
         description = "Whenever an Assassin you control deals combat damage to an opponent, " +
             "cloak the top card of that player's library."
     }

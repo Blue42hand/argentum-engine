@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -41,7 +41,7 @@ val TwilightDiviner = card("Twilight Diviner") {
         trigger = Triggers.OtherCreatureEnters
         interveningIf = Conditions.TriggeringEntityEnteredOrWasCastFromGraveyard
         oncePerTurn = true
-        effect = CreateTokenCopyOfTargetEffect(EffectTarget.TriggeringEntity)
+        effect = Effects.CreateTokenCopyOfTarget(EffectTarget.TriggeringEntity)
     }
 
     metadata {

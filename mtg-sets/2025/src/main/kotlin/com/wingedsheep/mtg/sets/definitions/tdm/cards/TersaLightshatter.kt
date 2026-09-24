@@ -8,17 +8,9 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tersa Lightshatter — Tarkir: Dragonstorm #127
@@ -55,24 +47,12 @@ val TersaLightshatter = card("Tersa Lightshatter") {
     triggeredAbility {
         trigger = Triggers.Attacks
         interveningIf = Conditions.CardsInGraveyardAtLeast(7)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.GRAVEYARD, Player.You),
-                    storeAs = "graveyardExile"
-                ),
-                SelectFromCollectionEffect(
-                    from = "graveyardExile",
-                    selection = SelectionMode.Random(DynamicAmount.Fixed(1)),
-                    storeSelected = "exiledAtRandom"
-                ),
-                MoveCollectionEffect(
-                    from = "exiledAtRandom",
-                    destination = CardDestination.ToZone(Zone.EXILE, Player.You)
-                ),
-                GrantMayPlayFromExileEffect("exiledAtRandom", MayPlayExpiry.EndOfTurn)
-            )
-        )
+        effect = Effects.Pipeline {
+            val graveyardExile = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You))
+            val exiledAtRandom = chooseRandom(1, from = graveyardExile)
+            exile(exiledAtRandom)
+            run(Effects.GrantMayPlayFromExile(exiledAtRandom, MayPlayExpiry.EndOfTurn))
+        }
         description = "Whenever Tersa Lightshatter attacks, if there are seven or more cards in your " +
             "graveyard, exile a card at random from your graveyard. You may play that card this turn."
     }

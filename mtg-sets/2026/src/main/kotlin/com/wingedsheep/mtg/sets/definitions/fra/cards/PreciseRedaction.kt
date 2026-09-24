@@ -14,7 +14,7 @@ val PreciseRedaction = card("Precise Redaction") {
     oracleText = "Counter target white or black spell."
 
     spell {
-        target = TargetSpell(filter = TargetFilter.SpellOnStack.withAnyColor(Color.WHITE, Color.BLACK))
+        val spell = target("target spell", TargetSpell(filter = TargetFilter.SpellOnStack.withAnyColor(Color.WHITE, Color.BLACK)))
         effect = Effects.CounterSpell()
     }
 
