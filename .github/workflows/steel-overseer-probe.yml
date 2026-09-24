@@ -1,0 +1,118 @@
+name: Steel Overseer add-card probe
+
+on:
+  push:
+    branches: ["codex/issue-19-steel-overseer"]
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Assay and fidelity probes
+        shell: bash
+        run: |
+          set -o pipefail
+          (just assay parse "Steel Overseer" 2>&1 | tee steel-overseer-assay-parse.txt) || true
+          (just assay explain "Steel Overseer" 2>&1 | tee steel-overseer-assay-explain.txt) || true
+          (just coverage-fidelity --emit "Steel Overseer" 2>&1 | tee steel-overseer-fidelity.txt) || true
+
+      - name: Fetch authoritative Scryfall evidence
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.parse, urllib.request
+          from pathlib import Path
+
+          headers = {
+              "User-Agent": "argentum-engine-steel-overseer-proof/1.0",
+              "Accept": "application/json",
+          }
+
+          def fetch(url):
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req) as resp:
+                  return json.loads(resp.read().decode("utf-8"))
+
+          named = fetch("https://api.scryfall.com/cards/named?" + urllib.parse.urlencode({
+              "exact": "Steel Overseer",
+              "set": "m11",
+          }))
+          fields = [
+              "id", "oracle_id", "name", "mana_cost", "type_line", "oracle_text",
+              "power", "toughness", "colors", "color_identity", "rarity",
+              "collector_number", "artist", "flavor_text", "image_uris",
+              "released_at", "set", "set_name", "set_type", "rulings_uri",
+              "prints_search_uri",
+          ]
+          Path("steel-overseer-m11.json").write_text(
+              json.dumps({k: named.get(k) for k in fields}, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+
+          time.sleep(0.12)
+          printings = fetch(named["prints_search_uri"])
+          rows = []
+          while True:
+              for card in printings.get("data", []):
+                  rows.append({
+                      "id": card.get("id"),
+                      "oracle_id": card.get("oracle_id"),
+                      "set": card.get("set"),
+                      "set_name": card.get("set_name"),
+                      "set_type": card.get("set_type"),
+                      "collector_number": card.get("collector_number"),
+                      "rarity": card.get("rarity"),
+                      "artist": card.get("artist"),
+                      "image_uri": (card.get("image_uris") or {}).get("normal"),
+                      "released_at": card.get("released_at"),
+                      "promo": card.get("promo"),
+                  })
+              if not printings.get("has_more"):
+                  break
+              time.sleep(0.12)
+              printings = fetch(printings["next_page"])
+          rows.sort(key=lambda row: (row.get("released_at") or "", row.get("set") or "", row.get("collector_number") or ""))
+          Path("steel-overseer-printings.json").write_text(
+              json.dumps(rows, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+
+          rulings = fetch(named["rulings_uri"])
+          Path("steel-overseer-rulings.json").write_text(
+              json.dumps(rulings.get("data", []), indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Probe repository printing gate
+        shell: bash
+        run: |
+          (python3 scripts/check-card-printing.py "Steel Overseer" 2>&1 | tee steel-overseer-printing-gate.txt) || true
+
+      - name: Upload Steel Overseer evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: steel-overseer-probe
+          path: |
+            steel-overseer-assay-parse.txt
+            steel-overseer-assay-explain.txt
+            steel-overseer-fidelity.txt
+            steel-overseer-m11.json
+            steel-overseer-printings.json
+            steel-overseer-rulings.json
+            steel-overseer-printing-gate.txt
+          if-no-files-found: error
