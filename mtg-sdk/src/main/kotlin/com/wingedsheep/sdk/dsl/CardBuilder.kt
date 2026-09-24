@@ -3,6 +3,7 @@ package com.wingedsheep.sdk.dsl
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.*
 import com.wingedsheep.sdk.model.*
+import com.wingedsheep.sdk.scripting.AbilityIdScope
 import com.wingedsheep.sdk.scripting.ClassLevelAbility
 import com.wingedsheep.sdk.scripting.SagaChapterAbility
 import com.wingedsheep.sdk.scripting.*
@@ -48,10 +49,10 @@ import com.wingedsheep.sdk.scripting.targets.withId
  * }
  * ```
  */
-fun card(name: String, init: CardBuilder.() -> Unit): CardDefinition {
+fun card(name: String, init: CardBuilder.() -> Unit): CardDefinition = AbilityIdScope.within(name) {
     val builder = CardBuilder(name)
     builder.init()
-    return builder.build()
+    builder.build()
 }
 
 /**
@@ -73,10 +74,10 @@ fun card(name: String, init: CardBuilder.() -> Unit): CardDefinition {
  *   or "Wastes" (the colorless basic land — type line "Basic Land" with no subtype, taps for {C})
  * @param init Metadata configuration for this art variant
  */
-fun basicLand(landType: String, init: BasicLandBuilder.() -> Unit): CardDefinition {
+fun basicLand(landType: String, init: BasicLandBuilder.() -> Unit): CardDefinition = AbilityIdScope.within(landType) {
     val builder = BasicLandBuilder(landType)
     builder.init()
-    return builder.build()
+    builder.build()
 }
 
 /**
@@ -117,7 +118,7 @@ class BasicLandBuilder(private val landType: String) {
         // Basic lands have an intrinsic mana ability: "{T}: Add {color}." (Wastes adds {C}.)
         // Mana abilities don't use the stack and resolve immediately.
         val manaAbility = ActivatedAbility(
-            id = AbilityId.generate(),
+            id = AbilityId.next(),
             cost = AbilityCost.Tap,
             effect = if (manaColor != null) AddManaEffect(manaColor) else AddColorlessManaEffect(1),
             isManaAbility = true,
@@ -1901,7 +1902,7 @@ class ActivatedAbilityBuilder {
             }
         }
         return ActivatedAbility(
-            id = AbilityId.generate(),
+            id = AbilityId.next(),
             cost = cost,
             effect = effect!!,
             targetRequirements = targetRequirements,
@@ -2008,7 +2009,7 @@ class LoyaltyAbilityBuilder(private val loyaltyCost: AbilityCost) {
             listOfNotNull(target)
         }
         return ActivatedAbility(
-            id = AbilityId.generate(),
+            id = AbilityId.next(),
             cost = loyaltyCost,
             effect = effect!!,
             targetRequirements = targetReqs,

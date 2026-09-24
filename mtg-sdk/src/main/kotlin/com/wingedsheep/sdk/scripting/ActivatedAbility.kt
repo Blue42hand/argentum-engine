@@ -14,6 +14,8 @@ import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -23,7 +25,14 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class ActivatedAbility(
-    val id: AbilityId = AbilityId.generate(),
+    /**
+     * Always written: with `encodeDefaults = false` kotlinx decides whether to skip a field by
+     * re-evaluating its default, which here would mint an id (and fail outside a card scope) on
+     * every encode.
+     */
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val id: AbilityId = AbilityId.next(),
     val cost: AbilityCost,
     val effect: Effect,
     val targetRequirements: List<TargetRequirement> = emptyList(),
@@ -298,7 +307,7 @@ data class ActivatedAbility(
             quality: String? = null,
             targetFilter: TargetFilter = TargetFilter.CreatureYouControl,
             genericCostReduction: DynamicAmount? = null,
-            id: AbilityId = AbilityId.generate(),
+            id: AbilityId = AbilityId.next(),
         ): ActivatedAbility {
             val label = equipTargetLabel(quality)
             return ActivatedAbility(

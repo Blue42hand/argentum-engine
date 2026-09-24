@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets
 
-import com.wingedsheep.sdk.serialization.CardExporter
+import com.wingedsheep.sdk.tooling.CardExporter
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import kotlinx.serialization.json.Json

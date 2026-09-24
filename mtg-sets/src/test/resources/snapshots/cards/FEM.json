@@ -7,7 +7,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aeolipile:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -65,7 +65,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Armor Thrull:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -114,7 +114,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Balm of Restoration:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -191,7 +191,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Basal Thrull:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -235,7 +235,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bottomless Vault:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -257,7 +257,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Bottomless Vault:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -344,7 +344,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Breeding Pit:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -364,7 +364,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, sacrifice this enchantment unless you pay {B}{B}."
             },
             {
-                "id": "ability_2",
+                "id": "Breeding Pit:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -410,7 +410,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Combat Medic:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -458,7 +458,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Conch Horn:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -545,7 +545,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deep Spawn:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -567,7 +567,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Deep Spawn:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -619,7 +619,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Delif's Cone:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -693,7 +693,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Delif's Cube:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -747,7 +747,7 @@
                 "descriptionOverride": "{2}, {T}: This turn, when target creature you control attacks and isn't blocked, it assigns no combat damage this turn and you put a cube counter on this artifact."
             },
             {
-                "id": "ability_2",
+                "id": "Delif's Cube:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -843,7 +843,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Draconian Cylix:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -906,7 +906,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Armorer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1037,7 +1037,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Hold:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1059,7 +1059,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Dwarven Hold:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1113,7 +1113,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Lieutenant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1169,7 +1169,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Ruins:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1179,7 +1179,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Dwarven Ruins:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1227,7 +1227,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Soldier:1",
                 "trigger": {
                     "type": "BlocksOrBecomesBlockedByEvent",
                     "partnerFilter": {
@@ -1285,7 +1285,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ebon Praetor:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1302,7 +1302,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Ebon Praetor:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1374,7 +1374,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ebon Stronghold:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1384,7 +1384,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ebon Stronghold:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1428,7 +1428,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elven Fortress:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1483,7 +1483,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elven Lyre:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1548,7 +1548,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Farmer:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1565,7 +1565,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Elvish Farmer:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1592,7 +1592,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Elvish Farmer:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1635,7 +1635,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Hunter:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1695,7 +1695,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Scout:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1763,7 +1763,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Farrel's Mantle:1",
                 "trigger": "BecomesUnblockedEvent",
                 "binding": "ATTACHED",
                 "effect": {
@@ -1853,7 +1853,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Farrel's Zealot:1",
                 "trigger": "BecomesUnblockedEvent",
                 "effect": {
                     "type": "Gated",
@@ -1916,7 +1916,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Farrelite Priest:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1980,7 +1980,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Feral Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1997,7 +1997,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Feral Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2039,7 +2039,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fungal Bloom:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2093,7 +2093,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Chirurgeon:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2147,7 +2147,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Flotilla:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT",
@@ -2269,7 +2269,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Kites:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2365,7 +2365,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Warrens:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2429,7 +2429,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hand of Justice:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2488,7 +2488,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Havenwood Battleground:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2498,7 +2498,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Havenwood Battleground:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2542,7 +2542,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Heroism:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2636,7 +2636,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hollow Trees:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2658,7 +2658,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Hollow Trees:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2712,7 +2712,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Homarid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2729,7 +2729,7 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Homarid:2",
                 "condition": {
                     "type": "Compare",
                     "left": {
@@ -2844,7 +2844,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Homarid Shaman:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2892,7 +2892,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Homarid Spawning Bed:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2956,7 +2956,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Homarid Warrior:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3078,7 +3078,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Infantry:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3093,7 +3093,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Icatian Infantry:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3133,7 +3133,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Javelineers:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3200,7 +3200,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Lieutenant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3260,7 +3260,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Moneychanger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3276,7 +3276,7 @@
                 "descriptionOverride": "When this creature enters, it deals 3 damage to you."
             },
             {
-                "id": "ability_2",
+                "id": "Icatian Moneychanger:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3293,7 +3293,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Icatian Moneychanger:3",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "GainLife",
@@ -3374,7 +3374,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Priest:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3434,7 +3434,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Scout:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3496,7 +3496,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Skirmishers:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -3548,7 +3548,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Store:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3570,7 +3570,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Icatian Store:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3655,7 +3655,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Implements of Sacrifice:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3705,7 +3705,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Initiates of the Ebon Hand:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3764,7 +3764,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merseine:1",
                 "cost": "AttachedPermanentManaCost",
                 "effect": {
                     "type": "RemoveCounters",
@@ -3861,7 +3861,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mindstab Thrull:1",
                 "trigger": "BecomesUnblockedEvent",
                 "effect": {
                     "type": "Gated",
@@ -3939,7 +3939,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Necrite:1",
                 "trigger": "BecomesUnblockedEvent",
                 "effect": {
                     "type": "Gated",
@@ -4015,7 +4015,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Night Soil:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4077,7 +4077,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orcish Captain:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4155,7 +4155,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orcish Spy:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -4207,7 +4207,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orcish Veteran:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4290,7 +4290,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Order of Leitbur:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4305,7 +4305,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Order of Leitbur:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4361,7 +4361,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Order of the Ebon Hand:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4376,7 +4376,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Order of the Ebon Hand:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4479,7 +4479,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raiding Party:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4610,7 +4610,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rainbow Vale:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -4654,7 +4654,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ring of Renewal:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4740,7 +4740,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "River Merfolk:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4777,7 +4777,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ruins of Trokair:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4787,7 +4787,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ruins of Trokair:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4834,7 +4834,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sand Silos:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -4856,7 +4856,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sand Silos:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4913,7 +4913,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Seasinger:1",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -4930,7 +4930,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Seasinger:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GainControl",
@@ -5060,7 +5060,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spirit Shield:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5202,7 +5202,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spore Flower:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5219,7 +5219,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Spore Flower:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5264,7 +5264,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Svyelunite Priest:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5331,7 +5331,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Svyelunite Temple:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -5341,7 +5341,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Svyelunite Temple:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5389,7 +5389,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5406,7 +5406,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5457,7 +5457,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thallid Devourer:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5474,7 +5474,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Thallid Devourer:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5501,7 +5501,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Thallid Devourer:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5545,7 +5545,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelon's Chant:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5565,7 +5565,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, sacrifice this enchantment unless you pay {G}."
             },
             {
-                "id": "ability_2",
+                "id": "Thelon's Chant:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land Swamp",
@@ -5623,7 +5623,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelon's Curse:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -5733,7 +5733,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelonite Druid:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5804,7 +5804,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelonite Monk:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5865,7 +5865,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thorn Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5882,7 +5882,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Thorn Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5940,7 +5940,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thrull Champion:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GainControl",
@@ -5997,7 +5997,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thrull Retainer:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "Regenerate",
@@ -6045,7 +6045,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thrull Wizard:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6113,7 +6113,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tidal Flats:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6201,7 +6201,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tidal Influence:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -6218,7 +6218,7 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Tidal Influence:2",
                 "condition": {
                     "type": "Compare",
                     "left": {
@@ -6340,7 +6340,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tourach's Chant:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -6360,7 +6360,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, sacrifice this enchantment unless you pay {B}."
             },
             {
-                "id": "ability_2",
+                "id": "Tourach's Chant:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land Forest",
@@ -6418,7 +6418,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tourach's Gate:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -6466,7 +6466,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Tourach's Gate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6483,7 +6483,7 @@
                 "descriptionOverride": "Sacrifice a Thrull: Put three time counters on this Aura."
             },
             {
-                "id": "ability_3",
+                "id": "Tourach's Gate:3",
                 "cost": "CostTapAttachedCreature",
                 "effect": {
                     "type": "ForEach",
@@ -6543,7 +6543,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vodalian Knights:1",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -6560,7 +6560,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Vodalian Knights:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6612,7 +6612,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vodalian Mage:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6693,7 +6693,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vodalian War Machine:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6729,7 +6729,7 @@
                 "descriptionOverride": "Tap an untapped Merfolk you control: This creature can attack this turn as though it didn't have defender."
             },
             {
-                "id": "ability_2",
+                "id": "Vodalian War Machine:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6800,7 +6800,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zelyon Sword:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

@@ -1,6 +1,8 @@
-package com.wingedsheep.sdk.serialization
+package com.wingedsheep.sdk.tooling
 
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.scripting.AbilityIdScope
+import com.wingedsheep.sdk.serialization.CardSerialization
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonElement
 import java.nio.file.Files
@@ -22,7 +24,7 @@ import kotlin.streams.toList
  *
  * The loader:
  * 1. Deserializes JSON using [CardSerialization.json]
- * 2. Assigns fresh AbilityIds via [withGeneratedIds]
+ * 2. Assigns AbilityIds via [withGeneratedIds]
  * 3. Optionally validates via [CardValidator]
  */
 object CardLoader {
@@ -34,14 +36,14 @@ object CardLoader {
      * strings (e.g., `"EntersBattlefield"` → `{"type": "EntersBattlefield"}`)
      * before deserialization.
      *
-     * Assigns fresh AbilityIds after deserialization.
+     * Assigns AbilityIds after deserialization.
      */
     fun fromJson(jsonString: String): CardDefinition = decode(jsonString).withGeneratedIds()
 
     /**
      * Deserialize a CardDefinition **keeping the `AbilityId`s written in the JSON**.
      *
-     * [fromJson] mints fresh ids because authored card JSON isn't expected to carry any. Archived
+     * [fromJson] mints ids because authored card JSON isn't expected to carry any. Archived
      * JSON is the opposite case: it was produced by [CardExporter.exportToCompactJson] from an
      * already-compiled definition, and the ids in it are referenced from outside the card — a
      * replay's recorded [com.wingedsheep.sdk.scripting.AbilityIdentity] yields name an ability by
@@ -50,11 +52,17 @@ object CardLoader {
      */
     fun fromJsonPreservingIds(jsonString: String): CardDefinition = decode(jsonString)
 
-    private fun decode(jsonString: String): CardDefinition {
+    /**
+     * Decoded inside an [AbilityIdScope]: an ability the JSON gives no `id` falls back to its
+     * minting default, and there is no card around it yet to mint under.
+     */
+    private fun decode(jsonString: String): CardDefinition = AbilityIdScope.within(DECODE_SCOPE) {
         val element = CardSerialization.json.parseToJsonElement(jsonString)
         val expanded = CompactJsonTransformer.expand(element)
-        return CardSerialization.json.decodeFromJsonElement(CardDefinition.serializer(), expanded)
+        CardSerialization.json.decodeFromJsonElement(CardDefinition.serializer(), expanded)
     }
+
+    private const val DECODE_SCOPE = "loaded"
 
     /**
      * Serialize a CardDefinition to a pretty-printed JSON string.

@@ -41,7 +41,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Akroma, Angel of Fury:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -101,7 +101,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aven Riftwatcher:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -115,7 +115,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Aven Riftwatcher:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -194,7 +194,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Big Game Hunter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -254,7 +254,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blightspeaker:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "LoseLife",
@@ -276,7 +276,7 @@
                 "descriptionOverride": "{T}: Target player loses 1 life."
             },
             {
-                "id": "ability_2",
+                "id": "Blightspeaker:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -508,7 +508,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Darkheart Sliver:1",
                     "cost": "CostSacrificeSelf",
                     "effect": {
                         "type": "GainLife",
@@ -550,7 +550,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Essence Warden:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature",
@@ -726,7 +726,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ghost Tactician:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -828,7 +828,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Groundbreaker:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -955,7 +955,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hedge Troll:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1063,7 +1063,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Keldon Marauders:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1085,7 +1085,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Keldon Marauders:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -1141,7 +1141,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lavacore Elemental:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1185,7 +1185,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Magus of the Bazaar:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -1266,7 +1266,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Malach of the Dawn:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1307,7 +1307,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mesa Enchantress:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1456,7 +1456,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mire Boa:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1501,7 +1501,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mirri the Cursed:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1544,7 +1544,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mycologist:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1561,7 +1561,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Mycologist:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1588,7 +1588,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Mycologist:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1633,7 +1633,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Necrotic Sliver:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -1725,7 +1725,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Numot, the Devastator:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1798,7 +1798,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oros, the Avenger:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1996,7 +1996,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Poultice Sliver:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -2057,7 +2057,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prodigal Pyromancer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -2103,7 +2103,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Psychotrope Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2120,7 +2120,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Psychotrope Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2147,7 +2147,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Psychotrope Thallid:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2202,7 +2202,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Radha, Heir to Keld:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -2220,7 +2220,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Radha, Heir to Keld:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2258,7 +2258,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rathi Trapper:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2380,7 +2380,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Revered Dead:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2420,7 +2420,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ridged Kusite:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2549,7 +2549,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Saltfield Recluse:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ModifyStats",
@@ -2599,7 +2599,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Seal of Primordium:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "MoveToZone",
@@ -2683,7 +2683,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shade of Trokair:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2923,7 +2923,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vitaspore Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2940,7 +2940,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Vitaspore Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2967,7 +2967,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Vitaspore Thallid:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3022,7 +3022,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vorosh, the Hunter:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",

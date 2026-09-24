@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -42,6 +43,7 @@ class SacrificeUnlessSacrificeTest : FunSpec({
         creatureStats = CreatureStats(3, 4),
         script = CardScript.creature(
             TriggeredAbility.create(
+                id = AbilityId("SacrificeUnlessSacrificeTest_1"),
                 trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                 binding = TriggerBinding.SELF,
                 effect = PayOrSufferEffect(
@@ -61,6 +63,7 @@ class SacrificeUnlessSacrificeTest : FunSpec({
         creatureStats = CreatureStats(8, 8),
         script = CardScript.creature(
             TriggeredAbility.create(
+                id = AbilityId("SacrificeUnlessSacrificeTest_2"),
                 trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                 binding = TriggerBinding.SELF,
                 effect = PayOrSufferEffect(

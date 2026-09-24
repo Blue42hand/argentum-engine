@@ -121,7 +121,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brineborn Cutthroat:1",
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
@@ -156,7 +156,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cryptic Caves:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -169,7 +169,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Cryptic Caves:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -239,7 +239,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dawning Angel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -327,7 +327,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drakuseth, Maw of Flames:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -519,7 +519,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ferocious Pup:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -567,7 +567,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gnarlback Rhino:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -612,7 +612,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Smuggler:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
@@ -663,7 +663,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hanged Executioner:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -686,7 +686,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Hanged Executioner:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -814,7 +814,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ironroot Warlord:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -866,7 +866,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kykar, Wind's Fury:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -894,7 +894,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Kykar, Wind's Fury:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -938,7 +938,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Octoprophet:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -974,7 +974,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pyroclastic Elemental:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1031,7 +1031,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rapacious Dragon:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1069,7 +1069,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savannah Sage:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1112,7 +1112,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silverback Shaman:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1148,7 +1148,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sorin, Imperious Bloodlord:1",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": 1
@@ -1210,7 +1210,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Sorin, Imperious Bloodlord:2",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": 1
@@ -1274,7 +1274,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Sorin, Imperious Bloodlord:3",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": -3
@@ -1347,7 +1347,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spectral Sailor:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1427,7 +1427,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Twinblade Paladin:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {

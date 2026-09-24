@@ -49,7 +49,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dryad Arbor:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -191,7 +191,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "New Benalia:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -204,7 +204,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "New Benalia:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",

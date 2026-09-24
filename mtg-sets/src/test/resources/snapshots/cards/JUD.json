@@ -14,7 +14,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ancestor's Chosen:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -58,7 +58,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aven Fogbringer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -185,7 +185,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cabal Trainee:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "ModifyStats",
@@ -238,7 +238,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cephalid Inkshrouder:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -459,7 +459,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Genesis:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -547,7 +547,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goretusk Firebeast:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -594,7 +594,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hapless Researcher:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "Composite",
@@ -670,7 +670,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ironshell Beetle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -722,7 +722,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jeska, Warrior Adept:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -792,7 +792,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krosan Verge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -805,7 +805,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Krosan Verge:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -885,7 +885,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krosan Wayfarer:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "Gated",
@@ -1087,7 +1087,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Liberated Dwarf:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1221,7 +1221,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nomad Mythmaker:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1358,7 +1358,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soulcatchers' Aerie:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Bird own:you",
@@ -1549,7 +1549,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sylvan Safekeeper:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1602,7 +1602,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thriss, Nantuko Primus:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1668,7 +1668,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tunneler Wurm:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"

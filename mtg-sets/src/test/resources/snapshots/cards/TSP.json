@@ -11,7 +11,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Amrou Scout:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -249,7 +249,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Basal Sliver:1",
                     "cost": "CostSacrificeSelf",
                     "effect": {
                         "type": "AddMana",
@@ -319,7 +319,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bogardan Rager:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -412,7 +412,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brass Gnat:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -570,7 +570,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chronosavant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -651,7 +651,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "D'Avenant Healer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -688,7 +688,7 @@
                 ]
             },
             {
-                "id": "ability_2",
+                "id": "D'Avenant Healer:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -787,7 +787,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deathspore Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -804,7 +804,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Deathspore Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -831,7 +831,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Deathspore Thallid:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -948,7 +948,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drifter il-Dal:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -995,7 +995,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drudge Reavers:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1215,7 +1215,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Firewake Sliver:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -1301,7 +1301,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fledgling Mawcor:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -1347,7 +1347,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flowstone Channeler:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1590,7 +1590,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Gemhide Sliver:1",
                     "cost": "CostTap",
                     "effect": "AddManaOfChoice",
                     "timing": "ManaAbility",
@@ -1665,7 +1665,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Greenseeker:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1819,7 +1819,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Herd Gnarr:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -1865,7 +1865,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icatian Crier:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1936,7 +1936,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ith, High Arcanist:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -2007,7 +2007,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ivory Giant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2062,7 +2062,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jedit's Dragoons:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2222,7 +2222,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lotus Bloom:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2504,7 +2504,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Penumbra Spider:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2593,7 +2593,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prismatic Lens:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2606,7 +2606,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Prismatic Lens:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2650,7 +2650,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Quilled Sliver:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "DealDamage",
@@ -2773,7 +2773,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Riftwing Cloudskate:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2820,7 +2820,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sage of Epityr:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2878,7 +2878,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savage Thallid:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2895,7 +2895,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Savage Thallid:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2922,7 +2922,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Savage Thallid:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3012,7 +3012,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scryb Ranger:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3313,7 +3313,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stronghold Overseer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3405,7 +3405,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Telekinetic Sliver:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "TapUntap",
@@ -3488,7 +3488,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Terramorphic Expanse:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3559,7 +3559,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thallid Germinator:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3576,7 +3576,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Thallid Germinator:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3603,7 +3603,7 @@
                 "descriptionOverride": "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Thallid Germinator:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3665,7 +3665,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thallid Shell-Dweller:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3682,7 +3682,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Thallid Shell-Dweller:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3745,7 +3745,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thelonite Hermit:1",
                 "trigger": "TurnFaceUpEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -3890,7 +3890,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tolarian Sentinel:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3952,7 +3952,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trespasser il-Vec:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -4024,7 +4024,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Unyaro Bees:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4046,7 +4046,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Unyaro Bees:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4126,7 +4126,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viashino Bladescout:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4183,7 +4183,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viscerid Deepwalker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4229,7 +4229,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viscid Lemures:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

@@ -78,7 +78,7 @@ private val RoarOfTheFifthPeople = card("Roar of the Fifth People") {
         effect = Effects.GrantStaticAbility(
             ability = GrantActivatedAbility(
                 ability = ActivatedAbility(
-                    id = AbilityId.generate(),
+                    id = AbilityId.next(),
                     cost = Costs.Tap,
                     effect = Effects.AddManaOfChoice(
                         ManaColorSet.Specific(setOf(Color.RED, Color.GREEN, Color.WHITE)),

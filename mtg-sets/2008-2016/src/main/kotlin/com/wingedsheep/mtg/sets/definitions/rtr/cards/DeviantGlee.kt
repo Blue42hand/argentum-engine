@@ -42,7 +42,7 @@ val DeviantGlee = card("Deviant Glee") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{R}"),
                 effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self),
             )

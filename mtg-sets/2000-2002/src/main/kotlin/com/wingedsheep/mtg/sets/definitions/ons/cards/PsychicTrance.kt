@@ -26,7 +26,7 @@ val PsychicTrance = card("Psychic Trance") {
     spell {
         effect = Effects.GrantActivatedAbilityToGroup(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = AbilityCost.Tap,
                 effect = Effects.CounterSpell(),
                 targetRequirement = Targets.Spell

@@ -54,7 +54,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("GatedEffectScenarioTest_1"),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = Effects.MayPay(
@@ -79,7 +79,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("GatedEffectScenarioTest_2"),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = Effects.MayPay(
@@ -104,7 +104,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("GatedEffectScenarioTest_3"),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = GatedEffect(
@@ -139,7 +139,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("GatedEffectScenarioTest_4"),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = Effects.May(DrawCardsEffect(1))
@@ -161,7 +161,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("GatedEffectScenarioTest_5"),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = Effects.May(DrawCardsEffect(1), sourceRequiredZone = Zone.GRAVEYARD)
@@ -184,7 +184,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("GatedEffectScenarioTest_6"),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = GatedEffect(
@@ -210,7 +210,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("GatedEffectScenarioTest_7"),
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = Effects.IfYouDo(

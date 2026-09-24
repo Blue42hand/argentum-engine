@@ -56,7 +56,7 @@ val TheIrencrag = card("The Irencrag") {
 
     // Equip {3}, granted by the transform. Mirrors the shape CardBuilder.equipAbility builds.
     val everflameEquip = ActivatedAbility(
-        id = AbilityId.generate(),
+        id = AbilityId.next(),
         cost = AbilityCost.Atom(CostAtom.Mana(ManaCost.parse("{3}"))),
         effect = Effects.AttachEquipment(EffectTarget.BoundVariable("creature you control")),
         targetRequirements = listOf(

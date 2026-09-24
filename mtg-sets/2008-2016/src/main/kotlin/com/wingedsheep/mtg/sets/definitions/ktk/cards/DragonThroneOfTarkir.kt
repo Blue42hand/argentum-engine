@@ -43,7 +43,7 @@ val DragonThroneOfTarkir = card("Dragon Throne of Tarkir") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap),
                 effect = Effects.Composite(
                     listOf(

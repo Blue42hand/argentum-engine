@@ -345,12 +345,13 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
      * present. So a model whose id the serializer emitted and an identical model whose id it did not
      * produced the same fields in two orders, and the string comparison called that a divergence.
      *
-     * Whether the serializer emits an `AbilityId` at all is **not stable across calls**, which is
-     * what made this present as a phantom: `encodeDefaults` is false and `AbilityId.generate()` is a
-     * global counter, so kotlinx re-evaluates the default to decide whether to skip the field and a
-     * golden holding `ability_2` is omitted exactly when the counter next returns `ability_2`. Two
-     * encodes of the *same* card therefore differ, and Blasting Station — whose models are equal
-     * field for field — reported as divergent on some runs and confirmed on others.
+     * Whether the serializer emitted an `AbilityId` at all used to be **unstable across calls**,
+     * which is what made this present as a phantom: `encodeDefaults` is false and the id's default
+     * was a global counter, so kotlinx re-evaluated the default to decide whether to skip the field
+     * and a golden holding `ability_2` was omitted exactly when the counter next returned
+     * `ability_2`. Two encodes of the *same* card therefore differed, and Blasting Station — whose
+     * models are equal field for field — reported as divergent on some runs and confirmed on others.
+     * (Ids are now minted per card and always encoded, but the sort still closes the class.)
      *
      * Sorting is the fix rather than "always stamp in position", because it closes the whole class:
      * any later pass that adds a key, and any field the serializer omits on one side, is now
@@ -436,13 +437,13 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
      * [Folds.dropPresentation], which drops the same class of field wherever it is nested.)
      *
      * An `AbilityId` is arbitrary in exactly the way a target slot's name is, and more obviously so:
-     * the DSL generates them from a counter, which is why Kavu Climber's golden says `"ability_1"`.
-     * Comparing it would measure the order the cards happened to be constructed in.
-     * `CardDefinitionSnapshotTest.normalizeAbilityIds` does the same for the goldens themselves.
+     * the DSL numbers them per card in construction order, which is why Kavu Climber's golden says
+     * `"Kavu Climber:1"`. Comparing it would measure the order the card's abilities happened to be
+     * written in.
      *
-     * Both lists get the same treatment, because a card's activated abilities are generated from the
-     * same counter its triggered ones are — Blasting Station's golden numbers its trigger `ability_1`
-     * and its activated ability `ability_2` purely because that is the order they were constructed
+     * Both lists get the same treatment, because a card's activated abilities are numbered from the
+     * same per-card counter its triggered ones are — Blasting Station's golden numbers its trigger
+     * `:1` and its activated ability `:2` purely because that is the order they were constructed
      * in, and the grammar mints a fixed constant for each.
      */
     private fun canonicalizeAbilities(script: JsonElement): JsonElement {
@@ -460,7 +461,7 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
      * …and the ability a **static hands out**, which is nested one level further in.
      *
      * `GrantTriggeredAbility` and `GrantActivatedAbility` carry a whole ability inside the static,
-     * and its id is generated exactly as a top-level one is — `AbilityId.generate()` on the card, a
+     * and its id is generated exactly as a top-level one is — `AbilityId.next()` on the card, a
      * fixed constant in the grammar. Leaving it out of [canonicalizeAbilities] made the gate report
      * six Sliver lords as divergent over a counter: a difference in neither model, and the same
      * class of self-deception as the slot-name and per-owner numbering bugs before it. Found the way
@@ -470,8 +471,8 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
      * there is no list to index into.
      *
      * Stamped whether or not the ability *has* an `id` in the JSON, for the reason [sortKeys]
-     * records: the serializer's decision to emit an `AbilityId` is not stable across calls, so
-     * keying this on the field's presence would canonicalize one side of a pair and not the other.
+     * records: the serializer's decision to emit an `AbilityId` was not always stable across calls,
+     * so keying this on the field's presence would canonicalize one side of a pair and not the other.
      * A `GrantStaticAbility` carries an ability with no id at all and picks up a stamp it does not
      * need — harmless, because both sides get the same one and no printed word ever determined it.
      */

@@ -38,7 +38,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 fun CardBuilder.station() {
     activatedAbilities.add(
         ActivatedAbility(
-            id = AbilityId.generate(),
+            id = AbilityId.next(),
             cost = AbilityCost.Atom(CostAtom.TapPermanents(
                 count = 1,
                 filter = GameObjectFilter.Creature,

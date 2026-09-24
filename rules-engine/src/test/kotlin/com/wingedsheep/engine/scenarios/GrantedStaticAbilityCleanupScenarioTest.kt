@@ -43,7 +43,7 @@ class GrantedStaticAbilityCleanupScenarioTest : FunSpec({
             effect = Effects.GrantStaticAbility(
                 GrantActivatedAbility(
                     ability = ActivatedAbility(
-                        id = AbilityId.generate(),
+                        id = AbilityId("GrantedStaticAbilityCleanupScenarioTest_1"),
                         cost = Costs.Tap,
                         effect = Effects.AddMana(Color.GREEN),
                     ),

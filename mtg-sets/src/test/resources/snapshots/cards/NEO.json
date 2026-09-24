@@ -15,7 +15,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Atsushi, the Blazing Sky:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -98,7 +98,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Automated Artificer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -173,7 +173,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Boseiju, Who Endures:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -183,7 +183,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Boseiju, Who Endures:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -394,7 +394,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Circuit Mender:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -409,7 +409,7 @@
                 "descriptionOverride": "When this creature enters, you gain 2 life."
             },
             {
-                "id": "ability_2",
+                "id": "Circuit Mender:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -506,7 +506,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ecologist's Terrarium:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -559,7 +559,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Ecologist's Terrarium:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -614,7 +614,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eiganjo, Seat of the Empire:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -624,7 +624,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Eiganjo, Seat of the Empire:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -746,7 +746,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Experimental Synthesizer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -781,7 +781,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Experimental Synthesizer:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -818,7 +818,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Experimental Synthesizer:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -991,7 +991,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Generous Visitor:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1082,7 +1082,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "High-Speed Hoverbike:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1177,7 +1177,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Inkrise Infiltrator:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1324,7 +1324,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Moonsnare Specialist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1375,7 +1375,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mothrider Patrol:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1467,7 +1467,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Network Disruptor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1510,7 +1510,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Network Terminal:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -1518,7 +1518,7 @@
                 "descriptionOverride": "{T}: Add one mana of any color."
             },
             {
-                "id": "ability_2",
+                "id": "Network Terminal:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1681,7 +1681,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nezumi Prowler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1738,7 +1738,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Otawara, Soaring City:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1748,7 +1748,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Otawara, Soaring City:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1817,7 +1817,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Papercraft Decoy:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -1877,7 +1877,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Patchwork Automaton:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1984,7 +1984,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scrapyard Steelbreaker:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2048,7 +2048,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Searchlight Companion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2152,7 +2152,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Secluded Courtyard:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2165,7 +2165,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Secluded Courtyard:2",
                 "cost": "CostTap",
                 "effect": "AddAnyColorManaSpendOnChosenType",
                 "timing": "ManaAbility",
@@ -2229,7 +2229,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sokenzan, Crucible of Defiance:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2239,7 +2239,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Sokenzan, Crucible of Defiance:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2322,7 +2322,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spirited Companion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2370,7 +2370,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spring-Leaf Avenger:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -2419,7 +2419,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Takenuma, Abandoned Mire:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2429,7 +2429,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Takenuma, Abandoned Mire:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2629,7 +2629,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Towashi Songshaper:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -2672,7 +2672,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Uncharted Haven:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -2712,7 +2712,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Unstoppable Ogre:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2759,7 +2759,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Virus Beetle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

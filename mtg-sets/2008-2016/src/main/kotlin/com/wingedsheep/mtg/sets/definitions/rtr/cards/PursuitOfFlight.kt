@@ -41,7 +41,7 @@ val PursuitOfFlight = card("Pursuit of Flight") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{U}"),
                 effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
             )

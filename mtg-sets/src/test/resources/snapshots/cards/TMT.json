@@ -14,7 +14,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Action News Crew:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -84,7 +84,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Agent Bishop, Man in Black:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -136,7 +136,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Anchovy & Banana Pizza:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -161,7 +161,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Anchovy & Banana Pizza:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -210,7 +210,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "April O'Neil, Hacktivist:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -252,7 +252,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "April O'Neil, Kunoichi Trainee:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -301,7 +301,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "April, Reporter of the Weird:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -388,7 +388,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Armaggon, Future Shark:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -443,7 +443,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Baxter Stockman:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -461,7 +461,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Baxter Stockman:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -539,7 +539,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bebop & Rocksteady:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "PayOrSuffer",
@@ -555,7 +555,7 @@
                 "descriptionOverride": "Whenever Bebop & Rocksteady attack, sacrifice a permanent unless you discard a card."
             },
             {
-                "id": "ability_2",
+                "id": "Bebop & Rocksteady:2",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "PayOrSuffer",
@@ -643,7 +643,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bespoke Bō:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -669,7 +669,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Bespoke Bō:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -972,7 +972,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Buzz Bots:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1015,7 +1015,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Casey Jones, Jury-Rig Justiciar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1099,7 +1099,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Casey Jones, Vigilante:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1186,7 +1186,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chrome Dome:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1247,7 +1247,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cool but Rude:1",
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
@@ -1316,7 +1316,7 @@
                 "cost": "{1}{R}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_2",
+                        "id": "Cool but Rude:2",
                         "trigger": "DiscardEvent",
                         "binding": "ANY",
                         "effect": {
@@ -1338,7 +1338,7 @@
                 "cost": "{1}{R}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_3",
+                        "id": "Cool but Rude:3",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "to": "Battlefield"
@@ -1442,7 +1442,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Courier of Comestibles:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1616,7 +1616,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Crustacean Commando:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1662,7 +1662,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dark Leo & Shredder:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1795,7 +1795,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dimension X:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1811,7 +1811,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Dimension X:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1821,7 +1821,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Dimension X:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1856,7 +1856,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dimensional Exile:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1877,7 +1877,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Dimensional Exile:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -1931,7 +1931,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Does Machines:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2011,7 +2011,7 @@
                 "cost": "{1}{U}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_2",
+                        "id": "Does Machines:2",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "to": "Battlefield"
@@ -2045,7 +2045,7 @@
                 "cost": "{4}{U}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_3",
+                        "id": "Does Machines:3",
                         "trigger": {
                             "type": "StepEvent",
                             "step": "BEGIN_COMBAT"
@@ -2140,7 +2140,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Don & Leo, Problem Solvers:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -2234,7 +2234,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Don & Raph, Hard Science:1",
                 "trigger": "AttackEvent",
                 "effect": "GrantNextSpellAffinity",
                 "descriptionOverride": "Whenever Don & Raph attack, the next noncreature spell you cast this turn has affinity for artifacts."
@@ -2312,7 +2312,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Donatello, Gadget Master:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -2362,7 +2362,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Donatello, Mutant Mechanic:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -2390,7 +2390,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Donatello, Mutant Mechanic:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -2477,7 +2477,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Donatello, Turtle Techie:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2525,7 +2525,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Donatello, Way with Machines:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -2570,7 +2570,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dream Beavers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2630,7 +2630,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "EPF Point Squad:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -2676,7 +2676,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "East Wind Avatar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -2719,7 +2719,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Everything Pizza:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2767,7 +2767,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Everything Pizza:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2916,7 +2916,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Featherbrained Filcher:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -2953,7 +2953,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foot Elite:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -3015,7 +3015,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foot Headquarters:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3031,7 +3031,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Foot Headquarters:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3041,7 +3041,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Foot Headquarters:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3083,7 +3083,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foot Mystic:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3138,7 +3138,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foot Ninjas:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3180,14 +3180,14 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Frog Butler:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Frog Butler:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3227,7 +3227,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fugitive Droid:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3311,7 +3311,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "General Traag, Heart of Stone:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3377,7 +3377,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Genghis Frog:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Mutant ctrl:you",
@@ -3588,7 +3588,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Guac & Marshmallow Pizza:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3632,7 +3632,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Guac & Marshmallow Pizza:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3737,7 +3737,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hard-Won Jitte:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3798,7 +3798,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Henchbots:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3819,7 +3819,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Henchbots:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -3871,7 +3871,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "High-Flying Ace:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3932,7 +3932,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ice Cream Kitty:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3963,7 +3963,7 @@
                 "timing": "SorcerySpeed"
             },
             {
-                "id": "ability_2",
+                "id": "Ice Cream Kitty:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4009,7 +4009,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Illegitimate Business:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4025,7 +4025,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Illegitimate Business:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4035,7 +4035,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Illegitimate Business:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4070,7 +4070,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Improvised Arsenal:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4081,7 +4081,7 @@
                 "effect": "CreateTokenCopyOfSource"
             },
             {
-                "id": "ability_2",
+                "id": "Improvised Arsenal:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4157,7 +4157,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Insectoid Exterminator:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -4256,7 +4256,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jennika, Bad Apple Big Sister:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4399,7 +4399,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Karai, Future of the Foot:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -4563,7 +4563,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kitsune, Dragon's Daughter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4603,7 +4603,7 @@
                 "descriptionOverride": "When Kitsune enters, you may exchange control of two other target creatures controlled by different players."
             },
             {
-                "id": "ability_2",
+                "id": "Kitsune, Dragon's Daughter:2",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -4676,7 +4676,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Koya, Death from Above:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4767,7 +4767,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krang & Shredder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4802,7 +4802,7 @@
                 "descriptionOverride": "Whenever Krang & Shredder enter or attack, each opponent exiles cards from the top of their library until they exile a nonland card."
             },
             {
-                "id": "ability_2",
+                "id": "Krang & Shredder:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -4834,7 +4834,7 @@
                 "descriptionOverride": "Whenever Krang & Shredder enter or attack, each opponent exiles cards from the top of their library until they exile a nonland card."
             },
             {
-                "id": "ability_3",
+                "id": "Krang & Shredder:3",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -4911,7 +4911,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krang, Master Mind:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5053,7 +5053,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Leader's Talent:1",
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
@@ -5080,7 +5080,7 @@
                 "cost": "{2}{W}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_2",
+                        "id": "Leader's Talent:2",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "filter": "creature ctrl:you",
@@ -5103,7 +5103,7 @@
                 "cost": "{3}{W}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_3",
+                        "id": "Leader's Talent:3",
                         "trigger": "SpellCastEvent",
                         "binding": "ANY",
                         "effect": {
@@ -5153,7 +5153,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Leatherhead, Swamp Stalker:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -5345,7 +5345,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Leonardo, Cutting Edge:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -5390,7 +5390,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Leonardo, Leader in Blue:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5421,7 +5421,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Leonardo, Leader in Blue:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5589,7 +5589,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lita, Little Orphan Amphibian:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -5654,7 +5654,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lord Dregg, Insect Invader:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -5681,7 +5681,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Lord Dregg, Insect Invader:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5739,7 +5739,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Madame Null, Power Broker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -5889,7 +5889,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mechanized Ninja Cavalry:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5933,7 +5933,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Metalhead:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5959,7 +5959,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Metalhead:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6116,7 +6116,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Michelangelo, Game Master:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -6166,7 +6166,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Michelangelo, Improviser:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -6275,7 +6275,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Michelangelo, Mutant BFF:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6287,7 +6287,7 @@
                 "descriptionOverride": "Whenever Michelangelo enters, create a Mutagen token."
             },
             {
-                "id": "ability_2",
+                "id": "Michelangelo, Mutant BFF:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -6338,7 +6338,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Michelangelo, Weirdness to 11:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6378,7 +6378,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mighty Mutanimals:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6397,7 +6397,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Mighty Mutanimals:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -6513,7 +6513,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mikey & Leo, Chaos & Order:1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
                     "counterType": null,
@@ -6624,7 +6624,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mona Lisa, Science Geek:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -6664,7 +6664,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mondo Gecko:2",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -6687,7 +6687,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Mondo Gecko:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6823,7 +6823,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mouser Foundry:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6841,7 +6841,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Mouser Foundry:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -6861,7 +6861,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Mouser Foundry:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6967,7 +6967,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mutagen Man, Living Ooze:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7080,7 +7080,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mutant Town:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7097,7 +7097,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Mutant Town:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -7107,7 +7107,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Mutant Town:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -7149,7 +7149,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mutant Town Musicians:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -7259,7 +7259,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ninja Teen:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -7341,7 +7341,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nobody:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7403,7 +7403,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "North Wind Avatar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7468,7 +7468,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Northampton Farm:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -7481,7 +7481,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Northampton Farm:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -7515,7 +7515,7 @@
                 ]
             },
             {
-                "id": "ability_3",
+                "id": "Northampton Farm:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -7594,7 +7594,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Novel Nunchaku:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7644,7 +7644,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Novel Nunchaku:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -7709,7 +7709,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Null Group Biological Assets:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -7798,7 +7798,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Old Hob, Alleycat Blues:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -7842,7 +7842,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Old Hob, Alleycat Blues:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -7892,7 +7892,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Omni-Cheese Pizza:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7908,7 +7908,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Omni-Cheese Pizza:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -7928,7 +7928,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Omni-Cheese Pizza:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -8023,7 +8023,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oroku Saki, Shredder Rising:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -8086,7 +8086,7 @@
                 {
                     "type": "GrantTriggeredAbility",
                     "ability": {
-                        "id": "ability_1",
+                        "id": "Pain 101:1",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "from": "Battlefield",
@@ -8142,7 +8142,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Paramecia Coloniex:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8175,7 +8175,7 @@
                 "descriptionOverride": "When this creature enters, mill three cards."
             },
             {
-                "id": "ability_2",
+                "id": "Paramecia Coloniex:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -8235,7 +8235,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Party Dude:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8260,7 +8260,7 @@
                 "cost": "{1}{G}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_2",
+                        "id": "Party Dude:2",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "filter": "artifact ctrl:opponent",
@@ -8284,7 +8284,7 @@
                 "cost": "{4}{G}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_3",
+                        "id": "Party Dude:3",
                         "trigger": "CreaturesAttackYourOpponentEvent",
                         "binding": "ANY",
                         "effect": {
@@ -8342,7 +8342,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pizza Face, Gastromancer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8354,7 +8354,7 @@
                 "descriptionOverride": "When Pizza Face enters, create a Food token."
             },
             {
-                "id": "ability_2",
+                "id": "Pizza Face, Gastromancer:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -8425,7 +8425,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Pizza Face, Gastromancer:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -8475,7 +8475,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prehistoric Pet:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -8556,7 +8556,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Primordial Pachyderm:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8629,7 +8629,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Purple Dragon Punks:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -8678,7 +8678,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Putrid Pals:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8715,7 +8715,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Quintessential Katana:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Ninja ctrl:you",
@@ -8736,7 +8736,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Quintessential Katana:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -8773,7 +8773,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_3",
+                    "id": "Quintessential Katana:1",
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat"
@@ -8824,7 +8824,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ragamuffin Raptor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8873,7 +8873,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raph & Leo, Sibling Rivals:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -8936,7 +8936,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raph & Mikey, Troublemakers:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -9089,7 +9089,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raphael, Most Attitude:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -9128,7 +9128,7 @@
                 "descriptionOverride": "Alliance — Whenever another creature you control enters, you may exile the top card of your library."
             },
             {
-                "id": "ability_2",
+                "id": "Raphael, Most Attitude:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -9172,7 +9172,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raphael, Ninja Destroyer:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "AddMana",
@@ -9214,7 +9214,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raphael, Tough Turtle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -9306,7 +9306,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rat King, Verminister:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -9340,7 +9340,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Rat King, Verminister:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -9400,7 +9400,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ravenous Robots:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -9425,7 +9425,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Ravenous Robots:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -9484,7 +9484,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ray Fillet, Man Ray:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9498,7 +9498,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Ray Fillet, Man Ray:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -9556,7 +9556,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Renet, Temporal Apprentice:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9707,7 +9707,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rock Soldiers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9814,7 +9814,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sally Pride, Lioness Leader:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9842,7 +9842,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Sally Pride, Lioness Leader:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -9890,7 +9890,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savanti Romero, Time's Exile:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -10038,7 +10038,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sewer-veillance Cam:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10084,7 +10084,7 @@
                 "descriptionOverride": "When this artifact enters, you may tap or untap target creature."
             },
             {
-                "id": "ability_2",
+                "id": "Sewer-veillance Cam:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -10132,7 +10132,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Sewer-veillance Cam:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -10190,7 +10190,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shark Shredder, Killer Clone:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -10241,7 +10241,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shredder's Armor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10264,7 +10264,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Shredder's Armor:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -10540,7 +10540,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shredder, Unrelenting:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10563,7 +10563,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Shredder, Unrelenting:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "GrantKeyword",
@@ -10604,7 +10604,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skateboard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10627,7 +10627,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Skateboard:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -10690,7 +10690,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Slash, Reptile Rampager:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -10711,7 +10711,7 @@
                 "descriptionOverride": "Alliance — Whenever another creature you control enters, Slash deals 2 damage to each opponent."
             },
             {
-                "id": "ability_2",
+                "id": "Slash, Reptile Rampager:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -10753,7 +10753,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Slithering Cryptid:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10794,7 +10794,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "South Wind Avatar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -10813,7 +10813,7 @@
                 "descriptionOverride": "Whenever another creature you control dies, you gain life equal to its toughness."
             },
             {
-                "id": "ability_2",
+                "id": "South Wind Avatar:2",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -10851,7 +10851,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spicy Oatmeal Pizza:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10888,7 +10888,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Spicy Oatmeal Pizza:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11047,7 +11047,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Splinter, Radical Rat:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -11152,7 +11152,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stockman, Mad Fly-entist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11310,7 +11310,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Super Shredder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent",
@@ -11348,7 +11348,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "TCRI Building:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11364,7 +11364,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "TCRI Building:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -11374,7 +11374,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "TCRI Building:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -11487,7 +11487,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Technodrome:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11970,7 +11970,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Neutrinos:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -11992,7 +11992,7 @@
                 "descriptionOverride": "Alliance — Whenever another creature you control enters, The Neutrinos get +1/+0 until end of turn."
             },
             {
-                "id": "ability_2",
+                "id": "The Neutrinos:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -12049,7 +12049,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Ooze:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": {
@@ -12084,7 +12084,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "The Ooze:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -12140,7 +12140,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tokka & Rahzar, Terrible Twos:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "Each"
@@ -12205,7 +12205,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Transdimensional Bovine:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -12247,7 +12247,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Triceraton Commander:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12268,7 +12268,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Triceraton Commander:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -12330,7 +12330,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tunnel Rats:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -12382,7 +12382,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Turncoat Kunoichi:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12418,7 +12418,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Turncoat Kunoichi:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -12481,7 +12481,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Turtle Blimp:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12518,7 +12518,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Turtle Lair:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -12531,7 +12531,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Turtle Lair:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -12547,7 +12547,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Turtle Lair:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -12657,7 +12657,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Turtle Van:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -12927,7 +12927,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Uneasy Alliance:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13013,7 +13013,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Utrom Scientists:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13074,7 +13074,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Venus, Torn Between Worlds:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "AddDynamicCounters",
@@ -13088,7 +13088,7 @@
                 "descriptionOverride": "Whenever Venus is dealt damage, put that many +1/+1 counters on her."
             },
             {
-                "id": "ability_2",
+                "id": "Venus, Torn Between Worlds:2",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -13150,7 +13150,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Weather Maker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -13167,14 +13167,14 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Weather Maker:2",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Weather Maker:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13204,7 +13204,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_4",
+                "id": "Weather Maker:4",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13267,7 +13267,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "West Wind Avatar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13296,7 +13296,7 @@
                 "descriptionOverride": "Whenever this creature enters, you may sacrifice a token or a land. If you do, you gain 3 life."
             },
             {
-                "id": "ability_2",
+                "id": "West Wind Avatar:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -13322,7 +13322,7 @@
                 "descriptionOverride": "Whenever this creature attacks, you may sacrifice a token or a land. If you do, you gain 3 life."
             },
             {
-                "id": "ability_3",
+                "id": "West Wind Avatar:3",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -13364,7 +13364,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wingnut, Bat on the Belfry:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -13404,7 +13404,7 @@
                 "descriptionOverride": "Alliance — Whenever another creature you control enters, Wingnut gains your choice of flying, menace, or haste until end of turn."
             },
             {
-                "id": "ability_2",
+                "id": "Wingnut, Bat on the Belfry:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -13475,7 +13475,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zog, Triceraton Castaway:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13520,7 +13520,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zoo Escapees:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"

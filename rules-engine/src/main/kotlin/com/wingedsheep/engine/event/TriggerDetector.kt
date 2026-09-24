@@ -547,6 +547,7 @@ class TriggerDetector(
         val triggers = matching.map { delayed ->
             PendingTrigger(
                 ability = TriggeredAbility.create(
+                    id = AbilityId("delayed_${delayed.id}"),
                     trigger = EventPattern.StepEvent(Step.END, Player.Each),
                     binding = TriggerBinding.ANY,
                     effect = delayed.effect,
@@ -724,6 +725,7 @@ class TriggerDetector(
 
             // Create a sacrifice-self trigger
             val sacrificeAbility = TriggeredAbility.create(
+                id = AbilityId("evoke_sacrifice"),
                 trigger = com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                 binding = TriggerBinding.SELF,
                 effect = com.wingedsheep.sdk.dsl.Effects.SacrificeTarget(
@@ -772,6 +774,7 @@ class TriggerDetector(
                 ?.playerId ?: continue
 
             val sacrificeAtEndOfCombat = TriggeredAbility.create(
+                id = AbilityId("decayed_sacrifice"),
                 trigger = com.wingedsheep.sdk.scripting.EventPattern.AttackEvent(),
                 binding = TriggerBinding.SELF,
                 effect = com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect(
@@ -937,6 +940,7 @@ class TriggerDetector(
                         triggers.add(
                             PendingTrigger(
                                 ability = TriggeredAbility.create(
+                                    id = AbilityId("delayed_${delayed.id}"),
                                     trigger = spec.event,
                                     binding = spec.binding,
                                     effect = delayed.effect,
@@ -983,6 +987,7 @@ class TriggerDetector(
                         triggers.add(
                             PendingTrigger(
                                 ability = TriggeredAbility.create(
+                                    id = AbilityId("delayed_${delayed.id}"),
                                     trigger = spec.event,
                                     binding = spec.binding,
                                     effect = delayed.effect,
@@ -1006,6 +1011,7 @@ class TriggerDetector(
                 triggers.add(
                     PendingTrigger(
                         ability = TriggeredAbility.create(
+                            id = AbilityId("delayed_${delayed.id}"),
                             trigger = spec.event,
                             binding = spec.binding,
                             effect = delayed.effect,
@@ -2459,6 +2465,7 @@ class TriggerDetector(
             if (event !is ReflexiveAbilityTriggeredEvent) continue
             val reqs = event.reflexiveTargetRequirements
             val syntheticAbility = TriggeredAbility.create(
+                id = AbilityId("reflexive"),
                 // Never re-matched — this PendingTrigger is constructed directly, bypassing the
                 // usual TriggerIndex scan, so the trigger pattern itself is inert.
                 trigger = EventPattern.DamageEvent(),
@@ -3524,6 +3531,7 @@ class TriggerDetector(
                 if (loreCount >= chapter.chapter && previousLoreCount < chapter.chapter) {
                     // Create a triggered ability for this chapter
                     val chapterAbility = TriggeredAbility.create(
+                        id = AbilityId("saga_chapter_${chapter.chapter}"),
                         trigger = EventPattern.StepEvent(Step.PRECOMBAT_MAIN, Player.You),
                         binding = TriggerBinding.SELF,
                         effect = chapter.effect,

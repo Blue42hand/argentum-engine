@@ -38,6 +38,7 @@ class TemptingWurmTest : FunSpec({
         creatureStats = CreatureStats(5, 5),
         script = CardScript.creature(
             TriggeredAbility.create(
+                id = AbilityId("TemptingWurmTest_1"),
                 trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                 binding = TriggerBinding.SELF,
                 effect = Patterns.Hand.eachOpponentMayPutFromHand(

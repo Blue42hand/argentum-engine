@@ -43,7 +43,7 @@ val ZombieMaster = card("Zombie Master") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{B}"),
                 effect = Effects.Regenerate(EffectTarget.Self)
             ),

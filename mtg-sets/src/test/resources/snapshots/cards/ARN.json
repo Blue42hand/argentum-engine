@@ -11,7 +11,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Abu Ja'far:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -65,7 +65,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aladdin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -123,7 +123,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aladdin's Lamp:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -221,7 +221,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aladdin's Ring:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -278,7 +278,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ali Baba:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -409,7 +409,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bazaar of Baghdad:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -505,7 +505,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bottle of Suleiman:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -571,7 +571,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brass Man:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -665,7 +665,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "City in a Bottle:1",
                 "condition": {
                     "type": "Exists",
                     "player": "Each",
@@ -773,7 +773,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "City of Brass:1",
                 "trigger": "TapEvent",
                 "effect": {
                     "type": "DealDamage",
@@ -787,7 +787,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "City of Brass:2",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -818,7 +818,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cuombajj Witches:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -891,7 +891,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cyclone:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1027,7 +1027,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dandân:1",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -1074,7 +1074,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Desert:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1087,7 +1087,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Desert:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -1225,7 +1225,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Diamond Valley:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1269,7 +1269,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drop of Honey:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1324,7 +1324,7 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Drop of Honey:2",
                 "condition": {
                     "type": "Exists",
                     "player": "Each",
@@ -1361,7 +1361,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ebony Horse:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1431,7 +1431,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "El-Hajjâj:1",
                 "trigger": "DealsDamageEvent",
                 "effect": {
                     "type": "GainLife",
@@ -1464,7 +1464,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elephant Graveyard:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1477,7 +1477,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Elephant Graveyard:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Regenerate",
@@ -1521,7 +1521,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Erg Raiders:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -1592,7 +1592,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Erhnam Djinn:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1712,7 +1712,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flying Carpet:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1793,7 +1793,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ghazbán Ogre:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1970,7 +1970,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hasran Ogress:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "PayOrSuffer",
@@ -2017,7 +2017,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hurr Jackal:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "CantBeRegenerated",
@@ -2065,7 +2065,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ifh-Bíff Efreet:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2144,7 +2144,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Island Fish Jasconius:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2169,7 +2169,7 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Island Fish Jasconius:2",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -2217,7 +2217,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Island of Wak-Wak:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "SetBaseStats",
@@ -2263,7 +2263,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jandor's Ring:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2316,7 +2316,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jandor's Saddlebags:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2369,7 +2369,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jihad:1",
                 "condition": {
                     "type": "Exists",
                     "player": "ChosenOpponent",
@@ -2454,7 +2454,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Junún Efreet:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2499,7 +2499,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Juzám Djinn:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2542,7 +2542,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Khabál Ghoul:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -2595,7 +2595,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "King Suleiman:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveToZone",
@@ -2711,7 +2711,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Library of Alexandria:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2724,7 +2724,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Library of Alexandria:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DrawCards",
@@ -2794,7 +2794,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Magnetic Mountain:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -2907,7 +2907,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merchant Ship:1",
                 "trigger": "BecomesUnblockedEvent",
                 "effect": {
                     "type": "GainLife",
@@ -2920,7 +2920,7 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Merchant Ship:2",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -3026,7 +3026,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mijae Djinn:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "FlipCoin",
@@ -3097,7 +3097,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nafs Asp:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
@@ -3175,7 +3175,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oasis:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -3226,7 +3226,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Old Man of the Sea:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GainControl",
@@ -3280,7 +3280,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oubliette:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3302,7 +3302,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Oubliette:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -3372,7 +3372,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pyramids:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3493,7 +3493,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ring of Ma'rûf:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3577,7 +3577,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rukh Egg:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -3624,7 +3624,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sandals of Abdallah:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3745,7 +3745,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Serendib Djinn:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3785,7 +3785,7 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Serendib Djinn:2",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -3829,7 +3829,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Serendib Efreet:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3871,7 +3871,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sindbad:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -3958,7 +3958,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Singing Tree:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "SetBaseStats",
@@ -4009,7 +4009,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sorceress Queen:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "SetBaseStats",
@@ -4086,7 +4086,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Unstable Mutation:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -4164,7 +4164,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wyluli Wolf:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ModifyStats",
@@ -4218,7 +4218,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ydwen Efreet:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "FlipCoin",

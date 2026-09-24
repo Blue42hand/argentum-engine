@@ -33,26 +33,26 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * the Rogue step keeps that base P/T (it only swaps the class subtype and grants the ability),
  * because "becomes a Halfling Rogue" states no new power/toughness.
  */
-/**
- * Granted to Frodo when he becomes a Rogue: "Whenever this creature deals combat damage to a
- * player, that player loses the game if the Ring has tempted you four or more times this game.
- * Otherwise, the Ring tempts you."
- */
-private val rogueCombatDamageAbility = TriggeredAbility.create(
-    trigger = Triggers.DealsCombatDamageToPlayer.event,
-    binding = Triggers.DealsCombatDamageToPlayer.binding,
-    effect = Effects.If(
-        condition = Conditions.RingHasTemptedYouAtLeast(4),
-        then = Effects.LoseGame(
-            target = EffectTarget.PlayerRef(Player.TriggeringPlayer),
-            message = "Frodo, Sauron's Bane dealt combat damage (Ring tempted you 4+ times)"
-        ),
-        otherwise = Effects.TheRingTemptsYou()
-    ),
-    descriptionOverride = "Whenever this creature deals combat damage to a player, that player loses the game if the Ring has tempted you four or more times this game. Otherwise, the Ring tempts you."
-)
-
 val FrodoSauronsBane = card("Frodo, Sauron's Bane") {
+    /**
+     * Granted to Frodo when he becomes a Rogue: "Whenever this creature deals combat damage to a
+     * player, that player loses the game if the Ring has tempted you four or more times this game.
+     * Otherwise, the Ring tempts you."
+     */
+    val rogueCombatDamageAbility = TriggeredAbility.create(
+        trigger = Triggers.DealsCombatDamageToPlayer.event,
+        binding = Triggers.DealsCombatDamageToPlayer.binding,
+        effect = Effects.If(
+            condition = Conditions.RingHasTemptedYouAtLeast(4),
+            then = Effects.LoseGame(
+                target = EffectTarget.PlayerRef(Player.TriggeringPlayer),
+                message = "Frodo, Sauron's Bane dealt combat damage (Ring tempted you 4+ times)"
+            ),
+            otherwise = Effects.TheRingTemptsYou()
+        ),
+        descriptionOverride = "Whenever this creature deals combat damage to a player, that player loses the game if the Ring has tempted you four or more times this game. Otherwise, the Ring tempts you."
+    )
+
     manaCost = "{W}"
     colorIdentity = "WB"
     typeLine = "Legendary Creature — Halfling Citizen"

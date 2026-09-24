@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
@@ -79,6 +80,7 @@ class EntityMatchesAttachmentScenarioTest : FunSpec({
             ability = ConditionalStaticAbility(
                 ability = GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
+                        id = AbilityId("EntityMatchesAttachmentScenarioTest_1"),
                         trigger = Triggers.YourUpkeep.event,
                         binding = Triggers.YourUpkeep.binding,
                         effect = Effects.DrawCards(1)

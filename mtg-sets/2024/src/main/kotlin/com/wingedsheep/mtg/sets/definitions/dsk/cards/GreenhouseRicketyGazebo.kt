@@ -47,7 +47,7 @@ val GreenhouseRicketyGazebo = card("Greenhouse // Rickety Gazebo") {
         staticAbility {
             ability = GrantActivatedAbility(
                 ability = ActivatedAbility(
-                    id = AbilityId.generate(),
+                    id = AbilityId.next(),
                     cost = Costs.Tap,
                     effect = Effects.AddManaOfChoice(),
                     isManaAbility = true,

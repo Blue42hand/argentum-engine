@@ -14112,6 +14112,16 @@ answer across all copies. The triggered-ability path still derives a provisional
 typed ownership provenance for granted and synthesized triggers remains an explicit follow-up in
 `backlog/stack-collapse-and-batch-decisions.md` §4. See that backlog's §C.2 for the original identity contract.
 
+**Where the `AbilityId` half comes from.** `card(name) { … }` runs its block inside `AbilityIdScope.within(name)`, and
+every ability built while it runs — `activatedAbility { }`, `triggeredAbility { }`, a raw `ActivatedAbility(...)` or
+`TriggeredAbility.create(...)` inside a grant, a keyword helper's synthesized trigger — takes `AbilityId.next()`:
+`"<card name>:<n>"` in construction order. The ids are a function of the card's source, identical on every run and in
+every JVM; nothing process-global is read or advanced. `AbilityId.next()` **fails outside a scope**, so an ability built
+with no card around it must name its id: a file-level `private val` shared between a card's blocks belongs *inside* the
+`card { }` block (Sygg, Wanderwine Wisdom; Arlinn Kord), and engine-synthesized triggers use fixed, mechanic-named ids
+(`persist`, `saga_chapter_2`, `delayed_<id>`), like the keyword ones (`flanking`, `suspend_countdown`). An id only has to
+be unique among the abilities one object holds at once.
+
 ### Batched may-question (engine-internal, not authored)
 
 When a run of structurally identical **optional, targeted** triggers ("Whenever …, you may … *target* …") fires off one
@@ -14132,7 +14142,8 @@ choice on the player's behalf.
 ## 21. Structural lint (`CardLinter`)
 
 Every registered card is structurally validated at build time: `CardValidator.validate` runs
-`CardLinter` (mtg-sdk `serialization/CardLinter.kt`), and the corpus-wide gate is
+`CardLinter` (`mtg-sdk-tooling` `tooling/CardLinter.kt` — tooling over the SDK's data, kept out of
+`mtg-sdk` along with the card-JSON loader/exporter and the filter query language), and the corpus-wide gate is
 `CardLintTest` in mtg-sets (beside `CardDefinitionSnapshotTest`). The linter walks the card's
 serialized JSON tree, so every container — composites, gates, modes, granted abilities, class
 levels, saga chapters, faces — is covered automatically. What it checks:
