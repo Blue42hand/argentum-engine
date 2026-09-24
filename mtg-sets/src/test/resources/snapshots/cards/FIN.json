@@ -2397,11 +2397,15 @@
                             "type": "FilterCollection",
                             "from": "handSpells",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "VariableReference",
-                                    "variableName": "combatDamage"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "VariableReference",
+                                            "variableName": "combatDamage"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "castable"
                         },
@@ -6227,10 +6231,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "looked",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "permanent"
-                                },
+                                "filter": "permanent",
                                 "storeMatching": "kept",
                                 "storeNonMatching": "rest"
                             },
@@ -21029,10 +21030,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "selected1",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "enchantment"
-                                },
+                                "filter": "enchantment",
                                 "storeMatching": "matching2",
                                 "storeNonMatching": "rest2"
                             },
@@ -22572,10 +22570,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCard",
                             "storeNonMatching": "rest"
                         },
@@ -23782,18 +23777,22 @@
                             "type": "FilterCollection",
                             "from": "others",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "Subtract",
-                                    "left": {
-                                        "type": "StoredCardManaValue",
-                                        "collectionName": "mine"
-                                    },
-                                    "right": {
-                                        "type": "Fixed",
-                                        "amount": 1
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "Subtract",
+                                            "left": {
+                                                "type": "StoredCardManaValue",
+                                                "collectionName": "mine"
+                                            },
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        }
                                     }
-                                }
+                                ]
                             },
                             "storeMatching": "playableOthers"
                         },

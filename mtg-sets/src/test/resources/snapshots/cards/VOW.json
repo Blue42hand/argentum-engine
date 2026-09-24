@@ -3858,10 +3858,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "chandraExiled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "red"
-                            },
+                            "filter": "red",
                             "storeMatching": "chandraExiledRed"
                         },
                         {
@@ -4637,7 +4634,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "gathered0",
-                    "filter": {
+                    "collectionFilter": {
                         "type": "ExcludeOtherCollection",
                         "otherCollectionName": "kept1"
                     },

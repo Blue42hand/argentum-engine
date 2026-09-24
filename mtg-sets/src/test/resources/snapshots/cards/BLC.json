@@ -999,10 +999,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "exiledCards",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "nonland"
-                            },
+                            "filter": "nonland",
                             "storeMatching": "castable"
                         },
                         {

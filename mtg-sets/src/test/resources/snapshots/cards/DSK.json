@@ -2542,19 +2542,13 @@
                 {
                     "type": "FilterCollection",
                     "from": "allTargets",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:you"
-                    },
+                    "filter": "creature ctrl:you",
                     "storeMatching": "clobberers"
                 },
                 {
                     "type": "FilterCollection",
                     "from": "allTargets",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:opponent"
-                    },
+                    "filter": "creature ctrl:opponent",
                     "storeMatching": "victim"
                 },
                 {
@@ -8656,7 +8650,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "revealedLand"
                             },
@@ -10810,10 +10804,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "enchantment"
-                            },
+                            "filter": "enchantment",
                             "storeMatching": "kept",
                             "storeNonMatching": "rest"
                         },
@@ -21383,10 +21374,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCards",
                             "storeNonMatching": "nonLandCards"
                         },

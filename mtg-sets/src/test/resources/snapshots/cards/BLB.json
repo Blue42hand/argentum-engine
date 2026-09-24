@@ -3134,19 +3134,23 @@
                             "type": "FilterCollection",
                             "from": "myCreatures",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "Subtract",
-                                    "left": {
-                                        "type": "EntityProperty",
-                                        "entity": "TriggeringEntity",
-                                        "numericProperty": "ManaValue"
-                                    },
-                                    "right": {
-                                        "type": "Fixed",
-                                        "amount": 1
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "Subtract",
+                                            "left": {
+                                                "type": "EntityProperty",
+                                                "entity": "TriggeringEntity",
+                                                "numericProperty": "ManaValue"
+                                            },
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        }
                                     }
-                                }
+                                ]
                             },
                             "storeMatching": "eligible"
                         },
@@ -3252,7 +3256,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "revealedLand"
                             },
@@ -6157,10 +6161,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCards",
                             "storeNonMatching": "nonLandCards"
                         },
@@ -9534,7 +9535,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "graveyardCreatures",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeEntity",
                                 "entity": "TriggeringEntity"
                             },
@@ -9544,19 +9545,23 @@
                             "type": "FilterCollection",
                             "from": "otherCreatures",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "Subtract",
-                                    "left": {
-                                        "type": "EntityProperty",
-                                        "entity": "TriggeringEntity",
-                                        "numericProperty": "ManaValue"
-                                    },
-                                    "right": {
-                                        "type": "Fixed",
-                                        "amount": 1
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "Subtract",
+                                            "left": {
+                                                "type": "EntityProperty",
+                                                "entity": "TriggeringEntity",
+                                                "numericProperty": "ManaValue"
+                                            },
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        }
                                     }
-                                }
+                                ]
                             },
                             "storeMatching": "validTargets"
                         },
@@ -22290,15 +22295,19 @@
                             "type": "FilterCollection",
                             "from": "graveyardSpells",
                             "filter": {
-                                "type": "ManaValueEquals",
-                                "value": {
-                                    "type": "EntityProperty",
-                                    "entity": "Self",
-                                    "numericProperty": {
-                                        "type": "CounterCount",
-                                        "counterType": "COIN"
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueEqualsDynamic",
+                                        "amount": {
+                                            "type": "EntityProperty",
+                                            "entity": "Self",
+                                            "numericProperty": {
+                                                "type": "CounterCount",
+                                                "counterType": "COIN"
+                                            }
+                                        }
                                     }
-                                }
+                                ]
                             },
                             "storeMatching": "matchingSpells"
                         },

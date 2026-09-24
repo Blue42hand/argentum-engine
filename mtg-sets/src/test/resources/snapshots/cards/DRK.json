@@ -6381,10 +6381,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "ithRevealed",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "ithLand",
                             "storeNonMatching": "ithNonland"
                         },

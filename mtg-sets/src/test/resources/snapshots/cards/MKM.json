@@ -1348,10 +1348,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "selected1",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "land"
-                                },
+                                "filter": "land",
                                 "storeMatching": "matching3",
                                 "storeNonMatching": "rest3"
                             },
@@ -2664,11 +2661,15 @@
                     "type": "FilterCollection",
                     "from": "selected1",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": {
-                            "type": "Fixed",
-                            "amount": 2
-                        }
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            }
+                        ]
                     },
                     "storeMatching": "matching3",
                     "storeNonMatching": "rest3"
@@ -7104,8 +7105,12 @@
                                         "type": "FilterCollection",
                                         "from": "selected",
                                         "filter": {
-                                            "type": "InZone",
-                                            "zone": "Hand"
+                                            "statePredicates": [
+                                                {
+                                                    "type": "InZone",
+                                                    "zone": "Hand"
+                                                }
+                                            ]
                                         },
                                         "storeMatching": "selectedFromHand"
                                     },
@@ -11714,7 +11719,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "discarded",
-                                "filter": "GreatestManaValue",
+                                "collectionFilter": "GreatestManaValue",
                                 "storeMatching": "greatestDiscarded"
                             },
                             {
@@ -12754,18 +12759,19 @@
                         {
                             "type": "FilterCollection",
                             "from": "trigger.captured",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "creature nontoken"
-                            },
+                            "filter": "creature nontoken",
                             "storeMatching": "kayaExiledCreatures"
                         },
                         {
                             "type": "FilterCollection",
                             "from": "kayaExiledCreatures",
                             "filter": {
-                                "type": "InZone",
-                                "zone": "Exile"
+                                "statePredicates": [
+                                    {
+                                        "type": "InZone",
+                                        "zone": "Exile"
+                                    }
+                                ]
                             },
                             "storeMatching": "kayaChoosable"
                         },
@@ -13797,10 +13803,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "exiled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "instant|sorcery"
-                            },
+                            "filter": "instant|sorcery",
                             "storeMatching": "castable"
                         },
                         {
@@ -13983,10 +13986,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "gathered0",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "creature"
-                            },
+                            "filter": "creature",
                             "storeMatching": "lazavCreatureCards"
                         },
                         {

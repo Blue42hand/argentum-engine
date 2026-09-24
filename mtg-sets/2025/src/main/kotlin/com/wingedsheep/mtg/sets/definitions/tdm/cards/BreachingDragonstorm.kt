@@ -66,7 +66,7 @@ val BreachingDragonstorm = card("Breaching Dragonstorm") {
                 // Only mana value ≤ 8 may be cast for free.
                 FilterCollectionEffect(
                     from = "nonland",
-                    filter = CollectionFilter.ManaValueAtMost(DynamicAmount.Fixed(8)),
+                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.Fixed(8)),
                     storeMatching = "castable"
                 ),
                 // You may cast it without paying its mana cost — only prompted when there is a
@@ -79,7 +79,7 @@ val BreachingDragonstorm = card("Breaching Dragonstorm") {
                 // cast has left exile for the stack, so only the nonland still in exile moves.
                 FilterCollectionEffect(
                     from = "nonland",
-                    filter = CollectionFilter.InZone(Zone.EXILE),
+                    filter = GameObjectFilter.Any.currentlyIn(Zone.EXILE),
                     storeMatching = "uncast"
                 ),
                 MoveCollectionEffect(

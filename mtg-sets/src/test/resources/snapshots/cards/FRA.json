@@ -1308,7 +1308,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "candidates",
-                    "filter": "GreatestManaValue",
+                    "collectionFilter": "GreatestManaValue",
                     "storeMatching": "greatest"
                 },
                 {

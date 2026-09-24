@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantFreeCastTargetFromExileEffect
@@ -58,7 +57,7 @@ val WishingWell = card("Wishing Well") {
                 // Filter to those with MV = number of coin counters on this artifact
                 FilterCollectionEffect(
                     from = "graveyardSpells",
-                    filter = CollectionFilter.ManaValueEquals(
+                    filter = GameObjectFilter.Any.manaValueEqualsDynamic(
                         DynamicAmounts.countersOnSelf(CounterType.COIN)
                     ),
                     storeMatching = "matchingSpells"

@@ -2769,10 +2769,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "exiledCard",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCards",
                             "storeNonMatching": "nonLandCards"
                         },
@@ -2839,10 +2836,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "exiledCard",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCards",
                             "storeNonMatching": "nonLandCards"
                         },
@@ -9907,11 +9901,15 @@
                                     "type": "FilterCollection",
                                     "from": "kellanCandidates",
                                     "filter": {
-                                        "type": "ManaValueAtMost",
-                                        "max": {
-                                            "type": "ContextProperty",
-                                            "key": "TRIGGERING_SPELL_MANA_VALUE"
-                                        }
+                                        "cardPredicates": [
+                                            {
+                                                "type": "ManaValueAtMostDynamic",
+                                                "amount": {
+                                                    "type": "ContextProperty",
+                                                    "key": "TRIGGERING_SPELL_MANA_VALUE"
+                                                }
+                                            }
+                                        ]
                                     },
                                     "storeMatching": "kellanEligible"
                                 },
@@ -10439,10 +10437,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "lazavExiled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "creature"
-                            },
+                            "filter": "creature",
                             "storeMatching": "lazavCreature"
                         },
                         {
@@ -11820,10 +11815,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCards"
                         },
                         {
@@ -13383,10 +13375,7 @@
                                     {
                                         "type": "FilterCollection",
                                         "from": "gathered0",
-                                        "filter": {
-                                            "type": "MatchesFilter",
-                                            "filter": "land"
-                                        },
+                                        "filter": "land",
                                         "storeMatching": "matching3"
                                     },
                                     {

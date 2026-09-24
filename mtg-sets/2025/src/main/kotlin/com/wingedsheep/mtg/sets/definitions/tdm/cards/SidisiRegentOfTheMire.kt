@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -64,7 +63,7 @@ val SidisiRegentOfTheMire = card("Sidisi, Regent of the Mire") {
                 // Keep creature cards whose mana value is the sacrificed creature's MV (X) + 1.
                 FilterCollectionEffect(
                     from = "graveyardCreatures",
-                    filter = CollectionFilter.ManaValueEquals(
+                    filter = GameObjectFilter.Any.manaValueEqualsDynamic(
                         DynamicAmount.Add(
                             DynamicAmount.EntityProperty(
                                 EffectTarget.SacrificedAsCost(0),

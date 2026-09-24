@@ -4031,10 +4031,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "gathered0",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "permanent"
-                            },
+                            "filter": "permanent",
                             "storeMatching": "matching2"
                         },
                         {
@@ -4279,10 +4276,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "revealed",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "nonland"
-                            },
+                            "filter": "nonland",
                             "storeMatching": "nonlands"
                         },
                         {
@@ -10187,10 +10181,7 @@
                                     {
                                         "type": "FilterCollection",
                                         "from": "proteusRevealed",
-                                        "filter": {
-                                            "type": "MatchesFilter",
-                                            "filter": "creature"
-                                        },
+                                        "filter": "creature",
                                         "storeMatching": "proteusCreature",
                                         "storeNonMatching": "proteusRest"
                                     },

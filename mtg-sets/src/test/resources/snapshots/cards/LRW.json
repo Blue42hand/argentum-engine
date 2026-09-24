@@ -5452,10 +5452,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "revealed",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "nonland"
-                    },
+                    "filter": "nonland",
                     "storeMatching": "matchedToHand",
                     "storeNonMatching": "rest"
                 },

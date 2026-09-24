@@ -2644,7 +2644,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * payoff can say "from among **them**". Note CR 111.7 has already swept any token out of that
      * collection by the time the ability resolves, and a card that has since left exile is likewise
      * no longer choosable (Kaya, Spirits' Justice's ruling) — filter the collection with
-     * `CollectionFilter.InZone(Zone.EXILE)` when the payoff must still find the card in exile.
+     * `GameObjectFilter.Any.currentlyIn(Zone.EXILE)` when the payoff must still find the card in exile.
      *
      * The common "during your turn" timing restriction is expressed on the card via
      * `triggerRestriction = Conditions.IsYourTurn` rather than baked into the event.

@@ -2184,10 +2184,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "milled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "Elf"
-                            },
+                            "filter": "Elf",
                             "storeMatching": "elves",
                             "storeNonMatching": "rest"
                         },
@@ -5392,10 +5389,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "milled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "instant|sorcery"
-                            },
+                            "filter": "instant|sorcery",
                             "storeMatching": "spells",
                             "storeNonMatching": "rest"
                         },
@@ -9165,10 +9159,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "revealed",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "creature"
-                            },
+                            "filter": "creature",
                             "storeMatching": "found",
                             "storeNonMatching": "rest"
                         },
@@ -10519,18 +10510,19 @@
                         {
                             "type": "FilterCollection",
                             "from": "selected2",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "matching4"
                         },
                         {
                             "type": "FilterCollection",
                             "from": "matching4",
                             "filter": {
-                                "type": "InZone",
-                                "zone": "Graveyard"
+                                "statePredicates": [
+                                    {
+                                        "type": "InZone",
+                                        "zone": "Graveyard"
+                                    }
+                                ]
                             },
                             "storeMatching": "matching5"
                         },
@@ -13012,16 +13004,13 @@
                         {
                             "type": "FilterCollection",
                             "from": "gathered0",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "artifact Equipment"
-                            },
+                            "filter": "artifact Equipment",
                             "storeMatching": "matching1"
                         },
                         {
                             "type": "FilterCollection",
                             "from": "gathered0",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "matching1"
                             },

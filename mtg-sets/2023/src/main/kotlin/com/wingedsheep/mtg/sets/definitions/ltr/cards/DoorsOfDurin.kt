@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -51,7 +50,7 @@ val DoorsOfDurin = card("Doors of Durin") {
                     RevealCollectionEffect(from = "top"),
                     FilterCollectionEffect(
                         from = "top",
-                        filter = CollectionFilter.MatchesFilter(GameObjectFilter.Creature),
+                        filter = GameObjectFilter.Creature,
                         storeMatching = "topCreature"
                     ),
                     MoveCollectionEffect(

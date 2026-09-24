@@ -4308,10 +4308,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "gathered0",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "creature ctrl:you"
-                            },
+                            "filter": "creature ctrl:you",
                             "storeMatching": "matching1",
                             "storeNonMatching": "rest1"
                         },
@@ -4328,7 +4325,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "moved2",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "rest1"
                             },
@@ -11718,10 +11715,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "moved2",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "artifact"
-                            },
+                            "filter": "artifact",
                             "storeMatching": "matching3"
                         },
                         {
@@ -13500,19 +13494,23 @@
                             "type": "FilterCollection",
                             "from": "libraryArtifacts",
                             "filter": {
-                                "type": "ManaValueEquals",
-                                "value": {
-                                    "type": "Add",
-                                    "left": {
-                                        "type": "EntityProperty",
-                                        "entity": "SacrificedAsCost",
-                                        "numericProperty": "ManaValue"
-                                    },
-                                    "right": {
-                                        "type": "Fixed",
-                                        "amount": 1
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueEqualsDynamic",
+                                        "amount": {
+                                            "type": "Add",
+                                            "left": {
+                                                "type": "EntityProperty",
+                                                "entity": "SacrificedAsCost",
+                                                "numericProperty": "ManaValue"
+                                            },
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        }
                                     }
-                                }
+                                ]
                             },
                             "storeMatching": "candidates"
                         },
@@ -15562,7 +15560,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "revealed0",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "matched0"
                             },

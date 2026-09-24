@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -82,7 +81,7 @@ val FecundGreenshell = card("Fecund Greenshell") {
             // Split into land and non-land
             FilterCollectionEffect(
                 from = "looked",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                filter = GameObjectFilter.Land,
                 storeMatching = "landCards",
                 storeNonMatching = "nonLandCards"
             ),

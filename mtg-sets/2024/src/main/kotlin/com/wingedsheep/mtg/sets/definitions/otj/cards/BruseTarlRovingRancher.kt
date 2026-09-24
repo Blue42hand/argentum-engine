@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
@@ -60,7 +59,7 @@ private val bruseTarlBody = Effects.Composite(
         // Split the exiled card into land vs. non-land.
         FilterCollectionEffect(
             from = "exiledCard",
-            filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+            filter = GameObjectFilter.Land,
             storeMatching = "landCards",
             storeNonMatching = "nonLandCards",
         ),

@@ -312,6 +312,13 @@ interface ObjectFilterBuilder<out Self> {
         withCardPredicate(CardPredicate.HasSubtypeInStoredList(listName))
 
     /**
+     * Must have **none** of the subtypes in storedStringLists[listName] — "destroy all creatures that
+     * aren't of a type chosen this way" (Harsh Mercy). The negation of [withSubtypeInStoredList].
+     */
+    fun withoutSubtypeInStoredList(listName: String) =
+        withCardPredicate(CardPredicate.Not(CardPredicate.HasSubtypeInStoredList(listName)))
+
+    /**
      * Must share at least one subtype with every group in the stored subtype list
      * `pipeline.storedSubtypeGroups[groupName]`. Pair with
      * [com.wingedsheep.sdk.scripting.effects.GatherSubtypesEffect] to populate the

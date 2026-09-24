@@ -2044,11 +2044,15 @@
                             "type": "FilterCollection",
                             "from": "nonland",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "Fixed",
-                                    "amount": 8
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 8
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "castable"
                         },
@@ -2068,8 +2072,12 @@
                             "type": "FilterCollection",
                             "from": "nonland",
                             "filter": {
-                                "type": "InZone",
-                                "zone": "Exile"
+                                "statePredicates": [
+                                    {
+                                        "type": "InZone",
+                                        "zone": "Exile"
+                                    }
+                                ]
                             },
                             "storeMatching": "uncast"
                         },
@@ -8627,21 +8635,22 @@
                         {
                             "type": "FilterCollection",
                             "from": "exiled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "nonland"
-                            },
+                            "filter": "nonland",
                             "storeMatching": "nonland"
                         },
                         {
                             "type": "FilterCollection",
                             "from": "nonland",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "ContextProperty",
-                                    "key": "TRIGGER_DAMAGE_AMOUNT"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "ContextProperty",
+                                            "key": "TRIGGER_DAMAGE_AMOUNT"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "castable"
                         },
@@ -14378,19 +14387,23 @@
                             "type": "FilterCollection",
                             "from": "graveyardCreatures",
                             "filter": {
-                                "type": "ManaValueEquals",
-                                "value": {
-                                    "type": "Add",
-                                    "left": {
-                                        "type": "EntityProperty",
-                                        "entity": "SacrificedAsCost",
-                                        "numericProperty": "ManaValue"
-                                    },
-                                    "right": {
-                                        "type": "Fixed",
-                                        "amount": 1
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueEqualsDynamic",
+                                        "amount": {
+                                            "type": "Add",
+                                            "left": {
+                                                "type": "EntityProperty",
+                                                "entity": "SacrificedAsCost",
+                                                "numericProperty": "ManaValue"
+                                            },
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        }
                                     }
-                                }
+                                ]
                             },
                             "storeMatching": "returnable"
                         },
@@ -17239,10 +17252,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCard"
                         },
                         {
@@ -17272,7 +17282,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "toHand"
                             },

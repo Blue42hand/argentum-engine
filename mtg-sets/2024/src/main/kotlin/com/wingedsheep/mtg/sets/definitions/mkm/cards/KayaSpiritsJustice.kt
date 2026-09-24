@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -99,7 +98,7 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
             )
             val stillExiled = filter(
                 creatureCards,
-                CollectionFilter.InZone(Zone.EXILE),
+                GameObjectFilter.Any.currentlyIn(Zone.EXILE),
                 name = "kayaChoosable",
             )
             val chosen = chooseUpTo(

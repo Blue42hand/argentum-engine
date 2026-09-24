@@ -80,12 +80,12 @@ val KotisTheFangkeeper = card("Kotis, the Fangkeeper") {
                 // Narrow to spells (nonland cards) with mana value ≤ X — the free-castable set.
                 FilterCollectionEffect(
                     from = "exiled",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Nonland),
+                    filter = GameObjectFilter.Nonland,
                     storeMatching = "nonland"
                 ),
                 FilterCollectionEffect(
                     from = "nonland",
-                    filter = CollectionFilter.ManaValueAtMost(
+                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(
                         DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
                     ),
                     storeMatching = "castable"

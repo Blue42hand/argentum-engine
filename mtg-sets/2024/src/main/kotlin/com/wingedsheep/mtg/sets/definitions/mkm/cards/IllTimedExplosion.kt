@@ -36,7 +36,7 @@ val IllTimedExplosion = card("Ill-Timed Explosion") {
                 reflexiveEffect = Effects.Composite(
                     FilterCollectionEffect(
                         from = "discarded",
-                        filter = CollectionFilter.GreatestManaValue,
+                        collectionFilter = CollectionFilter.GreatestManaValue,
                         storeMatching = "greatestDiscarded",
                     ),
                     Patterns.Group.dealDamageToAll(

@@ -8963,7 +8963,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "raph_revealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "raph_creature"
                             },

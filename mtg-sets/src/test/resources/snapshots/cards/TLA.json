@@ -1600,10 +1600,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "allTargets",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:you"
-                    },
+                    "filter": "creature ctrl:you",
                     "storeMatching": "allies"
                 },
                 {
@@ -14256,10 +14253,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "gathered0",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "matching2"
                         },
                         {
@@ -17516,19 +17510,23 @@
                     "type": "FilterCollection",
                     "from": "nonland",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": {
-                            "type": "Subtract",
-                            "left": {
-                                "type": "AggregateBattlefield",
-                                "player": "You",
-                                "filter": "land Mountain"
-                            },
-                            "right": {
-                                "type": "Fixed",
-                                "amount": 1
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": {
+                                    "type": "Subtract",
+                                    "left": {
+                                        "type": "AggregateBattlefield",
+                                        "player": "You",
+                                        "filter": "land Mountain"
+                                    },
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                }
                             }
-                        }
+                        ]
                     },
                     "storeMatching": "castable"
                 },
@@ -17548,8 +17546,12 @@
                     "type": "FilterCollection",
                     "from": "nonland",
                     "filter": {
-                        "type": "InZone",
-                        "zone": "Exile"
+                        "statePredicates": [
+                            {
+                                "type": "InZone",
+                                "zone": "Exile"
+                            }
+                        ]
                     },
                     "storeMatching": "uncast"
                 },

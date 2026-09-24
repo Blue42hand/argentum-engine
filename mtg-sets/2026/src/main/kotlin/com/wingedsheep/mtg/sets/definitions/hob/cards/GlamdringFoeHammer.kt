@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -89,7 +88,7 @@ val GlamdringFoeHammer = card("Glamdring, Foe-hammer") {
                     // Then put all instant and sorcery cards from among them into your hand.
                     FilterCollectionEffect(
                         from = "milled",
-                        filter = CollectionFilter.MatchesFilter(GameObjectFilter.InstantOrSorcery),
+                        filter = GameObjectFilter.InstantOrSorcery,
                         storeMatching = "spells",
                         storeNonMatching = "rest"
                     ),

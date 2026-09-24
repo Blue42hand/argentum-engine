@@ -1008,7 +1008,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "toBattlefield"
                             },
@@ -3159,8 +3159,12 @@
                     "type": "FilterCollection",
                     "from": "searchable",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": "XValue"
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": "XValue"
+                            }
+                        ]
                     },
                     "storeMatching": "mvOk"
                 },
@@ -7799,12 +7803,9 @@
                             "type": "FilterCollection",
                             "from": "looked",
                             "filter": {
-                                "type": "MatchesFilter",
-                                "filter": {
-                                    "cardPredicates": [
-                                        "HasChosenSubtype"
-                                    ]
-                                }
+                                "cardPredicates": [
+                                    "HasChosenSubtype"
+                                ]
                             },
                             "storeMatching": "matchingCard",
                             "storeNonMatching": "nonMatchingCard"
@@ -7906,12 +7907,9 @@
                             "type": "FilterCollection",
                             "from": "looked",
                             "filter": {
-                                "type": "MatchesFilter",
-                                "filter": {
-                                    "cardPredicates": [
-                                        "HasChosenSubtype"
-                                    ]
-                                }
+                                "cardPredicates": [
+                                    "HasChosenSubtype"
+                                ]
                             },
                             "storeMatching": "matchingCard",
                             "storeNonMatching": "nonMatchingCard"
@@ -10491,12 +10489,16 @@
                             "type": "FilterCollection",
                             "from": "handCreatures",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "AggregateBattlefield",
-                                    "player": "You",
-                                    "filter": "creature attacking"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "creature attacking"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "eligible"
                         },
@@ -14959,7 +14961,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "toExile"
                             },
@@ -17812,10 +17814,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "chosen",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "instant|sorcery"
-                            },
+                            "filter": "instant|sorcery",
                             "storeMatching": "instantOrSorcery"
                         },
                         {
@@ -20110,16 +20109,13 @@
                         "type": "FilterCollection",
                         "from": "rest",
                         "filter": {
-                            "type": "MatchesFilter",
-                            "filter": {
-                                "cardPredicates": [
-                                    "IsCreature",
-                                    {
-                                        "type": "HasSubtypeInEachStoredGroup",
-                                        "groupName": "chosenSubtypes"
-                                    }
-                                ]
-                            }
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "HasSubtypeInEachStoredGroup",
+                                    "groupName": "chosenSubtypes"
+                                }
+                            ]
                         },
                         "storeMatching": "shareTypes",
                         "storeNonMatching": "noShareTypes"

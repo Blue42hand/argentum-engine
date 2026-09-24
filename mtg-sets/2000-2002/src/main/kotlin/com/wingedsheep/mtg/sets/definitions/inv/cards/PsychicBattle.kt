@@ -56,7 +56,7 @@ val PsychicBattle = card("Psychic Battle") {
             ),
             FilterCollectionEffect(
                 from = "revealed",
-                filter = CollectionFilter.GreatestManaValue,
+                collectionFilter = CollectionFilter.GreatestManaValue,
                 storeMatching = "greatestManaValue"
             ),
             Effects.ChangeTriggeringObjectTargets(

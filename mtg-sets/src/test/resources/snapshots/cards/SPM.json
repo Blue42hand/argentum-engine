@@ -4414,15 +4414,19 @@
                             "type": "FilterCollection",
                             "from": "ladyOctopusCandidates",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "EntityProperty",
-                                    "entity": "Self",
-                                    "numericProperty": {
-                                        "type": "CounterCount",
-                                        "counterType": "INGENUITY"
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "EntityProperty",
+                                            "entity": "Self",
+                                            "numericProperty": {
+                                                "type": "CounterCount",
+                                                "counterType": "INGENUITY"
+                                            }
+                                        }
                                     }
-                                }
+                                ]
                             },
                             "storeMatching": "ladyOctopusEligible"
                         },
@@ -12109,10 +12113,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "allTargets",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:you"
-                    },
+                    "filter": "creature ctrl:you",
                     "storeMatching": "team"
                 },
                 {

@@ -184,7 +184,7 @@ object CreatureTypePatterns {
         ),
         com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect(
             from = "sharingType_gathered",
-            filter = com.wingedsheep.sdk.scripting.effects.CollectionFilter.SharesSubtypeWithSacrificed,
+            collectionFilter = com.wingedsheep.sdk.scripting.effects.CollectionFilter.SharesSubtypeWithSacrificed,
             storeMatching = "sharingType_filtered"
         ),
         MoveCollectionEffect(

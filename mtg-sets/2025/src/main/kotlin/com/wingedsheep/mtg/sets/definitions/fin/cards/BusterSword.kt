@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -80,7 +79,7 @@ val BusterSword = card("Buster Sword") {
             ),
             FilterCollectionEffect(
                 from = "handSpells",
-                filter = CollectionFilter.ManaValueAtMost(DynamicAmount.VariableReference("combatDamage")),
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.VariableReference("combatDamage")),
                 storeMatching = "castable"
             ),
             // You may choose one of the eligible spells (the "you may cast a spell" choice).

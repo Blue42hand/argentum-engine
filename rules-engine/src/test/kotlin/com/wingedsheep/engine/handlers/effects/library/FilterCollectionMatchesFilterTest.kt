@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -87,7 +86,7 @@ class FilterCollectionMatchesFilterTest : FunSpec({
         storeNonMatching: String? = "nonMatching"
     ) = FilterCollectionEffect(
         from = from,
-        filter = CollectionFilter.MatchesFilter(filter),
+        filter = filter,
         storeMatching = storeMatching,
         storeNonMatching = storeNonMatching
     )
@@ -160,7 +159,7 @@ class FilterCollectionMatchesFilterTest : FunSpec({
 
         val effect = FilterCollectionEffect(
             from = "gathered",
-            filter = CollectionFilter.MatchesFilter(GameObjectFilter.Creature),
+            filter = GameObjectFilter.Creature,
             storeMatching = "matching",
             storeNonMatching = null
         )

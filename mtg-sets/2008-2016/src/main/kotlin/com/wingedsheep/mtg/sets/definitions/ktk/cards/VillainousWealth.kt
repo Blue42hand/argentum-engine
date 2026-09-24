@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CastAnyNumberFromCollectionWithoutPayingCostEffect
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -46,12 +45,12 @@ val VillainousWealth = card("Villainous Wealth") {
                 // Filter to nonland cards (spells only) with mana value ≤ X
                 FilterCollectionEffect(
                     from = "exiled",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Nonland),
+                    filter = GameObjectFilter.Nonland,
                     storeMatching = "nonland"
                 ),
                 FilterCollectionEffect(
                     from = "nonland",
-                    filter = CollectionFilter.ManaValueAtMost(DynamicAmount.XValue),
+                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.XValue),
                     storeMatching = "castable"
                 ),
                 // Cast any number of them for free, during this spell's resolution (the

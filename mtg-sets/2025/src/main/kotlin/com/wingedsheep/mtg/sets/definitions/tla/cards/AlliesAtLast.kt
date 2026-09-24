@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -64,7 +63,7 @@ val AlliesAtLast = card("Allies at Last") {
             ),
             FilterCollectionEffect(
                 from = "allTargets",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Creature.youControl()),
+                filter = GameObjectFilter.Creature.youControl(),
                 storeMatching = "allies",
             ),
             // Each chosen creature deals damage equal to its power to the opponent's creature.

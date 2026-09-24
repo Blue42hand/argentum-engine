@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -62,9 +61,9 @@ val Winnowing = card("Winnowing") {
                 GatherSubtypesEffect(from = "chosen", storeAs = "chosenSubtypes"),
                 FilterCollectionEffect(
                     from = "rest",
-                    filter = CollectionFilter.MatchesFilter(
+                    filter = 
                         GameObjectFilter.Creature.withSubtypeInEachStoredGroup("chosenSubtypes")
-                    ),
+                    ,
                     storeMatching = "shareTypes",
                     storeNonMatching = "noShareTypes"
                 ),

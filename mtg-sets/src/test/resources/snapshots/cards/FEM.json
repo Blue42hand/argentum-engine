@@ -4555,7 +4555,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allPlains",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "allSpared"
                             },

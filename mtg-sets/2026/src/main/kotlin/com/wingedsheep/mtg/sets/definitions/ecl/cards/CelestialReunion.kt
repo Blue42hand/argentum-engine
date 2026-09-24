@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ChooseOptionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -91,7 +90,7 @@ val CelestialReunion = card("Celestial Reunion") {
                 ),
                 FilterCollectionEffect(
                     from = "searchable",
-                    filter = CollectionFilter.ManaValueAtMost(DynamicAmount.XValue),
+                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.XValue),
                     storeMatching = "mvOk"
                 ),
                 SelectFromCollectionEffect(

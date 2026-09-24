@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -73,7 +72,7 @@ val TheEnd = card("The End") {
                 )
                 val selectedFromHand = filter(
                     selected,
-                    CollectionFilter.InZone(Zone.HAND),
+                    GameObjectFilter.Any.currentlyIn(Zone.HAND),
                     name = "selectedFromHand"
                 )
                 exile(selected)

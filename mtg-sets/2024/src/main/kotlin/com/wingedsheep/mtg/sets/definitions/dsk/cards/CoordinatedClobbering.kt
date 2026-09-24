@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -57,12 +56,12 @@ val CoordinatedClobbering = card("Coordinated Clobbering") {
             ),
             FilterCollectionEffect(
                 from = "allTargets",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Creature.youControl()),
+                filter = GameObjectFilter.Creature.youControl(),
                 storeMatching = "clobberers",
             ),
             FilterCollectionEffect(
                 from = "allTargets",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Creature.opponentControls()),
+                filter = GameObjectFilter.Creature.opponentControls(),
                 storeMatching = "victim",
             ),
             // Tap all chosen creatures first ("Tap one or two target untapped creatures you control").

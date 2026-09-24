@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -79,7 +78,7 @@ val KyloxVisionaryInventor = card("Kylox, Visionary Inventor") {
                 ),
                 FilterCollectionEffect(
                     from = "exiled",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.InstantOrSorcery),
+                    filter = GameObjectFilter.InstantOrSorcery,
                     storeMatching = "castable"
                 ),
                 Effects.CastAnyNumberFromCollectionWithoutPayingCost("castable")

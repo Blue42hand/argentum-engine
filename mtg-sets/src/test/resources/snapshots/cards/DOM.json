@@ -6400,8 +6400,12 @@
                     "type": "FilterCollection",
                     "from": "looked",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": "XValue"
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": "XValue"
+                            }
+                        ]
                     },
                     "storeMatching": "mvOk",
                     "storeNonMatching": "mvTooHigh"

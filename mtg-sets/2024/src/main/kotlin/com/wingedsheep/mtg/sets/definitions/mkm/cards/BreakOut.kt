@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  1. `chooseUpToSplit` of 1 creature card — the optional reveal. Declining leaves `revealed`
  *     empty and every later step is a no-op over an empty slot, so all six cards fall through to
  *     the bottom-of-library move.
- *  2. `filterSplit` on [CollectionFilter.ManaValueAtMost] splits the revealed card into the
+ *  2. `filterSplit` on a `manaValueAtMostDynamic` filter splits the revealed card into the
  *     battlefield-eligible `cheap` slot and `tooExpensive`. The mana-value test is *not* a player
  *     choice, matching the card: only "you may put it onto the battlefield" is optional.
  *  3. A second `chooseUpToSplit` over `cheap` is that second "may". What the player declines lands
@@ -69,7 +68,7 @@ val BreakOut = card("Break Out") {
             reveal(revealed, revealToSelf = false)
             val (cheap, tooExpensive) = filterSplit(
                 from = revealed,
-                filter = CollectionFilter.ManaValueAtMost(DynamicAmount.Fixed(2))
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.Fixed(2))
             )
             val (toBattlefield, declined) = chooseUpToSplit(
                 count = 1,

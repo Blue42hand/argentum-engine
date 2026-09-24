@@ -3896,8 +3896,12 @@
                             "type": "FilterCollection",
                             "from": "toDraw",
                             "filter": {
-                                "type": "InZone",
-                                "zone": "Hand"
+                                "statePredicates": [
+                                    {
+                                        "type": "InZone",
+                                        "zone": "Hand"
+                                    }
+                                ]
                             },
                             "storeMatching": "drawn"
                         },
@@ -3909,10 +3913,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "drawn",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "keptLand",
                             "storeNonMatching": "notLand"
                         },

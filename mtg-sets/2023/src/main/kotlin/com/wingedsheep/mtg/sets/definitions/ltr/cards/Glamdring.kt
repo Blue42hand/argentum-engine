@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -97,7 +96,7 @@ val Glamdring = card("Glamdring") {
             ),
             FilterCollectionEffect(
                 from = "handSpells",
-                filter = CollectionFilter.ManaValueAtMost(DynamicAmount.VariableReference("combatDamage")),
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.VariableReference("combatDamage")),
                 storeMatching = "castable"
             ),
             // You may cast one of them without paying its mana cost.

@@ -278,7 +278,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "bolsterCreatures",
-                            "filter": "LeastToughness",
+                            "collectionFilter": "LeastToughness",
                             "storeMatching": "bolsterLeastToughness"
                         },
                         {

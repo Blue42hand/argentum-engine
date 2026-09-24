@@ -2982,10 +2982,7 @@
                                     {
                                         "type": "FilterCollection",
                                         "from": "top",
-                                        "filter": {
-                                            "type": "MatchesFilter",
-                                            "filter": "creature"
-                                        },
+                                        "filter": "creature",
                                         "storeMatching": "topCreature"
                                     },
                                     {
@@ -7202,11 +7199,15 @@
                             "type": "FilterCollection",
                             "from": "handSpells",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "VariableReference",
-                                    "variableName": "combatDamage"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "VariableReference",
+                                            "variableName": "combatDamage"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "castable"
                         },
@@ -13154,11 +13155,15 @@
                     "type": "FilterCollection",
                     "from": "handSpells",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": {
-                            "type": "VariableReference",
-                            "variableName": "bouncedMv"
-                        }
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": {
+                                    "type": "VariableReference",
+                                    "variableName": "bouncedMv"
+                                }
+                            }
+                        ]
                     },
                     "storeMatching": "castable"
                 },

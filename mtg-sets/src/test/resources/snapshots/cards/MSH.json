@@ -5315,10 +5315,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "exiled_top",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "nonland"
-                                },
+                                "filter": "nonland",
                                 "storeMatching": "castable"
                             },
                             {
@@ -19240,10 +19237,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "putOntoBattlefield",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "artifact Equipment"
-                                },
+                                "filter": "artifact Equipment",
                                 "storeMatching": "enteredEquipment"
                             },
                             {

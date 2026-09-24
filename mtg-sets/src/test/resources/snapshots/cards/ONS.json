@@ -5764,7 +5764,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "sharingType_gathered",
-                    "filter": "SharesSubtypeWithSacrificed",
+                    "collectionFilter": "SharesSubtypeWithSacrificed",
                     "storeMatching": "sharingType_filtered"
                 },
                 {
@@ -8409,8 +8409,15 @@
                             "type": "FilterCollection",
                             "from": "destroyAll_gathered",
                             "filter": {
-                                "type": "ExcludeSubtypesFromStored",
-                                "storedKey": "chosenTypes"
+                                "cardPredicates": [
+                                    {
+                                        "type": "Not",
+                                        "predicate": {
+                                            "type": "HasSubtypeInStoredList",
+                                            "listName": "chosenTypes"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "destroyAll_filtered"
                         },

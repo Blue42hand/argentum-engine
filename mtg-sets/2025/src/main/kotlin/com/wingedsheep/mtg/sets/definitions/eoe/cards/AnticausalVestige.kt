@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -46,7 +45,7 @@ val AnticausalVestige = card("Anticausal Vestige") {
             ),
             FilterCollectionEffect(
                 from = "hand_permanents",
-                filter = CollectionFilter.ManaValueAtMost(
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(
                     DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land)
                 ),
                 storeMatching = "eligible_permanents"

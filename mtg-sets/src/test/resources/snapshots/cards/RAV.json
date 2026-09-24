@@ -1200,10 +1200,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "cloisterExiled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "own:you"
-                            },
+                            "filter": "own:you",
                             "storeMatching": "cloisterMine"
                         },
                         {
@@ -17575,10 +17572,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "owned",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "token"
-                                },
+                                "filter": "token",
                                 "storeMatching": "ownedTokens",
                                 "storeNonMatching": "ownedCards"
                             },
@@ -17615,29 +17609,20 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "revealed",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "nontoken"
-                                },
+                                "filter": "nontoken",
                                 "storeMatching": "revealedCards"
                             },
                             {
                                 "type": "FilterCollection",
                                 "from": "revealedCards",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "artifact|creature|land"
-                                },
+                                "filter": "artifact|creature|land",
                                 "storeMatching": "acl",
                                 "storeNonMatching": "notAcl"
                             },
                             {
                                 "type": "FilterCollection",
                                 "from": "notAcl",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "enchantment"
-                                },
+                                "filter": "enchantment",
                                 "storeMatching": "enchantments",
                                 "storeNonMatching": "rest"
                             },
@@ -17680,12 +17665,9 @@
                     "type": "FilterCollection",
                     "from": "warpEnchantments",
                     "filter": {
-                        "type": "MatchesFilter",
-                        "filter": {
-                            "statePredicates": [
-                                "IsOnBattlefield"
-                            ]
-                        }
+                        "statePredicates": [
+                            "IsOnBattlefield"
+                        ]
                     },
                     "storeMatching": "warpEnchantmentsEntered",
                     "storeNonMatching": "warpStranded"

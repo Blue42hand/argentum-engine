@@ -2448,7 +2448,14 @@ data class PredicateContext(
      * for an entity that is not in `state.getBattlefield()`, so a live source keeps reading
      * projected state and a stale snapshot could not shadow it either way.
      */
-    val lastKnownSourceSnapshot: EntitySnapshot? = null
+    val lastKnownSourceSnapshot: EntitySnapshot? = null,
+    /**
+     * The resolution context this predicate context was taken from ([fromEffectContext]), kept so
+     * [toEffectContext] can hand a predicate's dynamic amount *everything* the resolution knows —
+     * the pipeline's stored numbers, the sacrificed permanents, the trigger's damage amount — not
+     * only the fields mirrored here. Null for a context built directly (targeting, projection).
+     */
+    val resolution: EffectContext? = null,
 ) {
     /**
      * The entity an enclosing `ForEachInGroup` is currently iterating over, carried in
@@ -2484,31 +2491,37 @@ data class PredicateContext(
     }
 
     /**
-     * The resolution context this predicate context was taken from, as far as it carries one —
-     * the inverse of [fromEffectContext]. Lets a predicate hand an entity reference or a dynamic
-     * amount to the resolvers effects use instead of keeping its own copy of them.
+     * The resolution context this predicate context was taken from — the inverse of
+     * [fromEffectContext]. Lets a predicate hand an entity reference or a dynamic amount to the
+     * resolvers effects use instead of keeping its own copy of them. This context's own fields win
+     * (a caller may have rebound the controller or the source); everything it doesn't mirror comes
+     * from [resolution] when there is one, so a `manaValueAtMostDynamic(VariableReference(…))`
+     * collection filter reads the pipeline's stored number exactly as the effect would.
      */
-    fun toEffectContext(): EffectContext = EffectContext(
-        sourceId = sourceId,
-        controllerId = controllerId,
-        granterId = granterId,
-        sourceBattlefieldTimestamp = sourceBattlefieldTimestamp,
-        objectReferences = objectReferences,
-        targets = targets,
-        xValue = xValue,
-        lastKnownSourceSnapshot = lastKnownSourceSnapshot,
-        triggeringEntityId = triggeringEntityId,
-        triggeringPlayerId = triggeringPlayerId,
-        chosenColor = chosenColor,
-        affectedEntityId = affectedEntityId,
-        pipeline = PipelineState(
-            storedCollections = storedCollections,
-            namedTargets = namedTargets,
-            chosenValues = chosenValues,
-            storedStringLists = storedStringLists,
-            storedSubtypeGroups = storedSubtypeGroups,
-        ),
-    )
+    fun toEffectContext(): EffectContext {
+        val base = resolution ?: EffectContext(sourceId = sourceId, controllerId = controllerId)
+        return base.copy(
+            sourceId = sourceId,
+            controllerId = controllerId,
+            granterId = granterId,
+            sourceBattlefieldTimestamp = sourceBattlefieldTimestamp,
+            objectReferences = objectReferences,
+            targets = targets,
+            xValue = xValue,
+            lastKnownSourceSnapshot = lastKnownSourceSnapshot,
+            triggeringEntityId = triggeringEntityId,
+            triggeringPlayerId = triggeringPlayerId,
+            chosenColor = chosenColor,
+            affectedEntityId = affectedEntityId,
+            pipeline = base.pipeline.copy(
+                storedCollections = storedCollections,
+                namedTargets = namedTargets,
+                chosenValues = chosenValues,
+                storedStringLists = storedStringLists,
+                storedSubtypeGroups = storedSubtypeGroups,
+            ),
+        )
+    }
 
     companion object {
         /**
@@ -2539,6 +2552,8 @@ data class PredicateContext(
                 namedTargets = context.pipeline.namedTargets,
                 xValue = context.xValue,
                 chosenColor = context.chosenColor,
+                lastKnownSourceSnapshot = context.lastKnownSourceSnapshot,
+                resolution = context,
             )
         }
     }

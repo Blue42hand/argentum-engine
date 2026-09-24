@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
@@ -78,7 +77,7 @@ val ClementTheWorrywort = card("Clement, the Worrywort") {
             // Filter to those with MV strictly less than the entering creature's MV
             FilterCollectionEffect(
                 from = "myCreatures",
-                filter = CollectionFilter.ManaValueAtMost(
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(
                     DynamicAmount.Subtract(
                         DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue),
                         DynamicAmount.Fixed(1)

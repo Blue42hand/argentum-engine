@@ -69,12 +69,12 @@ val JackdawSavior = card("Jackdaw Savior") {
             ),
             FilterCollectionEffect(
                 from = "graveyardCreatures",
-                filter = CollectionFilter.ExcludeEntity(EffectTarget.TriggeringEntity),
+                collectionFilter = CollectionFilter.ExcludeEntity(EffectTarget.TriggeringEntity),
                 storeMatching = "otherCreatures"
             ),
             FilterCollectionEffect(
                 from = "otherCreatures",
-                filter = CollectionFilter.ManaValueAtMost(
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(
                     DynamicAmount.Subtract(
                         DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue),
                         DynamicAmount.Fixed(1)

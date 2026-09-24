@@ -493,12 +493,16 @@
                             "type": "FilterCollection",
                             "from": "hand_permanents",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "AggregateBattlefield",
-                                    "player": "You",
-                                    "filter": "land"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "land"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "eligible_permanents"
                         },
@@ -11528,10 +11532,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "chosen",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "land"
-                    },
+                    "filter": "land",
                     "storeMatching": "chosenLands",
                     "storeNonMatching": "chosenNonlands"
                 },

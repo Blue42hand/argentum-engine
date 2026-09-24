@@ -81,7 +81,7 @@ val SanarInnovativeFirstYear = card("Sanar, Innovative First-Year") {
             // Everything revealed minus the exiled cards goes back to the library, shuffled.
             FilterCollectionEffect(
                 from = "allRevealed",
-                filter = CollectionFilter.ExcludeOtherCollection("toExile"),
+                collectionFilter = CollectionFilter.ExcludeOtherCollection("toExile"),
                 storeMatching = "toLibrary"
             ),
             MoveCollectionEffect(
