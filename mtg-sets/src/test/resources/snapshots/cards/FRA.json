@@ -19020,6 +19020,84 @@
     ]
 }
 
+// Yuriko, Blade of the Mighty
+{
+    "name": "Yuriko, Blade of the Mighty",
+    "manaCost": "{3}{W}",
+    "typeLine": "Legendary Creature — Human Samurai",
+    "oracleText": "During combat, players can't cast spells or activate abilities that aren't mana abilities.\nWhenever a creature you control attacks a player alone, it gains double strike until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            "IsAttackingAnOpponent"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "requires": [
+                        "AttacksAlone"
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "DOUBLE_STRIKE",
+                    "target": "TriggeringEntity"
+                },
+                "descriptionOverride": "Whenever a creature you control attacks a player alone, it gains double strike until end of turn."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "PlayersCantCastSpells",
+                "affected": "Each",
+                "condition": {
+                    "type": "IsInPhase",
+                    "phases": [
+                        "COMBAT"
+                    ],
+                    "yoursOnly": false
+                }
+            },
+            {
+                "type": "PlayersCantActivateAbilities",
+                "affected": "Each",
+                "condition": {
+                    "type": "IsInPhase",
+                    "phases": [
+                        "COMBAT"
+                    ],
+                    "yoursOnly": false
+                },
+                "nonManaAbilitiesOnly": true,
+                "anyZone": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "210",
+        "rarity": "UNCOMMON",
+        "artist": "Lie Setiawan",
+        "flavorText": "\"Emperor Tamiyo rules with truth, respect, and passion. She has more than earned my loyalty.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/ccbe92a5-42bc-4228-9d5a-212df2f5dc15.jpg?1789128047",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Yuriko, Hope from the Shadows
 {
     "name": "Yuriko, Hope from the Shadows",

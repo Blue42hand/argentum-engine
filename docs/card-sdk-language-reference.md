@@ -7891,7 +7891,13 @@ staticAbility {
   permanentFilter = GameObjectFilter.Artifact or GameObjectFilter.Creature or GameObjectFilter.Enchantment,
   condition = IsYourTurn)` ("During your turn, your opponents can't activate abilities of artifacts,
   creatures, or enchantments."); loyalty abilities and land mana abilities are unaffected because the
-  filter only matches those three permanent types.
+  filter only matches those three permanent types. Two more axes, both off by default:
+  `nonManaAbilitiesOnly = true` exempts mana abilities, and `anyZone = true` extends the prohibition past
+  permanents to abilities of cards in any zone — graveyard/hand/exile/command-zone activated abilities,
+  cycling and typecycling — for the unqualified "players can't activate abilities" wording. Crew is
+  checked like any battlefield ability. Yuriko, Blade of the Mighty = `PlayersCantActivateAbilities(Player.Each,
+  condition = IsInPhase(listOf(COMBAT), yoursOnly = false), nonManaAbilitiesOnly = true, anyZone = true)`
+  plus `PlayersCantCastSpells(Player.Each, condition = IsInPhase(listOf(COMBAT), yoursOnly = false))`.
 - `ExtraOnceOnlyActivations(kind, extraActivations = null, condition = null)`
   — the *permission* counterpart of the above, over the keyword-prefixed "Activate this ability only once"
   limits: exhaust (CR 702.177) and power-up (CR 702.193), selected by `kind` (**required, no default** —
@@ -10698,18 +10704,18 @@ default to "you" so card authors don't need to pass it explicitly.
   `ZoneTransitionService.trackDiscard` and reset to empty for every player at the start of each turn by
   `TurnManager`. Powers "draw a card for each card you've discarded this turn" (Green Goblin, Revenant).
   The same component's membership check backs the Mayhem gate (`Conditions.YouDiscardedThisCardThisTurn`).
-- `CreatureCardsPutIntoGraveyardsThisTurn(atLeast = 1)` — the **game-wide** sibling of
-  `CreatureCardPutIntoYourGraveyardThisTurn`: at least `atLeast` creature cards reached *any* player's
-  graveyard this turn (summed via `Player.Each`). Case of the Gorgon's Kiss's "three or more creature
-  cards were put into graveyards from anywhere this turn". Same tracker, so the same two rulings apply:
-  it reads the card's own type line (what the card *is in the graveyard*, so a creature card that was a
-  noncreature permanent counts and an animated noncreature card doesn't), and tokens never count.
 - `DynamicAmounts.cardsPutIntoGraveyardFromLibraryThisTurn(player)` /
   `TurnTracker.CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY` — the number of cards put into `player`'s graveyard
   from their library this turn: mill, surveil, and every other library → graveyard move. Backed by the
   per-player `CardsPutIntoGraveyardFromLibraryThisTurnComponent`, incremented in `ZoneTransitionService`
   (keyed on the owner) and cleared at end of turn. Turn history — a card that later leaves the graveyard
   still counts. Cruel Calculations: `DrawCards(cardsPutIntoGraveyardFromLibraryThisTurn(Player.ContextPlayer(0)))`.
+- `CreatureCardsPutIntoGraveyardsThisTurn(atLeast = 1)` — the **game-wide** sibling of
+  `CreatureCardPutIntoYourGraveyardThisTurn`: at least `atLeast` creature cards reached *any* player's
+  graveyard this turn (summed via `Player.Each`). Case of the Gorgon's Kiss's "three or more creature
+  cards were put into graveyards from anywhere this turn". Same tracker, so the same two rulings apply:
+  it reads the card's own type line (what the card *is in the graveyard*, so a creature card that was a
+  noncreature permanent counts and an animated noncreature card doesn't), and tokens never count.
 - `SourcesYouControlledDealtDamageThisTurn(atLeast)` — at least `atLeast` **distinct sources** you
   controlled dealt damage this turn (`TurnTracker.DAMAGE_SOURCES`). Case of the Burning Masks. Counts
   source *objects* at the moment they dealt damage, which is what the printed rulings require: a source
@@ -11843,15 +11849,15 @@ this turn").
   any zone this turn; the creature-typed sibling of `DESCENDED`, recorded by the same
   `ZoneTransitionService` hook, keyed on the card's owner, tokens excluded. Backs
   `Conditions.CreatureCardPutIntoYourGraveyardThisTurn(atLeast)` (Macabre Reconstruction).
+- `CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY` — number of cards put into a player's graveyard from their
+  library this turn (mill, surveil, …); recorded by the same `ZoneTransitionService` hook, keyed on the
+  owner. Facade `DynamicAmounts.cardsPutIntoGraveyardFromLibraryThisTurn(player)` (Cruel Calculations).
 - `CARDS_DRAWN` — number of cards a player has drawn this turn (backed by
   `CardsDrawnThisTurnComponent`, reset to 0 for every player at turn start). Powers
   characteristic-defining stats like Duelist of the Mind's "power is equal to the number of
   cards you've drawn this turn" via `dynamicPower = CharacteristicValue.dynamic(TurnTracking(You, CARDS_DRAWN))`.
 - `CARDS_PUT_INTO_EXILE` — number of cards put into exile this turn, keyed on each card's owner
   (backed by `CardsPutIntoExileThisTurnComponent`, incremented at the central zone-transition for
-- `CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY` — number of cards put into a player's graveyard from their
-  library this turn (mill, surveil, …); recorded by the same `ZoneTransitionService` hook, keyed on the
-  owner. Facade `DynamicAmounts.cardsPutIntoGraveyardFromLibraryThisTurn(player)` (Cruel Calculations).
   any non-token card entering exile from another zone, reset to 0 for every player at turn start).
   Summed across all players (via `Player.Each`) it gives the game-wide count of cards put into
   exile this turn. Powers Ennis, Debate Moderator's "if one or more cards were put into exile this
