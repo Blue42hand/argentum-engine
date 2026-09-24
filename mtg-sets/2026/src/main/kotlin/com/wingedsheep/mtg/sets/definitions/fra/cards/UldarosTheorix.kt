@@ -9,10 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -55,15 +52,12 @@ val UldarosTheorix = card("Uldaros Theorix") {
                 filter = TargetFilter(GameObjectFilter.Nonland.ownedByYou(), zone = Zone.GRAVEYARD),
             )
         )
-        effect = Effects.Composite(
-            ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE))),
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "uldarosExiled"),
-            Effects.CopyCollectionIntoCollection(from = "uldarosExiled", storeAs = "uldarosCopies"),
-            Effects.CastWithTotalManaValueFromCollectionWithoutPayingCost(
-                from = "uldarosCopies",
-                maxTotalManaValue = 6,
-            ),
-        )
+        effect = Effects.Pipeline {
+            val exiled = gather(CardSource.ChosenTargets)
+            exile(exiled)
+            val copies = copyCards(exiled)
+            run(Effects.CastWithTotalManaValueFromCollectionWithoutPayingCost(from = copies, maxTotalManaValue = 6))
+        }
     }
 
     metadata {

@@ -16,8 +16,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -65,7 +63,7 @@ val EmrakulTheExigentDoom = card("Emrakul, the Exigent Doom") {
         activateFromZone = Zone.HAND
         val land = target("target land", TargetPermanent(filter = TargetFilter.Land))
         effect = Effects.Composite(
-            GrantActivatedAbilityEffect(
+            Effects.GrantActivatedAbility(
                 ability = ActivatedAbility(
                     id = AbilityId.generate(),
                     cost = AbilityCost.Tap,
@@ -76,15 +74,16 @@ val EmrakulTheExigentDoom = card("Emrakul, the Exigent Doom") {
                 target = land,
                 duration = Duration.UntilSourceCastFromExile
             ),
-            GatherCardsEffect(
-                source = CardSource.FromZone(
-                    zone = Zone.EXILE,
-                    player = Player.You,
-                    filter = GameObjectFilter.Any.sourceItself()
-                ),
-                storeAs = "exiledEmrakul"
-            ),
-            Effects.GrantMayPlayFromExile(from = "exiledEmrakul", expiry = MayPlayExpiry.Permanent)
+            Effects.Pipeline {
+                val exiledEmrakul = gather(
+                    CardSource.FromZone(
+                        zone = Zone.EXILE,
+                        player = Player.You,
+                        filter = GameObjectFilter.Any.sourceItself()
+                    )
+                )
+                run(Effects.GrantMayPlayFromExile(from = exiledEmrakul, expiry = MayPlayExpiry.Permanent))
+            }
         )
         description = "{3}, Exile this card from your hand: Target land gains \"{T}: Add {C}{C}\" until " +
             "this card is cast from exile. You may cast this card for as long as it remains exiled."

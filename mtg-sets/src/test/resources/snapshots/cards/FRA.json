@@ -4240,7 +4240,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 }
@@ -4287,22 +4287,27 @@
                             "duration": "UntilSourceCastFromExile"
                         },
                         {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Exile",
-                                "filter": {
-                                    "statePredicates": [
-                                        "IsSource"
-                                    ]
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Exile",
+                                        "filter": {
+                                            "statePredicates": [
+                                                "IsSource"
+                                            ]
+                                        }
+                                    },
+                                    "storeAs": "gathered0"
+                                },
+                                {
+                                    "type": "GrantMayPlayFromExile",
+                                    "from": "gathered0",
+                                    "expiry": "Permanent"
                                 }
-                            },
-                            "storeAs": "exiledEmrakul"
-                        },
-                        {
-                            "type": "GrantMayPlayFromExile",
-                            "from": "exiledEmrakul",
-                            "expiry": "Permanent"
+                            ]
                         }
                     ]
                 },
@@ -11383,8 +11388,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 },
                                 "filter": "nonland"
                             },
@@ -11410,8 +11415,8 @@
                                 "type": "ToZone",
                                 "zone": "Exile",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "linkToSource": true
@@ -18349,30 +18354,26 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "ForEach",
-                            "space": "IterationSpace.Targets",
-                            "body": {
-                                "type": "MoveToZone",
-                                "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
-                                },
-                                "destination": "Exile"
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
                             }
                         },
                         {
-                            "type": "GatherCards",
-                            "source": "ChosenTargets",
-                            "storeAs": "uldarosExiled"
-                        },
-                        {
                             "type": "CopyCollectionIntoCollection",
-                            "from": "uldarosExiled",
-                            "storeAs": "uldarosCopies"
+                            "from": "gathered0",
+                            "storeAs": "copies2"
                         },
                         {
                             "type": "CastAnyNumberFromCollectionWithoutPayingCost",
-                            "from": "uldarosCopies",
+                            "from": "copies2",
                             "maxTotalManaValue": 6
                         }
                     ]

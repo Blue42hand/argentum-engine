@@ -4261,6 +4261,10 @@ object Effects {
     fun CastUpToNFromCollectionWithoutPayingCost(from: CollectionSlot, maxCasts: Int): Effect =
         CastUpToNFromCollectionWithoutPayingCost(from.key, maxCasts)
 
+    /** Cast any number of the cards in [from] with total mana value [maxTotalManaValue] or less, without paying their mana costs. */
+    fun CastWithTotalManaValueFromCollectionWithoutPayingCost(from: CollectionSlot, maxTotalManaValue: Int): Effect =
+        CastWithTotalManaValueFromCollectionWithoutPayingCost(from.key, maxTotalManaValue)
+
     /** Cast any number of the cards in [from], paying their mana costs. */
     fun CastAnyNumberFromCollection(from: CollectionSlot): Effect = CastAnyNumberFromCollection(from.key)
 
