@@ -1103,7 +1103,7 @@ abstract class ScenarioTestBase : FunSpec() {
         fun getLegalActions(playerNumber: Int): List<LegalActionInfo> {
             val playerId = if (playerNumber == 1) player1Id else player2Id
             val priorityPlayer = state.priorityPlayerId ?: return emptyList()
-            if (state.actorFor(priorityPlayer) != playerId) return emptyList()
+            if (com.wingedsheep.engine.mechanics.combat.CombatDeclarationControl.inputActorFor(state, priorityPlayer) != playerId) return emptyList()
             if (state.pendingDecision != null) return emptyList()
             val (enumerator, enricher) = legalActionEngine
             val engineActions = enumerator.enumerate(state, priorityPlayer)

@@ -428,7 +428,9 @@ class ObjectIdentityTest : FunSpec({
             effectExecutor = { next, _, context ->
                 captured = context
                 com.wingedsheep.engine.core.EffectResult.success(next)
-            })
+            },
+            legality = services.legalityKernel,
+        )
         val hand = inZone(Zone.HAND).withEntity(cardId,
             com.wingedsheep.engine.core.CardEntityFactory.create(landDefinition, owner))
             .copy(activePlayerId = owner, priorityPlayerId = owner,

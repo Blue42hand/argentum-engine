@@ -72,14 +72,7 @@ class ActionProcessor(
      * @return ExecutionResult with new state, events, and its [Outcome]
      */
     fun process(state: GameState, action: GameAction): ProcessedAction {
-        // Basic validation that applies to all actions
-        val basicError = validateBasics(state, action)
-        if (basicError != null) {
-            return ProcessedAction(ExecutionResult.rejected(state, Rejection.IllegalAction(basicError)))
-        }
-
-        // Delegate to the handler registry for action-specific validation
-        val validationError = registry.validate(state, action)
+        val validationError = validate(state, action)
         if (validationError != null) {
             return ProcessedAction(ExecutionResult.rejected(state, Rejection.IllegalAction(validationError)))
         }
@@ -111,6 +104,15 @@ class ActionProcessor(
         }
         return ProcessedAction(result, undoPolicy)
     }
+
+    /**
+     * The verdict [process] gives [action] before executing it: `null` when it is legal, otherwise
+     * why not. The legal-action enumerators must never offer a fully-specified action this refuses —
+     * `LegalActionsPassValidateTest` holds them to it.
+     */
+    fun validate(state: GameState, action: GameAction): String? =
+        // Basic validation that applies to all actions, then the handler's own.
+        validateBasics(state, action) ?: registry.validate(state, action)
 
     /**
      * Basic validation that applies to all actions.

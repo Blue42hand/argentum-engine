@@ -1036,12 +1036,16 @@ class DynamicAmountEvaluator(
         // self is the enchanted creature, not the Aura source). For a creature's own CDA there is
         // no affected entity, so it falls back to the source — the creature itself.
         val selfId = context.affectedEntityId ?: context.sourceId
+        // "…if you control at least five other Forests" after "Whenever a Forest you control
+        // enters" — "other" is relative to the permanent that triggered the ability.
+        val triggeringId = if (amount.excludeTriggeringEntity) context.triggeringEntityId else null
 
         val matchingEntities = playerIds.flatMap { playerId ->
             state.getBattlefield()
                 .filter { entityId ->
                     // Exclude self if requested (e.g., "other creatures you control")
                     if (amount.excludeSelf && entityId == selfId) return@filter false
+                    if (triggeringId != null && entityId == triggeringId) return@filter false
                     controllerOf(state, projection, entityId) == playerId
                 }
                 .filter { entityId ->

@@ -250,6 +250,9 @@ class LibraryAndZoneContinuationResumer(
         }
 
         val targetId = targetIds.first()
+        if (targetId in continuation.excludedHosts) {
+            return ExecutionResult.error(state, "An Aura can't enchant an object entering the battlefield with it")
+        }
         val auraId = continuation.auraId
         val destPlayerId = continuation.destPlayerId
 
@@ -299,7 +302,7 @@ class LibraryAndZoneContinuationResumer(
                 controllerId = nextControllerId,
                 sourceId = nextAuraId,
                 ignoreTargetingRestrictions = true
-            )
+            ).filter { it !in continuation.excludedHosts }
 
             if (legalTargets.isEmpty()) {
                 // No targets — Aura stays in current zone (Rule 303.4g), continue to next
@@ -348,7 +351,8 @@ class LibraryAndZoneContinuationResumer(
                 sourceId = continuation.sourceId,
                 objectReferences = continuation.objectReferences,
                 sourceName = continuation.sourceName,
-                underOwnersControl = continuation.underOwnersControl
+                underOwnersControl = continuation.underOwnersControl,
+                excludedHosts = continuation.excludedHosts
             )
 
             return newState.suspendForDecision(question, nextContinuation, moveEvents)

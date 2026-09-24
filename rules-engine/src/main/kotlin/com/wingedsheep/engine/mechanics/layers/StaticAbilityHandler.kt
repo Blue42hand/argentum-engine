@@ -1036,6 +1036,9 @@ class StaticAbilityHandler(
             is GrantCantBeCountered,
             is GrantKeywordToOwnSpells,
             is com.wingedsheep.sdk.scripting.GrantWebSlingingToSpells,
+            // Cast-time optional additional mana (AdditionalManaForCounters / CastSpellHandler /
+            // CastSpellEnumerator; counters placed by StackResolver):
+            is com.wingedsheep.sdk.scripting.AdditionalManaForEntryCounters,
 
             // Activated abilities (ActivateAbilityHandler / ActivatedAbilityEnumerator):
             is ExtraLoyaltyActivation,

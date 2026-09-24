@@ -665,6 +665,11 @@ class CostHandler {
             val handZone = ZoneKey(controllerId, Zone.HAND)
             findMatchingCardsUnified(state, state.getZone(handZone), atom.filter, controllerId).size >= atom.count
         }
+        // CR 118.3 — too few matching cards in hand and the cost can't be paid at all.
+        is CostAtom.PutFromHandOnTopOfLibrary -> {
+            val handZone = ZoneKey(controllerId, Zone.HAND)
+            findMatchingCardsUnified(state, state.getZone(handZone), atom.filter, controllerId).size >= atom.count
+        }
         // You can only reveal a choice you made. A player who gained control of the permanent
         // never saw it, so the cost is unpayable for them and the ability is never offered
         // (A Killer Among Us's ruling); so is a permanent with nothing secretly noted on it.
@@ -834,6 +839,30 @@ class CostHandler {
         }
         is CostAtom.TapPermanents -> payTapPermanents(state, atom, sourceId, controllerId, manaPool, choices)
         is CostAtom.ReturnToHand -> payReturnToHand(state, atom, controllerId, manaPool, choices)
+        is CostAtom.PutFromHandOnTopOfLibrary -> {
+            val eligible = findMatchingCardsUnified(
+                state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId
+            )
+            // A pre-chosen selection must be exactly `count` distinct eligible hand cards; with no
+            // selection the payment is forced only when the hand holds exactly `count` candidates
+            // (ActivateAbilityHandler pauses for the choice otherwise).
+            val chosen = when {
+                choices.putOnLibraryChoices.isNotEmpty() -> choices.putOnLibraryChoices
+                eligible.size == atom.count -> eligible
+                else -> return CostPaymentResult.failure("Must choose ${atom.count} card(s) to put on top of your library")
+            }
+            if (chosen.size != atom.count || chosen.toSet().size != chosen.size || chosen.any { it !in eligible }) {
+                return CostPaymentResult.failure("Invalid choice of cards to put on top of your library")
+            }
+            // Each card goes on top in turn, so the last chosen ends up on top.
+            val result = ZoneTransitionService.moveToZoneBatch(
+                state, chosen, Zone.LIBRARY,
+                com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
+                    libraryPlacement = com.wingedsheep.engine.handlers.effects.LibraryPlacement.Top
+                )
+            )
+            CostPaymentResult.success(result.state, manaPool, result.events)
+        }
         is CostAtom.RevealFromHand ->
             // No activated-ability cost reveals from hand today; revealing changes no zone, so this
             // is a no-op success kept for atom exhaustiveness (the PayCost reveal path emits the
@@ -1290,176 +1319,14 @@ class CostHandler {
     }
 
     /**
-     * Check if additional costs can be paid.
+     * Whether [controllerId] could pay the spell additional cost [cost] (CR 118.3) — each cost kind
+     * answers for itself; see [com.wingedsheep.engine.mechanics.cost.spell.SpellCostKind.canPay].
      */
     fun canPayAdditionalCost(
         state: GameState,
         cost: AdditionalCost,
         controllerId: EntityId
-    ): Boolean {
-        return when (cost) {
-            is AdditionalCost.Atom -> when (val atom = cost.atom) {
-                // An empty hand discards nothing, so this is always payable (CR 118.3).
-                is CostAtom.DiscardHand -> true
-                is CostAtom.Sacrifice ->
-                    findMatchingPermanentsUnified(state, controllerId, atom.filter).size >= atom.count
-                is CostAtom.Discard ->
-                    findMatchingCardsUnified(state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId).size >= atom.count
-                is CostAtom.PayLife -> {
-                    // CR 810.9a — affordability uses the team's shared total in Two-Headed Giant.
-                    val life = state.lifeTotal(controllerId)
-                    // CR 119.4 — a player may pay life only if their life total is >= the payment.
-                    life >= atom.amount
-                }
-                // A spell's additional cost has no source permanent, so `excludeSelf` has nothing
-                // to exclude here.
-                is CostAtom.ExileFrom -> {
-                    val perZone = exileCandidatesByOwner(state, atom, controllerId, sourceId = null)
-                        .values.map { it.size }
-                    if (atom.singleZone) perZone.any { it >= atom.count } else perZone.sum() >= atom.count
-                }
-                // CR 701.59b — see canPayAtom. An optional collect-evidence cast cost that can't be
-                // reached simply isn't offered as a second cast action.
-                //
-                // A *target-derived* threshold has no price yet: this check runs before the caster
-                // announces targets (CR 601.2c), and the cost isn't determined until 601.2f. It
-                // therefore withholds judgement rather than guessing — the cast is offered, and an
-                // unreachable one is caught when the submitted targets are validated, which is
-                // exactly the 601.2e/733 rewind the printed ruling describes.
-                is CostAtom.CollectEvidence ->
-                    com.wingedsheep.engine.handlers.costs.CostAtomAmounts
-                        .dependsOnTargets(atom.amount) ||
-                        com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver.canCollect(
-                            state, controllerId,
-                            com.wingedsheep.engine.handlers.costs.CostAtomAmounts
-                                .evaluate(state, atom.amount),
-                        )
-                // Not payable as a *spell's* additional cost today: nothing offers this atom in a
-                // cast context, and the cast-time picker has no sum-gated exile mode to raise, so
-                // an unreachable one would be offered and then fail at payment. Fails closed until
-                // a printed card needs it, matching the "prefer absent to unpayable" rule the
-                // collect-evidence branch above follows.
-                is CostAtom.ExileFromGraveyardForTotal -> false
-                is CostAtom.TapPermanents ->
-                    findUntappedMatchingPermanentsUnified(state, controllerId, atom.filter).size >= atom.count
-                is CostAtom.RemoveCounters -> {
-                    val needed = getAtomCount(atom.count)
-                    if (needed <= 0) true
-                    else {
-                        val counterType = atom.counterType?.let { resolveNamedCounterType(it) }
-                        val projected = state.projectedState
-                        val ctx = PredicateContext(controllerId = controllerId)
-                        val total = projected.getBattlefieldControlledBy(controllerId).sumOf { entityId ->
-                            if (!predicateEvaluator.matches(state, projected, entityId, atom.filter, ctx)) return@sumOf 0
-                            val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return@sumOf 0
-                            if (counterType != null) counters.getCount(counterType)
-                            else counters.counters.values.sum()
-                        }
-                        total >= needed
-                    }
-                }
-                // A variable-count permanent cost is payable when the payer has enough candidates to
-                // clear both floors — Teamwork N's "tap any number of creatures you control with
-                // total power N or more" (CR 702.194a) is unpayable when every untapped creature
-                // together falls short. No `sourceId` is passed — this function has no such
-                // parameter, and every caller is a *spell's* additional cost, which has no source
-                // permanent on the battlefield to exclude (teamwork sets `excludeSelf = false`
-                // anyway). Reaching this from an ability means adding a `sourceId` parameter first,
-                // since the atom's default is `excludeSelf = true`.
-                is CostAtom.VariablePermanents ->
-                    com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost.canPay(state, controllerId, atom)
-                // "As an additional cost to cast this spell, reveal an Elf card from your hand"
-                // (Wren's Run Vanquisher). Payable while the hand holds enough matching cards; the
-                // cards stay there (CR 701.20b), so paying it takes nothing away.
-                is CostAtom.RevealFromHand ->
-                    findMatchingCardsUnified(
-                        state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId
-                    ).size >= atom.count
-                // Mana / return-to-hand / put-counters-on-self / mill are not produced as
-                // spell additional costs today (put-counters-on-self and reveal-the-noted-type are
-                // inherently ability-scoped — a spell on the stack has no permanent to put the
-                // counters on, nor one carrying a secret note).
-                is CostAtom.Mana, is CostAtom.ReturnToHand,
-                is CostAtom.PutCountersOnPermanent,
-                is CostAtom.PutCountersOnSelf, is CostAtom.Mill,
-                is CostAtom.RevealNotedCreatureType,
-                // A spell on the stack is attached to nothing, so unattaching is ability-only too.
-                is CostAtom.Unattach,
-                is CostAtom.ExileTopOfLibrary -> false
-            }
-            is AdditionalCost.PayLifePerTarget -> {
-                // Always payable: choosing zero targets pays zero life. Per-target life
-                // is validated against the chosen target count at CastSpellHandler time.
-                true
-            }
-            is AdditionalCost.ExileVariableCards -> {
-                val zone = ZoneKey(controllerId, cost.fromZone.toZone())
-                findMatchingCardsUnified(state, state.getZone(zone), cost.filter, controllerId).size >= cost.minCount
-            }
-            is AdditionalCost.SacrificeCreaturesForCostReduction -> {
-                // Always payable - sacrificing 0 creatures is valid
-                true
-            }
-            is AdditionalCost.Forage ->
-                com.wingedsheep.engine.handlers.costs.ForageCostResolver.canPay(state, controllerId)
-            is AdditionalCost.Choice ->
-                // Cost-vs-cost: payable if at least one option can be paid.
-                cost.options.any { canPayAdditionalCost(state, it, controllerId) }
-            is AdditionalCost.Behold -> {
-                // Can behold if matching permanent on battlefield or matching card in hand
-                val projected = state.projectedState
-                val predicateContext = PredicateContext(controllerId = controllerId)
-                val hasBattlefieldMatch = projected.getBattlefieldControlledBy(controllerId).any { permId ->
-                    predicateEvaluator.matches(state, projected, permId, cost.filter, predicateContext)
-                }
-                val hasHandMatch = state.getHand(controllerId).any { cardId ->
-                    predicateEvaluator.matches(state, state.projectedState, cardId, cost.filter, predicateContext)
-                }
-                hasBattlefieldMatch || hasHandMatch
-            }
-            is AdditionalCost.ExileFromStorage -> {
-                // Payability determined by the preceding cost that populated the storage
-                true
-            }
-            // The "… or pay {N}" family: always payable, because the caster can always decline the
-            // non-mana leg and fold the alternative mana into the spell's cost instead. Whether the
-            // non-mana leg is *available* only decides which cast paths the enumerator offers.
-            is AdditionalCost.OrPay,
-            is AdditionalCost.BlightOrPay -> true
-            is AdditionalCost.BlightVariable -> {
-                // X = 0 is always legal (default minCount = 0); higher minCounts
-                // require a creature you control whose toughness >= minCount.
-                if (cost.minCount <= 0) {
-                    true
-                } else {
-                    val projected = state.projectedState
-                    state.getBattlefield().any { permId ->
-                        projected.getController(permId) == controllerId &&
-                            projected.isCreature(permId) &&
-                            (projected.getToughness(permId) ?: 0) >= cost.minCount
-                    }
-                }
-            }
-            is AdditionalCost.PayXLife -> {
-                // X = 0 is always legal (default minCount = 0); a higher minCount requires
-                // enough life to pay it.
-                cost.minCount <= 0 || state.lifeTotal(controllerId) >= cost.minCount
-            }
-            is AdditionalCost.PayLifeEqualToManaValueOfSpell -> {
-                // Affordability is per-cast (depends on the cast card's mana value), so it is
-                // checked at CastSpellHandler time, not here. Always "payable" at this generic gate.
-                true
-            }
-            is AdditionalCost.Composite -> {
-                // All steps must be payable
-                cost.steps.all { canPayAdditionalCost(state, it, controllerId) }
-            }
-            is AdditionalCost.ChooseEntity -> {
-                // Payable iff at least one entity in the searched zones matches the filter.
-                findChooseEntityCandidates(state, cost, controllerId).isNotEmpty()
-            }
-        }
-    }
+    ): Boolean = com.wingedsheep.engine.mechanics.cost.spell.SpellCosts.canPay(state, cost, controllerId, this)
 
     /**
      * Enumerate every entity the caster could legally pick for an
@@ -1734,7 +1601,7 @@ class CostHandler {
         }
     }
 
-    private fun findMatchingPermanentsUnified(
+    internal fun findMatchingPermanentsUnified(
         state: GameState,
         controllerId: EntityId,
         filter: GameObjectFilter,
@@ -1852,6 +1719,8 @@ data class CostPaymentResult(
 data class CostPaymentChoices(
     val sacrificeChoices: List<EntityId> = emptyList(),
     val discardChoices: List<EntityId> = emptyList(),
+    /** Hand cards chosen for a [CostAtom.PutFromHandOnTopOfLibrary] cost, in placement order. */
+    val putOnLibraryChoices: List<EntityId> = emptyList(),
     val exileChoices: List<EntityId> = emptyList(),
     /**
      * Permanents chosen for a [CostAtom.VariablePermanents] variable-count cost, kept apart from

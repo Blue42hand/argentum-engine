@@ -170,6 +170,13 @@ object ZoneTransitionService {
     lateinit var staticAbilityHandler: StaticAbilityHandler
     lateinit var cardRegistry: CardRegistry
 
+    /**
+     * [cardRegistry] when [com.wingedsheep.engine.core.EngineServices] has wired it, else null —
+     * for the few pure readers (a predicate needing an Aura's printed enchant restriction) that
+     * can run in a bare unit test with no engine behind them and must fail closed there.
+     */
+    fun cardRegistryOrNull(): CardRegistry? = if (::cardRegistry.isInitialized) cardRegistry else null
+
     /** Evaluates the `unless` clause of an entering card's own [EntersTapped]. */
     private val conditionEvaluator = ConditionEvaluator()
 
