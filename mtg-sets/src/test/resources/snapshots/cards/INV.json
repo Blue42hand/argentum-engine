@@ -7224,15 +7224,9 @@
                             },
                             "then": {
                                 "type": "PreventDamageShield",
+                                "target": "Self",
                                 "scope": "CombatOnly",
-                                "direction": "FromTarget",
-                                "sourceFilter": {
-                                    "type": "FromGroup",
-                                    "filter": {
-                                        "baseFilter": "permanent",
-                                        "scope": "Self"
-                                    }
-                                }
+                                "direction": "FromTarget"
                             }
                         }
                     ]
@@ -7275,15 +7269,9 @@
                             },
                             "then": {
                                 "type": "PreventDamageShield",
+                                "target": "Self",
                                 "scope": "CombatOnly",
-                                "direction": "FromTarget",
-                                "sourceFilter": {
-                                    "type": "FromGroup",
-                                    "filter": {
-                                        "baseFilter": "permanent",
-                                        "scope": "Self"
-                                    }
-                                }
+                                "direction": "FromTarget"
                             }
                         }
                     ]

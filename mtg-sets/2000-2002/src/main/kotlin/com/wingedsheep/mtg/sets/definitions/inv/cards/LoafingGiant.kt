@@ -11,7 +11,8 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.effects.PreventionScope
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -49,7 +50,7 @@ val LoafingGiant = card("Loafing Giant") {
             // would deal this turn.
             Effects.If(
                 condition = Conditions.CollectionContainsMatch("milled", GameObjectFilter.Land),
-                then = Effects.PreventCombatDamageFrom(GroupFilter.source())
+                then = Effects.PreventAllDamageDealtBy(EffectTarget.Self, scope = PreventionScope.CombatOnly)
             )
         )
     )
