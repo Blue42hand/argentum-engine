@@ -12948,36 +12948,12 @@
             "effects": [
                 {
                     "type": "GatherCards",
-                    "source": {
-                        "type": "FromZone",
-                        "zone": "Graveyard",
-                        "filter": "creature"
-                    },
-                    "storeAs": "graveyardCreatures"
-                },
-                {
-                    "type": "SelectFromCollection",
-                    "from": "graveyardCreatures",
-                    "selection": {
-                        "type": "ChooseUpTo",
-                        "count": {
-                            "type": "Fixed",
-                            "amount": 3
-                        }
-                    },
-                    "storeSelected": "chosen",
-                    "prompt": "Choose up to three creature cards with total mana value 3 or less",
-                    "selectedLabel": "Return to the battlefield with a +1/+1 counter",
-                    "restrictions": [
-                        {
-                            "type": "TotalManaValueAtMost",
-                            "max": 3
-                        }
-                    ]
+                    "source": "ChosenTargets",
+                    "storeAs": "survivors"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "chosen",
+                    "from": "survivors",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"
@@ -12985,7 +12961,23 @@
                     "addCounterType": "PLUS_ONE_PLUS_ONE"
                 }
             ]
-        }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 3,
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "up to three target creature cards with total mana value 3 or less from your graveyard",
+                "totalManaValueAtMost": {
+                    "type": "Fixed",
+                    "amount": 3
+                }
+            }
+        ]
     },
     "metadata": {
         "collectorNumber": "33",

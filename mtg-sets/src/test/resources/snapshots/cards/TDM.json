@@ -6277,43 +6277,32 @@
                     "type": "ConditionalOnCollection",
                     "collection": "discarded",
                     "ifNotEmpty": {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "GatherCards",
-                                "source": {
-                                    "type": "BattlefieldMatching",
-                                    "filter": "creature"
-                                },
-                                "storeAs": "creatures"
+                        "type": "ReflexiveTrigger",
+                        "action": {
+                            "type": "Composite",
+                            "effects": []
+                        },
+                        "optional": false,
+                        "reflexiveEffect": {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 3
                             },
-                            {
-                                "type": "SelectFromCollection",
-                                "from": "creatures",
-                                "selection": {
-                                    "type": "ChooseExactly",
-                                    "count": {
-                                        "type": "Fixed",
-                                        "amount": 1
-                                    }
-                                },
-                                "storeSelected": "damageTarget",
-                                "prompt": "Choose a creature to deal 3 damage to",
-                                "useTargetingUI": true
-                            },
-                            {
-                                "type": "DealDamage",
-                                "amount": {
-                                    "type": "Fixed",
-                                    "amount": 3
-                                },
-                                "target": {
-                                    "type": "PipelineTarget",
-                                    "collectionName": "damageTarget"
-                                },
-                                "damageSource": "Self"
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
                             }
-                        ]
+                        },
+                        "reflexiveTargetRequirements": [
+                            {
+                                "type": "TargetObject",
+                                "filter": {
+                                    "baseFilter": "creature"
+                                }
+                            }
+                        ],
+                        "descriptionOverride": "Glacial Dragonhunt deals 3 damage to target creature"
                     },
                     "filter": "nonland"
                 }

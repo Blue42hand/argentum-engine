@@ -10128,26 +10128,8 @@
                         "effects": [
                             {
                                 "type": "GatherCards",
-                                "source": {
-                                    "type": "FromZone",
-                                    "zone": "Graveyard",
-                                    "filter": "creature"
-                                },
-                                "storeAs": "graveyardCreatures"
-                            },
-                            {
-                                "type": "SelectFromCollection",
-                                "from": "graveyardCreatures",
-                                "selection": "ChooseAnyNumber",
-                                "storeSelected": "toBattlefield",
-                                "prompt": "Return any number of creature cards with total mana value 6 or less to the battlefield",
-                                "selectedLabel": "Return to the battlefield",
-                                "restrictions": [
-                                    {
-                                        "type": "TotalManaValueAtMost",
-                                        "max": 6
-                                    }
-                                ]
+                                "source": "ChosenTargets",
+                                "storeAs": "toBattlefield"
                             },
                             {
                                 "type": "MoveCollection",
@@ -10162,6 +10144,19 @@
                                 "returnAs": "FRONT"
                             }
                         ]
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "unlimited": true,
+                        "filter": {
+                            "baseFilter": "creature own:you",
+                            "zone": "Graveyard"
+                        },
+                        "id": "any number of target creature cards with total mana value 6 or less from your graveyard",
+                        "totalManaValueAtMost": {
+                            "type": "Fixed",
+                            "amount": 6
+                        }
                     }
                 }
             ]

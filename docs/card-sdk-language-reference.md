@@ -151,7 +151,9 @@ section; do not let SDK additions land without a corresponding doc update.
   beginning of the next end step.
 - `evoke: String?` — Evoke alt-cost; sacrifices on ETB.
 - `selfAlternativeCost: SelfAlternativeCost?` — generic alternative-cost slot.
-- `castTimeCreatureTypeChoice: CastTimeCreatureTypeSource?` — forces a creature-type choice at cast time.
+- `castTimeCreatureTypeChoice: CastTimeCreatureTypeSource?` — forces a creature-type choice at cast time. No card uses it
+  today: "up to N target creature cards of the creature type of your choice" (Aphetto Dredging) is spelled as
+  real targets with `TargetObject(sameCreatureType = true)` instead.
 - `cantBeCountered: Boolean` — spell is uncounterable.
 - `cantBeCopied: Boolean` — spell can't be copied (CR 707.10); copy effects that name it create no copy (Display of Power).
 - `conditionalFlash: Condition?` — gains flash while condition holds.
@@ -3310,7 +3312,6 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
 **Creature-type choice**
 
 - `chooseCreatureTypeRevealTop()` — pick a type, reveal until matching.
-- `chooseCreatureTypeReturnFromGraveyard(count)` — pick a type, return N from graveyard.
 - `chooseCreatureTypeModifyStats(...)` — pick a type, buff matching.
 - `chooseCreatureTypeUntap()` — pick a type, untap your matching.
 - `chooseCreatureTypeGainControl(duration?)` — pick a type, control matching.
@@ -4133,14 +4134,19 @@ Every `TargetRequirement` carries count semantics (defaults shown):
   `TargetObject(count = 2, optional = true, filter = TargetFilter.CardInGraveyard, sameOwner = true)`
   (Arashin Sunshield).
 - `sameCreatureType = false` — on `TargetObject` / `TargetCreature(...)`; when `true` and the requirement
-  picks more than one target, the chosen **permanent** targets must all share at least one creature type
+  picks more than one target, the chosen targets must all share at least one creature type
   ("**two target creatures you control that share a creature type**"). Enforced cross-target by
-  `TargetValidator` at cast/activation time as the **intersection** of every target's *projected* creature
-  subtypes being non-empty — i.e. a single creature type common to the *whole* set, which for 3+ targets is
-  stricter than pairwise sharing (granted/changed types count). A target with no creature types — or one off
-  the battlefield — can never share, so the set is rejected. A no-op for single-target requirements and for
-  non-permanent targets. E.g. `TargetCreature(count = 2, filter = TargetFilter.CreatureYouControl,
-  sameCreatureType = true)` (Secret Tunnel).
+  `TargetValidator` at cast/activation time as the **intersection** of every target's creature types being
+  non-empty — i.e. a single creature type common to the *whole* set, which for 3+ targets is stricter than
+  pairwise sharing. A **permanent** reads its *projected* subtypes (granted/changed types count); a **card**
+  in another zone reads its printed creature types, and a changeling card has every creature type
+  (CR 702.73a). A target with no creature types can never share, so the set is rejected. A no-op for
+  single-target requirements. E.g. `TargetCreature(count = 2, filter = TargetFilter.CreatureYouControl,
+  sameCreatureType = true)` (Secret Tunnel); `TargetObject(count = 2, filter =
+  TargetFilter.CreatureInYourGraveyard, sameCreatureType = true)` — "two target creature cards that share a
+  creature type" (Unbury). "Up to three target creature cards **of the creature type of your choice**"
+  (Aphetto Dredging) is the same knob: naming a type and targeting only cards of it admits exactly the sets
+  that share one.
 - `sameCardType = false` — on `TargetObject` / `TargetPermanent(...)`; the **card-type** sibling of
   `sameCreatureType`. When `true` and the requirement picks more than one target, the chosen **permanent**
   targets must all share at least one *card type* per CR 205.2a — artifact, creature, enchantment,
