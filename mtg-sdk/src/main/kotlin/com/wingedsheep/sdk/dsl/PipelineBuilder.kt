@@ -3,6 +3,7 @@ package com.wingedsheep.sdk.dsl
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.CaptureControllersEffect
@@ -16,6 +17,8 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.CopyCardIntoCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.CopyCollectionIntoCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachCapturedControllerEffect
@@ -24,6 +27,7 @@ import com.wingedsheep.sdk.scripting.effects.GatherSubtypesEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.IterationSpace
+import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.NoteCreatureTypeEffect
@@ -57,6 +61,23 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 value class CollectionSlot(val key: String) {
     /** Read this collection back as a [CardSource] for a downstream [PipelineBuilder.gather]. */
     val asSource: CardSource get() = CardSource.FromVariable(key)
+
+    /**
+     * The number of entities in this collection, as a [DynamicAmount] — "that many", "for each
+     * card exiled this way". Evaluated when read (the engine resolves a `"<key>_count"`
+     * [DynamicAmount.VariableReference] to the stored collection's current size), so this is the
+     * one spelling of that suffix convention.
+     */
+    val count: DynamicAmount get() = DynamicAmount.VariableReference("${key}_count")
+
+    /** The first entity in this collection as an [EffectTarget] ([EffectTarget.PipelineTarget]). */
+    val asTarget: EffectTarget.PipelineTarget get() = EffectTarget.PipelineTarget(key)
+
+    /** The entity at [index] in this collection as an [EffectTarget]. */
+    fun asTarget(index: Int): EffectTarget.PipelineTarget = EffectTarget.PipelineTarget(key, index)
+
+    /** The controller of the entity at [index] in this collection ([EffectTarget.ControllerOfPipelineTarget]). */
+    fun controllerOf(index: Int = 0): EffectTarget = EffectTarget.ControllerOfPipelineTarget(key, index)
 }
 
 /** Handle to a named entry in `EffectContext.storedNumbers`. */
@@ -76,6 +97,20 @@ value class SubtypeGroupsSlot(val key: String)
 
 /** Match cards whose name equals the name captured in [slot] (cross-namespace handle overload). */
 fun GameObjectFilter.namedFromVariable(slot: ChosenSlot): GameObjectFilter = namedFromVariable(slot.key)
+
+/** All creatures of the creature type chosen into [slot] ([GroupFilter.ChosenSubtypeCreatures]). */
+fun GroupFilter.Companion.ChosenSubtypeCreatures(slot: ChosenSlot, excludeSelf: Boolean = false): GroupFilter =
+    ChosenSubtypeCreatures(slot.key, excludeSelf)
+
+/** Narrow this group to the objects having the creature type chosen into [slot]. */
+fun GroupFilter.withChosenSubtype(slot: ChosenSlot): GroupFilter = copy(chosenSubtypeKey = slot.key)
+
+/** Match objects with the subtype chosen into [slot] (e.g. by [PipelineBuilder.chooseOption]). */
+fun GameObjectFilter.withSubtypeFromVariable(slot: ChosenSlot): GameObjectFilter = withSubtypeFromVariable(slot.key)
+
+/** Match objects sharing a subtype with every group in [slot] ([PipelineBuilder.gatherSubtypes]). */
+fun GameObjectFilter.withSubtypeInEachStoredGroup(slot: SubtypeGroupsSlot): GameObjectFilter =
+    withSubtypeInEachStoredGroup(slot.key)
 
 /** Selected + remainder pair returned by the `*Split` selection verbs. */
 data class SelectionSlots(val selected: CollectionSlot, val remainder: CollectionSlot)
@@ -179,10 +214,17 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         source: CardSource,
         revealed: Boolean = false,
         name: String? = null,
-        search: Boolean = false
+        search: Boolean = false,
+        lookAudience: LookAudience = LookAudience.Controller
     ): CollectionSlot {
         val slot = CollectionSlot(slotKey("gathered", nextIndex(), name))
-        steps += GatherCardsEffect(source = source, storeAs = slot.key, revealed = revealed, search = search)
+        steps += GatherCardsEffect(
+            source = source,
+            storeAs = slot.key,
+            revealed = revealed,
+            lookAudience = lookAudience,
+            search = search
+        )
         return slot
     }
 
@@ -206,6 +248,19 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         revealed = revealed,
         name = name
     )
+
+    /**
+     * Mill [count] cards from [player]'s library (CR 701.13) and return the milled cards —
+     * "mill three cards, then … a creature card milled this way".
+     */
+    fun mill(count: DynamicAmount, player: Player = Player.You): CollectionSlot {
+        val milled = gather(CardSource.TopOfLibrary(count, player, isMill = true))
+        move(milled, CardDestination.ToZone(Zone.GRAVEYARD, player))
+        return milled
+    }
+
+    /** Mill [count] cards from [player]'s library and return the milled cards. */
+    fun mill(count: Int, player: Player = Player.You): CollectionSlot = mill(DynamicAmount.Fixed(count), player)
 
     /**
      * Walk [player]'s library top-down until [count] cards matching [filter] are found
@@ -449,6 +504,71 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         name, remainderName, withRemainder = true
     )
 
+    /** Like [chooseExactly] with a dynamic count, also keeping the non-selected cards as a remainder slot. */
+    fun chooseExactlySplit(
+        count: DynamicAmount,
+        from: CollectionSlot,
+        chooser: Chooser = Chooser.Controller,
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        prompt: String? = null,
+        selectedLabel: String? = null,
+        remainderLabel: String? = null,
+        useTargetingUI: Boolean = false,
+        showAllCards: Boolean = false,
+        restrictions: List<SelectionRestriction> = emptyList(),
+        alwaysPrompt: Boolean = false,
+        matchChosenCreatureType: Boolean = false,
+        name: String? = null,
+        remainderName: String? = null
+    ): SelectionSlots = select(
+        SelectionMode.ChooseExactly(count), from, chooser, filter, prompt,
+        selectedLabel, remainderLabel, useTargetingUI, showAllCards, restrictions, alwaysPrompt,
+        matchChosenCreatureType, name, remainderName, withRemainder = true
+    )
+
+    /** Like [chooseUpTo] with a dynamic count, also keeping the non-selected cards as a remainder slot. */
+    fun chooseUpToSplit(
+        count: DynamicAmount,
+        from: CollectionSlot,
+        chooser: Chooser = Chooser.Controller,
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        prompt: String? = null,
+        selectedLabel: String? = null,
+        remainderLabel: String? = null,
+        useTargetingUI: Boolean = false,
+        showAllCards: Boolean = false,
+        restrictions: List<SelectionRestriction> = emptyList(),
+        alwaysPrompt: Boolean = false,
+        matchChosenCreatureType: Boolean = false,
+        name: String? = null,
+        remainderName: String? = null
+    ): SelectionSlots = select(
+        SelectionMode.ChooseUpTo(count), from, chooser, filter, prompt,
+        selectedLabel, remainderLabel, useTargetingUI, showAllCards, restrictions, alwaysPrompt,
+        matchChosenCreatureType, name, remainderName, withRemainder = true
+    )
+
+    /**
+     * Player may choose up to one *spell* from [from] ([SelectionMode.ChooseSpell]) — [filter] is
+     * tested against the face that would be cast rather than the card's current characteristics.
+     */
+    fun chooseSpell(
+        from: CollectionSlot,
+        chooser: Chooser = Chooser.Controller,
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        prompt: String? = null,
+        selectedLabel: String? = null,
+        remainderLabel: String? = null,
+        useTargetingUI: Boolean = false,
+        showAllCards: Boolean = false,
+        alwaysPrompt: Boolean = false,
+        name: String? = null
+    ): CollectionSlot = select(
+        SelectionMode.ChooseSpell, from, chooser, filter, prompt, selectedLabel, remainderLabel,
+        useTargetingUI, showAllCards, restrictions = emptyList(), alwaysPrompt = alwaysPrompt,
+        matchChosenCreatureType = false, name = name, remainderName = null, withRemainder = false
+    ).selected
+
     /** Engine picks [count] cards at random — no player choice ([SelectionMode.Random]). */
     fun chooseRandom(
         count: DynamicAmount,
@@ -474,13 +594,28 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     fun selectAll(
         from: CollectionSlot,
         filter: GameObjectFilter = GameObjectFilter.Any,
+        matchChosenCreatureType: Boolean = false,
         name: String? = null
     ): CollectionSlot = select(
         SelectionMode.All, from, Chooser.Controller, filter, prompt = null,
         selectedLabel = null, remainderLabel = null, useTargetingUI = false, showAllCards = false,
-        restrictions = emptyList(), alwaysPrompt = false, matchChosenCreatureType = false,
+        restrictions = emptyList(), alwaysPrompt = false, matchChosenCreatureType = matchChosenCreatureType,
         name = name, remainderName = null, withRemainder = false
     ).selected
+
+    /** Like [selectAll], also keeping the cards that did not match as a remainder slot. */
+    fun selectAllSplit(
+        from: CollectionSlot,
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        matchChosenCreatureType: Boolean = false,
+        name: String? = null,
+        remainderName: String? = null
+    ): SelectionSlots = select(
+        SelectionMode.All, from, Chooser.Controller, filter, prompt = null,
+        selectedLabel = null, remainderLabel = null, useTargetingUI = false, showAllCards = false,
+        restrictions = emptyList(), alwaysPrompt = false, matchChosenCreatureType = matchChosenCreatureType,
+        name = name, remainderName = remainderName, withRemainder = true
+    )
 
     /**
      * Each controller of a permanent in [from] picks one of their own for every filter in
@@ -513,11 +648,44 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         return slot
     }
 
-    /** Keep only the cards in [from] passing the collection-relative [filter] ([FilterCollectionEffect]). */
-    fun filter(from: CollectionSlot, filter: CollectionFilter, name: String? = null): CollectionSlot {
+    /**
+     * Keep only the cards in [from] passing the collection-relative [filter] ([FilterCollectionEffect]) —
+     * "the creature with the greatest power among them". A [GameObjectFilter] in [matching] narrows
+     * the candidates first.
+     */
+    fun filter(
+        from: CollectionSlot,
+        filter: CollectionFilter,
+        matching: GameObjectFilter = GameObjectFilter.Any,
+        name: String? = null
+    ): CollectionSlot {
         val slot = CollectionSlot(slotKey("matching", nextIndex(), name))
-        steps += FilterCollectionEffect(from = from.key, collectionFilter = filter, storeMatching = slot.key)
+        steps += FilterCollectionEffect(
+            from = from.key,
+            filter = matching,
+            collectionFilter = filter,
+            storeMatching = slot.key
+        )
         return slot
+    }
+
+    /** Partition [from] by a collection-relative [filter] into passing and failing slots. */
+    fun filterSplit(
+        from: CollectionSlot,
+        filter: CollectionFilter,
+        name: String? = null,
+        restName: String? = null
+    ): FilterSlots {
+        val index = nextIndex()
+        val matching = CollectionSlot(slotKey("matching", index, name))
+        val rest = CollectionSlot(slotKey("rest", index, restName))
+        steps += FilterCollectionEffect(
+            from = from.key,
+            collectionFilter = filter,
+            storeMatching = matching.key,
+            storeNonMatching = rest.key
+        )
+        return FilterSlots(matching, rest)
     }
 
     /** Partition [from] by a [GameObjectFilter] into matching and non-matching slots. */
@@ -545,7 +713,7 @@ class PipelineBuilder private constructor(private val shared: Shared) {
      * half of a choose-then-punish pipeline — pair with [chooseOnePerCategory] or a select step.
      */
     fun exclude(from: CollectionSlot, minus: CollectionSlot, name: String? = null): CollectionSlot =
-        filter(from, CollectionFilter.ExcludeOtherCollection(minus.key), name)
+        filter(from, CollectionFilter.ExcludeOtherCollection(minus.key), name = name)
 
     // =========================================================================
     // Capture / store
@@ -569,6 +737,20 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     fun storeNumber(amount: DynamicAmount, name: String? = null): NumberSlot {
         val slot = NumberSlot(slotKey("number", nextIndex(), name))
         steps += StoreNumberEffect(name = slot.key, amount = amount)
+        return slot
+    }
+
+    /**
+     * Player names a card ([ChooseOptionEffect] over [OptionType.CARD_NAME]); with
+     * [excludeBasicLandNames], "choose a card name other than a basic land card name".
+     */
+    fun chooseCardName(
+        prompt: String? = null,
+        excludeBasicLandNames: Boolean = false,
+        name: String? = null
+    ): ChosenSlot {
+        val slot = ChosenSlot(slotKey("cardName", nextIndex(), name))
+        steps += Effects.ChooseCardName(slot.key, prompt, excludeBasicLandNames)
         return slot
     }
 
@@ -601,9 +783,30 @@ class PipelineBuilder private constructor(private val shared: Shared) {
      * Only for non-targeting choices or choices that depend on earlier pipeline results —
      * printed "target" wording must use cast-time targeting instead.
      */
-    fun selectTarget(requirement: TargetRequirement, name: String? = null): CollectionSlot {
+    fun selectTarget(
+        requirement: TargetRequirement,
+        nonTargeting: Boolean = false,
+        name: String? = null
+    ): CollectionSlot {
         val slot = CollectionSlot(slotKey("target", nextIndex(), name))
-        steps += SelectTargetEffect(requirement = requirement, storeAs = slot.key)
+        steps += SelectTargetEffect(requirement = requirement, storeAs = slot.key, nonTargeting = nonTargeting)
+        return slot
+    }
+
+    /**
+     * Create a copy of the card [source] refers to (CR 707.12) and store the copy
+     * ([CopyCardIntoCollectionEffect]) — pair with a cast-from-collection effect.
+     */
+    fun copyCard(source: EffectTarget, name: String? = null): CollectionSlot {
+        val slot = CollectionSlot(slotKey("copy", nextIndex(), name))
+        steps += CopyCardIntoCollectionEffect(source = source, storeAs = slot.key)
+        return slot
+    }
+
+    /** Create a copy of each card in [from] and store the copies ([CopyCollectionIntoCollectionEffect]). */
+    fun copyCards(from: CollectionSlot, name: String? = null): CollectionSlot {
+        val slot = CollectionSlot(slotKey("copies", nextIndex(), name))
+        steps += CopyCollectionIntoCollectionEffect(from = from.key, storeAs = slot.key)
         return slot
     }
 
@@ -653,7 +856,15 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     // Move
     // =========================================================================
 
-    /** Move the cards in [from] to [destination] ([MoveCollectionEffect]). */
+    /**
+     * Move the cards in [from] to [destination] ([MoveCollectionEffect]). Prefer the named
+     * shortcuts below ([destroy], [sacrifice], [discard], [exile], [toHand], [toGraveyard],
+     * [toLibraryTop], [toLibraryBottom]) when one fits.
+     *
+     * @param filter only the cards in [from] matching this move; the rest stay where they are.
+     * @param lookableInExile the controller may keep looking at face-down exiled cards.
+     * @param attachTo the permanent an Aura/Equipment entering the battlefield attaches to.
+     */
     fun move(
         from: CollectionSlot,
         destination: CardDestination,
@@ -664,10 +875,12 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         linkToSource: Boolean = false,
         unlinkFromSource: Boolean = false,
         faceDown: FaceDownMode? = null,
+        lookableInExile: Boolean = false,
         noRegenerate: Boolean = false,
         underOwnersControl: Boolean = false,
         addCounterType: CounterType? = null,
         markEnteredViaSourceAbility: Boolean = false,
+        filter: GameObjectFilter? = null,
         attachTo: EffectTarget? = null
     ) {
         nextIndex()
@@ -681,15 +894,21 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             linkToSource = linkToSource,
             unlinkFromSource = unlinkFromSource,
             faceDown = faceDown,
+            lookableInExile = lookableInExile,
             noRegenerate = noRegenerate,
             underOwnersControl = underOwnersControl,
             addCounterType = addCounterType,
             markEnteredViaSourceAbility = markEnteredViaSourceAbility,
+            filter = filter,
             attachTo = attachTo
         )
     }
 
-    /** Like [move], but also records which cards actually moved ([MoveCollectionEffect.storeMovedAs]). */
+    /**
+     * Like [move], but also records which cards actually moved ([MoveCollectionEffect.storeMovedAs])
+     * — "exile … then return the cards exiled this way", where a replacement or a card that left
+     * first can make the moved set smaller than [from].
+     */
     fun moveTracked(
         from: CollectionSlot,
         destination: CardDestination,
@@ -700,10 +919,13 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         linkToSource: Boolean = false,
         unlinkFromSource: Boolean = false,
         faceDown: FaceDownMode? = null,
+        lookableInExile: Boolean = false,
         noRegenerate: Boolean = false,
         underOwnersControl: Boolean = false,
         addCounterType: CounterType? = null,
         markEnteredViaSourceAbility: Boolean = false,
+        filter: GameObjectFilter? = null,
+        attachTo: EffectTarget? = null,
         name: String? = null
     ): CollectionSlot {
         val slot = CollectionSlot(slotKey("moved", nextIndex(), name))
@@ -717,11 +939,14 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             linkToSource = linkToSource,
             unlinkFromSource = unlinkFromSource,
             faceDown = faceDown,
+            lookableInExile = lookableInExile,
             noRegenerate = noRegenerate,
+            storeMovedAs = slot.key,
             underOwnersControl = underOwnersControl,
             addCounterType = addCounterType,
             markEnteredViaSourceAbility = markEnteredViaSourceAbility,
-            storeMovedAs = slot.key
+            filter = filter,
+            attachTo = attachTo
         )
         return slot
     }
@@ -733,6 +958,13 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     /** Sacrifice the permanents in [from] (owners' graveyards, [MoveType.Sacrifice]). */
     fun sacrifice(from: CollectionSlot) =
         move(from, CardDestination.ToZone(Zone.GRAVEYARD), moveType = MoveType.Sacrifice)
+
+    /**
+     * Discard the cards in [from] ([MoveType.Discard]) — they go to their owner's graveyard and
+     * fire discard triggers. [player] names whose hand they leave ("that player discards …").
+     */
+    fun discard(from: CollectionSlot, player: Player = Player.You) =
+        move(from, CardDestination.ToZone(Zone.GRAVEYARD, player), moveType = MoveType.Discard)
 
     /**
      * Soulbond-pair the creature in [from] with the pipeline's source (CR 702.95a). An empty
@@ -846,18 +1078,58 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         steps += effect
     }
 
+    /**
+     * Run an effect that is not a pipeline step but *writes* a collection under a key it is
+     * handed — `Effects.DestroyAll(filter, storeDestroyedAs = it)`, `Patterns.Exile.impulse(…,
+     * storeAs = it)` — and return a typed handle to what it wrote. The key is generated, so the
+     * producer and every reader stay linked by the handle rather than by a spelled-out string.
+     */
+    fun runStoringCollection(effect: (key: String) -> Effect): CollectionSlot {
+        val slot = CollectionSlot(slotKey("stored", nextIndex(), null))
+        steps += effect(slot.key)
+        return slot
+    }
+
+    /** Like [runStoringCollection], for an effect that records a number (`storeHeadsAs = it`). */
+    fun runStoringNumber(effect: (key: String) -> Effect): NumberSlot {
+        val slot = NumberSlot(slotKey("storedNumber", nextIndex(), null))
+        steps += effect(slot.key)
+        return slot
+    }
+
+    /** Like [runStoringCollection], for an effect that records a chosen value (a name, a type). */
+    fun runStoringChoice(effect: (key: String) -> Effect): ChosenSlot {
+        val slot = ChosenSlot(slotKey("storedChoice", nextIndex(), null))
+        steps += effect(slot.key)
+        return slot
+    }
+
     /** Condition that [collection] currently holds a card matching [filter] ([CollectionContainsMatch]). */
     fun whenMatches(collection: CollectionSlot, filter: GameObjectFilter = GameObjectFilter.Any): Condition =
         CollectionContainsMatch(collection.key, filter)
 
     companion object {
+        /** Key namespaces of the pipelines currently being built on this thread, innermost last. */
+        private val building: ThreadLocal<ArrayDeque<Shared>> = ThreadLocal.withInitial { ArrayDeque() }
+
         internal fun build(
             stopOnError: Boolean,
             descriptionOverride: String?,
             descriptionAmounts: List<DynamicAmount>,
             block: PipelineBuilder.() -> Unit
         ): Effect {
-            val builder = PipelineBuilder(Shared()).apply(block)
+            // A pipeline built while another is being built (an `Effects.Pipeline { }` inside a
+            // `run(Effects.May(…))` of an outer one) executes in the same EffectContext, so it must
+            // draw its keys from the same namespace — otherwise both would generate `gathered0`
+            // and the inner one would silently overwrite a collection the outer one still reads.
+            val enclosing = building.get().lastOrNull()
+            val shared = enclosing ?: Shared()
+            building.get().addLast(shared)
+            val builder = try {
+                PipelineBuilder(shared).apply(block)
+            } finally {
+                building.get().removeLast()
+            }
             require(builder.steps.isNotEmpty()) { "pipeline { } must add at least one step" }
             return CompositeEffect(
                 effects = builder.steps.toList(),

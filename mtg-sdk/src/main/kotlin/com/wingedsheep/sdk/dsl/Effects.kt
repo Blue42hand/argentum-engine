@@ -2184,6 +2184,13 @@ object Effects {
         fromChosenValueKey: String? = null
     ): Effect = SetLandTypeEffect(landType, target, duration, fromChosenValueKey)
 
+    /** Set a target land's basic land subtype to the one chosen into [fromChosen] (pipeline form). */
+    fun SetLandType(
+        target: EffectTarget,
+        fromChosen: ChosenSlot,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = SetLandTypeEffect("", target, duration, fromChosen.key)
+
     /** Choose a color and store it on a target permanent. */
     fun ChooseColorForTarget(
         target: EffectTarget = EffectTarget.Self,
@@ -3638,6 +3645,138 @@ object Effects {
         block: PipelineBuilder.() -> Unit
     ): Effect = PipelineBuilder.build(stopOnError, descriptionOverride, descriptionAmounts, block)
 
+    // -------------------------------------------------------------------------
+    // Collection-reading effects, typed. Each takes a pipeline handle from an
+    // `Effects.Pipeline { }` step, so card code never spells a collection key.
+    // -------------------------------------------------------------------------
+
+    /** Run [effect] once per entity in [collection], bound as [EffectTarget.IterationEntity]. */
+    fun ForEachInCollection(collection: CollectionSlot, effect: Effect): Effect =
+        com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect(collection.key, effect)
+
+    /** Run [effect] once for each player matching [players] (see the list form). */
+    fun ForEachPlayer(players: Player, effect: Effect): Effect = ForEachPlayerEffect(players, listOf(effect))
+
+    /** Tap (or, with [tap] = false, untap) every permanent in [collection]. */
+    fun TapCollection(collection: CollectionSlot, tap: Boolean = true): Effect =
+        com.wingedsheep.sdk.scripting.effects.TapUntapCollectionEffect(collection.key, tap)
+
+    /** Put [count] [counterType] counters on each entity in [collection]. */
+    fun AddCountersToCollection(collection: CollectionSlot, counterType: CounterType, count: Int = 1): Effect =
+        AddCountersToCollectionEffect(collection.key, counterType, count)
+
+    /** Put [amount] [counterType] counters, evaluated at resolution, on each entity in [collection]. */
+    fun AddCountersToCollection(collection: CollectionSlot, counterType: CounterType, amount: DynamicAmount): Effect =
+        AddCountersToCollectionEffect(collection.key, counterType, amount = amount)
+
+    /** The cards in [from] may be played from exile — see the String overload for the parameters. */
+    fun GrantMayPlayFromExile(
+        from: CollectionSlot,
+        expiry: com.wingedsheep.sdk.scripting.effects.MayPlayExpiry =
+            com.wingedsheep.sdk.scripting.effects.MayPlayExpiry.EndOfTurn,
+        withAnyManaType: Boolean = false,
+        condition: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
+        landEntersTapped: Boolean = false,
+        onPlayRider: Effect? = null,
+        exileAfterResolve: Boolean = false,
+        nonLandOnly: Boolean = false,
+        castFaceIndex: Int? = null,
+        ownerControls: Boolean = false,
+        castColorRestriction: Color? = null,
+        recipient: EffectTarget = EffectTarget.Controller,
+        asThoughFlash: Boolean = false
+    ): Effect = GrantMayPlayFromExileEffect(
+        from = from.key,
+        expiry = expiry,
+        withAnyManaType = withAnyManaType,
+        condition = condition,
+        landEntersTapped = landEntersTapped,
+        onPlayRider = onPlayRider,
+        ownerControls = ownerControls,
+        recipient = recipient,
+        exileAfterResolve = exileAfterResolve,
+        asThoughFlash = asThoughFlash,
+        nonLandOnly = nonLandOnly,
+        castFaceIndex = castFaceIndex,
+        castColorRestriction = castColorRestriction
+    )
+
+    /** Waterbend-cast the cards in [from] from exile (see the String overload). */
+    fun WaterbendCastFromExile(
+        from: CollectionSlot,
+        condition: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
+    ): Effect = WaterbendCastFromExile(from.key, condition)
+
+    /** The cards in [from] become plotted. */
+    fun MakePlotted(from: CollectionSlot, ownerControls: Boolean = false): Effect =
+        MakePlottedEffect(from.key, ownerControls)
+
+    /** Until end of turn, the cards in [from] may be played without paying their mana costs. */
+    fun GrantPlayWithoutPayingCost(from: CollectionSlot): Effect = GrantPlayWithoutPayingCostEffect(from.key)
+
+    /** Casting the cards in [from] this turn requires [additionalCost]. */
+    fun GrantPlayWithAdditionalCost(from: CollectionSlot, additionalCost: AdditionalCost): Effect =
+        GrantPlayWithAdditionalCostEffect(from.key, additionalCost)
+
+    /** Each spell cast from [from] costs [amount] more. */
+    fun GrantPlayWithCostIncrease(from: CollectionSlot, amount: Int): Effect =
+        GrantPlayWithCostIncrease(from.key, amount)
+
+    /** Cast a card from [from] without paying its mana cost (see the String overload). */
+    fun CastFromCollectionWithoutPayingCost(
+        from: CollectionSlot,
+        insteadOfGraveyard: AfterResolveDestination? = null,
+        caster: com.wingedsheep.sdk.scripting.effects.Chooser =
+            com.wingedsheep.sdk.scripting.effects.Chooser.Controller,
+        storeCastTo: String? = null,
+    ): Effect = CastFromCollectionWithoutPayingCost(from.key, storeCastTo, insteadOfGraveyard, caster)
+
+    /** Cast a card from [from], paying its mana cost (see the String overload). */
+    fun CastFromCollection(
+        from: CollectionSlot,
+        insteadOfGraveyard: AfterResolveDestination? = null,
+        caster: com.wingedsheep.sdk.scripting.effects.Chooser =
+            com.wingedsheep.sdk.scripting.effects.Chooser.Controller,
+        storeCastTo: String? = null,
+    ): Effect = CastFromCollection(from.key, storeCastTo, insteadOfGraveyard, caster)
+
+    /** Play (land or spell) a card from [from] without paying its mana cost. */
+    fun PlayFromCollectionWithoutPayingCost(from: CollectionSlot): Effect =
+        PlayFromCollectionWithoutPayingCost(from.key)
+
+    /** Cast any number of the cards in [from] without paying their mana costs. */
+    fun CastAnyNumberFromCollectionWithoutPayingCost(from: CollectionSlot): Effect =
+        CastAnyNumberFromCollectionWithoutPayingCost(from.key)
+
+    /** Cast up to [maxCasts] of the cards in [from] without paying their mana costs. */
+    fun CastUpToNFromCollectionWithoutPayingCost(from: CollectionSlot, maxCasts: Int): Effect =
+        CastUpToNFromCollectionWithoutPayingCost(from.key, maxCasts)
+
+    /** Cast any number of the cards in [from], paying their mana costs. */
+    fun CastAnyNumberFromCollection(from: CollectionSlot): Effect = CastAnyNumberFromCollection(from.key)
+
+    /**
+     * Deal [damagePerEntity] damage to [target] for each card of [collection] still in [zone] —
+     * Dragonhawk's "for each of those cards that are still exiled", usually from a delayed trigger
+     * (which pins the collection's entities when it is created).
+     */
+    fun DealDamagePerCardStillIn(
+        collection: CollectionSlot,
+        zone: Zone = Zone.EXILE,
+        damagePerEntity: Int = 1,
+        target: EffectTarget = EffectTarget.PlayerRef(Player.EachOpponent),
+        damageSource: EffectTarget? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.DealDamagePerEntityInZoneEffect(
+        collectionName = collection.key,
+        zone = zone,
+        damagePerEntity = damagePerEntity,
+        target = target,
+        damageSource = damageSource
+    )
+
+    /** Record the card in [from] as this source's chosen linked-exile card. */
+    fun RecordChosenLinkedExile(from: CollectionSlot): Effect = RecordChosenLinkedExile(from.key)
+
     /**
      * Move [target] to [destination] zone — the foundational single-target zone-change effect.
      *
@@ -4099,6 +4238,18 @@ object Effects {
         spell: EffectTarget = EffectTarget.TriggeringEntity
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.ChangeTriggeringObjectTargetsEffect(chooser, spell)
+
+    /**
+     * The owner of the single card in [chooserOwnerOf] may change the targets of [spell]
+     * ([com.wingedsheep.sdk.scripting.effects.RetargetChooser.OwnerOfStored]) — Psychic Battle.
+     */
+    fun ChangeTriggeringObjectTargets(
+        chooserOwnerOf: CollectionSlot,
+        spell: EffectTarget = EffectTarget.TriggeringEntity
+    ): Effect = ChangeTriggeringObjectTargets(
+        com.wingedsheep.sdk.scripting.effects.RetargetChooser.OwnerOfStored(chooserOwnerOf.key),
+        spell
+    )
 
     /**
      * Copy target instant or sorcery spell. You may choose new targets for the copy.

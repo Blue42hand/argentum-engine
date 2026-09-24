@@ -782,4 +782,24 @@ object DynamicAmounts {
         storeCountAs: String =
             com.wingedsheep.sdk.scripting.effects.PayManaCostRepeatedlyEffect.TIMES_PAID
     ): DynamicAmount = DynamicAmount.VariableReference(storeCountAs)
+
+    /** How many distinct entities are in the pipeline [collection] (typed form). */
+    fun distinctEntitiesIn(collection: CollectionSlot): DynamicAmount = distinctEntitiesIn(listOf(collection))
+
+    /** How many distinct entities appear across the pipeline [collections] (typed form). */
+    fun distinctEntitiesIn(collections: List<CollectionSlot>): DynamicAmount =
+        DynamicAmount.DistinctEntitiesInCollections(collections.map { it.key })
+
+    /** How many distinct card types are among the cards in the pipeline [collection] (typed form). */
+    fun distinctCardTypesIn(collection: CollectionSlot): DynamicAmount = distinctCardTypesIn(listOf(collection))
+
+    /** How many distinct card types appear across the pipeline [collections] (typed form). */
+    fun distinctCardTypesIn(collections: List<CollectionSlot>): DynamicAmount =
+        DynamicAmount.DistinctCardTypesInCollections(collections.map { it.key })
+
+    /** The total mana value of the cards in [collection]. */
+    fun manaValueSumOf(collection: CollectionSlot): DynamicAmount = manaValueSumOf(collection.key)
+
+    /** The mana value of the (first) card in [collection]. */
+    fun manaValueOf(collection: CollectionSlot): DynamicAmount = DynamicAmount.StoredCardManaValue(collection.key)
 }
