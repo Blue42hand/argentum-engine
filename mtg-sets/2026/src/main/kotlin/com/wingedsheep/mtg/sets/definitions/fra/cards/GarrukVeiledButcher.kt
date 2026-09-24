@@ -12,20 +12,11 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Garruk, Veiled Butcher
@@ -78,9 +69,9 @@ val GarrukVeiledButcher = card("Garruk, Veiled Butcher") {
             count = 1,
             target = EffectTarget.PlayerRef(Player.Each),
         ).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouSacrificedThisWay,
-                effect = Effects.CreateToken(
+                then = Effects.CreateToken(
                     power = 4,
                     toughness = 4,
                     colors = setOf(Color.GREEN),
@@ -95,33 +86,22 @@ val GarrukVeiledButcher = card("Garruk, Veiled Butcher") {
     // −3: Each opponent discards two cards. For each opponent who didn't discard two nonland
     // cards this way, you draw a card.
     loyaltyAbility(-3) {
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.HAND, Player.You),
-                    storeAs = "garruk_hand",
-                ),
-                SelectFromCollectionEffect(
-                    from = "garruk_hand",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(2)),
-                    storeSelected = "garruk_discard",
-                    prompt = "Choose two cards to discard",
-                ),
-                MoveCollectionEffect(
-                    from = "garruk_discard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD),
-                    moveType = MoveType.Discard,
-                    storeMovedAs = "garruk_discarded",
-                ),
-                ConditionalOnCollectionEffect(
-                    collection = "garruk_discarded",
-                    filter = GameObjectFilter.Nonland,
-                    minSize = 2,
-                    ifNotEmpty = Effects.Composite(emptyList()),
-                    ifEmpty = DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ControllerOfSource)),
-                ),
-            ),
+            Effects.Pipeline {
+                val garrukHand = gather(CardSource.FromZone(Zone.HAND, Player.You))
+                val garrukDiscard = chooseExactly(2, from = garrukHand, prompt = "Choose two cards to discard")
+                val garrukDiscarded = moveTracked(
+                    garrukDiscard,
+                    CardDestination.ToZone(Zone.GRAVEYARD),
+                    moveType = MoveType.Discard
+                )
+                ifNotEmpty(garrukDiscarded, filter = GameObjectFilter.Nonland, minSize = 2) {
+                    run(Effects.Composite(emptyList()))
+                } orElse {
+                    run(Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ControllerOfSource)))
+                }
+            },
         )
         description = "Each opponent discards two cards. For each opponent who didn't discard two " +
             "nonland cards this way, you draw a card."

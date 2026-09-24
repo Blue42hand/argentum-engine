@@ -306,7 +306,7 @@ object TokenCreationReplacementHelper {
         for (active in candidates) {
             val effect = active.effect as ReplaceTokenCreationWithToken
             val event = effect.appliesTo as? SdkGameEvent.TokenCreationEvent ?: continue
-            if (!controllerMatches(event.controller, active.controllerId, tokenControllerId)) continue
+            if (!controllerMatches(event.controller, state, active.controllerId, tokenControllerId)) continue
             val filter = event.tokenFilter
             if (filter != null && !predicateEvaluator.matches(
                     probeState, state.projectedState, probeId, filter,

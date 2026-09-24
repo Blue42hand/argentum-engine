@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,13 +10,11 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Theorist, Jace Beleren
@@ -71,12 +69,12 @@ val TheTheoristJaceBeleren = card("The Theorist, Jace Beleren") {
             TargetObject(
                 filter = TargetFilter.CreatureOrArtifact.opponentControls(),
                 optional = true,
-                dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent),
+                dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
                 differentControllers = true,
             ),
         )
-        effect = ForEachTargetEffect(
-            listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.ReturnToHand(EffectTarget.ContextTarget(0))
         )
         description = "For each opponent, return up to one target artifact or creature that player " +
             "controls to its owner's hand."
@@ -88,7 +86,7 @@ val TheTheoristJaceBeleren = card("The Theorist, Jace Beleren") {
             Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
                 Effects.AddDynamicCounters(
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmounts.cardsInYourHand(),
                     EffectTarget.Self,
                 ),

@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +25,7 @@ val Gardenize = card("Gardenize") {
 
     triggeredAbility {
         trigger = Triggers.YourCreatureDies
-        effect = Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
         description = "Whenever a creature you control dies, put a charge counter on this enchantment."
     }
 
@@ -34,7 +33,7 @@ val Gardenize = card("Gardenize") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.AddMana(
             Color.GREEN,
-            DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE))
+            DynamicAmounts.countersOnSelf(CounterType.CHARGE)
         )
         description = "At the beginning of your first main phase, add {G} for each charge counter on this enchantment."
     }
