@@ -669,6 +669,7 @@ val engineSerializersModule = SerializersModule {
         subclass(SkipNextTurnComponent::class)
         subclass(EndTheTurnRequestedComponent::class)
         subclass(PlayerTurnHijackedComponent::class)
+        subclass(com.wingedsheep.engine.state.components.player.CombatDeclarationControlComponent::class)
         subclass(HotseatControlComponent::class)
 
         // Stack components

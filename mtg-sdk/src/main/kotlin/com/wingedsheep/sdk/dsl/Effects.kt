@@ -4522,6 +4522,15 @@ object Effects {
         HijackNextTurnEffect(target, com.wingedsheep.sdk.scripting.effects.HijackScope.NextCombatPhase)
 
     /**
+     * "You choose which creatures attack this turn. You choose which creatures block this turn and
+     * how those creatures block." (Master Warcraft.) Moves every attack and block *declaration* this
+     * turn to the controller — nothing else. Pair with
+     * `castOnlyIf(Conditions.BeforeAttackersDeclared)` for the card's timing line.
+     */
+    fun ChooseAttackersAndBlockersThisTurn(): Effect =
+        com.wingedsheep.sdk.scripting.effects.ControlCombatDeclarationsThisTurnEffect
+
+    /**
      * Grant a flat damage bonus to a player's sources this turn.
      * Used for cards like The Flame of Keld (Chapter III).
      */

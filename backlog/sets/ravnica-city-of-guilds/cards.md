@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards
 **Release Date:** October 7, 2005
-**Implemented:** 278 / 291
+**Implemented:** 279 / 291
 | Section    | Total | Done |
 |------------|-------|------|
 | White      | 37    | 33   |
@@ -251,7 +251,7 @@
 - [x] Lightning Helix
 - [x] Loxodon Hierarch
 - [x] Lurking Informant
-- [ ] Master Warcraft
+- [x] Master Warcraft
 - [x] Mindleech Mass
 - [x] Moroii
 - [x] Perplex
