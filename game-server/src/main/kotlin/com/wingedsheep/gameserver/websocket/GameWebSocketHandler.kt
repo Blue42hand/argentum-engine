@@ -6,12 +6,14 @@ import com.wingedsheep.gameserver.handler.ConnectionHandler
 import com.wingedsheep.gameserver.handler.GamePlayHandler
 import com.wingedsheep.gameserver.handler.LobbyHandler
 import com.wingedsheep.gameserver.handler.MessageSender
+import com.wingedsheep.gameserver.handler.QuickGameAiSeatPresetHandler
 import com.wingedsheep.gameserver.handler.QuickGameLobbyHandler
 import com.wingedsheep.gameserver.protocol.ClientMessage
 import com.wingedsheep.gameserver.protocol.ErrorCode
 import com.wingedsheep.gameserver.protocol.GetAiControllerCatalog
 import com.wingedsheep.gameserver.protocol.ServerMessage
 import com.wingedsheep.gameserver.protocol.SetLobbyAiController
+import com.wingedsheep.gameserver.protocol.SetQuickGameAiController
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -27,6 +29,7 @@ class GameWebSocketHandler(
     private val lobbyHandler: LobbyHandler,
     private val aiSeatPresetHandler: AiSeatPresetHandler,
     private val aiControllerCatalogHandler: AiControllerCatalogHandler,
+    private val quickGameAiSeatPresetHandler: QuickGameAiSeatPresetHandler,
     private val quickGameLobbyHandler: QuickGameLobbyHandler,
     private val sender: MessageSender,
     private val llmTournamentService: com.wingedsheep.gameserver.tournament.llm.LlmTournamentService
@@ -121,6 +124,7 @@ class GameWebSocketHandler(
 
                 is SetLobbyAiController -> aiSeatPresetHandler.handleSetController(session, clientMessage)
                 is ClientMessage.SetLobbyAiDeck -> aiSeatPresetHandler.handleSetDeck(session, clientMessage)
+                is SetQuickGameAiController -> quickGameAiSeatPresetHandler.handle(session, clientMessage)
                 is GetAiControllerCatalog -> aiControllerCatalogHandler.handle(session, clientMessage)
 
                 is ClientMessage.ReadyForNextRound -> {
