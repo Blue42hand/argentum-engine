@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.conditions.Condition
@@ -1954,16 +1955,26 @@ data class EntersWithChoice(
      * informational — it does not restrict the choice. Defaults to false.
      */
     val lookAtOpponentHand: Boolean = false,
+    /**
+     * When [choiceType] is [ChoiceType.COLOR], the colors the chooser may *not* name — "choose a
+     * color other than red" (the Thriving lands). Empty means any of the five colors. Ignored for
+     * every other choice type.
+     */
+    val excludedColors: Set<Color> = emptySet(),
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Any,
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
     override val description: String = when (choiceType) {
-        ChoiceType.COLOR -> if (chooser == Player.AnOpponent) {
-            "As this permanent enters, an opponent chooses a color"
-        } else {
-            "As this permanent enters, choose a color"
+        ChoiceType.COLOR -> {
+            val otherThan = if (excludedColors.isEmpty()) "" else
+                " other than " + excludedColors.sortedBy { it.ordinal }.joinToString(" or ") { it.displayName.lowercase() }
+            if (chooser == Player.AnOpponent) {
+                "As this permanent enters, an opponent chooses a color$otherThan"
+            } else {
+                "As this permanent enters, choose a color$otherThan"
+            }
         }
         ChoiceType.CREATURE_TYPE -> if (chooser == Player.AnOpponent) {
             "As this permanent enters, an opponent chooses a creature type"
