@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   evidence:
@@ -117,6 +118,37 @@ jobs:
             echo "===== ${f} ====="
             cat "$f"
           done
+
+      - name: Publish one-time evidence checkpoint on issue 19
+        if: github.event.head_commit.message == 'ci: publish Steel Overseer probe evidence'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '### Steel Overseer probe evidence'
+            echo
+            echo "Branch head: \`${GITHUB_SHA}\`"
+            for spec in \
+              'Assay parse|steel-overseer-assay-parse.txt' \
+              'Assay explain|steel-overseer-assay-explain.txt' \
+              'Fidelity emit|steel-overseer-fidelity.txt' \
+              'Scryfall M11|steel-overseer-m11.json' \
+              'Scryfall printings|steel-overseer-printings.json' \
+              'Scryfall rulings|steel-overseer-rulings.json' \
+              'Printing gate|steel-overseer-printing-gate.txt'; do
+              title="${spec%%|*}"
+              file="${spec#*|}"
+              echo
+              echo "<details><summary>${title}</summary>"
+              echo
+              echo '```'
+              cat "$file"
+              echo '```'
+              echo '</details>'
+            done
+          } > steel-overseer-issue-comment.md
+          gh issue comment 19 --repo "$GITHUB_REPOSITORY" --body-file steel-overseer-issue-comment.md
 
       - name: Upload Steel Overseer evidence
         uses: actions/upload-artifact@v4
