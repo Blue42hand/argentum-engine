@@ -410,6 +410,7 @@ val engineSerializersModule = SerializersModule {
         subclass(ActivateAbilityOpponentTargetContinuation::class)
         subclass(ActivateAbilityOpponentChooserContinuation::class)
         subclass(ActivateAbilitySacrificeContinuation::class)
+        subclass(ActivateAbilityPutOnLibraryContinuation::class)
         subclass(ActivateAbilityVariablePermanentsContinuation::class)
         subclass(ActivateAbilityControllerTargetContinuation::class)
         subclass(RepeatWhileDecisionContinuation::class)

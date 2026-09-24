@@ -702,7 +702,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             // What each legal target would add to a target-derived collect-evidence threshold
@@ -1905,7 +1905,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val conspireCostInfo = AdditionalCostData(
@@ -2005,7 +2005,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val casualtyCostInfo = AdditionalCostData(
@@ -2130,7 +2130,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 // same order the cast handler and the stack resolver slice the flat target list by.
                 val targetReqs = buildList {
                     addAll(cardDef.script.targetRequirements)
-                    cardDef.script.auraTarget?.let { add(it) }
+                    cardDef.script.castAuraTarget?.let { add(it) }
                     addAll(candidate.definition.script.targetRequirements)
                 }
                 val description = "Cast ${cardComponent.name} (Splice ${candidate.name})"
@@ -2353,7 +2353,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 }
                 val targetReqs = buildList {
                     addAll(kickerBaseReqs)
-                    cardDef.script.auraTarget?.let { add(it) }
+                    cardDef.script.castAuraTarget?.let { add(it) }
                 }
 
                 // The printed name of what's being paid — "Bargained" for bargain, "Offspring" /
@@ -2610,7 +2610,7 @@ class CastSpellEnumerator : ActionEnumerator {
             }
             val targetReqs = buildList {
                 addAll(cleaveBaseReqs)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             if (targetReqs.isNotEmpty()) {
@@ -3289,7 +3289,7 @@ class CastSpellEnumerator : ActionEnumerator {
 
         val targetReqs = buildList {
             addAll(back.script.targetRequirements)
-            back.script.auraTarget?.let { add(it) }
+            back.script.castAuraTarget?.let { add(it) }
         }
         val autoTapPreview = if (context.skipAutoTapPreview) null else {
             context.manaSolver

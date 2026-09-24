@@ -567,7 +567,8 @@ class TriggerDetector(
                     // through EntityReference.Triggering.
                     triggeringEntityId = delayed.fireOnPlayerId ?: delayed.watchedEntityId,
                     triggeringPlayerId = delayed.fireOnPlayerId
-                )
+                ),
+                carriedPipeline = delayed.carriedPipelineFor(state)
             )
         }
         val consumedIds = matching.filterNot { it.repeatAtEachMatchingStep }.map { it.id }.toSet()
@@ -949,7 +950,8 @@ class TriggerDetector(
                                 sourceName = delayed.sourceName,
                                 controllerId = delayed.controllerId,
                                 triggerContext = TriggerContext.fromEvent(event).copy(triggeringEntityId = attackerId),
-                                consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null
+                                consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null,
+                                carriedPipeline = delayed.carriedPipelineFor(state)
                             )
                         )
                     }
@@ -994,7 +996,8 @@ class TriggerDetector(
                                 sourceName = delayed.sourceName,
                                 controllerId = delayed.controllerId,
                                 triggerContext = TriggerContext(triggeringEntityId = partnerId),
-                                consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null
+                                consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null,
+                                carriedPipeline = delayed.carriedPipelineFor(state)
                             )
                         )
                     }
@@ -1019,7 +1022,8 @@ class TriggerDetector(
                             triggeringEntityId = delayed.watchedEntityId
                                 ?: TriggerContext.fromEvent(event).triggeringEntityId
                         ),
-                        consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null
+                        consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null,
+                        carriedPipeline = delayed.carriedPipelineFor(state)
                     )
                 )
             }

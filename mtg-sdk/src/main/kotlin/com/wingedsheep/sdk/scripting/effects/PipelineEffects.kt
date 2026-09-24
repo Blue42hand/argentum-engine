@@ -1233,7 +1233,17 @@ data class MoveCollectionEffect(
      * the rest stay where they are. Lets a single gathered/revealed pile be split by type —
      * e.g. revealed lands → battlefield, the rest → graveyard (Sméagol, The Ring Goes South).
      */
-    val filter: GameObjectFilter? = null
+    val filter: GameObjectFilter? = null,
+    /**
+     * For a move onto the battlefield: the permanent every **Aura** in the collection enters
+     * attached to — "put that Aura card onto the battlefield attached to it" (Auratouched Mage),
+     * "return the other cards exiled this way … attached to that creature" (Flickerform). The effect
+     * names the host, so no enchant choice is offered (CR 303.4f). An Aura whose printed enchant
+     * restriction that host doesn't satisfy — or every Aura, when the host is no longer on the
+     * battlefield — can't enter and stays in its current zone (CR 303.4g). Non-Aura cards move
+     * normally. Null (the default) leaves each Aura's host to the player's choice.
+     */
+    val attachTo: EffectTarget? = null
 ) : Effect {
     override val description: String = buildString {
         if (revealed) append("Reveal and put ") else append("Put ")

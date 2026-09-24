@@ -245,20 +245,7 @@ Cards: Boros Signet, Dimir Signet, Golgari Signet, Selesnya Signet.
 
 ## Remaining card-specific investigations
 
-These are source-backed leads, not claims that every card needs a new executor.
-
-| Cards | Required investigation or capability |
-|---|---|
-| Mausoleum Turnkey | Opponent-chosen targets on triggers: TriggerProcessor currently substitutes the controller and CardLinter rejects the unsupported shape. |
-| Dream Leash | Casting-only tapped target restriction, independent from resolution legality. |
-| Belltower Sphinx | Retain damage-source controller information for its self-damaged trigger. |
-| Auratouched Mage, Flickerform | Legal attachment search, owner-controlled Aura return, and source-left fallback. |
-| Spawnbroker | Existing ExchangeControl plus cross-target power filtering; prove both-target legality and exchange atomicity. |
-| Molten Sentry | Coin flip as an entry replacement with persistent stats and keyword. |
-| Blood Funnel | Optional creature sacrifice and counter-on-nonpayment, composed with existing reduction and counter effects. |
-| Crown of Convergence | Continuously compare creature colors with the current top library card. |
-| Circu, Dimir Lobotomist | Name matching over the whole linked exile pile for casting restrictions. |
-| Sunforger, Leashling | Unattach-equipment and hand-to-library costs, paid before resolution. |
-| Brightflame | Aggregate actual damage dealt after prevention/replacement before life gain. |
-| Grifter’s Blade | Enter attached as a replacement, rather than an entry trigger. |
-| Mindleech Mass | Existing hand selection and free-cast pipeline; prove timing and continuation behavior. |
+None — every card in the set is implemented. The last sixteen (Auratouched Mage, Chant of Vitu-Ghazi,
+Chorus of the Conclave, Concerted Effort, Dream Leash, Eye of the Storm, Flickerform, Gaze of the Gorgon,
+Leashling, Master Warcraft, Quickchange, Shadow of Doubt, Sins of the Past, Spectral Searchlight,
+Szadek, Lord of Secrets, Warp World) shipped together; see the PR for the engine support each needed.

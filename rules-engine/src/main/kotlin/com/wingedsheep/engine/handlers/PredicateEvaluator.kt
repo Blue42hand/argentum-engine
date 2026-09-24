@@ -289,6 +289,7 @@ class PredicateEvaluator {
             is CardPredicate.PowerAtLeast,
             CardPredicate.PowerAtLeastX,
             is CardPredicate.PowerAtMost,
+            is CardPredicate.CouldEnchant,
             is CardPredicate.PowerAtMostEntity,
             is CardPredicate.PowerEquals,
             is CardPredicate.PowerEqualsDynamic,
@@ -878,6 +879,20 @@ class PredicateEvaluator {
                     ?: return false
                 val candidatePower = projectedValues?.power ?: card.baseStats?.basePower ?: 0
                 candidatePower > refPower
+            }
+
+            // "An Aura card that could enchant it" (Auratouched Mage). Reads the candidate's printed
+            // enchant restriction off its definition and evaluates it against the referenced
+            // permanent — the same reading the enchant SBA uses. Fails closed with no registry.
+            is CardPredicate.CouldEnchant -> {
+                if (!card.typeLine.isAura) return false
+                val hostId = resolveEntityReference(state, predicate.reference, context, projected) ?: return false
+                val registry = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.cardRegistryOrNull()
+                    ?: return false
+                com.wingedsheep.engine.handlers.predicates.EnchantRestriction.couldAttach(
+                    state, projected, this, registry, entityId, card, hostId,
+                    controllerId = context?.controllerId ?: return false
+                )
             }
 
             is CardPredicate.PowerAtMostEntity -> {
@@ -2258,6 +2273,7 @@ class PredicateEvaluator {
             is CardPredicate.PowerOrToughnessAtMost,
             is CardPredicate.TotalPowerAndToughnessAtMost,
             is CardPredicate.PowerGreaterThanEntity,
+            is CardPredicate.CouldEnchant,
             is CardPredicate.PowerAtMostEntity,
             is CardPredicate.PowerLessThanEntity,
             CardPredicate.PowerGreaterThanBase,

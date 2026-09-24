@@ -746,7 +746,9 @@ class CastSpellHandler(
             }
             val targetRequirements = buildList {
                 addAll(baseTargetReqs)
-                (transformedFace ?: cardDef).script.auraTarget?.let { add(it) }
+                // The cast-time choice: Dream Leash narrows it to a tapped permanent. The stack
+                // captures the plain enchant restriction instead (below), so 608.2b doesn't re-check it.
+                (transformedFace ?: cardDef).script.castAuraTarget?.let { add(it) }
                 // Splice (CR 702.47d): targets for the added text are chosen normally, as part of
                 // casting this spell. They sit after the main spell's own requirements, so the flat
                 // target list splits into the main slice followed by one slice per spliced card.
@@ -2037,6 +2039,7 @@ class CastSpellHandler(
                     is CostAtom.Unattach,
                     is CostAtom.ExileFromGraveyardForTotal,
                     is CostAtom.ExileTopOfLibrary,
+                    is CostAtom.PutFromHandOnTopOfLibrary,
                     is CostAtom.Mill -> {}
                     is CostAtom.RemoveCounters -> {
                         val needed = when (val c = atom.count) {
@@ -2946,6 +2949,7 @@ class CastSpellHandler(
                         is CostAtom.Unattach,
                         is CostAtom.ExileFromGraveyardForTotal,
                         is CostAtom.ExileTopOfLibrary,
+                        is CostAtom.PutFromHandOnTopOfLibrary,
                         is CostAtom.Mill -> {}
                         is CostAtom.RemoveCounters -> {
                             val resolvedRemovals = resolveDistributedCounterRemovalsForPayment(action)

@@ -107,6 +107,12 @@ section; do not let SDK additions land without a corresponding doc update.
   every type the Aura's *own* effects can turn its host into, exactly as the printed card does — Imprisoned
   in the Moon makes its host a land and so enchants "creature, land, or planeswalker"; an Aura that turns a
   creature into a land while enchanting only `Targets.Creature` would destroy itself on resolution.
+- `auraCastTarget: TargetRequirement?` — a narrower requirement the Aura *spell's* target must meet
+  only while it is cast (Dream Leash: "You can't choose an untapped permanent as this spell's target as
+  you cast it" → `TargetPermanent(filter = TargetFilter.Permanent.tapped())`). Legal-action enumeration
+  and cast validation read `CardScript.castAuraTarget` (`auraCastTarget ?: auraTarget`); the stack
+  captures the plain `auraTarget`, so resolution (CR 608.2b), the enchant SBA, and an Aura put onto the
+  battlefield without being cast never see the narrowing.
 - `morph: String?` — morph mana cost (cast face-down).
 - `morphCost: PayCost?` — non-mana morph cost.
 - `morphFaceUpEffect: Effect?` — effect that fires when this morph turns face up.
@@ -424,6 +430,12 @@ exist in the cost and charges the life through the shared life-payment service.
   "Discard two cards at random").
 - `Costs.DiscardHand` — discard your entire hand.
 - `Costs.DiscardSelf` — discard this card (cycling-style).
+- `Costs.PutFromHandOnTopOfLibrary(count = 1, filter = Any)` — "put a card from your hand on top of
+  your library" (Leashling). `Atom(CostAtom.PutFromHandOnTopOfLibrary)`. Not a discard — no discard
+  trigger or madness. Unpayable with fewer than `count` matching hand cards; `ActivateAbilityHandler`
+  pauses with a `SelectCardsDecision` for the choice (auto-paid when the hand holds exactly `count`),
+  carried in `AdditionalCostPayment.cardsPutOnLibrary`. Also payable as a `PayCost` through
+  `CostPaymentService`; not offered as a spell additional cost or a `PayOrSuffer` cost.
 - `Costs.DiscardLastDrawnThisTurn` — discard the specific card you drew most recently this turn
   (Jandor's Ring: "{2}, {T}, Discard the last card you drew this turn: Draw a card."). The engine
   tracks the per-player most-recently-drawn entity on `GameState.lastCardDrawnThisTurnByPlayer`
@@ -2430,7 +2442,13 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   steps — e.g. revealed lands → battlefield tapped, the rest → graveyard/library (Sméagol, Galadriel
   of Lothlórien, The Ring Goes South). (Equivalent to a `FilterCollection` partition; the inline
   filter just avoids naming an intermediate collection.) `storeMovedAs = "<key>"` captures the
-  resulting entity ids under a pipeline collection; `markEnteredViaSourceAbility = true` stamps each
+  resulting entity ids under a pipeline collection; `attachTo = <EffectTarget>` (battlefield
+  destination only) puts every **Aura** in the collection onto the battlefield attached to that
+  permanent with no enchant choice — "put that Aura card onto the battlefield attached to it"
+  (Auratouched Mage), "return the other cards … attached to that creature" (Flickerform). An Aura the
+  host can't legally enchant (enchant restriction or protection from its color), or every Aura when
+  the host isn't on the battlefield, stays where it is
+  (CR 303.4g); non-Aura cards move normally. `markEnteredViaSourceAbility = true` stamps each
   card that lands on the battlefield with `EnteredViaAbilityComponent(this source)` so a later
   `GatherCards(CardSource.EnteredViaThisResolution)` can re-collect them from live battlefield state.
   `lookableInExile = true` is the "**You may look at that card for as long as it remains exiled**"
@@ -4507,6 +4525,13 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   by `.manaValueAtMostX()`), and activation-time validation plus the CR 608.2b resolution-time re-check reject
   any card whose mana value isn't exactly X.
 - `.manaValueAtMostEntity(ref)` — mana value ≤ a referenced entity's mana value (e.g. Kodama of the East Tree).
+- `.couldEnchant(ref)` (`CardPredicate.CouldEnchant`) — an Aura card whose printed enchant restriction
+  (`auraTarget`) the referenced permanent satisfies — "search your library for an Aura card that could
+  enchant it" (Auratouched Mage: `Enchantment.withSubtype("Aura").couldEnchant(EntityReference.Source)`).
+  Reads the enchant filter and protection from the Aura's colors (CR 702.16c) — the same reading as the
+  enchant SBA (`EnchantRestriction.couldAttach`), never
+  targeting legality; "you" in the restriction is the evaluating controller. Non-Auras never match.
+  Known gap: a host that has left the battlefield is judged by its current card, not last-known info.
 - `.powerEqualsX()` — **projected power exactly equal** to the X chosen for the source spell/ability — the power
   analogue of `.manaValueEqualsX()`. Available on both the object-filter builders and on `TargetFilter`. Used by an
   X-cost activated ability that targets "a creature with power X" (Ent-Draught Basin: `{X}, {T}: Put a +1/+1
@@ -6583,8 +6608,13 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
 - `DelayedTriggeredAbility` — registered now, fires at a specific future step (Astral Slide).
 - `Effects.GrantTriggeredAbilityEffect` — grant a triggered ability for a duration; `GrantTriggeredAbilityExecutor` uses
   projected state and supports leaves-battlefield-to-zone triggers.
-- `CreateDelayedTriggerEffect(step, effect, fireOnPlayer, timing, …)` —
-  the data-side facade. Two orthogonal axes control *whose / which* turn fires the trigger:
+- `CreateDelayedTriggerEffect(step, effect, fireOnPlayer, timing, …, carryCollections = [])` —
+  the data-side facade. `carryCollections` names pipeline collections of the creating effect that the
+  delayed ability remembers ("return **those cards**" — CR 603.7c): their entity ids are frozen onto
+  the `DelayedTriggeredAbility` and seeded into the pipeline its `effect` resolves in, under the same
+  names, so the effect can `MoveCollection(from = "<name>")` or `PipelineTarget("<name>")` them; an
+  object that has since changed zones (a new object) or ceased to exist is dropped when it fires
+  (Flickerform). Two orthogonal axes control *whose / which* turn fires the trigger:
   - `fireOnPlayer: EffectTarget?` — the single "whose turn" gate. Resolved to a concrete player
     at scheduling time; only matches when that player is active. Defaults to `null` (no player
     gate — fires on the next matching step of *any* turn). Two common shapes:

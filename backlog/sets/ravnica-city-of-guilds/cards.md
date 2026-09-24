@@ -19,7 +19,7 @@
 ---
 
 ### White
-- [ ] Auratouched Mage
+- [x] Auratouched Mage
 - [x] Bathe in Light
 - [x] Benevolent Ancestor
 - [x] Blazing Archon
@@ -36,7 +36,7 @@
 - [x] Dromad Purebred
 - [x] Faith's Fetters
 - [x] Festival of the Guildpact
-- [ ] Flickerform
+- [x] Flickerform
 - [x] Gate Hound
 - [x] Ghosts of the Innocent
 - [x] Hour of Reckoning
@@ -65,7 +65,7 @@
 - [x] Copy Enchantment
 - [x] Dizzy Spell
 - [x] Drake Familiar
-- [ ] Dream Leash
+- [x] Dream Leash
 - [x] Drift of Phantasms
 - [x] Ethereal Usher
 - [x] Eye of the Storm
@@ -295,7 +295,7 @@
 - [x] Golgari Signet
 - [x] Grifter's Blade
 - [x] Junktroller
-- [ ] Leashling
+- [x] Leashling
 - [x] Nullstone Gargoyle
 - [x] Pariah's Shield
 - [x] Peregrine Mask

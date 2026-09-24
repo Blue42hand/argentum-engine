@@ -935,6 +935,7 @@ internal class AffectsFilterResolver {
         is CardPredicate.ToughnessEqualsDynamic -> false
         is CardPredicate.PowerGreaterThanEntity -> false
         is CardPredicate.PowerAtMostEntity -> false
+        is CardPredicate.CouldEnchant -> false
         is CardPredicate.PowerLessThanEntity -> false
         CardPredicate.PowerGreaterThanBase -> {
             // Self-relative: projected power vs the object's own printed base power.
