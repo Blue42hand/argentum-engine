@@ -99,11 +99,10 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
                         val exiled = moveTracked(
                             thisCreature,
                             CardDestination.ToZone(Zone.EXILE),
-                            name = "etrataExiled",
                         )
                         run(
                             Effects.May(
-                                Effects.CastFromCollectionWithoutPayingCost(exiled.key),
+                                Effects.CastFromCollectionWithoutPayingCost(exiled),
                                 descriptionOverride = "You may cast the exiled card without " +
                                     "paying its mana cost.",
                             )

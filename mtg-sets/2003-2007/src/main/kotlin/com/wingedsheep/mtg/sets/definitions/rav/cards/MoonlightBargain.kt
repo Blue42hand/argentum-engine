@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -41,11 +40,11 @@ val MoonlightBargain = card("Moonlight Bargain") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)), name = "looked")
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
             run(
-                ForEachInCollectionEffect(
-                    collection = looked.key,
-                    effect = Effects.MayPay(
+                Effects.ForEachInCollection(
+                    looked,
+                    Effects.MayPay(
                         cost = PayLifeEffect(2),
                         then = Effects.Move(EffectTarget.IterationEntity, Zone.HAND, fromZone = Zone.LIBRARY),
                         otherwise = Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, fromZone = Zone.LIBRARY),

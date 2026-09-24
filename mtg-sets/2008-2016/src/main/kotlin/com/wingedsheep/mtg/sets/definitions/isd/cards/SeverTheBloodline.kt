@@ -32,11 +32,10 @@ val SeverTheBloodline = card("Sever the Bloodline") {
     spell {
         target("target creature", Targets.Creature)
         effect = Effects.Pipeline {
-            val chosen = gather(CardSource.ChosenTargets, name = "target")
-            val chosenName = storeCardName(chosen, name = "name")
+            val chosen = gather(CardSource.ChosenTargets)
+            val chosenName = storeCardName(chosen)
             val sameNamed = gather(
-                GameObjectFilter.Creature.namedFromVariable(chosenName),
-                name = "sameNamed"
+                GameObjectFilter.Creature.namedFromVariable(chosenName)
             )
             exile(sameNamed)
         }

@@ -28,6 +28,17 @@ import kotlinx.serialization.json.jsonPrimitive
  *   `EntityMatches` role the evaluator doesn't dispatch, or an attach-scope filter on a card that
  *   can never be attached ([checkAttachedScope]).
  *
+ * ## Who needs the name-based half
+ *
+ * Kotlin card definitions no longer spell pipeline keys: a pipeline is written with
+ * `Effects.Pipeline { }`, whose steps hand out typed handles, so a read of a collection nobody
+ * wrote cannot be expressed there (and `FacadeBoundaryTest` forbids the raw string-keyed steps in
+ * card code). The name-based checks stay because card trees also arrive as JSON from outside
+ * Kotlin — Argentum Assay's compiled output and the Scenario Builder's custom-card sandbox — and
+ * because a few names still legitimately cross scopes (a cost's `storeAs` read by the effect, the
+ * engine-seeded collections such as `trigger.captured`), where only a whole-card walk can connect
+ * writer and reader.
+ *
  * ## How it works
  *
  * The card is serialized to its JSON tree (the same machinery as the snapshot test) and the lint

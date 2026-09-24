@@ -32,7 +32,7 @@ val SpryAndMighty = card("Spry and Mighty") {
             TargetCreature(count = 2, filter = TargetFilter.CreatureYouControl)
         )
 
-        // X = |power(c1) - power(c2)| = max(p1 - p2, p2 - p1). Frozen into storedNumbers["x"]
+        // X = |power(c1) - power(c2)| = max(p1 - p2, p2 - p1). Frozen into a stored number
         // so the first ModifyStats doesn't skew the second's reading of projected power.
         val p1 = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power)
         val p2 = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(1), EntityNumericProperty.Power)
@@ -40,21 +40,18 @@ val SpryAndMighty = card("Spry and Mighty") {
             DynamicAmount.Subtract(p1, p2),
             DynamicAmount.Subtract(p2, p1)
         )
-        val x = DynamicAmount.VariableReference("x")
-
-        effect = Effects.Composite(
-            effects = listOf(
-                Effects.StoreNumber("x", diff),
-                Effects.DrawCards(x),
-                Effects.ModifyStats(x, x, c1),
-                Effects.ModifyStats(x, x, c2),
-                Effects.GrantKeyword(Keyword.TRAMPLE, c1),
-                Effects.GrantKeyword(Keyword.TRAMPLE, c2)
-            ),
+        effect = Effects.Pipeline(
             descriptionOverride = "You draw {0} cards and the chosen creatures get +{0}/+{0} " +
                 "and gain trample until end of turn.",
             descriptionAmounts = listOf(diff)
-        )
+        ) {
+            val x = storeNumber(diff).amount
+            run(Effects.DrawCards(x))
+            run(Effects.ModifyStats(x, x, c1))
+            run(Effects.ModifyStats(x, x, c2))
+            run(Effects.GrantKeyword(Keyword.TRAMPLE, c1))
+            run(Effects.GrantKeyword(Keyword.TRAMPLE, c2))
+        }
     }
 
     metadata {

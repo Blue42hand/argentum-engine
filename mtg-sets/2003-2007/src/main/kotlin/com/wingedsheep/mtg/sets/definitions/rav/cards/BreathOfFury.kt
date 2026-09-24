@@ -58,7 +58,7 @@ val BreathOfFury = card("Breath of Fury") {
                 useTargetingUI = true,
             )
             ifNotEmpty(newHost) {
-                run(Effects.AttachEquipment(EffectTarget.PipelineTarget(newHost.key)))
+                run(Effects.AttachEquipment(newHost.asTarget))
                 run(Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl))
                 run(Effects.AddCombatPhase)
             }

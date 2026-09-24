@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -74,18 +73,16 @@ val PushTheLimit = card("Push the Limit") {
                     player = Player.You,
                     filter = MountOrVehicleCardInGraveyard,
                 ),
-                name = "wrecks",
             )
             val returned = moveTracked(
                 wrecks,
                 CardDestination.ToZone(Zone.BATTLEFIELD),
                 underOwnersControl = true,
-                name = "returned",
             )
             run(
-                ForEachInCollectionEffect(
-                    collection = returned.key,
-                    effect = CreateDelayedTriggerEffect(
+                Effects.ForEachInCollection(
+                    returned,
+                    CreateDelayedTriggerEffect(
                         step = Step.END,
                         effect = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                     ),

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.OptionType
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 
-private const val CHOSEN_TYPE = "chosenCreatureType"
 
 val KindredJudgment = card("Kindred Judgment") {
     manaCost = "{5}{W}{W}"
@@ -18,15 +17,15 @@ val KindredJudgment = card("Kindred Judgment") {
     // The type is chosen on resolution; the destroy set reads projected subtypes, so a
     // changeling (every creature type) is always spared.
     spell {
-        effect = Effects.Composite(
-            Effects.ChooseOption(OptionType.CREATURE_TYPE, storeAs = CHOSEN_TYPE),
-            Effects.DestroyAll(
+        effect = Effects.Pipeline {
+            val chosenType = chooseOption(OptionType.CREATURE_TYPE)
+            run(Effects.DestroyAll(
                 GameObjectFilter.Creature.copy(
                     cardPredicates = GameObjectFilter.Creature.cardPredicates +
-                        CardPredicate.Not(CardPredicate.HasSubtypeFromVariable(CHOSEN_TYPE))
+                        CardPredicate.Not(CardPredicate.HasSubtypeFromVariable(chosenType.key))
                 )
-            )
-        )
+            ))
+        }
     }
 
     metadata {

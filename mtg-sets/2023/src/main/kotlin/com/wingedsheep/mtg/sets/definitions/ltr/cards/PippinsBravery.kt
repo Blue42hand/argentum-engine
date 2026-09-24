@@ -1,21 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Pippin's Bravery
@@ -41,30 +32,19 @@ val PippinsBravery = card("Pippin's Bravery") {
     spell {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.IfYouDo(
-            action = Effects.Composite(
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.BattlefieldMatching(
-                            filter = GameObjectFilter.Any.withSubtype("Food"),
-                            player = Player.You
-                        ),
-                        storeAs = "controlledFood"
-                    ),
-                    SelectFromCollectionEffect(
-                        from = "controlledFood",
-                        selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                        storeSelected = "sacrificedFood",
-                        useTargetingUI = true,
-                        prompt = "You may sacrifice a Food",
-                        selectedLabel = "Sacrifice"
-                    ),
-                    MoveCollectionEffect(
-                        from = "sacrificedFood",
-                        destination = CardDestination.ToZone(Zone.GRAVEYARD),
-                        moveType = MoveType.Sacrifice
-                    )
+            action = Effects.Pipeline {
+                val controlledFood = gather(GameObjectFilter.Any.withSubtype("Food"), player = Player.You)
+                // Named: the "if you do" check below reads it from outside the pipeline.
+                val sacrificedFood = chooseUpTo(
+                    1,
+                    from = controlledFood,
+                    useTargetingUI = true,
+                    prompt = "You may sacrifice a Food",
+                    selectedLabel = "Sacrifice",
+                    name = "sacrificedFood"
                 )
-            ),
+                sacrifice(sacrificedFood)
+            },
             then = Effects.ModifyStats(4, 4, creature),
             otherwise = Effects.ModifyStats(2, 2, creature),
             successCriterion = SuccessCriterion.CollectionNonEmpty("sacrificedFood", min = 1)

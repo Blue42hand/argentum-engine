@@ -49,24 +49,21 @@ val AncientVendetta = card("Ancient Vendetta") {
             // 1. Choose a card name.
             val chosenName = chooseOption(
                 OptionType.CARD_NAME,
-                prompt = "Choose a card name",
-                name = "chosenName"
+                prompt = "Choose a card name"
             )
             // 2. Search that opponent's graveyard, hand, and library for cards with that name.
             val matches = gather(
                 CardSource.FromMultipleZones(
                     zones = listOf(Zone.GRAVEYARD, Zone.HAND, Zone.LIBRARY),
                     player = Player.ContextPlayer(0),
-                    filter = GameObjectFilter.Any.namedFromVariable(chosenName.key)
+                    filter = GameObjectFilter.Any.namedFromVariable(chosenName)
                 ),
-                name = "matches",
                 search = true
             )
             // 3. Up to four of them — a ceiling, not a requirement.
             val toExile = chooseUpTo(
                 4, from = matches,
-                prompt = "Exile up to four cards with the chosen name",
-                name = "toExile"
+                prompt = "Exile up to four cards with the chosen name"
             )
             // 4. Exile them.
             exile(toExile, owner = Player.ContextPlayer(0))

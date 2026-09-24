@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -59,22 +58,15 @@ val BolgOfTheNorth = card("Bolg of the North") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ReflexiveTriggerEffect(
-            action = Effects.Composite(
-                listOf(
-                    SelectTargetEffect(
-                        requirement = TargetObject(filter = TargetFilter.CreatureYouControl.other()),
-                        storeAs = "bolgSacrifice",
-                    ),
-                    Effects.StoreNumber(
-                        "bolgSacrificedPower",
-                        DynamicAmount.EntityProperty(
-                            EffectTarget.PipelineTarget("bolgSacrifice"),
-                            EntityNumericProperty.Power,
-                        ),
-                    ),
-                    Effects.SacrificeTarget(EffectTarget.PipelineTarget("bolgSacrifice")),
-                ),
-            ),
+            action = Effects.Pipeline {
+                val toSacrifice = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl.other()))
+                // Named: the reflexive trigger below reads it once this pipeline has finished.
+                storeNumber(
+                    DynamicAmount.EntityProperty(toSacrifice.asTarget, EntityNumericProperty.Power),
+                    name = "bolgSacrificedPower"
+                )
+                run(Effects.SacrificeTarget(toSacrifice.asTarget))
+            },
             optional = true,
             reflexiveEffect = Effects.Composite(
                 Effects.DealDamage(

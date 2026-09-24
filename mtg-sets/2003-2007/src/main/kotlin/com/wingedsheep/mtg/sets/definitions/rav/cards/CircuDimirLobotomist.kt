@@ -1,17 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -61,13 +57,13 @@ val CircuDimirLobotomist = card("Circu, Dimir Lobotomist") {
     triggeredAbility {
         trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.BLUE))
         target("target player", TargetPlayer())
-        effect = exileTopOfTargetPlayersLibrary("circuBlueExile")
+        effect = exileTopOfTargetPlayersLibrary()
     }
 
     triggeredAbility {
         trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.BLACK))
         target("target player", TargetPlayer())
-        effect = exileTopOfTargetPlayersLibrary("circuBlackExile")
+        effect = exileTopOfTargetPlayersLibrary()
     }
 
     staticAbility {
@@ -105,14 +101,7 @@ val CircuDimirLobotomist = card("Circu, Dimir Lobotomist") {
  * read it. A gather → move pair rather than a bespoke effect; an empty library gathers nothing and
  * the move is a no-op, which is the card's own behaviour.
  */
-private fun exileTopOfTargetPlayersLibrary(slot: String) = Effects.Composite(
-    GatherCardsEffect(
-        source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.TargetPlayer),
-        storeAs = slot
-    ),
-    MoveCollectionEffect(
-        from = slot,
-        destination = CardDestination.ToZone(Zone.EXILE),
-        linkToSource = true
-    )
-)
+private fun exileTopOfTargetPlayersLibrary() = Effects.Pipeline {
+    val top = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.TargetPlayer))
+    exile(top, linkToSource = true)
+}

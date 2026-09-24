@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -30,9 +29,9 @@ val Brightflame = card("Brightflame") {
                 excludeChosenTargets = true
             ))
             run(Effects.DealDamage(DynamicAmount.XValue, victim))
-            run(ForEachInCollectionEffect(
-                collection = others.key,
-                effect = Effects.DealDamage(DynamicAmount.XValue, EffectTarget.IterationEntity)
+            run(Effects.ForEachInCollection(
+                others,
+                Effects.DealDamage(DynamicAmount.XValue, EffectTarget.IterationEntity)
             ))
             run(Effects.GainLife(DynamicAmount.Subtract(damageDealt, before.amount)))
         }

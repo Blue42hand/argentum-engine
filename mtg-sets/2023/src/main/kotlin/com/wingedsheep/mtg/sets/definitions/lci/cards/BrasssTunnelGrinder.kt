@@ -59,15 +59,10 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            Patterns.Hand.discardAnyNumber(storeAs = "discarded"),
-            Effects.DrawCards(
-                DynamicAmount.Add(
-                    DynamicAmount.VariableReference("discarded_count"),
-                    DynamicAmount.Fixed(1),
-                )
-            ),
-        )
+        effect = Effects.Pipeline {
+            val discarded = runStoringCollection { Patterns.Hand.discardAnyNumber(storeAs = it) }
+            run(Effects.DrawCards(DynamicAmount.Add(discarded.count, DynamicAmount.Fixed(1))))
+        }
         description = "When Brass's Tunnel-Grinder enters, discard any number of cards, then draw " +
             "that many cards plus one."
     }

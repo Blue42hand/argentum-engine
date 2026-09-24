@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
@@ -43,10 +42,12 @@ val SoulSearch = card("Soul Search") {
 
     spell {
         target("opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            Patterns.Hand.revealHandAndExileChosen(storeExiledAs = "exiledCard", target = EffectTarget.ContextTarget(0)),
-            Effects.If(
-                condition = Conditions.CollectionContainsMatch("exiledCard", Filters.ManaValueAtMost(1)),
+        effect = Effects.Pipeline {
+            val exiledCard = runStoringCollection {
+                Patterns.Hand.revealHandAndExileChosen(storeExiledAs = it, target = EffectTarget.ContextTarget(0))
+            }
+            run(Effects.If(
+                condition = whenMatches(exiledCard, Filters.ManaValueAtMost(1)),
                 then = Effects.CreateToken(
                     power = 1,
                     toughness = 1,
@@ -56,8 +57,8 @@ val SoulSearch = card("Soul Search") {
                     name = "Spirit",
                     imageUri = "https://cards.scryfall.io/normal/front/f/4/f4588570-bde4-4c2f-8469-81a3e15fb57b.jpg?1783912607"
                 )
-            )
-        )
+            ))
+        }
     }
 
     metadata {

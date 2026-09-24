@@ -28,14 +28,11 @@ val SettleTheScore = card("Settle the Score") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        effect = Effects.Exile(creature)
-            .then(Effects.SelectTarget(
-                requirement = TargetObject(
-                    filter = TargetFilter(GameObjectFilter.Planeswalker.youControl())
-                ),
-                storeAs = "chosenPW"
-            ))
-            .then(Effects.AddCountersToCollection("chosenPW", CounterType.LOYALTY, 2))
+        effect = Effects.Pipeline {
+            run(Effects.Exile(creature))
+            val chosenPW = selectTarget(TargetObject(filter = TargetFilter(GameObjectFilter.Planeswalker.youControl())))
+            run(Effects.AddCountersToCollection(chosenPW, CounterType.LOYALTY, 2))
+        }
     }
 
     metadata {

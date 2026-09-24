@@ -36,7 +36,7 @@ val GateToTheAether = card("Gate to the Aether") {
                 run(
                     Effects.May(
                         effect = Effects.Move(
-                            EffectTarget.PipelineTarget(permanent.key),
+                            permanent.asTarget,
                             Zone.BATTLEFIELD,
                             controllerOverride = EffectTarget.PlayerRef(Player.TriggeringPlayer)
                         ),

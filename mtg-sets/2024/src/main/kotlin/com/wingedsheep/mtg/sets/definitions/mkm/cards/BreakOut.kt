@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -80,9 +79,9 @@ val BreakOut = card("Break Out") {
                 destination = CardDestination.ToZone(Zone.BATTLEFIELD)
             )
             run(
-                ForEachInCollectionEffect(
-                    collection = entered.key,
-                    effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)
+                Effects.ForEachInCollection(
+                    entered,
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)
                 )
             )
             toHand(tooExpensive)

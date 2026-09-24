@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Calamity, Galloping Inferno
@@ -70,7 +69,7 @@ val CalamityGallopingInferno = card("Calamity, Galloping Inferno") {
             )
             run(
                 CreateTokenCopyOfTargetEffect(
-                    target = EffectTarget.PipelineTarget(chosenA.key),
+                    target = chosenA.asTarget,
                     tapped = true,
                     attacking = true,
                     sacrificeAtStep = Step.END,
@@ -89,7 +88,7 @@ val CalamityGallopingInferno = card("Calamity, Galloping Inferno") {
             )
             run(
                 CreateTokenCopyOfTargetEffect(
-                    target = EffectTarget.PipelineTarget(chosenB.key),
+                    target = chosenB.asTarget,
                     tapped = true,
                     attacking = true,
                     sacrificeAtStep = Step.END,

@@ -29,7 +29,7 @@ val RiddlesInTheDark = card("Riddles in the Dark") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)), name = "looked")
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
             ifNotEmpty(looked) {
                 val piles = chooseAnyNumberSplit(
                     from = looked,
@@ -39,11 +39,9 @@ val RiddlesInTheDark = card("Riddles in the Dark") {
                     selectedLabel = "Face-up pile",
                     remainderLabel = "Face-down pile",
                     showAllCards = true,
-                    alwaysPrompt = true,
-                    name = "faceUp",
-                    remainderName = "faceDown"
+                    alwaysPrompt = true
                 )
-                val faceUp = gather(piles.selected.asSource, revealed = true, name = "faceUpRevealed")
+                val faceUp = gather(piles.selected.asSource, revealed = true)
                 val picked = choosePile(
                     pileA = faceUp,
                     pileB = piles.remainder,

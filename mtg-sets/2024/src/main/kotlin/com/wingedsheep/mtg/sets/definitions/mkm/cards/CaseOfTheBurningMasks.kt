@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.toSolve
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -68,7 +67,7 @@ val CaseOfTheBurningMasks = card("Case of the Burning Masks") {
                 prompt = "Choose a card you may play this turn",
                 showAllCards = true
             )
-            run(GrantMayPlayFromExileEffect(chosen.key, MayPlayExpiry.EndOfTurn))
+            run(Effects.GrantMayPlayFromExile(chosen, MayPlayExpiry.EndOfTurn))
         }
         description = "Sacrifice this Case: Exile the top three cards of your library. Choose one " +
             "of them. You may play that card this turn."

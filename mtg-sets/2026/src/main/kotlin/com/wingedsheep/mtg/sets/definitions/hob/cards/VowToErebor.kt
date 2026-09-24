@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Vow to Erebor — The Hobbit #31
@@ -60,7 +59,7 @@ val VowToErebor = card("Vow to Erebor") {
                     )
                     run(
                         Effects.AttachTargetEquipmentToCreature(
-                            equipmentTarget = EffectTarget.PipelineTarget(chosen.key),
+                            equipmentTarget = chosen.asTarget,
                             creatureTarget = creatureYouControl
                         )
                     )

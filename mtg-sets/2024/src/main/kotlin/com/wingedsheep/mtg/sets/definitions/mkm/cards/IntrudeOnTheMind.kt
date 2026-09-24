@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -36,8 +37,7 @@ val IntrudeOnTheMind = card("Intrude on the Mind") {
         effect = Effects.Pipeline {
             val revealed = gather(
                 source = CardSource.TopOfLibrary(DynamicAmount.Fixed(5)),
-                revealed = true,
-                name = "revealed"
+                revealed = true
             )
             val separated = chooseAnyNumberSplit(
                 from = revealed,
@@ -46,18 +46,14 @@ val IntrudeOnTheMind = card("Intrude on the Mind") {
                     "Pile 1; the rest form Pile 2.",
                 selectedLabel = "Pile 1",
                 remainderLabel = "Pile 2",
-                alwaysPrompt = true,
-                name = "pileOne",
-                remainderName = "pileTwo"
+                alwaysPrompt = true
             )
             val chosen = choosePile(
                 pileA = separated.selected,
                 pileB = separated.remainder,
                 chooser = Chooser.Opponent,
                 prompt = "Choose a pile. That pile goes to your opponent's hand; the other goes " +
-                    "to their graveyard.",
-                chosenName = "handPile",
-                otherName = "graveyardPile"
+                    "to their graveyard."
             )
             toHand(chosen.chosen)
             toGraveyard(chosen.other)
@@ -77,7 +73,7 @@ val IntrudeOnTheMind = card("Intrude on the Mind") {
                 Effects.AddCountersToCollection(
                     CREATED_TOKENS,
                     CounterType.PLUS_ONE_PLUS_ONE,
-                    DynamicAmount.DistinctEntitiesInCollections(listOf(chosen.other.key))
+                    DynamicAmounts.distinctEntitiesIn(chosen.other)
                 )
             )
         }

@@ -49,7 +49,6 @@ val CloudstoneCurio = card("Cloudstone Curio") {
                 filter = GameObjectFilter.Permanent.sharingCardTypeWith(EffectTarget.TriggeringEntity),
                 player = Player.You,
                 excludeTriggering = true,
-                name = "candidates",
             )
             val returned = chooseUpTo(
                 1,
@@ -57,7 +56,6 @@ val CloudstoneCurio = card("Cloudstone Curio") {
                 prompt = "You may return another permanent you control that shares a permanent " +
                     "type with the one that entered to its owner's hand",
                 useTargetingUI = true,
-                name = "returned",
             )
             toHand(returned)
         }

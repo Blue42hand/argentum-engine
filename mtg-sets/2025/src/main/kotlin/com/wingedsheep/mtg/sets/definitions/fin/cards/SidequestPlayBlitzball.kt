@@ -90,10 +90,9 @@ private val SidequestPlayBlitzballFront = card("Sidequest: Play Blitzball") {
             // auto-selects a lone creature, pauses to choose among several, no-ops with none.
             val host = selectTarget(
                 TargetCreature(filter = TargetFilter.Creature.youControl()),
-                name = "host",
             )
             ifNotEmpty(host) {
-                run(Effects.AttachEquipment(EffectTarget.PipelineTarget(host.key)))
+                run(Effects.AttachEquipment(host.asTarget))
             }
         }
     }

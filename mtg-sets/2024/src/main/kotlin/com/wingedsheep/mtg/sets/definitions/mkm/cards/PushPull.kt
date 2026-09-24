@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -53,16 +52,15 @@ val PushPull = card("Push // Pull") {
                 sameOwner = true,
             ))
             effect = Effects.Pipeline {
-                val targets = gather(CardSource.ChosenTargets, name = "pullTargets")
+                val targets = gather(CardSource.ChosenTargets)
                 val entered = moveTracked(
                     from = targets,
                     destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                    name = "pullEntered",
                 )
                 run(
-                    ForEachInCollectionEffect(
-                        collection = entered.key,
-                        effect = Effects.Composite(
+                    Effects.ForEachInCollection(
+                        entered,
+                        Effects.Composite(
                             Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn),
                             CreateDelayedTriggerEffect(
                                 step = Step.END,

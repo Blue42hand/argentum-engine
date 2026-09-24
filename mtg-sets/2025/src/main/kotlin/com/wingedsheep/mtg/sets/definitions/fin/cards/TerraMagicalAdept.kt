@@ -5,28 +5,21 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Terra, Magical Adept // Esper Terra (Final Fantasy #245)
@@ -142,23 +135,19 @@ private val TerraMagicalAdeptFront = card("Terra, Magical Adept") {
     // When Terra enters, mill five cards. Put up to one enchantment card milled this way into hand.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            Patterns.Library.mill(5),
-            SelectFromCollectionEffect(
-                from = "milled",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
+        effect = Effects.Pipeline {
+            val milled = mill(5)
+            val selected = chooseUpTo(
+                1,
+                from = milled,
                 filter = GameObjectFilter.Enchantment,
-                storeSelected = "selected",
                 showAllCards = true,
                 prompt = "You may put an enchantment card milled this way into your hand",
                 selectedLabel = "Put in hand",
                 remainderLabel = "Leave in graveyard",
-            ),
-            MoveCollectionEffect(
-                from = "selected",
-                destination = CardDestination.ToZone(Zone.HAND),
-            ),
-        )
+            )
+            toHand(selected)
+        }
     }
 
     // Trance — {4}{R}{G}, {T}: Exile Terra, then return it transformed. Activate only as a sorcery.

@@ -50,7 +50,6 @@ val IsochronScepter = card("Isochron Scepter") {
                 target = EffectTarget.Controller,
                 filter = GameObjectFilter.Instant.manaValueAtMost(2),
                 prompt = "Choose an instant card with mana value 2 or less to exile",
-                storeChosenAs = "scepterImprint",
                 revealHand = false,
                 linkToSource = true
             ),

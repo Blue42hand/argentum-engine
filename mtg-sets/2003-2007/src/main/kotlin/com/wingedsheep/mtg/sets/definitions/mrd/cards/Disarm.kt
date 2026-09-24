@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,12 +43,7 @@ val Disarm = card("Disarm") {
                     filter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT),
                 )
             )
-            run(
-                ForEachInCollectionEffect(
-                    collection = equipment.key,
-                    effect = Effects.UnattachEquipment(EffectTarget.IterationEntity),
-                )
-            )
+            run(Effects.ForEachInCollection(equipment, Effects.UnattachEquipment(EffectTarget.IterationEntity)))
         }
     }
 

@@ -54,14 +54,13 @@ val DownDownToGoblinTown = card("Down, Down to Goblin-town") {
         val opponent = target("target opponent to strip a card from", TargetOpponent())
         effect = Effects.Pipeline {
             run(RevealHandEffect(opponent))
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)), name = "opponentHand")
+            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val chosen = chooseExactly(
                 1, from = hand,
                 filter = GameObjectFilter.Nonland,
                 prompt = "Choose a nonland card to discard",
                 alwaysPrompt = true,
-                showAllCards = true,
-                name = "toDiscard"
+                showAllCards = true
             )
             move(
                 chosen,

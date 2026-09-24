@@ -67,7 +67,7 @@ val GrimReminder = card("Grim Reminder") {
                 prompt = "Search your library for a nonland card"
             )
             reveal(found, revealToSelf = false)
-            val cardName = storeCardName(found, name = "grimName")
+            val cardName = storeCardName(found)
 
             // Player.You inside the loop is the opponent being processed, so the condition asks
             // that opponent's own cast history. No name captured (failed to find, or an empty
@@ -79,7 +79,7 @@ val GrimReminder = card("Grim Reminder") {
                         Effects.If(
                             Conditions.YouCastSpellsThisTurn(
                                 atLeast = 1,
-                                filter = GameObjectFilter.Any.namedFromVariable(cardName.key)
+                                filter = GameObjectFilter.Any.namedFromVariable(cardName)
                             ),
                             Effects.LoseLife(6, EffectTarget.PlayerRef(Player.You))
                         )

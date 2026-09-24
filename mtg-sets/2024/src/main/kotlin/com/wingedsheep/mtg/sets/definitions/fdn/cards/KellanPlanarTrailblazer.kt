@@ -80,7 +80,7 @@ val KellanPlanarTrailblazer = card("Kellan, Planar Trailblazer") {
                     ability = TriggeredAbility.create(
                         trigger = Triggers.DealsCombatDamageToPlayer.event,
                         binding = Triggers.DealsCombatDamageToPlayer.binding,
-                        effect = Patterns.Exile.impulse(count = 1, storeAs = "kellanImpulseExiled"),
+                        effect = Patterns.Exile.impulse(count = 1),
                         descriptionOverride = "Whenever Kellan deals combat damage to a player, " +
                             "exile the top card of your library. You may play that card this turn."
                     ),

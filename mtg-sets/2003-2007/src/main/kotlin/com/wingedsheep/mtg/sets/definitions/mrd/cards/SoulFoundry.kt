@@ -50,7 +50,6 @@ val SoulFoundry = card("Soul Foundry") {
                 target = EffectTarget.Controller,
                 filter = GameObjectFilter.Creature,
                 prompt = "Choose a creature card to exile",
-                storeChosenAs = "foundryImprint",
                 revealHand = false,
                 linkToSource = true
             ),

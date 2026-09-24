@@ -132,17 +132,18 @@ annotation class PipelineDsl
 // =============================================================================
 
 /**
- * Inline pipeline builder — the facade-respecting way to compose a one-off
- * Gather → Select → Move pipeline inside a card file without hand-threading
- * string slot keys (see `backlog/inline-pipeline-dsl.md`).
+ * Inline pipeline builder — the one way a card file composes a Gather → Select →
+ * Move pipeline. Card code never spells a slot key: the raw string-keyed step
+ * constructors are SDK-internal, and `FacadeBoundaryTest` rejects them in cards.
  *
  * Each step verb serializes to the existing pipeline step `Effect` (one verb per
  * step type — the vocabulary grows with step types, never with cards) and returns
- * a typed slot handle. Keys are auto-generated deterministically per builder
- * instance (`"<verb><stepIndex>"`, e.g. `gathered0`, `selected1`), so renaming a
- * Kotlin `val` never churns the serialized JSON; every producing step also takes
- * an optional `name =` override for readable goldens and byte-identical migration
- * of existing inline cards.
+ * a typed slot handle. Keys are auto-generated deterministically per pipeline
+ * (`"<verb><stepIndex>"`, e.g. `gathered0`, `selected1`), so renaming a Kotlin
+ * `val` never churns the serialized JSON. A producing step's `name =` override
+ * exists only for a key something *outside* the pipeline's lexical scope must
+ * read (an `Effects.IfYouDo` success criterion that is a sibling of the pipeline);
+ * everything inside reads the handle.
  *
  * Entry point: [Effects.Pipeline]. Example (the spec's Drop of Honey shape):
  *

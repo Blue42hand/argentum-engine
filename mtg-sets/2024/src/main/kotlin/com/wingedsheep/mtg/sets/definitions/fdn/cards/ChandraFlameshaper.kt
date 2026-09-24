@@ -70,7 +70,7 @@ val ChandraFlameshaper = card("Chandra, Flameshaper") {
                 from = exiled,
                 prompt = "Choose a card you may play this turn",
             )
-            run(Effects.GrantMayPlayFromExile(chosen.key))
+            run(Effects.GrantMayPlayFromExile(chosen))
         }
     }
 

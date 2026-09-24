@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -79,8 +78,8 @@ val SupperForSpiders = card("Supper for Spiders") {
             )
             move(fallen, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
             run(
-                ForEachInCollectionEffect(
-                    collection = fallen.key,
+                Effects.ForEachInCollection(
+                    collection = fallen,
                     effect = BecomeArtifactEffect(
                         target = EffectTarget.IterationEntity,
                         cardTypes = setOf("ARTIFACT"),

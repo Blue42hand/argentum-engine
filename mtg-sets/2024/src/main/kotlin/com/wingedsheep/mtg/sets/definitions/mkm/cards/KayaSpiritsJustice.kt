@@ -94,23 +94,20 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
             val creatureCards = filter(
                 triggerCaptured,
                 GameObjectFilter.Creature.nontoken(),
-                name = "kayaExiledCreatures",
             )
             val stillExiled = filter(
                 creatureCards,
                 GameObjectFilter.Any.currentlyIn(Zone.EXILE),
-                name = "kayaChoosable",
             )
             val chosen = chooseUpTo(
                 1,
                 from = stillExiled,
                 prompt = "You may choose a creature card from among the exiled cards",
                 selectedLabel = "Copy",
-                name = "kayaCopySource",
             )
             run(
                 Effects.EachPermanentBecomesCopyOfTarget(
-                    target = EffectTarget.PipelineTarget(chosen.key),
+                    target = chosen.asTarget,
                     duration = Duration.EndOfTurn,
                     affected = EffectTarget.ContextTarget(0),
                     sourceFromAnyZone = true,
@@ -136,7 +133,6 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
                 useTargetingUI = true,
                 prompt = "Exile a card from a graveyard",
                 selectedLabel = "Exile",
-                name = "kayaGraveyardExile",
             )
             exile(picked)
         }

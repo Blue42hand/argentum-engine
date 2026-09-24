@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -58,32 +57,34 @@ val RhinosRampage = card("Rhino's Rampage") {
             TargetCreature(filter = TargetFilter.CreatureOpponentControls)
         )
 
-        effect = Effects.ModifyStats(1, 0, yourCreature)
-            .then(Effects.Fight(yourCreature, theirCreature, excessDamageVariable = "excess"))
-            .then(
-                Effects.If(
-                    condition = Conditions.CompareAmounts(
-                            DynamicAmount.VariableReference("excess"),
-                            ComparisonOperator.GTE,
-                            DynamicAmount.Fixed(1),
-                        ),
-                    then = Effects.May(
-                        effect = Effects.SelectTarget(
+        effect = Effects.Pipeline {
+            run(Effects.ModifyStats(1, 0, yourCreature))
+            val excess = runStoringNumber { Effects.Fight(yourCreature, theirCreature, excessDamageVariable = it) }
+            run(Effects.If(
+                condition = Conditions.CompareAmounts(
+                    excess.amount,
+                    ComparisonOperator.GTE,
+                    DynamicAmount.Fixed(1),
+                ),
+                then = Effects.May(
+                    effect = Effects.Pipeline {
+                        val rampageArtifact = selectTarget(
                             TargetPermanent(
                                 filter = TargetFilter(
                                     GameObjectFilter.Artifact.notCreature().manaValueAtMost(3)
                                 )
-                            ),
-                            storeAs = "rampageArtifact",
-                        ).then(Effects.Destroy(EffectTarget.PipelineTarget("rampageArtifact"))),
-                        descriptionOverride = "destroy up to one target noncreature artifact " +
-                            "with mana value 3 or less",
-                    ),
-                    descriptionOverride = "When excess damage is dealt to the creature an opponent " +
-                        "controls this way, destroy up to one target noncreature artifact with " +
-                        "mana value 3 or less.",
-                )
-            )
+                            )
+                        )
+                        run(Effects.Destroy(rampageArtifact.asTarget))
+                    },
+                    descriptionOverride = "destroy up to one target noncreature artifact " +
+                        "with mana value 3 or less",
+                ),
+                descriptionOverride = "When excess damage is dealt to the creature an opponent " +
+                    "controls this way, destroy up to one target noncreature artifact with " +
+                    "mana value 3 or less.",
+            ))
+        }
     }
 
     metadata {

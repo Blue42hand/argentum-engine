@@ -62,18 +62,17 @@ val LazavFamiliarStranger = card("Lazav, Familiar Stranger") {
                 useTargetingUI = true,
                 prompt = "You may exile a card from a graveyard",
                 selectedLabel = "Exile",
-                name = "lazavExiled",
             )
             exile(exiled)
 
             // If a creature card was exiled this way, you may have Lazav become a copy of that card.
-            val creatureExiled = filter(exiled, GameObjectFilter.Creature, name = "lazavCreature")
+            val creatureExiled = filter(exiled, GameObjectFilter.Creature)
             run(
                 Effects.If(
                     condition = whenMatches(creatureExiled, GameObjectFilter.Creature),
                     then = Effects.May(
                         Effects.EachPermanentBecomesCopyOfTarget(
-                            target = EffectTarget.PipelineTarget(creatureExiled.key),
+                            target = creatureExiled.asTarget,
                             duration = Duration.EndOfTurn,
                             affected = EffectTarget.Self,
                             sourceFromAnyZone = true,

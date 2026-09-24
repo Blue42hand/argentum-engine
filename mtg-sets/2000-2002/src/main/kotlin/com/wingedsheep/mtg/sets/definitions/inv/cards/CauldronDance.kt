@@ -7,15 +7,13 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
-import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Cauldron Dance
@@ -41,9 +39,9 @@ val CauldronDance = card("Cauldron Dance") {
         val creatureCardInYourGraveyard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         castOnlyDuring(Phase.COMBAT)
 
-        // Part 1 — reanimate the targeted graveyard creature, give it haste, and bounce
-        // it to its owner's hand at the next end step.
-        val reanimate = Effects.Pipeline {
+        effect = Effects.Pipeline {
+            // Part 1 — reanimate the targeted graveyard creature, give it haste, and bounce
+            // it to its owner's hand at the next end step.
             val reanimated = gather(CardSource.ChosenTargets)
             move(reanimated, CardDestination.ToZone(Zone.BATTLEFIELD))
             ifNotEmpty(reanimated) {
@@ -59,30 +57,24 @@ val CauldronDance = card("Cauldron Dance") {
                     )
                 ))
             }
+
+            // Part 2 — optionally drop a creature from hand, give it haste, and sacrifice it
+            // at the next end step.
+            val candidates = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Creature))
+            val putting = chooseUpTo(1, from = candidates)
+            move(putting, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+            ifNotEmpty(putting) {
+                run(Effects.GrantKeyword(
+                    keyword = Keyword.HASTE,
+                    target = putting.asTarget,
+                    duration = Duration.Permanent
+                ))
+                run(CreateDelayedTriggerEffect(
+                    step = Step.END,
+                    effect = Effects.SacrificeTarget(putting.asTarget)
+                ))
+            }
         }
-
-        // Part 2 — optionally drop a creature from hand, give it haste, and sacrifice it
-        // at the next end step.
-        val fromHand = Patterns.Hand.putFromHand(
-            filter = GameObjectFilter.Creature
-        ).then(
-            ConditionalOnCollectionEffect(
-                collection = "putting",
-                ifNotEmpty = Effects.Composite(
-                    Effects.GrantKeyword(
-                        keyword = Keyword.HASTE,
-                        target = EffectTarget.PipelineTarget("putting", 0),
-                        duration = Duration.Permanent
-                    ),
-                    CreateDelayedTriggerEffect(
-                        step = Step.END,
-                        effect = Effects.SacrificeTarget(EffectTarget.PipelineTarget("putting", 0))
-                    )
-                )
-            )
-        )
-
-        effect = reanimate then fromHand
     }
 
     metadata {

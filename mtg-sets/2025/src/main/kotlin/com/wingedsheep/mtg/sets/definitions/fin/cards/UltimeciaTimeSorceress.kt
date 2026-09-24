@@ -101,7 +101,6 @@ private val UltimeciaTimeSorceressFront = card("Ultimecia, Time Sorceress") {
                     Effects.Pipeline {
                         val grave = gather(
                             CardSource.FromZone(Zone.GRAVEYARD, Player.You),
-                            name = "graveyardCards",
                         )
                         val toExile = chooseExactly(
                             8,

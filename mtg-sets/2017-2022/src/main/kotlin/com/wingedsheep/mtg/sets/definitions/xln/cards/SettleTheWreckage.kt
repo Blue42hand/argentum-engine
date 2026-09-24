@@ -57,10 +57,7 @@ val SettleTheWreckage = card("Settle the Wreckage") {
     spell {
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
-            val attackers = gather(
-                GameObjectFilter.Creature.attacking().targetPlayerControls(player),
-                name = "attackers"
-            )
+            val attackers = gather(GameObjectFilter.Creature.attacking().targetPlayerControls(player))
             exile(attackers)
             ifNotEmpty(attackers) {
                 run(
@@ -71,15 +68,13 @@ val SettleTheWreckage = card("Settle the Wreckage") {
                                     Zone.LIBRARY,
                                     Player.TargetPlayer,
                                     GameObjectFilter.BasicLand
-                                ),
-                                name = "searchable"
+                                )
                             )
                             val found = chooseUpTo(
-                                DynamicAmounts.distinctEntitiesIn(attackers.key),
+                                DynamicAmounts.distinctEntitiesIn(attackers),
                                 from = library,
                                 chooser = Chooser.TargetPlayer,
-                                prompt = "Search your library for basic land cards",
-                                name = "found"
+                                prompt = "Search your library for basic land cards"
                             )
                             move(
                                 found,

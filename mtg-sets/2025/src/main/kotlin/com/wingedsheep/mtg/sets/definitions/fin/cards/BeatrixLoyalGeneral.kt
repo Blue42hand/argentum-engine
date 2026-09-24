@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -75,9 +74,9 @@ val BeatrixLoyalGeneral = card("Beatrix, Loyal General") {
                 )
                 // Attach each chosen Equipment to the target creature.
                 run(
-                    ForEachInCollectionEffect(
-                        collection = chosen.key,
-                        effect = Effects.AttachTargetEquipmentToCreature(
+                    Effects.ForEachInCollection(
+                        chosen,
+                        Effects.AttachTargetEquipmentToCreature(
                             equipmentTarget = EffectTarget.IterationEntity,
                             creatureTarget = creature
                         )

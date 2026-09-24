@@ -36,24 +36,19 @@ val Terraformer = card("Terraformer") {
     toughness = 2
     oracleText = "{1}: Choose a basic land type. Each land you control becomes that type until end of turn."
 
-    val chosenKey = "chosenLandType"
-
     activatedAbility {
         cost = Costs.Mana("{1}")
-        effect = Effects.Composite(
-            Effects.ChooseOption(
-                optionType = OptionType.BASIC_LAND_TYPE,
-                storeAs = chosenKey
-            ),
-            Effects.ForEachInGroup(
+        effect = Effects.Pipeline {
+            val landType = chooseOption(OptionType.BASIC_LAND_TYPE)
+            run(Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Land.youControl()),
                 effect = Effects.SetLandType(
                     target = EffectTarget.IterationEntity,
-                    duration = Duration.EndOfTurn,
-                    fromChosenValueKey = chosenKey
+                    fromChosen = landType,
+                    duration = Duration.EndOfTurn
                 )
-            )
-        )
+            ))
+        }
         description = "{1}: Choose a basic land type. Each land you control becomes that type until end of turn."
     }
 

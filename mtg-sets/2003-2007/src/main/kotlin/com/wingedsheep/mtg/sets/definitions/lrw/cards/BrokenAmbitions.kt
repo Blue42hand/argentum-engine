@@ -17,8 +17,8 @@ val BrokenAmbitions = card("Broken Ambitions") {
     spell {
         target("target spell", Targets.Spell)
         effect = Effects.Pipeline {
-            val spell = gather(CardSource.ChosenTargets, name = "ambitionsSpell")
-            val controllers = captureControllers(spell, name = "ambitionsControllers")
+            val spell = gather(CardSource.ChosenTargets)
+            val controllers = captureControllers(spell)
             run(Effects.CounterUnlessDynamicPays(DynamicAmount.XValue))
             run(Patterns.Mechanic.clash(ifYouWin = Effects.Pipeline {
                 // The rider applies even when payment or an ability prevents the counter.

@@ -1,21 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.blc.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -58,12 +51,12 @@ val EvercoatUrsine = card("Evercoat Ursine") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = hideawayThree(suffix = "A")
+        effect = hideawayThree()
     }
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = hideawayThree(suffix = "B")
+        effect = hideawayThree()
     }
 
     triggeredAbility {
@@ -92,37 +85,17 @@ val EvercoatUrsine = card("Evercoat Ursine") {
 /**
  * One iteration of Hideaway 3: gather top 3 of controller's library, controller picks 1
  * to exile face-down (linked to source), the remainder goes to the bottom in random
- * order. Collection names are suffixed so two instances on the same card don't collide
- * when both ETB triggers resolve sequentially.
+ * order. Each trigger resolves its own pipeline, so the two instances never share state.
  */
-private fun hideawayThree(suffix: String): Effect = Effects.Composite(
-    listOf(
-        GatherCardsEffect(
-            source = CardSource.TopOfLibrary(
-                count = DynamicAmount.Fixed(3),
-                player = Player.You
-            ),
-            storeAs = "hideawayTop$suffix"
-        ),
-        SelectFromCollectionEffect(
-            from = "hideawayTop$suffix",
-            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-            storeSelected = "hideawayPicked$suffix",
-            storeRemainder = "hideawayRest$suffix",
-            prompt = "Choose a card to exile face down",
-            selectedLabel = "Exile face down",
-            remainderLabel = "Put on bottom of library"
-        ),
-        MoveCollectionEffect(
-            from = "hideawayPicked$suffix",
-            destination = CardDestination.ToZone(Zone.EXILE),
-            faceDown = FaceDownMode.HIDDEN,
-            linkToSource = true
-        ),
-        MoveCollectionEffect(
-            from = "hideawayRest$suffix",
-            destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-            order = CardOrder.Random
-        )
+private fun hideawayThree(): Effect = Effects.Pipeline {
+    val top = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(3), player = Player.You))
+    val (picked, rest) = chooseExactlySplit(
+        1,
+        from = top,
+        prompt = "Choose a card to exile face down",
+        selectedLabel = "Exile face down",
+        remainderLabel = "Put on bottom of library"
     )
-)
+    exile(picked, faceDown = FaceDownMode.HIDDEN, linkToSource = true)
+    toLibraryBottom(rest, order = CardOrder.Random)
+}

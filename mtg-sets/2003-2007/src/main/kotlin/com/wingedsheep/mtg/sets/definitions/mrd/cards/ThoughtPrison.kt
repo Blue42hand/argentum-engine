@@ -55,7 +55,6 @@ val ThoughtPrison = card("Thought Prison") {
             target = player,
             filter = GameObjectFilter.Nonland,
             prompt = "Choose a nonland card to exile with Thought Prison",
-            storeChosenAs = "thoughtPrisonImprint",
             revealHand = true,
             linkToSource = true
         )

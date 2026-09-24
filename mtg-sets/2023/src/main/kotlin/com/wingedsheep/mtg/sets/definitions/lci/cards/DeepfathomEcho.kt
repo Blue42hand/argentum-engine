@@ -59,12 +59,14 @@ val DeepfathomEcho = card("Deepfathom Echo") {
             // they control until end of turn. Target selection happens inside the Effects.May so
             // it is only asked when the player accepts, and does not bind at stack-placement time.
             Effects.May(
-                Effects.SelectTarget(Targets.OtherCreatureYouControl, "copySource")
-                    .then(Effects.EachPermanentBecomesCopyOfTarget(
-                        target = EffectTarget.PipelineTarget("copySource"),
+                Effects.Pipeline {
+                    val copySource = selectTarget(Targets.OtherCreatureYouControl)
+                    run(Effects.EachPermanentBecomesCopyOfTarget(
+                        target = copySource.asTarget,
                         duration = Duration.EndOfTurn,
                         affected = EffectTarget.Self
                     ))
+                }
             )
         ))
     }

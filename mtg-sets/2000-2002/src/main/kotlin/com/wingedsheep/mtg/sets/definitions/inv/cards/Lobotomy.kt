@@ -45,18 +45,17 @@ val Lobotomy = card("Lobotomy") {
             // 1. Target player reveals their hand.
             run(RevealHandEffect(player))
             // 2. Gather their hand so the controller can choose a card.
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)), name = "hand")
+            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             // 3. You choose a card other than a basic land card.
             val chosen = chooseExactly(
                 1, from = hand,
                 filter = GameObjectFilter(cardPredicates = listOf(CardPredicate.Not(CardPredicate.IsBasicLand))),
                 prompt = "Choose a card other than a basic land card",
                 alwaysPrompt = true,
-                showAllCards = true,
-                name = "chosen"
+                showAllCards = true
             )
             // 4. Record the chosen card's name.
-            val chosenName = storeCardName(chosen, name = "chosenName")
+            val chosenName = storeCardName(chosen)
             // 5. Find every card of that name across their graveyard, hand, and library.
             val toExile = gather(
                 CardSource.FromMultipleZones(
@@ -64,7 +63,6 @@ val Lobotomy = card("Lobotomy") {
                     player = Player.ContextPlayer(0),
                     filter = GameObjectFilter.Any.namedFromVariable(chosenName)
                 ),
-                name = "toExile",
                 search = true
             )
             // 6. Exile them.

@@ -55,14 +55,13 @@ val DistendedMindbender = card("Distended Mindbender") {
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             run(RevealHandEffect(opponent))
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)), name = "hand")
+            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val cheap = chooseExactly(
                 1, from = hand,
                 filter = GameObjectFilter.Nonland.manaValueAtMost(3),
                 prompt = "Choose a nonland card with mana value 3 or less",
                 alwaysPrompt = true,
                 showAllCards = true,
-                name = "cheap",
             )
             val expensive = chooseExactly(
                 1, from = hand,
@@ -70,7 +69,6 @@ val DistendedMindbender = card("Distended Mindbender") {
                 prompt = "Choose a card with mana value 4 or greater",
                 alwaysPrompt = true,
                 showAllCards = true,
-                name = "expensive",
             )
             move(
                 cheap,

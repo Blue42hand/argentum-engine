@@ -45,15 +45,13 @@ val ScrabblingClaws = card("Scrabbling Claws") {
         cost = Costs.Tap
         effect = Effects.Pipeline {
             val graveyard = gather(
-                CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                name = "clawsGraveyard"
+                CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0))
             )
             val chosen = chooseExactly(
                 1,
                 from = graveyard,
                 chooser = Chooser.TargetPlayer,
-                prompt = "Exile a card from your graveyard",
-                name = "clawsExiled"
+                prompt = "Exile a card from your graveyard"
             )
             exile(chosen, owner = Player.ContextPlayer(0))
         }

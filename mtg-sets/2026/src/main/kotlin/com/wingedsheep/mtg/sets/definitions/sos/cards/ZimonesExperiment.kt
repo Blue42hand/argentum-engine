@@ -42,21 +42,17 @@ val ZimonesExperiment = card("Zimone's Experiment") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)), name = "looked")
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
             val (kept, rest) = chooseUpToSplit(
                 count = 2,
                 from = looked,
                 filter = GameObjectFilter.CreatureOrLand,
                 prompt = "Reveal up to two creature and/or land cards",
                 showAllCards = true,
-                name = "kept",
-                remainderName = "rest",
             )
             val (lands, creatures) = filterSplit(
                 from = kept,
                 filter = GameObjectFilter.Land,
-                name = "keptLands",
-                restName = "keptCreatures",
             )
             move(
                 from = lands,

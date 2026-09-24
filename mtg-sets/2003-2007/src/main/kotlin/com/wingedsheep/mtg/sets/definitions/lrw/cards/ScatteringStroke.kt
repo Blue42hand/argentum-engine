@@ -11,10 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-
-/** Pipeline slot holding the countered spell's mana value, frozen before the counter. */
-private const val SCATTERED_MANA_VALUE = "scatteredManaValue"
 
 /**
  * Scattering Stroke
@@ -29,8 +25,8 @@ private const val SCATTERED_MANA_VALUE = "scatteredManaValue"
  *  1. **"That spell" is already gone.** The counter moves it to its owner's graveyard before the
  *     clash even begins, and [com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget] is
  *     `LIVE_ONLY` by design (CR 608.2b) with no target LKI behind it. So the mana value is frozen
- *     up front with [Effects.StoreNumber] and read back through
- *     [DynamicAmount.VariableReference] — the same shape Weed Strangle uses for a destroyed
+ *     up front with the pipeline's `storeNumber` and read back through its handle's
+ *     `amount` — the same shape Weed Strangle uses for a destroyed
  *     creature's toughness. Mana Sculpt solves the same problem the other way, by creating its
  *     delayed trigger *before* the counter; that isn't available here because the clash sits
  *     between the two and decides whether the trigger exists at all.
@@ -61,20 +57,20 @@ val ScatteringStroke = card("Scattering Stroke") {
 
     spell {
         target("target spell", Targets.Spell)
-        effect = Effects.StoreNumber(SCATTERED_MANA_VALUE, DynamicAmounts.targetManaValue())
-            .then(Effects.CounterSpell())
-            .then(
+        effect = Effects.Pipeline {
+            val manaValue = storeNumber(DynamicAmounts.targetManaValue())
+            run(Effects.CounterSpell())
+            run(
                 Patterns.Mechanic.clash(
                     CreateDelayedTriggerEffect(
                         step = Step.PRECOMBAT_MAIN,
                         fireOnPlayer = EffectTarget.PlayerRef(Player.You),
                         timing = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
-                        effect = Effects.May(
-                            Effects.AddColorlessMana(DynamicAmount.VariableReference(SCATTERED_MANA_VALUE))
-                        )
+                        effect = Effects.May(Effects.AddColorlessMana(manaValue.amount))
                     )
                 )
             )
+        }
     }
 
     metadata {

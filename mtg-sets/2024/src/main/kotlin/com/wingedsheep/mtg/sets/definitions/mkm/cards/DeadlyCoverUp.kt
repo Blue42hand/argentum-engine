@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Deadly Cover-Up — Murders at Karlov Manor #83
@@ -45,17 +44,15 @@ val DeadlyCoverUp = card("Deadly Cover-Up") {
                     player = Player.EachOpponent,
                     filter = GameObjectFilter.Any,
                 ),
-                name = "opponentGraveyardCards",
             )
             val seed = chooseExactly(
                 1,
                 from = graveyardCards,
                 chooser = Chooser.SourceController,
                 prompt = "Choose a card from an opponent's graveyard to exile",
-                name = "seed",
             )
-            val owners = captureControllers(seed, name = "owners")
-            val cardName = storeCardName(seed, name = "cardName")
+            val owners = captureControllers(seed)
+            val cardName = storeCardName(seed)
             exile(seed)
 
             forEachCaptured(seed, seed, owners) {
@@ -63,9 +60,8 @@ val DeadlyCoverUp = card("Deadly Cover-Up") {
                     CardSource.FromMultipleZones(
                         zones = listOf(Zone.GRAVEYARD, Zone.HAND, Zone.LIBRARY),
                         player = Player.You,
-                        filter = GameObjectFilter.Any.namedFromVariable(cardName.key),
+                        filter = GameObjectFilter.Any.namedFromVariable(cardName),
                     ),
-                    name = "matches",
                     search = true,
                 )
                 val selected = chooseAnyNumber(
@@ -74,18 +70,16 @@ val DeadlyCoverUp = card("Deadly Cover-Up") {
                     prompt = "Choose any number of cards with that name to exile",
                     showAllCards = true,
                     alwaysPrompt = true,
-                    name = "selected",
                 )
                 val selectedFromHand = filter(
                     selected,
                     GameObjectFilter.Any.currentlyIn(Zone.HAND),
-                    name = "selectedFromHand",
                 )
                 exile(selected)
                 run(ShuffleLibraryEffect(target = EffectTarget.Controller))
                 run(
                     Effects.DrawCards(
-                        DynamicAmount.VariableReference("${selectedFromHand.key}_count"),
+                        selectedFromHand.count,
                         EffectTarget.Controller,
                     ),
                 )

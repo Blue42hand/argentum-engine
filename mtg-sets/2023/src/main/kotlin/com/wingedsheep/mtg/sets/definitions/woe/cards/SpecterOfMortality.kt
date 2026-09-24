@@ -74,8 +74,7 @@ val SpecterOfMortality = card("Specter of Mortality") {
             )
             val exiled = moveTracked(
                 from = chosen,
-                destination = CardDestination.ToZone(Zone.EXILE),
-                name = "exiledCreatures"
+                destination = CardDestination.ToZone(Zone.EXILE)
             )
             ifNotEmpty(exiled) {
                 val exiledCount = DynamicAmount.VariableReference("exiledCreatures_count")

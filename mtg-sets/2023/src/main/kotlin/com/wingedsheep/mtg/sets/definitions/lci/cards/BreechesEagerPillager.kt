@@ -78,7 +78,7 @@ val BreechesEagerPillager = card("Breeches, Eager Pillager") {
             ),
             // • Exile the top card of your library. You may play it this turn.
             Mode.noTarget(
-                Patterns.Exile.impulse(count = 1, storeAs = "breechesExiled"),
+                Patterns.Exile.impulse(count = 1),
                 "Exile the top card of your library. You may play it this turn",
             ),
         )

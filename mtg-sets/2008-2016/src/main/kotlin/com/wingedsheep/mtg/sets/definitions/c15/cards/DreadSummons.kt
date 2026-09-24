@@ -2,16 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.c15.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -36,16 +31,11 @@ val DreadSummons = card("Dread Summons") {
     oracleText = "Each player mills X cards. For each creature card put into a graveyard this way, you create a tapped 2/2 black Zombie creature token."
 
     spell {
-        effect = Effects.Composite(
-            Patterns.Library.mill(DynamicAmount.XValue, EffectTarget.PlayerRef(Player.Each)),
-            SelectFromCollectionEffect(
-                from = "milled",
-                selection = SelectionMode.All,
-                filter = GameObjectFilter.Creature,
-                storeSelected = "milledCreatures"
-            ),
-            ForEachInCollectionEffect(
-                "milledCreatures",
+        effect = Effects.Pipeline {
+            val milled = mill(DynamicAmount.XValue, Player.Each)
+            val milledCreatures = selectAll(from = milled, filter = GameObjectFilter.Creature)
+            run(Effects.ForEachInCollection(
+                milledCreatures,
                 CreateTokenEffect(
                     power = 2,
                     toughness = 2,
@@ -54,8 +44,8 @@ val DreadSummons = card("Dread Summons") {
                     tapped = true,
                     imageUri = "https://cards.scryfall.io/normal/front/8/f/8ffaa67e-32fa-4843-8858-feed2ebb40df.jpg?1783938021"
                 )
-            )
-        )
+            ))
+        }
     }
 
     metadata {

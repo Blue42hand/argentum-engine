@@ -8,16 +8,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Aegis Sculptor — Tarkir: Dragonstorm #35
@@ -53,24 +47,12 @@ val AegisSculptor = card("Aegis Sculptor") {
         trigger = Triggers.YourUpkeep
         effect = Effects.May(
             Effects.IfYouDo(
-                action = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(zone = Zone.GRAVEYARD),
-                            storeAs = "graveyardCards"
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "graveyardCards",
-                            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(2)),
-                            storeSelected = "toExile",
-                            selectedLabel = "Exile"
-                        ),
-                        MoveCollectionEffect(
-                            from = "toExile",
-                            destination = CardDestination.ToZone(Zone.EXILE)
-                        )
-                    )
-                ),
+                action = Effects.Pipeline {
+                    val graveyardCards = gather(CardSource.FromZone(zone = Zone.GRAVEYARD))
+                    // Named: the "if you do" check below reads it from outside the pipeline.
+                    val toExile = chooseExactly(2, from = graveyardCards, selectedLabel = "Exile", name = "toExile")
+                    exile(toExile)
+                },
                 then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 successCriterion = SuccessCriterion.CollectionNonEmpty("toExile", min = 2)
             )

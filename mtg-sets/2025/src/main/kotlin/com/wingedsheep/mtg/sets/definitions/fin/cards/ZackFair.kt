@@ -79,7 +79,7 @@ val ZackFair = card("Zack Fair") {
             )
             run(
                 Effects.AttachTargetEquipmentToCreature(
-                    equipmentTarget = EffectTarget.PipelineTarget(chosen.key, 0),
+                    equipmentTarget = chosen.asTarget,
                     creatureTarget = creature
                 )
             )

@@ -9,10 +9,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -103,20 +101,20 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
             run(
                 Effects.If(
                     condition = Conditions.All(
-                        CollectionContainsMatch(equipment.key),
-                        CollectionContainsMatch(creature.key)
+                        whenMatches(equipment),
+                        whenMatches(creature)
                     ),
                     then = ReflexiveTriggerEffect(
                         optional = false,
-                        action = ForEachInCollectionEffect(
-                            collection = equipment.key,
+                        action = Effects.ForEachInCollection(
+                            collection = equipment,
                             effect = Effects.AttachTargetEquipmentToCreature(
                                 equipmentTarget = EffectTarget.IterationEntity,
                                 creatureTarget = equippedCreature
                             )
                         ),
-                        reflexiveEffect = ForEachInCollectionEffect(
-                            collection = creature.key,
+                        reflexiveEffect = Effects.ForEachInCollection(
+                            collection = creature,
                             effect = DealDamageEffect(
                                 amount = DynamicAmount.EntityProperty(
                                     EffectTarget.IterationEntity,

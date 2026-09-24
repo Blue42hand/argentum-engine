@@ -51,15 +51,13 @@ val RestorativeTechnique = card("Restorative Technique") {
             Effects.Pipeline {
                 val basics = gather(
                     CardSource.FromZone(Zone.LIBRARY, Player.TargetPlayer, GameObjectFilter.BasicLand),
-                    name = "basicLands",
                     search = true
                 )
                 val found = chooseUpTo(
                     1,
                     from = basics,
                     chooser = Chooser.TargetPlayer,
-                    prompt = "Search your library for a basic land card",
-                    name = "foundBasic"
+                    prompt = "Search your library for a basic land card"
                 )
                 move(
                     found,

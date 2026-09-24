@@ -25,16 +25,11 @@ val IntoTheNight: CardDefinition = card("Into the Night") {
     oracleText = "It becomes night. Discard any number of cards, then draw that many cards plus one."
 
     spell {
-        effect = Effects.Composite(
-            Effects.BecomeNight,
-            Patterns.Hand.discardAnyNumber(storeAs = "discarded"),
-            Effects.DrawCards(
-                DynamicAmount.Add(
-                    DynamicAmount.VariableReference("discarded_count"),
-                    DynamicAmount.Fixed(1),
-                ),
-            ),
-        )
+        effect = Effects.Pipeline {
+            run(Effects.BecomeNight)
+            val discarded = runStoringCollection { Patterns.Hand.discardAnyNumber(storeAs = it) }
+            run(Effects.DrawCards(DynamicAmount.Add(discarded.count, DynamicAmount.Fixed(1))))
+        }
     }
 
     metadata {

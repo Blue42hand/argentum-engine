@@ -97,19 +97,17 @@ val Tetravus = card("Tetravus") {
                 CardSource.BattlefieldMatching(
                     filter = GameObjectFilter.Any.createdBySource(),
                     player = Player.Each
-                ),
-                name = "tetraviteTokens"
+                )
             )
             val chosen = chooseAnyNumber(
                 from = mine,
-                name = "exiledTokens",
                 prompt = "Exile any number of Tetravite tokens created with this creature"
             )
             exile(chosen)
             run(
                 Effects.AddDynamicCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                    amount = DynamicAmount.VariableReference("${chosen.key}_count"),
+                    amount = chosen.count,
                     target = EffectTarget.Self
                 )
             )

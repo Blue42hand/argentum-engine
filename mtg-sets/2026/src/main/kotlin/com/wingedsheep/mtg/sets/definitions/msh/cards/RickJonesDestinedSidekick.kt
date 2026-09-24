@@ -42,8 +42,7 @@ val RickJonesDestinedSidekick = card("Rick Jones, Destined Sidekick") {
         effect = Effects.Pipeline {
             // "Mill four cards."
             val milled = gather(
-                CardSource.TopOfLibrary(DynamicAmount.Fixed(4), Player.You, isMill = true),
-                name = "milled"
+                CardSource.TopOfLibrary(DynamicAmount.Fixed(4), Player.You, isMill = true)
             )
             toGraveyard(milled)
             // "You may put a Hero or enchantment card from among those cards into your hand."

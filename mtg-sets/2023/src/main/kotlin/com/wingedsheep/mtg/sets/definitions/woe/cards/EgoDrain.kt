@@ -41,15 +41,14 @@ val EgoDrain = card("Ego Drain") {
             // 1. Target opponent reveals their hand.
             run(RevealHandEffect(opponent))
             // 2. Gather it so you can pick the card to strip.
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)), name = "opponentHand")
+            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             // 3. You choose a nonland card from it.
             val chosen = chooseExactly(
                 1, from = hand,
                 filter = GameObjectFilter.Nonland,
                 prompt = "Choose a nonland card to discard",
                 alwaysPrompt = true,
-                showAllCards = true,
-                name = "toDiscard"
+                showAllCards = true
             )
             // 4. That player discards it (MoveType.Discard so discard triggers see it).
             move(

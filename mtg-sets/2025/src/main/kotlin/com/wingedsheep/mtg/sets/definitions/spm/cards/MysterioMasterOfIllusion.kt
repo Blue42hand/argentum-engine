@@ -70,7 +70,6 @@ val MysterioMasterOfIllusion = card("Mysterio, Master of Illusion") {
                     filter = GameObjectFilter.Any.createdBySource(),
                     player = Player.Each,
                 ),
-                name = "mysterioTokens",
             )
             exile(tokens)
         }

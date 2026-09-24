@@ -71,20 +71,18 @@ val LazavWearerOfFaces = card("Lazav, Wearer of Faces") {
             val creatureCards = filter(
                 exiledWithLazav,
                 GameObjectFilter.Creature,
-                name = "lazavCreatureCards",
             )
             val chosen = chooseUpTo(
                 1,
                 from = creatureCards,
                 prompt = "You may have Lazav become a copy of a creature card exiled with it",
                 selectedLabel = "Become a copy",
-                name = "lazavCopySource",
             )
             run(
                 Effects.If(
                     condition = whenMatches(chosen),
                     then = Effects.EachPermanentBecomesCopyOfTarget(
-                        target = EffectTarget.PipelineTarget(chosen.key),
+                        target = chosen.asTarget,
                         duration = Duration.EndOfTurn,
                         affected = EffectTarget.Self,
                         sourceFromAnyZone = true,

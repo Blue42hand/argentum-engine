@@ -47,7 +47,6 @@ val CemeteryProtector = card("Cemetery Protector") {
         effect = Effects.Pipeline {
             val graveyards = gather(
                 CardSource.FromZone(Zone.GRAVEYARD, Player.Each, GameObjectFilter.Any),
-                name = "graveyards",
             )
             val exiled = chooseExactly(
                 1,
@@ -55,7 +54,6 @@ val CemeteryProtector = card("Cemetery Protector") {
                 useTargetingUI = true,
                 prompt = "Exile a card from a graveyard",
                 selectedLabel = "Exile",
-                name = "exiled",
             )
             exile(exiled, linkToSource = true)
         }
