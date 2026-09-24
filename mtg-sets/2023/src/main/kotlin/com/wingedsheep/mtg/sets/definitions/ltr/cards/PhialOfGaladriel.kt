@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyLifeGain
-import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
+import com.wingedsheep.sdk.scripting.ReplaceDrawWith
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.values.ManaColorSet
  * If you would gain life while you have 5 or less life, you gain twice that much life instead.
  * {T}: Add one mana of any color.
  *
- * The two replacements compose from existing primitives: `ReplaceDrawWithEffect(draw 2)` gated on an empty
+ * The two replacements compose from existing primitives: `ReplaceDrawWith(draw 2)` gated on an empty
  * hand, and `ModifyLifeGain(×2)` gated on the new `restrictions` field (life ≤ 5).
  */
 val PhialOfGaladriel = card("Phial of Galadriel") {
@@ -34,7 +34,7 @@ val PhialOfGaladriel = card("Phial of Galadriel") {
         "{T}: Add one mana of any color."
 
     replacementEffect(
-        ReplaceDrawWithEffect(
+        ReplaceDrawWith(
             replacementEffect = DrawCardsEffect(2),
             appliesTo = EventPattern.DrawEvent(),
             restrictions = listOf(Conditions.EmptyHand),

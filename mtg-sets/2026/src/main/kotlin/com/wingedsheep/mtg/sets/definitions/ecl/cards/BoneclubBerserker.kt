@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -24,7 +24,7 @@ val BoneclubBerserker = card("Boneclub Berserker") {
     oracleText = "This creature gets +2/+0 for each other Goblin you control."
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmount.Multiply(
                 amount = DynamicAmounts.otherCreaturesWithSubtypeYouControl(Subtype.GOBLIN),

@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Composition:
  *  - `{X}, {T}` activated ability whose only effect is `Effects.ReplaceNextDraw(...)` — it installs a
  *    one-shot draw-replacement shield for the rest of the turn. The shield now captures the
- *    activation-time {X} (see `ReplaceDrawWithEffect.xValue`), so the replacement can read
+ *    activation-time {X} (see `ReplaceDrawWith.xValue`), so the replacement can read
  *    `DynamicAmount.XValue` when it fires at the next draw.
  *  - The replacement is a `lookAtTopAndKeep` dig: look at the top X, keep one on top, put the rest
  *    on the bottom in a random order, then a real `DrawCards(1)` draws the kept card (so draw

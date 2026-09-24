@@ -1381,7 +1381,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   Revealing emits a `CardsRevealedEvent` and stops; declining (or empty selection) runs
   `otherwise`. Compose with `Effects.Tap`/`Effects.Sacrifice`/etc. via `otherwise` to
   express "if you don't, X" riders — e.g. SOI shadow lands wrap this in
-  `OnEnterRunEffect(...)` with `otherwise = Effects.Tap(EffectTarget.Self)` for the
+  `OnEnterRun(...)` with `otherwise = Effects.Tap(EffectTarget.Self)` for the
   "this land enters tapped" branch.
 - `Effects.Behold(filter, ifBeheld?)` — resolution-time **behold** (`BeholdEffect`): "you may
   behold a `filter`. If you do, `ifBeheld`." The behold itself is optional — the controller may
@@ -5260,7 +5260,7 @@ work for abilities-on-stack (which carry no `CardComponent`).
 - `ExiledWithSource` (filter builder `exiledWithSource()`) — source-relative: the candidate card is
   one the effect's source permanent exiled, i.e. its id is recorded in the source's
   `LinkedExileComponent` (the same linkage set by `RedirectZoneChange(linkToSource = true)`,
-  `RedirectZoneChangeWithEffect(linkToSource = true)`, `MoveToZoneEffect(linkToSource = true)`, and the
+  `RedirectZoneChangeWith(linkToSource = true)`, `MoveToZoneEffect(linkToSource = true)`, and the
   `FromLinkedExile` pipeline source). Backs "target creature card exiled with ~" reanimation — The
   Darkness Crystal: `TargetObject(filter = TargetFilter(GameObjectFilter.Creature.exiledWithSource(),
   zone = Zone.EXILE))`. Resolves against `PredicateContext.sourceId`; inert with no source, and never
@@ -6973,7 +6973,7 @@ staticAbility {
 - `SetBasePowerToughnessDynamicStatic(power, toughness, filter = GroupFilter.source())` —
   characteristic-defining ability (CDA): *sets* base power and toughness each to a `DynamicAmount`,
   recomputed continuously at projection (Layer 7b SET_VALUES). Distinct from
-  `GrantDynamicStatsEffect`, which is a Layer 7c additive *bonus*: use this when the dynamic value
+  `GrantDynamicStats`, which is a Layer 7c additive *bonus*: use this when the dynamic value
   *is* the printed base P/T (a later base-setting effect overwrites it rather than stacking). For
   `*/*` creatures and token CDAs — e.g. Beau ("power and toughness each equal to the number of lands
   you control"), Tarmogoyf-style stats. Pair with `DynamicAmounts.landsYouControl()` /
@@ -10137,7 +10137,7 @@ answer it and would silently return `false`.
 - `EntityNumericProperty.ValueChosenAsEntered` (via `DynamicAmount.EntityProperty(EffectTarget.Self, …)`)
   — the number the controller chose as this permanent entered, kept for the permanent's whole life.
   Written by `PayAnyAmountOfLifeAsEntersEffect`, which is the ETB half of **Nameless Race**
-  (`replacementEffect(OnEnterRunEffect(PayAnyAmountOfLifeAsEntersEffect(maxAmount)))`), and read back
+  (`replacementEffect(OnEnterRun(PayAnyAmountOfLifeAsEntersEffect(maxAmount)))`), and read back
   by its characteristic-defining power and toughness via `dynamicStats(...)`.
   **Why not a pipeline variable or a counter:** `VariableReference` dies with the resolution that set
   it, and a CDA is consulted during layer projection long afterwards; a counter is visible, removable
@@ -11179,7 +11179,7 @@ both spellings, and the ability its bare-noun line grants says "Regenerate this 
   `creatureCardsInYourGraveyard(player = You)` (graveyard counts) — pass `Player.Each` for the
   "in **all** graveyards" wording (Undergrowth Scavenger's entry counters), and `DynamicAmounts.cardsInYourHand()` — cards in your hand,
   e.g. Stingerback Terror's "-1/-1 for each card in your hand" (multiply by `-1` and feed
-  both bonuses of a `GrantDynamicStatsEffect(GroupFilter.source(), …)`). Greatest power among
+  both bonuses of a `GrantDynamicStats(GroupFilter.source(), …)`). Greatest power among
   creatures you control is `DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower()`
   (Tumbleweed Rising's X/X token, paired with `Effects.CreateDynamicToken`).
 
@@ -12189,7 +12189,7 @@ exactly that, deriving "both" from the modes declared.
 > lets one mode fill every pick (CR 700.2d).
 
 > **`allowRepeat` applies at resolution time too.** The resolution-time picker (a modal reached with
-> `chosenModes` empty — e.g. one inside an `OnEnterRunEffect`) narrows its option list after each
+> `chosenModes` empty — e.g. one inside an `OnEnterRun`) narrows its option list after each
 > pick so "choose two" means two *different* modes. With `allowRepeat` it does not: every mode stays
 > on the menu for every pick, which is what "for each card exiled this way, put a +2/+0, +1/+1, or
 > +0/+2 counter on it" (Frankenstein's Monster) needs — X independent choices among the same three.
@@ -12601,7 +12601,7 @@ The priority groups are (CR 616.1a–f):
   to the same outcome; a shock land's "pay N life or enter tapped" prompt is elided (moot when it enters
   untapped regardless). Edge not covered: a same-event simultaneous mass-entry where the source itself is
   among the entering permanents (the source isn't yet consulted), and a land tapped via a generic
-  `OnEnterRunEffect` self-tap (e.g. Game Trail) is not overridden.
+  `OnEnterRun` self-tap (e.g. Game Trail) is not overridden.
 - `PermanentsEnterTapped(appliesTo = ZoneChangeEvent(filter, to = Zone.BATTLEFIELD), condition = null)` — the global/group
   counterpart of the self-only `EntersTapped`: "[filter] enter the battlefield tapped" (Zhao, the Moon
   Slayer — "Nonbasic lands enter tapped", `filter = GameObjectFilter.NonbasicLand`; also expresses
@@ -12656,7 +12656,7 @@ The priority groups are (CR 616.1a–f):
   object's controller in the transient `GameState.pendingDiscardCauseControllers` marker (the same idiom
   as `pendingSacrificeIds`), which the redirect path reads and `moveToZone` consumes. The card still
   counts as discarded either way — `CardsDiscardedEvent` fires regardless of where it lands.
-- `RedirectZoneChangeWithEffect(newDestination, additionalEffect, selfOnly = false, linkToSource = false,
+- `RedirectZoneChangeWith(newDestination, additionalEffect, selfOnly = false, linkToSource = false,
   appliesTo)` — like `RedirectZoneChange` but also runs `additionalEffect` when the replacement fires.
   The additional effect is applied through a small executor whitelist (not the full pipeline) —
   `TakeExtraTurnEffect` (Ugin's Nexus), `AddCountersEffect` on the redirected card (Darigaaz
@@ -12669,13 +12669,13 @@ The priority groups are (CR 616.1a–f):
   permanent itself; `linkToSource = true` (exile destination only) adds the redirected card to the
   source's `LinkedExileComponent` exactly like `RedirectZoneChange.linkToSource`. The Darkness Crystal's
   "If a nontoken creature an opponent controls would die, instead exile it and you gain 2 life" is
-  `RedirectZoneChangeWithEffect(newDestination = Zone.EXILE, additionalEffect = GainLifeEffect(2),
+  `RedirectZoneChangeWith(newDestination = Zone.EXILE, additionalEffect = GainLifeEffect(2),
   linkToSource = true, appliesTo = ZoneChangeEvent(filter = GameObjectFilter.Creature.nontoken().opponentControls(),
   from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD))` — the linked cards are then retrieved by a
   `Creature.exiledWithSource()` target (see §7 state predicates). Honored across the same graveyard
   paths as `RedirectZoneChange`.
 - `ReplacementEffect.IfYouDoBranchEffect(...)` — branch on "if you do" replacement.
-- `OnEnterRunEffect(effect)` — generic "as ~ enters the battlefield, run [effect]". The wrapped effect
+- `OnEnterRun(effect)` — generic "as ~ enters the battlefield, run [effect]". The wrapped effect
   executes via the normal effect-executor pipeline at entry time (so `EffectTarget.Self` resolves to
   the entering permanent) and may pause for player input. Compose with atomic pausable effects like
   `Effects.MayRevealCardFromHand` to build SOI shadow lands or other "as ~ enters" choices.
@@ -12846,7 +12846,7 @@ The priority groups are (CR 616.1a–f):
   `EventPattern.DrawCardsEvent`, not the general `EventPattern`, so pointing one at the per-card
   `DrawEvent` is a **compile error** rather than a hang — a count modification that draws no card
   leaves the game state unchanged, so the per-card loop would re-match and re-apply it forever.
-  Reach for `ReplaceDrawWithEffect` when you genuinely need a per-card replacement. Note that "you"
+  Reach for `ReplaceDrawWith` when you genuinely need a per-card replacement. Note that "you"
   in restriction text reads as the drawing player, not the source's controller; for
   `DrawCardsEvent(player = Player.You)` they coincide, but `DrawCardsEvent(player = Player.EachOpponent)`
   cards needing "you" = source controller would have to use a source-relative condition instead. Use
@@ -12856,7 +12856,7 @@ The priority groups are (CR 616.1a–f):
   — and `multiplier` for a doubling that genuinely refers to the announced quantity. **Pick by the
   oracle wording, not by the outcome.** "If you would draw *one or more cards*, …" refers to the
   number drawn and belongs here; "If you would draw *a card*, draw two cards instead" (Vnwxt,
-  Verbose Host) does not, and belongs in a per-card `ReplaceDrawWithEffect(DrawCardsEffect(2))` on
+  Verbose Host) does not, and belongs in a per-card `ReplaceDrawWith(DrawCardsEffect(2))` on
   `EventPattern.DrawEvent`. Both make Harmonize draw six on their own, so the difference only shows
   when the two levels meet: CR 616.1g orders the containing event before the contained one, so
   Quantum Riddler plus Vnwxt is `(3 + 1)` announced and then each of the four draws doubled = 8.
@@ -12886,7 +12886,7 @@ The priority groups are (CR 616.1a–f):
   the acting permanent with the **source's controller** as "you" (so
   `ConnivedEvent(GameObjectFilter.Creature.youControl())` = "if a creature you control would
   connive"); `ExploredEvent.revealedType` is irrelevant (the replacement runs before the reveal).
-  Like `ReplaceDrawWithEffect`, neither action is a generic replaceable event —
+  Like `ReplaceDrawWith`, neither action is a generic replaceable event —
   `ExploreEffectExecutor` / `ConniveEffectExecutor` consult printed `ModifyKeywordAction` on the
   battlefield directly (via `KeywordActionReplacements`) and, on a match, re-issue the action as
   `Composite(prefixEffect, <action>(sameCreature, replacementsApplied = true))` through the registry
@@ -13028,7 +13028,7 @@ are their printed spellings (`CounterType.printed`). Text converts back only thr
   `fellowship` (`CounterType.FELLOWSHIP`): FDN — Banner of Kinship (enters with one per creature you control of
   the as-enters chosen type via `EntersWithDynamicCounters(CounterType.FELLOWSHIP,
   DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withChosenSubtype()))`; a
-  `GrantDynamicStatsEffect` sized by `DynamicAmounts.countersOnSelf(...)` reads the count back) — a pure
+  `GrantDynamicStats` sized by `DynamicAmounts.countersOnSelf(...)` reads the count back) — a pure
   passive resource counter with no inherent rule.
   `ingenuity` (`CounterType.INGENUITY`): SPM — Lady Octopus, Inspired Inventor (two `Triggers.NthCardDrawn`
   triggers — first and second draw each turn — each add one via `AddCounters(CounterType.INGENUITY, 1, EffectTarget.Self)`;
@@ -13527,7 +13527,7 @@ Card authors rarely reference these directly; they are created/updated by the ma
     every one of them. The builder folds the gate into the effect's own `restrictions` list, which only
     some replacement types have — anything else throws rather than silently emitting an ungated effect.
     Vnwxt, Verbose Host ("Max speed — If you would draw a card, draw two cards instead") is a
-    `ReplaceDrawWithEffect`; Far Fortune, End Boss's damage rider is a `ModifyDamageAmount`. Know which
+    `ReplaceDrawWith`; Far Fortune, End Boss's damage rider is a `ModifyDamageAmount`. Know which
     player the restrictions read before reaching for it: the damage family evaluates them against the
     *source's controller* (so Far Fortune taxes opponents while gating on your speed), while the draw /
     life-total ones read the *affected* player — fine for a `Player.You` pattern like Vnwxt's own draws,

@@ -78,7 +78,7 @@ class ChooseNumberForSourceCdaScenarioTest : ScenarioTestBase() {
                 game.castSpell(1, "Test Numbershaper").error shouldBe null
                 game.resolveStack()
 
-                // The ETB OnEnterRunEffect pauses for the number choice.
+                // The ETB OnEnterRun pauses for the number choice.
                 val decision = game.getPendingDecision()
                 withClue("ETB should prompt for a number choice") { (decision != null) shouldBe true }
                 game.chooseNumber(5)

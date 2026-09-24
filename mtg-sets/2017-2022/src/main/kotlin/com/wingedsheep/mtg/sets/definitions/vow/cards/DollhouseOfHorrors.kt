@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
@@ -80,7 +80,7 @@ val DollhouseOfHorrors = card("Dollhouse of Horrors") {
                 addedSubtypes = setOf(Subtype.CONSTRUCT),
                 addedKeywords = setOf(Keyword.HASTE),
                 addedStaticAbilities = listOf(
-                    GrantDynamicStatsEffect(
+                    GrantDynamicStats(
                         filter = GroupFilter.source(),
                         powerBonus = ConstructsYouControl,
                         toughnessBonus = ConstructsYouControl,

@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -39,7 +39,7 @@ val ConclavesBlessing = card("Conclave's Blessing") {
     auraTarget = Targets.Creature
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = Filters.EnchantedCreature,
             powerBonus = DynamicAmount.Fixed(0),
             // +2 per creature, not +1 — the printed bonus is +0/+2 *for each*, so the count has

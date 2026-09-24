@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect
+import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
@@ -40,7 +40,7 @@ val DarigaazReincarnated = card("Darigaaz Reincarnated") {
 
     // If Darigaaz would die, instead exile it with three egg counters
     replacementEffect(
-        RedirectZoneChangeWithEffect(
+        RedirectZoneChangeWith(
             newDestination = Zone.EXILE,
             additionalEffect = AddCountersEffect(CounterType.EGG, 3, EffectTarget.Self),
             selfOnly = true,

@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -39,7 +39,7 @@ val BristlebaneOutrider = card("Bristlebane Outrider") {
 
     staticAbility {
         ability = ConditionalStaticAbility(
-            ability = GrantDynamicStatsEffect(
+            ability = GrantDynamicStats(
                 filter = GroupFilter.source(),
                 powerBonus = DynamicAmount.Fixed(2),
                 toughnessBonus = DynamicAmount.Fixed(0)

@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * untap all attacking creatures. After this phase, there is an additional combat phase.
  *
  * Modeling notes:
- *  - The Mountain pump is a static [GrantDynamicStatsEffect] on the source, so it feeds the total
+ *  - The Mountain pump is a static [GrantDynamicStats] on the source, so it feeds the total
  *    power the attack trigger measures — a Were-Worm swinging alongside six Mountains is already
  *    12 power by itself.
  *  - "For the first time each turn" is `oncePerTurn` on the ability paired with an
@@ -52,7 +52,7 @@ val DesertWereWorm = card("Desert Were-Worm") {
         "combat phase."
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmount.Multiply(
                 DynamicAmounts.battlefield(

@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,7 +36,7 @@ val AlphaStatus = card("Alpha Status") {
             filter = GameObjectFilter.Creature.sharingCreatureTypeWith(EffectTarget.AffectedEntity),
             excludeSelf = true,
         )
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = DynamicAmount.Multiply(sharedTypeCount, 2),
             toughnessBonus = DynamicAmount.Multiply(sharedTypeCount, 2)

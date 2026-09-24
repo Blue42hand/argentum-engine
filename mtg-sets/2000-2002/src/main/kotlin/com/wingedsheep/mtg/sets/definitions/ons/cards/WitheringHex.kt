@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -38,7 +38,7 @@ val WitheringHex = card("Withering Hex") {
             EffectTarget.Self,
             EntityNumericProperty.CounterCount(CounterType.PLAGUE)
         )
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = DynamicAmount.Multiply(plagueCounters, -1),
             toughnessBonus = DynamicAmount.Multiply(plagueCounters, -1)

@@ -4541,7 +4541,7 @@ Found the way all five were, by running it on a card class it had never reached.
     shows on the group sweeps whose filter omits `IsCreature`.
   - **`TargetCreatureOrPlaneswalker` versus the general filtered target (3).** The standing finding
     below, recurring in three new sentence shapes, still not folded and for the same reason.
-  - **A `Gate.MayPay` cost's atom (6), a `GrantDynamicStatsEffect` holding a fixed bonus (3), a
+  - **A `Gate.MayPay` cost's atom (6), a `GrantDynamicStats` holding a fixed bonus (3), a
     `descriptionOverride` (several), an explicit `fromZone` on a move that does not need one (2), and
     `ForceSacrificeEffect` versus `SacrificeEffect` for a bare "sacrifice a permanent" (1).** Each is
     one concept with two spellings and neither is broken; the grammar emits the one whose model says

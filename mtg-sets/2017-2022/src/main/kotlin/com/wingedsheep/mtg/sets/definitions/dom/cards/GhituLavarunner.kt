@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
@@ -38,7 +38,7 @@ val GhituLavarunner = card("Ghitu Lavarunner") {
 
     staticAbility {
         ability = ConditionalStaticAbility(
-            ability = GrantDynamicStatsEffect(
+            ability = GrantDynamicStats(
                 filter = GroupFilter.source(),
                 powerBonus = DynamicAmount.Fixed(1),
                 toughnessBonus = DynamicAmount.Fixed(0)

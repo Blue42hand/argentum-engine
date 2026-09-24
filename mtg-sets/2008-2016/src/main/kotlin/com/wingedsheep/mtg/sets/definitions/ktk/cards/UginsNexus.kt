@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventExtraTurns
-import com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect
+import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.effects.TakeExtraTurnEffect
 
 /**
@@ -30,7 +30,7 @@ val UginsNexus = card("Ugin's Nexus") {
 
     // Ability 2: Self-exile replacement + extra turn
     replacementEffect(
-        RedirectZoneChangeWithEffect(
+        RedirectZoneChangeWith(
             newDestination = Zone.EXILE,
             additionalEffect = TakeExtraTurnEffect(),
             selfOnly = true,

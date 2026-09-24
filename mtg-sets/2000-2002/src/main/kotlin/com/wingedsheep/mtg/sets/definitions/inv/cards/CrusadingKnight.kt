@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ProtectionScope
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -31,7 +31,7 @@ val CrusadingKnight = card("Crusading Knight") {
     keywordAbility(KeywordAbility.Protection(ProtectionScope.Color(Color.BLACK)))
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmount.Count(
                 player = Player.EachOpponent,

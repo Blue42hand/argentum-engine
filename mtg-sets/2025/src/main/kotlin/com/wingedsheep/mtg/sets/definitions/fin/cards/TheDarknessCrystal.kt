@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
-import com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect
+import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
@@ -52,7 +52,7 @@ val TheDarknessCrystal = card("The Darkness Crystal") {
     // this permanent so ability 3 can retrieve it) and you gain 2 life. The rider gains 2 life per
     // creature redirected, matching "you'll gain 2 life for each of them".
     replacementEffect(
-        RedirectZoneChangeWithEffect(
+        RedirectZoneChangeWith(
             newDestination = Zone.EXILE,
             additionalEffect = GainLifeEffect(2),
             selfOnly = false,

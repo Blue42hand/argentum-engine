@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.OnEnterRunEffect
+import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -43,7 +43,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * approximated by doubling an existing kind.
  *
  * **Known divergence.** "…instead of onto the battlefield" is a true entry replacement, but
- * `OnEnterRunEffect` runs just *after* the permanent is on the battlefield, so the Monster is
+ * `OnEnterRun` runs just *after* the permanent is on the battlefield, so the Monster is
  * modelled as entering and then being put into its owner's graveyard when the graveyard can't pay.
  * The observable difference is that the entry has already happened: an "enters the battlefield"
  * trigger elsewhere sees it, and so does a "whenever a creature dies" one. Closing that needs a
@@ -60,7 +60,7 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
         "+0/+2 counter on it."
 
     replacementEffect(
-        OnEnterRunEffect(
+        OnEnterRun(
             // "If you can't" is the first sentence's teeth: the exile is all-or-nothing on X, so the
             // gate is asked *before* anything is exiled and the else branch is the entry failing.
             // Without it `ChooseExactly` quietly clamps to however many creature cards the graveyard

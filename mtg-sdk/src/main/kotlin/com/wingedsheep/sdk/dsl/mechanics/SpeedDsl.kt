@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.ModifyLifeLoss
 import com.wingedsheep.sdk.scripting.ModifyMillAmount
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
+import com.wingedsheep.sdk.scripting.ReplaceDrawWith
 import com.wingedsheep.sdk.scripting.ReplacementEffect
 import com.wingedsheep.sdk.scripting.StaticAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
@@ -239,7 +239,7 @@ class MaxSpeedBuilder {
             is ModifyDamageAmount -> effect.copy(restrictions = effect.restrictions + MAX_SPEED_GATE)
             is ModifyDrawAmount -> effect.copy(restrictions = effect.restrictions + MAX_SPEED_GATE)
             is ModifyMillAmount -> effect.copy(restrictions = effect.restrictions + MAX_SPEED_GATE)
-            is ReplaceDrawWithEffect -> effect.copy(restrictions = effect.restrictions + MAX_SPEED_GATE)
+            is ReplaceDrawWith -> effect.copy(restrictions = effect.restrictions + MAX_SPEED_GATE)
             is ModifyLifeGain -> effect.copy(restrictions = effect.restrictions + MAX_SPEED_GATE)
             is ModifyLifeLoss -> effect.copy(restrictions = effect.restrictions + MAX_SPEED_GATE)
             is LifeLossFloor -> effect.copy(restrictions = effect.restrictions + MAX_SPEED_GATE)

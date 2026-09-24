@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
@@ -37,7 +37,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * Implementation: a disturb card (CR 702.146) in the shape of [TwinbladeGeist]. The front's
  * star/star is a [SetBasePowerToughnessDynamicStatic] CDA over the same count the back's
- * [GrantDynamicStatsEffect] adds as a Layer 7c bonus — one shared [spiritsAndEnchantmentsYouControl]
+ * [GrantDynamicStats] adds as a Layer 7c bonus — one shared [spiritsAndEnchantmentsYouControl]
  * amount, a homogeneous `or` of two filters so "Spirits and/or enchantments" counts an enchantment
  * creature Spirit once. The front's protection is the intrinsic
  * [KeywordAbility.protectionFromSubtype]; the Aura grants the same quality as the projected
@@ -123,7 +123,7 @@ private val KatildasRisingDawn = card("Katilda's Rising Dawn") {
         ability = GrantKeyword(PROTECTION_FROM_VAMPIRES)
     }
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = spiritsAndEnchantmentsYouControl,
             toughnessBonus = spiritsAndEnchantmentsYouControl,

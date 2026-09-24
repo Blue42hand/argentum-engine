@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -29,7 +29,7 @@ val BrightspearZealot = card("Brightspear Zealot") {
 
     staticAbility {
         ability = ConditionalStaticAbility(
-            ability = GrantDynamicStatsEffect(
+            ability = GrantDynamicStats(
                 filter = GroupFilter.source(),
                 powerBonus = DynamicAmount.Fixed(2),
                 toughnessBonus = DynamicAmount.Fixed(0)

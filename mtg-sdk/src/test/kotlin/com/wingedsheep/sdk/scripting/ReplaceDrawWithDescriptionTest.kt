@@ -8,7 +8,7 @@ import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.string.shouldStartWith
 
 /**
- * `ReplaceDrawWithEffect.description` appends its `restrictions` clause unconditionally:
+ * `ReplaceDrawWith.description` appends its `restrictions` clause unconditionally:
  *
  * ```kotlin
  * append("If ${appliesTo.description} while $restrictionDesc, ")
@@ -29,10 +29,10 @@ import io.kotest.matchers.string.shouldStartWith
  */
 class ReplaceDrawWithEffectDescriptionTest : DescribeSpec({
 
-    describe("ReplaceDrawWithEffect.description") {
+    describe("ReplaceDrawWith.description") {
 
         it("reads naturally when there are no restrictions") {
-            val effect = ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(2))
+            val effect = ReplaceDrawWith(replacementEffect = DrawCardsEffect(2))
 
             effect.description shouldNotContain " while ,"
             effect.description shouldNotContain " while "
@@ -40,7 +40,7 @@ class ReplaceDrawWithEffectDescriptionTest : DescribeSpec({
         }
 
         it("reads naturally when the replacement is optional and unrestricted") {
-            val effect = ReplaceDrawWithEffect(
+            val effect = ReplaceDrawWith(
                 replacementEffect = DrawCardsEffect(1),
                 optional = true
             )
@@ -51,7 +51,7 @@ class ReplaceDrawWithEffectDescriptionTest : DescribeSpec({
         }
 
         it("keeps the 'while <condition>' clause when restrictions are present") {
-            val effect = ReplaceDrawWithEffect(
+            val effect = ReplaceDrawWith(
                 replacementEffect = DrawCardsEffect(2),
                 restrictions = listOf(Conditions.EmptyHand)
             )

@@ -63,7 +63,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect
+import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.ZoneChangeCause
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
@@ -818,7 +818,7 @@ object ZoneMovementUtils {
                         val linkSource = if (effect.linkToSource && effect.newDestination == Zone.EXILE) permanentId else null
                         return ZoneChangeRedirectResult(effect.newDestination, linkSourceId = linkSource)
                     }
-                    is RedirectZoneChangeWithEffect -> {
+                    is RedirectZoneChangeWith -> {
                         // selfOnly: only applies when the entity being moved IS this permanent
                         if (effect.selfOnly && permanentId != entityId) continue
 
@@ -930,7 +930,7 @@ object ZoneMovementUtils {
     }
 
     /**
-     * Apply the additional effect from a RedirectZoneChangeWithEffect replacement.
+     * Apply the additional effect from a RedirectZoneChangeWith replacement.
      * Supports TakeExtraTurnEffect (Ugin's Nexus), AddCountersEffect (Darigaaz Reincarnated),
      * and GainLifeEffect (The Darkness Crystal — "instead exile it and you gain 2 life").
      *

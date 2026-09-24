@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Equip {3}
  *
  * Composed entirely from existing primitives:
- *   1. [GrantKeyword] first strike + [GrantDynamicStatsEffect] +X/+0 on [Filters.EquippedCreature],
+ *   1. [GrantKeyword] first strike + [GrantDynamicStats] +X/+0 on [Filters.EquippedCreature],
  *      where X is a graveyard-count [DynamicAmount] over instant/sorcery cards in your graveyard.
  *   2. A [Triggers.DealsCombatDamageToPlayer]-shaped trigger bound to the equipped creature
  *      ([TriggerBinding.ATTACHED]). "That damage" is read from the triggering damage event via
@@ -57,7 +57,7 @@ val Glamdring = card("Glamdring") {
 
     // ...and gets +1/+0 for each instant and sorcery card in your graveyard.
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = Filters.EquippedCreature,
             powerBonus = DynamicAmounts.zone(
                 Player.You,

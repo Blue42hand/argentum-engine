@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Cycling {W}{U}
  *
  * Modeling:
- * - The lord is a continuous static ([GrantDynamicStatsEffect]) over the union group
+ * - The lord is a continuous static ([GrantDynamicStats]) over the union group
  *   "artifact creatures you control OR Heroes you control" (Hero is a creature subtype, so the
  *   second branch is `Creature.withSubtype("Hero")`). The two homogeneous `youControl` branches
  *   flatten into one `CardPredicate.Or` via the `or` infix on [GameObjectFilter].
@@ -60,7 +60,7 @@ val CidTimelessArtificer = card("Cid, Timeless Artificer") {
                 GameObjectFilter.Any.withSubtype(Subtype.ARTIFICER),
             ),
         )
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter(
                 GameObjectFilter.ArtifactCreature.youControl() or
                     GameObjectFilter.Creature.withSubtype("Hero").youControl(),

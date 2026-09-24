@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -50,7 +50,7 @@ class AlphaStatusTest : FunSpec({
                 filter = GameObjectFilter.Creature.sharingCreatureTypeWith(EffectTarget.AffectedEntity),
                 excludeSelf = true,
             )
-            ability = GrantDynamicStatsEffect(
+            ability = GrantDynamicStats(
                 filter = GroupFilter.attachedCreature(),
                 powerBonus = DynamicAmount.Multiply(sharedTypeCount, 2),
                 toughnessBonus = DynamicAmount.Multiply(sharedTypeCount, 2),

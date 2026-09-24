@@ -415,7 +415,7 @@ data class RedirectZoneChange(
  */
 @SerialName("OnEnterRunEffect")
 @Serializable
-data class OnEnterRunEffect(
+data class OnEnterRun(
     val effect: Effect,
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Any,
@@ -1114,7 +1114,7 @@ data class HealOtherDamage(
  * [EventPattern], so the announcement-only contract above is a compile error to violate rather
  * than a runtime surprise. The per-card [EventPattern.DrawEvent] does not terminate for this
  * type: modifying a draw count without drawing a card leaves the game state unchanged, so the
- * draw loop would re-check, re-match and re-apply forever. Use [ReplaceDrawWithEffect] for a
+ * draw loop would re-check, re-match and re-apply forever. Use [ReplaceDrawWith] for a
  * genuinely per-card replacement.
  *
  * Examples:
@@ -1222,7 +1222,7 @@ data class ModifyMillAmount(
  */
 @SerialName("ReplaceDrawWith")
 @Serializable
-data class ReplaceDrawWithEffect(
+data class ReplaceDrawWith(
     val replacementEffect: Effect,
     override val optional: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.DrawEvent(),
@@ -1266,7 +1266,7 @@ data class ReplaceDrawWithEffect(
  * [EventPattern.ConnivedEvent] (CR 701.50). Any other pattern never matches — the two executors
  * below are the only consumers.
  *
- * Modeled on [ReplaceDrawWithEffect]: like draw replacement, neither explore nor connive is
+ * Modeled on [ReplaceDrawWith]: like draw replacement, neither explore nor connive is
  * dispatched as a generic replaceable event, so `ExploreEffectExecutor` / `ConniveEffectExecutor`
  * consult this directly at action time. On a match the executor re-issues the action as
  * `Composite([prefixEffect], <action>(sameCreature, replacementsApplied = true))`, reusing the
@@ -2294,7 +2294,7 @@ data class PreventExtraTurns(
  */
 @SerialName("RedirectZoneChangeWithEffect")
 @Serializable
-data class RedirectZoneChangeWithEffect(
+data class RedirectZoneChangeWith(
     val newDestination: Zone,
     val additionalEffect: Effect,
     val selfOnly: Boolean = false,

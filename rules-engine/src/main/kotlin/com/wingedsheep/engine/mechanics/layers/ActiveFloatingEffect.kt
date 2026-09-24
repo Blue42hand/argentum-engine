@@ -515,7 +515,7 @@ sealed interface SerializableModification {
      * @property sourceName The source's name (for UI display)
      */
     @Serializable
-    data class ReplaceDrawWithEffect(
+    data class ReplaceDrawWith(
         val replacementEffect: Effect,
         val targets: List<ChosenTarget> = emptyList(),
         val namedTargets: Map<String, ChosenTarget> = emptyMap(),
@@ -539,7 +539,7 @@ sealed interface SerializableModification {
         )
 
         override fun toReplacementEffect(controllerId: EntityId): ReplacementEffect =
-            com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect(
+            com.wingedsheep.sdk.scripting.ReplaceDrawWith(
                 replacementEffect = replacementEffect,
                 appliesTo = EventPattern.DrawEvent()
             )
@@ -829,8 +829,8 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.PreventAllDamageDealtBy -> Modification.NoOp
     // RedirectNextDamage doesn't map to a layer modification - it's checked during damage resolution directly
     is SerializableModification.RedirectNextDamage -> Modification.NoOp
-    // ReplaceDrawWithEffect doesn't map to a layer modification - it's checked during draw execution directly
-    is SerializableModification.ReplaceDrawWithEffect -> Modification.NoOp
+    // ReplaceDrawWith doesn't map to a layer modification - it's checked during draw execution directly
+    is SerializableModification.ReplaceDrawWith -> Modification.NoOp
     // PreventNextDamageFromMatching doesn't map to a layer modification - it's checked during damage resolution directly
     is SerializableModification.PreventNextDamageFromMatching -> Modification.NoOp
     // ExileOnDeath doesn't map to a layer modification - it's checked during SBA creature death

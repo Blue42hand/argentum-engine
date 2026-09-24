@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * Two pieces, both assembled from existing primitives:
  *
- *  - **The buff** is the With Great Power shape — [GrantDynamicStatsEffect] over
+ *  - **The buff** is the With Great Power shape — [GrantDynamicStats] over
  *    [GroupFilter.source] with `DynamicAmount.Multiply(equipmentAttachedToSelf(), 2)`. The
  *    attachment count is read off *projected* subtypes, so a permanent that becomes (or stops
  *    being) an Equipment is counted correctly, and the bonus recomputes continuously as Equipment
@@ -64,7 +64,7 @@ val WinterSoldierIcyAssassin = card("Winter Soldier, Icy Assassin") {
     keywords(Keyword.VIGILANCE, Keyword.MENACE)
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmount.Multiply(DynamicAmounts.equipmentAttachedToSelf(), 2),
             toughnessBonus = DynamicAmount.Fixed(0)

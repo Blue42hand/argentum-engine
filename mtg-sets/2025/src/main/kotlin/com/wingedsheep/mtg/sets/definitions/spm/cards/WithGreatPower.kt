@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.RedirectDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -35,7 +35,7 @@ val WithGreatPower = card("With Great Power . . .") {
 
     // Enchanted creature gets +2/+2 for each Aura and Equipment attached to it.
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = DynamicAmount.Multiply(DynamicAmounts.attachmentsOnEnchantedCreature(), 2),
             toughnessBonus = DynamicAmount.Multiply(DynamicAmounts.attachmentsOnEnchantedCreature(), 2)

@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * When this creature is turned face up, search your library for up to two Forest cards and reveal
  * them. Put one of them onto the battlefield tapped and the other into your hand, then shuffle.
  *
- * A printed 0/0 that stays alive only because of its own static ([GrantDynamicStatsEffect] over
+ * A printed 0/0 that stays alive only because of its own static ([GrantDynamicStats] over
  * [GroupFilter.source]) — it is a continuous effect recomputed in the projection, so playing or
  * losing a Forest resizes it immediately and the state-based-action check kills it the moment you
  * control none. Cast face down for {3} it is a plain 2/2 with ward {2} instead: a face-down permanent
@@ -62,7 +62,7 @@ val FlourishingBloomKin = card("Flourishing Bloom-Kin") {
     toughness = 0
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmounts.battlefield(
                 Player.You,

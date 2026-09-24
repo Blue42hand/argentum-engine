@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.maxSpeed
 import com.wingedsheep.sdk.dsl.startYourEngines
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -109,7 +109,7 @@ class SpeedMechanicScenarioTest : ScenarioTestBase() {
         power = 1
         toughness = 1
         staticAbility {
-            ability = GrantDynamicStatsEffect(
+            ability = GrantDynamicStats(
                 filter = GroupFilter.source(),
                 powerBonus = DynamicAmounts.speed(Player.You),
                 toughnessBonus = DynamicAmount.Fixed(0)

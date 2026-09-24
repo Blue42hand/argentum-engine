@@ -31,7 +31,7 @@ import com.wingedsheep.engine.core.Outcome
  * Multiversal Passage (SPM #180): "As this land enters, choose a basic land type. Then you may
  * pay 2 life. If you don't, it enters tapped. This land is the chosen type."
  *
- * The whole clause is one [com.wingedsheep.sdk.scripting.OnEnterRunEffect] composing three atoms:
+ * The whole clause is one [com.wingedsheep.sdk.scripting.OnEnterRun] composing three atoms:
  * ChooseOption(BASIC_LAND_TYPE) → SetLandType(Self, Permanent, fromChosen) → an optional pay-2-life
  * gate whose decline branch taps the land. These tests prove the chosen type sticks (subtype +
  * intrinsic mana), and that the pay/decline branch controls tapped-ness.

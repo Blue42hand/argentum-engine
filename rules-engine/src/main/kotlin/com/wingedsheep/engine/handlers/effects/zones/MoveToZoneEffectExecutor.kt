@@ -40,7 +40,7 @@ import com.wingedsheep.engine.core.Outcome
  * Delegates all zone movement to [ZoneTransitionService] for consistent cleanup.
  *
  * @param effectExecutor the registry's recursive executor, used to run an entering permanent's
- *   [com.wingedsheep.sdk.scripting.OnEnterRunEffect] replacement. Required rather than nullable:
+ *   [com.wingedsheep.sdk.scripting.OnEnterRun] replacement. Required rather than nullable:
  *   a caller that provably never reaches the battlefield passes a throwing stub (the
  *   bounce-to-hand reuse in `ReturnSpellOrPermanentToOwnersHandExecutor`), so if that destination
  *   ever changes it fails loudly instead of silently skipping a rules-required replacement.
@@ -182,7 +182,7 @@ class MoveToZoneEffectExecutor(
             )
         )
 
-        // "As this permanent enters, run [effect]" (OnEnterRunEffect) — the self-replacement
+        // "As this permanent enters, run [effect]" (OnEnterRun) — the self-replacement
         // PlayLandHandler runs inline for a played land, applied here for every *other* way a card
         // reaches the battlefield: reanimation, a blink or earthbend return from exile. Without it
         // a permanent whose entry choice lives in this replacement — Multiversal Passage's "as

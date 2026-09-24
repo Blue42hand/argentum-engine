@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
+import com.wingedsheep.sdk.scripting.ReplaceDrawWith
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
@@ -56,7 +56,7 @@ val SharedFate = card("Shared Fate") {
         "and cast spells from among those cards."
 
     replacementEffect(
-        ReplaceDrawWithEffect(
+        ReplaceDrawWith(
             appliesTo = EventPattern.DrawEvent(player = Player.Each),
             replacementEffect = Effects.Pipeline {
                 val sharedFateExiled = gather(

@@ -669,12 +669,12 @@ class ModalAndCloneContinuationResumer(
         events.addAll(syntheticRiotEvents)
         events.addAll(enterEvents)
 
-        // The generic "as this permanent enters, …" replacement ([OnEnterRunEffect]) — the same
+        // The generic "as this permanent enters, …" replacement ([OnEnterRun]) — the same
         // call `StackResolver.resolvePermanentSpell` makes just after `enterPermanentOnBattlefield`.
         // It lives at both call sites because `enterPermanentOnBattlefield` returns a
         // `(GameState, events)` pair and this replacement may *pause*, which that signature can't
         // express. Without it here, a card carrying an `EntersWithChoice` **and** an
-        // `OnEnterRunEffect` silently loses the second one: the choice pauses before the permanent
+        // `OnEnterRun` silently loses the second one: the choice pauses before the permanent
         // enters, and this resume path is where entry is completed (Grifter's Blade — "choose a
         // creature you control it could be attached to. If you do, it enters attached to that
         // creature", which is the CREATURE_ON_BATTLEFIELD choice plus an attach).

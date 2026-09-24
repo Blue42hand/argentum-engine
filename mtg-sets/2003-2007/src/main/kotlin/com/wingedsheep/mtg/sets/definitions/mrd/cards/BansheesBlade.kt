@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever equipped creature deals combat damage, put a charge counter on this Equipment.
  * Equip {2}
  *
- * The Withering Hex shape, on an Equipment instead of an Aura: a [GrantDynamicStatsEffect] over
+ * The Withering Hex shape, on an Equipment instead of an Aura: a [GrantDynamicStats] over
  * [GroupFilter.attachedCreature] whose bonus reads the charge counters off the *Equipment*
  * ([DynamicAmounts.countersOnSelf] — `EffectTarget.Self` is the permanent bearing the static,
  * not the creature it buffs). It recomputes continuously, so the bonus tracks counters as they
@@ -42,7 +42,7 @@ val BansheesBlade = card("Banshee's Blade") {
 
     staticAbility {
         val chargeCounters = DynamicAmounts.countersOnSelf(CounterType.CHARGE)
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = chargeCounters,
             toughnessBonus = chargeCounters,

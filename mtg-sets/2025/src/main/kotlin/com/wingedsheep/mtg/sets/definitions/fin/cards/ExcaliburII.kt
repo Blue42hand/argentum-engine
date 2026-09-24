@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *   - A [Triggers.YouGainLife] trigger adds a charge counter to the Equipment
  *     ([EffectTarget.Self]). Per Scryfall rulings, each life-gaining *event* triggers this
  *     once regardless of how much life it represents, which is exactly how YouGainLife fires.
- *   - A [GrantDynamicStatsEffect] (Layer 7c bonus) on [GroupFilter.attachedCreature] reads
+ *   - A [GrantDynamicStats] (Layer 7c bonus) on [GroupFilter.attachedCreature] reads
  *     the live charge-counter count off the source via
  *     [EffectTarget.Self] + [EntityNumericProperty.CounterCount], so the bonus tracks
  *     the counter total continuously.
@@ -47,7 +47,7 @@ val ExcaliburII = card("Excalibur II") {
             EffectTarget.Self,
             EntityNumericProperty.CounterCount(CounterType.CHARGE)
         )
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = chargeCounters,
             toughnessBonus = chargeCounters

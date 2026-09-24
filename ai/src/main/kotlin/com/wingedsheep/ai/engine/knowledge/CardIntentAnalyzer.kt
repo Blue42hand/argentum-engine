@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.EntersTapped
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.StaticAbility
@@ -395,7 +395,7 @@ object CardIntentAnalyzer {
             else -> emptySet()
         }
 
-        is GrantDynamicStatsEffect ->
+        is GrantDynamicStats ->
             if (static.filter.scope == Scope.Battlefield) setOf(IntentTag.ANTHEM) else setOf(IntentTag.PUMP)
 
         is GrantKeyword -> keywordTags(static.keyword)

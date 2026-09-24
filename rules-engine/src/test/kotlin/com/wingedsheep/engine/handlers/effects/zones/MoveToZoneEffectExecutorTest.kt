@@ -29,11 +29,11 @@ import com.wingedsheep.engine.core.Outcome
 class MoveToZoneEffectExecutorTest : FunSpec({
 
     val cardRegistry = com.wingedsheep.engine.registry.CardRegistry()
-    // None of the cases below use a card definition carrying an OnEnterRunEffect, so the
+    // None of the cases below use a card definition carrying an OnEnterRun, so the
     // entering-permanent recursion must never fire; throwing makes that explicit.
     val executor = MoveToZoneEffectExecutor(
         cardRegistry,
-        effectExecutor = { _, _, _ -> error("no OnEnterRunEffect expected in this test") }
+        effectExecutor = { _, _, _ -> error("no OnEnterRun expected in this test") }
     )
 
     val playerId = EntityId.generate()

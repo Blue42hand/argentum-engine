@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.OnEnterRunEffect
+import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.effects.PayAnyAmountOfLifeAsEntersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
@@ -58,7 +58,7 @@ val NamelessRace = card("Nameless Race") {
     )
 
     replacementEffect(
-        OnEnterRunEffect(
+        OnEnterRun(
             PayAnyAmountOfLifeAsEntersEffect(
                 maxAmount = DynamicAmount.Add(
                     DynamicAmount.Count(

@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -40,7 +40,7 @@ private const val SLUG_TOKEN_IMAGE =
  *    ability**", and the third "triggers when a creature an opponent controls with a slime counter
  *    on it dies **for any reason**, not just due to its toughness being decreased".
  *  - **"for each slime counter on *them*" is a per-affected-permanent amount**, not a source
- *    tally. [GrantDynamicStatsEffect] is a Layer 7c bonus whose `DynamicAmount` is re-evaluated for
+ *    tally. [GrantDynamicStats] is a Layer 7c bonus whose `DynamicAmount` is re-evaluated for
  *    every creature it touches, with `EffectContext.affectedEntityId` bound to that creature — so
  *    [EffectTarget.AffectedEntity] reads *its own* counters. This is Withering Hex's expression
  *    (`Multiply(counterCount, -1)`, the negation idiom — there is no `Negate`) with `Source`
@@ -92,7 +92,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
             ),
             -1
         )
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.AllCreaturesOpponentsControl,
             powerBonus = slimeOnIt,
             toughnessBonus = slimeOnIt

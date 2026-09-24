@@ -21,7 +21,7 @@ class ZonesExecutors(
 ) : ExecutorModule {
 
     // Late-bound registry recursion so [MoveToZoneEffectExecutor] can run an entering permanent's
-    // OnEnterRunEffect replacement ("as this enters, …") when an effect puts a card onto the
+    // OnEnterRun replacement ("as this enters, …") when an effect puts a card onto the
     // battlefield. Mirrors PermanentExecutors' wiring: read through the ref at execution time, so
     // constructing this module before initialization (as some unit tests do) never trips over an
     // unset property.

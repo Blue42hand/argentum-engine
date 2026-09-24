@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -66,7 +66,7 @@ val VrenTheRelentless = card("Vren, the Relentless") {
             creatureTypes = setOf("Rat"),
             imageUri = "https://cards.scryfall.io/normal/front/1/c/1c0977b2-3342-4b7e-b1c7-f06bd8ab7fbf.jpg?1721428982",
             staticAbilities = listOf(
-                GrantDynamicStatsEffect(
+                GrantDynamicStats(
                     filter = GroupFilter.source(),
                     powerBonus = DynamicAmount.AggregateBattlefield(
                         player = Player.You,

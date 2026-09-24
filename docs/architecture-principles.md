@@ -935,7 +935,7 @@ A floating effect with this duration is removed after its replacement effect is 
 end of turn if never used. The Words cycle cards (Words of War, Words of Wind, etc.) use this mechanism.
 An activated ability creates a `Duration.NextUse` floating
 shield that replaces the next draw with a stored effect. Activation-time variables (`{X}` value,
-targets, named targets) are captured in `SerializableModification.ReplaceDrawWithEffect` and
+targets, named targets) are captured in `SerializableModification.ReplaceDrawWith` and
 replayed when the shield is consumed.
 
 **Why a central processor instead of per-category dispatchers?**

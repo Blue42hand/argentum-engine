@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.MultiplyTokenCreation
-import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
+import com.wingedsheep.sdk.scripting.ReplaceDrawWith
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -41,7 +41,7 @@ val BardKingOfDale = card("Bard, King of Dale") {
     keywords(Keyword.REACH, Keyword.VIGILANCE)
 
     replacementEffect(
-        ReplaceDrawWithEffect(
+        ReplaceDrawWith(
             replacementEffect = DrawCardsEffect(2),
             appliesTo = EventPattern.DrawEvent(
                 player = Player.You,

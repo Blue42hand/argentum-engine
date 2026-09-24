@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -53,7 +53,7 @@ val BannerOfKinship = card("Banner of Kinship") {
 
     staticAbility {
         val fellowship = DynamicAmounts.countersOnSelf(CounterType.FELLOWSHIP)
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.ChosenSubtypeCreatures().youControl(),
             powerBonus = fellowship,
             toughnessBonus = fellowship

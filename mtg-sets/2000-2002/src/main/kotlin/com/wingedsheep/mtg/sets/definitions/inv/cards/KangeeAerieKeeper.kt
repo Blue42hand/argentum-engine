@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -52,7 +52,7 @@ val KangeeAerieKeeper = card("Kangee, Aerie Keeper") {
 
     staticAbility {
         val featherCount = DynamicAmounts.countersOnSelf(CounterType.FEATHER)
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Bird"), excludeSelf = true),
             powerBonus = featherCount,
             toughnessBonus = featherCount

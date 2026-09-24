@@ -40,7 +40,7 @@ class ReturnSpellOrPermanentToOwnersHandExecutor(
     // Bounce is always to hand, so the entering-permanent recursion can never fire. A throwing
     // stub rather than a real executor keeps that assumption honest: if this delegation ever
     // grows a battlefield destination, it fails here instead of silently skipping the entering
-    // permanent's OnEnterRunEffect replacement.
+    // permanent's OnEnterRun replacement.
     private val permanentBounce = MoveToZoneEffectExecutor(
         cardRegistry,
         effectExecutor = { _, _, _ ->

@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -27,7 +27,7 @@ val RampagingCyclops = card("Rampaging Cyclops") {
 
     staticAbility {
         ability = ConditionalStaticAbility(
-            ability = GrantDynamicStatsEffect(
+            ability = GrantDynamicStats(
                 filter = GroupFilter.source(),
                 powerBonus = DynamicAmount.Fixed(-2),
                 toughnessBonus = DynamicAmount.Fixed(0)

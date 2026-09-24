@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * battlefield tapped.)
  *
  * The self-buff is the standard "gets +X/+0 where X is a dynamic amount" static (Tempest Djinn
- * shape): a Layer 7c [GrantDynamicStatsEffect] bonus over [GroupFilter.source], with `powerBonus`
+ * shape): a Layer 7c [GrantDynamicStats] bonus over [GroupFilter.source], with `powerBonus`
  * = the number of distinct colors among Allies you control. That count reuses the generic
  * `AggregateBattlefield(DISTINCT_COLORS)` aggregate (via [DynamicAmounts.colorsAmongPermanents]),
  * which reads each creature's projected colors — so Earthen Ally (a green Ally) counts its own
@@ -48,7 +48,7 @@ val EarthenAlly = card("Earthen Ally") {
         "return it to the battlefield tapped.)"
 
     staticAbility {
-        ability = GrantDynamicStatsEffect(
+        ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmounts.colorsAmongPermanents(
                 Player.You,

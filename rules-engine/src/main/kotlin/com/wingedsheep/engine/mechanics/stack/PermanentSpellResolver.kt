@@ -397,7 +397,7 @@ internal class PermanentSpellResolver(
 
     /**
      * Put the permanent onto the battlefield ([PermanentEntry]) once no "as this enters" question
-     * is outstanding, then run its generic `OnEnterRunEffect` replacement.
+     * is outstanding, then run its generic `OnEnterRun` replacement.
      */
     private fun enterBattlefield(
         state: GameState,
@@ -415,7 +415,7 @@ internal class PermanentSpellResolver(
             emptyList()
         }
 
-        // The generic "as this permanent enters, …" replacement ([OnEnterRunEffect]). The move path
+        // The generic "as this permanent enters, …" replacement ([OnEnterRun]). The move path
         // (MoveToZoneEffectExecutor) and the land path (PlayLandHandler) already run it; a permanent
         // *cast as a spell* did not, which made the replacement silently inert on every creature and
         // enchantment carrying it — Nameless Race's "as this creature enters, pay any amount of

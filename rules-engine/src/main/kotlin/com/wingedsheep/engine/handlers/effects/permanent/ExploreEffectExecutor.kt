@@ -34,7 +34,7 @@ import kotlin.reflect.KClass
  *
  * Before the explore proper, applicable [com.wingedsheep.sdk.scripting.ModifyKeywordAction]
  * replacements (CR 614) on the battlefield are consulted via [KeywordActionReplacements] — like
- * [com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect], explore isn't a generic replaceable
+ * [com.wingedsheep.sdk.scripting.ReplaceDrawWith], explore isn't a generic replaceable
  * event, so it's checked here directly. A match re-issues the explore as
  * `Composite(prefixEffect, ExploreEffect(sameCreature, replacementsApplied = true))` through the
  * registry [recurse] runner, reusing the composite executor's pause-sequencing (a Scry prefix

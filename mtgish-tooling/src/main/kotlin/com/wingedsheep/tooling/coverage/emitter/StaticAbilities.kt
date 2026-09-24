@@ -248,7 +248,7 @@ private fun scaledBonus(count: Dsl, multiplier: Int): Dsl = when (multiplier) {
 
 /**
  * A self-buff `PermanentLayerEffect(ThisPermanent, [AdjustPTForEach])` -> one
- * `staticAbility { ability = GrantDynamicStatsEffect(filter = GroupFilter.source(), powerBonus = …,
+ * `staticAbility { ability = GrantDynamicStats(filter = GroupFilter.source(), powerBonus = …,
  * toughnessBonus = …) }`. `AdjustPTForEach`'s args are `[powerMult, toughnessMult, countNode]`:
  * "this creature gets +powerMult/+toughnessMult for each [countNode]". The per-permanent count is
  * rendered as `DynamicAmounts.battlefield(Player.You, …).count()` — the `AggregateBattlefield`
@@ -287,7 +287,7 @@ private fun EmitCtx.selfDynamicStatsBlock(rule: JsonObject): List<Stmt>? {
             stmts.add(
                 staticAbilityStmt(
                     call(
-                        "GrantDynamicStatsEffect",
+                        "GrantDynamicStats",
                         arg("filter", call("GroupFilter.source")),
                         arg("powerBonus", handBonus(powerMult)),
                         arg("toughnessBonus", handBonus(toughnessMult)),
@@ -315,7 +315,7 @@ private fun EmitCtx.selfDynamicStatsBlock(rule: JsonObject): List<Stmt>? {
         stmts.add(
             staticAbilityStmt(
                 call(
-                    "GrantDynamicStatsEffect",
+                    "GrantDynamicStats",
                     arg("filter", call("GroupFilter.source")),
                     arg("powerBonus", bonus(powerMult)),
                     arg("toughnessBonus", bonus(toughnessMult)),
