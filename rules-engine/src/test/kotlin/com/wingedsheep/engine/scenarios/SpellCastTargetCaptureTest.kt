@@ -84,7 +84,7 @@ class SpellCastTargetCaptureTest : FunSpec({
             trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature)
             effect = ForEachInCollectionEffect(
                 collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
             description = "Whenever you cast a spell that targets one or more creatures, put a " +
                 "+1/+1 counter on each of those creatures."
@@ -101,7 +101,7 @@ class SpellCastTargetCaptureTest : FunSpec({
             trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature.youControl())
             effect = ForEachInCollectionEffect(
                 collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
             description = "Whenever you cast a spell that targets one or more creatures you " +
                 "control, put a +1/+1 counter on each of those creatures."
@@ -133,7 +133,7 @@ class SpellCastTargetCaptureTest : FunSpec({
             trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature)
             effect = ForEachInCollectionEffect(
                 collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
-                effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)
+                effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)
             )
             description = "Whenever you cast a spell that targets one or more creatures, those " +
                 "creatures gain flying until end of turn."

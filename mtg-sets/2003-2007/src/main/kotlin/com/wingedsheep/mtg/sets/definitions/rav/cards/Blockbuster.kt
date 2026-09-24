@@ -32,7 +32,7 @@ val Blockbuster = card("Blockbuster") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.tapped()),
-                DealDamageEffect(3, EffectTarget.Self)
+                DealDamageEffect(3, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(3, EffectTarget.Controller)))
         )

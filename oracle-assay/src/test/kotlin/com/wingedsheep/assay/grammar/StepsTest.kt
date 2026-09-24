@@ -441,7 +441,7 @@ class StepsTest : StringSpec({
     }
 
     // The mass effects: one iteration over a GroupFilter with the per-member effect written against
-    // EffectTarget.Self. Four printed shapes for one model, which is why the templates are
+    // EffectTarget.IterationEntity. Four printed shapes for one model, which is why the templates are
     // enumerated and the group filter is Filters slotted whole.
     "a group effect is one iteration over a filter" {
         fragment("Creatures you control get +1/+1 until end of turn.") shouldBe CardFragment(
@@ -450,7 +450,7 @@ class StepsTest : StringSpec({
                     com.wingedsheep.sdk.scripting.filters.unified.GroupFilter(
                         GameObjectFilter.Creature.youControl()
                     ),
-                    Effects.ModifyStats(1, 1, com.wingedsheep.sdk.scripting.targets.EffectTarget.Self),
+                    Effects.ModifyStats(1, 1, com.wingedsheep.sdk.scripting.targets.EffectTarget.IterationEntity),
                 )
             )
         )

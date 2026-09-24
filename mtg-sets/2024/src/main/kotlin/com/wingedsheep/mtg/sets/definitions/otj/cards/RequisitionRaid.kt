@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * `chooseCount = modes.size`, and per-mode `additionalManaCost` (CR 702.166).
  * Mode 2 distributes a +1/+1 counter over every creature the targeted player
  * controls (`ForEachInGroup` over a target-relative group filter, with the counter
- * placed on each iterated permanent via [EffectTarget.Self]).
+ * placed on each iterated permanent via [EffectTarget.IterationEntity]).
  */
 val RequisitionRaid = card("Requisition Raid") {
     manaCost = "{W}"
@@ -55,7 +55,7 @@ val RequisitionRaid = card("Requisition Raid") {
                         filter = GroupFilter(
                             GameObjectFilter.Creature.targetPlayerControls(EffectTarget.ContextTarget(0))
                         ),
-                        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                     ),
                     targetRequirements = listOf(Targets.Player),
                     description = "+ {1} — Put a +1/+1 counter on each creature target player controls.",

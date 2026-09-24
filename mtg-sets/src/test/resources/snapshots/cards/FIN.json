@@ -1215,7 +1215,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1745,7 +1745,7 @@
                             "type": "BoundVariable",
                             "name": "target creature an opponent controls"
                         },
-                        "damageSource": "Self"
+                        "damageSource": "IterationEntity"
                     }
                 },
                 "targetRequirement": {
@@ -1920,7 +1920,7 @@
                                 },
                                 "body": {
                                     "type": "AttachTargetEquipmentToCreature",
-                                    "equipmentTarget": "Self",
+                                    "equipmentTarget": "IterationEntity",
                                     "creatureTarget": {
                                         "type": "BoundVariable",
                                         "name": "target creature you control"
@@ -2843,7 +2843,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "INDESTRUCTIBLE",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -3419,12 +3419,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "LIFELINK",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -4818,7 +4818,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -5297,12 +5297,12 @@
                                     "type": "AddCounters",
                                     "counterType": "+1/+1",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "FLYING",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -5326,12 +5326,12 @@
                                     "type": "AddCounters",
                                     "counterType": "+1/+1",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "FLYING",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -6276,12 +6276,12 @@
                                         "type": "Fixed",
                                         "amount": 2
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -6770,7 +6770,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Fire — Fire Magic deals 1 damage to each creature.",
@@ -6791,7 +6791,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Fira — Fire Magic deals 2 damage to each creature.",
@@ -6812,7 +6812,7 @@
                                 "type": "Fixed",
                                 "amount": 3
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Firaga — Fire Magic deals 3 damage to each creature.",
@@ -7462,7 +7462,7 @@
                                 "type": "RemoveCounters",
                                 "counterType": "lore",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -9966,7 +9966,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -12486,7 +12486,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -12642,7 +12642,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -12847,7 +12847,7 @@
                             },
                             "numericProperty": "Power"
                         },
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "damageSource": {
                             "type": "BoundVariable",
                             "name": "target creature you control"
@@ -13663,7 +13663,7 @@
                                 "type": "Fixed",
                                 "amount": -1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "All creatures get -1/-1 until end of turn"
@@ -14600,7 +14600,7 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "duration": "Permanent"
                             },
                             {
@@ -14608,7 +14608,7 @@
                                 "step": "END",
                                 "effect": {
                                     "type": "MoveToZone",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "destination": "Hand"
                                 }
                             }
@@ -15252,7 +15252,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HEXPROOF",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -15266,7 +15266,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "INDESTRUCTIBLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -15819,7 +15819,7 @@
                                 "type": "Fixed",
                                 "amount": 3
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +3/+3 until end of turn"
@@ -17144,7 +17144,7 @@
                             "type": "Fixed",
                             "amount": -2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -17900,7 +17900,7 @@
                             "type": "AddCounters",
                             "counterType": "+1/+1",
                             "count": 1,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "timing": "SorcerySpeed"
@@ -18406,7 +18406,7 @@
                                 "type": "Fixed",
                                 "amount": 0
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -19531,7 +19531,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -19556,7 +19556,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -19581,7 +19581,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -19606,7 +19606,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -19686,7 +19686,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -19710,7 +19710,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -19791,7 +19791,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -19808,7 +19808,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -19825,7 +19825,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -20282,13 +20282,13 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "AddCounters",
                                 "counterType": "indestructible",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -21677,7 +21677,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -22669,7 +22669,7 @@
                             "zone": "Battlefield",
                             "filter": "land Town"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Other creatures you control get +X/+X until end of turn, where X is the number of Towns you control."
@@ -22827,12 +22827,12 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FLYING",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "LIFELINK",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -24059,7 +24059,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -24571,7 +24571,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -26633,7 +26633,7 @@
                                     "type": "Fixed",
                                     "amount": -2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {

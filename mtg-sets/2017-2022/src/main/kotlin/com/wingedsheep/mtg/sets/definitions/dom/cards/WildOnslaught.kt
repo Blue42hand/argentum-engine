@@ -23,11 +23,11 @@ val WildOnslaught = card("Wild Onslaught") {
             condition = WasKicked,
             then = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.IterationEntity)
             ),
             otherwise = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
         )
     }

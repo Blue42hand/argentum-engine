@@ -111,7 +111,7 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
                         action = ForEachInCollectionEffect(
                             collection = equipment.key,
                             effect = Effects.AttachTargetEquipmentToCreature(
-                                equipmentTarget = EffectTarget.Self,
+                                equipmentTarget = EffectTarget.IterationEntity,
                                 creatureTarget = equippedCreature
                             )
                         ),
@@ -123,7 +123,7 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
                                     EntityNumericProperty.Power
                                 ),
                                 target = EffectTarget.ContextTarget(0),
-                                damageSource = EffectTarget.Self
+                                damageSource = EffectTarget.IterationEntity
                             )
                         ),
                         reflexiveTargetRequirements = listOf(

@@ -48,7 +48,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *    Chandra's last two abilities."
  *  - **The emblem** is a triggered emblem ([Effects.CreateGlobalTriggeredAbility], the Chandra,
  *    Spark Hunter shape) so it outlives Chandra. X reads the mana *actually* spent on the
- *    triggering spell — `EntityProperty(Triggering, ManaSpent)`, which sums the per-colour tallies
+ *    triggering spell — `EntityProperty(TriggeringEntity, ManaSpent)`, which sums the per-colour tallies
  *    recorded on the spell as it was cast, so cost increases and reductions are already baked in.
  */
 val ChandraDressedToKill = card("Chandra, Dressed to Kill") {

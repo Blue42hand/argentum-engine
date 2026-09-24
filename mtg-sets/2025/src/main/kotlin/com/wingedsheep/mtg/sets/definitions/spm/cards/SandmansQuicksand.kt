@@ -34,11 +34,11 @@ val SandmansQuicksand = card("Sandman's Quicksand") {
             condition = Conditions.MayhemCostWasPaid,
             then = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesOpponentsControl,
-                effect = ModifyStatsEffect(-2, -2, EffectTarget.Self)
+                effect = ModifyStatsEffect(-2, -2, EffectTarget.IterationEntity)
             ),
             otherwise = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures,
-                effect = ModifyStatsEffect(-2, -2, EffectTarget.Self)
+                effect = ModifyStatsEffect(-2, -2, EffectTarget.IterationEntity)
             )
         )
     }

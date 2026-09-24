@@ -68,7 +68,7 @@ val GruffTriplets = card("Gruff Triplets") {
                     entity = EffectTarget.Self,
                     numericProperty = EntityNumericProperty.Power,
                 ),
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
             ),
         )
         description = "When this creature dies, put a number of +1/+1 counters equal to its " +

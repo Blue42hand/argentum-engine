@@ -80,7 +80,7 @@ class EffectHandlerTest : StringSpec({
                 """[{"_LayerEffect":"SetPT","args":{"_PT":"PT","args":[1,1]}}],{"_Expiration":"UntilEndOfTurn"}]}""",
             null,
         ) shouldBe "Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature.youControl()), " +
-            "Effects.SetBasePowerAndToughness(1, 1, EffectTarget.Self, Duration.EndOfTurn))"
+            "Effects.SetBasePowerAndToughness(1, 1, EffectTarget.IterationEntity, Duration.EndOfTurn))"
     }
 
     "a SetPT riding an unsupported AddCardtype still scaffolds (no silently-dropped 'becomes an artifact')" {
@@ -215,7 +215,7 @@ class EffectHandlerTest : StringSpec({
         ) shouldBe "Effects.Composite(\n" +
             "            DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent)),\n" +
             "            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()), " +
-            "DealDamageEffect(1, EffectTarget.Self))\n" +
+            "DealDamageEffect(1, EffectTarget.IterationEntity))\n" +
             "        )"
     }
 
@@ -227,7 +227,7 @@ class EffectHandlerTest : StringSpec({
                 """{"_DamageRecipient":"EachPermanent","args":{"_Permanents":"IsCardtype","args":"Creature"}},""" +
                 """{"_DamageRecipient":"EachPlayer","args":{"_Players":"AnyPlayer"}}]}""",
         ) shouldBe "Effects.Composite(\n" +
-            "            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(1, EffectTarget.Self)),\n" +
+            "            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(1, EffectTarget.IterationEntity)),\n" +
             "            ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(1, EffectTarget.Controller)))\n" +
             "        )"
     }

@@ -1309,27 +1309,27 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FLYING",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FIRST_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "LIFELINK",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -3796,7 +3796,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -4831,7 +4831,7 @@
                     },
                     "body": {
                         "type": "Goad",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -5162,7 +5162,7 @@
                         "body": {
                             "type": "DoubleCounters",
                             "counterType": null,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "descriptionOverride": "Whenever you attack, double the number of each kind of counter on each Spider and legendary creature you control."
@@ -7869,7 +7869,7 @@
                         "type": "Fixed",
                         "amount": -2
                     },
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             },
             "otherwise": {
@@ -7890,7 +7890,7 @@
                         "type": "Fixed",
                         "amount": -2
                     },
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             }
         }
@@ -9097,12 +9097,12 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -9374,7 +9374,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -9388,7 +9388,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "INDESTRUCTIBLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -12110,7 +12110,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -12130,7 +12130,7 @@
                             "type": "ContextTarget",
                             "index": 0
                         },
-                        "damageSource": "Self"
+                        "damageSource": "IterationEntity"
                     }
                 }
             ]
@@ -13554,7 +13554,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FLYING",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -13919,7 +13919,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }

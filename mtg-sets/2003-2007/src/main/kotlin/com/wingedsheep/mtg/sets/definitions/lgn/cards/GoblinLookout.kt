@@ -31,7 +31,7 @@ val GoblinLookout = card("Goblin Lookout") {
         )
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.allCreaturesWithSubtype("Goblin"),
-            effect = ModifyStatsEffect(2, 0, EffectTarget.Self)
+            effect = ModifyStatsEffect(2, 0, EffectTarget.IterationEntity)
         )
     }
 

@@ -79,7 +79,7 @@ val StandOrFall = card("Stand or Fall") {
                 // 4. Only the chosen pile can block — the other pile can't block this turn.
                 ForEachInCollectionEffect(
                     collection = "cantBlock",
-                    effect = Effects.CantBlock(EffectTarget.Self)
+                    effect = Effects.CantBlock(EffectTarget.IterationEntity)
                 )
             )
         )

@@ -25,7 +25,7 @@ val SurgeOfThoughtweft = card("Surge of Thoughtweft") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.ModifyStats(1, 1, EffectTarget.Self)
+                Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
             ),
             Effects.If(
                 condition = Conditions.ControlPermanentOfType(Subtype.KITHKIN),

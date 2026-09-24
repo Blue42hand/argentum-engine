@@ -28,8 +28,8 @@ val DanceOfShadows = card("Dance of Shadows") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.FEAR, EffectTarget.Self)
+                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.FEAR, EffectTarget.IterationEntity)
             )
         )
     }

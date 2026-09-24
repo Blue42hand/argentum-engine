@@ -380,7 +380,7 @@
                             "type": "AddCounters",
                             "counterType": "+1/+1",
                             "count": 1,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "descriptionOverride": "Whenever Aang and La attack, put a +1/+1 counter on each tapped creature you control."
@@ -856,7 +856,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{3}{W}, {T}: Put a +1/+1 counter on each creature you control."
@@ -1626,7 +1626,7 @@
                             "type": "ContextTarget",
                             "index": 0
                         },
-                        "damageSource": "Self"
+                        "damageSource": "IterationEntity"
                     }
                 }
             ]
@@ -4344,7 +4344,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         },
@@ -5679,7 +5679,7 @@
                     },
                     "body": {
                         "type": "RemoveAllAbilities",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -7433,27 +7433,27 @@
                             {
                                 "type": "AddSubtype",
                                 "subtype": "Plains",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "AddSubtype",
                                 "subtype": "Island",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "AddSubtype",
                                 "subtype": "Swamp",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "AddSubtype",
                                 "subtype": "Mountain",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "AddSubtype",
                                 "subtype": "Forest",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -7951,7 +7951,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever you cast a spell from exile, put a +1/+1 counter on each creature you control."
@@ -7977,7 +7977,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever a permanent you control enters from exile, put a +1/+1 counter on each creature you control."
@@ -8923,7 +8923,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When Flopsie enters, put a +1/+1 counter on each creature you control."
@@ -9241,7 +9241,7 @@
                     },
                     "body": {
                         "type": "CreateTokenCopyOfTarget",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "sacrificeAtStep": "END"
                     }
                 }
@@ -9969,12 +9969,12 @@
                                     "type": "Fixed",
                                     "amount": 5
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "INDESTRUCTIBLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -10712,7 +10712,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -10958,7 +10958,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -11016,7 +11016,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Iroh's Demonstration deals 1 damage to each creature your opponents control."
@@ -11923,7 +11923,7 @@
                     },
                     "body": {
                         "type": "SetBaseStats",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "power": "XValue",
                         "toughness": "XValue",
                         "duration": "EndOfTurn"
@@ -15380,7 +15380,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{3}{R}: Dragons you control get +2/+0 until end of turn."
@@ -16300,7 +16300,7 @@
                             "type": "Fixed",
                             "amount": -2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -17668,7 +17668,7 @@
                             "player": "You",
                             "filter": "permanent Shrine"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -17692,7 +17692,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -17759,7 +17759,7 @@
                     },
                     "descriptionOverride": "Whenever this creature attacks, add {R}{R}{R}{R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -18910,7 +18910,7 @@
                             "body": {
                                 "type": "RemoveKeyword",
                                 "keyword": "HEXPROOF",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -18924,7 +18924,7 @@
                             "body": {
                                 "type": "RemoveKeyword",
                                 "keyword": "INDESTRUCTIBLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -21590,7 +21590,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -22029,7 +22029,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -22220,7 +22220,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -23133,7 +23133,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever you sacrifice another permanent, creatures you control get +1/+0 until end of turn."

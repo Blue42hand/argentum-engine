@@ -37,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    a graveyard-zone read, so base characteristics are the right source (no projection needed).
  *  - The back's {6} ability marks every creature your opponents control with
  *    [Effects.MarkMustAttackThisTurn] via [Effects.ForEachInGroup] over
- *    [GroupFilter.AllCreaturesOpponentsControl] — `EffectTarget.Self` inside the ForEach body is
+ *    [GroupFilter.AllCreaturesOpponentsControl] — `EffectTarget.IterationEntity` inside the ForEach body is
  *    the iterated creature. The marker is per-creature and this-turn only, and the engine's
  *    attack-requirement check already honours the printed rulings: a creature that can't attack
  *    (summoning sick, tapped, an attack restriction) doesn't, a cost to attack is never forced,
@@ -112,7 +112,7 @@ private val GrislyAnglerfish = card("Grisly Anglerfish") {
         cost = Costs.Mana("{6}")
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesOpponentsControl,
-            effect = Effects.MarkMustAttackThisTurn(EffectTarget.Self),
+            effect = Effects.MarkMustAttackThisTurn(EffectTarget.IterationEntity),
         )
         description = "Creatures your opponents control attack this turn if able."
     }

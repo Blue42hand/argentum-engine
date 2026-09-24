@@ -33,7 +33,7 @@ val HowlingGale = card("Howling Gale") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-                DealDamageEffect(1, EffectTarget.Self)
+                DealDamageEffect(1, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(1, EffectTarget.Controller)))
         )

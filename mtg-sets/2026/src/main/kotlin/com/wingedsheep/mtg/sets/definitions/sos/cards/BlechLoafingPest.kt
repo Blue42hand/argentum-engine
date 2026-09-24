@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * effect fans out via [Effects.ForEachInGroup] over every creature you control whose
  * subtype is one of the five tribes ([GameObjectFilter.withAnySubtype]) — including
  * Blech itself, who is a Pest. Inside the per-creature iteration the counter targets
- * [EffectTarget.Self] (the current iteration entity), not a context target.
+ * [EffectTarget.IterationEntity] (the current iteration entity), not a context target.
  */
 val BlechLoafingPest = card("Blech, Loafing Pest") {
     manaCost = "{1}{B}{G}"
@@ -46,7 +46,7 @@ val BlechLoafingPest = card("Blech, Loafing Pest") {
             effect = AddCountersEffect(
                 counterType = Counters.PLUS_ONE_PLUS_ONE,
                 count = 1,
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

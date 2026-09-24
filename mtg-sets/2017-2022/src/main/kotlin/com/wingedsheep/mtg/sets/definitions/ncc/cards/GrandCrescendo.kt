@@ -40,7 +40,7 @@ val GrandCrescendo = card("Grand Crescendo") {
             ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
             )
         )
     }

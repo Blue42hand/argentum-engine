@@ -2073,7 +2073,7 @@
                                 "type": "Fixed",
                                 "amount": 4
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     {
@@ -2118,7 +2118,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     {
@@ -2223,7 +2223,7 @@
                                 "type": "Fixed",
                                 "amount": 4
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     {
@@ -2260,7 +2260,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     {
@@ -5162,7 +5162,7 @@
                             },
                             "body": {
                                 "type": "CantAttack",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -9201,7 +9201,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -9246,7 +9246,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -11812,7 +11812,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -11839,7 +11839,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -13592,7 +13592,7 @@
                                 },
                                 "body": {
                                     "type": "CantBlockTargetCreatures",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -14185,7 +14185,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -14354,7 +14354,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "DOESNT_UNTAP",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "duration": "UntilAfterAffectedControllersNextUntap"
                     }
                 }
@@ -14406,7 +14406,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -14763,7 +14763,7 @@
                         "type": "RemoveCounters",
                         "counterType": "hourglass",
                         "count": 2147483647,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -15240,7 +15240,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{G}{G}, {T}: Creatures you control get +2/+2 until end of turn."
@@ -16114,11 +16114,11 @@
                         "effects": [
                             {
                                 "type": "CantBeRegenerated",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "MoveToZone",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "destination": "Graveyard",
                                 "byDestruction": true
                             }

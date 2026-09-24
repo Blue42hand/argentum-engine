@@ -31,7 +31,7 @@ val VultureSchemingScavenger = card("Vulture, Scheming Scavenger") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype("Villain").youControl(), excludeSelf = true),
-            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)
+            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)
         )
     }
 

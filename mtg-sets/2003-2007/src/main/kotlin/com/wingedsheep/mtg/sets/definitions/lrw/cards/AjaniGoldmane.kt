@@ -51,8 +51,8 @@ val AjaniGoldmane = card("Ajani Goldmane") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
+                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
             )
         )
     }

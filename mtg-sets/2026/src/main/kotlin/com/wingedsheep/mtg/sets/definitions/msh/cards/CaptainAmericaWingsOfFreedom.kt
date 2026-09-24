@@ -27,10 +27,10 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * - Ward is the parameterized [KeywordAbility.Ward] with a [WardCost.Mana] of `{1}`; flying and
  *   first strike are plain engine keywords.
  * - The attack trigger is the default SELF-bound [Triggers.attacks] and pumps the group with
- *   [Patterns.Group.modifyStatsForAll]. X is [EffectTarget.Self]'s toughness — the group
- *   loop only rebinds `EffectTarget.Self` to the iteration entity, leaving `Source` pointing at
- *   Captain America, so every other Hero gets the *same* +X/+X read off his (projected)
- *   toughness. `excludeSelf` implements "each **other** Hero".
+ *   [Patterns.Group.modifyStatsForAll]. X is [EffectTarget.Self]'s toughness — inside the group
+ *   loop the visited Hero is `EffectTarget.IterationEntity` while `Self` stays Captain America,
+ *   so every other Hero gets the *same* +X/+X read off his (projected) toughness. `excludeSelf`
+ *   implements "each **other** Hero".
  * - X is snapshotted when the trigger resolves; later changes to his toughness (or his death)
  *   don't retune the already-applied bonuses, which is correct for a "+X/+X until end of turn"
  *   one-shot.

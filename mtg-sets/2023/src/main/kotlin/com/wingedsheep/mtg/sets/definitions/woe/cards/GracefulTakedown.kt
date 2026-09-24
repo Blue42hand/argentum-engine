@@ -26,8 +26,8 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  * be `IterationSpace.Targets` (that iterates *every* target, which would make the victim deal damage
  * to itself). The pipeline expresses "iterate one slice of the targets" out of steps that already
  * exist: gather [CardSource.ChosenTargets], `filter` it down to the creatures you control, and run
- * the damage body once per member with `EffectTarget.Self` bound to it. Each dealer is its own damage
- * source (`damageSource = Self`), so lifelink/deathtouch and "dealt damage by a creature" reactions
+ * the damage body once per member with `EffectTarget.IterationEntity` bound to it. Each dealer is
+ * its own damage source (`damageSource = IterationEntity`), so lifelink/deathtouch and "dealt damage by a creature" reactions
  * see the creature, not the sorcery.
  *
  * **Requirement order is load-bearing.** The victim is declared *first* even though it is printed
@@ -78,7 +78,7 @@ val GracefulTakedown = card("Graceful Takedown") {
                             EntityNumericProperty.Power
                         ),
                         target = victim,
-                        damageSource = EffectTarget.Self
+                        damageSource = EffectTarget.IterationEntity
                     )
                 )
             )

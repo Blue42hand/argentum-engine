@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * creature's mana value.
  *
  * X reads the *target's* mana value, not the Armor's, so it is
- * `EntityProperty(Target(0), ManaValue)` rather than anything sourced off the artifact. Mana value
+ * `EntityProperty(ContextTarget(0), ManaValue)` rather than anything sourced off the artifact. Mana value
  * is the printed cost (CR 202.3), so a cost reduction that let the creature be cast cheaply still
  * yields the full number of counters, and a token with no mana cost yields none.
  */

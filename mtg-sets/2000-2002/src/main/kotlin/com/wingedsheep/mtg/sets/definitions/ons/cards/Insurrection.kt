@@ -26,9 +26,9 @@ val Insurrection = card("Insurrection") {
 
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter.AllCreatures, GainControlEffect(EffectTarget.Self, Duration.EndOfTurn)),
-            Effects.ForEachInGroup(GroupFilter.AllCreatures, TapUntapEffect(EffectTarget.Self, tap = false)),
-            Effects.ForEachInGroup(GroupFilter.AllCreatures, GrantKeywordEffect(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn))
+            Effects.ForEachInGroup(GroupFilter.AllCreatures, GainControlEffect(EffectTarget.IterationEntity, Duration.EndOfTurn)),
+            Effects.ForEachInGroup(GroupFilter.AllCreatures, TapUntapEffect(EffectTarget.IterationEntity, tap = false)),
+            Effects.ForEachInGroup(GroupFilter.AllCreatures, GrantKeywordEffect(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn))
         )
     }
 

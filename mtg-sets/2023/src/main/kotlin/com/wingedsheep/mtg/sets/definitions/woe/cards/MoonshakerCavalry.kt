@@ -37,11 +37,11 @@ val MoonshakerCavalry = card("Moonshaker Cavalry") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
+                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity),
                 Effects.ModifyStats(
                     DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
                     DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
-                    EffectTarget.Self
+                    EffectTarget.IterationEntity
                 )
             )
         )

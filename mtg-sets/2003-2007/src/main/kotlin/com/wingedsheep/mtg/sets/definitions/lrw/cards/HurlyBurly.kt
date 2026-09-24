@@ -30,13 +30,13 @@ val HurlyBurly = card("Hurly-Burly") {
             mode("Hurly-Burly deals 1 damage to each creature without flying") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-                    DealDamageEffect(1, EffectTarget.Self)
+                    DealDamageEffect(1, EffectTarget.IterationEntity)
                 )
             }
             mode("Hurly-Burly deals 1 damage to each creature with flying") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-                    DealDamageEffect(1, EffectTarget.Self)
+                    DealDamageEffect(1, EffectTarget.IterationEntity)
                 )
             }
         }

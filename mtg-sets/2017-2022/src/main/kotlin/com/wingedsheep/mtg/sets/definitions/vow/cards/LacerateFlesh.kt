@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Mirrors Hell to Pay's excess-damage shape, but with a fixed 4 damage instead of X and Blood
  * tokens instead of Treasure: [Effects.DealDamage]`(4)` marks the damage, then
- * [Effects.CreateBlood] reads the post-damage excess via `EntityProperty(Target(0),
+ * [Effects.CreateBlood] reads the post-damage excess via `EntityProperty(ContextTarget(0),
  * ExcessMarkedDamage)` — `max(0, marked − toughness)` (CR 120.4a). CompositeEffect resolves its
  * steps sequentially with no interleaved SBA pass, so the marked damage in scope at the second
  * step is exactly the 4 this spell just dealt.

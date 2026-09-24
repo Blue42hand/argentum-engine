@@ -46,7 +46,7 @@ val SouthernAirTemple = card("Southern Air Temple") {
                     Player.You,
                     GameObjectFilter.Permanent.withSubtype(Subtype("Shrine"))
                 ).count(),
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }
@@ -62,7 +62,7 @@ val SouthernAirTemple = card("Southern Air Temple") {
             effect = Effects.AddCounters(
                 counterType = Counters.PLUS_ONE_PLUS_ONE,
                 count = 1,
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

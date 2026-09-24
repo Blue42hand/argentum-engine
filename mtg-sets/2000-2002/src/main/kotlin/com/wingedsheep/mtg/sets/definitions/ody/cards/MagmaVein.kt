@@ -30,7 +30,7 @@ val MagmaVein = card("Magma Vein") {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.Sacrifice(GameObjectFilter.Land))
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
     metadata {

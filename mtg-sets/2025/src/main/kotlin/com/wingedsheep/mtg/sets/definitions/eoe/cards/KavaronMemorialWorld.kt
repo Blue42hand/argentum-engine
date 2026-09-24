@@ -73,7 +73,7 @@ val KavaronMemorialWorld = card("Kavaron, Memorial World") {
                         com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect(
                             powerModifier = DynamicAmount.Fixed(1),
                             toughnessModifier = DynamicAmount.Fixed(0),
-                            target = EffectTarget.Self,
+                            target = EffectTarget.IterationEntity,
                             duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn
                         )
                     ),
@@ -81,7 +81,7 @@ val KavaronMemorialWorld = card("Kavaron, Memorial World") {
                         GroupFilter.AllCreaturesYouControl,
                         com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect(
                             keyword = Keyword.HASTE,
-                            target = EffectTarget.Self,
+                            target = EffectTarget.IterationEntity,
                             duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn
                         )
                     )

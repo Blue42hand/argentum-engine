@@ -66,8 +66,8 @@ val TheWindCrystal = card("The Wind Crystal") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self),
+                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity),
             ),
         )
     }

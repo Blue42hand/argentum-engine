@@ -34,7 +34,7 @@ val ShriekingMogg = card("Shrieking Mogg") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature, excludeSelf = true),
-            Effects.Tap(EffectTarget.Self)
+            Effects.Tap(EffectTarget.IterationEntity)
         )
     }
     metadata {

@@ -59,7 +59,7 @@ val FoggySwampVisions = card("Foggy Swamp Visions") {
             ForEachInCollectionEffect(
                 collection = "exiled",
                 effect = CreateTokenCopyOfTargetEffect(
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                     sacrificeAtStep = Step.END,
                 ),
             ),

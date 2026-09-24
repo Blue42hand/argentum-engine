@@ -89,7 +89,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -381,7 +381,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 },
@@ -403,7 +403,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -838,12 +838,12 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "FEAR",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -1022,7 +1022,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1317,7 +1317,7 @@
                     "type": "Fixed",
                     "amount": 5
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1698,7 +1698,7 @@
                     "type": "Fixed",
                     "amount": -2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1738,7 +1738,7 @@
                     "type": "Fixed",
                     "amount": 7
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3587,7 +3587,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Nagao attacks, Samurai creatures you control get +1/+1 until end of turn."
@@ -4686,7 +4686,7 @@
                             "type": "Fixed",
                             "amount": 5
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When Ryusei dies, it deals 5 damage to each creature without flying."

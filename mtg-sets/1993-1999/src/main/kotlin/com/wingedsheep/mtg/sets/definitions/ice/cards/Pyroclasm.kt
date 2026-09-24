@@ -24,7 +24,7 @@ val Pyroclasm = card("Pyroclasm") {
     colorIdentity = "R"
     typeLine = "Sorcery"
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.IterationEntity))
     }
     metadata {
         rarity = Rarity.UNCOMMON

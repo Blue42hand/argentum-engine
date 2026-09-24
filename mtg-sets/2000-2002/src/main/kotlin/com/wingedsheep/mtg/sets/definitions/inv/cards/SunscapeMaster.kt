@@ -30,7 +30,7 @@ val SunscapeMaster = card("Sunscape Master") {
         cost = Costs.Composite(Costs.Mana("{G}{G}"), Costs.Tap)
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            ModifyStatsEffect(2, 2, EffectTarget.Self)
+            ModifyStatsEffect(2, 2, EffectTarget.IterationEntity)
         )
     }
 

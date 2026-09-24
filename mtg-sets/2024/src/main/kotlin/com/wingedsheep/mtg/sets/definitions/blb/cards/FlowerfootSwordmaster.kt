@@ -51,7 +51,7 @@ val FlowerfootSwordmaster = card("Flowerfoot Swordmaster") {
             effect = ModifyStatsEffect(
                 powerModifier = 1,
                 toughnessModifier = 0,
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )
         )

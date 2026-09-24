@@ -33,7 +33,7 @@ val Lithobraking = card("Lithobraking") {
                 optional = true,
                 reflexiveEffect = Effects.ForEachInGroup(
                     GroupFilter.AllCreatures,
-                    DealDamageEffect(2, EffectTarget.Self)
+                    DealDamageEffect(2, EffectTarget.IterationEntity)
                 )
             )
         )

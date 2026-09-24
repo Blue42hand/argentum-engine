@@ -2560,7 +2560,10 @@
                         "type": "IterationSpace.Collection",
                         "collection": "gathered0"
                     },
-                    "body": "UnattachEquipment"
+                    "body": {
+                        "type": "UnattachEquipment",
+                        "target": "IterationEntity"
+                    }
                 }
             ]
         },
@@ -3610,7 +3613,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "tap": false
                                 }
                             }
@@ -5291,7 +5294,10 @@
                                 "baseFilter": "creature ctrl:target-player"
                             }
                         },
-                        "body": "MarkMustAttackThisTurn"
+                        "body": {
+                            "type": "MarkMustAttackThisTurn",
+                            "target": "IterationEntity"
+                        }
                     },
                     "targetRequirements": [
                         {
@@ -5313,7 +5319,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "FIRST_STRIKE",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control gain first strike until end of turn"
@@ -5927,7 +5933,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -6063,7 +6069,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -6303,7 +6309,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -9429,7 +9435,7 @@
                             "body": {
                                 "type": "RemoveAllCountersOfType",
                                 "counterType": "fate",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -10538,7 +10544,7 @@
                     "body": {
                         "type": "RemoveAllCountersOfType",
                         "counterType": "flood",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "interveningIf": {
@@ -10863,7 +10869,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +1/+1 until end of turn"
@@ -10879,7 +10885,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "tap": false
                         }
                     },
@@ -15758,7 +15764,7 @@
                     },
                     "body": {
                         "type": "AttachTargetEquipmentToCreature",
-                        "equipmentTarget": "Self",
+                        "equipmentTarget": "IterationEntity",
                         "creatureTarget": "TriggeringEntity"
                     }
                 },
@@ -15895,7 +15901,7 @@
                         },
                         "body": {
                             "type": "Regenerate",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Regenerate each creature you control"
@@ -15918,7 +15924,7 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {

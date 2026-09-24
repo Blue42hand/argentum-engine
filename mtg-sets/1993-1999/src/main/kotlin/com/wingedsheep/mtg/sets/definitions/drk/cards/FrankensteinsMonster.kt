@@ -41,8 +41,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * independent choices among the same three options, all landing on this creature — which is
  * exactly a repeatable modal: `ModalEffect` with `allowRepeat` and both the dynamic ceiling and
  * the dynamic floor pinned to X, so the player makes exactly X choices and may make the same one
- * every time. Iterating the exiled pile instead would fight the pipeline, since inside a
- * collection iteration `EffectTarget.Self` means the *iterated card*, not the Monster.
+ * every time. Iterating the exiled pile instead would fight the pipeline: the loop would visit
+ * each exiled card, when every counter belongs on the Monster.
  *
  * +2/+0 and +0/+2 are new counter kinds. They are genuinely distinct from two +1/+0 counters
  * (CR 122.1a), so they are their own enum members with their own P/T arithmetic rather than being

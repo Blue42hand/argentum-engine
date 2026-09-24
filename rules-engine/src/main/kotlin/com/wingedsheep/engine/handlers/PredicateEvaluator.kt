@@ -2331,12 +2331,6 @@ data class PredicateContext(
      */
     val triggeringPlayerId: EntityId? = null,
     /**
-     * The entity an enclosing `ForEachInGroup` is currently iterating over. Lets a filter inside
-     * such a loop talk about *that* creature — Tidal Flats' "creatures you control blocking that
-     * creature" — where a source-relative predicate would read the enchantment instead.
-     */
-    val iterationEntityId: EntityId? = null,
-    /**
      * The entity a continuous effect is being applied to during projection (e.g. the creature an
      * Aura is enchanting). Lets filters resolve [EffectTarget.AffectedEntity] — needed by
      * `AggregateBattlefield(filter = ...sharingCreatureTypeWith(AffectedEntity))` for Alpha Status.
@@ -2397,6 +2391,15 @@ data class PredicateContext(
     val lastKnownSourceSnapshot: EntitySnapshot? = null
 ) {
     /**
+     * The entity an enclosing `ForEachInGroup` is currently iterating over, carried in
+     * [objectReferences]. Lets a filter inside such a loop talk about *that* creature — Tidal
+     * Flats' "creatures you control blocking that creature" — where a source-relative predicate
+     * would read the enchantment instead.
+     */
+    val iterationEntityId: EntityId?
+        get() = objectReferences.iteration?.entityId
+
+    /**
      * Resolve an [EffectTarget] reference to a concrete player [EntityId].
      *
      * Supports [EffectTarget.BoundVariable] (maps by target name), [EffectTarget.ContextTarget]
@@ -2444,7 +2447,6 @@ data class PredicateContext(
             chosenValues = chosenValues,
             storedStringLists = storedStringLists,
             storedSubtypeGroups = storedSubtypeGroups,
-            iterationTarget = iterationEntityId,
         ),
     )
 
@@ -2477,7 +2479,6 @@ data class PredicateContext(
                 namedTargets = context.pipeline.namedTargets,
                 xValue = context.xValue,
                 chosenColor = context.chosenColor,
-                iterationEntityId = context.pipeline.iterationTarget
             )
         }
     }

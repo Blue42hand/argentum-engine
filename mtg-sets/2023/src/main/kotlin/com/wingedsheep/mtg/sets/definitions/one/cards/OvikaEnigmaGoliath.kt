@@ -69,7 +69,7 @@ val OvikaEnigmaGoliath = card("Ovika, Enigma Goliath") {
             ),
             ForEachInCollectionEffect(
                 CREATED_TOKENS,
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self),
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity),
             ),
         ))
     }

@@ -46,7 +46,7 @@ val ThundercloudShaman = card("Thundercloud Shaman") {
                     Player.You,
                     GameObjectFilter.Permanent.withSubtype(Subtype.GIANT)
                 ).count(),
-                EffectTarget.Self,
+                EffectTarget.IterationEntity,
             )
         )
         description = "it deals damage equal to the number of Giants you control to each non-Giant creature."

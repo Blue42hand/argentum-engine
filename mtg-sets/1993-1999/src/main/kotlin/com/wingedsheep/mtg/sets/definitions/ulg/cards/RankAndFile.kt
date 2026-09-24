@@ -32,7 +32,7 @@ val RankAndFile = card("Rank and File") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withColor(Color.GREEN)),
-            Effects.ModifyStats(-1, -1, EffectTarget.Self)
+            Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)
         )
     }
     metadata {

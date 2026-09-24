@@ -33,7 +33,7 @@ val KrarkClanShaman = card("Krark-Clan Shaman") {
         cost = Costs.Sacrifice(GameObjectFilter.Artifact)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
     metadata {

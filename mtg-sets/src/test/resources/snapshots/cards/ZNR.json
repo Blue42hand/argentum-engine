@@ -594,12 +594,12 @@
                                             "type": "AddCounters",
                                             "counterType": "+1/+1",
                                             "count": 1,
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         },
                                         {
                                             "type": "GrantKeyword",
                                             "keyword": "VIGILANCE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     ]
                                 }

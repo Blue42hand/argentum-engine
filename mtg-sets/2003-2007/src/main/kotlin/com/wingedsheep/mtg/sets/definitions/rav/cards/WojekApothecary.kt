@@ -46,7 +46,7 @@ val WojekApothecary = card("Wojek Apothecary") {
                 GroupFilter(
                     GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
                 ).otherThanTarget(),
-                Effects.PreventNextDamage(1, EffectTarget.Self)
+                Effects.PreventNextDamage(1, EffectTarget.IterationEntity)
             )
     }
 

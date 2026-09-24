@@ -34,7 +34,7 @@ val CatharsCrusade = card("Cathars' Crusade") {
         )
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {

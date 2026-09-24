@@ -205,7 +205,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -2080,7 +2080,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4853,7 +4853,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -5634,7 +5634,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -9243,7 +9243,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -10364,7 +10364,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -10917,7 +10917,7 @@
                                 "type": "AddCounters",
                                 "counterType": "+1/+1",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -10934,17 +10934,17 @@
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "VIGILANCE",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "TRAMPLE",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "INDESTRUCTIBLE",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     }
                                 ]
                             }
@@ -11455,6 +11455,7 @@
             },
             "body": {
                 "type": "BecomeCreature",
+                "target": "IterationEntity",
                 "power": {
                     "type": "Fixed",
                     "amount": 2
@@ -12209,6 +12210,7 @@
                     },
                     "body": {
                         "type": "BecomeCreature",
+                        "target": "IterationEntity",
                         "power": {
                             "type": "Fixed",
                             "amount": 5
@@ -12371,7 +12373,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -12409,7 +12411,7 @@
                                 "type": "Fixed",
                                 "amount": 3
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -14164,7 +14166,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -14463,7 +14465,7 @@
                     "type": "AddCounters",
                     "counterType": "+1/+1",
                     "count": 2,
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             },
             "otherwise": {
@@ -14478,7 +14480,7 @@
                     "type": "AddCounters",
                     "counterType": "+1/+1",
                     "count": 1,
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             }
         }

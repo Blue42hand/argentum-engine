@@ -760,7 +760,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1134,7 +1134,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Exile"
             }
         }
@@ -2449,7 +2449,7 @@
                                     "type": "AddCounters",
                                     "counterType": "+1/+1",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Put a +1/+1 counter on each creature you control"
@@ -2979,7 +2979,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "interveningIf": {
@@ -3823,7 +3823,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{5}: Creatures you control get +1/+1 until end of turn."
@@ -4997,7 +4997,7 @@
                                     "type": "Fixed",
                                     "amount": 4
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -6403,17 +6403,17 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -8342,7 +8342,7 @@
                                         "type": "Fixed",
                                         "amount": 0
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -8356,7 +8356,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -8832,7 +8832,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -10380,7 +10380,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "duration": "UntilYourNextTurn"
                     }
                 },
@@ -10450,7 +10450,7 @@
                                 },
                                 "body": {
                                     "type": "GainControl",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "duration": "EndOfTurn"
                                 }
                             },
@@ -10464,7 +10464,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "tap": false
                                 }
                             },
@@ -10479,7 +10479,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -10527,7 +10527,7 @@
                                 },
                                 "body": {
                                     "type": "GainControl",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "duration": "EndOfTurn"
                                 }
                             },
@@ -10541,7 +10541,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "tap": false
                                 }
                             },
@@ -10556,7 +10556,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -10960,7 +10960,7 @@
                                     "type": "VariableReference",
                                     "variableName": "ouroboroid_power"
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -12713,7 +12713,7 @@
                         },
                         "body": {
                             "type": "MoveToZone",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "destination": "Exile"
                         }
                     },
@@ -16354,12 +16354,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -16391,12 +16391,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -16863,7 +16863,7 @@
                                                 "entity": "Self",
                                                 "numericProperty": "ManaValue"
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     "descriptionOverride": "When this permanent leaves the battlefield, it deals damage equal to its mana value to each creature."
@@ -19525,7 +19525,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -19544,7 +19544,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "tap": false
                         }
                     }

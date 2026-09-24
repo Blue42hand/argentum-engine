@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The enters debuff applies a per-creature -2/-2 floating effect to every creature an
  * opponent controls at resolution ([Effects.ForEachInGroup] over [GroupFilter], with the
- * iterated creature as [EffectTarget.Self]); creatures that enter later are unaffected, as
+ * iterated creature as [EffectTarget.IterationEntity]); creatures that enter later are unaffected, as
  * the affected set is fixed when the ability resolves. The death trigger is a
  * [Triggers.leavesBattlefield] to the graveyard, filtered to opponent-controlled creatures
  * with [TriggerBinding.ANY].
@@ -44,7 +44,7 @@ val SephirothPlanetsHeir = card("Sephiroth, Planet's Heir") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
-            Effects.ModifyStats(power = -2, toughness = -2, target = EffectTarget.Self)
+            Effects.ModifyStats(power = -2, toughness = -2, target = EffectTarget.IterationEntity)
         )
     }
 

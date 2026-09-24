@@ -2167,7 +2167,7 @@
                                 "type": "AddCounters",
                                 "counterType": "+1/+1",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -2705,7 +2705,7 @@
                                 "counterType": "PlusOnePlusOne"
                             }
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3149,7 +3149,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -3164,7 +3164,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -3462,7 +3462,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "+ {1} — Caught in the Crossfire deals 2 damage to each outlaw creature. (Assassins, Mercenaries, Pirates, Rogues, and Warlocks are outlaws.)",
@@ -3500,7 +3500,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "+ {1} — Caught in the Crossfire deals 2 damage to each non-outlaw creature.",
@@ -5020,7 +5020,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "triggerRestriction": {
@@ -5955,7 +5955,7 @@
                         },
                         "body": {
                             "type": "RemoveAllAbilities",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "+ {1} — All creatures lose all abilities until end of turn.",
@@ -5996,7 +5996,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "INDESTRUCTIBLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -6769,12 +6769,12 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantStaticAbility",
@@ -6782,7 +6782,7 @@
                             "type": "CantBeBlockedByMoreThan",
                             "maxBlockers": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -7635,7 +7635,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "tap": false
                                 }
                             },
@@ -7679,12 +7679,12 @@
                                         "type": "Fixed",
                                         "amount": 0
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "FIRST_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -9685,7 +9685,7 @@
                     },
                     "body": {
                         "type": "CreateTokenCopyOfTarget",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tapped": true
                     }
                 },
@@ -9834,7 +9834,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -12075,7 +12075,7 @@
                             "type": "Fixed",
                             "amount": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -12596,7 +12596,7 @@
                     },
                     "body": {
                         "type": "CreateTokenCopyOfTarget",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "timing": "SorcerySpeed",
@@ -13203,7 +13203,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -14059,7 +14059,7 @@
                     "body": {
                         "type": "RemoveKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -14084,7 +14084,7 @@
                     "body": {
                         "type": "RemoveKeyword",
                         "keyword": "DOUBLE_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -14802,7 +14802,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{1}, {T}: Put a +1/+1 counter on each creature you control that entered this turn."
@@ -15187,7 +15187,7 @@
                             "type": "AddCounters",
                             "counterType": "+1/+1",
                             "count": 1,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -15978,7 +15978,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "tap": false
                         }
                     },
@@ -17470,12 +17470,12 @@
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "HEXPROOF",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "INDESTRUCTIBLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -17854,12 +17854,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -20674,7 +20674,7 @@
                         "type": "AddCounters",
                         "counterType": "deathtouch",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },

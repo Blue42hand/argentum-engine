@@ -33,14 +33,14 @@ val VeteranBeastrider = card("Veteran Beastrider") {
         trigger = Triggers.YourEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Untap(EffectTarget.Self)
+            Effects.Untap(EffectTarget.IterationEntity)
         )
     }
     activatedAbility {
         cost = Costs.Mana("{2}{G}{W}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {

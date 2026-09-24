@@ -75,7 +75,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
         trigger = Triggers.EachEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesOpponentsControl,
-            Effects.AddCounters(Counters.SLIME, 1, EffectTarget.Self)
+            Effects.AddCounters(Counters.SLIME, 1, EffectTarget.IterationEntity)
         )
         description = "At the beginning of each end step, put a slime counter on each creature " +
             "you don't control."

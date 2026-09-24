@@ -48,8 +48,8 @@ val BulwarkOx = card("Bulwark Ox") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
             )
         )
     }

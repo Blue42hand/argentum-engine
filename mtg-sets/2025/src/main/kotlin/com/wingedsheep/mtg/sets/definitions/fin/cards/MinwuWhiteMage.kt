@@ -35,7 +35,7 @@ val MinwuWhiteMage = card("Minwu, White Mage") {
         // "each Cleric you control" includes Minwu herself, so no excludeSelf.
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.CLERIC).youControl()),
-            effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 

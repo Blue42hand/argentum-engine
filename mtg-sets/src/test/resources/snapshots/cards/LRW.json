@@ -158,12 +158,12 @@
                                 "type": "AddCounters",
                                 "counterType": "+1/+1",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -564,7 +564,7 @@
                                                 "type": "VariableReference",
                                                 "variableName": "ashlingRemovedCounters"
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     {
@@ -2062,7 +2062,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "targetRequirements": [
@@ -2752,7 +2752,7 @@
                                     "type": "Fixed",
                                     "amount": 10
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -3319,7 +3319,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -3812,7 +3812,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Tap all creatures your opponents control"
@@ -4479,11 +4479,11 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "LoseAllCreatureTypes",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -5685,7 +5685,7 @@
                                 "type": "Fixed",
                                 "amount": 0
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "All creatures get +2/+0 until end of turn"
@@ -5709,7 +5709,7 @@
                                 "type": "Fixed",
                                 "amount": -2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "All creatures get -0/-2 until end of turn"
@@ -6495,12 +6495,12 @@
                                     "type": "Fixed",
                                     "amount": 3
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -6776,10 +6776,10 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "DEATHTOUCH",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
-                    "descriptionOverride": "Clash with an opponent. If you win, for each permanent in createdTokens, this creature gains deathtouch until end of turn"
+                    "descriptionOverride": "Clash with an opponent. If you win, for each permanent in createdTokens, that permanent gains deathtouch until end of turn"
                 }
             ]
         }
@@ -8577,7 +8577,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Hurly-Burly deals 1 damage to each creature without flying"
@@ -8597,7 +8597,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Hurly-Burly deals 1 damage to each creature with flying"
@@ -8905,7 +8905,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Incendiary Command deals 2 damage to each creature"
@@ -9310,7 +9310,7 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         "IncrementAbilityResolutionCount",
@@ -9334,7 +9334,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FIRST_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -11139,7 +11139,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 },
@@ -11422,7 +11422,7 @@
                         "effects": [
                             {
                                 "type": "SetBaseStats",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "power": "XValue",
                                 "toughness": "XValue",
                                 "duration": "EndOfTurn"
@@ -11430,7 +11430,7 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "CHANGELING",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -14937,12 +14937,12 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "CHANGELING",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -16386,7 +16386,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -17222,7 +17222,7 @@
                             "player": "You",
                             "filter": "permanent Giant"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "it deals damage equal to the number of Giants you control to each non-Giant creature."
@@ -19187,7 +19187,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "tap": false
                         }
                     },

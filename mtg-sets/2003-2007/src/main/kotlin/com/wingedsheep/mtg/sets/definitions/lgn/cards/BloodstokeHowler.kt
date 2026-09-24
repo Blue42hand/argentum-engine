@@ -28,7 +28,7 @@ val BloodstokeHowler = card("Bloodstoke Howler") {
         trigger = Triggers.TurnedFaceUp
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.allCreaturesWithSubtype("Beast").youControl(),
-            effect = ModifyStatsEffect(3, 0, EffectTarget.Self)
+            effect = ModifyStatsEffect(3, 0, EffectTarget.IterationEntity)
         )
     }
 

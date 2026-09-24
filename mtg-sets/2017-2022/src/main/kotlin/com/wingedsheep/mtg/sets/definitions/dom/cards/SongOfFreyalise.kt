@@ -62,14 +62,14 @@ val SongOfFreyalise = card("Song of Freyalise") {
         effect = Effects.Composite(listOf(
             Effects.ForEachInGroup(
                 filter = creaturesYouControl,
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 filter = creaturesYouControl,
                 effect = Effects.Composite(listOf(
-                    GrantKeywordEffect(Keyword.VIGILANCE.name, EffectTarget.Self, Duration.EndOfTurn),
-                    GrantKeywordEffect(Keyword.TRAMPLE.name, EffectTarget.Self, Duration.EndOfTurn),
-                    GrantKeywordEffect(Keyword.INDESTRUCTIBLE.name, EffectTarget.Self, Duration.EndOfTurn)
+                    GrantKeywordEffect(Keyword.VIGILANCE.name, EffectTarget.IterationEntity, Duration.EndOfTurn),
+                    GrantKeywordEffect(Keyword.TRAMPLE.name, EffectTarget.IterationEntity, Duration.EndOfTurn),
+                    GrantKeywordEffect(Keyword.INDESTRUCTIBLE.name, EffectTarget.IterationEntity, Duration.EndOfTurn)
                 ))
             )
         ))

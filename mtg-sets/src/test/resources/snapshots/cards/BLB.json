@@ -1683,12 +1683,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -2752,7 +2752,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -4514,7 +4514,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HEXPROOF",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -4561,7 +4561,7 @@
                                                 "body": {
                                                     "type": "GrantKeyword",
                                                     "keyword": "HEXPROOF",
-                                                    "target": "Self"
+                                                    "target": "IterationEntity"
                                                 }
                                             }
                                         ]
@@ -4577,7 +4577,7 @@
                                         "body": {
                                             "type": "GrantKeyword",
                                             "keyword": "INDESTRUCTIBLE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     "GiftGiven"
@@ -6554,7 +6554,7 @@
                                 "type": "AddCounters",
                                 "counterType": "+1/+1",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -6851,7 +6851,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -6897,7 +6897,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "duration": "UntilYourNextTurn"
                     }
                 },
@@ -9784,7 +9784,7 @@
                                     "type": "AddCounters",
                                     "counterType": "+1/+1",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Put a +1/+1 counter on each Bird you control"
@@ -12170,12 +12170,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -14195,7 +14195,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -16059,7 +16059,7 @@
                                     },
                                     "body": {
                                         "type": "MoveToZone",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "destination": "Graveyard",
                                         "byDestruction": true
                                     }
@@ -16077,7 +16077,7 @@
                                     },
                                     "body": {
                                         "type": "MoveToZone",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "destination": "Graveyard",
                                         "byDestruction": true
                                     }
@@ -20461,11 +20461,11 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         ]
@@ -20663,7 +20663,7 @@
                                 "type": "Fixed",
                                 "amount": 0
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Don't promise a gift — creatures you control get +2/+0 until end of turn"
@@ -20705,7 +20705,7 @@
                                                 "type": "Fixed",
                                                 "amount": 0
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     {
@@ -21324,7 +21324,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -21415,7 +21415,7 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Attacking creatures you control get +1/+1 until end of turn"
@@ -22171,7 +22171,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Don't promise a gift — deal 2 damage to each creature"
@@ -22223,7 +22223,7 @@
                                                 "type": "Fixed",
                                                 "amount": 2
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     "GiftGiven"

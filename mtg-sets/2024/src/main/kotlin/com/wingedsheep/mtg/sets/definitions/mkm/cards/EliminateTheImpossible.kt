@@ -52,7 +52,7 @@ val EliminateTheImpossible = card("Eliminate the Impossible") {
             .then(
                 Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.opponentControls().suspected()),
-                    Effects.NoLongerSuspected(EffectTarget.Self)
+                    Effects.NoLongerSuspected(EffectTarget.IterationEntity)
                 )
             )
     }

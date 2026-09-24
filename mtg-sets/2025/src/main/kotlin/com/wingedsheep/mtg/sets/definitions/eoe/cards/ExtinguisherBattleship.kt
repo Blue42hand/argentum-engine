@@ -42,7 +42,7 @@ val ExtinguisherBattleship = card("Extinguisher Battleship") {
                 Effects.Destroy(target),
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreatures,
-                    effect = DealDamageEffect(4, EffectTarget.Self)
+                    effect = DealDamageEffect(4, EffectTarget.IterationEntity)
                 )
             )
         )

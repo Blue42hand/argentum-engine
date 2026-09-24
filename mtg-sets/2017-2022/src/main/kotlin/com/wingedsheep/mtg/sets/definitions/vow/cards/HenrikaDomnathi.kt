@@ -40,7 +40,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * creature of their choice" mode is [ForEachPlayerEffect] over [ForceSacrificeEffect] with
  * `target = Controller` so each player chooses their own. The back's activated ability pumps every
  * creature you control that has flying, deathtouch, and/or lifelink via [Effects.ForEachInGroup]
- * over a keyword-union [GroupFilter], applying +1/+0 to each ([EffectTarget.Self] inside the group).
+ * over a keyword-union [GroupFilter], applying +1/+0 to each ([EffectTarget.IterationEntity] inside the group).
  * The back is a transformed face with no mana cost, so its color comes from a color indicator
  * (CR 204): `colorIndicator = "B"`.
  */
@@ -119,7 +119,7 @@ private val HenrikaInfernalSeer = card("Henrika, Infernal Seer") {
                     GameObjectFilter.Creature.youControl().withKeyword(Keyword.DEATHTOUCH) or
                     GameObjectFilter.Creature.youControl().withKeyword(Keyword.LIFELINK),
             ),
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
+            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
         )
         description = "Each creature you control with flying, deathtouch, and/or lifelink gets +1/+0 " +
             "until end of turn."

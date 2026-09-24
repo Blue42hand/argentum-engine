@@ -58,7 +58,7 @@ private val AangAndLaOceansFury = card("Aang and La, Ocean's Fury") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl().tapped()),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
         description = "Whenever Aang and La attack, put a +1/+1 counter on each tapped creature you control."
     }

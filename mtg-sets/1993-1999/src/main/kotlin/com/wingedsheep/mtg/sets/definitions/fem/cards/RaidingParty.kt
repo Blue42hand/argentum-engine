@@ -81,7 +81,7 @@ val RaidingParty = card("Raiding Party") {
                     ),
                     ForEachInCollectionEffect(
                         collection = "tapped",
-                        effect = Effects.Tap(EffectTarget.Self)
+                        effect = Effects.Tap(EffectTarget.IterationEntity)
                     ),
                     GatherCardsEffect(
                         source = CardSource.BattlefieldMatching(

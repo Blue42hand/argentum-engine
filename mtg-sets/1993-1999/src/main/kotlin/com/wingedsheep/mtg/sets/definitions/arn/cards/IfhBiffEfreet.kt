@@ -36,7 +36,7 @@ val IfhBiffEfreet = card("Ifh-Bíff Efreet") {
         cost = Costs.Mana("{G}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-            DealDamageEffect(1, EffectTarget.Self),
+            DealDamageEffect(1, EffectTarget.IterationEntity),
         ).then(
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(1, EffectTarget.Controller)))
         )

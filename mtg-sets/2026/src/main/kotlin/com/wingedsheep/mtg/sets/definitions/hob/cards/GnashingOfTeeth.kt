@@ -44,7 +44,7 @@ val GnashingOfTeeth = card("Gnashing of Teeth") {
                 val t = target("target", TargetPlayer())
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.targetPlayerControls(EffectTarget.ContextTarget(0))),
-                    Effects.ModifyStats(-1, -1, EffectTarget.Self)
+                    Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)
                 )
             }
         }

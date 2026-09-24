@@ -33,29 +33,23 @@ object TargetResolutionUtils {
      * exile pile, controller lookups, …) resolve to null here — use the overload taking a
      * [GameState] for those.
      *
-     * An action aimed at the source or the triggering object resolves to nothing once that object
-     * has changed zones (CR 400.7); see [resolveEntity] for value reads, which don't gate.
+     * An action aimed at the source, the triggering object or a loop's current object resolves to
+     * nothing once that object has changed zones (CR 400.7); see [resolveEntity] for value reads,
+     * which don't gate.
      */
-    fun resolveTarget(effectTarget: EffectTarget, context: EffectContext): EntityId? = when {
-        effectTarget is EffectTarget.Self -> (context.pipeline.iterationTarget
-            ?: context.objectReferences.selfBinding?.entityId ?: context.sourceId)
-            ?.takeUnless { context.sourceReferenceLost }
-        isLostObject(effectTarget, context, state = null) -> null
-        else -> entityOf(effectTarget, context, state = null, projected = null)
-    }
+    fun resolveTarget(effectTarget: EffectTarget, context: EffectContext): EntityId? =
+        if (isLostObject(effectTarget, context, state = null)) null
+        else entityOf(effectTarget, context, state = null, projected = null)
 
     /**
      * Resolve [effectTarget] for an instruction that **acts** on the entity. Like the
      * context-only overload, but resolves every reference, consulting [state] for relational ones,
-     * and checks the source / triggering object against [state] as well as against the flags
-     * frozen on [context].
+     * and checks the identity-captured objects against [state] as well as against the flags frozen
+     * on [context].
      */
-    fun resolveTarget(effectTarget: EffectTarget, context: EffectContext, state: GameState): EntityId? = when {
-        effectTarget is EffectTarget.Self && !context.objectReferences.isSelfCurrent(state) -> null
-        effectTarget is EffectTarget.Self -> resolveTarget(effectTarget, context)
-        isLostObject(effectTarget, context, state) -> null
-        else -> entityOf(effectTarget, context, state, projected = null)
-    }
+    fun resolveTarget(effectTarget: EffectTarget, context: EffectContext, state: GameState): EntityId? =
+        if (isLostObject(effectTarget, context, state)) null
+        else entityOf(effectTarget, context, state, projected = null)
 
     /**
      * Resolve [reference] for a **value read** — a characteristic comparison, an
@@ -81,8 +75,12 @@ object TargetResolutionUtils {
     private fun isLostObject(target: EffectTarget, context: EffectContext, state: GameState?): Boolean {
         val references = context.objectReferences
         return when (target) {
+            EffectTarget.Self -> context.sourceReferenceLost ||
+                (state != null && !references.isCurrent(references.source, state))
             EffectTarget.TriggeringEntity -> context.triggeringReferenceLost || (state != null &&
                 context.triggeringEntityId !in state.turnOrder && !references.isCurrent(references.triggering, state))
+            EffectTarget.IterationEntity -> context.iterationReferenceLost ||
+                (state != null && references.iteration != null && !references.isIterationCurrent(state))
             else -> false
         }
     }
@@ -114,7 +112,7 @@ object TargetResolutionUtils {
         EffectTarget.AmassedArmy ->
             context.pipeline.storedCollections[EffectTarget.AmassedArmy.STORAGE_KEY]?.firstOrNull()
         EffectTarget.AffectedEntity -> context.affectedEntityId
-        EffectTarget.IterationEntity -> context.pipeline.iterationTarget
+        EffectTarget.IterationEntity -> context.iterationEntityId
         is EffectTarget.LibraryTop -> state?.let { resolveLibraryTop(target.player, context, it, projected) }
         EffectTarget.EnchantedCreature,
         EffectTarget.EquippedCreature,
@@ -134,10 +132,11 @@ object TargetResolutionUtils {
             context.pipeline.storedCollections[target.collectionName]?.getOrNull(target.index)
                 ?.let { controllerOf(s, it) }
         }
-        // Players and sets of objects name no single entity: [resolvePlayerTarget] /
-        // [resolvePlayerTargets] and the group resolvers handle them. ControllerOfDamageSource is
-        // resolved by the damage pipeline from the damage in flight.
-        is EffectTarget.PlayerRef,
+        // A single-player reference names that player; a plural one ("each opponent") names no
+        // single entity and goes through [resolvePlayerTargets].
+        is EffectTarget.PlayerRef -> state?.let { resolvePlayerRef(target.player, context, it) }
+        // Sets of objects name no single entity: the group resolvers handle them.
+        // ControllerOfDamageSource is resolved by the damage pipeline from the damage in flight.
         is EffectTarget.GroupRef,
         is EffectTarget.FilteredTarget,
         EffectTarget.EachDamagedBySourceThisGame,
@@ -300,7 +299,7 @@ object TargetResolutionUtils {
                 ?.let { controllerOf(state, it) }
             // "its controller", inside a ForEach over entities — the loop's current entity, not the
             // effect's source or its chosen target.
-            Player.ControllerOfIterationEntity -> context.pipeline.iterationTarget
+            Player.ControllerOfIterationEntity -> context.iterationEntityId
                 ?.let { controllerOf(state, it) }
             // The other end of a becomes-target trigger: whoever controls the spell or ability
             // that did the targeting (Fractured Loyalty). The trigger context carries the

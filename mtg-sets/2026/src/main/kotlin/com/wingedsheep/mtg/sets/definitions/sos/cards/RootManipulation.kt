@@ -44,9 +44,9 @@ val RootManipulation = card("Root Manipulation") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl()),
             effect = Effects.Composite(
-                Effects.ModifyStats(2, 2, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self),
-                GrantTriggeredAbilityEffect(ability = attackGainLife, target = EffectTarget.Self),
+                Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity),
+                GrantTriggeredAbilityEffect(ability = attackGainLife, target = EffectTarget.IterationEntity),
             ),
         )
     }

@@ -85,7 +85,7 @@ val TerrificTeamUp = card("Terrific Team-Up") {
             // Each chosen creature gets +1/+0 until end of turn.
             ForEachInCollectionEffect(
                 collection = "team",
-                effect = Effects.ModifyStats(1, 0, EffectTarget.Self),
+                effect = Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
             ),
             // Then each deals damage equal to its (boosted) power to the opponent's creature.
             ForEachInCollectionEffect(
@@ -96,7 +96,7 @@ val TerrificTeamUp = card("Terrific Team-Up") {
                         EntityNumericProperty.Power,
                     ),
                     target = EffectTarget.ContextTarget(0),
-                    damageSource = EffectTarget.Self,
+                    damageSource = EffectTarget.IterationEntity,
                 ),
             ),
         )

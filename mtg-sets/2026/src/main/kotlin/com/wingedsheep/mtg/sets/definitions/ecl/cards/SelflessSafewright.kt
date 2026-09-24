@@ -51,8 +51,8 @@ val SelflessSafewright = card("Selfless Safewright") {
                     ),
                     effect = Effects.Composite(
                         listOf(
-                            Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.Self, Duration.EndOfTurn),
-                            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn)
+                            Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity, Duration.EndOfTurn),
+                            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn)
                         )
                     )
                 )

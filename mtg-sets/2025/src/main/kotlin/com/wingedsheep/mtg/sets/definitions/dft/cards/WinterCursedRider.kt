@@ -68,7 +68,7 @@ val WinterCursedRider = card("Winter, Cursed Rider") {
         val negX = DynamicAmount.Multiply(DynamicAmount.XValue, -1)
         effect = Effects.ForEachInGroup(
             OtherNonartifactCreatures,
-            Effects.ModifyStats(negX, negX, EffectTarget.Self)
+            Effects.ModifyStats(negX, negX, EffectTarget.IterationEntity)
         )
         description = "Exhaust — {2}{U}{B}, {T}, Exile X artifact cards from your graveyard: " +
             "Each other nonartifact creature gets -X/-X until end of turn."

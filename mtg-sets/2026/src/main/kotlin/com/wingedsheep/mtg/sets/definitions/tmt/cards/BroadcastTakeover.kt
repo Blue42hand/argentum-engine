@@ -33,9 +33,9 @@ val BroadcastTakeover = card("Broadcast Takeover") {
 
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(opponentArtifacts, TapUntapEffect(EffectTarget.Self, tap = false)),
-            Effects.ForEachInGroup(opponentArtifacts, GrantKeywordEffect(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn)),
-            Effects.ForEachInGroup(opponentArtifacts, GainControlEffect(EffectTarget.Self, Duration.EndOfTurn))
+            Effects.ForEachInGroup(opponentArtifacts, TapUntapEffect(EffectTarget.IterationEntity, tap = false)),
+            Effects.ForEachInGroup(opponentArtifacts, GrantKeywordEffect(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)),
+            Effects.ForEachInGroup(opponentArtifacts, GainControlEffect(EffectTarget.IterationEntity, Duration.EndOfTurn))
         )
     }
 

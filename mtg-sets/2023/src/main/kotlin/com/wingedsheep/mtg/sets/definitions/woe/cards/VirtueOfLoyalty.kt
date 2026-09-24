@@ -32,11 +32,11 @@ val VirtueOfLoyalty = card("Virtue of Loyalty") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
-                AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
-                TapUntapEffect(EffectTarget.Self, tap = false)
+                TapUntapEffect(EffectTarget.IterationEntity, tap = false)
             )
         )
         description = "At the beginning of your end step, put a +1/+1 counter on each creature " +

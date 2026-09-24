@@ -68,7 +68,7 @@ val CoordinatedClobbering = card("Coordinated Clobbering") {
             // Tap all chosen creatures first ("Tap one or two target untapped creatures you control").
             ForEachInCollectionEffect(
                 collection = "clobberers",
-                effect = Effects.Tap(EffectTarget.Self),
+                effect = Effects.Tap(EffectTarget.IterationEntity),
             ),
             // Then each deals damage equal to its power to the opponent's creature.
             ForEachInCollectionEffect(
@@ -79,7 +79,7 @@ val CoordinatedClobbering = card("Coordinated Clobbering") {
                         EntityNumericProperty.Power,
                     ),
                     target = EffectTarget.PipelineTarget("victim"),
-                    damageSource = EffectTarget.Self,
+                    damageSource = EffectTarget.IterationEntity,
                 ),
             ),
         )

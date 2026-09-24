@@ -1442,7 +1442,10 @@ val BloodfireColossus = card("Bloodfire Colossus") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(6, EffectTarget.Self)),
+            Effects.ForEachInGroup(
+                GroupFilter(GameObjectFilter.Creature),
+                DealDamageEffect(6, EffectTarget.IterationEntity)
+            ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(6, EffectTarget.Controller)))
         )
     }
@@ -2833,7 +2836,7 @@ val Deluge = card("Deluge") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            Effects.Tap(EffectTarget.Self)
+            Effects.Tap(EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -4142,7 +4145,7 @@ val FlowstoneSlide = card("Flowstone Slide") {
             Effects.ModifyStats(
                 DynamicAmount.XValue,
                 DynamicAmount.Multiply(DynamicAmount.XValue, -1),
-                EffectTarget.Self
+                EffectTarget.IterationEntity
             )
         )
     }
@@ -5629,7 +5632,7 @@ val Hurricane = card("Hurricane") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-                DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self)
+                DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(DynamicAmount.XValue, EffectTarget.Controller)))
         )
@@ -8154,8 +8157,8 @@ val Overrun = card("Overrun") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(3, 3, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                Effects.ModifyStats(3, 3, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
         )
     }
@@ -8684,7 +8687,7 @@ val PlagueWind = card("Plague Wind") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
-            Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             noRegenerate = true
         )
     }
@@ -8854,7 +8857,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -8878,7 +8880,7 @@ val Puppeteer = card("Puppeteer") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.Tap)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = MayEffect(
+        effect = Effects.May(
             ModalEffect.chooseOne(
                 Mode.noTarget(Effects.Tap(t), "Tap that permanent"),
                 Mode.noTarget(Effects.Untap(t), "Untap that permanent"),
@@ -8923,7 +8925,10 @@ val Pyroclasm = card("Pyroclasm") {
     typeLine = "Sorcery"
     oracleText = "Pyroclasm deals 2 damage to each creature."
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature),
+            DealDamageEffect(2, EffectTarget.IterationEntity)
+        )
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -9418,7 +9423,7 @@ val RelentlessAssault = card("Relentless Assault") {
     oracleText = "Untap all creatures that attacked this turn. After this main phase, there is an additional combat phase followed by an additional main phase."
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.Untap(EffectTarget.Self)),
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.Untap(EffectTarget.IterationEntity)),
             Effects.Composite(listOf(Effects.AddCombatPhase, Effects.AddMainPhase))
         )
     }
@@ -10644,7 +10649,7 @@ val Shatterstorm = card("Shatterstorm") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Artifact),
-            Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             noRegenerate = true
         )
     }
@@ -11170,12 +11175,12 @@ val SkyhunterSkirmisher = card("Skyhunter Skirmisher") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 
 /**
@@ -11194,7 +11199,7 @@ val SkyshroudRanger = card("Skyshroud Ranger") {
     toughness = 1
     activatedAbility {
         cost = Costs.Tap
-        effect = MayEffect(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land))
+        effect = Effects.May(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land))
         timing = TimingRule.SorcerySpeed
     }
     metadata {
@@ -12528,7 +12533,7 @@ val TempestOfLight = card("Tempest of Light") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Enchantment),
-            Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             noRegenerate = false
         )
     }
@@ -14062,7 +14067,7 @@ val WarriorsHonor = card("Warrior's Honor") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -14213,7 +14218,7 @@ val WrathOfGod = card("Wrath of God") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             noRegenerate = true
         )
     }

@@ -42,7 +42,7 @@ val FlopsieBumisBuddy = card("Flopsie, Bumi's Buddy") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "When Flopsie enters, put a +1/+1 counter on each creature you control."
     }

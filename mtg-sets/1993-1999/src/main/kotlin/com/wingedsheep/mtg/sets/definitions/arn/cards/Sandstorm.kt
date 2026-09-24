@@ -20,7 +20,7 @@ val Sandstorm = card("Sandstorm") {
     oracleText = "Sandstorm deals 1 damage to each attacking creature."
 
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter.AttackingCreatures, DealDamageEffect(1, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter.AttackingCreatures, DealDamageEffect(1, EffectTarget.IterationEntity))
     }
 
     metadata {

@@ -87,7 +87,7 @@ val ThelonsCurse = card("Thelon's Curse") {
                         decisionMaker = EffectTarget.PlayerRef(Player.TriggeringPlayer),
                         then = ForEachInCollectionEffect(
                             collection = "chosen",
-                            effect = Effects.Untap(EffectTarget.Self)
+                            effect = Effects.Untap(EffectTarget.IterationEntity)
                         ),
                         descriptionOverride = "Pay {U} for each chosen creature? If you do, untap them."
                     )

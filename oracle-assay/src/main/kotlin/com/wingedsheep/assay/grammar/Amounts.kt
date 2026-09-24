@@ -657,7 +657,7 @@ object Amounts {
      *
      * ### The source's own counter tally, which is last-known information half the time it is printed
      *
-     * [counterCount] reads `EntityProperty(Source, CounterCount)`, and `DynamicAmountEvaluator`
+     * [counterCount] reads `EntityProperty(Self, CounterCount)`, and `DynamicAmountEvaluator`
      * resolves that from **live** state: `counterCountOf` looks the entity up and answers 0 when it
      * is not there. So in the position Oracle most often prints this clause — "When ~ dies, put X
      * +1/+1 counters on target creature you control, where X is the number of +1/+1 counters on ~"
@@ -756,7 +756,7 @@ object Amounts {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
             spellEffect = Effects.ForEachInGroup(
                 GroupFilter(filter),
-                Effects.ModifyStats(amount, amount, EffectTarget.Self),
+                Effects.ModifyStats(amount, amount, EffectTarget.IterationEntity),
             )
         )
         return phrase("$prefix{filter} get -X/-X until end of turn", name = name) {

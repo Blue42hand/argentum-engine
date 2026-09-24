@@ -59,7 +59,7 @@ val TerminalVelocity = card("Terminal Velocity") {
                         entity = EffectTarget.Self,
                         numericProperty = EntityNumericProperty.ManaValue,
                     ),
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                 ),
             ),
             descriptionOverride = "When this permanent leaves the battlefield, it deals damage equal to its mana value to each creature.",

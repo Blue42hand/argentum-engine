@@ -37,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *   (crime) or two (no crime).
  * - -1: create a 3/3 green Elk token.
  * - -5: [Effects.ForEachInGroup] over other nonland permanents you control, creating a token copy
- *   of each (`EffectTarget.Self` = the iterated permanent inside the group body).
+ *   of each (`EffectTarget.IterationEntity` = the iterated permanent inside the group body).
  */
 private const val ELK_TOKEN_IMAGE =
     "https://cards.scryfall.io/normal/front/1/6/1632f3fa-4615-46ee-9768-22bbd9d142d6.jpg?1712316649"
@@ -104,7 +104,7 @@ val OkoTheRingleader = card("Oko, the Ringleader") {
                 GameObjectFilter.NonlandPermanent.youControl(),
                 excludeSelf = true,
             ),
-            effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.Self),
+            effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.IterationEntity),
         )
     }
 

@@ -46,7 +46,7 @@ val KrenkoBaronOfTinStreet = card("Krenko, Baron of Tin Street") {
         cost = Costs.Composite(Costs.Tap, Costs.Sacrifice(GameObjectFilter.Artifact))
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype("Goblin").youControl()),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "{T}, Sacrifice an artifact: Put a +1/+1 counter on each Goblin you control."
     }

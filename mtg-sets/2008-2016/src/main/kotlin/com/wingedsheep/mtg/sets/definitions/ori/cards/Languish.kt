@@ -23,7 +23,7 @@ val Languish = card("Languish") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreatures,
-            ModifyStatsEffect(-4, -4, EffectTarget.Self),
+            ModifyStatsEffect(-4, -4, EffectTarget.IterationEntity),
         )
     }
 

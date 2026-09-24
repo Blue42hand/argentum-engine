@@ -91,13 +91,13 @@ object CreatureTypePatterns {
         val modifyStats = ModifyStatsEffect(
             powerModifier = powerModifier,
             toughnessModifier = toughnessModifier,
-            target = EffectTarget.Self,
+            target = EffectTarget.IterationEntity,
             duration = duration
         )
         val innerEffect: Effect = if (grantKeyword != null) {
             CompositeEffect(listOf(
                 modifyStats,
-                GrantKeywordEffect(grantKeyword.name, EffectTarget.Self, duration)
+                GrantKeywordEffect(grantKeyword.name, EffectTarget.IterationEntity, duration)
             ))
         } else {
             modifyStats
@@ -124,7 +124,7 @@ object CreatureTypePatterns {
                 filter = GroupFilter(
                     baseFilter = GameObjectFilter.Creature.withSubtypeFromVariable("chosenType")
                 ),
-                effect = TapUntapEffect(EffectTarget.Self, tap = false)
+                effect = TapUntapEffect(EffectTarget.IterationEntity, tap = false)
             )
         )
     )
@@ -146,7 +146,7 @@ object CreatureTypePatterns {
                 filter = filter,
                 effect = SetCreatureSubtypesEffect(
                     fromChosenValueKey = key,
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                     duration = duration
                 )
             )
@@ -167,7 +167,7 @@ object CreatureTypePatterns {
                 then = ForEachInGroupEffect(
                     filter = GroupFilter.ChosenSubtypeCreatures(key),
                     effect = GainControlEffect(
-                        target = EffectTarget.Self,
+                        target = EffectTarget.IterationEntity,
                         duration = duration
                     )
                 )

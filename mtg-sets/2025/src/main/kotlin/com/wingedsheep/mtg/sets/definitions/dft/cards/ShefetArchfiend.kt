@@ -36,7 +36,7 @@ val ShefetArchfiend = card("Shefet Archfiend") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature, excludeSelf = true),
-            Effects.ModifyStats(-2, -2, EffectTarget.Self)
+            Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
         )
     }
     keywordAbility(KeywordAbility.cycling("{2}"))

@@ -52,7 +52,7 @@ val NitaForumConciliator = card("Nita, Forum Conciliator") {
         trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.NotOwnedByController))
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "Whenever you cast a spell you don't own, put a +1/+1 counter on each creature you control."
     }

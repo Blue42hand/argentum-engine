@@ -67,12 +67,12 @@ val ConcertedEffort = card("Concerted Effort") {
                     condition = Conditions.ControlCreatureWithKeyword(keyword),
                     then = Effects.ForEachInGroup(
                         CREATURES_YOU_CONTROL,
-                        Effects.GrantKeyword(keyword, EffectTarget.Self, Duration.EndOfTurn)
+                        Effects.GrantKeyword(keyword, EffectTarget.IterationEntity, Duration.EndOfTurn)
                     )
                 )
             } + Effects.ForEachInGroup(
                 CREATURES_YOU_CONTROL,
-                Effects.GrantProtectionsSharedByGroup(CREATURES_YOU_CONTROL)
+                Effects.GrantProtectionsSharedByGroup(CREATURES_YOU_CONTROL, EffectTarget.IterationEntity)
             ),
             descriptionOverride = "Creatures you control gain flying until end of turn if a creature you " +
                 "control has flying. The same is true for fear, first strike, double strike, landwalk, " +

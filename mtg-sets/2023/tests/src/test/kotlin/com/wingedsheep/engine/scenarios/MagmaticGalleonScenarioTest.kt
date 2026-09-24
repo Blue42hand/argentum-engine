@@ -80,7 +80,7 @@ class MagmaticGalleonScenarioTest : FunSpec({
         spell {
             effect = Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                DealDamageEffect(5, EffectTarget.Self)
+                DealDamageEffect(5, EffectTarget.IterationEntity)
             )
         }
     }

@@ -36,7 +36,7 @@ val JiangYangguNeverAlone = card("Jiang Yanggu, Never Alone") {
         trigger = Triggers.YourEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Token.youControl()),
-            Effects.Untap(EffectTarget.Self)
+            Effects.Untap(EffectTarget.IterationEntity)
         )
         description = "At the beginning of your end step, untap all tokens you control."
     }

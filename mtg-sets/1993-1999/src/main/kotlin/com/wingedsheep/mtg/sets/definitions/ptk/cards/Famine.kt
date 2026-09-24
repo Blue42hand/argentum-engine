@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * One printed sentence, two effects joined by [Effects.Composite]. The board half is
  * [Effects.ForEachInGroup] over `GroupFilter(GameObjectFilter.Creature)` with the damage aimed at
- * [EffectTarget.Self] — the current iteration entity. The player half is the corpus' spelling for a
+ * [EffectTarget.IterationEntity] — the current iteration entity. The player half is the corpus' spelling for a
  * symmetric player sweep: [Effects.ForEachPlayer] over [Player.Each], each iteration rebinding the
  * controller so [EffectTarget.Controller] is the player being processed.
  */
@@ -30,7 +30,7 @@ val Famine = card("Famine") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                Effects.DealDamage(3, EffectTarget.Self)
+                Effects.DealDamage(3, EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,

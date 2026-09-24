@@ -49,7 +49,7 @@ val AvengersDisassembled = card("Avengers Disassembled") {
             mode("Avengers Disassembled deals 3 damage to each creature") {
                 effect = Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreatures,
-                    effect = DealDamageEffect(3, EffectTarget.Self),
+                    effect = DealDamageEffect(3, EffectTarget.IterationEntity),
                 )
             }
             mode(

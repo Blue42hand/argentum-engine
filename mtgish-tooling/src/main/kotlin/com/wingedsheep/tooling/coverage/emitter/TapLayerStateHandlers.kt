@@ -99,7 +99,7 @@ internal val tapLayerStateHandlers: Map<String, ActionHandler> = actionHandlers 
             return@on call("Effects.${verb}EachTarget")
         }
         val filter = groupFilterExpr(args) ?: return@on null  // mass: tap/untap a group
-        call("Effects.ForEachInGroup", arg(filter), arg(call("Effects.$verb", arg("EffectTarget.Self"))))
+        call("Effects.ForEachInGroup", arg(filter), arg(call("Effects.$verb", arg("EffectTarget.IterationEntity"))))
     }
 
     on("PreparePermanent") { _, args, tvar ->
@@ -342,7 +342,7 @@ internal fun EmitCtx.renderPutCountersVariant(inner: JsonObject, tvar: String?):
             val filter = groupFilterExpr(arr.getOrNull(1)) ?: return null
             call(
                 "Effects.ForEachInGroup", arg(filter),
-                arg(call("AddCountersEffect", arg(Lit(counter)), arg("1"), arg("EffectTarget.Self"))),
+                arg(call("AddCountersEffect", arg(Lit(counter)), arg("1"), arg("EffectTarget.IterationEntity"))),
             )
         }
         // "Put N <counter> counters on <permanents>." — the mass / dynamic-count form. args = [<amount>,
@@ -409,10 +409,10 @@ private fun EmitCtx.renderNumberCountersOnEach(arr: JsonArray?): Dsl? {
     }
     val groupFilter = groupFilterExpr(recipient) ?: return null
     val perEntity = (findInteger(arr.getOrNull(0)) as? Int)?.let { count ->
-        call("AddCountersEffect", arg("counterType", counter), arg("count", "$count"), arg("target", "EffectTarget.Self"))
+        call("AddCountersEffect", arg("counterType", counter), arg("count", "$count"), arg("target", "EffectTarget.IterationEntity"))
     } ?: run {
         val amount = dynamicAmount(arr.getOrNull(0)) ?: return null
-        call("Effects.AddDynamicCounters", arg("counterType", counter), arg("amount", Lit(amount)), arg("target", "EffectTarget.Self"))
+        call("Effects.AddDynamicCounters", arg("counterType", counter), arg("amount", Lit(amount)), arg("target", "EffectTarget.IterationEntity"))
     }
     return call("Effects.ForEachInGroup", arg(groupFilter), arg(perEntity))
 }
@@ -558,13 +558,13 @@ internal fun EmitCtx.renderLayerEffect(node: JsonObject, action: String, tvar: S
     // engine models this as a ForEachTargetEffect over the bound targets, with each iteration's effect
     // bound to ContextTarget(0) — NOT a battlefield-filter ForEachInGroup (which would widen to every
     // permanent). Distinct from the filter form ("each creature you control gets …"), which keeps the
-    // ForEachInGroup-over-Self path below.
+    // ForEachInGroup-over-IterationEntity path below.
     val subjectArg = (node["args"].asArr)?.getOrNull(0)
     val overBoundTargets = mass && subjectArg != null &&
         jsonContains(subjectArg, "_Permanents", "Ref_TargetPermanents")
     val target = when {
         overBoundTargets -> "EffectTarget.ContextTarget(0)"
-        mass -> "EffectTarget.Self"
+        mass -> "EffectTarget.IterationEntity"
         else -> refTarget(node["args"], tvar)
     }
     if (target == null) return null

@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * ([com.wingedsheep.sdk.dsl.DynamicAmounts.colorsOfManaSpent]). Composed from existing atoms:
  *  1. [Effects.DealDamage] deals that color-count to the target and marks the damage.
  *  2. The exile count reads the post-damage excess via
- *     `EntityProperty(Target(0), ExcessMarkedDamage)` — `max(0, marked − toughness)` (CR 120.4a),
+ *     `EntityProperty(ContextTarget(0), ExcessMarkedDamage)` — `max(0, marked − toughness)` (CR 120.4a),
  *     the same amount Hell to Pay reads. CompositeEffect resolves steps sequentially with no
  *     interleaved SBA pass, so the marked damage in scope is exactly what this spell just dealt.
  *  3. Gather that many cards off the top of your library → move them to exile → grant

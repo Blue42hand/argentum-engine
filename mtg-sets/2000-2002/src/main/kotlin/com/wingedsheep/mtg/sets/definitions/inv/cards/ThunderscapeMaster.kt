@@ -38,7 +38,7 @@ val ThunderscapeMaster = card("Thunderscape Master") {
         description = "{G}{G}, {T}: Creatures you control get +2/+2 until end of turn."
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-            effect = ModifyStatsEffect(2, 2, EffectTarget.Self)
+            effect = ModifyStatsEffect(2, 2, EffectTarget.IterationEntity)
         )
     }
 

@@ -33,7 +33,7 @@ val AshenFirebeast = card("Ashen Firebeast") {
         cost = Costs.Mana("{1}{R}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
     metadata {

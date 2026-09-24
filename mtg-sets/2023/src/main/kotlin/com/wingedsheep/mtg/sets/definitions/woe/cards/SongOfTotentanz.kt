@@ -34,7 +34,7 @@ val SongOfTotentanz = card("Song of Totentanz") {
             woeRatToken(count = DynamicAmount.XValue),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
             )
         )
     }

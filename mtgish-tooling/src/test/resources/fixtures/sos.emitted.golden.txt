@@ -434,7 +434,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -460,11 +459,11 @@ val AntiquitiesOnTheLoose = card("Antiquities on the Loose") {
                 creatureTypes = setOf("Spirit"),
                 count = 2
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.Not(Conditions.WasCastFromHand),
-                effect = Effects.ForEachInGroup(
+                then = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.SPIRIT).youControl()),
-                    AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                 )
             )
         )
@@ -722,7 +721,7 @@ val ArtisticProcess = card("Artistic Process") {
             mode("Artistic Process deals 2 damage to each creature you don't control") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.opponentControls()),
-                    DealDamageEffect(2, EffectTarget.Self)
+                    DealDamageEffect(2, EffectTarget.IterationEntity)
                 )
             }
             mode("Create a 3/3 blue and red Elemental creature token with flying. It gains haste until end of turn") {
@@ -736,7 +735,7 @@ val ArtisticProcess = card("Artistic Process") {
                     ),
                     Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Permanent),
-                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
                     )
                 )
             }
@@ -1081,7 +1080,7 @@ val BlechLoafingPest = card("Blech, Loafing Pest") {
                     listOf(Subtype("Pest"), Subtype.BAT, Subtype.INSECT, Subtype.SNAKE, Subtype.SPIDER)
                 ).youControl()
             ),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -1311,7 +1310,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -1332,9 +1330,9 @@ val BurrogBarrage = card("Burrog Barrage") {
         val t1 = target("t1", TargetCreature(filter = TargetFilter.Creature.youControl()))
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls(), optional = true))
         effect = Effects.Composite(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouCastSpellsThisTurn(2, GameObjectFilter.InstantOrSorcery),
-                effect = Effects.ModifyStats(1, 0, t1)
+                then = Effects.ModifyStats(1, 0, t1)
             ),
             DealDamageEffect(DynamicAmounts.targetPower(0), t2, damageSource = t1)
         )
@@ -2598,7 +2596,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -2619,9 +2616,9 @@ val Efflorescence = card("Efflorescence") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = t),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouGainedLifeThisTurn,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.GrantKeyword(Keyword.TRAMPLE, t),
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
                 )
@@ -2654,7 +2651,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
@@ -2684,13 +2680,13 @@ val ElementalMascot = card("Elemental Mascot") {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(5)
                 ),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     GatherCardsEffect(
                         source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
                         storeAs = "impulseExiled"
@@ -2722,7 +2718,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -2753,7 +2748,7 @@ val EliteInterceptor = card("Elite Interceptor") {
         spell {
             val t = target("target", TargetCreature(filter = TargetFilter.Creature))
             effect = Effects.Composite(
-                MayEffect(
+                Effects.May(
                     ModalEffect.chooseOne(
                         Mode.noTarget(Effects.Tap(t), "Tap that permanent"),
                         Mode.noTarget(Effects.Untap(t), "Untap that permanent"),
@@ -2785,7 +2780,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 
 /**
@@ -2802,7 +2796,7 @@ val EmbraceTheParadox = card("Embrace the Paradox") {
     spell {
         effect = Effects.Composite(
             DrawCardsEffect(3),
-            MayEffect(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land, entersTapped = true))
+            Effects.May(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land, entersTapped = true))
         )
     }
     metadata {
@@ -3324,7 +3318,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -3351,7 +3344,7 @@ val Erode = card("Erode") {
         val t = target("target", TargetCreatureOrPlaneswalker())
         effect = Effects.Composite(
             Effects.Destroy(EffectTarget.BoundVariable("target")),
-            MayEffect(
+            Effects.May(
                 effect = Effects.Composite(
                     GatherCardsEffect(
                         source = CardSource.FromZone(
@@ -3597,7 +3590,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -3621,13 +3613,13 @@ val ExpressiveFiredancer = card("Expressive Firedancer") {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(5)
                 ),
-                effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.Self)
+                then = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.Self)
             )
         )
     }
@@ -3838,7 +3830,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -3861,9 +3852,9 @@ val FoolishFate = card("Foolish Fate") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouGainedLifeThisTurn,
-                effect = LoseLifeEffect(3, EffectTarget.TargetController)
+                then = LoseLifeEffect(3, EffectTarget.TargetController)
             )
         )
     }
@@ -4325,7 +4316,11 @@ val GerminationPracticum = card("Germination Practicum") {
         paradigm()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
+            AddCountersEffect(
+                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                count = 2,
+                target = EffectTarget.IterationEntity
+            )
         )
     }
     metadata {
@@ -4860,8 +4855,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -4887,8 +4880,8 @@ val HeatedArgument = card("Heated Argument") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.DealDamage(6, EffectTarget.BoundVariable("target")),
-            MayEffect(
-                IfYouDoEffect(
+            Effects.May(
+                Effects.IfYouDo(
                     action = Effects.Composite(
                         GatherCardsEffect(
                             source = CardSource.FromZone(zone = Zone.GRAVEYARD),
@@ -4902,7 +4895,7 @@ val HeatedArgument = card("Heated Argument") {
                         ),
                         MoveCollectionEffect(from = "toExile", destination = CardDestination.ToZone(Zone.EXILE))
                     ),
-                    ifYouDo = Effects.DealDamage(2, EffectTarget.TargetController),
+                    then = Effects.DealDamage(2, EffectTarget.TargetController),
                     successCriterion = SuccessCriterion.CollectionNonEmpty("toExile", min = 1)
                 )
             )
@@ -5551,7 +5544,7 @@ val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
                     Effects.AddDynamicCounters(
                         counterType = Counters.PLUS_ONE_PLUS_ONE,
                         amount = DynamicAmount.XValue,
-                        target = EffectTarget.Self
+                        target = EffectTarget.IterationEntity
                     )
                 )
             )
@@ -6088,8 +6081,8 @@ val LoreholdCharm = card("Lorehold Charm") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
                     Effects.Composite(
-                        Effects.ModifyStats(1, 1, EffectTarget.Self),
-                        Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                        Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
+                        Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
                     )
                 )
             }
@@ -6329,7 +6322,7 @@ val MagmabloodArchaic = card("Magmablood Archaic") {
             Effects.ModifyStats(
                 DynamicAmount.ContextProperty(ContextPropertyKey.COLORS_SPENT_ON_TRIGGERING_SPELL),
                 DynamicAmount.Fixed(0),
-                EffectTarget.Self
+                EffectTarget.IterationEntity
             )
         )
     }
@@ -6356,7 +6349,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -6377,9 +6369,9 @@ val ManaSculpt = card("Mana Sculpt") {
     spell {
         val t = target("target", TargetSpell())
         effect = Effects.Composite(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControl(GameObjectFilter.Creature.withSubtype(Subtype.WIZARD)),
-                effect = CreateDelayedTriggerEffect(
+                then = CreateDelayedTriggerEffect(
                     step = Step.PRECOMBAT_MAIN,
                     fireOnPlayer = EffectTarget.PlayerRef(Player.You),
                     effect = Effects.AddColorlessMana(DynamicAmounts.targetManaSpent(0))
@@ -6779,7 +6771,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -6805,13 +6796,13 @@ val MoltenCoreMaestro = card("Molten-Core Maestro") {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.Composite(
             AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(5)
                 ),
-                effect = Effects.AddMana(Color.RED, DynamicAmounts.sourcePower())
+                then = Effects.AddMana(Color.RED, DynamicAmounts.sourcePower())
             )
         )
     }
@@ -6984,7 +6975,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -7008,7 +6998,7 @@ val MuseSeeker = card("Muse Seeker") {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.Composite(
             DrawCardsEffect(1),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.Not(
                     Compare(
                         DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
@@ -7016,7 +7006,7 @@ val MuseSeeker = card("Muse Seeker") {
                         DynamicAmount.Fixed(5)
                     )
                 ),
-                effect = Patterns.Hand.discardCards(1)
+                then = Patterns.Hand.discardCards(1)
             )
         )
     }
@@ -8502,8 +8492,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 
 /**
@@ -8521,7 +8509,7 @@ val PursueThePast = card("Pursue the Past") {
     spell {
         effect = Effects.Composite(
             GainLifeEffect(2),
-            MayEffect(effect = IfYouDoEffect(action = Patterns.Hand.discardCards(1), ifYouDo = DrawCardsEffect(2)))
+            Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(2)))
         )
     }
     keywordAbility(KeywordAbility.flashback("{2}{R}{W}"))
@@ -8841,7 +8829,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -8863,9 +8850,9 @@ val RapierWit = card("Rapier Wit") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.Tap(t),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.IsYourTurn,
-                effect = AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
+                then = AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
             ),
             DrawCardsEffect(1)
         )
@@ -9225,15 +9212,15 @@ val RootManipulation = card("Root Manipulation") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(2, 2, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self),
+                Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity),
                 GrantTriggeredAbilityEffect(
                     ability = TriggeredAbility.create(
                         trigger = Triggers.Attacks.event,
                         binding = Triggers.Attacks.binding,
                         effect = GainLifeEffect(1)
                     ),
-                    target = EffectTarget.Self
+                    target = EffectTarget.IterationEntity
                 )
             )
         )
@@ -9255,13 +9242,12 @@ val RootManipulation = card("Root Manipulation") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 
 /**
@@ -9281,7 +9267,9 @@ val RubbleRouser = card("Rubble Rouser") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(effect = IfYouDoEffect(action = Patterns.Hand.discardCards(1), ifYouDo = DrawCardsEffect(1)))
+        effect = Effects.May(
+            effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(1))
+        )
     }
     // STRUCTURE needs human wiring: activated-cost
     metadata {
@@ -10576,7 +10564,7 @@ val SplatterTechnique = card("Splatter Technique") {
             mode("Splatter Technique deals 4 damage to each creature and planeswalker") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.CreatureOrPlaneswalker),
-                    DealDamageEffect(4, EffectTarget.Self)
+                    DealDamageEffect(4, EffectTarget.IterationEntity)
                 )
             }
         }
@@ -10597,11 +10585,11 @@ val SplatterTechnique = card("Splatter Technique") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 
 /**
@@ -10620,11 +10608,11 @@ val StadiumTidalmage = card("Stadium Tidalmage") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(Patterns.Hand.loot())
+        effect = Effects.May(Patterns.Hand.loot())
     }
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(Patterns.Hand.loot())
+        effect = Effects.May(Patterns.Hand.loot())
     }
     metadata {
         rarity = Rarity.COMMON
@@ -10842,7 +10830,7 @@ val StirringHopesinger = card("Stirring Hopesinger") {
         )
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -12791,7 +12779,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -12809,16 +12796,16 @@ val WitheringCurse = card("Withering Curse") {
     typeLine = "Sorcery"
     oracleText = "All creatures get -2/-2 until end of turn.\nInfusion — If you gained life this turn, destroy all creatures instead."
     spell {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.YouGainedLifeThisTurn,
-            effect = Effects.ForEachInGroup(
+            then = Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+                Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
                 noRegenerate = false
             ),
-            elseEffect = Effects.ForEachInGroup(
+            otherwise = Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                Effects.ModifyStats(-2, -2, EffectTarget.Self)
+                Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
             )
         )
     }

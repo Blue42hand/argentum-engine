@@ -38,7 +38,7 @@ val InciteWar = card("Incite War") {
                 target("player whose creatures must attack", TargetPlayer())
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.targetPlayerControls()),
-                    Effects.MarkMustAttackThisTurn(EffectTarget.Self),
+                    Effects.MarkMustAttackThisTurn(EffectTarget.IterationEntity),
                 )
             }
             mode("Creatures you control gain first strike until end of turn") {

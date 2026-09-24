@@ -41,7 +41,7 @@ val ArtisticProcess = card("Artistic Process") {
             mode("Artistic Process deals 2 damage to each creature you don't control") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.opponentControls()),
-                    DealDamageEffect(2, EffectTarget.Self)
+                    DealDamageEffect(2, EffectTarget.IterationEntity)
                 )
             }
             mode("Create a 3/3 blue and red Elemental creature token with flying. It gains haste until end of turn") {

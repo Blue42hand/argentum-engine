@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * chosen colour has nothing to do with the colour the creatures share). The **radiance group** is
  * the usual RAV shape: the target is granted directly, and every *other* creature sharing a colour
  * with it (`sharingColorWith(EffectTarget.ContextTarget(0))`, `otherThanTarget()`) is gathered once at
- * resolution and granted via [Effects.ForEachInGroup] with `EffectTarget.Self` bound to each
+ * resolution and granted via [Effects.ForEachInGroup] with `EffectTarget.IterationEntity` bound to each
  * iterated creature — the documented `ChooseColorThen` + `ForEachInGroup` recipe.
  *
  * A colorless target shares a colour with nothing, not even other colorless creatures, so only it
@@ -45,7 +45,7 @@ val BatheInLight = card("Bathe in Light") {
                     filter = GroupFilter(
                         GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
                     ).otherThanTarget(),
-                    effect = Effects.GrantProtectionFromChosenColor(EffectTarget.Self)
+                    effect = Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)
                 )
         )
     }

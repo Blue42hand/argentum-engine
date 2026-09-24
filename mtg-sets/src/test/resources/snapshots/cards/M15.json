@@ -749,7 +749,7 @@
                     "type": "Fixed",
                     "amount": -1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1550,7 +1550,7 @@
                     },
                     "body": {
                         "type": "MoveToZone",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "destination": "Exile"
                     }
                 }
@@ -2454,7 +2454,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }

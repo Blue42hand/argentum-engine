@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *
  * The ETB declares the single victim ("target creature an opponent controls") and then loops over
  * every *other* Bird you control, each dealing damage equal to its own power — read per-iteration
- * via [EffectTarget.IterationEntity], with [EffectTarget.Self] as the per-Bird damage source.
+ * via [EffectTarget.IterationEntity], which is also the per-Bird damage source.
  * Mirrors Coordinated Clobbering (DSK), minus the per-source targeting (here the Birds are a group,
  * not chosen targets).
  */
@@ -50,7 +50,7 @@ val BartzAndBoko = card("Bartz and Boko") {
                     EntityNumericProperty.Power,
                 ),
                 target = victim,
-                damageSource = EffectTarget.Self,
+                damageSource = EffectTarget.IterationEntity,
             ),
         )
     }

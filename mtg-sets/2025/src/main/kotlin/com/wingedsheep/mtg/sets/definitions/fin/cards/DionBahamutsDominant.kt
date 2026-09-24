@@ -67,8 +67,8 @@ private val BahamutWardenOfLight = card("Bahamut, Warden of Light") {
     val wingsOfLight = Effects.ForEachInGroup(
         GroupFilter.OtherCreaturesYouControl,
         Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
+            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity),
         ),
     )
     sagaChapter(1) {

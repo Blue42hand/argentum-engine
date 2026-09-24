@@ -142,7 +142,7 @@ private val AvacynThePurifier = card("Avacyn, the Purifier") {
         trigger = Triggers.TransformsToBack
         effect = Effects.ForEachInGroup(
             GroupFilter.AllOtherCreatures,
-            DealDamageEffect(3, EffectTarget.Self),
+            DealDamageEffect(3, EffectTarget.IterationEntity),
         ) then Effects.DealDamage(3, EffectTarget.PlayerRef(Player.EachOpponent))
         description = "Avacyn, the Purifier deals 3 damage to each other creature and each opponent."
     }

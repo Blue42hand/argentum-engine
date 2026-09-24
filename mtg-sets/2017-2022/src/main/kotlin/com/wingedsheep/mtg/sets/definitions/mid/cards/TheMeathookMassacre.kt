@@ -43,7 +43,7 @@ val TheMeathookMassacre = card("The Meathook Massacre") {
             effect = Effects.ModifyStats(
                 DynamicAmount.Multiply(DynamicAmount.CastX, -1),
                 DynamicAmount.Multiply(DynamicAmount.CastX, -1),
-                EffectTarget.Self
+                EffectTarget.IterationEntity
             )
         )
     }

@@ -98,7 +98,7 @@ val MagneticMountain = card("Magnetic Mountain") {
                         decisionMaker = EffectTarget.PlayerRef(Player.TriggeringPlayer),
                         then = ForEachInCollectionEffect(
                             collection = "chosen",
-                            effect = Effects.Untap(EffectTarget.Self)
+                            effect = Effects.Untap(EffectTarget.IterationEntity)
                         ),
                         descriptionOverride = "Pay {4} for each chosen creature? If you do, untap them."
                     )

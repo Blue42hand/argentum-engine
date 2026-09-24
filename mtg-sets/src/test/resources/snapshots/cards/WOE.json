@@ -79,7 +79,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -94,7 +94,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -109,7 +109,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -1060,7 +1060,7 @@
             "body": {
                 "type": "CreateRoleToken",
                 "roleName": "Cursed Role",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -6977,7 +6977,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -7097,7 +7097,7 @@
                                             "type": "Fixed",
                                             "amount": 0
                                         },
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     }
                                 },
                                 "descriptionOverride": "{R}: Dragons you control get +1/+0 until end of turn."
@@ -7266,7 +7266,7 @@
                             "type": "BoundVariable",
                             "name": "target creature you don't control"
                         },
-                        "damageSource": "Self"
+                        "damageSource": "IterationEntity"
                     }
                 }
             ]
@@ -7599,7 +7599,7 @@
                             "entity": "Self",
                             "numericProperty": "Power"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When this creature dies, put a number of +1/+1 counters equal to its power on each creature you control named Gruff Triplets."
@@ -8553,7 +8553,7 @@
                                         "type": "AddCounters",
                                         "counterType": "+1/+1",
                                         "count": 1,
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     }
                                 },
                                 "description": "Put a +1/+1 counter on each creature you control"
@@ -8893,12 +8893,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -10410,7 +10410,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "MENACE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Creatures you control gain menace until end of turn."
@@ -11052,7 +11052,7 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FLYING",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "ModifyStats",
@@ -11066,7 +11066,7 @@
                                     "player": "You",
                                     "filter": "creature"
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -11341,7 +11341,7 @@
                             "player": "You",
                             "filter": "artifact Food"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "timing": "SorcerySpeed",
@@ -11651,7 +11651,7 @@
                                         "type": "Fixed",
                                         "amount": 0
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -11720,7 +11720,7 @@
                                         "type": "Fixed",
                                         "amount": 0
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -12323,12 +12323,12 @@
                                                 "type": "Fixed",
                                                 "amount": 1
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         },
                                         {
                                             "type": "GrantKeyword",
                                             "keyword": "TRAMPLE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     ]
                                 }
@@ -15122,7 +15122,7 @@
                             "type": "Fixed",
                             "amount": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -15571,7 +15571,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "HASTE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -15676,7 +15676,7 @@
                                         },
                                         "multiplier": -1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -18601,12 +18601,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -19714,7 +19714,7 @@
                             "body": {
                                 "type": "CreateRoleToken",
                                 "roleName": "Wicked Role",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -20322,7 +20322,7 @@
                                 "type": "AddCounters",
                                 "counterType": "+1/+1",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -20335,7 +20335,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         }

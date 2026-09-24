@@ -63,7 +63,7 @@ val SokenzanCrucibleOfDefiance = card("Sokenzan, Crucible of Defiance") {
                 ),
                 ForEachInCollectionEffect(
                     CREATED_TOKENS,
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
                 )
             )
         )

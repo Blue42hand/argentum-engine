@@ -114,7 +114,7 @@ private val ZenosYaeGalvusFront = card("Zenos yae Galvus") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures.other().otherThanTarget(),
-                effect = ModifyStatsEffect(-2, -2, EffectTarget.Self)
+                effect = ModifyStatsEffect(-2, -2, EffectTarget.IterationEntity)
             ),
             Effects.If(
                 condition = Conditions.EntityMatches(

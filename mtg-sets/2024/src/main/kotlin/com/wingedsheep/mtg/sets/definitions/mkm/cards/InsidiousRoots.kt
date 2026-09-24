@@ -79,7 +79,7 @@ val InsidiousRoots = card("Insidious Roots") {
             ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype("Plant").youControl()),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
             ),
         )
         description = "Whenever one or more creature cards leave your graveyard, create a 0/1 " +

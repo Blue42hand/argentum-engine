@@ -756,7 +756,7 @@
                                 },
                                 "body": {
                                     "type": "CreateTokenCopyOfTarget",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }

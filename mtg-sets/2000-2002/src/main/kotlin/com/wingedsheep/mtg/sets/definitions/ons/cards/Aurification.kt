@@ -49,7 +49,7 @@ val Aurification = card("Aurification") {
 
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, RemoveCountersEffect(Counters.GOLD, Int.MAX_VALUE, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, RemoveCountersEffect(Counters.GOLD, Int.MAX_VALUE, EffectTarget.IterationEntity))
     }
 
     metadata {

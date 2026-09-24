@@ -434,7 +434,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -3026,12 +3026,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -4405,16 +4405,17 @@
                         "effects": [
                             {
                                 "type": "RemoveAllAbilities",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "duration": "Permanent"
                             },
                             {
                                 "type": "AddCreatureType",
-                                "subtype": "Coward"
+                                "subtype": "Coward",
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "SetBaseStats",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "power": {
                                     "type": "Fixed",
                                     "amount": 1
@@ -4487,7 +4488,7 @@
                 "type": "AddCounters",
                 "counterType": "-1/-1",
                 "count": 2,
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5051,7 +5052,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 }
@@ -7707,7 +7708,7 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -7721,7 +7722,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "FIRST_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -9228,12 +9229,12 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -15102,7 +15103,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Treefolk and Forests you control gain indestructible until end of turn"
@@ -15415,12 +15416,12 @@
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "HEXPROOF",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "INDESTRUCTIBLE",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     }
                                 ]
                             }
@@ -16085,7 +16086,7 @@
                             "type": "CastChoice",
                             "slot": "BLIGHT_AMOUNT"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -17274,7 +17275,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "LIFELINK",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -18297,7 +18298,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{4}{W}: Creatures you control get +1/+1 until end of turn."
@@ -18479,7 +18480,7 @@
                                         "type": "Fixed",
                                         "amount": 3
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -18503,7 +18504,7 @@
                                 },
                                 "body": {
                                     "type": "TapUntap",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "tap": false
                                 }
                             }

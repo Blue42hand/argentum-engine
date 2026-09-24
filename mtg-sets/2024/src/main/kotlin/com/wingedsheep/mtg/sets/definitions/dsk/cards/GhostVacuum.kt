@@ -92,10 +92,10 @@ val GhostVacuum = card("Ghost Vacuum") {
                     Effects.SetBasePowerAndToughness(
                         power = 1,
                         toughness = 1,
-                        target = EffectTarget.Self,
+                        target = EffectTarget.IterationEntity,
                         duration = com.wingedsheep.sdk.scripting.Duration.Permanent,
                     ),
-                    Effects.AddCreatureType("Spirit", EffectTarget.Self),
+                    Effects.AddCreatureType("Spirit", EffectTarget.IterationEntity),
                 ),
             ),
             // Sacrifice this artifact (modeled in-effect; see KDoc).

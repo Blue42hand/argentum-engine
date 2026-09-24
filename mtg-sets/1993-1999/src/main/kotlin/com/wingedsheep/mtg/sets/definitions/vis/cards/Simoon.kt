@@ -28,7 +28,7 @@ val Simoon = card("Simoon") {
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.ForEachInGroup(
             GroupFilter(Filters.Creature.targetOpponentControls()),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
 

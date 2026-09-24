@@ -114,7 +114,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         },
@@ -258,7 +258,7 @@
                 },
                 "body": {
                     "type": "GrantProtectionFromChosenColor",
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             }
         }
@@ -298,7 +298,7 @@
             },
             "body": {
                 "type": "MoveToZone",
-                "target": "Self",
+                "target": "IterationEntity",
                 "destination": "Graveyard",
                 "byDestruction": true
             }
@@ -995,7 +995,7 @@
                         "type": "RemoveCounters",
                         "counterType": "gold",
                         "count": 2147483647,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -4462,7 +4462,7 @@
                             "type": "Fixed",
                             "amount": 4
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -4540,7 +4540,7 @@
             "body": {
                 "type": "GrantKeyword",
                 "keyword": "FEAR",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "triggeredAbilities": [
@@ -7437,7 +7437,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -7459,7 +7459,7 @@
                     },
                     "body": {
                         "type": "MoveToZone",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "destination": "Graveyard",
                         "byDestruction": true
                     }
@@ -8919,7 +8919,7 @@
                     "type": "Fixed",
                     "amount": -2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -9068,7 +9068,7 @@
                     },
                     "body": {
                         "type": "GainControl",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "duration": "EndOfTurn"
                     }
                 },
@@ -9082,7 +9082,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 },
@@ -9097,7 +9097,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "HASTE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -9569,12 +9569,12 @@
                                     "type": "Fixed",
                                     "amount": 3
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -11311,7 +11311,7 @@
                         },
                         "body": {
                             "type": "GainControl",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -11400,7 +11400,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "VIGILANCE",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control gain vigilance until end of turn"
@@ -12247,7 +12247,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         }
@@ -13772,7 +13772,7 @@
                     "body": {
                         "type": "DealDamage",
                         "amount": "XValue",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -13948,7 +13948,7 @@
                                     "type": "Fixed",
                                     "amount": 10
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -14149,7 +14149,7 @@
                     "type": "Fixed",
                     "amount": 4
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "triggeredAbilities": [
@@ -14173,7 +14173,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -14944,6 +14944,7 @@
                     },
                     "body": {
                         "type": "SetCreatureSubtypes",
+                        "target": "IterationEntity",
                         "duration": "EndOfTurn",
                         "fromChosenValueKey": "chosenCreatureType"
                     }
@@ -15094,7 +15095,7 @@
             "body": {
                 "type": "DealDamage",
                 "amount": "XValue",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -15947,7 +15948,7 @@
                             "player": "Each",
                             "filter": "creature Beast"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -16294,7 +16295,7 @@
                         "type": "ModifyStats",
                         "powerModifier": "XValue",
                         "toughnessModifier": "XValue",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -17044,7 +17045,10 @@
                                     "chosenSubtypeKey": "chosenCreatureType"
                                 }
                             },
-                            "body": "MarkMustAttackThisTurn"
+                            "body": {
+                                "type": "MarkMustAttackThisTurn",
+                                "target": "IterationEntity"
+                            }
                         }
                     ]
                 },

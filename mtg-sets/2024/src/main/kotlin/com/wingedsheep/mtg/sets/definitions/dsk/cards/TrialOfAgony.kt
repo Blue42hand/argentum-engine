@@ -71,7 +71,7 @@ val TrialOfAgony = card("Trial of Agony") {
                 // 4. The other can't block this turn.
                 ForEachInCollectionEffect(
                     collection = "trialOther",
-                    effect = Effects.CantBlock(EffectTarget.Self)
+                    effect = Effects.CantBlock(EffectTarget.IterationEntity)
                 )
             )
         )

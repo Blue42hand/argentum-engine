@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * are the plain creature filter and the unnamed variant, exactly the printed "devour 1". The sweep
  * clause is a plain [Triggers.EntersBattlefield] over
  * [Effects.ForEachInGroup] of every creature — including the Hellion itself, which is why it usually
- * eats its own devour counters — with [DealDamageEffect] bound to [EffectTarget.Self], the
+ * eats its own devour counters — with [DealDamageEffect] bound to [EffectTarget.IterationEntity], the
  * per-iteration member.
  */
 val CalderaHellion = card("Caldera Hellion") {
@@ -47,7 +47,7 @@ val CalderaHellion = card("Caldera Hellion") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            DealDamageEffect(3, EffectTarget.Self)
+            DealDamageEffect(3, EffectTarget.IterationEntity)
         )
     }
 

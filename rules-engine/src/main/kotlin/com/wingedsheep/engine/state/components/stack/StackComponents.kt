@@ -320,7 +320,7 @@ data class ActivatedAbilityOnStackComponent(
      * Frozen projected P/T of the source captured before a self-exile / self-sacrifice cost moved
      * it off the battlefield (CR 113.7a). Mirrors [lastKnownSourceCounters]; read at resolution via
      * [com.wingedsheep.engine.handlers.EffectContext.lastKnownSourceSnapshot] so an
-     * `EntityProperty(Source, Power)` read (Ghitu Fire-Eater / Blazing Bomb's Blow Up) sees the
+     * `EntityProperty(Self, Power)` read (Ghitu Fire-Eater / Blazing Bomb's Blow Up) sees the
      * pre-sacrifice power. Null when the cost did not sacrifice/exile the source.
      */
     val lastKnownSourceSnapshot: EntitySnapshot? = null,

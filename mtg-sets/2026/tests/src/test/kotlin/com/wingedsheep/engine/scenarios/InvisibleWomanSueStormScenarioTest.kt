@@ -41,7 +41,7 @@ class InvisibleWomanSueStormScenarioTest : ScenarioTestBase() {
         spell {
             effect = Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
         }
     }

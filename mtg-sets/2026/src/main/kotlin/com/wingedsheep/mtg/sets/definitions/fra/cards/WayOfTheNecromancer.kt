@@ -26,7 +26,7 @@ val WayOfTheNecromancer = card("Way of the Necromancer") {
         trigger = Triggers.YourCreatureDies
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Planeswalker.youControl()),
-            Effects.AddCounters(Counters.LOYALTY, 1, EffectTarget.Self)
+            Effects.AddCounters(Counters.LOYALTY, 1, EffectTarget.IterationEntity)
         )
     }
 

@@ -24,10 +24,10 @@ val GallantFowlknight = card("Gallant Fowlknight") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            ModifyStatsEffect(1, 0, EffectTarget.Self)
+            ModifyStatsEffect(1, 0, EffectTarget.IterationEntity)
         ) then Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl.withSubtype(Subtype.KITHKIN),
-            GrantKeywordEffect(Keyword.FIRST_STRIKE, EffectTarget.Self)
+            GrantKeywordEffect(Keyword.FIRST_STRIKE, EffectTarget.IterationEntity)
         )
     }
 

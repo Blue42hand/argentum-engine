@@ -93,11 +93,11 @@ val FranticScapegoat = card("Frantic Scapegoat") {
                 prompt = "You may suspect one of the creatures that entered. " +
                     "If you do, Frantic Scapegoat is no longer suspected."
             ),
-            // Inside a ForEach over a collection, EffectTarget.Self rebinds to the iteration
+            // Inside a ForEach over a collection, EffectTarget.IterationEntity is the iteration
             // item — so this suspects the chosen creature, not the Goat.
             ForEachInCollectionEffect(
                 collection = "scapegoated",
-                effect = Effects.Suspect(EffectTarget.Self)
+                effect = Effects.Suspect(EffectTarget.IterationEntity)
             ),
             // Back at the top level, Self is the source again: the Goat sheds its own suspicion,
             // but only if a creature was actually chosen ("If you do").

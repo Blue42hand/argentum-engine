@@ -262,7 +262,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                 spell {
                     effect = ForEachInGroupEffect(
                         filter = GroupFilter(filter),
-                        effect = MoveToZoneEffect(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true)
+                        effect = MoveToZoneEffect(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true)
                     )
                 }
             }

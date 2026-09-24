@@ -931,7 +931,7 @@ data class HalveDamage(
  *                                               recipient = RecipientFilter.OpponentOrPermanentTheyControl))`.
  *
  * When [dynamicModifier] is non-null it is evaluated with the replacement's source
- * permanent as the resolution source (so `DynamicAmount.EntityProperty(Source, …)` reads
+ * permanent as the resolution source (so `DynamicAmount.EntityProperty(Self, …)` reads
  * the source's own characteristics/counters); otherwise the flat [modifier] is added.
  *
  * The optional [restrictions] list gates the bonus on further conditions, mirroring

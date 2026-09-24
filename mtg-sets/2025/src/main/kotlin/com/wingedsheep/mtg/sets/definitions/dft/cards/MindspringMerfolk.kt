@@ -41,7 +41,7 @@ val MindspringMerfolk = card("Mindspring Merfolk") {
             Effects.DrawCards(DynamicAmount.XValue),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype("Merfolk").youControl()),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
         )
     }

@@ -48,7 +48,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * their own library, so only the opponents need to be shown it.
  *
  * **Mode 2** is [BiteDownOnCrime]'s shape exactly: two targets in one mode, and the damage reads
- * `EntityProperty(Target(0), Power)` with `damageSource = yours`, so the +1/+1 counter placed by
+ * `EntityProperty(ContextTarget(0), Power)` with `damageSource = yours`, so the +1/+1 counter placed by
  * the first half is already on the creature when the power is read. Per the printed rulings, if the
  * opposing creature has become an illegal target by resolution the counter is still placed; if
  * *your* creature is gone, neither half happens. Both fall out of ordinary per-target legality

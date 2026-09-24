@@ -82,7 +82,7 @@ val DesertWereWorm = card("Desert Were-Worm") {
             listOf(
                 Effects.ForEachInGroup(
                     filter = GroupFilter(baseFilter = GameObjectFilter.Creature.attacking()),
-                    effect = TapUntapEffect(EffectTarget.Self, tap = false)
+                    effect = TapUntapEffect(EffectTarget.IterationEntity, tap = false)
                 ),
                 Effects.AddCombatPhase
             )

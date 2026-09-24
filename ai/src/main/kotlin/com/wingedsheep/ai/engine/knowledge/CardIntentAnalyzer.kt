@@ -226,14 +226,7 @@ object CardIntentAnalyzer {
     // Effect → tags
     // ═════════════════════════════════════════════════════════════════════════
 
-    /**
-     * @param insideIteration whether this effect is the body of a [ForEachEffect]. It changes what
-     *   [EffectTarget.Self] means: at the top level it is the card itself (so "put this into your
-     *   graveyard" is a sacrifice clause, not removal), and inside an iteration it is the element
-     *   currently being iterated over (so Wrath of God's "destroy it" *is* removal). Getting this
-     *   backwards would price every Saga's final chapter as a removal spell.
-     */
-    private fun tagsOf(effect: Effect, insideIteration: Boolean = false): Set<IntentTag> = when (effect) {
+    private fun tagsOf(effect: Effect): Set<IntentTag> = when (effect) {
         is MoveToZoneEffect -> when {
             // A group-targeted move is a wrath; a single-target one is spot removal. Both only
             // count as removal when they take *someone else's* permanent off the battlefield.
@@ -242,7 +235,7 @@ object CardIntentAnalyzer {
             )
 
             effect.fromZone == Zone.GRAVEYARD -> setOf(IntentTag.RECURSION)
-            !hitsAnotherPermanent(effect.target, insideIteration) -> emptySet()
+            !hitsAnotherPermanent(effect.target) -> emptySet()
             effect.destination == Zone.EXILE ->
                 removalTags(effect.target) + IntentTag.EXILE_REMOVAL
 
@@ -250,7 +243,7 @@ object CardIntentAnalyzer {
         }
 
         is MoveUntilSourceLeavesEffect -> when {
-            !hitsAnotherPermanent(effect.target, insideIteration) -> emptySet()
+            !hitsAnotherPermanent(effect.target) -> emptySet()
             effect.destination == Zone.EXILE -> removalTags(effect.target) + IntentTag.EXILE_REMOVAL
             else -> removalTags(effect.target)
         }
@@ -264,7 +257,7 @@ object CardIntentAnalyzer {
         // Damage to a *player* is a clock, not an answer — a permanent that pings the opponent for
         // 1 each upkeep must not be priced as repeatable removal.
         is DealDamageEffect ->
-            if (!hitsAnotherPermanent(effect.target, insideIteration)) emptySet()
+            if (!hitsAnotherPermanent(effect.target)) emptySet()
             else removalTags(effect.target)
 
         is DividedDamageEffect -> setOf(IntentTag.REMOVAL)
@@ -274,7 +267,7 @@ object CardIntentAnalyzer {
             val toughness = fixed(effect.toughnessModifier) ?: 0
             when {
                 // "-N/-N" is removal by another name, and reaches exactly N toughness.
-                toughness < 0 && hitsAnotherPermanent(effect.target, insideIteration) ->
+                toughness < 0 && hitsAnotherPermanent(effect.target) ->
                     removalTags(effect.target)
 
                 toughness < 0 -> emptySet()
@@ -313,7 +306,7 @@ object CardIntentAnalyzer {
         // body, and promote it to a sweeper when the iteration spans a whole group of permanents.
         is ForEachEffect -> {
             val inner = EffectWalker.leaves(effect.body)
-                .flatMap { tagsOf(it, insideIteration = true) }
+                .flatMap { tagsOf(it) }
                 .toSet()
             if (effect.space is IterationSpace.Group && IntentTag.REMOVAL in inner) {
                 inner + IntentTag.SWEEPER
@@ -337,14 +330,14 @@ object CardIntentAnalyzer {
      * precondition for calling anything "removal".
      *
      * Two exclusions. A **player** target is a clock, not an answer. And **[EffectTarget.Self]** is
-     * the card sacrificing or exiling itself, unless [insideIteration], where it names whichever
-     * permanent the surrounding `ForEach` is currently visiting.
+     * the card sacrificing or exiling itself — so "put this into your graveyard" is a sacrifice
+     * clause, not removal, while Wrath of God's per-creature "destroy it"
+     * ([EffectTarget.IterationEntity]) is.
      */
-    private fun hitsAnotherPermanent(target: EffectTarget, insideIteration: Boolean): Boolean = when (target) {
+    private fun hitsAnotherPermanent(target: EffectTarget): Boolean = when (target) {
         is EffectTarget.PlayerRef, EffectTarget.Controller, EffectTarget.TargetController,
-        EffectTarget.ControllerOfTriggeringEntity, EffectTarget.ControllerOfDamageSource -> false
-
-        EffectTarget.Self -> insideIteration
+        EffectTarget.ControllerOfTriggeringEntity, EffectTarget.ControllerOfDamageSource,
+        EffectTarget.Self -> false
         else -> true
     }
 
@@ -362,7 +355,7 @@ object CardIntentAnalyzer {
     private fun reachOf(effect: Effect): Int? = when (effect) {
         // Face damage answers no creature, so it contributes no reach — same exclusion as the tag.
         is DealDamageEffect ->
-            if (hitsAnotherPermanent(effect.target, insideIteration = false)) fixed(effect.amount) else null
+            if (hitsAnotherPermanent(effect.target)) fixed(effect.amount) else null
 
         is DividedDamageEffect -> effect.totalDamage
         is ModifyStatsEffect -> fixed(effect.toughnessModifier)?.takeIf { it < 0 }?.let { -it }

@@ -41,8 +41,8 @@ val ImodanesRecruiter = card("Imodane's Recruiter") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
             )
         )
     }

@@ -76,7 +76,7 @@ val AlliesAtLast = card("Allies at Last") {
                         EntityNumericProperty.Power,
                     ),
                     target = EffectTarget.ContextTarget(0),
-                    damageSource = EffectTarget.Self,
+                    damageSource = EffectTarget.IterationEntity,
                 ),
             ),
         )

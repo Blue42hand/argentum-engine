@@ -2568,7 +2568,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -2588,7 +2588,7 @@
                             "type": "PipelineTarget",
                             "collectionName": "victim"
                         },
-                        "damageSource": "Self"
+                        "damageSource": "IterationEntity"
                     }
                 }
             ]
@@ -6914,7 +6914,7 @@
                                 "effects": [
                                     {
                                         "type": "SetBaseStats",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "power": {
                                             "type": "Fixed",
                                             "amount": 1
@@ -6926,7 +6926,8 @@
                                     },
                                     {
                                         "type": "AddCreatureType",
-                                        "subtype": "Spirit"
+                                        "subtype": "Spirit",
+                                        "target": "IterationEntity"
                                     }
                                 ]
                             }
@@ -10117,7 +10118,7 @@
                                 "type": "Fixed",
                                 "amount": -1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures your opponents control get -1/-1 until end of turn."
@@ -10471,7 +10472,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -11438,17 +11439,17 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "MENACE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "LIFELINK",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -13894,7 +13895,7 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         "descriptionOverride": "Whenever you attack, attacking creatures you control get +1/+0 until end of turn."
@@ -18504,7 +18505,7 @@
                     },
                     "body": {
                         "type": "CantBlockTargetCreatures",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -18929,7 +18930,7 @@
                                     "type": "VariableReference",
                                     "variableName": "tyvar_pump_x"
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -21211,7 +21212,7 @@
                             },
                             "numericProperty": "Power"
                         },
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "damageSource": {
                             "type": "BoundVariable",
                             "name": "target creature you control"

@@ -36,7 +36,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * hand and filtered to nonland cards with mana value ≤ 3. `ChooseUpTo(1)` is the optional
  * "you may exile" fork; [MakePlottedEffect] (CR 718) no-ops on an empty selection, so declining
  * is safe. The legendary-enters trigger distributes a +1/+1 counter over every creature you
- * control via `ForEachInGroup` + `AddCounters(Self)`.
+ * control via `ForEachInGroup` + `AddCounters(IterationEntity)`.
  */
 val KellanJoinsUp = card("Kellan Joins Up") {
     manaCost = "{G}{W}{U}"
@@ -71,7 +71,7 @@ val KellanJoinsUp = card("Kellan Joins Up") {
         )
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 

@@ -35,7 +35,7 @@ val Ouroboroid = card("Ouroboroid") {
                 effect = Effects.AddDynamicCounters(
                     counterType = "+1/+1",
                     amount = DynamicAmount.VariableReference("ouroboroid_power"),
-                    target = EffectTarget.Self
+                    target = EffectTarget.IterationEntity
                 )
             )
         )

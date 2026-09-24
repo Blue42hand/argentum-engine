@@ -42,7 +42,7 @@ val DecreeOfAnnihilation = card("Decree of Annihilation") {
 
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(artifactCreatureOrLand),
-            effect = Effects.Move(EffectTarget.Self, Zone.EXILE)
+            effect = Effects.Move(EffectTarget.IterationEntity, Zone.EXILE)
         ).then(
             ForEachPlayerEffect(
                 players = Player.Each,

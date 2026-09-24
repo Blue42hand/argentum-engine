@@ -31,7 +31,7 @@ val DecreeOfSavagery = card("Decree of Savagery") {
             effect = AddCountersEffect(
                 counterType = Counters.PLUS_ONE_PLUS_ONE,
                 count = 4,
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

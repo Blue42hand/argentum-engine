@@ -30,7 +30,7 @@ val SquallLine = card("Squall Line") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
-                Effects.DealDamage(DynamicAmount.XValue, EffectTarget.Self)
+                Effects.DealDamage(DynamicAmount.XValue, EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,

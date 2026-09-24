@@ -17,7 +17,7 @@
                 "type": "AddDynamicCounters",
                 "counterType": "-1/-1",
                 "amount": "XValue",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "selfShuffleIntoLibraryOnResolve": true
@@ -247,7 +247,7 @@
                             "type": "Fixed",
                             "amount": -2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -418,7 +418,7 @@
                                 "type": "Fixed",
                                 "amount": 3
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Slagstorm deals 3 damage to each creature"

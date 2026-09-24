@@ -57,7 +57,7 @@ val ShalaiVoiceOfPlenty = card("Shalai, Voice of Plenty") {
         cost = Costs.Mana("{4}{G}{G}")
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 

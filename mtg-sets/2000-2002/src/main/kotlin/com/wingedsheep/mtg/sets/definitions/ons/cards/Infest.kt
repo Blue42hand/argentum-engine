@@ -22,7 +22,7 @@ val Infest = card("Infest") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
-            effect = ModifyStatsEffect(-2, -2, EffectTarget.Self)
+            effect = ModifyStatsEffect(-2, -2, EffectTarget.IterationEntity)
         )
     }
 

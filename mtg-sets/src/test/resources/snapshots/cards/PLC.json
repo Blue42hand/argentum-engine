@@ -762,7 +762,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{W}, {T}, Discard a card: Creatures you control get +1/+0 until end of turn."
@@ -1826,7 +1826,7 @@
                                 "type": "Fixed",
                                 "amount": 3
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }

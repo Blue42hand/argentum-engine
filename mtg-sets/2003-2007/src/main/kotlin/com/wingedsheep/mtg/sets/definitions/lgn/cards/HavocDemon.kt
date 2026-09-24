@@ -31,7 +31,7 @@ val HavocDemon = card("Havoc Demon") {
         trigger = Triggers.Dies
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
-            effect = ModifyStatsEffect(-5, -5, EffectTarget.Self)
+            effect = ModifyStatsEffect(-5, -5, EffectTarget.IterationEntity)
         )
     }
 

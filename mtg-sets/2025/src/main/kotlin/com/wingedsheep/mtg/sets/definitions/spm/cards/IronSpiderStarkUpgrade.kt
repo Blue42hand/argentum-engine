@@ -29,7 +29,7 @@ val IronSpiderStarkUpgrade = card("Iron Spider, Stark Upgrade") {
                 GameObjectFilter.Any.withSubtype("Vehicle")
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(artifactCreaturesAndVehicles.youControl()),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 

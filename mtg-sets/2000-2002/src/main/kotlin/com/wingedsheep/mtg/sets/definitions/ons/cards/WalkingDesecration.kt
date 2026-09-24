@@ -36,7 +36,7 @@ val WalkingDesecration = card("Walking Desecration") {
                 Effects.ForEachInGroup(
                     filter = GroupFilter.ChosenSubtypeCreatures("chosenCreatureType"),
                     effect = MarkMustAttackThisTurnEffect(
-                        target = EffectTarget.Self
+                        target = EffectTarget.IterationEntity
                     )
                 )
             )

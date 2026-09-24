@@ -53,7 +53,7 @@ val HavengulRunebinder = card("Havengul Runebinder") {
                 effect = Effects.AddCounters(
                     Counters.PLUS_ONE_PLUS_ONE,
                     1,
-                    EffectTarget.Self,
+                    EffectTarget.IterationEntity,
                 ),
             ),
         )

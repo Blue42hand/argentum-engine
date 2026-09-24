@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   `GrantKeyword(HASTE, Creature.withSubtype(Horse).youControl())`. Shadowfax is itself
  *   a Horse you control, so it grants itself haste too — matching the literal wording.
  * - "with lesser power" = the chosen hand card's power is strictly less than Shadowfax's
- *   (the source's) power, modeled with `GameObjectFilter.Creature.powerLessThanEntity(Source)`.
+ *   (the source's) power, modeled with `GameObjectFilter.Creature.powerLessThanEntity(Self)`.
  *   Hand cards are matched on their printed/characteristic power; Shadowfax's power is read
  *   from projected state (so anthems/+1/+1 counters on Shadowfax raise the cap).
  * - "tapped and attacking" reuses `Patterns.Hand.putFromHand(entersAttacking = true)`, which

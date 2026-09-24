@@ -47,7 +47,7 @@ val MomentOfGlory = card("Moment of Glory") {
                 condition = Conditions.WasCastFromGraveyard,
                 then = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()).otherThanTarget(),
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
                 ),
             ),
         )

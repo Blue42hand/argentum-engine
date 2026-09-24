@@ -37,7 +37,7 @@ val SoulImmolation = card("Soul Immolation") {
             filter = GroupFilter.AllCreaturesOpponentsControl,
             effect = DealDamageEffect(
                 DynamicAmount.CastChoice(ChoiceSlot.BLIGHT_AMOUNT),
-                EffectTarget.Self
+                EffectTarget.IterationEntity
             )
         )
     }

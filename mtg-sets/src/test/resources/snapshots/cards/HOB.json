@@ -66,7 +66,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "MENACE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Goblins and Orcs you control gain menace until end of turn."
@@ -896,7 +896,7 @@
                                     "type": "AddCounters",
                                     "counterType": "+1/+1",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -2694,7 +2694,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         },
@@ -2838,7 +2838,7 @@
                             "type": "Fixed",
                             "amount": 3
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -3016,12 +3016,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -3050,12 +3050,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -3356,7 +3356,7 @@
                         "type": "AddCounters",
                         "counterType": "hone",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Dwalin enters, put a hone counter on each Equipment you control."
@@ -3376,7 +3376,7 @@
                         "type": "AddCounters",
                         "counterType": "hone",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Dwalin attacks, put a hone counter on each Equipment you control."
@@ -3550,7 +3550,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3726,7 +3726,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "DOUBLE_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Dáin attacks, each equipped attacking creature gains double strike until end of turn."
@@ -5552,7 +5552,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -5639,7 +5639,7 @@
                                 "type": "Fixed",
                                 "amount": -1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -8342,7 +8342,7 @@
                             "type": "AddCounters",
                             "counterType": "+1/+1",
                             "count": 1,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -11495,7 +11495,7 @@
                     },
                     "body": {
                         "type": "BecomeArtifact",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "subtypes": [
                             "Food"
                         ],
@@ -12922,7 +12922,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +2/+1 until end of turn"
@@ -13049,7 +13049,7 @@
                                     },
                                     "body": {
                                         "type": "AttachTargetEquipmentToCreature",
-                                        "equipmentTarget": "Self",
+                                        "equipmentTarget": "IterationEntity",
                                         "creatureTarget": {
                                             "type": "BoundVariable",
                                             "name": "target creature you control"
@@ -13074,7 +13074,7 @@
                                             "type": "ContextTarget",
                                             "index": 0
                                         },
-                                        "damageSource": "Self"
+                                        "damageSource": "IterationEntity"
                                     }
                                 },
                                 "reflexiveTargetRequirements": [
@@ -14453,7 +14453,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -14576,7 +14576,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "triggerRestriction": {

@@ -106,7 +106,7 @@ data class ModifyStatsEffect(
  *    something sacrificed or tapped as a cost — has nothing to resolve against. This class's `init`
  *    rejects those via
  *    [com.wingedsheep.sdk.scripting.values.contextScopedReferenceIn] instead of letting them read as
- *    0 forever, so `SetBasePower(t, EntityProperty(Triggering, Power), reevaluateContinuously =
+ *    0 forever, so `SetBasePower(t, EntityProperty(TriggeringEntity, Power), reevaluateContinuously =
  *    true)` fails as the card is **loaded**, not silently at resolution. For X specifically,
  *    re-evaluation is also a rules error: CR 611.2d fixes a continuous effect's X on resolution.
  *    Counts, battlefield/zone aggregates, life totals, hand size and

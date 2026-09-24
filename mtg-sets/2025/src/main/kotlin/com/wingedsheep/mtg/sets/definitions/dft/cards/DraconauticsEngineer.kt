@@ -38,7 +38,7 @@ val DraconauticsEngineer = card("Draconautics Engineer") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
             ),
             AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
         )

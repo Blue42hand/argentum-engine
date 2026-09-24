@@ -537,7 +537,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1573,7 +1573,7 @@
                                 "type": "Fixed",
                                 "amount": 3
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Avengers Disassembled deals 3 damage to each creature"
@@ -1906,7 +1906,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -2507,7 +2507,7 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Creatures you control get +1/+1 until end of turn."
@@ -3528,7 +3528,7 @@
                             "entity": "Self",
                             "numericProperty": "Toughness"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Captain America attacks, each other Hero you control gets +X/+X until end of turn, where X is Captain America's toughness."
@@ -8057,7 +8057,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -11074,7 +11074,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "activateFromZone": "Hand"
@@ -11315,7 +11315,7 @@
                             "type": "AddCounters",
                             "counterType": "+1/+1",
                             "count": 1,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "descriptionOverride": "Whenever you cast a noncreature spell, put a +1/+1 counter on each other creature you control."
@@ -11576,7 +11576,7 @@
             },
             "body": {
                 "type": "CreateTokenCopyOfTarget",
-                "target": "Self",
+                "target": "IterationEntity",
                 "removedSupertypes": [
                     "LEGENDARY"
                 ]
@@ -11879,7 +11879,10 @@
                                         "type": "IterationSpace.Collection",
                                         "collection": "fury_entered"
                                     },
-                                    "body": "Transform"
+                                    "body": {
+                                        "type": "Transform",
+                                        "target": "IterationEntity"
+                                    }
                                 },
                                 "descriptionOverride": "transform it"
                             }
@@ -12217,7 +12220,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -12578,7 +12581,7 @@
                                 "type": "AddCounters",
                                 "counterType": "+1/+1",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -15503,7 +15506,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FLYING",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever you cast a spell that targets one or more creatures, those creatures gain flying until end of turn."
@@ -18321,12 +18324,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }

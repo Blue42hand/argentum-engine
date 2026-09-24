@@ -33,7 +33,7 @@ val InspiringCall = card("Inspiring Call") {
             DrawCardsEffect(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature)),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE).youControl()),
-                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
             )
         )
     }

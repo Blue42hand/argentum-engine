@@ -26,8 +26,8 @@ private val SitaVarmasPower: DynamicAmount = DynamicAmount.EntityProperty(
  * turn. (Activate each exhaust ability only once.)
  *
  * Order is load-bearing and matches the printed "Then": the counters land first, so the power the
- * rest of the team copies is already `2 + X`. Inside the `ForEachInGroup` body, `EffectTarget.Self`
- * is the creature being set (the iteration entity) while `EffectTarget.Self` is still Sita
+ * rest of the team copies is already `2 + X`. Inside the `ForEachInGroup` body,
+ * `EffectTarget.IterationEntity` is the creature being set while `EffectTarget.Self` is still Sita
  * Varma — which is what lets one body both read her power and write each other creature's.
  *
  * `SetBasePowerAndToughness` sets Layer 7b, so each affected creature's own +1/+1 counters still
@@ -56,7 +56,7 @@ val SitaVarmaMaskedRacer = card("Sita Varma, Masked Racer") {
                 Effects.ForEachInGroup(
                     filter = GroupFilter.OtherCreaturesYouControl,
                     effect = Effects.SetBasePowerAndToughness(
-                        target = EffectTarget.Self,
+                        target = EffectTarget.IterationEntity,
                         power = SitaVarmasPower,
                         toughness = SitaVarmasPower,
                         duration = Duration.EndOfTurn

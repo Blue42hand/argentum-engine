@@ -45,7 +45,7 @@ val EomerMarshalOfRohan = card("Éomer, Marshal of Rohan") {
                 // Untap all creatures you control
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    TapUntapEffect(EffectTarget.Self, tap = false)
+                    TapUntapEffect(EffectTarget.IterationEntity, tap = false)
                 ),
                 // After this phase, there is an additional combat phase (combat only — no main)
                 Effects.AddCombatPhase

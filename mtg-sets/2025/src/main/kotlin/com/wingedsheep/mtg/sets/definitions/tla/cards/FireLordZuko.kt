@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *
  * Dynamic firebending: the `firebending(n)` DSL only models a fixed amount, so the attack trigger
  * is hand-wired as an [AddManaEffect] producing red mana equal to this creature's power
- * (`EntityProperty(Source, Power)`) with [ManaExpiry.END_OF_COMBAT] — the same firebending-style
+ * (`EntityProperty(Self, Power)`) with [ManaExpiry.END_OF_COMBAT] — the same firebending-style
  * mana the pool keeps through combat and discards once combat ends. The display keyword is omitted
  * because the `Firebending N` keyword ability is fixed-N only; the behavior and reminder text live
  * in the triggered ability and `oracleText`.
@@ -70,7 +70,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
         )
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "Whenever you cast a spell from exile, put a +1/+1 counter on each creature you control."
     }
@@ -82,7 +82,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
         ).youControl()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "Whenever a permanent you control enters from exile, put a +1/+1 counter on each creature you control."
     }

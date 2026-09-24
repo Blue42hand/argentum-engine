@@ -40,7 +40,7 @@ val GuidingHydra = card("Guiding Hydra") {
                     Effects.RemoveCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-                        Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                        Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
                     ),
                 ),
             ),

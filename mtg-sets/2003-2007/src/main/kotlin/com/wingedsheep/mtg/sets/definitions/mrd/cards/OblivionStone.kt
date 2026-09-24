@@ -39,7 +39,7 @@ val OblivionStone = card("Oblivion Stone") {
             Effects.DestroyAll(GameObjectFilter.NonlandPermanent.withoutCounter(Counters.FATE)),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Permanent.withCounter(Counters.FATE)),
-                Effects.RemoveAllCountersOfType(Counters.FATE, EffectTarget.Self)
+                Effects.RemoveAllCountersOfType(Counters.FATE, EffectTarget.IterationEntity)
             )
         )
         description = "{5}, {T}, Sacrifice this artifact: Destroy each nonland permanent without " +

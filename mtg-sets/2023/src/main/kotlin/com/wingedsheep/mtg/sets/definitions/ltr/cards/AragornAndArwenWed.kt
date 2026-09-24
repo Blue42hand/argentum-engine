@@ -39,7 +39,7 @@ val AragornAndArwenWed = card("Aragorn and Arwen, Wed") {
         listOf(
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             ),
             Effects.GainLife(
                 DynamicAmount.AggregateBattlefield(

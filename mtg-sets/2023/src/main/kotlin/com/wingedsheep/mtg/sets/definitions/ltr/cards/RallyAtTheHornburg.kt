@@ -37,7 +37,7 @@ val RallyAtTheHornburg = card("Rally at the Hornburg") {
                 ),
                 Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Permanent.youControl().withSubtype("Human")),
-                    GrantKeywordEffect(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn)
+                    GrantKeywordEffect(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)
                 )
             )
         )

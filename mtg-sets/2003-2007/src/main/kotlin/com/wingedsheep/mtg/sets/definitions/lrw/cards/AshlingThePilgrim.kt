@@ -78,7 +78,7 @@ val AshlingThePilgrim = card("Ashling the Pilgrim") {
                                 GroupFilter.AllCreatures,
                                 DealDamageEffect(
                                     DynamicAmount.VariableReference("ashlingRemovedCounters"),
-                                    EffectTarget.Self,
+                                    EffectTarget.IterationEntity,
                                 ),
                             ),
                             Effects.ForEachPlayer(

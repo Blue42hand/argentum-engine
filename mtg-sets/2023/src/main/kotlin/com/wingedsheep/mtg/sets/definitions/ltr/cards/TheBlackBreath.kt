@@ -27,7 +27,7 @@ val TheBlackBreath = card("The Black Breath") {
             effect = ModifyStatsEffect(
                 powerModifier = -1,
                 toughnessModifier = -1,
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )
         ).then(Effects.TheRingTemptsYou())

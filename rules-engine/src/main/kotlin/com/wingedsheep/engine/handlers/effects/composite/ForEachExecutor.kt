@@ -42,8 +42,9 @@ import com.wingedsheep.engine.core.Outcome
  *   storedCollections wiped.
  * - Players: `controllerId` rebound to the current player
  *   relative to them, storedCollections wiped.
- * - Collection / Group: `pipeline.iterationTarget` set so `EffectTarget.Self` resolves
- *   to the current entity; outer collections preserved.
+ * - Collection / Group: the current entity bound, with its identity, as the context's
+ *   iteration object — what `EffectTarget.IterationEntity` names (`Self` stays the source);
+ *   outer collections preserved.
  * - ColorsOf: `chosenColor` set — the same channel `ChooseColorThen` feeds.
  */
 class ForEachExecutor(
@@ -230,9 +231,9 @@ class ForEachExecutor(
         )
 
         is ForEachItem.OfEntity -> outerContext.copy(
-            objectReferences = outerContext.objectReferences.copy(selfBinding =
+            objectReferences = outerContext.objectReferences.copy(iteration =
                 com.wingedsheep.engine.handlers.CapturedObjectBinding(item.entityId, state.objectRef(item.entityId))),
-            pipeline = outerContext.pipeline.copy(iterationTarget = item.entityId)
+            iterationReferenceLost = false,
         )
 
         is ForEachItem.OfColor -> outerContext.copy(chosenColor = item.color)

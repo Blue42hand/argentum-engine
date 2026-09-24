@@ -41,7 +41,7 @@ val RenetTemporalApprentice = card("Renet, Temporal Apprentice") {
                 ),
                 excludeSelf = true
             ),
-            effect = Effects.Move(EffectTarget.Self, Zone.HAND)
+            effect = Effects.Move(EffectTarget.IterationEntity, Zone.HAND)
         )
     }
 

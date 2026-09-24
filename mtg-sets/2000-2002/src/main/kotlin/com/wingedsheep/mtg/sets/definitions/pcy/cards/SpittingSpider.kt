@@ -35,7 +35,7 @@ val SpittingSpider = card("Spitting Spider") {
         cost = Costs.Sacrifice(GameObjectFilter.Land)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
     metadata {

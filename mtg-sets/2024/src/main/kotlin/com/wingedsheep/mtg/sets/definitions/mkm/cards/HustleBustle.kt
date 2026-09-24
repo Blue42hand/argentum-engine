@@ -53,8 +53,8 @@ val HustleBustle = card("Hustle // Bustle") {
                 Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
                     Effects.Composite(
-                        Effects.ModifyStats(2, 2, EffectTarget.Self),
-                        Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self),
+                        Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+                        Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
                     ),
                 ),
                 GatherCardsEffect(

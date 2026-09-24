@@ -58,7 +58,7 @@ val EowynFearlessKnight = card("Éowyn, Fearless Knight") {
                 source = EffectTarget.ContextTarget(0),
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.legendary().youControl()),
-                    Effects.GrantProtectionFromChosenColor(EffectTarget.Self)
+                    Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)
                 )
             ),
             Effects.Exile(victim)

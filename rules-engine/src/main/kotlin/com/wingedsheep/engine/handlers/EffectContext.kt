@@ -85,6 +85,8 @@ data class EffectContext(
      */
     val sourceReferenceLost: Boolean = false,
     val triggeringReferenceLost: Boolean = false,
+    /** The loop's current object ([iterationEntityId]) has changed zones since the loop bound it. */
+    val iterationReferenceLost: Boolean = false,
     val objectReferences: ObjectReferenceEnvironment = ObjectReferenceEnvironment(),
     val targets: List<ChosenTarget> = emptyList(),
     /**
@@ -321,6 +323,13 @@ data class EffectContext(
         get() = activatedAbility?.id
 
     /**
+     * The object an enclosing `ForEach` loop over a group or a collection is visiting —
+     * [EffectTarget.IterationEntity]. Null outside such a loop.
+     */
+    val iterationEntityId: EntityId?
+        get() = objectReferences.iteration?.entityId
+
+    /**
      * Resolve a symbolic effect target to a concrete entity id using just the context.
      *
      * Stateless resolution — handles self, controller, context targets, bound variables,
@@ -369,11 +378,13 @@ data class EffectContext(
 
     /** Recheck on every instruction/resume; an unrelated move while paused cannot be followed. */
     fun withCurrentObjectReferences(state: GameState): EffectContext = copy(
-        sourceReferenceLost = if (objectReferences.captured || objectReferences.selfBinding != null) {
-            !objectReferences.isSelfCurrent(state)
+        sourceReferenceLost = if (objectReferences.captured) {
+            !objectReferences.isCurrent(objectReferences.source, state)
         } else sourceReferenceLost,
         triggeringReferenceLost = triggeringEntityId !in state.turnOrder &&
             !objectReferences.isCurrent(objectReferences.triggering, state),
+        iterationReferenceLost = objectReferences.iteration != null &&
+            !objectReferences.isIterationCurrent(state),
     )
 
     fun authorizeObjectMoves(events: List<com.wingedsheep.engine.core.GameEvent>): EffectContext =
@@ -385,11 +396,17 @@ data class EffectContext(
                 ?.let { state.getEntity(it)?.chosenOpponent() }
 
 
-    /** Battlefield-only instructions cannot affect a source that has left or already returned. */
-    fun isUnavailableBattlefieldSource(target: EffectTarget, state: GameState): Boolean =
-        target == EffectTarget.Self &&
-            (sourceReferenceLost || ((objectReferences.selfBinding != null || sourceBattlefieldTimestamp != null) &&
-                (pipeline.iterationTarget ?: objectReferences.selfBinding?.entityId ?: sourceId) !in state.getBattlefield()))
+    /**
+     * Battlefield-only instructions cannot affect a source — or a loop's current object — that has
+     * left the battlefield or already returned as a new object.
+     */
+    fun isUnavailableBattlefieldSource(target: EffectTarget, state: GameState): Boolean = when (target) {
+        EffectTarget.Self -> sourceReferenceLost ||
+            (sourceBattlefieldTimestamp != null && sourceId !in state.getBattlefield())
+        EffectTarget.IterationEntity -> objectReferences.iteration != null &&
+            (iterationReferenceLost || iterationEntityId !in state.getBattlefield())
+        else -> false
+    }
 
     fun resolveTarget(target: EffectTarget): EntityId? =
         TargetResolutionUtils.resolveTarget(target, this)

@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  * A one-sided gang-up: [Effects.ForEachInGroup] walks the Wolves and Werewolves you control at
  * resolution — an untargeted group, so a pack member entering or leaving between cast and
  * resolution is simply included or not — and each one deals damage *itself*
- * (`damageSource = EffectTarget.Self`, the iterated permanent) equal to its own power, read
+ * (`damageSource = EffectTarget.IterationEntity`, the iterated permanent) equal to its own power, read
  * per-iteration via [EffectTarget.IterationEntity] so lords and pump are picked up individually.
  *
  * Two details the wording forces:
@@ -52,7 +52,7 @@ val MoonlightHunt = card("Moonlight Hunt") {
                     EntityNumericProperty.Power,
                 ),
                 target = EffectTarget.ContextTarget(0),
-                damageSource = EffectTarget.Self,
+                damageSource = EffectTarget.IterationEntity,
             ),
         )
     }

@@ -118,7 +118,7 @@ val AggravatedAssault = card("Aggravated Assault") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.Self)
+                Effects.Untap(EffectTarget.IterationEntity)
             ),
             Effects.Composite(listOf(Effects.AddCombatPhase, Effects.AddMainPhase))
         )
@@ -3479,7 +3479,7 @@ val DirgeOfDread = card("Dirge of Dread") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            Effects.GrantKeyword(Keyword.FEAR, EffectTarget.Self)
+            Effects.GrantKeyword(Keyword.FEAR, EffectTarget.IterationEntity)
         )
     }
     keywordAbility(KeywordAbility.cycling("{1}{B}"))
@@ -4459,7 +4459,7 @@ val EndemicPlague = card("Endemic Plague") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             noRegenerate = true
         )
     }
@@ -5769,14 +5769,14 @@ val GoblinPyromancer = card("Goblin Pyromancer") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN)),
-            Effects.ModifyStats(3, 0, EffectTarget.Self)
+            Effects.ModifyStats(3, 0, EffectTarget.IterationEntity)
         )
     }
     triggeredAbility {
         trigger = Triggers.EachEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN)),
-            Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             noRegenerate = false
         )
     }
@@ -6312,7 +6312,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -6334,7 +6333,7 @@ val GustcloakHarrier = card("Gustcloak Harrier") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.BecomesBlocked
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.Untap(EffectTarget.Self),
                 Effects.RemoveFromCombat(EffectTarget.Self)
@@ -6361,7 +6360,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -6381,7 +6379,7 @@ val GustcloakRunner = card("Gustcloak Runner") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.BecomesBlocked
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.Untap(EffectTarget.Self),
                 Effects.RemoveFromCombat(EffectTarget.Self)
@@ -6447,7 +6445,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -6467,7 +6464,7 @@ val GustcloakSentinel = card("Gustcloak Sentinel") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.BecomesBlocked
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.Untap(EffectTarget.Self),
                 Effects.RemoveFromCombat(EffectTarget.Self)
@@ -6495,7 +6492,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -6517,7 +6513,7 @@ val GustcloakSkirmisher = card("Gustcloak Skirmisher") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.BecomesBlocked
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.Untap(EffectTarget.Self),
                 Effects.RemoveFromCombat(EffectTarget.Self)
@@ -6877,7 +6873,7 @@ val Infest = card("Infest") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            Effects.ModifyStats(-2, -2, EffectTarget.Self)
+            Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -8522,7 +8518,7 @@ val NovaCleric = card("Nova Cleric") {
         cost = Costs.Composite(Costs.Mana("{2}{W}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Enchantment),
-            Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             noRegenerate = false
         )
     }
@@ -8846,7 +8842,7 @@ val PietyCharm = card("Piety Charm") {
             mode("Creatures you control gain vigilance until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
+                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
                 )
             }
         }
@@ -10596,7 +10592,7 @@ val SilklashSpider = card("Silklash Spider") {
         cost = Costs.Mana("{X}{G}{G}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-            DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self)
+            DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity)
         )
     }
     metadata {
@@ -10739,7 +10735,10 @@ val SkirkFireMarshal = card("Skirk Fire Marshal") {
     activatedAbility {
         cost = Costs.TapPermanents(5, GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN))
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(10, EffectTarget.Self)),
+            Effects.ForEachInGroup(
+                GroupFilter(GameObjectFilter.Creature),
+                DealDamageEffect(10, EffectTarget.IterationEntity)
+            ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(10, EffectTarget.Controller)))
         )
     }
@@ -10906,7 +10905,10 @@ val SliceAndDice = card("Slice and Dice") {
     typeLine = "Sorcery"
     oracleText = "Slice and Dice deals 4 damage to each creature.\nCycling {2}{R} ({2}{R}, Discard this card: Draw a card.)\nWhen you cycle this card, you may have it deal 1 damage to each creature."
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(4, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature),
+            DealDamageEffect(4, EffectTarget.IterationEntity)
+        )
     }
     keywordAbility(KeywordAbility.cycling("{2}{R}"))
     // STRUCTURE needs human wiring: HaveDiscardedCardDealDamage
@@ -11557,7 +11559,7 @@ val Starstorm = card("Starstorm") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self)
+            DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity)
         )
     }
     keywordAbility(KeywordAbility.cycling("{3}"))
@@ -12284,7 +12286,7 @@ val ThunderOfHooves = card("Thunder of Hooves") {
                         Player.Each,
                         GameObjectFilter.Creature.withSubtype(Subtype.BEAST)
                     ),
-                    EffectTarget.Self
+                    EffectTarget.IterationEntity
                 )
             ),
             ForEachPlayerEffect(

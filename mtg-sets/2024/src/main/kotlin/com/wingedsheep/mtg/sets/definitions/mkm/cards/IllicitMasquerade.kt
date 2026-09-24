@@ -37,7 +37,7 @@ val IllicitMasquerade = card("Illicit Masquerade") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            Effects.AddCounters(IMPOSTOR_COUNTER, 1, EffectTarget.Self),
+            Effects.AddCounters(IMPOSTOR_COUNTER, 1, EffectTarget.IterationEntity),
         )
         description = "When this enchantment enters, put an impostor counter on each creature " +
             "you control."

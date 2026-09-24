@@ -30,7 +30,7 @@ val SilklashSpider = card("Silklash Spider") {
 
     activatedAbility {
         cost = Costs.Mana("{X}{G}{G}")
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.withKeyword(Keyword.FLYING), DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.withKeyword(Keyword.FLYING), DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity))
     }
 
     metadata {

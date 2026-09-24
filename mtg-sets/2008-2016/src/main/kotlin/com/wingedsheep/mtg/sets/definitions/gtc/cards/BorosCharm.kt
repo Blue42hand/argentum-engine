@@ -40,7 +40,7 @@ val BorosCharm = card("Boros Charm") {
             mode("Permanents you control gain indestructible until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Permanent.youControl()),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
                 )
             }
             mode("Target creature gains double strike until end of turn") {

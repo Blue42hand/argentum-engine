@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * [com.wingedsheep.mtg.sets.definitions.inv.cards.DreamThrush]: the same
  * `ChooseOption(BASIC_LAND_TYPE) → SetLandType(fromChosenValueKey = …)` pair, with the single
  * target swapped for a [Effects.ForEachInGroup] over the lands you control — inside that loop
- * `EffectTarget.Self` is the land being iterated.
+ * `EffectTarget.IterationEntity` is the land being iterated.
  *
  * "Becomes" replaces the land's existing land subtypes (CR 305.7), so each land loses the mana
  * abilities of its old types and gains the chosen type's — [Effects.SetLandType], not the
@@ -48,7 +48,7 @@ val Terraformer = card("Terraformer") {
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Land.youControl()),
                 effect = Effects.SetLandType(
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                     duration = Duration.EndOfTurn,
                     fromChosenValueKey = chosenKey
                 )

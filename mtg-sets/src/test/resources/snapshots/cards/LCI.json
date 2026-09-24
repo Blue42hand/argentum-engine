@@ -877,7 +877,7 @@
                                 },
                                 "body": {
                                     "type": "MoveToZone",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "destination": "Graveyard",
                                     "byDestruction": true
                                 }
@@ -2798,7 +2798,7 @@
                         "filter": "Cave"
                     }
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -6727,7 +6727,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +1/+1 until end of turn"
@@ -6744,7 +6744,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "HEXPROOF",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control gain hexproof until end of turn. (They can't be the targets of spells or abilities your opponents control.)"
@@ -8582,12 +8582,12 @@
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "DOUBLE_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -10897,7 +10897,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -11095,7 +11095,7 @@
                             "type": "Fixed",
                             "amount": -2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -14736,7 +14736,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever this land attacks, other creatures you control get +1/+1 until end of turn."
@@ -15744,7 +15744,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -16747,7 +16747,7 @@
                                 "numericProperty": "BasePower"
                             }
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -18280,7 +18280,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -18424,7 +18424,7 @@
                     },
                     "multiplier": -1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },

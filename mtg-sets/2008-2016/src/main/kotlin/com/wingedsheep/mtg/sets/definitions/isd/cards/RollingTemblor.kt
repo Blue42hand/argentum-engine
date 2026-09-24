@@ -30,7 +30,7 @@ val RollingTemblor = card("Rolling Temblor") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            DealDamageEffect(2, EffectTarget.Self)
+            DealDamageEffect(2, EffectTarget.IterationEntity)
         )
     }
     keywordAbility(KeywordAbility.flashback("{4}{R}{R}"))

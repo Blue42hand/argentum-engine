@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  * Two independent targets, declared as named bindings: a target player and a target creature.
  * The counter is placed on every creature the *target player* controls via [ForEachInGroup] over
  * a [GroupFilter] scoped with `targetPlayerControls(player)` (the preferred explicit-reference form
- * over implicit first-player resolution), applying [AddCountersEffect] with [EffectTarget.Self]
+ * over implicit first-player resolution), applying [AddCountersEffect] with [EffectTarget.IterationEntity]
  * (the current group member). The "your choice of double strike or lifelink" is a within-resolution
  * choice (not a modal spell), so [ModalEffect.chooseOne] is built with `countsAsModalSpell = false`;
  * the chosen keyword is granted to the target creature until end of turn.
@@ -55,7 +55,7 @@ val PracticedOffense = card("Practiced Offense") {
                 effect = AddCountersEffect(
                     counterType = Counters.PLUS_ONE_PLUS_ONE,
                     count = 1,
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                 ),
             ),
             // Target creature gains your choice of double strike or lifelink until end of turn.

@@ -28,7 +28,7 @@ val Swelter = card("Swelter") {
     oracleText = "Swelter deals 2 damage to each of two target creatures."
     spell {
         val t = target("target", TargetCreature(count = 2, filter = TargetFilter.Creature))
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Permanent), DealDamageEffect(2, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Permanent), DealDamageEffect(2, EffectTarget.IterationEntity))
     }
     metadata {
         rarity = Rarity.UNCOMMON

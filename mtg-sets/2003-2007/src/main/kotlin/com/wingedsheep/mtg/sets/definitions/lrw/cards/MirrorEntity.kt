@@ -54,10 +54,10 @@ val MirrorEntity = card("Mirror Entity") {
                 Effects.SetBasePowerAndToughness(
                     power = DynamicAmount.XValue,
                     toughness = DynamicAmount.XValue,
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                     duration = Duration.EndOfTurn
                 ),
-                Effects.GrantKeyword(Keyword.CHANGELING, EffectTarget.Self, Duration.EndOfTurn)
+                Effects.GrantKeyword(Keyword.CHANGELING, EffectTarget.IterationEntity, Duration.EndOfTurn)
             )
         )
         description = "Until end of turn, creatures you control have base power and toughness " +

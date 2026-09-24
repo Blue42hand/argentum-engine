@@ -39,7 +39,7 @@ val DutyBeyondDeath = card("Duty Beyond Death") {
                 // Creatures you control gain indestructible until end of turn.
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
-                    effect = GrantKeywordEffect(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+                    effect = GrantKeywordEffect(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
                 ),
                 // Put a +1/+1 counter on each creature you control.
                 Effects.ForEachInGroup(
@@ -47,7 +47,7 @@ val DutyBeyondDeath = card("Duty Beyond Death") {
                     effect = AddCountersEffect(
                         counterType = Counters.PLUS_ONE_PLUS_ONE,
                         count = 1,
-                        target = EffectTarget.Self
+                        target = EffectTarget.IterationEntity
                     )
                 )
             )

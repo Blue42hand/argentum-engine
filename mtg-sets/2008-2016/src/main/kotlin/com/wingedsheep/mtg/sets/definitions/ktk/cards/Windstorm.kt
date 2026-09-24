@@ -24,7 +24,7 @@ val Windstorm = card("Windstorm") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
-            DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self)
+            DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity)
         )
     }
 

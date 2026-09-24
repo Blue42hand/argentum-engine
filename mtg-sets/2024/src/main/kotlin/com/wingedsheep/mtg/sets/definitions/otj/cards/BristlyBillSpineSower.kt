@@ -48,7 +48,7 @@ val BristlyBillSpineSower = card("Bristly Bill, Spine Sower") {
                     EffectTarget.IterationEntity,
                     EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)
                 ),
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

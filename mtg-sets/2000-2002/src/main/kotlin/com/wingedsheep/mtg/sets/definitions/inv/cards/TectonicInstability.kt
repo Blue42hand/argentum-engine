@@ -35,7 +35,7 @@ val TectonicInstability = card("Tectonic Instability") {
             filter = GroupFilter(
                 GameObjectFilter.Land.targetPlayerControls(EffectTarget.ControllerOfTriggeringEntity)
             ),
-            effect = TapUntapEffect(target = EffectTarget.Self, tap = true)
+            effect = TapUntapEffect(target = EffectTarget.IterationEntity, tap = true)
         )
     }
 

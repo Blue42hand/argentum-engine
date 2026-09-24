@@ -23,7 +23,7 @@ val Starstorm = card("Starstorm") {
     oracleText = "Starstorm deals X damage to each creature.\nCycling {3}"
 
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity))
     }
 
     keywordAbility(KeywordAbility.cycling("{3}"))

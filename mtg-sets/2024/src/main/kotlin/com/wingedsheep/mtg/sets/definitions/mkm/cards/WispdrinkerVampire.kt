@@ -50,8 +50,8 @@ val WispdrinkerVampire = card("Wispdrinker Vampire") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.powerAtMost(2).youControl()),
             Effects.Composite(
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity)
             )
         )
     }

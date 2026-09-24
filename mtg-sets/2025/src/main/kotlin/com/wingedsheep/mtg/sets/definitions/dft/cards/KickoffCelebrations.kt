@@ -58,7 +58,7 @@ val KickoffCelebrations = card("Kickoff Celebrations") {
                 GroupFilter(
                     (GameObjectFilter.Creature or GameObjectFilter.Any.withSubtype("Vehicle")).youControl()
                 ),
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
             )
             description = "Creatures and Vehicles you control gain haste until end of turn."
         }

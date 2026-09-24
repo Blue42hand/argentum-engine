@@ -37,7 +37,7 @@ val InciteHysteria = card("Incite Hysteria") {
                 GroupFilter(
                     GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
                 ).otherThanTarget(),
-                Effects.CantBlock(EffectTarget.Self)
+                Effects.CantBlock(EffectTarget.IterationEntity)
             )
     }
 

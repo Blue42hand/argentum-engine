@@ -32,7 +32,7 @@ val Brightflame = card("Brightflame") {
             run(Effects.DealDamage(DynamicAmount.XValue, victim))
             run(ForEachInCollectionEffect(
                 collection = others.key,
-                effect = Effects.DealDamage(DynamicAmount.XValue, EffectTarget.Self)
+                effect = Effects.DealDamage(DynamicAmount.XValue, EffectTarget.IterationEntity)
             ))
             run(Effects.GainLife(DynamicAmount.Subtract(damageDealt, before.amount)))
         }

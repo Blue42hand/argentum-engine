@@ -556,7 +556,7 @@
                             "type": "AddCounters",
                             "counterType": "+1/+1",
                             "count": 1,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -990,7 +990,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Artistic Process deals 2 damage to each creature you don't control"
@@ -1541,7 +1541,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -6359,7 +6359,7 @@
                 "type": "AddCounters",
                 "counterType": "+1/+1",
                 "count": 2,
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "selfExileOnResolve": true,
@@ -8171,7 +8171,7 @@
                                 "type": "AddDynamicCounters",
                                 "counterType": "+1/+1",
                                 "amount": "XValue",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -8866,12 +8866,12 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -9212,7 +9212,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever you cast an instant or sorcery spell, creatures you control get +1/+0 until end of turn for each color of mana spent to cast that spell."
@@ -9882,7 +9882,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 }
@@ -10376,7 +10376,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever you cast a spell you don't own, put a +1/+1 counter on each creature you control."
@@ -11747,7 +11747,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -13530,12 +13530,12 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "MENACE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantTriggeredAbility",
@@ -13551,7 +13551,7 @@
                             },
                             "descriptionOverride": "Whenever this creature attacks, you gain 1 life."
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }
@@ -15330,7 +15330,7 @@
                                 "type": "Fixed",
                                 "amount": 4
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Splatter Technique deals 4 damage to each creature and planeswalker"
@@ -15825,7 +15825,7 @@
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -18605,7 +18605,7 @@
                 },
                 "body": {
                     "type": "MoveToZone",
-                    "target": "Self",
+                    "target": "IterationEntity",
                     "destination": "Graveyard",
                     "byDestruction": true
                 }
@@ -18628,7 +18628,7 @@
                         "type": "Fixed",
                         "amount": -2
                     },
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             }
         }

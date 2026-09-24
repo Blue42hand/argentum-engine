@@ -1995,7 +1995,7 @@ object Steps {
 
     /**
      * The mass effects, which the SDK spells as one iteration over a `GroupFilter` with the
-     * per-member effect written against [EffectTarget.Self].
+     * per-member effect written against [EffectTarget.IterationEntity].
      *
      * One shape, four surfaces, because English gives the same model four templates and the
      * difference between them is the *noun phrase*, not the verb: a bare plural subject ("Creatures
@@ -2015,7 +2015,7 @@ object Steps {
         member: (EffectTarget) -> Effect,
     ): Phrase<CardScript> {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
-            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), member(EffectTarget.Self)),
+            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), member(EffectTarget.IterationEntity)),
         )
         return phrase(template, name = name) {
             slot("filter", if (plural) Filters.plural else Filters.filter)
@@ -2045,7 +2045,7 @@ object Steps {
         canonicalForm: Boolean = true,
     ): Phrase<CardScript> {
         fun scriptFor(value: V, filter: GameObjectFilter) = CardScript(
-            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), member(value, EffectTarget.Self)),
+            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), member(value, EffectTarget.IterationEntity)),
         )
         val rule = phrase<CardScript>(template, name = name) {
             // This shape carries durational and non-durational sentences alike — "{filter} get {v}
@@ -2091,8 +2091,8 @@ object Steps {
             spellEffect = Effects.ForEachInGroup(
                 GroupFilter(filter),
                 Effects.Composite(
-                    listOf(Effects.ModifyStats(modifiers.first, modifiers.second, EffectTarget.Self)) +
-                        keywords.map { Effects.GrantKeyword(it, EffectTarget.Self) }
+                    listOf(Effects.ModifyStats(modifiers.first, modifiers.second, EffectTarget.IterationEntity)) +
+                        keywords.map { Effects.GrantKeyword(it, EffectTarget.IterationEntity) }
                 ),
             )
         )
@@ -2130,7 +2130,7 @@ object Steps {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
             spellEffect = Effects.ForEachInGroup(
                 GroupFilter(filter, excludeSelf = true),
-                member(EffectTarget.Self),
+                member(EffectTarget.IterationEntity),
             ),
         )
         return phrase(template, name = name) {
@@ -2155,7 +2155,7 @@ object Steps {
     /**
      * "Destroy all creatures." — the sweep, through [Effects.DestroyAll] rather than an iteration.
      *
-     * Not `ForEachInGroup(filter, Destroy(Self))`, which is the same sentence's other SDK spelling
+     * Not `ForEachInGroup(filter, Destroy(IterationEntity))`, which is the same sentence's other SDK spelling
      * and the one this rule used to build. `DestroyAll` lowers to the gather-then-move pipeline, and
      * the difference is not cosmetic: the gather reads the battlefield through *projected* state, so
      * a filter that names a characteristic a continuous effect can change ("nonland permanents with
@@ -2349,7 +2349,7 @@ object Steps {
         fun scriptFor(value: DynamicAmount, filter: GameObjectFilter) = CardScript(
             spellEffect = Effects.Composite(
                 listOf(
-                    Effects.ForEachInGroup(GroupFilter(filter), Effects.DealDamage(value, EffectTarget.Self)),
+                    Effects.ForEachInGroup(GroupFilter(filter), Effects.DealDamage(value, EffectTarget.IterationEntity)),
                     Effects.ForEachPlayer(
                         Player.Each,
                         listOf(Effects.DealDamage(value, EffectTarget.Controller)),

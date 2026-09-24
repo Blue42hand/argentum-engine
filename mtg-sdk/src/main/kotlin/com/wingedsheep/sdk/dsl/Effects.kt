@@ -1725,8 +1725,8 @@ object Effects {
      * Grant a **point-of-use** static ability to a target until end of turn (or another
      * [duration]) — e.g. [com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan] so the combat
      * blocker validation honors a temporarily-conferred "can't be blocked by more than one
-     * creature" (Full Steam Ahead). Compose inside [ForEachInGroup] with [EffectTarget.Self] for
-     * "each creature you control gains ...".
+     * creature" (Full Steam Ahead). Compose inside [ForEachInGroup] with
+     * [EffectTarget.IterationEntity] for "each creature you control gains ...".
      *
      * The grant lands in `GameState.grantedStaticAbilities`, which the combat, casting, and
      * activation checks read alongside a permanent's printed statics. The **layer projector does
@@ -3325,11 +3325,11 @@ object Effects {
     /**
      * [target] gains every protection ability some permanent in [group] has, read at resolution
      * — the protection clause of Concerted Effort. Fan it over the group with [ForEachInGroup]
-     * and [EffectTarget.Self]. See [GrantProtectionsSharedByGroupEffect].
+     * and [EffectTarget.IterationEntity]. See [GrantProtectionsSharedByGroupEffect].
      */
     fun GrantProtectionsSharedByGroup(
         group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        target: EffectTarget = EffectTarget.Self,
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = com.wingedsheep.sdk.scripting.effects.GrantProtectionsSharedByGroupEffect(group, target, duration)
 
@@ -3365,7 +3365,7 @@ object Effects {
      *
      *     Effects.ForEachColorOf(
      *         source = EffectTarget.ContextTarget(0),
-     *         effect = ForEachInGroupEffect(group, Effects.GrantProtectionFromChosenColor(EffectTarget.Self)),
+     *         effect = ForEachInGroupEffect(group, Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)),
      *     )
      *
      * Colors are read from projected state on the battlefield (Layer-5 / Devoid honored),
@@ -3671,7 +3671,8 @@ object Effects {
 
     /**
      * Apply [effect] to every entity matching [filter] (Rule: "each", "all"). Within the inner
-     * effect, [EffectTarget.Self] resolves to the current iteration entity.
+     * effect, [EffectTarget.IterationEntity] names the entity being visited; [EffectTarget.Self]
+     * stays the source.
      *
      * The group is snapshotted before any iteration applies.
      *

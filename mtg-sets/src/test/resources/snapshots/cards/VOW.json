@@ -1097,7 +1097,7 @@
                             "type": "AddCounters",
                             "counterType": "+1/+1",
                             "count": 2,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "descriptionOverride": "Put two +1/+1 counters on each creature you control."
@@ -4930,7 +4930,7 @@
                         },
                         "body": {
                             "type": "SetBaseStats",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "power": {
                                 "type": "Fixed",
                                 "amount": 4
@@ -7210,7 +7210,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -8502,12 +8502,12 @@
                                                 "type": "Fixed",
                                                 "amount": 1
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         },
                                         {
                                             "type": "GrantKeyword",
                                             "keyword": "TRAMPLE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     ]
                                 }
@@ -9688,7 +9688,7 @@
                                 "type": "Fixed",
                                 "amount": 0
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "descriptionOverride": "Each creature you control with flying, deathtouch, and/or lifelink gets +1/+0 until end of turn."
@@ -11806,7 +11806,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -12981,7 +12981,7 @@
                                 "type": "Fixed",
                                 "amount": 0
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +1/+0 until end of turn"
@@ -13049,7 +13049,7 @@
                                         "type": "Fixed",
                                         "amount": 0
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -19166,7 +19166,7 @@
                         "type": "AddCounters",
                         "counterType": "slime",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "At the beginning of each end step, put a slime counter on each creature you don't control."
@@ -19905,7 +19905,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {

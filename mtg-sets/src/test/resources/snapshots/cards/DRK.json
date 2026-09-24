@@ -581,7 +581,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -950,7 +950,7 @@
                 },
                 "consequenceIfNonePaid": {
                     "type": "MoveToZone",
-                    "target": "Self",
+                    "target": "IterationEntity",
                     "destination": "Graveyard",
                     "byDestruction": true
                 }
@@ -2779,7 +2779,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When this Aura leaves the battlefield, it deals 1 damage to each Goblin creature."
@@ -3100,7 +3100,7 @@
                     "type": "Fixed",
                     "amount": -1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3139,7 +3139,7 @@
                             "type": "Fixed",
                             "amount": 6
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -3731,7 +3731,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4163,7 +4163,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4447,7 +4447,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{T}, Sacrifice another Orc or Goblin: Other Orc creatures get +1/+1 until end of turn."
@@ -4845,7 +4845,7 @@
             },
             "body": {
                 "type": "TapUntap",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5620,7 +5620,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -5717,7 +5717,7 @@
                                         "body": {
                                             "type": "GrantKeyword",
                                             "keyword": "FIRST_STRIKE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     }
                                 ]

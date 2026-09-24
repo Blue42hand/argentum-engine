@@ -30,7 +30,7 @@ val Tangle = card("Tangle") {
                     GroupFilter.AttackingCreatures,
                     GrantKeywordEffect(
                         AbilityFlag.DOESNT_UNTAP.name,
-                        EffectTarget.Self,
+                        EffectTarget.IterationEntity,
                         Duration.UntilAfterAffectedControllersNextUntap
                     )
                 )

@@ -42,7 +42,7 @@ val PoisonTheWaters = card("Poison the Waters") {
             mode("All creatures get -1/-1 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreatures,
-                    effect = ModifyStatsEffect(-1, -1, EffectTarget.Self)
+                    effect = ModifyStatsEffect(-1, -1, EffectTarget.IterationEntity)
                 )
             }
             mode("Target player reveals their hand; discard an artifact or creature card") {

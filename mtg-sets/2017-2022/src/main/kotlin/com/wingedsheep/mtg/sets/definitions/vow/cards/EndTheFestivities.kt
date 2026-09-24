@@ -27,7 +27,7 @@ val EndTheFestivities = card("End the Festivities") {
             // 1 damage to each creature and planeswalker those opponents control
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()),
-                DealDamageEffect(1, EffectTarget.Self)
+                DealDamageEffect(1, EffectTarget.IterationEntity)
             )
         )
     }

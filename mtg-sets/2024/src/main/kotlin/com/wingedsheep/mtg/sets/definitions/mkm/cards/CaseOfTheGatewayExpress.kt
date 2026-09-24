@@ -24,8 +24,8 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *
  * The ETB is a group ping, and *who* deals the damage matters: each creature you control is its own
  * damage source, so a deathtouch or lifelink creature in the group applies its own keyword to its
- * own point. That is [Effects.ForEachInGroup] with `damageSource = EffectTarget.Self` — inside a
- * group iteration `Self` binds to the iterated creature, not to the Case — rather than one lump of
+ * own point. That is [Effects.ForEachInGroup] with `damageSource = EffectTarget.IterationEntity` — inside a
+ * group iteration `IterationEntity` binds to the iterated creature, not to the Case — rather than one lump of
  * damage from the enchantment.
  *
  * "Three or more creatures attacked this turn" names no player, so it is
@@ -53,7 +53,7 @@ val CaseOfTheGatewayExpress = card("Case of the Gateway Express") {
             effect = Effects.DealDamage(
                 amount = 1,
                 target = creature,
-                damageSource = EffectTarget.Self
+                damageSource = EffectTarget.IterationEntity
             )
         )
     }

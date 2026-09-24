@@ -46,7 +46,7 @@ val AbandonedAirTemple = card("Abandoned Air Temple") {
         cost = Costs.Composite(Costs.Mana("{3}{W}"), Costs.Tap)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
         description = "{3}{W}, {T}: Put a +1/+1 counter on each creature you control."
     }

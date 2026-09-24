@@ -70,7 +70,7 @@ private fun felotharSacrificeEffect(): Effect = ReflexiveTriggerEffect(
         effect = AddCountersEffect(
             counterType = Counters.PLUS_ONE_PLUS_ONE,
             count = 1,
-            target = EffectTarget.Self
+            target = EffectTarget.IterationEntity
         )
     )
 )

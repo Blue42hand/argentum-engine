@@ -79,7 +79,7 @@ val StormWindrider = card("Storm, Windrider") {
         trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature)
         effect = ForEachInCollectionEffect(
             collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
-            effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)
+            effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)
         )
         description = "Whenever you cast a spell that targets one or more creatures, those " +
             "creatures gain flying until end of turn."

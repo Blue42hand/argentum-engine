@@ -73,7 +73,7 @@ val WarrenWarleader = card("Warren Warleader") {
                     effect = ModifyStatsEffect(
                         powerModifier = 1,
                         toughnessModifier = 1,
-                        target = EffectTarget.Self,
+                        target = EffectTarget.IterationEntity,
                         duration = Duration.EndOfTurn
                     )
                 ),

@@ -37,8 +37,8 @@ val RallyTheRighteous = card("Rally the Righteous") {
                 filter = GroupFilter(
                     GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
                 ).otherThanTarget(),
-                effect = Effects.Untap(EffectTarget.Self) then
-                    Effects.ModifyStats(2, 0, EffectTarget.Self)
+                effect = Effects.Untap(EffectTarget.IterationEntity) then
+                    Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
             )
     }
 

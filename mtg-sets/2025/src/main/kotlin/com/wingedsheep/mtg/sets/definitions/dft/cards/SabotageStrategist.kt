@@ -47,7 +47,7 @@ val SabotageStrategist = card("Sabotage Strategist") {
         trigger = Triggers.CreaturesAttackYou
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.attacking().opponentControls()),
-            Effects.ModifyStats(-1, 0, EffectTarget.Self)
+            Effects.ModifyStats(-1, 0, EffectTarget.IterationEntity)
         )
         description = "Whenever one or more creatures attack you, those creatures get -1/-0 until " +
             "end of turn."

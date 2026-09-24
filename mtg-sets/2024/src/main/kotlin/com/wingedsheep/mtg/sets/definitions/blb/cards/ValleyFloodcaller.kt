@@ -60,8 +60,8 @@ val ValleyFloodcaller = card("Valley Floodcaller") {
             filter = creatureFilter,
             effect = Effects.Composite(
                 listOf(
-                    ModifyStatsEffect(1, 1, EffectTarget.Self),
-                    TapUntapEffect(EffectTarget.Self, tap = false)
+                    ModifyStatsEffect(1, 1, EffectTarget.IterationEntity),
+                    TapUntapEffect(EffectTarget.IterationEntity, tap = false)
                 )
             )
         )

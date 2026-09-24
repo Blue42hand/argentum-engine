@@ -28,7 +28,7 @@ val DakmorPlague = card("Dakmor Plague") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                Effects.DealDamage(3, EffectTarget.Self)
+                Effects.DealDamage(3, EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,

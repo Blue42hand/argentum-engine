@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  * won't trigger unless you've already descended when the step begins).
  *
  * The activated ability sacrifices Stalactite Stalker as a cost, then reads its power for X. Because
- * the source is gone by resolution, X is last-known information: `EntityProperty(Source, Power)`
+ * the source is gone by resolution, X is last-known information: `EntityProperty(Self, Power)`
  * resolves via the source's LKI snapshot captured at cost-payment time (CR 113.7a / 608.2h),
  * including any +1/+1 counters it had accrued. (`Source` — not `Sacrificed()` — is the correct
  * reference for a `SacrificeSelf` cost: the self-sacrifice target is implicit, so it never lands in

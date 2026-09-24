@@ -39,13 +39,13 @@ object GroupPatterns {
     fun untapGroup(filter: GroupFilter = GroupFilter.AllCreatures): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = TapUntapEffect(EffectTarget.Self, tap = false)
+            effect = TapUntapEffect(EffectTarget.IterationEntity, tap = false)
         )
 
     fun tapAll(filter: GroupFilter): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = TapUntapEffect(EffectTarget.Self, tap = true)
+            effect = TapUntapEffect(EffectTarget.IterationEntity, tap = true)
         )
 
     fun returnAllToHand(filter: GroupFilter): CompositeEffect = CompositeEffect(listOf(
@@ -65,7 +65,7 @@ object GroupPatterns {
     fun destroyAll(filter: GroupFilter, noRegenerate: Boolean = false): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = MoveToZoneEffect(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+            effect = MoveToZoneEffect(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             noRegenerate = noRegenerate
         )
 
@@ -188,7 +188,7 @@ object GroupPatterns {
     ): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = GrantKeywordEffect(keyword.name, EffectTarget.Self, duration)
+            effect = GrantKeywordEffect(keyword.name, EffectTarget.IterationEntity, duration)
         )
 
     /**
@@ -215,8 +215,8 @@ object GroupPatterns {
             filter = filter,
             effect = CompositeEffect(
                 listOf(
-                    ModifyStatsEffect(power, toughness, EffectTarget.Self, duration),
-                    GrantKeywordEffect(keyword.name, EffectTarget.Self, duration)
+                    ModifyStatsEffect(power, toughness, EffectTarget.IterationEntity, duration),
+                    GrantKeywordEffect(keyword.name, EffectTarget.IterationEntity, duration)
                 )
             )
         )
@@ -228,7 +228,7 @@ object GroupPatterns {
     ): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = RemoveKeywordEffect(keyword.name, EffectTarget.Self, duration)
+            effect = RemoveKeywordEffect(keyword.name, EffectTarget.IterationEntity, duration)
         )
 
     fun modifyStatsForAll(
@@ -239,7 +239,7 @@ object GroupPatterns {
     ): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = ModifyStatsEffect(power, toughness, EffectTarget.Self, duration)
+            effect = ModifyStatsEffect(power, toughness, EffectTarget.IterationEntity, duration)
         )
 
     fun modifyStatsForAll(
@@ -250,7 +250,7 @@ object GroupPatterns {
     ): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = ModifyStatsEffect(power, toughness, EffectTarget.Self, duration)
+            effect = ModifyStatsEffect(power, toughness, EffectTarget.IterationEntity, duration)
         )
 
     /**
@@ -281,19 +281,19 @@ object GroupPatterns {
     fun dealDamageToAll(amount: Int, filter: GroupFilter): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = DealDamageEffect(amount, EffectTarget.Self)
+            effect = DealDamageEffect(amount, EffectTarget.IterationEntity)
         )
 
     fun dealDamageToAll(amount: DynamicAmount, filter: GroupFilter): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = DealDamageEffect(amount, EffectTarget.Self)
+            effect = DealDamageEffect(amount, EffectTarget.IterationEntity)
         )
 
     fun gainControlOfGroup(filter: GroupFilter = GroupFilter.AllCreatures, duration: Duration = Duration.EndOfTurn): ForEachEffect =
         ForEachInGroupEffect(
             filter = filter,
-            effect = GainControlEffect(EffectTarget.Self, duration)
+            effect = GainControlEffect(EffectTarget.IterationEntity, duration)
         )
 
     /**
