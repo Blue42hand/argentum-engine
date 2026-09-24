@@ -6885,6 +6885,12 @@ staticAbility {
   `CombatDamageManager`, `DamageUtils`) — so protection from a *permanent* card type is enforced too,
   not just the targeting leg that is all instants and sorceries can use.
   Pair two of these for the two-type wording. (Sword of Wealth and Power)
+- `GainKeywordsOfGraveyardCreatureCards(keywords, anyLandwalk = false, anyProtection = false, filter = source())`
+  — "As long as a creature card with flying is in a graveyard, this creature has flying. The same is
+  true for …" (Cairn Wanderer). Layer 6, read at projection time over **every** graveyard's creature
+  cards and their printed keywords. `anyLandwalk` grants each landwalk found (`*WALK` keywords);
+  `anyProtection` grants each printed protection *with its quality* (`PROTECTION_FROM_<X>`), per the
+  ruling "It gains any landwalk abilities and any protection abilities".
 - `GrantProtectionFromLinkedExiledCardTypes(filter = source())` — "[filter] has protection from each of
   the exiled card's card types" — the card-type twin of `GrantProtectionFromControlledColors`: the *set*
   of qualities is derived at projection time, here from the source's linked-exile pile
@@ -12230,6 +12236,25 @@ The priority groups are (CR 616.1a–f):
   `restrictions: List<Condition>` (default empty) gates the prevention on extra conditions evaluated
   against the source's controller — the same pattern as `ModifyLifeLoss.restrictions`. Use it for
   "as long as …, prevent …" statics (Spirit of Resistance: a five-distinct-colors `Compare` gate).
+  `onPrevented: Effect?` is what the prevention does with the damage it prevented (CR 615.5) — the
+  Lorwyn Incarnations' "You gain life equal to the damage prevented this way" (Purity:
+  `Effects.GainLife(DynamicAmounts.preventedDamage())`), "Put a +1/+1 counter on that creature for each
+  1 damage prevented this way" (Vigor: `Effects.AddDynamicCounters("+1/+1", preventedDamage(),
+  EffectTarget.TriggeringEntity)`) and Hostility's tokens. It is **not** a trigger: the engine queues it
+  on `GameState.pendingReplacementRiders` and runs it as soon as the damaging effect finishes (or at the
+  settle boundary for combat damage) — before SBAs and trigger detection, never on the stack. One run
+  per application, with the amount that application prevented; `Self` is the replacement's host, "you"
+  its controller, `TriggeringEntity` the permanent the damage would have been dealt to. Unpreventable
+  damage prevents nothing, so the rider doesn't run.
+- `ReplacementEffect.ExileCounteredSpellInstead(then?, appliesTo = EventPattern.CounterSpellEvent(counterer = You))`
+  — "If a spell or ability you control would counter a spell, instead exile that spell and you may
+  play that card without paying its mana cost" (Guile). Applied inside every `StackResolver` counter
+  routine once the spell is known to be counterable, so a can't-be-countered spell never sees it; the
+  spell goes to its owner's exile and is **never countered** (no `SpellCounteredEvent`, no Remand /
+  flashback destination rider). `then` runs as a replacement rider with the exiled card in the
+  pipeline collection `ExileCounteredSpellInstead.EXILED_CARD` (Guile:
+  `MayEffect(Effects.CastFromCollectionWithoutPayingCost(EXILED_CARD))`). A spell copy ceases to exist
+  in exile (CR 707.10a) and gets no `then`. `EventPattern.CounterSpellEvent` is replacement-only.
 - `ReplacementEffect.PreventDamageByRemovingCounter(counterType = PlusOnePlusOne, removalAmount = CounterRemovalAmount.One, requiresCounter = false, appliesTo = DamageEvent(recipient = Self))`
   — "If this creature would be dealt damage, prevent that damage and remove a +1/+1 counter from it"
   (Unbreathing Horde). The printed twin of the shield counter's prevention half (CR 122.1c), wired at
@@ -12386,7 +12411,9 @@ The priority groups are (CR 616.1a–f):
   (`CardPredicate.SharesChosenColorWithSource`, reads the replacement source's `ChosenColorComponent`).
   `source = SourceFilter.YouControl` matches any source (permanent, spell, ability) controlled by the
   replacement's controller — "a source you control" (Fated Firepower) — without enumerating a
-  `GameObjectFilter`. `recipient = RecipientFilter.OpponentOrPermanentTheyControl` matches an opponent
+  `GameObjectFilter`. `source = SourceFilter.SpellYouControl` narrows that to a *spell* (a source still
+  on the stack as a spell, copies included) — "a spell you control" (Hostility); `SourceFilter.Spell`
+  is the same test without the controller check. `recipient = RecipientFilter.OpponentOrPermanentTheyControl` matches an opponent
   player **or** any permanent an opponent controls — "an opponent or a permanent an opponent controls".
   `recipient = RecipientFilter.Self` / `source = SourceFilter.Self` match the permanent that owns the
   replacement — "damage dealt *to* / *by* this permanent" — for source-relative static foggers like

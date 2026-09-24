@@ -328,7 +328,7 @@ class WardCounterEffectExecutor(
                 canPayWardCost(state, cardRegistry, it, payingPlayerId, controllerId)
             }
             if (payable.isEmpty()) {
-                return counterSpellOrAbility(state, cardRegistry, spellEntityId)
+                return counterSpellOrAbility(state, cardRegistry, spellEntityId, controllerId)
             }
 
             val labels = payable.map { it.clause.replaceFirstChar { ch -> ch.uppercase() } } +
@@ -446,7 +446,7 @@ class WardCounterEffectExecutor(
                     state, cardRegistry, WardCost.Sacrifice(filter, count), payingPlayerId, controllerId
                 )
             ) {
-                return counterSpellOrAbility(state, cardRegistry, spellEntityId)
+                return counterSpellOrAbility(state, cardRegistry, spellEntityId, controllerId)
             }
 
             val validPermanents = sacrificeCandidates(state, payingPlayerId, filter)
@@ -521,7 +521,7 @@ class WardCounterEffectExecutor(
         ): EffectResult {
             val candidates = CollectEvidenceResolver.candidates(state, payingPlayerId)
             if (!candidates.canReach(amount)) {
-                return counterSpellOrAbility(state, cardRegistry, spellEntityId)
+                return counterSpellOrAbility(state, cardRegistry, spellEntityId, controllerId)
             }
 
             val continuation = CounterUnlessCollectEvidenceContinuation(
@@ -573,7 +573,7 @@ class WardCounterEffectExecutor(
                     state, cardRegistry, WardCost.Discard(count, random, filter), payingPlayerId, controllerId
                 )
             ) {
-                return counterSpellOrAbility(state, cardRegistry, spellEntityId)
+                return counterSpellOrAbility(state, cardRegistry, spellEntityId, controllerId)
             }
 
             val cardsLabel = if (filter != null) {
@@ -642,7 +642,7 @@ class WardCounterEffectExecutor(
                     manaSolver, waterbendPermanents
                 )
             ) {
-                return counterSpellOrAbility(state, cardRegistry, spellEntityId)
+                return counterSpellOrAbility(state, cardRegistry, spellEntityId, controllerId)
             }
 
             val sources = manaSolver.findAvailableManaSources(state, payingPlayerId)
@@ -719,7 +719,7 @@ class WardCounterEffectExecutor(
                     state, cardRegistry, WardCost.Life(lifeCost), payingPlayerId, controllerId
                 )
             ) {
-                return counterSpellOrAbility(state, cardRegistry, spellEntityId)
+                return counterSpellOrAbility(state, cardRegistry, spellEntityId, controllerId)
             }
 
             val decision = { decisionId: String -> YesNoDecision(
@@ -763,9 +763,10 @@ class WardCounterEffectExecutor(
         private fun counterSpellOrAbility(
             state: GameState,
             cardRegistry: CardRegistry,
-            entityId: EntityId
+            entityId: EntityId,
+            countererId: EntityId?
         ): EffectResult = EffectResult.from(
-            StackResolver(cardRegistry = cardRegistry).counterSpellOrAbility(state, entityId)
+            StackResolver(cardRegistry = cardRegistry).counterSpellOrAbility(state, entityId, countererId)
         )
     }
 }

@@ -104,11 +104,11 @@ class CounterEffectExecutor(
         return EffectResult.from(when (effectiveTarget) {
             CounterTarget.Ability -> resolver.counterAbility(state, entityId)
             CounterTarget.Spell -> when (val dest = effect.counterDestination) {
-                CounterDestination.Graveyard -> resolver.counterSpell(state, entityId)
+                CounterDestination.Graveyard -> resolver.counterSpell(state, entityId, context.controllerId)
                 is CounterDestination.Exile -> resolver.counterSpellToExile(
                     state, entityId, dest.grantFreeCast, context.controllerId
                 )
-                CounterDestination.Hand -> resolver.counterSpellToHand(state, entityId)
+                CounterDestination.Hand -> resolver.counterSpellToHand(state, entityId, context.controllerId)
             }
             CounterTarget.SpellOrAbility -> error("unreachable — resolved above")
         })

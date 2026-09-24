@@ -62,7 +62,7 @@ class CounterAllOnStackExecutor(
             if (!currentState.stack.contains(entityId)) continue
 
             val result = when (kind) {
-                StackEntityKind.Spell -> EffectResult.from(resolver.counterSpell(currentState, entityId))
+                StackEntityKind.Spell -> EffectResult.from(resolver.counterSpell(currentState, entityId, context.controllerId))
                 StackEntityKind.Ability -> EffectResult.from(resolver.counterAbility(currentState, entityId))
             }
 

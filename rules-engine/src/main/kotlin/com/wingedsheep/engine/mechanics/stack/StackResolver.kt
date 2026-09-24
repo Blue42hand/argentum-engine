@@ -306,16 +306,16 @@ class StackResolver(
     // =========================================================================
 
     /** Counter whatever stack object [entityId] is, spell or ability. See [SpellCounterer.counterSpellOrAbility]. */
-    fun counterSpellOrAbility(state: GameState, entityId: EntityId): ExecutionResult =
-        spellCounterer.counterSpellOrAbility(state, entityId)
+    fun counterSpellOrAbility(state: GameState, entityId: EntityId, countererId: EntityId? = null): ExecutionResult =
+        spellCounterer.counterSpellOrAbility(state, entityId, countererId)
 
     /** Counter a spell on the stack. See [SpellCounterer.counterSpell]. */
-    fun counterSpell(state: GameState, spellId: EntityId): ExecutionResult =
-        spellCounterer.counterSpell(state, spellId)
+    fun counterSpell(state: GameState, spellId: EntityId, countererId: EntityId? = null): ExecutionResult =
+        spellCounterer.counterSpell(state, spellId, countererId)
 
     /** Counter a spell into its owner's hand (Remand). See [SpellCounterer.counterSpellToHand]. */
-    fun counterSpellToHand(state: GameState, spellId: EntityId): ExecutionResult =
-        spellCounterer.counterSpellToHand(state, spellId)
+    fun counterSpellToHand(state: GameState, spellId: EntityId, countererId: EntityId? = null): ExecutionResult =
+        spellCounterer.counterSpellToHand(state, spellId, countererId)
 
     /** Counter a spell into exile. See [SpellCounterer.counterSpellToExile]. */
     fun counterSpellToExile(
