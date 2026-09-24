@@ -252,8 +252,6 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Mausoleum Turnkey | Opponent-chosen targets on triggers: TriggerProcessor currently substitutes the controller and CardLinter rejects the unsupported shape. |
 | Quickchange | Choice of any nonempty subset of colors; the current color decision is singular. |
 | Dream Leash | Casting-only tapped target restriction, independent from resolution legality. |
-| Chant of Vitu-Ghazi | Turn-long prevention from all creatures, with life gained from actual prevented damage. |
-| Concerted Effort | Propagation of actual protection and landwalk variants as well as ordinary keywords. |
 | Belltower Sphinx | Retain damage-source controller information for its self-damaged trigger. |
 | Auratouched Mage, Flickerform | Legal attachment search, owner-controlled Aura return, and source-left fallback. |
 | Eye of the Storm | Linked spell-card exile, copy choices controlled by the triggering caster, and repeated optional casts. |
@@ -263,7 +261,6 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Warp World | Per-owner counts including tokens, simultaneous entry batches, enchantments entering afterward, and bottom ordering. |
 | Blood Funnel | Optional creature sacrifice and counter-on-nonpayment, composed with existing reduction and counter effects. |
 | Shadow of Doubt | Search prohibition in the shared library-search path. |
-| Szadek, Lord of Secrets | One damage replacement produces counters and mills the damaged player; independent replacements cannot both consume the same damage. |
 | Crown of Convergence | Continuously compare creature colors with the current top library card. |
 | Circu, Dimir Lobotomist | Name matching over the whole linked exile pile for casting restrictions. |
 | Spectral Searchlight | Non-targeting player choice followed by that player's color choice, preserving mana-ability resolution. |
@@ -273,4 +270,3 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Grifter’s Blade | Enter attached as a replacement, rather than an entry trigger. |
 | Chorus of the Conclave | Optional arbitrary extra mana for creature spells, carried into entry counters. |
 | Mindleech Mass | Existing hand selection and free-cast pipeline; prove timing and continuation behavior. |
-| Gaze of the Gorgon | Combat-history tracking and delayed destruction alongside regeneration. |
