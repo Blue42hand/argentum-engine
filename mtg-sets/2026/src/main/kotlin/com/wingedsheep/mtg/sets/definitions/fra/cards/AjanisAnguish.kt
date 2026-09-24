@@ -25,7 +25,7 @@ val AjanisAnguish = card("Ajani's Anguish") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(DynamicAmounts.castX(), t)
     }
 

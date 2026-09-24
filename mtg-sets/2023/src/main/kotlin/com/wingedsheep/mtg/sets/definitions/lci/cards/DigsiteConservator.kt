@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Digsite Conservator
@@ -29,15 +28,7 @@ val DigsiteConservator = card("Digsite Conservator") {
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        target(
-            "up to four target cards from a single graveyard",
-            TargetObject(
-                count = 4,
-                optional = true,
-                filter = TargetFilter.CardInGraveyard,
-                sameOwner = true,
-            )
-        )
+        targets(TargetFilter.CardInGraveyard, count = 4, optional = true, sameOwner = true)
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
         )

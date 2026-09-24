@@ -10,9 +10,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Volatile Arsonist // Dire-Strain Anarchist (Innistrad: Crimson Vow)
@@ -50,12 +48,9 @@ private val VolatileArsonistFront = card("Volatile Arsonist") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target("up to one target creature", TargetCreature(optional = true))
-        val player = target("up to one target player", TargetPlayer(optional = true))
-        val planeswalker = target(
-            "up to one target planeswalker",
-            TargetPermanent(optional = true, filter = TargetFilter.Planeswalker),
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
+        val player = target(Targets.Player, optional = true)
+        val planeswalker = target(TargetFilter.Planeswalker, optional = true)
         effect = Effects.Composite(
             Effects.DealDamage(1, creature, damageSource = EffectTarget.Self),
             Effects.DealDamage(1, player, damageSource = EffectTarget.Self),
@@ -90,12 +85,9 @@ private val DireStrainAnarchist = card("Dire-Strain Anarchist") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target("up to one target creature", TargetCreature(optional = true))
-        val player = target("up to one target player", TargetPlayer(optional = true))
-        val planeswalker = target(
-            "up to one target planeswalker",
-            TargetPermanent(optional = true, filter = TargetFilter.Planeswalker),
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
+        val player = target(Targets.Player, optional = true)
+        val planeswalker = target(TargetFilter.Planeswalker, optional = true)
         effect = Effects.Composite(
             Effects.DealDamage(2, creature, damageSource = EffectTarget.Self),
             Effects.DealDamage(2, player, damageSource = EffectTarget.Self),

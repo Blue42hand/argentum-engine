@@ -33,7 +33,7 @@ val BiotechSpecialist = card("Biotech Specialist") {
     // Whenever you sacrifice an artifact, this creature deals 2 damage to target opponent
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact)
-        val target = target("target opponent", Targets.Opponent)
+        val target = target(Targets.Opponent)
         effect = Effects.DealDamage(2, target)
     }
 

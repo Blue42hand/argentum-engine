@@ -69,7 +69,7 @@ val SunfireTorch = card("Sunfire Torch") {
                     optional = true,
                     descriptionOverride = "You may sacrifice Sunfire Torch. When you do, this creature deals 2 damage to any target."
                 ) {
-                    val anyTarget = target("target any", Targets.Any)
+                    val anyTarget = target(Targets.Any)
                     effect = Effects.DealDamage(2, anyTarget)
                 }
             ),

@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Seed Spark — Ravnica: City of Guilds #30
@@ -35,7 +35,7 @@ val SeedSpark = card("Seed Spark") {
         "If {G} was spent to cast this spell, create two 1/1 green Saproling creature tokens."
 
     spell {
-        val permanent = target("artifact or enchantment", Targets.ArtifactOrEnchantment)
+        val permanent = target(TargetFilter.ArtifactOrEnchantment)
         effect = Effects.Move(permanent, Zone.GRAVEYARD, byDestruction = true)
             .then(
                 Effects.If(

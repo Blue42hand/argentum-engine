@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -37,12 +36,9 @@ val PrimaryResearch = card("Primary Research") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val card = target(
-            "card",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.NonlandPermanent.ownedByYou().manaValueAtMost(3),
-                    zone = Zone.GRAVEYARD,
-                ),
+            TargetFilter(
+                GameObjectFilter.NonlandPermanent.ownedByYou().manaValueAtMost(3),
+                zone = Zone.GRAVEYARD,
             ),
         )
         effect = Effects.PutOntoBattlefield(card)

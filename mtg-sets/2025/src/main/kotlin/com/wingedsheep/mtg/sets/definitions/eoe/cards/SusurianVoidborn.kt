@@ -26,7 +26,7 @@ val SusurianVoidborn = card("Susurian Voidborn") {
     // Whenever this creature or another creature or artifact you control dies, target opponent loses 1 life and you gain 1 life.
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.CreatureOrArtifact.youControl()).dies()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(1, opponent),

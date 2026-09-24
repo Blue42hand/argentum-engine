@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dual-Sun Technique
@@ -22,7 +22,7 @@ val DualSunTechnique = card("Dual-Sun Technique") {
 
     // Main spell effect
     spell {
-        val target = target("target creature you control", Targets.CreatureYouControl)
+        val target = target(TargetFilter.CreatureYouControl)
         
         effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target)
             .then(

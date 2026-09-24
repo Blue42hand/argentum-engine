@@ -34,7 +34,7 @@ val MasterPakku = card("Master Pakku") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesTapped()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Patterns.Library.mill(
             DynamicAmounts.zone(
                 Player.You,

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -32,7 +33,7 @@ val HonorableScout = card("Honorable Scout") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.GainLife(
             DynamicAmounts.battlefield(
                 Player.TargetOpponent,

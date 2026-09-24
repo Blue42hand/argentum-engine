@@ -11,6 +11,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Stay Hidden, Stay Silent — Duskmourn: House of Horror #74
@@ -42,7 +44,7 @@ val StayHiddenStaySilent = card("Stay Hidden, Stay Silent") {
         "{4}{U}{U}: Shuffle enchanted creature into its owner's library, then manifest dread. " +
         "Activate only as a sorcery."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     triggeredAbility {
         trigger = Triggers.self.enters()

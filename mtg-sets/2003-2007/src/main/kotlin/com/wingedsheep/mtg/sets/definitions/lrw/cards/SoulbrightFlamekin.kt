@@ -5,11 +5,11 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Soulbright Flamekin — Lorwyn #190
@@ -44,7 +44,7 @@ val SoulbrightFlamekin = card("Soulbright Flamekin") {
 
     activatedAbility {
         cost = Costs.Mana("{2}")
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn)
             .then(IncrementAbilityResolutionCountEffect)
             .then(

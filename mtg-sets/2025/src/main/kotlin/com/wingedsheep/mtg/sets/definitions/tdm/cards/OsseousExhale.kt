@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Osseous Exhale
@@ -38,10 +37,7 @@ val OsseousExhale = card("Osseous Exhale") {
         "If a Dragon was beheld, you gain 2 life."
 
     spell {
-        val t = target(
-            "target attacking or blocking creature",
-            TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature)
-        )
+        val t = target(TargetFilter.AttackingOrBlockingCreature)
         effect = Effects.Pipeline {
             // Optional behold: gather your Dragons and choose up to one of them.
             val beholdable = gather(

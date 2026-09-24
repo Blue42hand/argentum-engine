@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Agate Assault
@@ -26,12 +26,12 @@ val AgateAssault = card("Agate Assault") {
     spell {
         modal(chooseCount = 1) {
             mode("Agate Assault deals 4 damage to target creature. If that creature would die this turn, exile it instead") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.MarkExileOnDeath(creature)
                     .then(Effects.DealDamage(4, creature))
             }
             mode("Exile target artifact") {
-                val artifact = target("target artifact", Targets.Artifact)
+                val artifact = target(TargetFilter.Artifact)
                 effect = Effects.Exile(artifact)
             }
         }

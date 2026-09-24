@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -18,7 +17,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * "attach ... to it" — one attach per chosen Equipment. [EffectTarget.Self] is the granted
@@ -32,12 +30,9 @@ private val attachEquipmentToSelf = Effects.ForEachTarget(
 )
 
 /** "any number of target Equipment you control" — `unlimited` implies a minimum of zero. */
-private fun equipmentYouControl(): TargetObject = TargetPermanent(
-    unlimited = true,
-    filter = TargetFilter(
+private fun equipmentYouControl(): TargetObject = TargetObject(filter = TargetFilter(
         baseFilter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
-    ),
-)
+    ), unlimited = true)
 
 /**
  * Super-Soldier Serum — Marvel Super Heroes #38
@@ -79,7 +74,7 @@ val SuperSoldierSerum = card("Super-Soldier Serum") {
         "Whenever enchanted creature attacks or blocks, attach any number of target Equipment " +
         "you control to it."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     staticAbility {
         ability = ModifyStats(2, 2, Filters.EnchantedCreature)

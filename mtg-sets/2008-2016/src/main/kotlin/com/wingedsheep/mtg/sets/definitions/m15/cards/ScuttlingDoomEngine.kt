@@ -31,7 +31,7 @@ val ScuttlingDoomEngine = card("Scuttling Doom Engine") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val t = target("target opponent or planeswalker", Targets.OpponentOrPlaneswalker)
+        val t = target(Targets.OpponentOrPlaneswalker)
         effect = Effects.DealDamage(6, t)
         description = "When this creature dies, it deals 6 damage to target opponent or planeswalker."
     }

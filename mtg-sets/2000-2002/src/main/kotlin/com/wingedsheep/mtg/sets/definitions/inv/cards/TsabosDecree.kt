@@ -8,8 +8,8 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Tsabo's Decree
@@ -34,7 +34,7 @@ val TsabosDecree = card("Tsabo's Decree") {
         "controls. They can't be regenerated."
 
     spell {
-        val targetPlayer = target("target player", TargetPlayer())
+        val targetPlayer = target(Targets.Player)
         effect = Effects.Pipeline {
             run(ChooseCreatureTypeEffect)
             // Target player reveals their hand and discards all creature cards of that type.

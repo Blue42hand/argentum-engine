@@ -13,7 +13,6 @@ import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -23,6 +22,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Substrate tests for The Ring mechanic (CR 701.54): the "the Ring tempts you" effect, the
@@ -66,7 +66,7 @@ class TheRingScenarioTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Gain control of target creature until end of turn."
         spell {
-            val t = target("creature", Targets.Creature)
+            val t = target(TargetFilter.Creature)
             effect = Effects.GainControl(t, Duration.EndOfTurn)
         }
     }

@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Shrouded Shepherd // Cleave Shadows
@@ -34,7 +34,7 @@ val ShroudedShepherd = card("Shrouded Shepherd") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target creature you control", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.ModifyStats(2, 2, t)
     }
 

@@ -42,23 +42,19 @@ val SquirmingEmergence = card("Squirming Emergence") {
 
     spell {
         val t = target(
-            "target nonland permanent card in your graveyard with mana value less than or " +
-                "equal to the number of permanent cards in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter(
-                        cardPredicates = listOf(
-                            CardPredicate.IsNonland,
-                            CardPredicate.IsPermanent,
-                            CardPredicate.ManaValueAtMostDynamic(
-                                DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent)
-                            )
-                        ),
-                        controllerPredicate = ControllerPredicate.OwnedByYou
+            TargetFilter(
+                GameObjectFilter(
+                    cardPredicates = listOf(
+                        CardPredicate.IsNonland,
+                        CardPredicate.IsPermanent,
+                        CardPredicate.ManaValueAtMostDynamic(
+                            DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent)
+                        )
                     ),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+                    controllerPredicate = ControllerPredicate.OwnedByYou
+                ),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.PutOntoBattlefield(t)
     }

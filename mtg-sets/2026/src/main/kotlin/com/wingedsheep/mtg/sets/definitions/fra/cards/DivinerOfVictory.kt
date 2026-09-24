@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val DivinerOfVictory = card("Diviner of Victory") {
     manaCost = "{U}"
@@ -32,10 +31,7 @@ val DivinerOfVictory = card("Diviner of Victory") {
         typeLine = "Sorcery"
         oracleText = "Return target creature an opponent controls with mana value 3 or less to its owner's hand. Surveil 1."
         spell {
-            val creature = target(
-                "target creature an opponent controls with mana value 3 or less",
-                TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.opponentControls().manaValueAtMost(3)))
-            )
+            val creature = target(TargetFilter(GameObjectFilter.Creature.opponentControls().manaValueAtMost(3)))
             effect = Effects.ReturnToHand(creature)
                 .then(Patterns.Library.surveil(1))
         }

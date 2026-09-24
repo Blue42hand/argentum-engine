@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scavenging Ooze — Commander 2011 #170 (canonical printing)
@@ -33,7 +33,7 @@ val ScavengingOoze = card("Scavenging Ooze") {
 
     activatedAbility {
         cost = Costs.Mana(ManaCost.parse("{G}"))
-        val exiled = target("target card in a graveyard", Targets.CardInGraveyard)
+        val exiled = target(TargetFilter.CardInGraveyard)
         effect = Effects.Composite(
             Effects.Exile(exiled),
             Effects.If(

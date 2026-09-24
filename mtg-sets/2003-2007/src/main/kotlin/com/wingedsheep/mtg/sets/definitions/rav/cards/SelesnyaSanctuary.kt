@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Selesnya Sanctuary
@@ -40,7 +39,7 @@ val SelesnyaSanctuary = card("Selesnya Sanctuary") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val land = target("a land you control", TargetPermanent(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.ReturnToHand(land)
     }
 

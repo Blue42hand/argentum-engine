@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.effects.Gate
@@ -19,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 class PausedSpellTriggerFinalizationTest : FunSpec({
     for (targeted in listOf(false, true)) {
@@ -28,7 +28,7 @@ class PausedSpellTriggerFinalizationTest : FunSpec({
                     manaCost = "{0}"; typeLine = "Enchantment"
                     triggeredAbility {
                         trigger = Triggers.you.draws()
-                        if (targeted) target("target spell", Targets.Spell)
+                        if (targeted) target(TargetFilter.SpellOnStack)
                         effect = if (targeted) Effects.CounterSpell() else Effects.GainLife(1)
                     }
                 }

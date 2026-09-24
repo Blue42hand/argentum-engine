@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Samwise Gamgee
@@ -39,10 +38,7 @@ val SamwiseGamgee = card("Samwise Gamgee") {
 
     activatedAbility {
         cost = Costs.SacrificeMultiple(3, GameObjectFilter.Any.withSubtype("Food"))
-        val t = target(
-            "historic card from your graveyard",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Historic.ownedByYou(), zone = Zone.GRAVEYARD))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Historic.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.ReturnToHand(t)
     }
 

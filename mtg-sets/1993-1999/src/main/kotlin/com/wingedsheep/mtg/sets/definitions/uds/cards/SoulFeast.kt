@@ -7,7 +7,7 @@ package com.wingedsheep.mtg.sets.definitions.uds.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -22,7 +22,7 @@ val SoulFeast = card("Soul Feast") {
     typeLine = "Sorcery"
     oracleText = "Target player loses 4 life and you gain 4 life."
     spell {
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(4, t),
             Effects.GainLife(4)

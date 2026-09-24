@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -314,7 +314,7 @@ data class ActivatedAbility(
                 id = id,
                 cost = AbilityCost.Atom(CostAtom.Mana(cost)),
                 effect = AttachEquipmentEffect(EffectTarget.BoundVariable(label)),
-                targetRequirements = listOf(TargetCreature(filter = targetFilter, id = label)),
+                targetRequirements = listOf(TargetObject(filter = targetFilter, id = label)),
                 isManaAbility = false,
                 isEquipAbility = true,
                 equipQuality = quality,

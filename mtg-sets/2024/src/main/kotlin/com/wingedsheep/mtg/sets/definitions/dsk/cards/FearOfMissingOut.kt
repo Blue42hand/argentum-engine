@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Fear of Missing Out
@@ -44,7 +44,7 @@ val FearOfMissingOut = card("Fear of Missing Out") {
     triggeredAbility {
         trigger = Triggers.self.attacks(setOf(AttackPredicate.FirstTimeEachTurn))
         interveningIf = Conditions.Delirium(4)
-        val t = target("creature", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.Untap(t),
             Effects.AddCombatPhase,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Skycoach Conductor // All Aboard — Secrets of Strixhaven #67
@@ -54,14 +53,7 @@ val SkycoachConductor = card("Skycoach Conductor") {
         oracleText = "Exile target non-Pilot creature you control, then return that card to the " +
             "battlefield under its owner's control."
         spell {
-            val creature = target(
-                "non-Pilot creature you control",
-                TargetCreature(
-                    filter = TargetFilter(
-                        GameObjectFilter.Creature.notSubtype(Subtype("Pilot")).youControl()
-                    )
-                )
-            )
+            val creature = target(TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Pilot")).youControl()))
             effect = Effects.Exile(creature)
                 .then(Effects.Move(creature, Zone.BATTLEFIELD))
         }

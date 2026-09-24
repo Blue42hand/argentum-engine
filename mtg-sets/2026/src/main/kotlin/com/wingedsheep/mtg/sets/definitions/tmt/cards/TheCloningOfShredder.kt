@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 // Create a token that's a copy of the card in this Saga's linked exile, except it isn't legendary
 // and is a Mutant in addition to its other types (the Mardu Siegebreaker gather→copy idiom).
@@ -44,9 +43,7 @@ val TheCloningOfShredder = card("The Cloning of Shredder") {
         "II, III — Create a token that's a copy of a card exiled with this Saga, except it isn't legendary and is a Mutant in addition to its other types."
 
     sagaChapter(1) {
-        val target = target("target", TargetObject(
-            filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD)
-        ))
+        val target = target(TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
         // Exile the targeted graveyard card linked to this Saga, then copy it.
         effect = Effects.Move(target, Zone.EXILE, linkToSource = true)
             .then(cloneFromLinkedExile())

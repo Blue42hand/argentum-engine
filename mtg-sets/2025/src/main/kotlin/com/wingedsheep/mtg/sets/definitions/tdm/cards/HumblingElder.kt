@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Humbling Elder — Tarkir: Dragonstorm #48
@@ -28,7 +28,7 @@ val HumblingElder = card("Humbling Elder") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("creature", Targets.CreatureOpponentControls)
+        val creature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ModifyStats(-2, 0, creature)
         description = "When this creature enters, target creature an opponent controls gets -2/-0 until end of turn."
     }

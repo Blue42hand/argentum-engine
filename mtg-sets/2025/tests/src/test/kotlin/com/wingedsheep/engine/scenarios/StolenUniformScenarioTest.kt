@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
@@ -19,6 +18,7 @@ import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scenario tests for Stolen Uniform.
@@ -62,7 +62,7 @@ class StolenUniformScenarioTest : FunSpec({
         typeLine = "Instant"
         oracleText = "Gain control of target permanent."
         spell {
-            val perm = target("target permanent", Targets.Permanent)
+            val perm = target(TargetFilter.Permanent)
             effect = Effects.GainControl(perm)
         }
     }

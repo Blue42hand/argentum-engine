@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Delif's Cone
@@ -36,10 +35,7 @@ val DelifsCone = card("Delif's Cone") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
-        val t = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.youControl()))
         effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.a().attacksAndIsntBlocked(),
             watchedTarget = t,

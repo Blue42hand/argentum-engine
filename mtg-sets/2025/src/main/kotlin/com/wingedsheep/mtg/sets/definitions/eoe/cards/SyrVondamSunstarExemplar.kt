@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Syr Vondam, Sunstar Exemplar
@@ -67,10 +66,7 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         triggerRestriction = powerAtLeast4
-        val permanent = target(
-            "up to one target nonland permanent",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent)
-        )
+        val permanent = target(TargetFilter.NonlandPermanent, optional = true)
         effect = Effects.Destroy(permanent)
         description = "When Syr Vondam dies while its power is 4 or greater, destroy up to one target nonland permanent."
     }
@@ -79,10 +75,7 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
     triggeredAbility {
         trigger = Triggers.self.leaves(to = Zone.EXILE)
         triggerRestriction = powerAtLeast4
-        val permanent = target(
-            "up to one target nonland permanent",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent)
-        )
+        val permanent = target(TargetFilter.NonlandPermanent, optional = true)
         effect = Effects.Destroy(permanent)
         description = "When Syr Vondam is put into exile while its power is 4 or greater, destroy up to one target nonland permanent."
     }

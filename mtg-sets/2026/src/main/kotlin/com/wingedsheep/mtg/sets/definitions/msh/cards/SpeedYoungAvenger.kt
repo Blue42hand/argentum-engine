@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Speed, Young Avenger — Marvel Super Heroes #152
@@ -54,9 +53,7 @@ val SpeedYoungAvenger = card("Speed, Young Avenger") {
         ) {
             // "When you do, target creature with haste can't be blocked this turn except by
             //  creatures with haste."
-            val creature = target("target creature", TargetObject(
-                filter = TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.HASTE))
-            ))
+            val creature = target(TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.HASTE)))
             effect = Effects.GrantCantBeBlockedExceptBy(
                 creature,
                 GameObjectFilter.Creature.withKeyword(Keyword.HASTE),

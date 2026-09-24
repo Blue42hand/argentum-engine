@@ -4,13 +4,13 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Unyielding Gatekeeper — Murders at Karlov Manor #35
@@ -62,7 +62,7 @@ val UnyieldingGatekeeper = card("Unyielding Gatekeeper") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val permanent = target("another target nonland permanent", Targets.OtherNonlandPermanent)
+        val permanent = target(TargetFilter.OtherNonlandPermanent)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonlandPermanent.youControl(), permanent),
             then = Effects.Move(permanent, Zone.EXILE)

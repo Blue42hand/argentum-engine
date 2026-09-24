@@ -265,7 +265,7 @@
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -320,7 +320,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "target creature you control"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "Put a +1/+1 counter on target creature you control. Then if you control three or more creatures with different powers, you may play the exiled card without paying its mana cost."
@@ -547,14 +547,14 @@
                         "tokenType": "Treasure",
                         "controller": {
                             "type": "BoundVariable",
-                            "name": "target opponent"
+                            "name": "t0"
                         },
                         "tapped": true
                     },
                     "reflexiveTargetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "target opponent"
+                            "id": "t0"
                         }
                     ]
                 }
@@ -852,7 +852,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -861,7 +861,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "activateFromZone": "Hand"
@@ -907,7 +907,7 @@
                                 "zone": "Hand",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target opponent"
+                                    "name": "t0"
                                 }
                             },
                             "storeAs": "hand"
@@ -934,7 +934,7 @@
                                 "zone": "Graveyard",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "target opponent"
+                                    "name": "t0"
                                 }
                             },
                             "moveType": "Discard"
@@ -943,7 +943,7 @@
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "target opponent"
+                    "id": "t0"
                 }
             },
             {
@@ -994,12 +994,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "target"
+                    "id": "t0"
                 }
             }
         ],
@@ -1174,7 +1174,7 @@
                                 "type": "TapUntap",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target land"
+                                    "name": "t0"
                                 },
                                 "tap": false
                             },
@@ -1184,7 +1184,7 @@
                                     "filter": {
                                         "baseFilter": "land"
                                     },
-                                    "id": "target land"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Untap target land"
@@ -1194,7 +1194,7 @@
                                 "type": "CantBlockTargetCreatures",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target creature"
+                                    "name": "t0"
                                 }
                             },
                             "targetRequirements": [
@@ -1203,7 +1203,7 @@
                                     "filter": {
                                         "baseFilter": "creature"
                                     },
-                                    "id": "target creature"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Target creature can't block this turn"
@@ -1431,7 +1431,7 @@
             "type": "CreateTokenCopyOfTarget",
             "target": {
                 "type": "BoundVariable",
-                "name": "target"
+                "name": "t0"
             },
             "addedKeywords": [
                 "HASTE"
@@ -1447,7 +1447,7 @@
                 "filter": {
                     "baseFilter": "creature|artifact ctrl:you"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1593,7 +1593,7 @@
                                 "type": "CreateTokenCopyOfTarget",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target artifact"
+                                    "name": "t0"
                                 }
                             },
                             "targetRequirements": [
@@ -1602,7 +1602,7 @@
                                     "filter": {
                                         "baseFilter": "artifact token ctrl:you"
                                     },
-                                    "id": "target artifact"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Create a token that's a copy of target artifact token you control"
@@ -2118,7 +2118,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact or land"
+                        "name": "t0"
                     },
                     "destination": "Exile",
                     "linkToSource": true
@@ -2128,7 +2128,7 @@
                     "filter": {
                         "baseFilter": "artifact|land"
                     },
-                    "id": "target artifact or land"
+                    "id": "t0"
                 },
                 "interveningIf": "WasCast"
             }
@@ -2362,7 +2362,7 @@
                     "type": "CreateTokenCopyOfTarget",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact token you control"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2371,7 +2371,7 @@
                         "filter": {
                             "baseFilter": "artifact token ctrl:you"
                         },
-                        "id": "target artifact token you control"
+                        "id": "t0"
                     }
                 ]
             }

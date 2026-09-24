@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -25,7 +25,7 @@ val Deadapult = card("Deadapult") {
     oracleText = "{R}, Sacrifice a Zombie: This enchantment deals 2 damage to any target."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype("Zombie")))
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
     metadata {

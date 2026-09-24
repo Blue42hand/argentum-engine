@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 
 /**
@@ -37,10 +36,7 @@ val OltecArchaeologists = card("Oltec Archaeologists") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Return target artifact card from your graveyard to your hand") {
-                val artifactInYourGraveyard = target(
-                    "target artifact in your graveyard",
-                    TargetObject(filter = TargetFilter.ArtifactInYourGraveyard)
-                )
+                val artifactInYourGraveyard = target(TargetFilter.ArtifactInYourGraveyard)
                 effect = Effects.Move(artifactInYourGraveyard, Zone.HAND)
             },
             Mode.noTarget(

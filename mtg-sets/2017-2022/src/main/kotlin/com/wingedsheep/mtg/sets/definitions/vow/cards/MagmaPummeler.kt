@@ -65,7 +65,7 @@ val MagmaPummeler = card("Magma Pummeler") {
 
     triggeredAbility {
         trigger = Triggers.self.losesCounters(CounterType.PLUS_ONE_PLUS_ONE, byDamagePrevention = true)
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(
             DynamicAmounts.triggerCountersRemoved(),
             anyTarget

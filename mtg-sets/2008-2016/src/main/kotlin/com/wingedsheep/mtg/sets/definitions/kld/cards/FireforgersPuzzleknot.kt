@@ -29,13 +29,13 @@ val FireforgersPuzzleknot = card("Fireforger's Puzzleknot") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.SacrificeSelf)
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
     }
 

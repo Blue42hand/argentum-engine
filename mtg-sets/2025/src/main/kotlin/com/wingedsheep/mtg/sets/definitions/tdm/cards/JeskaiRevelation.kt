@@ -28,8 +28,8 @@ val JeskaiRevelation = card("Jeskai Revelation") {
         "cards. You gain 4 life."
 
     spell {
-        val bounceTarget = target("target spell or permanent", TargetSpellOrPermanent())
-        val damageTarget = target("any target", Targets.Any)
+        val bounceTarget = target(TargetSpellOrPermanent())
+        val damageTarget = target(Targets.Any)
         effect = Effects.Composite(
             Effects.ReturnSpellOrPermanentToOwnersHand(bounceTarget),
             Effects.DealDamage(4, damageTarget),

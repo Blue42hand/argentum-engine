@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -32,7 +31,7 @@ val CloudOfDarkness = card("Cloud of Darkness") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val t = target(TargetFilter.Creature.opponentControls())
         // X = the number of permanent cards in your graveyard.
         effect = Effects.ModifyStats(
             -DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),

@@ -11,8 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Coveted Falcon — Murders at Karlov Manor #48
@@ -74,15 +73,12 @@ val CovetedFalcon = card("Coveted Falcon") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val stolen = target(
-            "target permanent you own but don't control",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.withControllerPredicate(
-                        ControllerPredicate.And(
-                            listOf(
-                                ControllerPredicate.OwnedByYou,
-                                ControllerPredicate.Not(ControllerPredicate.ControlledByYou),
-                            )
+            TargetFilter(
+                GameObjectFilter.Permanent.withControllerPredicate(
+                    ControllerPredicate.And(
+                        listOf(
+                            ControllerPredicate.OwnedByYou,
+                            ControllerPredicate.Not(ControllerPredicate.ControlledByYou),
                         )
                     )
                 )
@@ -95,14 +91,8 @@ val CovetedFalcon = card("Coveted Falcon") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val opponent = target("target opponent", TargetOpponent())
-        target(
-            "any number of target permanents you control",
-            TargetPermanent(
-                unlimited = true,
-                filter = TargetFilter(GameObjectFilter.Permanent.youControl()),
-            ),
-        )
+        val opponent = target(Targets.Opponent)
+        targets(TargetFilter(GameObjectFilter.Permanent.youControl()), unlimited = true)
         effect = Effects.Pipeline {
             val falconGifts = gather(CardSource.ChosenTargets)
             run(Effects.ForEachInCollection(

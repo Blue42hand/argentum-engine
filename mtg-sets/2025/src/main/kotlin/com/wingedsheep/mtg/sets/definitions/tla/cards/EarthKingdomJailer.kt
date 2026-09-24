@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Earth Kingdom Jailer
@@ -33,15 +32,12 @@ val EarthKingdomJailer = card("Earth Kingdom Jailer") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val permanent = target(
-            "up to one target artifact, creature, or enchantment an opponent controls with mana value 3 or greater",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.ArtifactCreatureOrEnchantment
-                        .opponentControls()
-                        .manaValueAtLeast(3)
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.ArtifactCreatureOrEnchantment
+                    .opponentControls()
+                    .manaValueAtLeast(3)
+            ),
+            optional = true,
         )
         effect = Effects.ExileUntilLeaves(permanent)
     }

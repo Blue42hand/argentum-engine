@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantMayCastFromLinkedExile
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -34,12 +33,7 @@ val RonaDiscipleOfGix = card("Rona, Disciple of Gix") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val t = target("historic card in your graveyard", TargetObject(
-            filter = TargetFilter(
-                baseFilter = GameObjectFilter.Historic,
-                zone = Zone.GRAVEYARD
-            ).ownedByYou()
-        ))
+        val t = target(TargetFilter(baseFilter = GameObjectFilter.Historic, zone = Zone.GRAVEYARD).ownedByYou())
         effect = Effects.Move(
             target = t,
             destination = Zone.EXILE,

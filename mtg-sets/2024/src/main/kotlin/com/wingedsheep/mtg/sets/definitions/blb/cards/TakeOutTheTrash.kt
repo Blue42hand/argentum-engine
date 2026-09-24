@@ -22,7 +22,7 @@ val TakeOutTheTrash = card("Take Out the Trash") {
     oracleText = "Take Out the Trash deals 3 damage to target creature or planeswalker. If you control a Raccoon, you may discard a card. If you do, draw a card."
 
     spell {
-        val creatureOrPw = target("target creature or planeswalker to deal 3 damage", Targets.CreatureOrPlaneswalker)
+        val creatureOrPw = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Composite(listOf(
             Effects.DealDamage(3, creatureOrPw),
             Effects.If(

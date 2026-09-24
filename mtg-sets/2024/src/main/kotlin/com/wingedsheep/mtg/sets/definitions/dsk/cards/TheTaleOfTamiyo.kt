@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Tale of Tamiyo
@@ -67,16 +66,13 @@ val TheTaleOfTamiyo = card("The Tale of Tamiyo") {
     sagaChapter(3) { effect = millRepeat }
 
     sagaChapter(4) {
-        target(
-            "any number of target instant, sorcery, and/or Tamiyo planeswalker cards from your graveyard",
-            TargetObject(
-                unlimited = true,
-                filter = TargetFilter(
-                    GameObjectFilter.InstantOrSorcery.ownedByYou()
-                        .or(GameObjectFilter.Planeswalker.withSubtype("Tamiyo").ownedByYou()),
-                    zone = Zone.GRAVEYARD,
-                ),
-            )
+        targets(
+            TargetFilter(
+                GameObjectFilter.InstantOrSorcery.ownedByYou()
+                    .or(GameObjectFilter.Planeswalker.withSubtype("Tamiyo").ownedByYou()),
+                zone = Zone.GRAVEYARD,
+            ),
+            unlimited = true,
         )
         effect = Effects.Pipeline {
             run(Effects.ForEachTarget(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)))

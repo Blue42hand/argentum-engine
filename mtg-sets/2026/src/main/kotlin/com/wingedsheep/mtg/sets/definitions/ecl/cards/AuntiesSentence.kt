@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Auntie's Sentence
@@ -31,7 +31,7 @@ val AuntiesSentence = card("Auntie's Sentence") {
     spell {
         modal(chooseCount = 1) {
             mode("Target opponent reveals their hand, discard a nonland permanent card") {
-                val opponent = target("target opponent", TargetOpponent())
+                val opponent = target(Targets.Opponent)
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(opponent))
                     val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
@@ -48,7 +48,7 @@ val AuntiesSentence = card("Auntie's Sentence") {
                 }
             }
             mode("Target creature gets -2/-2 until end of turn") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.ModifyStats(-2, -2, creature)
             }
         }

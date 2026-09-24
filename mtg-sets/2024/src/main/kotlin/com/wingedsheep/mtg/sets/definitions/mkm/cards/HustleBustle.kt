@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Hustle // Bustle — Murders at Karlov Manor #249
@@ -29,7 +30,7 @@ val HustleBustle = card("Hustle // Bustle") {
         oracleText = "Target creature attacks or blocks this turn if able."
 
         spell {
-            val creature = target("target creature", com.wingedsheep.sdk.dsl.Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.Composite(
                 Effects.MarkMustAttackThisTurn(creature),
                 Effects.MarkMustBlockThisTurn(creature),

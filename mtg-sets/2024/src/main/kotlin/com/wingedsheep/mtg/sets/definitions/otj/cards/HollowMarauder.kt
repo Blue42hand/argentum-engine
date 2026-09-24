@@ -66,7 +66,7 @@ val HollowMarauder = card("Hollow Marauder") {
     // those opponents who didn't discard a card with mana value 4 or greater, draw a card.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("any number of target opponents", TargetOpponent(unlimited = true))
+        target(TargetOpponent(unlimited = true))
         effect = Effects.ForEachTarget(
             Effects.Pipeline {
             // The current target opponent discards a card.

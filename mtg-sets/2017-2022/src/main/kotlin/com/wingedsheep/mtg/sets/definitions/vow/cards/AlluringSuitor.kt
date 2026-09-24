@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Alluring Suitor // Deadly Dancer — Innistrad: Crimson Vow #141
@@ -114,10 +113,7 @@ private val DeadlyDancer = card("Deadly Dancer") {
 
     activatedAbility {
         cost = Costs.Mana("{R}{R}")
-        val partner = target(
-            "another target creature",
-            TargetCreature(filter = TargetFilter.OtherCreature)
-        )
+        val partner = target(TargetFilter.OtherCreature)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, EffectTarget.Self),
             Effects.ModifyStats(1, 0, partner),

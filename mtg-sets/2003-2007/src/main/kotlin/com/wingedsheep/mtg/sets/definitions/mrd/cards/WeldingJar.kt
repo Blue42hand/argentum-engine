@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Welding Jar — Mirrodin #274
@@ -30,7 +29,7 @@ val WeldingJar = card("Welding Jar") {
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        val t = target("target artifact", TargetPermanent(filter = TargetFilter.Artifact))
+        val t = target(TargetFilter.Artifact)
         effect = Effects.Regenerate(t)
         description = "Sacrifice this artifact: Regenerate target artifact."
     }

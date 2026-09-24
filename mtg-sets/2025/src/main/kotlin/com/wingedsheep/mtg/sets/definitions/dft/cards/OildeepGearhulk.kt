@@ -51,7 +51,7 @@ val OildeepGearhulk = card("Oildeep Gearhulk") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.LookAtHand(player))
             val targetHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))

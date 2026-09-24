@@ -28,7 +28,7 @@ val GalvanicDischarge = card("Galvanic Discharge") {
         "then you may pay any amount of {E}. Galvanic Discharge deals that much damage to that permanent."
 
     spell {
-        val t = target("target", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Composite(
             Effects.GetEnergy(3),
             Effects.PayCounters(CounterType.ENERGY, storeAmountAs = "paid"),

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Momo, Playful Pet
@@ -47,10 +46,7 @@ val MomoPlayfulPet = card("Momo, Playful Pet") {
                 "Create a Food token."
             ),
             mode("Put a +1/+1 counter on target creature you control.") {
-                val creature = target(
-                    "target creature",
-                    TargetCreature(filter = TargetFilter.Creature.youControl())
-                )
+                val creature = target(TargetFilter.Creature.youControl())
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
             },
             Mode.noTarget(

@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Grothama, All-Devouring {3}{G}{G}
@@ -45,15 +45,13 @@ val GrothamaAllDevouring = card("Grothama, All-Devouring") {
         "When Grothama, All-Devouring leaves the battlefield, each player draws cards " +
         "equal to the amount of damage dealt to Grothama this turn by sources they controlled."
 
-    val grothamaTarget = TargetCreature(
-        filter = TargetFilter(GameObjectFilter.Creature.named("Grothama, All-Devouring"))
-    )
+    val grothamaTarget = TargetObject(filter = TargetFilter(GameObjectFilter.Creature.named("Grothama, All-Devouring")))
 
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.self.attacks()
-                val grothama = target("target grothama", grothamaTarget)
+                val grothama = target(grothamaTarget)
                 effect = Effects.May(Effects.Fight(EffectTarget.Self, grothama))
             },
             filter = GroupFilter.AllCreatures.other(),

@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Aang, at the Crossroads // Aang, Destined Savior
@@ -63,9 +62,7 @@ private val AangDestinedSavior = card("Aang, Destined Savior") {
     // At the beginning of combat on your turn, earthbend 2.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter.Land.youControl()
-        ))
+        val t = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(2, t)
     }
 

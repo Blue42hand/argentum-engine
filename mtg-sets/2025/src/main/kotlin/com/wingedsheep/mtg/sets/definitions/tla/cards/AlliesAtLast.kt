@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -11,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Allies at Last
@@ -40,15 +38,8 @@ val AlliesAtLast = card("Allies at Last") {
 
     spell {
         // Declared first so the victim is a stable target across the per-creature loop.
-        val creatureOpponentControls = target("creature an opponent controls", Targets.CreatureOpponentControls)
-        target(
-            "up to two creatures you control",
-            TargetCreature(
-                count = 2,
-                minCount = 0,
-                filter = TargetFilter(GameObjectFilter.Creature.youControl()),
-            ),
-        )
+        val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
+        targets(TargetFilter(GameObjectFilter.Creature.youControl()), count = 2, minCount = 0)
 
         effect = Effects.Pipeline {
             // Gather every chosen target, then keep only the creatures you control (the victim is

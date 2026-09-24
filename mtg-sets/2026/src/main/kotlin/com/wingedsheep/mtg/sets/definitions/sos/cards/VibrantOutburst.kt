@@ -4,8 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Vibrant Outburst
@@ -19,8 +18,8 @@ val VibrantOutburst = card("Vibrant Outburst") {
     typeLine = "Instant"
     oracleText = "Vibrant Outburst deals 3 damage to any target. Tap up to one target creature."
     spell {
-        val t1 = target("t1", AnyTarget())
-        val t2 = target("t2", TargetCreature(optional = true, filter = TargetFilter.Creature))
+        val t1 = target(Targets.Any)
+        val t2 = target(TargetFilter.Creature, optional = true)
         effect = Effects.Composite(
             Effects.DealDamage(3, t1),
             Effects.Tap(t2)

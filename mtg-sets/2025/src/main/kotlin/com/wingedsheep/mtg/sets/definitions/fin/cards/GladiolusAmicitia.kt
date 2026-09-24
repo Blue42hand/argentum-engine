@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -37,7 +36,7 @@ val GladiolusAmicitia = card("Gladiolus Amicitia") {
     }
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, t),
             Effects.GrantKeyword(Keyword.TRAMPLE, t)

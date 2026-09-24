@@ -13,7 +13,6 @@ import com.wingedsheep.mtg.sets.MtgSetCatalog
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
@@ -24,6 +23,7 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 class AIPlayerTest : FunSpec({
 
@@ -391,7 +391,7 @@ class AIPlayerTest : FunSpec({
             toughness = 1
             activatedAbility {
                 cost = Costs.Tap
-                val t = target("target creature", Targets.Creature)
+                val t = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(2, t)
             }
         }
@@ -447,7 +447,7 @@ class AIPlayerTest : FunSpec({
             toughness = 1
             activatedAbility {
                 cost = Costs.Tap
-                val t = target("target creature", Targets.Creature)
+                val t = target(TargetFilter.Creature)
                 effect = Effects.CantBlock(t)
             }
         }
@@ -515,7 +515,7 @@ class AIPlayerTest : FunSpec({
             manaCost = "{1}{W}"
             typeLine = "Instant"
             spell {
-                target("target spell", Targets.Spell)
+                target(TargetFilter.SpellOnStack)
                 effect = Effects.ReturnSpellToOwnersHand() then Effects.DrawCards(1)
             }
         }
@@ -590,7 +590,7 @@ class AIPlayerTest : FunSpec({
             manaCost = "{R}"
             typeLine = "Sorcery"
             spell {
-                val t = target("up to one target creature", Targets.UpToCreatures(1))
+                val t = target(TargetFilter.Creature, optional = true)
                 effect = Effects.DealDamage(2, t)
             }
         }

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ghostly Dancers
@@ -74,12 +73,10 @@ val GhostlyDancers = card("Ghostly Dancers") {
                 "Return an enchantment card from your graveyard to your hand",
             ),
             mode("Unlock a locked door of a Room you control") {
-                val targetedObject = target("target targeted object", TargetObject(
+                val targetedObject = target(
+                    TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl()).hasLockedDoor(),
                     optional = true,
-                    filter = TargetFilter(
-                        GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl(),
-                    ).hasLockedDoor(),
-                ))
+                )
                 effect = Effects.UnlockDoor(targetedObject)
             },
         )

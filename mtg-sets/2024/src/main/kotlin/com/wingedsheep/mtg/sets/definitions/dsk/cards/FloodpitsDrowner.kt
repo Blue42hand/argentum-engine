@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Floodpits Drowner
@@ -45,7 +44,7 @@ val FloodpitsDrowner = card("Floodpits Drowner") {
     // When this creature enters, tap target creature an opponent controls and put a stun counter on it.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val t = target(TargetFilter.Creature.opponentControls())
         effect = Effects.Composite(
             Effects.Tap(t),
             Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t)
@@ -56,10 +55,7 @@ val FloodpitsDrowner = card("Floodpits Drowner") {
     // owners' libraries.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
-        val t = target(
-            "target",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withCounter(CounterType.STUN)))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.withCounter(CounterType.STUN)))
         effect = Effects.ShuffleIntoLibrary(EffectTarget.Self)
             .then(Effects.ShuffleIntoLibrary(t))
         description = "{1}{U}, {T}: Shuffle this creature and target creature with a stun counter " +

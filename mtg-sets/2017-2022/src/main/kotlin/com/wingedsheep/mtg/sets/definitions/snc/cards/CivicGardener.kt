@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Civic Gardener
@@ -24,7 +23,7 @@ val CivicGardener = card("Civic Gardener") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target("target", TargetObject(filter = TargetFilter.CreatureOrLandPermanent))
+        val t = target(TargetFilter.CreatureOrLandPermanent)
         effect = Effects.Untap(t)
     }
 

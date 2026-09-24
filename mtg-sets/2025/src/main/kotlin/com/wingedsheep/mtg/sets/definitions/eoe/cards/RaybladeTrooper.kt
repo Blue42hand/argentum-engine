@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rayblade Trooper
@@ -31,7 +31,7 @@ val RaybladeTrooper = card("Rayblade Trooper") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val target = target("target creature you control", Targets.CreatureYouControl)
+        val target = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
         description = "When this creature enters, put a +1/+1 counter on target creature you control."
     }

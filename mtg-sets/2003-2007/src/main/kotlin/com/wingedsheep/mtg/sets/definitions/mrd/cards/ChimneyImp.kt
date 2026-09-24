@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Chimney Imp — Mirrodin #59
@@ -47,7 +47,7 @@ val ChimneyImp = card("Chimney Imp") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             val impHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))

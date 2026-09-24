@@ -43,7 +43,7 @@ val RushOfDread = card("Rush of Dread") {
             modes = listOf(
                 mode("+ {1} — Target opponent sacrifices half the creatures they " +
                     "control of their choice, rounded up.") {
-                    val opponent = target("target opponent", Targets.Opponent)
+                    val opponent = target(Targets.Opponent)
                     additionalManaCost = "{1}"
                     effect = Effects.Sacrifice(
                         filter = GameObjectFilter.Creature,
@@ -55,7 +55,7 @@ val RushOfDread = card("Rush of Dread") {
                     )
                 },
                 mode("+ {2} — Target opponent discards half the cards in their hand, rounded up.") {
-                    val opponent = target("target opponent", Targets.Opponent)
+                    val opponent = target(Targets.Opponent)
                     additionalManaCost = "{2}"
                     effect = Effects.Discard(
                         count = DynamicAmounts.zone(
@@ -66,7 +66,7 @@ val RushOfDread = card("Rush of Dread") {
                     )
                 },
                 mode("+ {2} — Target opponent loses half their life, rounded up.") {
-                    val opponent = target("target opponent", Targets.Opponent)
+                    val opponent = target(Targets.Opponent)
                     additionalManaCost = "{2}"
                     effect = Effects.LoseLife(
                         amount = DynamicAmounts.lifeTotal(opponent.asPlayer) divRoundedUp 2,

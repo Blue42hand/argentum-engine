@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -24,7 +23,7 @@ val SpideryGrasp = card("Spidery Grasp") {
     typeLine = "Instant"
     oracleText = "Untap target creature. It gets +2/+4 and gains reach until end of turn. (It can block creatures with flying.)"
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.Untap(t),
             Effects.ModifyStats(2, 4, t),

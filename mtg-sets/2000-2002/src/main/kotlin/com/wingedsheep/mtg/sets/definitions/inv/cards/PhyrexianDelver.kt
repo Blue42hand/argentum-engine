@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Phyrexian Delver
@@ -29,10 +28,7 @@ val PhyrexianDelver = card("Phyrexian Delver") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val returned = target(
-            "target creature card from your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard),
-        )
+        val returned = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Composite(
             Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
             Effects.LoseLife(

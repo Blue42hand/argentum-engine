@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Decree of Silence
@@ -52,7 +52,7 @@ val DecreeOfSilence = card("Decree of Silence") {
     // When you cycle this card, you may counter target spell.
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        val t = target("target spell", Targets.Spell)
+        val t = target(TargetFilter.SpellOnStack)
         effect = Effects.May(Effects.CounterSpell())
     }
 

@@ -12,6 +12,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import com.wingedsheep.mtg.sets.definitions.lrw.cards.SentryOak
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 class SentryOakScenarioTest : FunSpec({
     val boulder = card("Clash Boulder") { manaCost = "{5}"; typeLine = "Artifact" }
@@ -69,7 +70,7 @@ class SentryOakScenarioTest : FunSpec({
                 manaCost = "{U}"
                 typeLine = "Instant"
                 spell {
-                    val target = target("creature", com.wingedsheep.sdk.dsl.Targets.Creature)
+                    val target = target(TargetFilter.Creature)
                     effect = if (returnSource) com.wingedsheep.sdk.dsl.Effects.Exile(target)
                         .then(com.wingedsheep.sdk.dsl.Effects.PutOntoBattlefield(target))
                     else com.wingedsheep.sdk.dsl.Effects.Exile(target)

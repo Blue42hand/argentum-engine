@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -31,7 +30,7 @@ val Dinotomaton = card("Dinotomaton") {
     keywords(Keyword.MENACE)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val t = target(TargetFilter.Creature.youControl())
         effect = Effects.GrantKeyword(Keyword.MENACE, t)
     }
     metadata {

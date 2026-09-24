@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 
 /**
@@ -29,10 +28,7 @@ val WorkshopAssistant = card("Workshop Assistant") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val t = target(
-            "target",
-            TargetObject(filter = TargetFilter.ArtifactInYourGraveyard)
-        )
+        val t = target(TargetFilter.ArtifactInYourGraveyard)
         effect = Effects.Move(t, Zone.HAND)
     }
     metadata {

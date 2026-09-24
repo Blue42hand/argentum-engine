@@ -26,7 +26,7 @@ val ShadowOfTheEnemy = card("Shadow of the Enemy") {
     oracleText = "Exile all creature cards from target player's graveyard. You may cast spells from among those cards for as long as they remain exiled, and mana of any type can be spent to cast them."
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             val exiledCreatures = gather(
                 CardSource.FromZone(Zone.GRAVEYARD, player.asPlayer, GameObjectFilter.Creature)

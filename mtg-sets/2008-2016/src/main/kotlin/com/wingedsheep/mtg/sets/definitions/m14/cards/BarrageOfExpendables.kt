@@ -21,7 +21,7 @@ val BarrageOfExpendables = card("Barrage of Expendables") {
     oracleText = "{R}, Sacrifice a creature: This enchantment deals 1 damage to any target."
 
     activatedAbility {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.Sacrifice(GameObjectFilter.Creature))
         effect = Effects.DealDamage(1, anyTarget)
         description = "{R}, Sacrifice a creature: This enchantment deals 1 damage to any target."

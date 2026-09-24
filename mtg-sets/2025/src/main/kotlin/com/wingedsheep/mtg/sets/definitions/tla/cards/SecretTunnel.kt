@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.CantBeBlocked
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Secret Tunnel
@@ -48,14 +48,7 @@ val SecretTunnel = card("Secret Tunnel") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}"), Costs.Tap)
-        target(
-            "two target creatures you control",
-            TargetCreature(
-                count = 2,
-                filter = TargetFilter.CreatureYouControl,
-                sameCreatureType = true
-            )
-        )
+        targets(TargetFilter.CreatureYouControl, count = 2, sameCreatureType = true)
         // Grant "can't be blocked this turn" to each of the two chosen creatures. ForEachTargetEffect
         // rebinds ContextTarget(0) to each target in turn; GrantKeywordEffect snapshots that concrete
         // per-iteration target into its continuous grant (the IcyBlast idiom for granting an

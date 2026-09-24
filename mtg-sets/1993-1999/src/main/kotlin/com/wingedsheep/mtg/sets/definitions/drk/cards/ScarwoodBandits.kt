@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scarwood Bandits
@@ -45,7 +45,7 @@ val ScarwoodBandits = card("Scarwood Bandits") {
     keywords(Keyword.FORESTWALK)
 
     activatedAbility {
-        val artifact = target("target artifact", Targets.Artifact)
+        val artifact = target(TargetFilter.Artifact)
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.Tap)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana("{2}"),

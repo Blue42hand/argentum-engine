@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Summon: Shiva
@@ -30,14 +29,14 @@ val SummonShiva = card("Summon: Shiva") {
     toughness = 5
 
     sagaChapter(1) {
-        val t = target("creature", TargetObject(filter = TargetFilter.CreatureOpponentControls))
+        val t = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.Tap(t),
             Effects.AddCounters(CounterType.STUN, 1, t),
         )
     }
     sagaChapter(2) {
-        val t = target("creature", TargetObject(filter = TargetFilter.CreatureOpponentControls))
+        val t = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.Tap(t),
             Effects.AddCounters(CounterType.STUN, 1, t),

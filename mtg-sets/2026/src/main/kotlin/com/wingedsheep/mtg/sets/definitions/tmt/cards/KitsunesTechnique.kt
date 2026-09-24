@@ -33,7 +33,7 @@ val KitsunesTechnique = card("Kitsune's Technique") {
     sneak("{1}{U}")
 
     spell {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Patterns.Library.mill(
             count = DynamicAmounts.count(opponent.asPlayer, Zone.LIBRARY) divRoundedUp 2,
             target = opponent

@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Grave Exchange
@@ -25,8 +26,8 @@ val GraveExchange = card("Grave Exchange") {
         "creature of their choice."
 
     spell {
-        val creatureCard = target("target", Targets.CreatureCardInYourGraveyard)
-        val victim = target("target 1", Targets.Player)
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
+        val victim = target(Targets.Player)
         effect = Effects.Composite(
             Effects.ReturnToHand(creatureCard),
             Effects.Sacrifice(GameObjectFilter.Creature, target = victim),

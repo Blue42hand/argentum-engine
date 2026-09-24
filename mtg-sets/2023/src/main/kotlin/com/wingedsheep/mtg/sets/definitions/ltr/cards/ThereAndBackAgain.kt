@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * There and Back Again
@@ -47,10 +47,7 @@ val ThereAndBackAgain = card("There and Back Again") {
         "III — Create Smaug, a legendary 6/6 red Dragon creature token with flying, haste, and \"When Smaug dies, create fourteen Treasure tokens.\""
 
     sagaChapter(1) {
-        val creature = target(
-            "up to one target creature",
-            TargetCreature(optional = true)
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.Composite(
             Effects.CantBlock(creature, Duration.WhileYouControlSource("There and Back Again")),
             Effects.TheRingTemptsYou()

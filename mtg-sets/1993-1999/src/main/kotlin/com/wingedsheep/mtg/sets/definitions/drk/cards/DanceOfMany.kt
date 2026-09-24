@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -49,7 +48,7 @@ val DanceOfMany = card("Dance of Many") {
         "upkeep, sacrifice this enchantment unless you pay {U}{U}."
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.nontoken())))
+        val creature = target(TargetFilter(GameObjectFilter.Creature.nontoken()))
         trigger = Triggers.self.enters()
         effect = Effects.CreateTokenCopyOfTarget(
             target = creature,

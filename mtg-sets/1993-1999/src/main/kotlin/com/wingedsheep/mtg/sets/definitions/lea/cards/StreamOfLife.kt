@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -23,7 +23,7 @@ val StreamOfLife = card("Stream of Life") {
     typeLine = "Sorcery"
     oracleText = "Target player gains X life."
     spell {
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.GainLife(DynamicAmounts.xValue(), t)
     }
     metadata {

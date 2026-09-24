@@ -545,26 +545,11 @@ data class CantBeAttackedBy(
  * attack you").
  *
  * [GameObjectFilter.description] is a *singular* noun phrase whose qualifiers trail the type word
- * ("creature of the chosen color without flying"), so only the **type** word may take the "s":
- * pluralizing the last word instead would give "creature with flyings". A filter whose description
- * carries no recognizable type noun is left alone rather than mangled.
+ * ("creature of the chosen color without flying"); [pluralNounPhrase][com.wingedsheep.sdk.scripting.util.pluralNounPhrase]
+ * pluralizes the type word, never the trailing qualifier ("creature with flyings").
  */
-private fun pluralAttackerSubject(filter: GameObjectFilter): String {
-    val words = filter.description.split(" ")
-    val typeIndex = words.indexOfFirst { it.lowercase() in PLURALIZABLE_TYPE_NOUNS }
-    val plural = if (typeIndex < 0) {
-        words
-    } else {
-        words.mapIndexed { index, word -> if (index == typeIndex) "${word}s" else word }
-    }
-    return plural.joinToString(" ").replaceFirstChar { it.uppercase() }
-}
-
-/** Type nouns a [GameObjectFilter] description can head with, all regular "+s" plurals. */
-private val PLURALIZABLE_TYPE_NOUNS = setOf(
-    "creature", "permanent", "artifact", "enchantment", "land", "planeswalker", "battle",
-    "token", "card", "spell"
-)
+private fun pluralAttackerSubject(filter: GameObjectFilter): String =
+    com.wingedsheep.sdk.scripting.util.pluralNounPhrase(filter.description).replaceFirstChar { it.uppercase() }
 
 /**
  * The source permanent can't be chosen as an attack defender while it is attached to another

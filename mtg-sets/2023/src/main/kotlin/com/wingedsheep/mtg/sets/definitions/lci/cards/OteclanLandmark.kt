@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Oteclan Landmark // Oteclan Levitator (CR 702.167, The Lost Caverns of Ixalan)
@@ -85,10 +84,7 @@ private val OteclanLevitator = card("Oteclan Levitator") {
     // gains flying until end of turn.
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target(
-            "attacking creature without flying",
-            TargetCreature(filter = TargetFilter.AttackingCreature.withoutKeyword(Keyword.FLYING))
-        )
+        val creature = target(TargetFilter.AttackingCreature.withoutKeyword(Keyword.FLYING))
         effect = Effects.GrantKeyword(Keyword.FLYING, creature)
     }
 

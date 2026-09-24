@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 // Current Oracle targets players or planeswalkers directly for +1 and −8.
 val ChandraNalaar = card("Chandra Nalaar") {
@@ -19,17 +20,17 @@ val ChandraNalaar = card("Chandra Nalaar") {
     oracleText = "+1: Chandra Nalaar deals 1 damage to target player or planeswalker.\n−X: Chandra Nalaar deals X damage to target creature.\n−8: Chandra Nalaar deals 10 damage to target player or planeswalker and each creature that player or that planeswalker's controller controls."
 
     loyaltyAbility(+1) {
-        val recipient = target("target player or planeswalker", Targets.PlayerOrPlaneswalker)
+        val recipient = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(1, recipient)
     }
 
     loyaltyAbilityX {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.DealDamage(DynamicAmounts.xValue(), creature)
     }
 
     loyaltyAbility(-8) {
-        val recipient = target("target player or planeswalker", Targets.PlayerOrPlaneswalker)
+        val recipient = target(Targets.PlayerOrPlaneswalker)
         // The target is either the player themself or a permanent they control. Only that
         // recipient is targeted; their creatures are affected even if they have shroud.
         // An animated planeswalker in both groups is still dealt ten damage only once.

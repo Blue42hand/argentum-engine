@@ -29,7 +29,7 @@ val FormOfTheDragon = card("Form of the Dragon") {
     // At the beginning of your upkeep, this enchantment deals 5 damage to any target.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(5, t)
     }
 

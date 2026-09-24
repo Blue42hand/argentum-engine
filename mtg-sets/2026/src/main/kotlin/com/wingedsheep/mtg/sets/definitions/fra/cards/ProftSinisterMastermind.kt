@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val ProftSinisterMastermind = card("Proft, Sinister Mastermind") {
     manaCost = "{2}{B}"
@@ -29,7 +29,7 @@ val ProftSinisterMastermind = card("Proft, Sinister Mastermind") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.DiscardSelf)
         activateFromZone = Zone.HAND
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(-3, -1, creature, Duration.EndOfTurn)
     }
 

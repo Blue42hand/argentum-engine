@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Siege-Gang Commander
@@ -42,7 +42,7 @@ val SiegeGangCommander = card("Siege-Gang Commander") {
             Costs.Mana("{1}{R}"),
             Costs.Sacrifice(GameObjectFilter.Creature.withSubtype("Goblin"))
         )
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
 

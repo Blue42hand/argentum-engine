@@ -27,7 +27,7 @@ val DesperateBloodseeker = card("Desperate Bloodseeker") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Patterns.Library.mill(2, player)
     }
 

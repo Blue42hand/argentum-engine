@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Gimli, Mournful Avenger
@@ -65,11 +64,7 @@ val GimliMournfulAvenger = card("Gimli, Mournful Avenger") {
                         optional = false,
                         descriptionOverride = "Gimli fights up to one target creature you don't control"
                     ) {
-                        val creatureOpponentControls = target("target creature opponent controls", TargetCreature(
-                            count = 1,
-                            optional = true,
-                            filter = TargetFilter.CreatureOpponentControls
-                        ))
+                        val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls, optional = true)
                         effect = Effects.Fight(EffectTarget.Self, creatureOpponentControls)
                     }
                 )

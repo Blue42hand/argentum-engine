@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Scheming Silvertongue // Sign in Blood — Secrets of Strixhaven #99
@@ -52,7 +52,7 @@ val SchemingSilvertongue = card("Scheming Silvertongue") {
         typeLine = "Sorcery"
         oracleText = "Target player draws two cards and loses 2 life."
         spell {
-            val player = target("target player", TargetPlayer())
+            val player = target(Targets.Player)
             effect = Effects.Composite(
                 Effects.DrawCards(2, player),
                 Effects.LoseLife(2, player),

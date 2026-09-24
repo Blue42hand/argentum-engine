@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lacerate Flesh
@@ -30,7 +30,7 @@ val LacerateFlesh = card("Lacerate Flesh") {
         "tokens equal to the amount of excess damage dealt to that creature this way."
 
     spell {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.DealDamage(4, creature),
             Effects.CreateBlood(

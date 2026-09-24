@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Riftwing Cloudskate
@@ -34,7 +35,7 @@ val RiftwingCloudskate = card("Riftwing Cloudskate") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Permanent)
+        val t = target(TargetFilter.Permanent)
         effect = Effects.ReturnToHand(t)
     }
 

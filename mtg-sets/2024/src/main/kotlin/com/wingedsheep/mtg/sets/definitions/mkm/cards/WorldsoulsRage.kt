@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Worldsoul's Rage — Murders at Karlov Manor #244
@@ -50,7 +50,7 @@ val WorldsoulsRage = card("Worldsoul's Rage") {
         "hand and/or graveyard onto the battlefield tapped."
 
     spell {
-        val victim = target("any target", AnyTarget())
+        val victim = target(Targets.Any)
         effect = Effects.Pipeline {
             run(Effects.DealXDamage(victim))
             val worldsoulLands = gather(

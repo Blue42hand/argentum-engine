@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Captain Storm, Cosmium Raider
@@ -32,10 +31,7 @@ val CaptainStormCosmiumRaider = card("Captain Storm, Cosmium Raider") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
-        val t = target(
-            "target Pirate you control",
-            TargetCreature(filter = TargetFilter.PermanentYouControl.withSubtype(Subtype.PIRATE)),
-        )
+        val t = target(TargetFilter.PermanentYouControl.withSubtype(Subtype.PIRATE))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 

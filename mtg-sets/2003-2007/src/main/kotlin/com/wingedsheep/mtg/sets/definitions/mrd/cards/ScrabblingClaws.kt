@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Scrabbling Claws — Mirrodin #237
@@ -40,7 +41,7 @@ val ScrabblingClaws = card("Scrabbling Claws") {
         "{1}, Sacrifice this artifact: Exile target card from a graveyard. Draw a card."
 
     activatedAbility {
-        val player = target("target player", TargetPlayer())
+        val player = target(Targets.Player)
         cost = Costs.Tap
         effect = Effects.Pipeline {
             val graveyard = gather(
@@ -59,7 +60,7 @@ val ScrabblingClaws = card("Scrabbling Claws") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
-        val exiled = target("target card in a graveyard", TargetObject(filter = TargetFilter.CardInGraveyard))
+        val exiled = target(TargetFilter.CardInGraveyard)
         effect = Effects.Composite(
             Effects.Move(exiled, Zone.EXILE),
             Effects.DrawCards(1)

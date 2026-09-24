@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.grn.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.withId
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Knight of Autumn
@@ -38,10 +38,9 @@ val KnightOfAutumn = card("Knight of Autumn") {
                 Mode.noTarget(
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
                 ),
-                Mode.withTarget(
-                    Effects.Destroy(EffectTarget.BoundVariable("target")),
-                    Targets.ArtifactOrEnchantment.withId("target")
-                ),
+                mode("Destroy target artifact or enchantment.") {
+                    effect = Effects.Destroy(target(TargetFilter.ArtifactOrEnchantment))
+                },
                 Mode.noTarget(Effects.GainLife(4))
             )
         )

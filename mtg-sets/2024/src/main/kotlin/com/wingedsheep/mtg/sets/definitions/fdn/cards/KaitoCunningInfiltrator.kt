@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Kaito, Cunning Infiltrator
@@ -77,10 +76,7 @@ val KaitoCunningInfiltrator = card("Kaito, Cunning Infiltrator") {
     // +1: Up to one target creature you control can't be blocked this turn.
     //     Draw a card, then discard a card.
     loyaltyAbility(+1) {
-        val creature = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
-        )
+        val creature = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature) then
             Patterns.Hand.loot()
     }

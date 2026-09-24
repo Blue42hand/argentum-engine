@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.events.Recipient
 
@@ -45,10 +44,7 @@ val HerdHeirloom = card("Herd Heirloom") {
     // {T}: temporary trample + draw-on-combat-damage grant to a power-4+ creature you control.
     activatedAbility {
         cost = Costs.Tap
-        val creature = target(
-            "creature",
-            TargetCreature(filter = TargetFilter.CreatureYouControl.powerAtLeast(4))
-        )
+        val creature = target(TargetFilter.CreatureYouControl.powerAtLeast(4))
         effect = Effects.Composite(listOf(
             Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
             Effects.GrantTriggeredAbility(

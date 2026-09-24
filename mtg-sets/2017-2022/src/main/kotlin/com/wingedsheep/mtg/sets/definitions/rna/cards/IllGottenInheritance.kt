@@ -34,7 +34,7 @@ val IllGottenInheritance = card("Ill-Gotten Inheritance") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}{B}"), Costs.SacrificeSelf)
-        val victim = target("target", Targets.Opponent)
+        val victim = target(Targets.Opponent)
         effect = Effects.Composite(listOf(
             Effects.DealDamage(4, victim),
             Effects.GainLife(4)

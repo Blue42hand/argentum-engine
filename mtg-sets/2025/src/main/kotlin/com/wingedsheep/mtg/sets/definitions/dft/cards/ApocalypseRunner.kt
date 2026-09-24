@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -32,7 +31,7 @@ val ApocalypseRunner = card("Apocalypse Runner") {
     toughness = 5
     activatedAbility {
         cost = Costs.Tap
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.powerAtMost(2).youControl()))
+        val t = target(TargetFilter.Creature.powerAtMost(2).youControl())
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.LIFELINK, t),
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)

@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Glacial Dragonhunt — Tarkir: Dragonstorm #188
@@ -64,7 +64,7 @@ val GlacialDragonhunt = card("Glacial Dragonhunt") {
                     // No `damageSource = Self`: by the time the reflexive ability resolves the
                     // spell has left the stack, so its source is the ability's recorded source
                     // (the default), not the new graveyard object.
-                    val creature = target("target creature", Targets.Creature)
+                    val creature = target(TargetFilter.Creature)
                     effect = Effects.DealDamage(3, creature)
                 })
             }

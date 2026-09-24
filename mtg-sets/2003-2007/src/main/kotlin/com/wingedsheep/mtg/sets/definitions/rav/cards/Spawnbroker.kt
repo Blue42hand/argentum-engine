@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val Spawnbroker = card("Spawnbroker") {
     manaCost = "{2}{U}"
@@ -19,13 +19,8 @@ val Spawnbroker = card("Spawnbroker") {
         trigger = Triggers.self.enters()
         optional = true
         description = "You may exchange control of the two targeted creatures."
-        val yours = target("creature you control", Targets.CreatureYouControl)
-        val theirs = target(
-            "opponent's creature with power no greater than your chosen creature",
-            TargetCreature(filter = Targets.Unified.creature {
-                opponentControls().powerAtMostEntity(yours)
-            })
-        )
+        val yours = target(TargetFilter.CreatureYouControl)
+        val theirs = target(TargetFilter.Creature.opponentControls().powerAtMostEntity(yours))
         effect = Effects.ExchangeControl(yours, theirs)
     }
 

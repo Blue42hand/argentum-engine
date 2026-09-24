@@ -62,12 +62,7 @@ class CaseOfTheGorgonsKissScenarioTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Test Spark deals 1 damage to target creature."
         spell {
-            val t = target(
-                "target",
-                com.wingedsheep.sdk.scripting.targets.TargetCreature(
-                    filter = com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.Creature
-                )
-            )
+            val t = target(com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.Creature)
             effect = Effects.DealDamage(1, t)
         }
     }

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Spring-Loaded Sawblades // Bladewheel Chariot (CR 702.167, The Lost Caverns of Ixalan)
@@ -56,10 +55,7 @@ private val SpringLoadedSawbladesFront = card("Spring-Loaded Sawblades") {
     // ETB: it deals 5 damage to target tapped creature an opponent controls.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "target tapped creature an opponent controls",
-            TargetCreature(filter = TargetFilter.TappedCreature.opponentControls())
-        )
+        val creature = target(TargetFilter.TappedCreature.opponentControls())
         effect = Effects.DealDamage(5, creature)
     }
 

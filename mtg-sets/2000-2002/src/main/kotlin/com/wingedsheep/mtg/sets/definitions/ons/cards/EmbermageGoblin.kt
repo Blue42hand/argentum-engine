@@ -43,7 +43,7 @@ val EmbermageGoblin = card("Embermage Goblin") {
 
     activatedAbility {
         cost = Costs.Tap
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
     }
 

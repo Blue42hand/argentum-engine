@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lake-town Toymaker
@@ -35,7 +35,7 @@ val LaketownToymaker = card("Lake-town Toymaker") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouDrewCardsThisTurn(2)
-        val t = target("another target creature you control", Targets.OtherCreatureYouControl)
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(3, 0, t),
             Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),

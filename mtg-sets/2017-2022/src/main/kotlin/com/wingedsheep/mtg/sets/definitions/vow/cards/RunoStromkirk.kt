@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -82,10 +81,7 @@ private val RunoStromkirkFront = card("Runo Stromkirk") {
     // When Runo enters, put up to one target creature card from your graveyard on top of your library.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val fromGraveyard = target(
-            "creature card from your graveyard",
-            TargetObject(optional = true, filter = TargetFilter.CreatureInYourGraveyard)
-        )
+        val fromGraveyard = target(TargetFilter.CreatureInYourGraveyard, optional = true)
         effect = Effects.Move(
             target = fromGraveyard,
             destination = Zone.LIBRARY,
@@ -143,10 +139,7 @@ private val KrothussLordOfTheDeep = card("Krothuss, Lord of the Deep") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val copied = target(
-            "another attacking creature",
-            TargetOther(baseRequirement = Targets.AttackingCreature)
-        )
+        val copied = target(TargetOther(baseRequirement = TargetObject(filter = TargetFilter.AttackingCreature)))
         effect = Effects.CreateTokenCopyOfTarget(
             target = copied,
             count = DynamicAmounts.conditional(

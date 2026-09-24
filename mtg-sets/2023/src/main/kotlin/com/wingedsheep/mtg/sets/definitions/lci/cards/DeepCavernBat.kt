@@ -47,7 +47,7 @@ val DeepCavernBat = card("Deep-Cavern Bat") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             listOf(
                 Effects.LookAtHand(opponent),

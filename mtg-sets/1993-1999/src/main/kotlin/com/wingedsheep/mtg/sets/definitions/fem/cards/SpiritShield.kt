@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Spirit Shield
@@ -31,7 +30,7 @@ val SpiritShield = card("Spirit Shield") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        val target = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val target = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(0, 2, target, Duration.WhileSourceTapped("this artifact"))
     }
 

@@ -44,7 +44,7 @@ val KlawSonicSubjugator = card("Klaw, Sonic Subjugator") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             // 1. Gather the target player's hand.
             val klawHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))

@@ -23,7 +23,7 @@ val FatefulEnd = card("Fateful End") {
     oracleText = "Fateful End deals 3 damage to any target. Scry 1."
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(3, t),
             Effects.Scry(1)

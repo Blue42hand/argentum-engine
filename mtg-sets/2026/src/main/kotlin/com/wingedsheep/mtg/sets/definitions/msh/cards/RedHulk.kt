@@ -57,7 +57,7 @@ val RedHulk = card("Red Hulk") {
         ) {
             // "When you do, he deals damage equal to the number of +1/+1 counters on him to any
             //  other target."
-            val otherTarget = target("target other", TargetOther(AnyTarget()))
+            val otherTarget = target(TargetOther(AnyTarget()))
             effect = Effects.DealDamage(
                 amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
                 target = otherTarget,

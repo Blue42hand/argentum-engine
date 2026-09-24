@@ -41,7 +41,7 @@ val RuthlessDeathfang = card("Ruthless Deathfang") {
 
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Creature)
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, opponent)
     }
 

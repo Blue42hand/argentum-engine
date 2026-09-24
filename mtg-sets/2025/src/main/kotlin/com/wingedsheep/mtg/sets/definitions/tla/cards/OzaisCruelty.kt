@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -23,7 +23,7 @@ val OzaisCruelty = card("Ozai's Cruelty") {
     typeLine = "Sorcery — Lesson"
     oracleText = "Ozai's Cruelty deals 2 damage to target player. That player discards two cards."
     spell {
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.Composite(
             Effects.DealDamage(2, t),
             Patterns.Hand.discardCards(2, t)

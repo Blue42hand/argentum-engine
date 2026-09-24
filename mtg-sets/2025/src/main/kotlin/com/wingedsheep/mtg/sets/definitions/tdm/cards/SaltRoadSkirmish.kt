@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Salt Road Skirmish — Tarkir: Dragonstorm #88
@@ -28,7 +28,7 @@ val SaltRoadSkirmish = card("Salt Road Skirmish") {
         "haste until end of turn. Sacrifice them at the beginning of the next end step."
 
     spell {
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
             .then(
                 Effects.CreateToken(

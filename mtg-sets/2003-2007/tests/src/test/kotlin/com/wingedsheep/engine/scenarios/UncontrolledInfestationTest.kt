@@ -17,12 +17,12 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tests for Uncontrolled Infestation.
@@ -39,16 +39,14 @@ class UncontrolledInfestationTest : FunSpec({
         typeLine = "Enchantment — Aura"
         oracleText = "Enchant nonbasic land\nWhen enchanted land becomes tapped, destroy it."
 
-        auraTarget = TargetPermanent(
-            filter = TargetFilter(
+        auraTarget = TargetObject(filter = TargetFilter(
                 GameObjectFilter(
                     cardPredicates = listOf(
                         CardPredicate.IsLand,
                         CardPredicate.Not(CardPredicate.IsBasicLand)
                     )
                 )
-            )
-        )
+            ))
 
         triggeredAbility {
             trigger = Triggers.attached.becomesTapped()

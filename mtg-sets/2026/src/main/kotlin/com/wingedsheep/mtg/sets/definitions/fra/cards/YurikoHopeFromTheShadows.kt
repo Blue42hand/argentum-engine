@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
@@ -11,6 +10,7 @@ import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Yuriko, Hope from the Shadows — X is counted as the mode resolves (CR 608.2h) and then locked in
@@ -34,7 +34,7 @@ val YurikoHopeFromTheShadows = card("Yuriko, Hope from the Shadows") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Target creature gets -X/-0 until end of turn, where X is the number of cards in your graveyard.") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.ModifyStats(
                     power = -DynamicAmounts.cardsInYourGraveyard(),
                     toughness = DynamicAmounts.fixed(0),

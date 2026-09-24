@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Commando Raid
@@ -24,14 +24,11 @@ val CommandoRaid = card("Commando Raid") {
     oracleText = "Until end of turn, target creature you control gains \"Whenever this creature deals combat damage to a player, you may have it deal damage equal to its power to target creature that player controls.\""
 
     spell {
-        val t = target("target", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    Targets.CreatureOpponentControls
-                )
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.May(Effects.DealDamage(DynamicAmounts.sourcePower(), creatureOpponentControls))
             },
             target = t

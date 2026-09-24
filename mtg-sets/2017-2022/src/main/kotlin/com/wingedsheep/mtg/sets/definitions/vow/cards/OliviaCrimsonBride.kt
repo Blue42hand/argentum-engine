@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Olivia, Crimson Bride
@@ -61,10 +60,7 @@ val OliviaCrimsonBride = card("Olivia, Crimson Bride") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target(
-            "creature card from your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-        )
+        val creature = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Composite(
             Effects.Move(
                 target = creature,

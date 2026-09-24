@@ -22,7 +22,7 @@ val SilenceTheEcho = card("Silence the Echo") {
     )
 
     spell {
-        val creatureOrPlaneswalker = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val creatureOrPlaneswalker = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Destroy(creatureOrPlaneswalker)
     }
 

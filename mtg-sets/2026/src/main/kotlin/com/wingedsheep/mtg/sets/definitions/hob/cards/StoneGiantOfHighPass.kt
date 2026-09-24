@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Stone-Giant of High Pass
@@ -62,7 +62,7 @@ val StoneGiantOfHighPass = card("Stone-Giant of High Pass") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.Sacrifice(GameObjectFilter.Artifact))
-        val t = target("any target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(4, t)
         description = "{2}{R}, Sacrifice an artifact: This creature deals 4 damage to any target."
     }

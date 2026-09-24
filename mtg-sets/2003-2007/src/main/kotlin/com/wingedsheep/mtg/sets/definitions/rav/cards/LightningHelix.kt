@@ -7,7 +7,7 @@ package com.wingedsheep.mtg.sets.definitions.rav.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -22,7 +22,7 @@ val LightningHelix = card("Lightning Helix") {
     typeLine = "Instant"
     oracleText = "Lightning Helix deals 3 damage to any target and you gain 3 life."
     spell {
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(3, t),
             Effects.GainLife(3)

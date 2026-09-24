@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Moriok Scavenger — Mirrodin #68
@@ -37,15 +36,7 @@ val MoriokScavenger = card("Moriok Scavenger") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val card = target(
-            "card",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.ArtifactCreature.ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        )
+        val card = target(TargetFilter(GameObjectFilter.ArtifactCreature.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.Move(target = card, destination = Zone.HAND)
         description = "When this creature enters, you may return target artifact creature card " +
             "from your graveyard to your hand."

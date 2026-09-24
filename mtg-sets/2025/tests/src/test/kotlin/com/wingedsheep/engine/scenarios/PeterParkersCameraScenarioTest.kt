@@ -25,6 +25,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Peter Parker's Camera (SPM #171) — {1} Artifact.
@@ -52,7 +54,7 @@ class PeterParkersCameraScenarioTest : FunSpec({
         activatedAbility {
             cost = AbilityCost.Tap
             effect = Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0))
-            target = Targets.CreatureYouControl
+            target = TargetObject(filter = TargetFilter.CreatureYouControl)
             timing = TimingRule.InstantSpeed
         }
     }

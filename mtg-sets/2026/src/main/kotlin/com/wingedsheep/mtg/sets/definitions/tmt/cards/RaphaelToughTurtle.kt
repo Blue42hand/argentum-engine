@@ -26,7 +26,7 @@ val RaphaelToughTurtle = card("Raphael, Tough Turtle") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(1, opponent)
         description = "Alliance — Whenever another creature you control enters, Raphael deals 1 damage to target opponent."
     }

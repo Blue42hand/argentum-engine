@@ -6,9 +6,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Thorn Thallid
@@ -35,7 +35,7 @@ val ThornThallid = card("Thorn Thallid") {
 
     activatedAbility {
         cost = Costs.RemoveCounterFromSelf(CounterType.SPORE, 3)
-        val t = target("any target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
         description = "Remove three spore counters from this creature: It deals 1 damage to any target."
     }

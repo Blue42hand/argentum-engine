@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -43,7 +42,7 @@ val SummonPrimalOdin = card("Summon: Primal Odin") {
 
     // I — Gungnir — Destroy target creature an opponent controls.
     sagaChapter(1) {
-        val victim = target("creature", TargetObject(filter = TargetFilter.CreatureOpponentControls))
+        val victim = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Destroy(victim)
     }
 

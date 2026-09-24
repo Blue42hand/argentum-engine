@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Elephant Graveyard
@@ -29,10 +28,7 @@ val ElephantGraveyard = card("Elephant Graveyard") {
 
     activatedAbility {
         cost = Costs.Tap
-        val elephant = target(
-            "target Elephant",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Elephant")))
-        )
+        val elephant = target(TargetFilter(GameObjectFilter.Permanent.withSubtype("Elephant")))
         effect = Effects.Regenerate(elephant)
     }
 

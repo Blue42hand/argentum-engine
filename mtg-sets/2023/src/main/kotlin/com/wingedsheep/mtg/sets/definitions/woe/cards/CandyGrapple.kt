@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Candy Grapple
@@ -38,7 +38,7 @@ val CandyGrapple = card("Candy Grapple") {
     bargain()
 
     spell {
-        val creature = target("target creature", TargetCreature())
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(power = -3, toughness = -3, target = creature),
             Effects.If(

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Mimeoplasm, Revered One — Aetherdrift #214.
@@ -44,15 +43,7 @@ val MimeoplasmReveredOne = card("Mimeoplasm, Revered One") {
 
     activatedAbility {
         cost = Costs.Mana("{2}")
-        val creatureCard = target(
-            "target creature card exiled with Mimeoplasm",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.exiledWithSource(),
-                    zone = Zone.EXILE,
-                )
-            )
-        )
+        val creatureCard = target(TargetFilter(GameObjectFilter.Creature.exiledWithSource(), zone = Zone.EXILE))
         effect = Effects.EachPermanentBecomesCopyOfTarget(
             target = creatureCard,
             affected = EffectTarget.Self,

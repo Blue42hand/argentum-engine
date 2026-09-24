@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Elrond, Moon-Reader
@@ -57,11 +57,7 @@ val ElrondMoonReader = card("Elrond, Moon-Reader") {
 
     activatedAbility {
         cost = Costs.Mana("{5}{U}{U}")
-        target = TargetPermanent(
-            count = 2,
-            optional = true,
-            filter = TargetFilter.OtherNonlandPermanent.youControl()
-        )
+        target = TargetObject(filter = TargetFilter.OtherNonlandPermanent.youControl(), count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Patterns.Exile.exileUntilEndStep(EffectTarget.ContextTarget(0))
         )

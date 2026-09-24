@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Thundersong Trumpeter
@@ -27,7 +27,7 @@ val ThundersongTrumpeter = card("Thundersong Trumpeter") {
 
     activatedAbility {
         cost = Costs.Tap
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.CantAttack(t),
             Effects.CantBlock(t)

@@ -61,19 +61,16 @@ val AleshaWhoLaughsAtFate = card("Alesha, Who Laughs at Fate") {
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouAttackedThisTurn
         val t = target(
-            "target creature card with mana value less than or equal to Alesha's power in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter(
-                        cardPredicates = listOf(
-                            CardPredicate.IsCreature,
-                            CardPredicate.ManaValueAtMostDynamic(DynamicAmounts.sourcePower())
-                        ),
-                        controllerPredicate = ControllerPredicate.OwnedByYou
+            TargetFilter(
+                GameObjectFilter(
+                    cardPredicates = listOf(
+                        CardPredicate.IsCreature,
+                        CardPredicate.ManaValueAtMostDynamic(DynamicAmounts.sourcePower())
                     ),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+                    controllerPredicate = ControllerPredicate.OwnedByYou
+                ),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.PutOntoBattlefield(t)
         description = "Raid — At the beginning of your end step, if you attacked this turn, return " +

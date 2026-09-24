@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Aquitect's Will
@@ -42,7 +42,7 @@ val AquitectsWill = card("Aquitect's Will") {
         "other types for as long as it has a flood counter on it. If you control a Merfolk, draw a card."
 
     spell {
-        val land = target("target land", Targets.Land)
+        val land = target(TargetFilter.Land)
         effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
             .then(
                 Effects.AddSubtype(

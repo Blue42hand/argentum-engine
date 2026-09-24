@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val AcademicAscent = card("Academic Ascent") {
     manaCost = "{1}{W}"
@@ -15,7 +15,7 @@ val AcademicAscent = card("Academic Ascent") {
         "Empower Jace 2. (Put two loyalty counters on a Jace token you control. If you don't control one, first create a blue Jace planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\")"
 
     spell {
-        val creature = target("target creature", TargetCreature())
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, creature),
             Effects.GrantKeyword(Keyword.FLYING, creature),

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -29,7 +28,7 @@ val NeighborhoodGuardian = card("Neighborhood Guardian") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.powerAtMost(2).youControl()).enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val t = target(TargetFilter.Creature.youControl())
         effect = Effects.ModifyStats(1, 1, t)
     }
     metadata {

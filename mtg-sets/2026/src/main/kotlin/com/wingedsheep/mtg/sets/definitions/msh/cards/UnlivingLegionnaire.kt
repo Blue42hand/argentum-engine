@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Unliving Legionnaire — Marvel Super Heroes #119 (common)
@@ -41,10 +40,7 @@ val UnlivingLegionnaire = card("Unliving Legionnaire") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{5}{B}{B}")
-        val corpse = target(
-            "up to one target creature card from your graveyard",
-            TargetObject(optional = true, filter = TargetFilter.CreatureInYourGraveyard)
-        )
+        val corpse = target(TargetFilter.CreatureInYourGraveyard, optional = true)
         effect = Effects.Composite(
             Effects.ReturnToHand(corpse),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)

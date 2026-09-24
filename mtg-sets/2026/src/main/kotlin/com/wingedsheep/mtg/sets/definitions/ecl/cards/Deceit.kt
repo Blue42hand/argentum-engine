@@ -10,8 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Deceit
@@ -41,14 +40,7 @@ val Deceit = card("Deceit") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.ManaSpentToCastIncludes(requiredBlue = 2)
-        val bounceTarget = target(
-            "other nonland permanent",
-            TargetObject(
-                count = 1,
-                optional = true,
-                filter = TargetFilter.NonlandPermanent.other()
-            )
-        )
+        val bounceTarget = target(TargetFilter.NonlandPermanent.other(), optional = true)
         effect = Effects.ReturnToHand(bounceTarget)
     }
 
@@ -56,7 +48,7 @@ val Deceit = card("Deceit") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.ManaSpentToCastIncludes(requiredBlack = 2)
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
             val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))

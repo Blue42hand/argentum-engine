@@ -53,7 +53,7 @@ val TrigonOfMending = card("Trigon of Mending") {
             Costs.Tap,
             Costs.RemoveCounterFromSelf(CounterType.CHARGE, 1)
         )
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.GainLife(3, player)
         description = "{2}, {T}, Remove a charge counter from this artifact: Target player gains 3 life."
     }

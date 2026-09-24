@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Lobelia Sackville-Baggins
@@ -47,15 +46,12 @@ val LobeliaSackvilleBaggins = card("Lobelia Sackville-Baggins") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val exileTarget = target(
-            "creature card in an opponent's graveyard that was put there from the battlefield this turn",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature
-                        .ownedByOpponent()
-                        .putIntoGraveyardFromBattlefieldThisTurn(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Creature
+                    .ownedByOpponent()
+                    .putIntoGraveyardFromBattlefieldThisTurn(),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.Move(
             target = exileTarget,

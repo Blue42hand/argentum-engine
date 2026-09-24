@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Goblin Taskmaster
@@ -26,9 +25,7 @@ val GoblinTaskmaster = card("Goblin Taskmaster") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Goblin"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Goblin")))
         effect = Effects.ModifyStats(1, 0, t)
     }
 

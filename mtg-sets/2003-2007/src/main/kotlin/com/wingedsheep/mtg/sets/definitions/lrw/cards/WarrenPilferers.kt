@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Warren Pilferers
@@ -37,10 +36,7 @@ val WarrenPilferers = card("Warren Pilferers") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creatureCard = target(
-            "target creature card from your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-        )
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
         val returnToHand = Effects.Move(creatureCard, Zone.HAND)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN), creatureCard),

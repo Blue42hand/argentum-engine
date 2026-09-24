@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Galion, Elvenking's Butler — The Hobbit #125
@@ -37,10 +36,7 @@ val GalionElvenkingsButler = card("Galion, Elvenking's Butler") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val other = target(
-            "up to one other target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.OtherCreatureYouControl)
-        )
+        val other = target(TargetFilter.OtherCreatureYouControl, optional = true)
         effect = Effects.SetBasePowerAndToughness(
             power = DynamicAmounts.sourcePower(),
             toughness = DynamicAmounts.sourceToughness(),

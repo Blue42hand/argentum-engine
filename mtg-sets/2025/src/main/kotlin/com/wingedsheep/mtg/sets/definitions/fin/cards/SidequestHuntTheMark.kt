@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -81,10 +80,7 @@ private val SidequestHuntTheMarkFront = card("Sidequest: Hunt the Mark") {
     // When this enchantment enters, destroy up to one target creature.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "creature",
-            TargetObject(optional = true, filter = TargetFilter.Creature),
-        )
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.Destroy(t)
     }
 

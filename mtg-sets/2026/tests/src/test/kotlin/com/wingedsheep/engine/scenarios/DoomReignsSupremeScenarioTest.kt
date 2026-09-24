@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -76,7 +75,7 @@ class DoomReignsSupremeScenarioTest : FunSpec({
         typeLine = "Instant"
         oracleText = "Destroy target creature an opponent controls."
         spell {
-            val t = target("target creature an opponent controls", TargetCreature(filter = TargetFilter.CreatureOpponentControls))
+            val t = target(TargetFilter.CreatureOpponentControls)
             effect = Effects.Destroy(t)
         }
     }
@@ -88,7 +87,7 @@ class DoomReignsSupremeScenarioTest : FunSpec({
         typeLine = "Instant"
         oracleText = "Test Zap deals 3 damage to target creature."
         spell {
-            val t = target("target creature", TargetCreature())
+            val t = target(TargetFilter.Creature)
             effect = Effects.DealDamage(3, t)
         }
     }

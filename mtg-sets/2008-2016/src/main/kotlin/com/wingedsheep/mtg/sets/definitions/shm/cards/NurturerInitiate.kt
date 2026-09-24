@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Nurturer Initiate
@@ -35,7 +34,7 @@ val NurturerInitiate = card("Nurturer Initiate") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.casts(GameObjectFilter.Any.withColor(Color.GREEN))
-        val creature = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val creature = target(TargetFilter.Creature)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.ModifyStats(1, 1, creature)

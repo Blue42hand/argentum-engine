@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Long Feng, Grand Secretariat
@@ -37,10 +36,7 @@ val LongFengGrandSecretariat = card("Long Feng, Grand Secretariat") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.CreatureOrLand.youControl()).dies()
-        val target = target(
-            "target creature you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
-        )
+        val target = target(TargetFilter(GameObjectFilter.Creature.youControl()))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
         description = "Whenever another creature you control or a land you control is put into a " +
             "graveyard from the battlefield, put a +1/+1 counter on target creature you control."

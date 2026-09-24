@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Araña, Heart of the Spider
@@ -51,10 +50,7 @@ val AranaHeartOfTheSpider = card("Araña, Heart of the Spider") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val attacker = target(
-            "target attacking creature",
-            TargetCreature(filter = TargetFilter.AttackingCreature),
-        )
+        val attacker = target(TargetFilter.AttackingCreature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker)
     }
 

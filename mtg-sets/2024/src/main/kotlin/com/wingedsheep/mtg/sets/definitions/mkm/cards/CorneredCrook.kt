@@ -51,7 +51,7 @@ val CorneredCrook = card("Cornered Crook") {
             descriptionOverride = "You may sacrifice an artifact. When you do, this creature deals " +
                 "3 damage to any target."
         ) {
-            val anyTarget = target("target any", Targets.Any)
+            val anyTarget = target(Targets.Any)
             effect = Effects.DealDamage(3, anyTarget)
         }
         description = "When this creature enters, you may sacrifice an artifact. When you do, this " +

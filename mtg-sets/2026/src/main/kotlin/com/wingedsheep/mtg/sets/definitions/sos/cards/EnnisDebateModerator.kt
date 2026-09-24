@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Ennis, Debate Moderator — Secrets of Strixhaven #14
@@ -42,11 +41,7 @@ val EnnisDebateModerator = card("Ennis, Debate Moderator") {
 
     // ETB: exile up to one other target creature you control, return at next end step.
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(
-            count = 1,
-            optional = true,
-            filter = TargetFilter.OtherCreatureYouControl,
-        ))
+        val creature = target(TargetFilter.OtherCreatureYouControl, optional = true)
         trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.Exile(creature),

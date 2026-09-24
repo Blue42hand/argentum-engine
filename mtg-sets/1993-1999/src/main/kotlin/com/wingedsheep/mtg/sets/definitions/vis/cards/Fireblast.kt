@@ -34,7 +34,7 @@ val Fireblast = card("Fireblast") {
     )
 
     spell {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(4, anyTarget)
     }
 

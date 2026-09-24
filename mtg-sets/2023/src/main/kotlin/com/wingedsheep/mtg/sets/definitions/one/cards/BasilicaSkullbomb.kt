@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.one.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Basilica Skullbomb
@@ -29,7 +29,7 @@ val BasilicaSkullbomb = card("Basilica Skullbomb") {
     }
 
     activatedAbility {
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         cost = Costs.Composite(Costs.Mana("{2}{W}"), Costs.SacrificeSelf)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, creatureYouControl),

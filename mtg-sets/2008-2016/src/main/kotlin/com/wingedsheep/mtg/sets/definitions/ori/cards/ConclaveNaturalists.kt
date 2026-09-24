@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ori.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Conclave Naturalists
@@ -25,7 +25,7 @@ val ConclaveNaturalists = card("Conclave Naturalists") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val t = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
+        val t = target(TargetFilter.ArtifactOrEnchantment)
         effect = Effects.Destroy(t)
     }
 

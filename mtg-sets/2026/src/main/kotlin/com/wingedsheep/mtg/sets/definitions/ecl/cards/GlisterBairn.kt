@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -32,7 +31,7 @@ val GlisterBairn = card("Glister Bairn") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val ally = target("creature", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val ally = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ModifyStats(
             power = DynamicAmounts.colorsAmongPermanents(),
             toughness = DynamicAmounts.colorsAmongPermanents(),

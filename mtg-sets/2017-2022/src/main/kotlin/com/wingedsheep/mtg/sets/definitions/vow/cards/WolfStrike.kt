@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Wolf Strike (Innistrad: Crimson Vow) — {2}{G} Instant
@@ -34,8 +33,8 @@ val WolfStrike: CardDefinition = card("Wolf Strike") {
         "damage equal to its power to target creature you don't control."
 
     spell {
-        val t1 = target("your creature", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        val t2 = target("their creature", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val t1 = target(TargetFilter.Creature.youControl())
+        val t2 = target(TargetFilter.Creature.opponentControls())
         effect = Effects.Composite(
             Effects.If(
                 condition = Conditions.IsNight,

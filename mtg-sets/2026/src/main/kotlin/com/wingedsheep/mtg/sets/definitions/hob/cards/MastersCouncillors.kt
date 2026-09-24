@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Master's Councillors — The Hobbit #47
@@ -59,7 +59,7 @@ val MastersCouncillors = card("Master's Councillors") {
 
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        val milled = target("player", TargetPlayer())
+        val milled = target(Targets.Player)
         effect = Patterns.Library.mill(count = 3, target = milled)
         description = "Whenever you draw your second card each turn, target player mills three cards."
     }

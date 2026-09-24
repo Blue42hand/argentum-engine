@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -29,9 +28,7 @@ val DaringArchaeologist = card("Daring Archaeologist") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetObject(
-            filter = TargetFilter.ArtifactInYourGraveyard
-        ))
+        val t = target(TargetFilter.ArtifactInYourGraveyard)
         // The "you may" is consent to *do it*, not permission to skip choosing a target. CR 603.3d
         // routes a trigger's targets through CR 601.2c, which requires a choice for each target, and
         // only "up to one target" makes one optional — which is exactly what `optional = true` on

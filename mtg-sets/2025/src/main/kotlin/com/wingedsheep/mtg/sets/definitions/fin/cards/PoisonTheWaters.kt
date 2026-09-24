@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Poison the Waters
@@ -36,7 +36,7 @@ val PoisonTheWaters = card("Poison the Waters") {
                 )
             }
             mode("Target player reveals their hand; discard an artifact or creature card") {
-                val t = target("target", TargetPlayer())
+                val t = target(Targets.Player)
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(t))
                     val hand = gather(CardSource.FromZone(Zone.HAND, t.asPlayer))

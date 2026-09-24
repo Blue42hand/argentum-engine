@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Mjölnir, Hammer of Thor — Marvel Super Heroes #146
@@ -56,10 +55,7 @@ val MjolnirHammerOfThor = card("Mjölnir, Hammer of Thor") {
     // When Mjölnir enters, it deals 4 damage to up to one target creature.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one target creature",
-            TargetCreature(optional = true, filter = TargetFilter.Creature)
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.DealDamage(4, creature)
     }
 

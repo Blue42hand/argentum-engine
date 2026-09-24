@@ -41,7 +41,7 @@ val VindictiveTriumph = card("Vindictive Triumph") {
         "return it to the battlefield tapped under your control. Exile it at the beginning of the next end step."
 
     spell {
-        val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val permanent = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.manaValueAtMost(3), permanent),
             then = Effects.Pipeline {

@@ -44,7 +44,7 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
         "−3: You may put a Vampire creature card from your hand onto the battlefield."
 
     loyaltyAbility(+1) {
-        val t = target("creature you control", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t, Duration.EndOfTurn)
             .then(Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn))
             .then(
@@ -69,7 +69,7 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
             descriptionOverride = "You may sacrifice a Vampire. When you do, Sorin deals 3 damage to " +
                 "any target and you gain 3 life.",
         ) {
-            val anyTarget = target("target any", Targets.Any)
+            val anyTarget = target(Targets.Any)
             effect = Effects.Composite(
                 listOf(
                     Effects.DealDamage(3, anyTarget),

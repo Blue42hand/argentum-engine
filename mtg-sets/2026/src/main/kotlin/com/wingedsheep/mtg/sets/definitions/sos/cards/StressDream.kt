@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Stress Dream — Secrets of Strixhaven #235
@@ -33,7 +33,7 @@ val StressDream = card("Stress Dream") {
         "of your library."
 
     spell {
-        val creature = target("up to one target creature", TargetCreature(optional = true))
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.DealDamage(5, creature)
             .then(
                 Patterns.Library.lookAtTopAndKeep(

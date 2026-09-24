@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.war.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Goblin Assault Team — War of the Spark #129 (canonical printing)
@@ -34,7 +34,7 @@ val GoblinAssaultTeam = card("Goblin Assault Team") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val creature = target("target", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Boulder, Ready to Rumble
@@ -39,7 +38,7 @@ val TheBoulderReadyToRumble = card("The Boulder, Ready to Rumble") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.powerAtLeast(4)).count(),
             land,

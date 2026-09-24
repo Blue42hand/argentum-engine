@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -33,7 +32,7 @@ val BurnerRocket = card("Burner Rocket") {
     keywords(Keyword.FLASH)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val t = target(TargetFilter.Creature.youControl())
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, t),
             Effects.GrantKeyword(Keyword.TRAMPLE, t)

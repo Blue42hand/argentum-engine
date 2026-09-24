@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Restoration Angel
@@ -35,17 +34,14 @@ val RestorationAngel = card("Restoration Angel") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(
-            "non-Angel creature you control",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter(
-                        cardPredicates = listOf(
-                            CardPredicate.IsCreature,
-                            CardPredicate.NotSubtype(Subtype("Angel"))
-                        )
-                    ).youControl()
-                )
-            )
+            TargetFilter(
+                GameObjectFilter(
+                    cardPredicates = listOf(
+                        CardPredicate.IsCreature,
+                        CardPredicate.NotSubtype(Subtype("Angel"))
+                    )
+                ).youControl()
+            ),
         )
         effect = Effects.May(
             Effects.Move(creature, Zone.EXILE)

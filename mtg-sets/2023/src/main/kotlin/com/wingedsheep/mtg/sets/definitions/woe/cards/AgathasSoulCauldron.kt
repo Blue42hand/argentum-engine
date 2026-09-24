@@ -5,13 +5,14 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.DonorCards
 import com.wingedsheep.sdk.scripting.HasAllActivatedAbilitiesOfCards
 import com.wingedsheep.sdk.scripting.SpendAnyManaTypeForActivatedAbilities
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Agatha's Soul Cauldron
@@ -74,7 +75,7 @@ val AgathasSoulCauldron = card("Agatha's Soul Cauldron") {
     // +1/+1 counter on target creature you control."
     activatedAbility {
         cost = Costs.Tap
-        val exiled = target("target card from a graveyard", Targets.CardInGraveyard)
+        val exiled = target(TargetFilter.CardInGraveyard)
         effect = Effects.Composite(
             Effects.ExileLinkedToSource(exiled),
             // Reflexive "when a creature card is exiled this way": tested on the exiled card's
@@ -83,7 +84,7 @@ val AgathasSoulCauldron = card("Agatha's Soul Cauldron") {
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
                 then = Effects.Pipeline {
-                    val cauldronCounterTarget = selectTarget(Targets.CreatureYouControl)
+                    val cauldronCounterTarget = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl))
                     run(Effects.AddCounters(
                         CounterType.PLUS_ONE_PLUS_ONE,
                         1,

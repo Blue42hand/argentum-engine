@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Inside Source — Murders at Karlov Manor #19
@@ -58,10 +57,7 @@ val InsideSource = card("Inside Source") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        val detective = target(
-            "target Detective you control",
-            TargetPermanent(filter = TargetFilter.PermanentYouControl.withSubtype(Subtype.DETECTIVE))
-        )
+        val detective = target(TargetFilter.PermanentYouControl.withSubtype(Subtype.DETECTIVE))
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, detective),
             Effects.GrantKeyword(Keyword.VIGILANCE, detective)

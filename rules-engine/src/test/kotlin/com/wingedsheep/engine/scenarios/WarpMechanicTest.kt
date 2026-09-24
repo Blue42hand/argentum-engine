@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
@@ -27,6 +26,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 class WarpMechanicTest : FunSpec({
 
@@ -56,7 +56,7 @@ class WarpMechanicTest : FunSpec({
         manaCost = "{R}"
         typeLine = "Sorcery"
         spell {
-            val creature = target("creature you control", Targets.CreatureYouControl)
+            val creature = target(TargetFilter.CreatureYouControl)
             effect = Effects.Move(creature, Zone.EXILE)
                 .then(Effects.Move(creature, Zone.BATTLEFIELD))
         }

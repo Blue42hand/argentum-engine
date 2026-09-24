@@ -2,11 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
@@ -29,7 +27,7 @@ val Mechanozoa = card("Mechanozoa") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val artifactOrCreatureOpponentControls = target("target artifact or creature an opponent controls", TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls())))
+        val artifactOrCreatureOpponentControls = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
         effect = Effects.Composite(
             listOf(
                 Effects.Tap(artifactOrCreatureOpponentControls),

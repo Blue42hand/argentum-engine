@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 val StingingVitriol = card("Stinging Vitriol") {
     manaCost = "{B}{R}"
@@ -17,7 +17,7 @@ val StingingVitriol = card("Stinging Vitriol") {
         "You choose a nonland card from it. They discard that card."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.DealDamage(2, opponent))
             run(Effects.RevealHand(opponent))

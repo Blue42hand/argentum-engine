@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Villainous Wrath
@@ -21,7 +22,7 @@ val VillainousWrath = card("Villainous Wrath") {
     oracleText = "Target opponent loses life equal to the number of creatures they control. Then destroy all creatures."
 
     spell {
-        val opp = target("target opponent", TargetOpponent())
+        val opp = target(Targets.Opponent)
         effect = Effects.LoseLife(
             DynamicAmounts.battlefield(Player.TargetOpponent, GameObjectFilter.Creature).count(),
             opp

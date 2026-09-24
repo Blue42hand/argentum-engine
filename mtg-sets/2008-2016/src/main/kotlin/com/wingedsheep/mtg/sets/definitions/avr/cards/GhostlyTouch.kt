@@ -1,13 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ghostly Touch
@@ -36,13 +37,13 @@ val GhostlyTouch = card("Ghostly Touch") {
         "Enchanted creature has \"Whenever this creature attacks, you may tap or untap target " +
         "permanent.\""
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     staticAbility {
         ability = GrantTriggeredAbility(
             grantedTriggeredAbility {
                 trigger = Triggers.self.attacks()
-                val permanent = target("target permanent", Targets.Permanent)
+                val permanent = target(TargetFilter.Permanent)
                 effect = Effects.May(
                     Effects.Modal(
                         modes = listOf(

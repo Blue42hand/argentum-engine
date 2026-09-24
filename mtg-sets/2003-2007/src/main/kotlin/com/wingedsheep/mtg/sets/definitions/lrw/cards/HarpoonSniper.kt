@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Harpoon Sniper
@@ -40,10 +39,7 @@ val HarpoonSniper = card("Harpoon Sniper") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
-        val t = target(
-            "target attacking or blocking creature",
-            TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature)
-        )
+        val t = target(TargetFilter.AttackingOrBlockingCreature)
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(
                 Player.You,

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Olivia Voldaren
@@ -40,7 +39,7 @@ val OliviaVoldaren = card("Olivia Voldaren") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
-        val creature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
+        val creature = target(TargetFilter.OtherCreature)
         effect = Effects.Composite(
             listOf(
                 Effects.DealDamage(1, creature),
@@ -53,10 +52,7 @@ val OliviaVoldaren = card("Olivia Voldaren") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{B}{B}")
-        val vampire = target(
-            "target Vampire",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Vampire")))
-        )
+        val vampire = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Vampire")))
         effect = Effects.GainControl(vampire, Duration.WhileYouControlSource("Olivia Voldaren"))
         description = "{3}{B}{B}: Gain control of target Vampire for as long as you control Olivia Voldaren."
     }

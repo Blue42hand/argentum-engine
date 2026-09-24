@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Rockface Village
@@ -43,8 +42,8 @@ val RockfaceVillage = card("Rockface Village") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.Tap)
-        val t = target("target", TargetCreature(
-            filter = TargetFilter(
+        val t = target(
+            TargetFilter(
                 GameObjectFilter.Creature
                     .youControl()
                     .withAnyOfSubtypes(
@@ -55,8 +54,8 @@ val RockfaceVillage = card("Rockface Village") {
                             Subtype("Raccoon")
                         )
                     )
-            )
-        ))
+            ),
+        )
         effect = Effects.ModifyStats(1, 0, t)
             .then(Effects.GrantKeyword(Keyword.HASTE, t))
         timing = TimingRule.SorcerySpeed

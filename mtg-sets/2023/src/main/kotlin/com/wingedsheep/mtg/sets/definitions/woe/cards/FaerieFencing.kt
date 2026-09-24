@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -29,7 +28,7 @@ val FaerieFencing = card("Faerie Fencing") {
     oracleText = "Target creature gets -X/-X until end of turn. That creature gets an additional -3/-3 until end of turn if you controlled a Faerie as you cast this spell."
     spell {
         captureAtCast("controlledFaerie", Conditions.YouControl(GameObjectFilter.Creature.withSubtype(Subtype.FAERIE)))
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = Conditions.CapturedAtCast("controlledFaerie"),
             then = Effects.Composite(

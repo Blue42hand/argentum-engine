@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
@@ -32,7 +31,7 @@ val PushPull = card("Push // Pull") {
         oracleText = "Destroy target tapped creature."
 
         spell {
-            val creature = target("target tapped creature", Targets.TappedCreature)
+            val creature = target(TargetFilter.TappedCreature)
             effect = Effects.Destroy(creature)
         }
     }
@@ -44,12 +43,9 @@ val PushPull = card("Push // Pull") {
             "They gain haste until end of turn. Sacrifice them at the beginning of the next end step."
 
         spell {
-            val target = target("target", TargetObject(
-                count = 2,
-                optional = true,
-                filter = TargetFilter.CreatureInGraveyard,
-                sameOwner = true,
-            ))
+            val target = target(
+                TargetObject(filter = TargetFilter.CreatureInGraveyard, count = 2, optional = true, sameOwner = true),
+            )
             effect = Effects.Pipeline {
                 val targets = gather(CardSource.ChosenTargets)
                 val entered = moveTracked(

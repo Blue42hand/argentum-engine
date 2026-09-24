@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Sygg's Command
@@ -37,25 +35,22 @@ val SyggsCommand = card("Sygg's Command") {
     spell {
         modal(chooseCount = 2) {
             mode("Create a token that's a copy of target Merfolk you control") {
-                val merfolk = target(
-                    "target Merfolk you control",
-                    TargetObject(filter = TargetFilter(GameObjectFilter.Creature.youControl().withSubtype("Merfolk")))
-                )
+                val merfolk = target(TargetFilter(GameObjectFilter.Creature.youControl().withSubtype("Merfolk")))
                 effect = Effects.CreateTokenCopyOfTarget(merfolk)
             }
             mode("Creatures target player controls gain lifelink until end of turn") {
-                val player = target("target player", TargetPlayer())
+                val player = target(Targets.Player)
                 effect = Patterns.Group.grantKeywordToAll(
                     keyword = Keyword.LIFELINK,
                     filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player))
                 )
             }
             mode("Target player draws a card") {
-                val player = target("target player", TargetPlayer())
+                val player = target(Targets.Player)
                 effect = Effects.DrawCards(1, player)
             }
             mode("Tap target creature. Put a stun counter on it") {
-                val creature = target("target creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.Tap(creature)
                     .then(Effects.AddCounters(CounterType.STUN, 1, creature))
             }

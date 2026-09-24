@@ -10,7 +10,8 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Heroes' Hangout
@@ -70,7 +71,7 @@ val HeroesHangout = card("Heroes' Hangout") {
                     Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
                     Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.ContextTarget(0), Duration.EndOfTurn)
                 ),
-                target = TargetCreature(count = 2, minCount = 1),
+                target = TargetObject(filter = TargetFilter.Creature, count = 2, minCount = 1),
                 description = "Patrol Night — One or two target creatures each get +1/+0 and gain first strike until end of turn.",
             ),
         )

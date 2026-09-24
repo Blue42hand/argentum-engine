@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -32,7 +32,7 @@ val WitchEngine = card("Witch Engine") {
     keywords(Keyword.SWAMPWALK)
     activatedAbility {
         cost = Costs.Tap
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.AddMana(Color.BLACK, 4),
             Effects.GiveControl(permanent = EffectTarget.Self, newController = t)

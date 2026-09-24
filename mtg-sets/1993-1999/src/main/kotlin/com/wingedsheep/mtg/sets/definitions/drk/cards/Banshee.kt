@@ -38,7 +38,7 @@ val Banshee = card("Banshee") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(
                 DynamicAmounts.xValue() / 2,

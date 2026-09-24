@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -30,10 +29,7 @@ val AtomicMicrosizer = card("Atomic Microsizer") {
     // Triggered ability: Whenever equipped creature attacks...
     triggeredAbility {
         trigger = Triggers.attached.attacks()
-        val target = target(
-            "up to one target creature", 
-            com.wingedsheep.sdk.scripting.targets.TargetObject(optional = true, filter = com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.Creature)
-        )
+        val target = target(com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.Creature, optional = true)
         effect = Effects.Composite(listOf(
             // Can't be blocked this turn
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, target),

@@ -10,8 +10,8 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Temporal Intervention
@@ -38,7 +38,7 @@ val TemporalIntervention = card("Temporal Intervention") {
     }
 
     spell {
-        val t = target("target opponent", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(t))
             val hand = gather(CardSource.FromZone(Zone.HAND, t.asPlayer))

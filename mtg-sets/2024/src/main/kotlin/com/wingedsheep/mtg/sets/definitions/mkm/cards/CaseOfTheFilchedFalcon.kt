@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Case of the Filched Falcon — Murders at Karlov Manor #44
@@ -57,7 +56,7 @@ val CaseOfTheFilchedFalcon = card("Case of the Filched Falcon") {
     toSolve(Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact))
 
     solvedActivatedAbility {
-        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.notCreature())))
+        val permanent = target(TargetFilter(GameObjectFilter.Artifact.notCreature()))
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.SacrificeSelf)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, permanent),

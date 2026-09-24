@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Dimensional Exile
@@ -23,14 +23,11 @@ val DimensionalExile = card("Dimensional Exile") {
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant basic land you control\nWhen this Aura enters, exile target creature an opponent controls until this Aura leaves the battlefield."
 
-    auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.BasicLand.youControl()))
+    auraTarget = TargetObject(filter = TargetFilter(GameObjectFilter.BasicLand.youControl()))
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "creature an opponent controls",
-            TargetPermanent(filter = TargetFilter.Creature.opponentControls())
-        )
+        val creature = target(TargetFilter.Creature.opponentControls())
         effect = Effects.ExileUntilLeaves(creature)
     }
 

@@ -34,7 +34,7 @@ val RiverchurnMonument = card("Riverchurn Monument") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-        target("any number of target players", TargetPlayer(unlimited = true))
+        target(TargetPlayer(unlimited = true))
         effect = Effects.ForEachTarget(
             Patterns.Library.mill(2, EffectTarget.PlayerRef(Player.ContextPlayer(0)))
         )
@@ -44,7 +44,7 @@ val RiverchurnMonument = card("Riverchurn Monument") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U}{U}"), Costs.Tap)
         isExhaust = true
-        target("any number of target players", TargetPlayer(unlimited = true))
+        target(TargetPlayer(unlimited = true))
         effect = Effects.ForEachTarget(
             Patterns.Library.mill(
                 DynamicAmounts.zone(Player.ContextPlayer(0), Zone.GRAVEYARD).count(),

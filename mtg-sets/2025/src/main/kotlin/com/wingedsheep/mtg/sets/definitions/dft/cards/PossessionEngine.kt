@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Possession Engine — Aetherdrift #54
@@ -42,7 +42,7 @@ val PossessionEngine = card("Possession Engine") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val stolen = target("target creature an opponent controls", Targets.CreatureOpponentControls)
+        val stolen = target(TargetFilter.CreatureOpponentControls)
         val whileControlled = Duration.WhileYouControlSource("this Vehicle")
         effect = Effects.Composite(
             Effects.GainControl(stolen, whileControlled),

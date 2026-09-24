@@ -1,12 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.teamwork
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Cruel Alliance — Marvel Super Heroes #92
@@ -42,16 +40,10 @@ val CruelAlliance = card("Cruel Alliance") {
     teamwork(2)
 
     spell {
-        val small = target(
-            "target creature with mana value 3 or less",
-            TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3)),
-        )
+        val small = target(TargetFilter.Creature.manaValueAtMost(3))
         effect = Effects.Exile(small)
 
-        val anyCreature = kickerTarget(
-            "target creature",
-            Targets.Creature,
-        )
+        val anyCreature = kickerTarget(TargetFilter.Creature)
         kickerEffect = Effects.Composite(
             Effects.Exile(anyCreature),
             Effects.GainLife(3),

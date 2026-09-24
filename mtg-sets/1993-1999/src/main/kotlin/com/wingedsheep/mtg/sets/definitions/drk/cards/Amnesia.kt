@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Amnesia
@@ -30,7 +30,7 @@ val Amnesia = card("Amnesia") {
     oracleText = "Target player reveals their hand and discards all nonland cards."
 
     spell {
-        val targetPlayer = target("target player", TargetPlayer())
+        val targetPlayer = target(Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(targetPlayer))
             val amnesiaDiscard = gather(

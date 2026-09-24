@@ -19,7 +19,7 @@ val SparkJolt = card("Spark Jolt") {
     oracleText = "Spark Jolt deals 1 damage to any target. Scry 1. (Look at the top card of your library. You may put that card on the bottom.)"
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(1, t),
             Effects.Scry(1),

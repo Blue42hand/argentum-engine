@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Crowd of True Believers — Marvel Super Heroes #14 (common)
@@ -37,10 +36,7 @@ val CrowdOfTrueBelievers = card("Crowd of True Believers") {
 
     activatedAbility {
         cost = Costs.Tap
-        val attacker = target(
-            "target creature you control that's attacking alone",
-            TargetCreature(filter = TargetFilter.Creature.youControl().attackingAlone()),
-        )
+        val attacker = target(TargetFilter.Creature.youControl().attackingAlone())
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, attacker),
             Effects.GainLife(1),

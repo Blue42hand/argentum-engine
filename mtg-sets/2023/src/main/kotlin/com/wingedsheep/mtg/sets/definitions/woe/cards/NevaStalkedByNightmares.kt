@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Neva, Stalked by Nightmares
@@ -59,12 +58,9 @@ val NevaStalkedByNightmares = card("Neva, Stalked by Nightmares") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val card = target(
-            "target creature or enchantment card in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.CreatureOrEnchantment.ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
+            TargetFilter(
+                baseFilter = GameObjectFilter.CreatureOrEnchantment.ownedByYou(),
+                zone = Zone.GRAVEYARD,
             ),
         )
         effect = Effects.ReturnToHand(card)

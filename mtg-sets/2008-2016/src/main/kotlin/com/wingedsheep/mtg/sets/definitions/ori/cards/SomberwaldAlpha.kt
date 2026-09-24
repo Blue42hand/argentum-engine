@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Somberwald Alpha
@@ -41,7 +40,7 @@ val SomberwaldAlpha = card("Somberwald Alpha") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{G}")
-        val t = target("target creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 

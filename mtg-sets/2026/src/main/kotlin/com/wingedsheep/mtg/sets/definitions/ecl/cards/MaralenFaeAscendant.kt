@@ -9,9 +9,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantMayCastFromLinkedExile
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Maralen, Fae Ascendant
@@ -47,7 +47,7 @@ val MaralenFaeAscendant = card("Maralen, Fae Ascendant") {
 
     triggeredAbility {
         trigger = Triggers.a(elfOrFaerieYouControl).enters()
-        val opponent = target("opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.TopOfLibrary(2, opponent.asPlayer))
             exile(exiled, linkToSource = true)

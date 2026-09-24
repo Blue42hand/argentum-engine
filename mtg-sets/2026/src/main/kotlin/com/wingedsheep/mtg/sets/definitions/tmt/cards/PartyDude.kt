@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Party Dude
@@ -53,10 +52,7 @@ val PartyDude = card("Party Dude") {
     classLevel(3, "{4}{G}") {
         triggeredAbility {
             trigger = Triggers.anOpponent.isAttacked()
-            val pumped = target(
-                "up to one target attacking creature",
-                TargetCreature(optional = true, filter = TargetFilter(GameObjectFilter.Creature.attacking()))
-            )
+            val pumped = target(TargetFilter(GameObjectFilter.Creature.attacking()), optional = true)
             effect = Effects.ModifyStats(
                 DynamicAmounts.cardsInYourHand(),
                 DynamicAmounts.cardsInYourHand(),

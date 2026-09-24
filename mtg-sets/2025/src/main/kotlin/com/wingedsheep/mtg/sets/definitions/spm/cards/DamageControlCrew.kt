@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Damage Control Crew
@@ -42,18 +40,16 @@ val DamageControlCrew = card("Damage Control Crew") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Repair — Return target card with mana value 4 or greater from your graveyard to your hand.") {
-                val cardInGraveyard = target("target card in graveyard", TargetObject(
-                    filter = TargetFilter(
+                val cardInGraveyard = target(
+                    TargetFilter(
                         GameObjectFilter.Any.ownedByYou().manaValueAtLeast(4),
                         zone = Zone.GRAVEYARD
-                    )
-                ))
+                    ),
+                )
                 effect = Effects.Move(cardInGraveyard, Zone.HAND)
             },
             mode("Impound — Exile target artifact or enchantment.") {
-                val artifact = target("target artifact", TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment)
-                ))
+                val artifact = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment))
                 effect = Effects.Exile(artifact)
             }
         )

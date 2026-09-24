@@ -74,7 +74,7 @@ val OfficiousInterrogation = card("Officious Interrogation") {
     }
 
     spell {
-        target("targets", TargetPlayer(unlimited = true))
+        target(TargetPlayer(unlimited = true))
         effect = Effects.Investigate(
             count = DynamicAmounts.count(
                 Player.EachTargetedPlayer,

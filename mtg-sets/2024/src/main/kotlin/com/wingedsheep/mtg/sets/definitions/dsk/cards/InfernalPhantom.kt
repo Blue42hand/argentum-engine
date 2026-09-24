@@ -54,7 +54,7 @@ val InfernalPhantom = card("Infernal Phantom") {
     // When this creature dies, it deals damage equal to its power to any target.
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(DynamicAmounts.sourcePower(), anyTarget)
         description = "When this creature dies, it deals damage equal to its power to any target."
     }

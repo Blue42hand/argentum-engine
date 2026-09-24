@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val TwistedFates = card("Twisted Fates") {
     manaCost = "{2}{W}{W}{B}"
@@ -16,8 +17,8 @@ val TwistedFates = card("Twisted Fates") {
     oracleText = "Destroy target nonland permanent. Put a +1/+1 counter on each creature target player controls."
 
     spell {
-        val permanent = target("target nonland permanent", Targets.NonlandPermanent)
-        val player = target("target player", Targets.Player)
+        val permanent = target(TargetFilter.NonlandPermanent)
+        val player = target(Targets.Player)
         effect = Effects.Composite(
             Effects.Destroy(permanent),
             Effects.ForEachInGroup(

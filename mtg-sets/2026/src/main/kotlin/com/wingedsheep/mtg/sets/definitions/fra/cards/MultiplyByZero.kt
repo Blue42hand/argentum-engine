@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val MultiplyByZero = card("Multiply by Zero") {
     manaCost = "{1}{B}"
@@ -13,7 +13,7 @@ val MultiplyByZero = card("Multiply by Zero") {
     oracleText = "Target creature has base power and toughness 0/0 until end of turn."
 
     spell {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.SetBasePowerAndToughness(0, 0, creature, Duration.EndOfTurn)
     }
 

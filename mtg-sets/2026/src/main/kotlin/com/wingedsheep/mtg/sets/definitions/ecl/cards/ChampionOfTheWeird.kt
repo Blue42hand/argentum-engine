@@ -36,7 +36,7 @@ val ChampionOfTheWeird = card("Champion of the Weird") {
     additionalCost(Costs.additional.BeholdAndExile(filter = Filters.WithSubtype("Goblin")))
 
     activatedAbility {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         cost = Costs.Composite(Costs.PayLife(1), Costs.Blight(2))
         effect = Patterns.Mechanic.blight(2, Player.TargetOpponent)
         timing = TimingRule.SorcerySpeed

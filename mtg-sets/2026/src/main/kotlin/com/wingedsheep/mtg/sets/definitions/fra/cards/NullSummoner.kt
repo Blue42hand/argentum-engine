@@ -33,7 +33,7 @@ val NullSummoner = card("Null Summoner") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Patterns.Hand.revealHandAndExileChosen(target = opponent, linkToSource = true)
     }
 

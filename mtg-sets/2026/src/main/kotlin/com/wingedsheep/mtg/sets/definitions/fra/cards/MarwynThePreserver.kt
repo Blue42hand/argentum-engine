@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val MarwynThePreserver = card("Marwyn, the Preserver") {
     manaCost = "{1}{G}"
@@ -26,9 +25,7 @@ val MarwynThePreserver = card("Marwyn, the Preserver") {
 
     activatedAbility {
         cost = Costs.Mana("{2}")
-        val land = target("land", TargetObject(
-            filter = TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD)
-        ))
+        val land = target(TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.ReturnToHand(land)
     }
 

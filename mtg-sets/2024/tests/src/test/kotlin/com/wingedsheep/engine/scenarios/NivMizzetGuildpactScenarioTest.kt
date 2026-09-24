@@ -15,11 +15,12 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Niv-Mizzet, Guildpact (MKM) — {W}{U}{B}{R}{G} Legendary Creature — Dragon Avatar 6/6.
@@ -149,7 +150,7 @@ class NivMizzetGuildpactScenarioTest : FunSpec({
 
         val validator = TargetValidator(PredicateEvaluator(cardRegistry = null))
         val target = listOf<ChosenTarget>(ChosenTarget.Permanent(niv))
-        val req = listOf(TargetCreature())
+        val req = listOf(TargetObject(filter = TargetFilter.Creature))
 
         // A multicolored opponent source is blocked.
         validator.validateTargets(

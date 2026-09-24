@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Spirit Bonds
@@ -52,7 +51,7 @@ val SpiritBonds = card("Spirit Bonds") {
             Costs.Mana("{1}{W}"),
             Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype(Subtype.SPIRIT))
         )
-        val t = target("target non-Spirit creature", TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype.SPIRIT))))
+        val t = target(TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype.SPIRIT)))
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }
 

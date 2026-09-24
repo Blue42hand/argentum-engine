@@ -10,8 +10,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Jinxed Choker — Mirrodin #189
@@ -38,7 +38,7 @@ val JinxedChoker = card("Jinxed Choker") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val opponent = target("opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.GiveControl(
                 permanent = EffectTarget.Self,

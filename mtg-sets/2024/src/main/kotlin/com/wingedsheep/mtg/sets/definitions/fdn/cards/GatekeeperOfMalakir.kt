@@ -32,7 +32,7 @@ val GatekeeperOfMalakir = card("Gatekeeper of Malakir") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = WasKicked
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, player)
     }
 

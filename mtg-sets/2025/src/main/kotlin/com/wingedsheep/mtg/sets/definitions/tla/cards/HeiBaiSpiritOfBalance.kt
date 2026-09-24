@@ -2,14 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Hei Bai, Spirit of Balance
@@ -42,12 +40,9 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val sacrificeTarget = target(
-            "another creature or artifact",
-            TargetPermanent(
-                filter = TargetFilter(
+            TargetFilter(
                     GameObjectFilter.Creature.youControl().or(GameObjectFilter.Artifact.youControl())
-                ).other()
-            )
+                ).other(),
         )
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget)
@@ -61,12 +56,9 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val sacrificeTarget = target(
-            "another creature or artifact",
-            TargetPermanent(
-                filter = TargetFilter(
+            TargetFilter(
                     GameObjectFilter.Creature.youControl().or(GameObjectFilter.Artifact.youControl())
-                ).other()
-            )
+                ).other(),
         )
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget)
@@ -78,7 +70,7 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
 
     // When Hei Bai leaves the battlefield, put its counters on target creature you control.
     triggeredAbility {
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         trigger = Triggers.self.leaves()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
         description = "When Hei Bai leaves the battlefield, put its counters on target creature you control."

@@ -72,7 +72,7 @@ val ConstructACosmicCube = card("Construct a Cosmic Cube") {
             descriptionOverride = "Sacrifice this enchantment. When you do, you control target " +
                 "opponent during their next turn.",
         ) {
-            val opponent = target("target opponent", Targets.Opponent)
+            val opponent = target(Targets.Opponent)
             effect = Effects.HijackNextTurn(opponent)
         }
         description = "When the seventh plan counter is put on this enchantment, sacrifice it. " +

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Dropkick Bomber
@@ -58,13 +57,10 @@ val DropkickBomber = card("Dropkick Bomber") {
     activatedAbility {
         cost = Costs.Mana("{R}")
         val goblin = target(
-            "another target Goblin you control",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN).youControl(),
-                    excludeSelf = true
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN).youControl(),
+                excludeSelf = true
+            ),
         )
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.FLYING, goblin, Duration.EndOfTurn),

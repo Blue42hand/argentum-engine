@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wrench — Murders at Karlov Manor #37
@@ -52,7 +52,7 @@ val Wrench = card("Wrench") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
-                val creature = target("target creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.Tap(creature)
                 description = "{3}, {T}: Tap target creature."
             },

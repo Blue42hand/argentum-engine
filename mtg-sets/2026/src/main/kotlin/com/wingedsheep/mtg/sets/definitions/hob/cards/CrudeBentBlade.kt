@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -28,7 +28,7 @@ val CrudeBentBlade = card("Crude Bent Blade") {
     oracleText = "When this Equipment enters, target opponent sacrifices a creature of their choice.\nEquipped creature gets +2/+1.\nEquip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)"
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, t)
     }
     staticAbility {

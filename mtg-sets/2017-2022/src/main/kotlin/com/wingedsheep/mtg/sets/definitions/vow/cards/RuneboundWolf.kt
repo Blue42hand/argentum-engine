@@ -31,7 +31,7 @@ val RuneboundWolf = card("Runebound Wolf") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{R}"), Costs.Tap)
-        val t = target("target opponent", Targets.Opponent)
+        val t = target(Targets.Opponent)
         effect = Effects.DealDamage(
             DynamicAmounts.count(
                 Player.You,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Leaves from the Vine
@@ -41,10 +40,7 @@ val LeavesFromTheVine = card("Leaves from the Vine") {
     }
 
     sagaChapter(2) {
-        target(
-            "up to two target creatures you control",
-            TargetCreature(count = 2, optional = true, filter = TargetFilter.CreatureYouControl)
-        )
+        targets(TargetFilter.CreatureYouControl, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )

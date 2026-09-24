@@ -3,11 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val KonstrariCharm = card("Konstrari Charm") {
     manaCost = "{R}{G}"
@@ -21,14 +19,11 @@ val KonstrariCharm = card("Konstrari Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Konstrari Charm deals 6 damage to target creature with flying") {
-                val t = target(
-                    "target creature with flying",
-                    TargetCreature(filter = TargetFilter.Creature.withKeyword(Keyword.FLYING))
-                )
+                val t = target(TargetFilter.Creature.withKeyword(Keyword.FLYING))
                 effect = Effects.DealDamage(6, t)
             }
             mode("Put two +1/+1 counters on target creature. It gains trample until end of turn") {
-                val t = target("target creature", Targets.Creature)
+                val t = target(TargetFilter.Creature)
                 effect = Effects.Composite(
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t),
                     Effects.GrantKeyword(Keyword.TRAMPLE, t)

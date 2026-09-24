@@ -30,6 +30,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Engine coverage for the two new axes on the becomes-target trigger:
@@ -61,7 +62,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         toughness = 1
         activatedAbility {
             cost = Costs.Tap
-            val victim = target("target player", Targets.Player)
+            val victim = target(Targets.Player)
             effect = Effects.LoseLife(1, victim)
             description = "{T}: Target player loses 1 life."
         }
@@ -72,7 +73,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         manaCost = "{B}"
         typeLine = "Sorcery"
         spell {
-            val victim = target("target player", Targets.Player)
+            val victim = target(Targets.Player)
             effect = Effects.LoseLife(1, victim)
         }
     }
@@ -82,8 +83,8 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         manaCost = "{B}"
         typeLine = "Sorcery"
         spell {
-            val victim = target("target player", Targets.Player)
-            val creature = target("target creature", Targets.Creature)
+            val victim = target(Targets.Player)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.LoseLife(1, victim).then(Effects.DealDamage(1, creature))
         }
     }
@@ -93,7 +94,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         manaCost = "{U}"
         typeLine = "Instant"
         spell {
-            target("target spell or ability", Targets.SpellOrAbilityWithSingleTarget)
+            target(TargetFilter.SpellOrAbilityOnStack)
             effect = Effects.ChangeTarget()
         }
     }

@@ -32,7 +32,7 @@ val Dawnfluke = card("Dawnfluke") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val recipient = target("any target", Targets.Any)
+        val recipient = target(Targets.Any)
         effect = Effects.PreventNextDamage(3, recipient)
         description = "prevent the next 3 damage that would be dealt to any target this turn."
     }

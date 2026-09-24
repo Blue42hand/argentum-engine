@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -70,13 +69,7 @@ val TheMindStone = card("The Mind Stone") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         triggerRestriction = Conditions.SourceHasCounter(CounterType.HARNESS)
-        val permanent = target(
-            "up to one other target nonland permanent you control",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter.NonlandPermanent.youControl().other(),
-            ),
-        )
+        val permanent = target(TargetFilter.NonlandPermanent.youControl().other(), optional = true)
         effect = Effects.Move(permanent, Zone.EXILE)
             .then(Effects.Move(permanent, Zone.BATTLEFIELD))
         description = "∞ — At the beginning of your end step, exile up to one other target " +

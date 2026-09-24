@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Silken Strength — Aetherdrift #180
@@ -38,7 +38,7 @@ val SilkenStrength = card("Silken Strength") {
 
     keywords(Keyword.FLASH)
 
-    auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
+    auraTarget = TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
 
     triggeredAbility {
         trigger = Triggers.self.enters()

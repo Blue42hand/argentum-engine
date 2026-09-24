@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Thor, God of Thunder — Marvel Super Heroes #156
@@ -67,16 +66,13 @@ val ThorGodOfThunder = card("Thor, God of Thunder") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         target(
-            "target Equipment, instant, or sorcery card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    baseFilter = (
-                        GameObjectFilter.InstantOrSorcery or
-                            GameObjectFilter.Any.withSubtype(Subtype.EQUIPMENT)
-                        ).ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                )
-            )
+            TargetFilter(
+                baseFilter = (
+                    GameObjectFilter.InstantOrSorcery or
+                        GameObjectFilter.Any.withSubtype(Subtype.EQUIPMENT)
+                    ).ownedByYou(),
+                zone = Zone.GRAVEYARD,
+            ),
         )
         effect = Effects.Pipeline {
             val thorTargeted = gather(CardSource.ChosenTargets)
@@ -91,7 +87,7 @@ val ThorGodOfThunder = card("Thor, God of Thunder") {
     //  to any target."
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(DynamicAmounts.triggeringManaValue(), victim)
         description = "Whenever you cast a noncreature spell, Thor deals damage equal to that " +
             "spell's mana value to any target."

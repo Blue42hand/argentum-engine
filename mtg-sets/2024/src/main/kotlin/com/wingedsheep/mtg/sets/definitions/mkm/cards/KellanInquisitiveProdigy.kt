@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Kellan, Inquisitive Prodigy // Tail the Suspect — Murders at Karlov Manor #212
@@ -33,10 +32,7 @@ val KellanInquisitiveProdigy = card("Kellan, Inquisitive Prodigy") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val artifact = target(
-            "up to one target artifact",
-            TargetObject(filter = TargetFilter.Artifact, optional = true),
-        )
+        val artifact = target(TargetFilter.Artifact, optional = true)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Artifact.youControl(), artifact),
             then = Effects.Destroy(artifact).then(Effects.DrawCards(1)),

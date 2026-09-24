@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Illicit Masquerade — Murders at Karlov Manor #88
@@ -45,13 +44,7 @@ val IllicitMasquerade = card("Illicit Masquerade") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withCounter(CounterType.IMPOSTOR)).dies()
-        val replacement = target(
-            "up to one other target creature card from your graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter.CreatureInYourGraveyard.otherThanTriggeringEntity(),
-            ),
-        )
+        val replacement = target(TargetFilter.CreatureInYourGraveyard.otherThanTriggeringEntity(), optional = true)
         effect = Effects.Move(EffectTarget.TriggeringEntity, Zone.EXILE, fromZone = Zone.GRAVEYARD)
             .then(Effects.Move(replacement, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD))
         description = "Whenever a creature you control with an impostor counter on it dies, " +

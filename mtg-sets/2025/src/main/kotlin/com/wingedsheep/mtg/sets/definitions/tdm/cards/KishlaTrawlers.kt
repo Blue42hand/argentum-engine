@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -34,17 +33,14 @@ val KishlaTrawlers = card("Kishla Trawlers") {
         trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
-                val exiledCreature = selectTarget(Targets.CreatureCardInYourGraveyard)
+                val exiledCreature = selectTarget(TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
                 run(Effects.Exile(exiledCreature.asTarget))
             },
             optional = true,
             descriptionOverride = "You may exile a creature card from your graveyard. " +
                 "When you do, return target instant or sorcery card from your graveyard to your hand."
         ) {
-            val instantOrSorceryInGraveyard = target(
-                "target instant or sorcery in graveyard",
-                TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
-            )
+            val instantOrSorceryInGraveyard = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
             effect = Effects.ReturnToHand(instantOrSorceryInGraveyard)
         }
     }

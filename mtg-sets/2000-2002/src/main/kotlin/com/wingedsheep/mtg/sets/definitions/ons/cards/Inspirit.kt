@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Inspirit
@@ -17,7 +18,7 @@ val Inspirit = card("Inspirit") {
     oracleText = "Untap target creature. It gets +2/+4 until end of turn."
 
     spell {
-        val t = target("target", com.wingedsheep.sdk.scripting.targets.TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.Untap(t) then
                 Effects.ModifyStats(2, 4, t)
     }

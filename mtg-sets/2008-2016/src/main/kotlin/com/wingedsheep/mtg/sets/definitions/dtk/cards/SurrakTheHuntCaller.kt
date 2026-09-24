@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -45,7 +44,7 @@ val SurrakTheHuntCaller = card("Surrak, the Hunt Caller") {
             ComparisonOperator.GTE,
             8
         )
-        val creature = target("target creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.HASTE, creature)
     }
 

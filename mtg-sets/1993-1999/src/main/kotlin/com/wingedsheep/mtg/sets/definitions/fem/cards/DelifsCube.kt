@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Delif's Cube
@@ -36,10 +35,7 @@ val DelifsCube = card("Delif's Cube") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        val t = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.youControl()))
         effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.a().attacksAndIsntBlocked(),
             watchedTarget = t,
@@ -59,7 +55,7 @@ val DelifsCube = card("Delif's Cube") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.RemoveCounterFromSelf(CounterType.CUBE, 1))
-        val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Regenerate(t)
         description = "{2}, Remove a cube counter from this artifact: Regenerate target creature."
     }

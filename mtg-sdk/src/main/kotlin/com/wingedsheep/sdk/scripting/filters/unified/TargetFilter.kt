@@ -80,18 +80,14 @@ data class TargetFilter(
     /** Union this filter with [other] — adds [other] as an alternative clause. */
     fun or(other: TargetFilter): TargetFilter = copy(alternatives = alternatives + other)
 
-    private fun buildDescription(): String =
-        if (alternatives.isEmpty()) describeClause()
-        else clauses().joinToString(" or ") { it.describeClause() }
+    /**
+     * The object noun phrase this filter names, in Oracle word order — "creature you control",
+     * "creature card in your graveyard", "noncreature spell" — without the "other" of [excludeSelf],
+     * which belongs to the quantifier ("another target …"). The targeting prompt is built from it.
+     */
+    fun targetPhrase(plural: Boolean = false): String = TargetPhrase.describe(this, plural)
 
-    private fun describeClause(): String = buildString {
-        if (excludeSelf) append("other ")
-        append(baseFilter.description)
-        if (zone != Zone.BATTLEFIELD) {
-            append(" in ")
-            append(zone.displayName)
-        }
-    }
+    private fun buildDescription(): String = (if (excludeSelf) "other " else "") + targetPhrase()
 
     // =============================================================================
     // Pre-built Creature Targets (Battlefield)

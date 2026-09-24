@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ribbons of Night — Ravnica: City of Guilds #101
@@ -28,7 +28,7 @@ val RibbonsOfNight = card("Ribbons of Night") {
         "If {U} was spent to cast this spell, draw a card."
 
     spell {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.DealDamage(4, creature)
             .then(Effects.GainLife(4))
             .then(

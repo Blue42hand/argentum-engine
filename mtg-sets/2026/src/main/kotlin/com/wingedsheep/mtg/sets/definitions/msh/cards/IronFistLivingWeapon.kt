@@ -48,7 +48,7 @@ val IronFistLivingWeapon = card("Iron Fist, Living Weapon") {
         effect = Effects.GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Tap
-                val otherTarget = target("target other", TargetOther(baseRequirement = AnyTarget()))
+                val otherTarget = target(TargetOther(baseRequirement = AnyTarget()))
                 effect = Effects.DealDamage(
                     DynamicAmounts.sourcePower(),
                     otherTarget

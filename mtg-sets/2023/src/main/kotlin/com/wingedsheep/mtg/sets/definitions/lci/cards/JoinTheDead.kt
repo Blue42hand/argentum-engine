@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Join the Dead — {1}{B}{B}
@@ -32,7 +32,7 @@ val JoinTheDead = card("Join the Dead") {
         "Descend 4 — That creature gets -10/-10 until end of turn instead if there are four or more permanent cards in your graveyard."
 
     spell {
-        val t = target("target creature", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = Conditions.CardsInGraveyardMatchingAtLeast(4, GameObjectFilter.Permanent),
             then = Effects.ModifyStats(-10, -10, t),

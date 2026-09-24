@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Frodo, Determined Hero
@@ -43,14 +42,11 @@ val FrodoDeterminedHero = card("Frodo, Determined Hero") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val equipment = target(
-            "Equipment you control with mana value 2 or 3",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
-                        .manaValueAtLeast(2).manaValueAtMost(3)
-                ),
-                optional = true
-            )
+            TargetFilter(
+                GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
+                    .manaValueAtLeast(2).manaValueAtMost(3)
+            ),
+            optional = true,
         )
         effect = Effects.AttachTargetEquipmentToCreature(equipment, EffectTarget.Self)
     }
@@ -59,14 +55,11 @@ val FrodoDeterminedHero = card("Frodo, Determined Hero") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val equipment = target(
-            "Equipment you control with mana value 2 or 3",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
-                        .manaValueAtLeast(2).manaValueAtMost(3)
-                ),
-                optional = true
-            )
+            TargetFilter(
+                GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
+                    .manaValueAtLeast(2).manaValueAtMost(3)
+            ),
+            optional = true,
         )
         effect = Effects.AttachTargetEquipmentToCreature(equipment, EffectTarget.Self)
     }

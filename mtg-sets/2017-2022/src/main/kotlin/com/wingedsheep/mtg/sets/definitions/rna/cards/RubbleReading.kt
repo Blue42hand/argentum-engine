@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.rna.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rubble Reading — Ravnica Allegiance #110
@@ -19,7 +19,7 @@ val RubbleReading = card("Rubble Reading") {
     oracleText = "Destroy target land. Scry 2."
 
     spell {
-        val land = target("target", Targets.Land)
+        val land = target(TargetFilter.Land)
         effect = Effects.Composite(listOf(
             Effects.Destroy(land),
             Effects.Scry(2)

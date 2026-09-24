@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val PerfectedTheory = card("Perfected Theory") {
     manaCost = "{U}"
@@ -15,11 +15,11 @@ val PerfectedTheory = card("Perfected Theory") {
     spell {
         modal(chooseCount = 1) {
             mode("Target creature has base power and toughness 1/1 until end of turn") {
-                val creature = target("creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.SetBasePowerAndToughness(1, 1, creature, Duration.EndOfTurn)
             }
             mode("Target creature has base power and toughness 4/5 until end of turn") {
-                val creature = target("creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.SetBasePowerAndToughness(4, 5, creature, Duration.EndOfTurn)
             }
         }

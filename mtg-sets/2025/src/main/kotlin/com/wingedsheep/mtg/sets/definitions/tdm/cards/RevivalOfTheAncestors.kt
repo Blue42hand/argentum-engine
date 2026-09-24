@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -48,14 +47,7 @@ val RevivalOfTheAncestors = card("Revival of the Ancestors") {
     }
 
     sagaChapter(2) {
-        target(
-            "one, two, or three target creatures you control",
-            TargetCreature(
-                count = 3,
-                minCount = 1,
-                filter = TargetFilter(GameObjectFilter.Creature.youControl())
-            )
-        )
+        targets(TargetFilter(GameObjectFilter.Creature.youControl()), count = 3, minCount = 1)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 3)
     }
 

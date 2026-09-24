@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Crumble
@@ -29,10 +28,7 @@ val Crumble = card("Crumble") {
         "That artifact's controller gains life equal to its mana value."
 
     spell {
-        val artifact = target(
-            "target artifact",
-            TargetObject(filter = TargetFilter.Artifact)
-        )
+        val artifact = target(TargetFilter.Artifact)
         effect = Effects.GainLife(DynamicAmounts.manaValueOf(artifact), EffectTarget.TargetController)
             .then(Effects.Destroy(artifact, noRegenerate = true))
     }

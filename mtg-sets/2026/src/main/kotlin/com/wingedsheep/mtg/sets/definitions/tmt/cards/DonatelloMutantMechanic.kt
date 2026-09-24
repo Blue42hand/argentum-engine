@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Donatello, Mutant Mechanic
@@ -35,10 +34,7 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
     toughness = 5
 
     activatedAbility {
-        val art = target(
-            "target artifact you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.youControl()))
-        )
+        val art = target(TargetFilter(GameObjectFilter.Artifact.youControl()))
         cost = Costs.Tap
         timing = TimingRule.SorcerySpeed
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, art)
@@ -60,10 +56,7 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
     triggeredAbility {
         trigger = Triggers.self.matching(GameObjectFilter.Artifact.youControl()).dies()
         interveningIf = Conditions.TriggeringEntityHadCounters
-        val dest = target(
-            "up to one target artifact or creature you control",
-            TargetPermanent(optional = true, filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()))
-        )
+        val dest = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()), optional = true)
         effect = Effects.MoveAllLastKnownCounters(dest)
         description = "Whenever an artifact you control is put into a graveyard from the battlefield, if it had counters on it, put those counters on up to one target artifact or creature you control."
     }

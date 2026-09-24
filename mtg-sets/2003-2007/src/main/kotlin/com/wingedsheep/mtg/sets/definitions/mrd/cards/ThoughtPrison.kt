@@ -50,7 +50,7 @@ val ThoughtPrison = card("Thought Prison") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Patterns.Hand.revealHandAndExileChosen(
             target = player,
             filter = GameObjectFilter.Nonland,

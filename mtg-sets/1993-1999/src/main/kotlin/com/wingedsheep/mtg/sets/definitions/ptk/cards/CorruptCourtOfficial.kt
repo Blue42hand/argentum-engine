@@ -27,7 +27,7 @@ val CorruptCourtOfficial = card("Corrupt Court Official") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Patterns.Hand.discardCards(1, opponent)
     }
 

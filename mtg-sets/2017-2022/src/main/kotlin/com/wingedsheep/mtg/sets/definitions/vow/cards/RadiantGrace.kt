@@ -14,6 +14,8 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.PermanentsEnterTapped
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Radiant Grace // Radiant Restraints (Innistrad: Crimson Vow #31)
@@ -67,7 +69,7 @@ private val RadiantGraceFront = card("Radiant Grace") {
         "When enchanted creature dies, return this card to the battlefield transformed under " +
         "your control attached to target opponent."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     // Enchanted creature gets +1/+0 and has vigilance.
     staticAbility {
@@ -81,7 +83,7 @@ private val RadiantGraceFront = card("Radiant Grace") {
     // control attached to target opponent.
     triggeredAbility {
         trigger = Triggers.attached.dies()
-        val cursed = target("target opponent", Targets.Opponent)
+        val cursed = target(Targets.Opponent)
         effect = Effects.ReturnSelfToBattlefieldAttached(target = cursed, transformed = true)
         description = "When enchanted creature dies, return this card to the battlefield " +
             "transformed under your control attached to target opponent."

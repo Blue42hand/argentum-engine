@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val LivingLibrary = card("Living Library") {
     manaCost = "{2}"
@@ -18,10 +17,7 @@ val LivingLibrary = card("Living Library") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{6}"), Costs.SacrificeSelf)
-        val permanent = target(
-            "creature or planeswalker",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
-        )
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
         effect = Effects.ShuffleIntoLibrary(permanent)
     }
 

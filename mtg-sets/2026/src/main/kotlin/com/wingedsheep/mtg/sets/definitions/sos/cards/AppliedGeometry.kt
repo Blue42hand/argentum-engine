@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Applied Geometry
@@ -39,14 +38,7 @@ val AppliedGeometry = card("Applied Geometry") {
         "it's a 0/0 Fractal creature in addition to its other types. Put six +1/+1 counters on it."
 
     spell {
-        val copyTarget = target(
-            "target non-Aura permanent you control",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.youControl().notSubtype(Subtype("Aura")),
-                ),
-            ),
-        )
+        val copyTarget = target(TargetFilter(GameObjectFilter.Permanent.youControl().notSubtype(Subtype("Aura"))))
         effect = Effects.Composite(
             Effects.CreateTokenCopyOfTarget(
                 target = copyTarget,

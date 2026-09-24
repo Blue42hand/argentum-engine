@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.madness
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Big Game Hunter
@@ -33,10 +32,7 @@ val BigGameHunter = card("Big Game Hunter") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Creature.powerAtLeast(4)))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.powerAtLeast(4)))
         effect = Effects.Destroy(t, noRegenerate = true)
     }
 

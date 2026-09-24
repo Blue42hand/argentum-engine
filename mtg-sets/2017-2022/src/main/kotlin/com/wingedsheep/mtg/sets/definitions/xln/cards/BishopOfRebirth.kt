@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Bishop of Rebirth
@@ -34,15 +33,7 @@ val BishopOfRebirth = card("Bishop of Rebirth") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val card = target(
-            "target",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.manaValueAtMost(3).ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        )
+        val card = target(TargetFilter(GameObjectFilter.Creature.manaValueAtMost(3).ownedByYou(), zone = Zone.GRAVEYARD))
         optional = true
         effect = Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
     }

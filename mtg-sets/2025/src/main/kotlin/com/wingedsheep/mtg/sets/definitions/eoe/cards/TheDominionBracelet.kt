@@ -11,8 +11,8 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * The Dominion Bracelet
@@ -48,7 +48,7 @@ val TheDominionBracelet = card("The Dominion Bracelet") {
                         AbilityCost.ExileGrantingPermanent
                     )
                 )
-                val opponent = target("target opponent", TargetOpponent())
+                val opponent = target(Targets.Opponent)
                 effect = Effects.HijackNextTurn(opponent)
                 timing = TimingRule.SorcerySpeed
                 genericCostReduction = DynamicAmounts.sourcePower()

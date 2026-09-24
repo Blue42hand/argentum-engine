@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Restless Vinestalk
@@ -75,10 +74,7 @@ val RestlessVinestalk = card("Restless Vinestalk") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target(
-            "up to one other target creature",
-            TargetCreature(optional = true, filter = TargetFilter.OtherCreature),
-        )
+        val creature = target(TargetFilter.OtherCreature, optional = true)
         effect = Effects.SetBasePowerAndToughness(
             power = 3,
             toughness = 3,

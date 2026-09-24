@@ -15,11 +15,12 @@ import com.wingedsheep.sdk.scripting.conditions.CreatureDiedThisTurnCondition
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.engine.core.AbilityFizzledEvent
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * CR 608.2a runs before CR 608.2b.
@@ -55,7 +56,7 @@ class InterveningIfBeforeTargetLegalityTest : FunSpec({
             id = AbilityId("InterveningIfBeforeTargetLegalityTest_1"),
             trigger = EventPattern.StepEvent(Step.END, Player.You),
             effect = DealDamageEffect(2, EffectTarget.ContextTarget(0)),
-            targetRequirement = TargetCreature(),
+            targetRequirement = TargetObject(filter = TargetFilter.Creature),
             interveningIf = CreatureDiedThisTurnCondition
         )
         driver.replaceState(

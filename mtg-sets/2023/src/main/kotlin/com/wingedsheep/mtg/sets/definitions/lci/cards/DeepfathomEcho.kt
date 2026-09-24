@@ -8,6 +8,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Deepfathom Echo — {2}{G}{U}
@@ -61,7 +63,7 @@ val DeepfathomEcho = card("Deepfathom Echo") {
             // it is only asked when the player accepts, and does not bind at stack-placement time.
             Effects.May(
                 Effects.Pipeline {
-                    val copySource = selectTarget(Targets.OtherCreatureYouControl)
+                    val copySource = selectTarget(TargetObject(filter = TargetFilter.OtherCreatureYouControl))
                     run(Effects.EachPermanentBecomesCopyOfTarget(
                         target = copySource.asTarget,
                         duration = Duration.EndOfTurn,

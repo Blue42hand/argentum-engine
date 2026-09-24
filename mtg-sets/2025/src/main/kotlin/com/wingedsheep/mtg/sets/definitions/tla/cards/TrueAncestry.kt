@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * True Ancestry
@@ -28,14 +27,8 @@ val TrueAncestry = card("True Ancestry") {
 
     spell {
         val permanentCard = target(
-            "permanent card from your graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Permanent.ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
-            ),
+            TargetFilter(baseFilter = GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD),
+            optional = true,
         )
         effect = Effects.Composite(
             Effects.ReturnToHand(permanentCard),

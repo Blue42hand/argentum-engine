@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Eject
@@ -25,7 +24,7 @@ val Eject = card("Eject") {
     cantBeCountered = true
 
     spell {
-        val t = target("target nonland permanent", TargetPermanent(filter = TargetFilter.NonlandPermanent))
+        val t = target(TargetFilter.NonlandPermanent)
         effect = Effects.Composite(
             Effects.ReturnToHand(t),
             Effects.DrawCards(1),

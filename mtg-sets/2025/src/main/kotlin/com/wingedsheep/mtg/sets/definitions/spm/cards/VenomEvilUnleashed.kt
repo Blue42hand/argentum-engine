@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Venom, Evil Unleashed
@@ -29,7 +28,7 @@ val VenomEvilUnleashed = card("Venom, Evil Unleashed") {
     keywords(Keyword.DEATHTOUCH)
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.ExileSelf)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t),
             Effects.GrantKeyword(Keyword.DEATHTOUCH, t)

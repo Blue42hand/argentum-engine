@@ -35,7 +35,7 @@ val TyrantOfKherRidges = card("Tyrant of Kher Ridges") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(4, anyTarget)
     }
 

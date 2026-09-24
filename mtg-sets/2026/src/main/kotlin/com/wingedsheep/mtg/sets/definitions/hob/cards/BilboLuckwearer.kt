@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlocked
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Bilbo, Luckwearer // Burglar's Plot — The Hobbit #32
@@ -61,14 +61,7 @@ val BilboLuckwearer = card("Bilbo, Luckwearer") {
             "(Then exile this card. You may cast the creature later from exile.)"
 
         spell {
-            val (first, second) = targets(
-                "two target nonland permanents that share a card type",
-                TargetPermanent(
-                    count = 2,
-                    filter = TargetFilter.NonlandPermanent,
-                    sameCardType = true
-                )
-            )
+            val (first, second) = targets(TargetFilter.NonlandPermanent, count = 2, sameCardType = true)
             effect = Effects.ExchangeControl(first, second)
         }
     }

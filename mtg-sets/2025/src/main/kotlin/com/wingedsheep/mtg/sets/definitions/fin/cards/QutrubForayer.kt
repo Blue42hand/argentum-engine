@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -42,10 +41,7 @@ val QutrubForayer = card("Qutrub Forayer") {
         effect = ModalEffect.chooseOne(
             // Mode 1: Destroy target creature that was dealt damage this turn.
             mode("Destroy target creature that was dealt damage this turn") {
-                val creature = target(
-                    "target creature",
-                    TargetCreature(filter = TargetFilter.Creature.wasDealtDamageThisTurn())
-                )
+                val creature = target(TargetFilter.Creature.wasDealtDamageThisTurn())
                 effect = Effects.Destroy(creature)
             },
             // Mode 2: Exile up to two target cards from a single graveyard.

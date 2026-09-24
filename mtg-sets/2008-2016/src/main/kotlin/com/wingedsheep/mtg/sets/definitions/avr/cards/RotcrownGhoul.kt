@@ -25,7 +25,7 @@ val RotcrownGhoul = card("Rotcrown Ghoul") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val player = target("target", Targets.Player)
+        val player = target(Targets.Player)
         effect = Patterns.Library.mill(5, player)
     }
 

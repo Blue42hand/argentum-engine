@@ -31,7 +31,7 @@ val DimirMachinations = card("Dimir Machinations") {
         "Transmute {1}{B}{B} ({1}{B}{B}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)"
 
     spell {
-        target("target player", Targets.Player)
+        target(Targets.Player)
         effect = Effects.Pipeline {
             val looked = gather(
                 CardSource.TopOfLibrary(3, Player.TargetPlayer)

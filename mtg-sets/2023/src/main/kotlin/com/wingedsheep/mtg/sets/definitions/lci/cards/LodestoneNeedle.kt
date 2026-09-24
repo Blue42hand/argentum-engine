@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Lodestone Needle // Guidestone Compass (CR 702.167, The Lost Caverns of Ixalan #62)
@@ -61,13 +60,7 @@ private val LodestoneNeedleFront = card("Lodestone Needle") {
     // and put two stun counters on it.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "up to one target artifact or creature",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.CreatureOrArtifact)
-            )
-        )
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrArtifact), optional = true)
         effect = Effects.Composite(
             Effects.Tap(permanent),
             Effects.AddCounters(counterType = CounterType.STUN, count = 2, target = permanent)
@@ -102,7 +95,7 @@ private val GuidestoneCompass = card("Guidestone Compass") {
     // {1}, {T}: Target creature you control explores. Activate only as a sorcery.
     // Same shape as the predefined Map token's ability, without the sacrifice.
     activatedAbility {
-        val creature = target("target creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         cost = Costs.Composite(
             Costs.Mana("{1}"),
             Costs.Tap

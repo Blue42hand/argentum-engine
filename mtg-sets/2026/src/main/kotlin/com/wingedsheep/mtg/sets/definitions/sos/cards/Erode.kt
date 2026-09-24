@@ -36,7 +36,7 @@ val Erode = card("Erode") {
         "for a basic land card, put it onto the battlefield tapped, then shuffle."
 
     spell {
-        val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val permanent = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Destroy(permanent) then Effects.May(
             effect = Effects.Pipeline {
                 val searchable = gather(

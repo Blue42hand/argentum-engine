@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Starport Security
@@ -31,10 +30,7 @@ val StarportSecurity = card("Starport Security") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{W}"), Costs.Tap)
-        val creature = target(
-            "another target creature",
-            TargetCreature(filter = TargetFilter.OtherCreature)
-        )
+        val creature = target(TargetFilter.OtherCreature)
         effect = Effects.Tap(creature)
         genericCostReduction = DynamicAmounts.conditional(
             condition = Exists(

@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CreaturesDamagedBySourceAreDoomed
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Runesword
@@ -45,7 +45,7 @@ val Runesword = card("Runesword") {
         "exile that creature instead."
 
     activatedAbility {
-        val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
+        val attackingCreature = target(TargetFilter.AttackingCreature)
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
 
         effect = Effects.Composite(

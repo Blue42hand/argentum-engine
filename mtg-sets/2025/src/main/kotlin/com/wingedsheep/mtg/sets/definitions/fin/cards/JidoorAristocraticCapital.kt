@@ -50,7 +50,7 @@ val JidoorAristocraticCapital = card("Jidoor, Aristocratic Capital") {
         oracleText = "Target opponent mills half their library, rounded down. " +
             "(Then exile this card. You may play the land later from exile.)"
         spell {
-            val opponent = target("target opponent", Targets.Opponent)
+            val opponent = target(Targets.Opponent)
             effect = Patterns.Library.mill(
                 count = DynamicAmounts.zone(opponent.asPlayer, Zone.LIBRARY).count() / 2,
                 target = opponent

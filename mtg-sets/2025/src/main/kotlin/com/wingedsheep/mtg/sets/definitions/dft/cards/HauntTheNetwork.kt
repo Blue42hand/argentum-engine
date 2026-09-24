@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Haunt the Network — Aetherdrift #207
@@ -36,7 +36,7 @@ val HauntTheNetwork = card("Haunt the Network") {
         "the number of artifacts you control."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         val artifactsYouControl = DynamicAmounts.count(
             Player.You,
             Zone.BATTLEFIELD,

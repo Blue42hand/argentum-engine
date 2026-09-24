@@ -36,7 +36,7 @@ val FellStinger = card("Fell Stinger") {
     keywords(Keyword.DEATHTOUCH)
 
     exploit {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Composite(
             Effects.DrawCards(2, player),
             Effects.LoseLife(2, player)

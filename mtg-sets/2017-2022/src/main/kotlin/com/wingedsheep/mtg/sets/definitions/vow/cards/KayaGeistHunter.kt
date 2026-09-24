@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Kaya, Geist Hunter — Innistrad: Crimson Vow #240
@@ -71,13 +70,7 @@ val KayaGeistHunter = card("Kaya, Geist Hunter") {
     // +1: Creatures you control gain deathtouch until end of turn. Put a +1/+1 counter on up to
     //     one target creature token you control.
     loyaltyAbility(+1) {
-        val tokenCreature = target(
-            "up to one target creature token you control",
-            TargetCreature(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.token().youControl())
-            )
-        )
+        val tokenCreature = target(TargetFilter(GameObjectFilter.Creature.token().youControl()), optional = true)
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),

@@ -1,12 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.emn.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Faith Unbroken
@@ -31,11 +32,11 @@ val FaithUnbroken = card("Faith Unbroken") {
         "the battlefield.\n" +
         "Enchanted creature gets +2/+2."
 
-    auraTarget = Targets.CreatureYouControl
+    auraTarget = TargetObject(filter = TargetFilter.CreatureYouControl)
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val exiled = target("exiled", Targets.CreatureOpponentControls)
+        val exiled = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ExileUntilLeaves(exiled)
     }
     triggeredAbility {

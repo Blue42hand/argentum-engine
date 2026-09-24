@@ -7,11 +7,11 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ferocity of the Hunt (FRA #134) — {1}{B/G} Enchantment — Aura.
@@ -31,7 +31,7 @@ class FerocityOfTheHuntScenarioTest : ScenarioTestBase() {
         typeLine = "Sorcery"
         oracleText = "Destroy target creature."
         spell {
-            val c = target("target creature", Targets.Creature)
+            val c = target(TargetFilter.Creature)
             effect = Effects.Destroy(c)
         }
     }

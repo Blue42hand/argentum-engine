@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Farrel's Zealot
@@ -34,7 +33,7 @@ val FarrelsZealot = card("Farrel's Zealot") {
 
     triggeredAbility {
         trigger = Triggers.self.attacksAndIsntBlocked()
-        val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.May(
             Effects.Composite(
                 Effects.DealDamage(3, t),

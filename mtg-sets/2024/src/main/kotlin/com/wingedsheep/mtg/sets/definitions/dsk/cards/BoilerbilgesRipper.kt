@@ -47,7 +47,7 @@ val BoilerbilgesRipper = card("Boilerbilges Ripper") {
             descriptionOverride = "You may sacrifice another creature or enchantment. When you do, " +
                 "this creature deals 2 damage to any target."
         ) {
-            val anyTarget = target("target any", Targets.Any)
+            val anyTarget = target(Targets.Any)
             effect = Effects.DealDamage(
                 amount = 2,
                 target = anyTarget,

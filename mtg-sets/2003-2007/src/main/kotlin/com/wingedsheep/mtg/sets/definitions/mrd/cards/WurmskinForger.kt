@@ -4,7 +4,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Wurmskin Forger — Mirrodin #140
@@ -37,7 +38,7 @@ val WurmskinForger = card("Wurmskin Forger") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target = TargetCreature(count = 3, minCount = 1)
+        target = TargetObject(filter = TargetFilter.Creature, count = 3, minCount = 1)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 3)
         description = "When this creature enters, distribute three +1/+1 counters among one, " +
             "two, or three target creatures."

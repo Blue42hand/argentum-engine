@@ -30,10 +30,10 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Collect evidence N (CR 701.59, Murders at Karlov Manor) end to end.
@@ -156,7 +156,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
                     CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)
                 ),
                 reflexiveTargetRequirements = listOf(
-                    TargetCreature(filter = TargetFilter.Creature.youControl())
+                    TargetObject(filter = TargetFilter.Creature.youControl())
                 ),
             )
         }

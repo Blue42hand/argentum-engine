@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 
@@ -40,19 +39,13 @@ val FleetingReflection = card("Fleeting Reflection") {
         "creature. Until end of turn, it becomes a copy of up to one other target creature."
 
     spell {
-        val creatureYouControl = target(
-            "creature you control",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
-        )
-        val otherCreature = target(
-            "other creature",
-            TargetOther(
+        val creatureYouControl = target(TargetFilter(GameObjectFilter.Creature.youControl()))
+        val otherCreature = target(TargetOther(
                 baseRequirement = TargetObject(
                     optional = true,
                     filter = TargetFilter(GameObjectFilter.Creature)
                 )
-            )
-        )
+            ))
         effect = Effects.Composite(
             listOf(
                 Effects.GrantHexproof(creatureYouControl, Duration.EndOfTurn),

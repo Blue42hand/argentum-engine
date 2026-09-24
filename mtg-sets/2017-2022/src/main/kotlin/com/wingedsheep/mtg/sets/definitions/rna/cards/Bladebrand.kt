@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -25,7 +24,7 @@ val Bladebrand = card("Bladebrand") {
     typeLine = "Instant"
     oracleText = "Target creature gains deathtouch until end of turn.\nDraw a card."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
             Effects.DrawCards(1)

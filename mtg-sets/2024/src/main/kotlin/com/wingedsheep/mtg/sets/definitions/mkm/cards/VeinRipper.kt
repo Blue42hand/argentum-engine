@@ -49,7 +49,7 @@ val VeinRipper = card("Vein Ripper") {
     keywordAbility(KeywordAbility.Ward(WardCost.Sacrifice(GameObjectFilter.Creature)))
 
     triggeredAbility {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         trigger = Triggers.a(GameObjectFilter.Creature).dies()
         effect = Effects.DrainLife(
             amount = 2,

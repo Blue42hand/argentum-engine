@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +9,7 @@ import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Secret Invasion — Marvel Super Heroes #72 (rare)
@@ -49,20 +48,13 @@ val SecretInvasion = card("Secret Invasion") {
         "creature until this Aura leaves the battlefield.\n" +
         "Enchanted creature has ward {2}."
 
-    auraTarget = Targets.CreatureYouControl
+    auraTarget = TargetObject(filter = TargetFilter.CreatureYouControl)
 
     // ETB: exile up to one target creature other than enchanted creature, and turn the enchanted
     // creature into a copy of it — both for as long as this Aura is on the battlefield.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one target creature other than enchanted creature",
-            TargetCreature(
-                count = 1,
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.notAttachedToBySource())
-            )
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.notAttachedToBySource()), optional = true)
         effect = Effects.Composite(
             Effects.ExileUntilLeaves(creature),
             Effects.BecomeCopyOfLinkedExile(EffectTarget.EnchantedCreature)

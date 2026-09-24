@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Along the Crooked Way — The Hobbit #60
@@ -44,7 +44,7 @@ val AlongTheCrookedWay = card("Along the Crooked Way") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creatureCard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Move(creatureCard, Zone.HAND)
         description = "Return target creature card from your graveyard to your hand."
     }

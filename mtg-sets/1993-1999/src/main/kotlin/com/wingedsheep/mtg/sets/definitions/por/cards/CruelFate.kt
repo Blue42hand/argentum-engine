@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -24,7 +25,7 @@ val CruelFate = card("Cruel Fate") {
     typeLine = "Sorcery"
     oracleText = "Look at the top five cards of target opponent's library. Put one of those cards into that player's graveyard and the rest on top of their library in any order."
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(5, Player.TargetOpponent))
             val (toGraveyardCards, toTop) = chooseExactlySplit(

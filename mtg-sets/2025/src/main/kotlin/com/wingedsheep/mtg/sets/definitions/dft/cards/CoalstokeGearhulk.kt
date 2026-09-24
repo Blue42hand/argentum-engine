@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Coalstoke Gearhulk
@@ -52,10 +51,7 @@ val CoalstokeGearhulk = card("Coalstoke Gearhulk") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val reanimated = target(
-            "target creature card with mana value 4 or less in a graveyard",
-            TargetObject(filter = TargetFilter.CreatureInGraveyard.manaValueAtMost(4))
-        )
+        val reanimated = target(TargetFilter.CreatureInGraveyard.manaValueAtMost(4))
         effect = Effects.Composite(
             Effects.Move(
                 reanimated,

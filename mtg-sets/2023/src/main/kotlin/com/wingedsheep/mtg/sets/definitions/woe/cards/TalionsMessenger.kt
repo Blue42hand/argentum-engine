@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Talion's Messenger
@@ -58,9 +57,7 @@ val TalionsMessenger = card("Talion's Messenger") {
                 action = Patterns.Hand.discardCards(1),
                 optional = false,
             ) {
-                val permanent = target("target permanent", TargetPermanent(
-                    filter = TargetFilter.Permanent.withSubtype("Faerie").youControl()
-                ))
+                val permanent = target(TargetFilter.Permanent.withSubtype("Faerie").youControl())
                 effect = Effects.AddCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
                     1,

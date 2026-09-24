@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -25,7 +25,7 @@ val GoblinCannon = card("Goblin Cannon") {
     oracleText = "{2}: This artifact deals 1 damage to any target. Sacrifice this artifact."
     activatedAbility {
         cost = Costs.Mana("{2}")
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(1, t),
             SacrificeSelfEffect

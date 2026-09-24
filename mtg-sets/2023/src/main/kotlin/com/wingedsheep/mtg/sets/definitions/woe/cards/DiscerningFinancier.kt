@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -64,14 +63,7 @@ val DiscerningFinancier = card("Discerning Financier") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{W}")
-        val treasure = target(
-            "target Treasure you control",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.Artifact.withSubtype(Subtype.TREASURE).youControl()
-                )
-            )
-        )
+        val treasure = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.TREASURE).youControl()))
         effect = Effects.Composite(
             Effects.ChooseOpponent("Choose another player to gain control of the Treasure"),
             Effects.GiveControl(

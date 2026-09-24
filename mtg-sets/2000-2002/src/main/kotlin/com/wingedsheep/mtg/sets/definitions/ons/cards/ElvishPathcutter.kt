@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Elvish Pathcutter
@@ -26,9 +25,7 @@ val ElvishPathcutter = card("Elvish Pathcutter") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{G}")
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Elf"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Elf")))
         effect = Effects.GrantKeyword(Keyword.FORESTWALK, t)
     }
 

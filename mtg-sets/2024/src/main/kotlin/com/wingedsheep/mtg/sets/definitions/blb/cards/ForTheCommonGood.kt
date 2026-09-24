@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * For the Common Good
@@ -30,9 +29,7 @@ val ForTheCommonGood = card("For the Common Good") {
     oracleText = "Create X tokens that are copies of target token you control. Then tokens you control gain indestructible until your next turn. You gain 1 life for each token you control."
 
     spell {
-        val token = target("token you control", TargetObject(
-            filter = TargetFilter(baseFilter = GameObjectFilter.Token.youControl())
-        ))
+        val token = target(TargetFilter(baseFilter = GameObjectFilter.Token.youControl()))
         effect = Effects.CreateTokenCopyOfTarget(
             target = token,
             count = DynamicAmounts.xValue()

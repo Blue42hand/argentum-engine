@@ -46,7 +46,7 @@ val CruelSomnophage = card("Cruel Somnophage") {
         oracleText = "Target player mills four cards. (Then exile this card. You may cast the " +
             "creature later from exile.)"
         spell {
-            val player = target("target player", Targets.Player)
+            val player = target(Targets.Player)
             effect = Patterns.Library.mill(4, player)
         }
     }

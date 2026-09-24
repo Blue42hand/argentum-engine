@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
@@ -10,6 +9,8 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Fangkeeper's Familiar
@@ -49,12 +50,12 @@ val FangkeepersFamiliar = card("Fangkeeper's Familiar") {
                 "You gain 3 life and surveil 3"
             ),
             mode("Destroy target enchantment") {
-                val enchantment = target("target enchantment", Targets.Enchantment)
+                val enchantment = target(TargetFilter.Enchantment)
                 effect = Effects.Destroy(enchantment)
             },
             Mode.withTarget(
                 Effects.CounterSpell(),
-                Targets.CreatureSpell,
+                TargetObject(filter = TargetFilter.CreatureSpellOnStack),
                 "Counter target creature spell"
             )
         )

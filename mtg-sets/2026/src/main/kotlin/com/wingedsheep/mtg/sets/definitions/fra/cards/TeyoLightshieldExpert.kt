@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Teyo, Lightshield Expert — the creature and planeswalker riders are two independent resolution-time type
@@ -29,7 +29,7 @@ val TeyoLightshieldExpert = card("Teyo, Lightshield Expert") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target("permanent you control", Targets.PermanentYouControl)
+        val permanent = target(TargetFilter.PermanentYouControl)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.HEXPROOF, permanent),
             Effects.If(

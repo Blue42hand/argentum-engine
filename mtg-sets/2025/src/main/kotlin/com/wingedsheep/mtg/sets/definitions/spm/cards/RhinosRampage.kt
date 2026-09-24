@@ -7,8 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Rhino's Rampage — {R/G}
@@ -47,14 +46,8 @@ val RhinosRampage = card("Rhino's Rampage") {
         "controls this way, destroy up to one target noncreature artifact with mana value 3 or less."
 
     spell {
-        val yourCreature = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl)
-        )
-        val theirCreature = target(
-            "target creature an opponent controls",
-            TargetCreature(filter = TargetFilter.CreatureOpponentControls)
-        )
+        val yourCreature = target(TargetFilter.CreatureYouControl)
+        val theirCreature = target(TargetFilter.CreatureOpponentControls)
 
         effect = Effects.Pipeline {
             run(Effects.ModifyStats(1, 0, yourCreature))
@@ -68,11 +61,9 @@ val RhinosRampage = card("Rhino's Rampage") {
                 then = Effects.May(
                     effect = Effects.Pipeline {
                         val rampageArtifact = selectTarget(
-                            TargetPermanent(
-                                filter = TargetFilter(
+                            TargetObject(filter = TargetFilter(
                                     GameObjectFilter.Artifact.notCreature().manaValueAtMost(3)
-                                )
-                            )
+                                ))
                         )
                         run(Effects.Destroy(rampageArtifact.asTarget))
                     },

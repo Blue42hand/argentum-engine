@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Chromeshell Crab
@@ -26,8 +26,8 @@ val ChromeshellCrab = card("Chromeshell Crab") {
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
         optional = true
-        val yours = target("creature you control", Targets.CreatureYouControl)
-        val theirs = target("creature an opponent controls", Targets.CreatureOpponentControls)
+        val yours = target(TargetFilter.CreatureYouControl)
+        val theirs = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ExchangeControl(yours, theirs)
     }
 

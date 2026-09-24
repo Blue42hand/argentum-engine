@@ -12,8 +12,8 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Restless Ridgeline
@@ -69,10 +69,7 @@ val RestlessRidgeline = card("Restless Ridgeline") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target(
-            "another target attacking creature",
-            TargetOther(TargetCreature(filter = TargetFilter.AttackingCreature)),
-        )
+        val creature = target(TargetOther(TargetObject(filter = TargetFilter.AttackingCreature)))
         effect = Effects.Composite(
             Effects.ModifyStats(
                 power = 2,

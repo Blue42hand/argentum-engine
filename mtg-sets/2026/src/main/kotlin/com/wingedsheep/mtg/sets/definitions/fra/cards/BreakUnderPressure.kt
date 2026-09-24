@@ -22,7 +22,7 @@ val BreakUnderPressure = card("Break Under Pressure") {
         "among creatures and planeswalkers they control. You gain 2 life."
 
     spell {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             val candidates = gather(
                 CardSource.ControlledPermanents(

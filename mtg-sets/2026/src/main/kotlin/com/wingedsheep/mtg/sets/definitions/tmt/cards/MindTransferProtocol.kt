@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Mind Transfer Protocol
@@ -23,7 +22,7 @@ val MindTransferProtocol = card("Mind Transfer Protocol") {
     oracleText = "Until end of turn, target artifact or creature becomes an artifact creature with base power and toughness 4/5.\nDraw a card."
 
     spell {
-        val target = target("target", TargetObject(filter = TargetFilter.CreatureOrArtifact))
+        val target = target(TargetFilter.CreatureOrArtifact)
         // BecomeCreature sets the creature type + base 4/5; AddCardType("ARTIFACT") supplies
         // the "artifact" half so a non-artifact creature target also becomes an artifact.
         effect = Effects.BecomeCreature(

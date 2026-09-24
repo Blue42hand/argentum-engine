@@ -8,8 +8,8 @@ import com.wingedsheep.sdk.scripting.OpponentsPlayWithHandsRevealed
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Seer's Vision
@@ -44,7 +44,7 @@ val SeersVision = card("Seer's Vision") {
     activatedAbility {
         cost = Costs.SacrificeSelf
         timing = TimingRule.SorcerySpeed
-        val targetPlayer = target("target player", TargetPlayer())
+        val targetPlayer = target(Targets.Player)
         effect = Effects.Pipeline {
             // Look at target player's hand.
             val targetHand = gather(CardSource.FromZone(Zone.HAND, targetPlayer.asPlayer))

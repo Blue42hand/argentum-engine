@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
 /**
@@ -26,7 +25,7 @@ val Douse = card("Douse") {
     oracleText = "{1}{U}: Counter target red spell."
     activatedAbility {
         cost = Costs.Mana("{1}{U}")
-        val t = target("target", TargetSpell(filter = TargetFilter.SpellOnStack.withColor(Color.RED)))
+        val t = target(TargetFilter.SpellOnStack.withColor(Color.RED))
         effect = Effects.CounterSpell()
     }
     metadata {

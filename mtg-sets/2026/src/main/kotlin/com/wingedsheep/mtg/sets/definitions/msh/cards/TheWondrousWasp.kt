@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * The Wondrous Wasp — Marvel Super Heroes #84 (rare)
@@ -49,10 +48,7 @@ val TheWondrousWasp = card("The Wondrous Wasp") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target(
-            "up to one target creature",
-            TargetCreature(optional = true, filter = TargetFilter.Creature)
-        )
+        val victim = target(TargetFilter.Creature, optional = true)
         effect = Effects.Composite(
             Effects.Tap(victim),
             Effects.RemoveAllAbilities(

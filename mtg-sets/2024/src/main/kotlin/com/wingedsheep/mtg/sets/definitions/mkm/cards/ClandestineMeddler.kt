@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Clandestine Meddler — Murders at Karlov Manor #82
@@ -46,10 +45,7 @@ val ClandestineMeddler = card("Clandestine Meddler") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val accomplice = target(
-            "up to one other target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.OtherCreatureYouControl)
-        )
+        val accomplice = target(TargetFilter.OtherCreatureYouControl, optional = true)
         effect = Effects.Suspect(accomplice)
         description = "When this creature enters, suspect up to one other target creature you control."
     }

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Footbottom Feast
@@ -31,10 +30,7 @@ val FootbottomFeast = card("Footbottom Feast") {
         "Draw a card."
 
     spell {
-        target(
-            "any number of target creature cards from your graveyard",
-            TargetObject(unlimited = true, filter = TargetFilter.CreatureInYourGraveyard)
-        )
+        targets(TargetFilter.CreatureInYourGraveyard, unlimited = true)
         effect = Effects.Pipeline {
             val feastCards = gather(CardSource.ChosenTargets)
             toLibraryTop(feastCards)

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Quintorius Kand
@@ -68,13 +67,7 @@ val QuintoriusKand = card("Quintorius Kand") {
     // −6: Exile any number of target cards from your graveyard. Add {R} for each card exiled this
     // way. You may play those cards this turn.
     loyaltyAbility(-6) {
-        target(
-            "any number of target cards from your graveyard",
-            TargetObject(
-                unlimited = true,
-                filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD)
-            )
-        )
+        targets(TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD), unlimited = true)
         effect = Effects.Pipeline {
             val kandGathered = gather(CardSource.ChosenTargets)
             val kandExiled = moveTracked(kandGathered, CardDestination.ToZone(Zone.EXILE))

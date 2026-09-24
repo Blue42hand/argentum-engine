@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Cultbrand Cinder
@@ -30,7 +29,7 @@ val CultbrandCinder = card("Cultbrand Cinder") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val creature = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature)
         description = "When this creature enters, put a -1/-1 counter on target creature."
     }

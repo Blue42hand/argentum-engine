@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.mh2.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Myr Scrapling — Modern Horizons 2 #230
@@ -31,7 +31,7 @@ val MyrScrapling = card("Myr Scrapling") {
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = "Sacrifice this creature: Put a +1/+1 counter on target creature."
     }

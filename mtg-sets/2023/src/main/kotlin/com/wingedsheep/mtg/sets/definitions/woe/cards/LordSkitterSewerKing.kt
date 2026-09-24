@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -49,13 +48,7 @@ val LordSkitterSewerKing = card("Lord Skitter, Sewer King") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.withSubtype(Subtype.RAT).youControl()).enters()
-        val card = target(
-            "up to one target card in an opponent's graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Any.ownedByOpponent(), zone = Zone.GRAVEYARD),
-            ),
-        )
+        val card = target(TargetFilter(GameObjectFilter.Any.ownedByOpponent(), zone = Zone.GRAVEYARD), optional = true)
         effect = Effects.Exile(card, fromZone = Zone.GRAVEYARD)
         description = "Whenever another Rat you control enters, exile up to one target card from " +
             "an opponent's graveyard."

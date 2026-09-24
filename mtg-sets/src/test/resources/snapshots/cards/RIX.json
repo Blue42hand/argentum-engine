@@ -92,7 +92,7 @@
                     "keyword": "CANT_BE_BLOCKED",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "Merfolk"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -101,7 +101,7 @@
                         "filter": {
                             "baseFilter": "permanent Merfolk"
                         },
-                        "id": "Merfolk"
+                        "id": "t0"
                     }
                 ]
             }
@@ -150,7 +150,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Dinosaur card from your graveyard"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -161,7 +161,7 @@
                             "baseFilter": "Dinosaur own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "target Dinosaur card from your graveyard"
+                        "id": "t0"
                     }
                 ]
             }
@@ -205,7 +205,7 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature"
+                "name": "t0"
             }
         },
         "targetRequirements": [
@@ -214,7 +214,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -320,7 +320,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target creature"
+                                    "name": "t0"
                                 }
                             },
                             {
@@ -328,7 +328,7 @@
                                 "keyword": "FIRST_STRIKE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target creature"
+                                    "name": "t0"
                                 }
                             }
                         ]
@@ -339,7 +339,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "target creature"
+                            "id": "t0"
                         }
                     ],
                     "description": "Target creature gets +1/+1 and gains first strike until end of turn"
@@ -360,7 +360,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target Pirate"
+                                    "name": "t0"
                                 }
                             },
                             {
@@ -368,7 +368,7 @@
                                 "keyword": "DOUBLE_STRIKE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target Pirate"
+                                    "name": "t0"
                                 }
                             }
                         ]
@@ -379,7 +379,7 @@
                             "filter": {
                                 "baseFilter": "permanent Pirate"
                             },
-                            "id": "target Pirate"
+                            "id": "t0"
                         }
                     ],
                     "description": "Target Pirate gets +1/+1 and gains double strike until end of turn"
@@ -417,7 +417,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target permanent"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -426,7 +426,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "target permanent"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Enrage — Whenever this creature is dealt damage, untap target permanent."
             }
@@ -550,7 +550,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target Vampire"
+                            "name": "t0"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -561,7 +561,7 @@
                             "filter": {
                                 "baseFilter": "permanent Vampire"
                             },
-                            "id": "target Vampire"
+                            "id": "t0"
                         }
                     ],
                     "description": "Destroy target Vampire"
@@ -571,7 +571,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target enchantment"
+                            "name": "t0"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -582,7 +582,7 @@
                             "filter": {
                                 "baseFilter": "enchantment"
                             },
-                            "id": "target enchantment"
+                            "id": "t0"
                         }
                     ],
                     "description": "Destroy target enchantment"
@@ -677,7 +677,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Merfolk you control"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -685,7 +685,7 @@
                     "filter": {
                         "baseFilter": "permanent Merfolk ctrl:you"
                     },
-                    "id": "target Merfolk you control"
+                    "id": "t0"
                 }
             }
         ]
@@ -902,13 +902,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1208,7 +1208,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -1216,7 +1216,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target creature"
+                    "id": "t0"
                 }
             }
         ]
@@ -1261,12 +1261,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target opponent or planeswalker"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetOpponentOrPlaneswalker",
-                    "id": "target opponent or planeswalker"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Enrage — Whenever this creature is dealt damage, it deals 2 damage to target opponent or planeswalker."
             }
@@ -1468,7 +1468,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -1479,7 +1479,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target creature"
+                "id": "t0"
             }
         ]
     },
@@ -1572,7 +1572,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -1580,7 +1580,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target creature"
+                    "id": "t0"
                 }
             }
         ]
@@ -1946,7 +1946,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -1964,7 +1964,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2001,7 +2001,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -2019,7 +2019,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -2057,7 +2057,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature an opponent controls"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -2065,7 +2065,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "target creature an opponent controls"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Enrage — Whenever this creature is dealt damage, it deals 5 damage to target creature an opponent controls."
             }
@@ -2290,12 +2290,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "any target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever this creature attacks, it deals 1 damage to any target."
             }
@@ -2336,7 +2336,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2346,7 +2346,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature enters, destroy target creature an opponent controls."
             }
@@ -2375,7 +2375,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature with power 3 or less"
+                "name": "t0"
             },
             "destination": "Exile"
         },
@@ -2385,7 +2385,7 @@
                 "filter": {
                     "baseFilter": "creature pow<=3"
                 },
-                "id": "target creature with power 3 or less"
+                "id": "t0"
             }
         ]
     },
@@ -2419,7 +2419,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature you don't control"
+                        "name": "t0"
                     }
                 },
                 {
@@ -2430,7 +2430,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature you control"
+                        "name": "t1"
                     }
                 }
             ]
@@ -2441,14 +2441,14 @@
                 "filter": {
                     "baseFilter": "creature ctrl:opponent"
                 },
-                "id": "target creature you don't control"
+                "id": "t0"
             },
             {
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature ctrl:you"
                 },
-                "id": "target creature you control"
+                "id": "t1"
             }
         ]
     },
@@ -2901,7 +2901,7 @@
                     "keyword": "HEXPROOF",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Merfolk you control"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -2909,7 +2909,7 @@
                     "filter": {
                         "baseFilter": "permanent Merfolk ctrl:you"
                     },
-                    "id": "target Merfolk you control"
+                    "id": "t0"
                 }
             }
         ]
@@ -2977,7 +2977,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2988,7 +2988,7 @@
                         "filter": {
                             "baseFilter": "artifact|enchantment"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3090,7 +3090,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target Vampire you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -3098,7 +3098,7 @@
                             "keyword": "MENACE",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target Vampire you control"
+                                "name": "t0"
                             }
                         }
                     ]
@@ -3108,7 +3108,7 @@
                     "filter": {
                         "baseFilter": "permanent Vampire ctrl:you"
                     },
-                    "id": "target Vampire you control"
+                    "id": "t0"
                 }
             }
         ]

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Arwen, Mortal Queen
@@ -44,10 +43,7 @@ val ArwenMortalQueen = card("Arwen, Mortal Queen") {
             Costs.Mana("{1}"),
             Costs.RemoveCounterFromSelf(CounterType.INDESTRUCTIBLE)
         )
-        val creature = target(
-            "another target creature",
-            TargetCreature(filter = TargetFilter.Creature.copy(excludeSelf = true))
-        )
+        val creature = target(TargetFilter.Creature.copy(excludeSelf = true))
         effect = Effects.Composite(
             listOf(
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),

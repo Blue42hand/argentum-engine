@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Braided Net // Braided Quipu (CR 702.167, The Lost Caverns of Ixalan #47)
@@ -84,7 +85,7 @@ private val BraidedNetFront = card("Braided Net") {
     // Its activated abilities can't be activated for as long as it remains tapped.
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(CounterType.NET, 1))
-        val netted = target("nonland permanent to tap", Targets.OtherNonlandPermanent)
+        val netted = target(TargetFilter.OtherNonlandPermanent)
         effect = Effects.Composite(
             Effects.Tap(netted),
             // "Its activated abilities can't be activated …" — the grant is anchored to the

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Samwise the Stouthearted
@@ -45,16 +44,13 @@ val SamwiseTheStouthearted = card("Samwise the Stouthearted") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val returnTarget = target(
-            "permanent card in your graveyard that was put there from the battlefield this turn",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent
-                        .ownedByYou()
-                        .putIntoGraveyardFromBattlefieldThisTurn(),
-                    zone = Zone.GRAVEYARD
-                ),
-                optional = true
-            )
+            TargetFilter(
+                GameObjectFilter.Permanent
+                    .ownedByYou()
+                    .putIntoGraveyardFromBattlefieldThisTurn(),
+                zone = Zone.GRAVEYARD
+            ),
+            optional = true,
         )
         effect = Effects.Move(returnTarget, Zone.HAND, fromZone = Zone.GRAVEYARD)
             .then(Effects.TheRingTemptsYou())

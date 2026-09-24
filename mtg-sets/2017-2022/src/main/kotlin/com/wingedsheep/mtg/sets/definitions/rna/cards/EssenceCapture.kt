@@ -2,11 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.rna.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Essence Capture — Ravnica Allegiance #37
@@ -23,11 +21,8 @@ val EssenceCapture = card("Essence Capture") {
     oracleText = "Counter target creature spell. Put a +1/+1 counter on up to one target creature you control."
 
     spell {
-        target("target", Targets.CreatureSpell)
-        val ally = target(
-            "target 1",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl)
-        )
+        target(TargetFilter.CreatureSpellOnStack)
+        val ally = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.Composite(listOf(
             Effects.CounterSpell(),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, ally)

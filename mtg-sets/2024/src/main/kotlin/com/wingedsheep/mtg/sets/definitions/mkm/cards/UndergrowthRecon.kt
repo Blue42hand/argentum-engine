@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 
@@ -28,10 +27,7 @@ val UndergrowthRecon = card("Undergrowth Recon") {
     oracleText = "At the beginning of your upkeep, return target land card from your graveyard to the battlefield tapped."
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        val t = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.PutOntoBattlefield(t, tapped = true)
     }
     metadata {

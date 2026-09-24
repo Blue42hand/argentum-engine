@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sauron, the Necromancer — The Lord of the Rings: Tales of Middle-earth #106
@@ -48,10 +48,7 @@ val SauronTheNecromancer = card("Sauron, the Necromancer") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val card = target(
-            "target creature card from your graveyard",
-            Targets.CreatureCardInYourGraveyard
-        )
+        val card = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Composite(listOf(
             Effects.Exile(card),
             Effects.CreateTokenCopyOfTarget(

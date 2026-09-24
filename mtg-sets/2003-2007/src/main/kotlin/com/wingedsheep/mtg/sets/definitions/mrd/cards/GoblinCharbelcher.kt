@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Goblin Charbelcher — Mirrodin #176 (canonical printing)
@@ -46,7 +46,7 @@ val GoblinCharbelcher = card("Goblin Charbelcher") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
-        val victim = target("any target", AnyTarget())
+        val victim = target(Targets.Any)
 
         effect = Effects.Pipeline {
             val (landCard, revealed) = gatherUntilMatch(GameObjectFilter.Land)

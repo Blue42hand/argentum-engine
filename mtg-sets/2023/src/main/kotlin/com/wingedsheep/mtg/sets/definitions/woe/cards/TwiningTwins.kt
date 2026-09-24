@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
@@ -54,10 +53,7 @@ val TwiningTwins = card("Twining Twins") {
             "(Then exile this card. You may cast the creature later from exile.)"
 
         spell {
-            val creature = target(
-                "target nontoken creature",
-                TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.nontoken())),
-            )
+            val creature = target(TargetFilter(GameObjectFilter.Creature.nontoken()))
             effect = Patterns.Exile.exileUntilEndStep(creature)
         }
     }

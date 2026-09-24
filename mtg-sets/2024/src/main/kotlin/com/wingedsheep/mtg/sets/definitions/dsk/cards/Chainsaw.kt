@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -42,7 +41,7 @@ val Chainsaw = card("Chainsaw") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("up to one target creature", TargetCreature(optional = true, filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.DealDamage(3, t)
     }
 

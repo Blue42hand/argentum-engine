@@ -17,7 +17,7 @@
                     "type": "CreateTokenCopyOfTarget",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "another target nonland permanent you control"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -26,7 +26,7 @@
                         "baseFilter": "nonland permanent ctrl:you",
                         "excludeSelf": true
                     },
-                    "id": "another target nonland permanent you control"
+                    "id": "t0"
                 }
             }
         ]

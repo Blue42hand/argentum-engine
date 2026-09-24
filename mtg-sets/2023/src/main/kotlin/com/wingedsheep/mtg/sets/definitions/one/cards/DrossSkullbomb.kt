@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.one.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dross Skullbomb
@@ -28,7 +28,7 @@ val DrossSkullbomb = card("Dross Skullbomb") {
     }
 
     activatedAbility {
-        val creatureCardInYourGraveyard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
+        val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.SacrificeSelf)
         effect = Effects.Composite(
             Effects.ReturnToHand(creatureCardInYourGraveyard),

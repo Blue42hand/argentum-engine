@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -58,10 +57,7 @@ val OkoTheRingleader = card("Oko, the Ringleader") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val creatureYouControl = target(
-            "creature you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl, optional = true),
-        )
+        val creatureYouControl = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.Composite(
             listOf(
                 Effects.EachPermanentBecomesCopyOfTarget(

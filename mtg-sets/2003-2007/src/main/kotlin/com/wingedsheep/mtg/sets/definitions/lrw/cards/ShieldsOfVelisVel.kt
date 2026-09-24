@@ -38,7 +38,7 @@ val ShieldsOfVelisVel = card("Shields of Velis Vel") {
     keywords(Keyword.CHANGELING)
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
             Effects.Composite(

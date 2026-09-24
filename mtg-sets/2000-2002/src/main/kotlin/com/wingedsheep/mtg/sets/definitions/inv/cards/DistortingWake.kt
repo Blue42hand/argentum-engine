@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Distorting Wake
@@ -27,11 +26,7 @@ val DistortingWake = card("Distorting Wake") {
     oracleText = "Return X target nonland permanents to their owners' hands."
 
     spell {
-        val permanent = target("target permanent", TargetPermanent(
-            optional = true,
-            filter = TargetFilter.NonlandPermanent,
-            dynamicMaxCount = DynamicAmounts.xValue(),
-        ))
+        targets(TargetFilter.NonlandPermanent, optional = true, dynamicMaxCount = DynamicAmounts.xValue())
         effect = Effects.Pipeline {
             val distortingWakeTargets = gather(CardSource.ChosenTargets)
             toHand(distortingWakeTargets)

@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Cabal Archon
@@ -28,7 +28,7 @@ val CabalArchon = card("Cabal Archon") {
             Costs.Mana("{B}"),
             Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype("Cleric"))
         )
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.LoseLife(2, t) then
                 Effects.GainLife(2, EffectTarget.Controller)
     }

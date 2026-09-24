@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Remand — Ravnica: City of Guilds #63 (canonical printing)
@@ -32,7 +32,7 @@ val Remand = card("Remand") {
         "Draw a card."
 
     spell {
-        target("target spell", Targets.Spell)
+        target(TargetFilter.SpellOnStack)
         effect = Effects.Composite(
             listOf(
                 Effects.CounterSpellToHand(),

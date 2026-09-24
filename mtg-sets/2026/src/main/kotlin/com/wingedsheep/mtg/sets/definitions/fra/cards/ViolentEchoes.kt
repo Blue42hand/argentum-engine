@@ -30,7 +30,7 @@ val ViolentEchoes = card("Violent Echoes") {
         "create a blue Jace planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\")"
 
     spell {
-        val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val permanent = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Pipeline {
             val excess = runStoringNumber { Effects.DealDamage(6, permanent, excessDamageVariable = it) }
             run(Effects.If(

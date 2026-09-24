@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
@@ -70,7 +69,7 @@ val BolgOfTheNorth = card("Bolg of the North") {
                 "damage equal to that creature's power to another target creature. If excess " +
                 "damage was dealt this way, amass Goblins X, where X is that excess damage.",
         ) {
-            val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.other()))
+            val creature = target(TargetFilter.Creature.other())
             effect = Effects.Composite(
                 Effects.DealDamage(
                     DynamicAmounts.storedNumber("bolgSacrificedPower"),

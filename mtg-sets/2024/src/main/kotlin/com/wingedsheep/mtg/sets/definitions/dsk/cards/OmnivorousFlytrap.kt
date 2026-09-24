@@ -6,7 +6,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Omnivorous Flytrap
@@ -55,14 +56,14 @@ val OmnivorousFlytrap = card("Omnivorous Flytrap") {
     )
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(count = 2, minCount = 1))
+        val creature = target(TargetObject(filter = TargetFilter.Creature, count = 2, minCount = 1))
         trigger = Triggers.self.enters()
         interveningIf = Conditions.Delirium()
         effect = payoff
     }
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(count = 2, minCount = 1))
+        val creature = target(TargetObject(filter = TargetFilter.Creature, count = 2, minCount = 1))
         trigger = Triggers.self.attacks()
         interveningIf = Conditions.Delirium()
         effect = payoff

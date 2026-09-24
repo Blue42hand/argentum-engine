@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Gandalf the Grey
@@ -49,7 +49,7 @@ val GandalfTheGrey = card("Gandalf the Grey") {
         effect = ModalEffect.chooseOneNotYetChosen(
             // • You may tap or untap target permanent.
             mode("You may tap or untap target permanent") {
-                val permanent = target("target permanent", Targets.Permanent)
+                val permanent = target(TargetFilter.Permanent)
                 effect = Effects.May(
                     Effects.ChooseAction(
                         listOf(
@@ -71,10 +71,7 @@ val GandalfTheGrey = card("Gandalf the Grey") {
             ),
             // • Copy target instant or sorcery spell you control. You may choose new targets for the copy.
             mode("Copy target instant or sorcery spell you control. You may choose new targets for the copy") {
-                val instantOrSorcerySpellYouControl = target(
-                    "target instant or sorcery spell you control",
-                    Targets.InstantOrSorcerySpellYouControl
-                )
+                val instantOrSorcerySpellYouControl = target(TargetFilter.InstantOrSorcerySpellOnStack.youControl())
                 effect = Effects.CopyTargetSpell(target = instantOrSorcerySpellYouControl)
             },
             // • Put Gandalf on top of its owner's library.

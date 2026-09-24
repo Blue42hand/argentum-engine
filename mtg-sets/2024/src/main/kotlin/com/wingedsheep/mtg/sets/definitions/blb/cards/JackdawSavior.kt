@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -45,12 +44,9 @@ val JackdawSavior = card("Jackdaw Savior") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withKeyword(Keyword.FLYING)).dies()
         val creatureCard = target(
-            "another target creature card with lesser mana value from your graveyard",
-            TargetObject(
-                filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMostDynamic(
-                    DynamicAmounts.triggeringManaValue() - 1
-                )
-            )
+            TargetFilter.CreatureInYourGraveyard.manaValueAtMostDynamic(
+                DynamicAmounts.triggeringManaValue() - 1
+            ),
         )
         effect = Effects.PutOntoBattlefieldFromGraveyard(creatureCard)
     }

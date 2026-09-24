@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Omen of the Dead
@@ -38,7 +39,7 @@ val OmenOfTheDead = card("Omen of the Dead") {
     // When this enchantment enters, return target creature card from your graveyard to your hand.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creatureCard = target("target", Targets.CreatureCardInYourGraveyard)
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.ReturnToHand(creatureCard)
     }
 

@@ -15,7 +15,7 @@
                         "type": "LifeTotal",
                         "player": {
                             "type": "BoundVariable",
-                            "name": "target player"
+                            "name": "t0"
                         }
                     },
                     "operator": "EQ",
@@ -33,14 +33,14 @@
                 },
                 "target": {
                     "type": "BoundVariable",
-                    "name": "target player"
+                    "name": "t0"
                 }
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target player"
+                "id": "t0"
             }
         ]
     },

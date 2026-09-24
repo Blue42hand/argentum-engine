@@ -43,7 +43,7 @@ fun CardBuilder.opus(init: OpusBuilder.() -> Unit) {
 }
 
 @CardDsl
-class OpusBuilder {
+class OpusBuilder(private val declaredTargets: TargetList = TargetList()) : TargetDeclarations by declaredTargets {
     /** The base effect — happens whenever you cast an instant or sorcery spell. */
     var effect: Effect? = null
 
@@ -59,16 +59,7 @@ class OpusBuilder {
      */
     var description: String? = null
 
-    private val namedTargets = mutableListOf<Pair<String, TargetRequirement>>()
 
-    /**
-     * Declare a target for this Opus ability and get a handle to reference from the base and bonus
-     * effects (so both tiers act on the same chosen object). Mirrors `triggeredAbility { target() }`.
-     */
-    fun target(name: String, requirement: TargetRequirement): EffectTarget.BoundVariable {
-        namedTargets.add(name to requirement.withId(name))
-        return EffectTarget.BoundVariable(name)
-    }
 
     internal fun build(): TriggeredAbility {
         val base = requireNotNull(effect) { "opus { } requires a base `effect`" }
@@ -91,7 +82,7 @@ class OpusBuilder {
             base then Effects.If(condition = fiveOrMoreManaSpent, then = bonus)
         }
 
-        val targets = namedTargets.map { it.second }
+        val targets = declaredTargets.requirements
         val trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         return TriggeredAbility.create(
             trigger = trigger.event,

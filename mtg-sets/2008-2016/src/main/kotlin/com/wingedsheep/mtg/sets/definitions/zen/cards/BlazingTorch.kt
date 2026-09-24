@@ -59,7 +59,7 @@ val BlazingTorch = card("Blazing Torch") {
                     Costs.Tap,
                     Costs.SacrificeGrantingPermanent
                 )
-                val anyTarget = target("target any", Targets.Any)
+                val anyTarget = target(Targets.Any)
                 effect = Effects.DealDamage(
                     amount = 2,
                     target = anyTarget,

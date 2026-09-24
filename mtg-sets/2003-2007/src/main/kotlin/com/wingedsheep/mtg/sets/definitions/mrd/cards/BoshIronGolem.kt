@@ -44,7 +44,7 @@ val BoshIronGolem = card("Bosh, Iron Golem") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{R}"), Costs.Sacrifice(GameObjectFilter.Artifact))
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(
             DynamicAmounts.manaValueOf(EffectTarget.SacrificedAsCost(0)),
             t

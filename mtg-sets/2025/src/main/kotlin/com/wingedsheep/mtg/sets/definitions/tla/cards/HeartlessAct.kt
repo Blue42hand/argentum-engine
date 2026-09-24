@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Heartless Act
@@ -33,17 +32,11 @@ val HeartlessAct = card("Heartless Act") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Destroy target creature with no counters on it") {
-                val creature = target("target creature", TargetObject(
-                    filter = TargetFilter.Creature.withoutCounters(),
-                    id = "target creature with no counters on it",
-                ))
+                val creature = target(TargetFilter.Creature.withoutCounters())
                 effect = Effects.Destroy(creature)
             },
             mode("Remove up to three counters from target creature") {
-                val creature = target("target creature", TargetObject(
-                    filter = TargetFilter.Creature,
-                    id = "target creature",
-                ))
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.RemoveCountersUpTo(3, creature)
             },
         )

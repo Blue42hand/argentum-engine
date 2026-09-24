@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Sanctify
@@ -19,7 +18,7 @@ val Sanctify = card("Sanctify") {
     typeLine = "Sorcery"
     oracleText = "Destroy target artifact or enchantment. You gain 3 life."
     spell {
-        val t = target("target", TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment))
+        val t = target(TargetFilter.ArtifactOrEnchantment)
         effect = Effects.Composite(
             Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
             Effects.GainLife(3)

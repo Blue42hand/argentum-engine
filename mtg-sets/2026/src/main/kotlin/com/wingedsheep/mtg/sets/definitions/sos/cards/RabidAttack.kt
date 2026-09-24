@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Rabid Attack
@@ -31,7 +31,7 @@ val RabidAttack = card("Rabid Attack") {
         "and gain \"When this creature dies, draw a card.\""
 
     spell {
-        target = TargetCreature(filter = TargetFilter.Creature.youControl(), unlimited = true)
+        target = TargetObject(filter = TargetFilter.Creature.youControl(), unlimited = true)
         effect = Effects.ForEachTarget(
             Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
             Effects.GrantTriggeredAbility(

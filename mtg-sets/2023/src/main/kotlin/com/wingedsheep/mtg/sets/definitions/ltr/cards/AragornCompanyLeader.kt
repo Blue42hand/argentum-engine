@@ -8,8 +8,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Aragorn, Company Leader
@@ -77,7 +78,7 @@ val AragornCompanyLeader = card("Aragorn, Company Leader") {
 
     triggeredAbility {
         trigger = Triggers.self.getsCounters()
-        val upToOneOtherCreature = target("up to one other target creature", TargetOther(TargetCreature(count = 1, minCount = 0, optional = true)))
+        val upToOneOtherCreature = target(TargetOther(TargetObject(filter = TargetFilter.Creature, count = 1, minCount = 0, optional = true)))
         effect = Effects.Composite(
             listOf(
                 Effects.AddCounters(CounterType.FIRST_STRIKE, 1, upToOneOtherCreature),

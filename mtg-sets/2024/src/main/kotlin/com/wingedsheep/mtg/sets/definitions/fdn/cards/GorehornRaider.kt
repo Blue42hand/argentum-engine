@@ -32,7 +32,7 @@ val GorehornRaider = card("Gorehorn Raider") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
 

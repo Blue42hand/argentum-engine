@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Get Lost — LCI #14
@@ -41,7 +40,7 @@ val GetLost = card("Get Lost") {
         "Activate only as a sorcery.\")"
 
     spell {
-        val t = target("target creature, enchantment, or planeswalker", TargetPermanent(filter = creatureEnchantmentOrPlaneswalker))
+        val t = target(creatureEnchantmentOrPlaneswalker)
         effect = Effects.Composite(
             Effects.Destroy(t),
             Effects.CreateMapToken(2, controller = EffectTarget.TargetController)

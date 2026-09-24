@@ -5,13 +5,11 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Chandra, Flameshaper
@@ -77,7 +75,7 @@ val ChandraFlameshaper = card("Chandra, Flameshaper") {
     // +1: Create a token that's a copy of target creature you control, except it has haste and
     //     "At the beginning of the end step, sacrifice this token."
     loyaltyAbility(+1) {
-        val creature = target("target creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.CreateTokenCopyOfTarget(
             creature,
             addedKeywords = setOf(Keyword.HASTE),
@@ -88,14 +86,10 @@ val ChandraFlameshaper = card("Chandra, Flameshaper") {
     // −4: Chandra deals 8 damage divided as you choose among any number of target creatures
     //     and/or planeswalkers.
     loyaltyAbility(-4) {
-        target(
-            "any number of target creatures and/or planeswalkers",
-            TargetObject(
-                unlimited = true,
-                filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker),
-                dynamicMaxCount = DynamicAmounts.fixed(8),
-                id = "target creatures and/or planeswalkers",
-            ),
+        targets(
+            TargetFilter(GameObjectFilter.CreatureOrPlaneswalker),
+            unlimited = true,
+            dynamicMaxCount = DynamicAmounts.fixed(8),
         )
         effect = Effects.DividedDamage(total = 8, minTargets = 1, maxTargets = 8)
     }

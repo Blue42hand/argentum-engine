@@ -2,13 +2,14 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /** "its controller loses 3 life" — the granted ability is controlled by the enchanted creature's
  *  controller, so [EffectTarget.Controller] is exactly "its controller". */
@@ -44,7 +45,7 @@ val ContaminatedBond = card("Contaminated Bond") {
     oracleText = "Enchant creature\n" +
         "Whenever enchanted creature attacks or blocks, its controller loses 3 life."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     // "Whenever enchanted creature attacks ..."
     staticAbility {

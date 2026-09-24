@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Seedpod Squire
@@ -29,10 +28,7 @@ val SeedpodSquire = card("Seedpod Squire") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val creature = target(
-            "creature you control without flying",
-            TargetCreature(filter = TargetFilter.CreatureYouControl.withoutKeyword(Keyword.FLYING))
-        )
+        val creature = target(TargetFilter.CreatureYouControl.withoutKeyword(Keyword.FLYING))
         effect = Effects.ModifyStats(1, 1, creature)
     }
 

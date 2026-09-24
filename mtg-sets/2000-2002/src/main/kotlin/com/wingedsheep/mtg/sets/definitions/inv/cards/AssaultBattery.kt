@@ -28,7 +28,7 @@ val AssaultBattery = card("Assault // Battery") {
         oracleText = "Assault deals 2 damage to any target."
 
         spell {
-            val anyTarget = target("any target", Targets.Any)
+            val anyTarget = target(Targets.Any)
             effect = Effects.DealDamage(2, anyTarget)
         }
     }

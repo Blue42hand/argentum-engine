@@ -49,7 +49,7 @@ val UnscrupulousContractor = card("Unscrupulous Contractor") {
             optional = true,
             descriptionOverride = "You may sacrifice a creature. When you do, target player draws two cards and loses 2 life."
         ) {
-            val player = target("target player", Targets.Player)
+            val player = target(Targets.Player)
             effect = Effects.Composite(listOf(
                 Effects.DrawCards(2, player),
                 Effects.LoseLife(2, player)

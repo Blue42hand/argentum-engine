@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -32,10 +31,7 @@ val WaylayingPirates = card("Waylaying Pirates") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControl(GameObjectFilter.Artifact)
-        val t = target(
-            "target",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),
             Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t)

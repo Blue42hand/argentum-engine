@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Invigorating Boon
@@ -21,7 +21,7 @@ val InvigoratingBoon = card("Invigorating Boon") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.cycles()
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.May(
             Effects.AddCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,

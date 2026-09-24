@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -38,7 +37,7 @@ val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
     // {1}{W}, {T}: Another target creature you control gains flying and lifelink until end of turn.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.Tap)
-        val creature = target("creature", TargetCreature(filter = TargetFilter.CreatureYouControl.other()))
+        val creature = target(TargetFilter.CreatureYouControl.other())
         effect = Effects.Composite(listOf(
             Effects.GrantKeyword(Keyword.FLYING, creature),
             Effects.GrantKeyword(Keyword.LIFELINK, creature)

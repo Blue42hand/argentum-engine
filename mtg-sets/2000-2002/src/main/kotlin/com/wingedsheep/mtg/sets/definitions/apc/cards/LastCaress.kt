@@ -7,7 +7,7 @@ package com.wingedsheep.mtg.sets.definitions.apc.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -23,7 +23,7 @@ val LastCaress = card("Last Caress") {
     typeLine = "Sorcery"
     oracleText = "Target player loses 1 life and you gain 1 life.\nDraw a card."
     spell {
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(1, t),
             Effects.GainLife(1),

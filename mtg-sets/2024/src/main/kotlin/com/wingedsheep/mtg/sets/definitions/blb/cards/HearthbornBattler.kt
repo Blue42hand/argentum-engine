@@ -31,7 +31,7 @@ val HearthbornBattler = card("Hearthborn Battler") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.castsNth(2)
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(2, opponent)
     }
 

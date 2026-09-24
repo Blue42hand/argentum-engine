@@ -38,15 +38,7 @@ val SoulShackledZombie = card("Soul-Shackled Zombie") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to two target cards from a single graveyard",
-            TargetObject(
-                count = 2,
-                optional = true,
-                filter = TargetFilter.CardInGraveyard,
-                sameOwner = true
-            )
-        )
+        targets(TargetFilter.CardInGraveyard, count = 2, optional = true, sameOwner = true)
         effect = Effects.Pipeline {
             val sszExiled = gather(CardSource.ChosenTargets)
             exile(sszExiled)

@@ -45,7 +45,7 @@ val BrigidHeroOfKinsbaile = card("Brigid, Hero of Kinsbaile") {
 
     activatedAbility {
         cost = Costs.Tap
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.attackingOrBlocking().targetPlayerControls(player)),
             Effects.DealDamage(2, EffectTarget.IterationEntity)

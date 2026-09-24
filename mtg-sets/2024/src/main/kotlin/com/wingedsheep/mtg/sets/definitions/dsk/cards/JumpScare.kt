@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Jump Scare
@@ -29,7 +29,7 @@ val JumpScare = card("Jump Scare") {
         "Horror enchantment creature in addition to its other types."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             listOf(
                 Effects.ModifyStats(2, 2, target = creature, duration = Duration.EndOfTurn),

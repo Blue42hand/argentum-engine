@@ -23,7 +23,7 @@ val VillainousWealth = card("Villainous Wealth") {
     oracleText = "Target opponent exiles the top X cards of their library. You may cast any number of spells with mana value X or less from among them without paying their mana costs."
 
     spell {
-        target("opponent", Targets.Opponent)
+        target(Targets.Opponent)
 
         effect = Effects.Pipeline {
             // Exile top X cards from target opponent's library

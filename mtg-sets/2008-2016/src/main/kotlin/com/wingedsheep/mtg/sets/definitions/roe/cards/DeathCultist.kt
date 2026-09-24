@@ -38,7 +38,7 @@ val DeathCultist = card("Death Cultist") {
 
     activatedAbility {
         cost = Costs.SacrificeSelf
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(1, player),
             Effects.GainLife(1)

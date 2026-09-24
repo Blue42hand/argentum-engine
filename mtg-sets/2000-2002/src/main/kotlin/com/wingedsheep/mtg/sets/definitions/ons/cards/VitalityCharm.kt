@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Vitality Charm
@@ -39,12 +37,12 @@ val VitalityCharm = card("Vitality Charm") {
                 )
             }
             mode("Target creature gets +1/+1 and gains trample until end of turn") {
-                val t = target("target", TargetCreature())
+                val t = target(TargetFilter.Creature)
                 effect = Effects.ModifyStats(1, 1, t)
                     .then(Effects.GrantKeyword(Keyword.TRAMPLE, t))
             }
             mode("Regenerate target Beast") {
-                val t = target("target", TargetPermanent(filter = TargetFilter.Permanent.withSubtype("Beast")))
+                val t = target(TargetFilter.Permanent.withSubtype("Beast"))
                 effect = Effects.Regenerate(t)
             }
         }

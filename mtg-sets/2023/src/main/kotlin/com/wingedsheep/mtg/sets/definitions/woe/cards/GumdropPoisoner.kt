@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Gumdrop Poisoner // Tempt with Treats
@@ -45,7 +44,7 @@ val GumdropPoisoner = card("Gumdrop Poisoner") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(optional = true, filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.ModifyStats(
             -DynamicAmounts.lifeGainedThisTurn(),
             -DynamicAmounts.lifeGainedThisTurn(),

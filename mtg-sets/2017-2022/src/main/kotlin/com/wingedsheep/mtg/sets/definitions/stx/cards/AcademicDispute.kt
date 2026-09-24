@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.stx.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Academic Dispute — Strixhaven: School of Mages #91 (canonical printing)
@@ -36,7 +36,7 @@ val AcademicDispute = card("Academic Dispute") {
         "hand, or discard a card to draw a card.)"
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.MarkMustBlockThisTurn(creature) then
             Effects.May(
                 effect = Effects.GrantKeyword(Keyword.REACH, creature),

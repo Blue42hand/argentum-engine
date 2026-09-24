@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.emn.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spell Queller
@@ -54,7 +54,7 @@ val SpellQueller = card("Spell Queller") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("target spell with mana value 4 or less", Targets.SpellWithManaValueAtMost(4))
+        target(TargetFilter.SpellOnStack.manaValueAtMost(4))
         effect = Effects.ExileTargetSpell(linkToSource = true)
         description = "When this creature enters, exile target spell with mana value 4 or less."
     }

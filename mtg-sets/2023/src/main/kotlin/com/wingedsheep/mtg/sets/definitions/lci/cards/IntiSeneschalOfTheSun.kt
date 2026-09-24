@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Inti, Seneschal of the Sun
@@ -50,7 +50,7 @@ val IntiSeneschalOfTheSun = card("Inti, Seneschal of the Sun") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
             optional = true) {
-            val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
+            val attackingCreature = target(TargetFilter.AttackingCreature)
             effect = Effects.Composite(listOf(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attackingCreature),
                 Effects.GrantKeyword(Keyword.TRAMPLE, attackingCreature, Duration.EndOfTurn)

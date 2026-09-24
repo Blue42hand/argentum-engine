@@ -14,11 +14,11 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.mtg.sets.definitions.lci.cards.MarketGnome
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Market Gnome (LCI #22) — the two "gain 1 life and draw a card" triggers.
@@ -60,7 +60,7 @@ class MarketGnomeScenarioTest : FunSpec({
         typeLine = "Instant"
         oracleText = "Exile target creature."
         spell {
-            val t = target("target creature", TargetCreature())
+            val t = target(TargetFilter.Creature)
             effect = Effects.Exile(t)
         }
     }

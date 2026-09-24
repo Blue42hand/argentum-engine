@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -48,12 +47,7 @@ val SlumberingWalker = card("Slumbering Walker") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
             optional = true) {
-            val creature = target("target creature", TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.ownedByYou().powerAtMost(2),
-                    zone = Zone.GRAVEYARD
-                )
-            ))
+            val creature = target(TargetFilter(GameObjectFilter.Creature.ownedByYou().powerAtMost(2), zone = Zone.GRAVEYARD))
             effect = Effects.Move(
                 target = creature,
                 destination = Zone.BATTLEFIELD

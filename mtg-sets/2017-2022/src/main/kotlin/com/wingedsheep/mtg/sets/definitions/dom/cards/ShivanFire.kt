@@ -24,7 +24,7 @@ val ShivanFire = card("Shivan Fire") {
     keywordAbility(KeywordAbility.kicker("{4}"))
 
     spell {
-        val t = target("target", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.DealDamage(4, t),

@@ -5,13 +5,13 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.renew
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lasyd Prowler — Tarkir: Dragonstorm #149
@@ -47,7 +47,7 @@ val LasydProwler = card("Lasyd Prowler") {
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmounts.count(Player.You, Zone.GRAVEYARD, Filters.Land),
-            target("creature", Targets.Creature)
+            target(TargetFilter.Creature)
         )
     }
 

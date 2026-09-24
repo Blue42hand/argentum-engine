@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Azure Beastbinder
@@ -47,14 +46,11 @@ val AzureBeastbinder = card("Azure Beastbinder") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val t = target(
-            "artifact, creature, or planeswalker an opponent controls",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    (GameObjectFilter.Artifact or GameObjectFilter.Creature or GameObjectFilter.Planeswalker)
-                        .opponentControls()
-                )
-            )
+            TargetFilter(
+                (GameObjectFilter.Artifact or GameObjectFilter.Creature or GameObjectFilter.Planeswalker)
+                    .opponentControls()
+            ),
+            optional = true,
         )
         effect = Effects.RemoveAllAbilities(t, Duration.UntilYourNextTurn)
             .then(Effects.If(

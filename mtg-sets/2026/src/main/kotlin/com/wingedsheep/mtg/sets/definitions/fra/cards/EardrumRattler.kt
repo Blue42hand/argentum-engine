@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val EardrumRattler = card("Eardrum Rattler") {
     manaCost = "{1}{R}"
@@ -18,7 +17,7 @@ val EardrumRattler = card("Eardrum Rattler") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
-        val creature = target("creature", TargetCreature(filter = TargetFilter.CreatureYouControl.other().powerAtMost(2)))
+        val creature = target(TargetFilter.CreatureYouControl.other().powerAtMost(2))
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature)
     }
 

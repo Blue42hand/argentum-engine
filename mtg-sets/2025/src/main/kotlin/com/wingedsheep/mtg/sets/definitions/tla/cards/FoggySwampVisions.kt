@@ -40,11 +40,9 @@ val FoggySwampVisions = card("Foggy Swamp Visions") {
     waterbendCost(isX = true)
 
     spell {
-        val target = target("target", TargetObject(
-            optional = true,
-            filter = TargetFilter.CreatureInGraveyard,
-            dynamicMaxCount = DynamicAmounts.xValue(),
-        ))
+        val target = target(
+            TargetObject(filter = TargetFilter.CreatureInGraveyard, optional = true, dynamicMaxCount = DynamicAmounts.xValue()),
+        )
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.ChosenTargets)
             val exiledCards = moveTracked(exiled, CardDestination.ToZone(Zone.EXILE))

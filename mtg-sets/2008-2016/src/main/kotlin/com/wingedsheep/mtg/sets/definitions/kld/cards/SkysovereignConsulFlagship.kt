@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Skysovereign, Consul Flagship
@@ -41,19 +40,13 @@ val SkysovereignConsulFlagship = card("Skysovereign, Consul Flagship") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
         effect = Effects.DealDamage(3, t)
     }
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
         effect = Effects.DealDamage(3, t)
     }
 

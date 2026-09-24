@@ -6,9 +6,9 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Smoldering Werewolf // Erupting Dreadwolf (Eldritch Moon #142)
@@ -45,7 +45,7 @@ private val SmolderingWerewolfFront = card("Smoldering Werewolf") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("up to two target creatures", TargetCreature(count = 2, optional = true))
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.DealDamage(1, EffectTarget.ContextTarget(0))
         )
@@ -88,7 +88,7 @@ private val EruptingDreadwolf = card("Erupting Dreadwolf") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val victim = target("any target", AnyTarget())
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(2, victim)
         description = "Whenever this creature attacks, it deals 2 damage to any target."
     }

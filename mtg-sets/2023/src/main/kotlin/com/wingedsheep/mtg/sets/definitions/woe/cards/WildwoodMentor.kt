@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Wildwood Mentor
@@ -52,10 +51,7 @@ val WildwoodMentor = card("Wildwood Mentor") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val ally = target(
-            "another target attacking creature",
-            TargetCreature(filter = TargetFilter.Creature.attacking().other())
-        )
+        val ally = target(TargetFilter.Creature.attacking().other())
         val sourcePower = DynamicAmounts.sourcePower()
         effect = Effects.ModifyStats(power = sourcePower, toughness = sourcePower, target = ally)
         description = "Whenever this creature attacks, another target attacking creature gets " +

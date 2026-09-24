@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
@@ -90,15 +89,12 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
             // (Wick's Patrol pattern). "that spell" is the triggering second spell
             // (EffectTarget.TriggeringEntity).
             val exiledCard = target(
-                "target enchantment, instant, or sorcery card",
-                TargetObject(
-                    filter = TargetFilter(
-                        baseFilter = enchantmentInstantSorcery
-                            .ownedByOpponent()
-                            .manaValueAtMostEntity(EffectTarget.TriggeringEntity),
-                        zone = Zone.GRAVEYARD,
-                    )
-                )
+                TargetFilter(
+                    baseFilter = enchantmentInstantSorcery
+                        .ownedByOpponent()
+                        .manaValueAtMostEntity(EffectTarget.TriggeringEntity),
+                    zone = Zone.GRAVEYARD,
+                ),
             )
             // Gate on "one or more cards milled this way": only exile/copy/cast if a card was milled.
             effect = Effects.If(

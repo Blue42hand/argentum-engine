@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Bumi Bash
@@ -36,18 +34,17 @@ val BumiBash = card("Bumi Bash") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Bumi Bash deals damage equal to the number of lands you control to target creature") {
-                val creature = target("target creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(
                     DynamicAmounts.landsYouControl(),
                     creature,
                 )
             },
             mode("Destroy target land creature or nonbasic land") {
-                val nonbasicLand = target("target nonbasic land", TargetObject(
-                    filter = TargetFilter(GameObjectFilter.Creature and GameObjectFilter.Land)
+                val nonbasicLand = target(
+                    TargetFilter(GameObjectFilter.Creature and GameObjectFilter.Land)
                         .or(TargetFilter.NonbasicLand),
-                    id = "target land creature or nonbasic land",
-                ))
+                )
                 effect = Effects.Destroy(nonbasicLand)
             },
         )

@@ -46,7 +46,7 @@ val GrimaWormtongue = card("Gríma Wormtongue") {
             Costs.Tap,
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.LoseLife(1, player)
             .then(Effects.If(
                 condition = Conditions.SacrificedWasLegendary,

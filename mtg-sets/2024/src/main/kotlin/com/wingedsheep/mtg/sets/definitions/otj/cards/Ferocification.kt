@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ferocification
@@ -36,11 +36,11 @@ val Ferocification = card("Ferocification") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = ModalEffect.chooseOne(
             mode("Target creature you control gets +2/+0 until end of turn") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
                 effect = Effects.ModifyStats(2, 0, creatureYouControl)
             },
             mode("Target creature you control gains menace and haste until end of turn") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
                 effect = Effects.Composite(
                     Effects.GrantKeyword(Keyword.MENACE, creatureYouControl),
                     Effects.GrantKeyword(Keyword.HASTE, creatureYouControl),

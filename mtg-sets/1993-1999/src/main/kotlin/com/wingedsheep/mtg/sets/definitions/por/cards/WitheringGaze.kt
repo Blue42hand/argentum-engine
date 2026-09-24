@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -28,7 +29,7 @@ val WitheringGaze = card("Withering Gaze") {
     typeLine = "Sorcery"
     oracleText = "Target opponent reveals their hand. You draw a card for each Forest and green card in it."
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.RevealHand(t),
             Effects.DrawCards(

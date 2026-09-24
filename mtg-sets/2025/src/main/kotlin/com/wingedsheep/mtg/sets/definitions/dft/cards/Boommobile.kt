@@ -55,7 +55,7 @@ val Boommobile = card("Boommobile") {
     activatedAbility {
         cost = Costs.Mana("{X}{2}{R}")
         isExhaust = true
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealXDamage(victim),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

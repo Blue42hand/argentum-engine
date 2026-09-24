@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Goblin Kites
@@ -31,10 +30,7 @@ val GoblinKites = card("Goblin Kites") {
 
     activatedAbility {
         cost = Costs.Mana("{R}")
-        val t = target(
-            "target creature you control with toughness 2 or less",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl().toughnessAtMost(2)))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.youControl().toughnessAtMost(2)))
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.FLYING, t),
             Effects.CreateDelayedTrigger(

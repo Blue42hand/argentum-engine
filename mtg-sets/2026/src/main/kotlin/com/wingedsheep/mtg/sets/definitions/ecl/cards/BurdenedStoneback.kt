@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Burdened Stoneback
@@ -41,7 +41,7 @@ val BurdenedStoneback = card("Burdened Stoneback") {
             Costs.Mana("{1}{W}"),
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE)
         )
-        val creature = target("target creature to gain indestructible", TargetCreature())
+        val creature = target(TargetFilter.Creature)
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
         timing = TimingRule.SorcerySpeed
     }

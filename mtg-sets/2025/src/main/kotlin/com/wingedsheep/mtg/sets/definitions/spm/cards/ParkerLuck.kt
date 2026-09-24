@@ -39,7 +39,7 @@ val ParkerLuck = card("Parker Luck") {
         trigger = Triggers.you.beginningOf(Step.END)
         // "two target players" — a single count-2 requirement; the engine enforces the two
         // chosen players are distinct (CR 115.1b). Referenced positionally as targets 0 and 1.
-        val (firstPlayer, secondPlayer) = targets("players", TargetPlayer(count = 2))
+        val (firstPlayer, secondPlayer) = targets(TargetPlayer(count = 2))
         effect = Effects.Pipeline {
             // Both target players reveal the top card of their library.
             val revealedA = gather(CardSource.TopOfLibrary(1, firstPlayer.asPlayer))

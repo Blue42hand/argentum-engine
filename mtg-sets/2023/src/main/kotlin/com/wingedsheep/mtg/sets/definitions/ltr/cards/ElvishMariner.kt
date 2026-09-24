@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Elvish Mariner
@@ -36,13 +35,10 @@ val ElvishMariner = card("Elvish Mariner") {
 
     triggeredAbility {
         trigger = Triggers.you.scries()
-        target(
-            "up to X target nonland permanents",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter.NonlandPermanent,
-                dynamicMaxCount = DynamicAmounts.triggerScryCount()
-            )
+        targets(
+            TargetFilter.NonlandPermanent,
+            optional = true,
+            dynamicMaxCount = DynamicAmounts.triggerScryCount(),
         )
         effect = Effects.TapEachTarget()
     }

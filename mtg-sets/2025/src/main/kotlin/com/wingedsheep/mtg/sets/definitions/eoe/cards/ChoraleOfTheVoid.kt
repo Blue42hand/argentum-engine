@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -32,14 +31,11 @@ val ChoraleOfTheVoid = card("Chorale of the Void") {
         "Whenever enchanted creature attacks, put target creature card from defending player's graveyard onto the battlefield under your control tapped and attacking.\n" +
         "Void — At the beginning of your end step, sacrifice this Aura unless a nonland permanent left the battlefield this turn or a spell was warped this turn."
 
-    auraTarget = Targets.CreatureYouControl
+    auraTarget = TargetObject(filter = TargetFilter.CreatureYouControl)
 
     triggeredAbility {
         trigger = Triggers.attached.attacks()
-        val creature = target(
-            "creature card from defending player's graveyard",
-            TargetObject(filter = TargetFilter.CreatureInGraveyard.ownedByOpponent())
-        )
+        val creature = target(TargetFilter.CreatureInGraveyard.ownedByOpponent())
         effect = Effects.Move(
             target = creature,
             destination = Zone.BATTLEFIELD,

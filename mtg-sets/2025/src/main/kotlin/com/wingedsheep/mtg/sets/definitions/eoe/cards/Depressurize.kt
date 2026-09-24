@@ -4,8 +4,8 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Depressurize
@@ -21,7 +21,7 @@ val Depressurize = card("Depressurize") {
 
     // Main spell effect
     spell {
-        val target = target("target creature", Targets.Creature)
+        val target = target(TargetFilter.Creature)
         
         // Apply -3/-0 debuff
         effect = Effects.ModifyStats(-3, 0, target)

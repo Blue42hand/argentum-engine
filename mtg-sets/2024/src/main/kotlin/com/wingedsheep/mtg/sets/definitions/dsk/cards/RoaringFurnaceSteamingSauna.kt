@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Roaring Furnace // Steaming Sauna (DSK 230) — split-layout Room (CR 709.5).
@@ -39,7 +39,7 @@ val RoaringFurnaceSteamingSauna = card("Roaring Furnace // Steaming Sauna") {
             "cards in your hand to target creature an opponent controls."
 
         triggeredAbility {
-            val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
+            val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
             trigger = Triggers.self.doorUnlocked()
             effect = Effects.DealDamage(DynamicAmounts.cardsInYourHand(), creatureOpponentControls)
             description = "When you unlock this door, this Room deals damage equal to the number " +

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tmp.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Elite Javelineer
@@ -23,7 +23,7 @@ val EliteJavelineer = card("Elite Javelineer") {
 
     triggeredAbility {
         trigger = Triggers.self.blocks()
-        val attacker = target("target", Targets.AttackingCreature)
+        val attacker = target(TargetFilter.AttackingCreature)
         effect = Effects.DealDamage(1, attacker)
     }
 

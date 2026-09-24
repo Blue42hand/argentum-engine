@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Syr Armont, the Redeemer
@@ -46,7 +47,7 @@ val SyrArmontTheRedeemer = card("Syr Armont, the Redeemer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("another target creature you control", Targets.OtherCreatureYouControl)
+        val creature = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.CreateRoleToken("Monster Role", creature)
     }
 

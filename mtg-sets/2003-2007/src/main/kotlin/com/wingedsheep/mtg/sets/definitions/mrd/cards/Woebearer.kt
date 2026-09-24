@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -45,10 +44,7 @@ val Woebearer = card("Woebearer") {
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         optional = true
-        val creatureCard = target(
-            "target creature card",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-        )
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Move(creatureCard, Zone.HAND)
         description = "Whenever this creature deals combat damage to a player, you may return " +
             "target creature card from your graveyard to your hand."

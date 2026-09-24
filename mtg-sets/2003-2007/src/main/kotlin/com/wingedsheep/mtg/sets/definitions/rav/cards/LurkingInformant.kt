@@ -39,7 +39,7 @@ val LurkingInformant = card("Lurking Informant") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             val peeked = gather(CardSource.TopOfLibrary(1, player.asPlayer))
             val (toGraveyardCards, toTop) = chooseUpToSplit(

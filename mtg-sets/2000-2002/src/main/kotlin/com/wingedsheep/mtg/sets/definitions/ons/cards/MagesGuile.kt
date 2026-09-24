@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Mage's Guile
@@ -21,7 +21,7 @@ val MagesGuile = card("Mage's Guile") {
     oracleText = "Target creature gains shroud until end of turn.\nCycling {U}"
 
     spell {
-        val t = target("target", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.GrantKeyword(Keyword.SHROUD, t)
     }
 

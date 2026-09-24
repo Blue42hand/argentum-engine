@@ -24,7 +24,7 @@ val CabalConditioning = card("Cabal Conditioning") {
     oracleText = "Any number of target players each discard a number of cards equal to the greatest mana value among permanents you control."
 
     spell {
-        target("players", TargetPlayer(count = 2, optional = true))
+        target(TargetPlayer(count = 2, optional = true))
         effect = Effects.ForEachTarget(
             Effects.Pipeline {
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))

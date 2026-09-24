@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -38,10 +37,7 @@ val WarrenTorchmaster = card("Warren Torchmaster") {
             optional = true,
             descriptionOverride = "You may blight 1. When you do, target creature gains haste until end of turn"
         ) {
-            val creature = target("target creature", TargetObject(
-                filter = TargetFilter.Creature,
-                id = "target creature to gain haste"
-            ))
+            val creature = target(TargetFilter.Creature)
             effect = Effects.GrantKeyword(
                 keyword = Keyword.HASTE,
                 target = creature

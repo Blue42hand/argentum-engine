@@ -9,8 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -25,8 +24,8 @@ val CombatTutorial = card("Combat Tutorial") {
     typeLine = "Sorcery"
     oracleText = "Target player draws two cards. Put a +1/+1 counter on up to one target creature you control."
     spell {
-        val t1 = target("t1", TargetPlayer())
-        val t2 = target("t2", TargetCreature(optional = true, filter = TargetFilter.Creature.youControl()))
+        val t1 = target(Targets.Player)
+        val t2 = target(TargetFilter.Creature.youControl(), optional = true)
         effect = Effects.Composite(
             Effects.DrawCards(2, t1),
             Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t2)

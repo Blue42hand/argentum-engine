@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Dimir Doppelganger — Ravnica: City of Guilds #202 (canonical printing)
@@ -43,12 +42,7 @@ val DimirDoppelganger = card("Dimir Doppelganger") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{U}{B}")
-        val creatureCard = target(
-            "target creature card from a graveyard",
-            TargetObject(
-                filter = TargetFilter(GameObjectFilter.Creature, zone = Zone.GRAVEYARD),
-            ),
-        )
+        val creatureCard = target(TargetFilter(GameObjectFilter.Creature, zone = Zone.GRAVEYARD))
         effect = Effects.Composite(
             listOf(
                 Effects.Exile(creatureCard, fromZone = Zone.GRAVEYARD),

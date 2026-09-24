@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -27,12 +26,10 @@ val WardenOfTheEye = card("Warden of the Eye") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(
-            "target", TargetObject(
-                filter = TargetFilter(
-                    baseFilter = (GameObjectFilter.Companion.Noncreature and GameObjectFilter.Companion.Nonland).ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+            TargetFilter(
+                baseFilter = (GameObjectFilter.Companion.Noncreature and GameObjectFilter.Companion.Nonland).ownedByYou(),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.Move(t, Zone.HAND)
     }

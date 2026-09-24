@@ -19,7 +19,7 @@ val MisguidedRage = card("Misguided Rage") {
     oracleText = "Target player sacrifices a permanent."
 
     spell {
-        val t = target("target", Targets.Player)
+        val t = target(Targets.Player)
         effect = Effects.Sacrifice(GameObjectFilter.Permanent, 1, t)
     }
 

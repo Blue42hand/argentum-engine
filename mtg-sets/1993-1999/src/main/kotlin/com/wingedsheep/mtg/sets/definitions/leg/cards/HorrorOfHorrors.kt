@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Horror of Horrors
@@ -26,10 +25,7 @@ val HorrorOfHorrors = card("Horror of Horrors") {
 
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Land.withSubtype(Subtype.SWAMP))
-        val creature = target(
-            "target black creature",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withColor(Color.BLACK))),
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.withColor(Color.BLACK)))
         effect = Effects.Regenerate(creature)
     }
 

@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -74,13 +73,7 @@ val ChandraSparkHunter = card("Chandra, Spark Hunter") {
     // Until end of turn, it becomes an artifact creature and gains haste.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val vehicle = target(
-            "up to one target Vehicle you control",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.VEHICLE).youControl())
-            )
-        )
+        val vehicle = target(TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.VEHICLE).youControl()), optional = true)
         effect = Effects.AddCardType("Creature", vehicle, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.HASTE, vehicle, Duration.EndOfTurn)
     }
@@ -124,7 +117,7 @@ val ChandraSparkHunter = card("Chandra, Spark Hunter") {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
-                val anyTarget = target("target any", Targets.Any)
+                val anyTarget = target(Targets.Any)
                 effect = Effects.DealDamage(3, anyTarget)
                 description = "Whenever an artifact you control enters, this emblem deals " +
                     "3 damage to any target."

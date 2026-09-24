@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Fear of Falling
@@ -35,7 +36,7 @@ val FearOfFalling = card("Fear of Falling") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val targeted = target("target creature defending player controls", Targets.CreatureOpponentControls)
+        val targeted = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.ModifyStats(-2, 0, targeted, Duration.UntilYourNextTurn),
             Effects.RemoveKeyword(Keyword.FLYING, targeted, Duration.UntilYourNextTurn)

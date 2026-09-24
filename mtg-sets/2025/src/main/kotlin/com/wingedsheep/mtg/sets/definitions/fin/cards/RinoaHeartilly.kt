@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Rinoa Heartilly
@@ -45,7 +44,7 @@ val RinoaHeartilly = card("Rinoa Heartilly") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ModifyStats(
             power = DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
             toughness = DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),

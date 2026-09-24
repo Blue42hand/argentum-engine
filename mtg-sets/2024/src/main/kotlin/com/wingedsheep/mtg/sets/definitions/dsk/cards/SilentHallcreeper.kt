@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Silent Hallcreeper
@@ -67,10 +68,7 @@ val SilentHallcreeper = card("Silent Hallcreeper") {
             ),
             // • This creature becomes a copy of another target creature you control.
             mode("This creature becomes a copy of another target creature you control") {
-                val otherCreatureYouControl = target(
-                    "target other creature you control",
-                    Targets.OtherCreatureYouControl
-                )
+                val otherCreatureYouControl = target(TargetFilter.OtherCreatureYouControl)
                 effect = Effects.EachPermanentBecomesCopyOfTarget(
                     target = otherCreatureYouControl,
                     duration = Duration.Permanent,

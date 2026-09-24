@@ -14,8 +14,8 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tourach's Gate
@@ -43,7 +43,7 @@ val TourachsGate = card("Tourach's Gate") {
         "time counters on this Aura, sacrifice it.\n" +
         "Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn. " +
         "Activate only if enchanted land is untapped."
-    auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.Land.youControl()))
+    auraTarget = TargetObject(filter = TargetFilter(GameObjectFilter.Land.youControl()))
 
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype(Subtype.THRULL))

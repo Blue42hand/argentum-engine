@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.TriggeredAbilityBuilder
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.dsl.storied
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AdditionalSourceTriggers
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Bifur, Melodic Rider
@@ -86,6 +86,6 @@ val BifurMelodicRider = card("Bifur, Melodic Rider") {
 
 /** The rider shared by the enters and attacks halves: a +1/+1 counter on one target creature. */
 private fun TriggeredAbilityBuilder.counterRider() {
-    val creature = target("target creature", Targets.Creature)
+    val creature = target(TargetFilter.Creature)
     effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
 }

@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Alley Assailant — Murders at Karlov Manor #76
@@ -45,7 +45,7 @@ val AlleyAssailant = card("Alley Assailant") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val victim = target("target opponent", TargetOpponent())
+        val victim = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.LoseLife(3, target = victim),
             Effects.GainLife(3)

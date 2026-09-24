@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Food Coma
@@ -31,7 +30,7 @@ val FoodComa = card("Food Coma") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target("target", TargetCreature(filter = TargetFilter.CreatureOpponentControls))
+        val victim = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.ExileUntilLeaves(victim),
             Effects.CreateFood()

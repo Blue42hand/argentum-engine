@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Kellan's Lightblades
@@ -43,10 +42,7 @@ val KellansLightblades = card("Kellan's Lightblades") {
     bargain()
 
     spell {
-        val creature = target(
-            "target attacking or blocking creature",
-            TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature),
-        )
+        val creature = target(TargetFilter.AttackingOrBlockingCreature)
         effect = Effects.If(
             condition = Conditions.WasBargained,
             then = Effects.Destroy(creature),

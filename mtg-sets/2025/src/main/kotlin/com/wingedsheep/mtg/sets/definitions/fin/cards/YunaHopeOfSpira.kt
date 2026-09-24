@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -64,11 +63,8 @@ val YunaHopeOfSpira = card("Yuna, Hope of Spira") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         val enchantment = target(
-            "up to one target enchantment card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(GameObjectFilter.Enchantment.ownedByYou(), zone = Zone.GRAVEYARD),
-                optional = true
-            )
+            TargetFilter(GameObjectFilter.Enchantment.ownedByYou(), zone = Zone.GRAVEYARD),
+            optional = true,
         )
         effect = Effects.Move(enchantment, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
             .then(Effects.AddCounters(CounterType.FINALITY, 1, enchantment))

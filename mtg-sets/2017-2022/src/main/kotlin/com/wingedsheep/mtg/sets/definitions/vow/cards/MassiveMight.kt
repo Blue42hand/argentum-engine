@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Massive Might
@@ -19,7 +18,7 @@ val MassiveMight = card("Massive Might") {
     typeLine = "Instant"
     oracleText = "Target creature gets +2/+2 and gains trample until end of turn."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, t),
             Effects.GrantKeyword(Keyword.TRAMPLE, t)

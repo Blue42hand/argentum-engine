@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.ProtectionScope
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Emrakul, the Promised End
@@ -66,7 +66,7 @@ val EmrakulThePromisedEnd = card("Emrakul, the Promised End") {
 
     triggeredAbility {
         trigger = Triggers.self.isCast()
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.HijackNextTurn(opponent),
             Effects.TakeExtraTurn(target = opponent)

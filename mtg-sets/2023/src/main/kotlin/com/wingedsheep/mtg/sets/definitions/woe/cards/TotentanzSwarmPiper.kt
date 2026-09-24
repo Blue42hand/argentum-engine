@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Totentanz, Swarm Piper
@@ -55,12 +54,7 @@ val TotentanzSwarmPiper = card("Totentanz, Swarm Piper") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{B}")
-        val rat = target(
-            "target attacking Rat you control",
-            TargetCreature(
-                filter = TargetFilter.Creature.withSubtype(Subtype.RAT).youControl().attacking()
-            ),
-        )
+        val rat = target(TargetFilter.Creature.withSubtype(Subtype.RAT).youControl().attacking())
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, rat)
         description = "{1}{B}: Target attacking Rat you control gains deathtouch until end of turn."
     }

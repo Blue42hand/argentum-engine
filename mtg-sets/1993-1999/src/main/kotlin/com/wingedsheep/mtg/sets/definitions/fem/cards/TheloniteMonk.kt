@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Thelonite Monk
@@ -29,7 +29,7 @@ val TheloniteMonk = card("Thelonite Monk") {
     toughness = 2
 
     activatedAbility {
-        val land = target("target land", Targets.Land)
+        val land = target(TargetFilter.Land)
         cost = Costs.Composite(
             Costs.Tap,
             Costs.Sacrifice(GameObjectFilter.Creature.withColor(Color.GREEN))

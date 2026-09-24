@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -19,7 +18,7 @@ val RaiseDead = card("Raise Dead") {
     typeLine = "Sorcery"
 
     spell {
-        val target = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
+        val target = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Move(target, Zone.HAND)
     }
 

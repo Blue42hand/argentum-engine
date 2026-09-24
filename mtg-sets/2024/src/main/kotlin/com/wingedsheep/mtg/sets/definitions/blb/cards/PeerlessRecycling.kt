@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Peerless Recycling
@@ -33,17 +32,15 @@ val PeerlessRecycling = card("Peerless Recycling") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 0: No gift — return 1 target permanent card from graveyard to hand
             mode("Return target permanent card from your graveyard to your hand") {
-                val permanent = target("target permanent", TargetObject(
-                    filter = TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD)
-                ))
+                val permanent = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD))
                 effect = Effects.ReturnToHand(permanent)
             },
             // Mode 1: Gift — opponent draws a card, return 2 target permanent cards to hand
             mode("Gift a card — return two target permanent cards from your graveyard to your hand") {
-                val (firstPermanent, secondPermanent) = targets("target permanents", TargetObject(
+                val (firstPermanent, secondPermanent) = targets(
+                    TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD),
                     count = 2,
-                    filter = TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD)
-                ))
+                )
                 effect = Effects.Composite(listOf(
                     Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
                     Effects.ReturnToHand(firstPermanent),

@@ -36,7 +36,7 @@ val ArnynDeathbloomBotanist = card("Arnyn, Deathbloom Botanist") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().powerOrToughnessAtMost(1)).dies()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.LoseLife(2, opponent),
             Effects.GainLife(2),

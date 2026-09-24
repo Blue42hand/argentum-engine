@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Peter Parker's Camera (Marvel's Spider-Man, #171)
@@ -58,10 +59,7 @@ val PeterParkersCamera = card("Peter Parker's Camera") {
             Costs.Tap,
             Costs.RemoveCounterFromSelf(CounterType.FILM, 1)
         )
-        val copied = target(
-            "activated or triggered ability you control",
-            Targets.ActivatedOrTriggeredAbilityYouControl
-        )
+        val copied = target(TargetFilter.ActivatedOrTriggeredAbilityOnStack.youControl())
         effect = Effects.CopyTargetSpellOrAbility(copied)
         description = "{2}, {T}, Remove a film counter from this artifact: Copy target activated or " +
             "triggered ability you control. You may choose new targets for the copy."

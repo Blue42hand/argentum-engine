@@ -39,7 +39,7 @@ val RustHarvester = card("Rust Harvester") {
         val addCounterEffect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, com.wingedsheep.sdk.scripting.targets.EffectTarget.Self)
         
         // Then it deals damage equal to its power to any target
-        val damageTarget = target("any target", Targets.Any)
+        val damageTarget = target(Targets.Any)
         val damageEffect = Effects.DealDamage(
             amount = com.wingedsheep.sdk.dsl.DynamicAmounts.sourcePower(),
             target = damageTarget

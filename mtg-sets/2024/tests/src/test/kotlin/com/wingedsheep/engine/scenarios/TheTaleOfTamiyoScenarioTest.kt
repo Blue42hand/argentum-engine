@@ -22,7 +22,6 @@ import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
@@ -62,15 +61,9 @@ class TheTaleOfTamiyoScenarioTest : FunSpec({
         manaCost = "{U}"
         typeLine = "Sorcery"
         spell {
-            target(
-                "any number of target instant or sorcery cards from your graveyard",
-                TargetObject(
-                    unlimited = true,
-                    filter = TargetFilter(
-                        GameObjectFilter.InstantOrSorcery.ownedByYou(),
-                        zone = Zone.GRAVEYARD,
-                    ),
-                )
+            targets(
+                TargetFilter(GameObjectFilter.InstantOrSorcery.ownedByYou(), zone = Zone.GRAVEYARD),
+                unlimited = true,
             )
             effect = Effects.Composite(
                 ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE))),

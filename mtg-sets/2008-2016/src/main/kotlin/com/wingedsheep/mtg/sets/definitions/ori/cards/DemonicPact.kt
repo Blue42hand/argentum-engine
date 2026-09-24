@@ -47,7 +47,7 @@ val DemonicPact = card("Demonic Pact") {
         effect = ModalEffect.chooseOneNotYetChosen(
             // • This enchantment deals 4 damage to any target and you gain 4 life.
             mode("This enchantment deals 4 damage to any target and you gain 4 life") {
-                val anyTarget = target("target any", Targets.Any)
+                val anyTarget = target(Targets.Any)
                 effect = Effects.Composite(
                     Effects.DealDamage(4, anyTarget, damageSource = EffectTarget.Self),
                     Effects.GainLife(4)
@@ -55,7 +55,7 @@ val DemonicPact = card("Demonic Pact") {
             },
             // • Target opponent discards two cards.
             mode("Target opponent discards two cards") {
-                val opponent = target("target opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = Effects.Discard(2, opponent)
             },
             // • Draw two cards.

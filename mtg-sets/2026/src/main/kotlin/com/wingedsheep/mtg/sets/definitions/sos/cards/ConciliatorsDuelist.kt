@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Conciliator's Duelist
@@ -52,10 +51,7 @@ val ConciliatorsDuelist = card("Conciliator's Duelist") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
 
-        val creature = target(
-            "target creature",
-            TargetCreature(optional = true, filter = TargetFilter.Creature),
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
 
         effect = Effects.Composite(
             listOf(

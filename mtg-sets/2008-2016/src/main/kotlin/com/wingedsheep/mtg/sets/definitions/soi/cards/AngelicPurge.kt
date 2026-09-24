@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Angelic Purge
@@ -25,7 +24,7 @@ val AngelicPurge = card("Angelic Purge") {
     additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Permanent))
 
     spell {
-        val target = target("target", TargetObject(filter = TargetFilter.ArtifactCreatureOrEnchantment))
+        val target = target(TargetFilter.ArtifactCreatureOrEnchantment)
         effect = Effects.Exile(target)
     }
 

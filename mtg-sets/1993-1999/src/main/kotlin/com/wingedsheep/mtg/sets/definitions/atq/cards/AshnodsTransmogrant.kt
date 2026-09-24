@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Ashnod's Transmogrant
@@ -29,10 +28,7 @@ val AshnodsTransmogrant = card("Ashnod's Transmogrant") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
-        val creature = target(
-            "target nonartifact creature",
-            TargetCreature(filter = TargetFilter.Creature.nonartifact())
-        )
+        val creature = target(TargetFilter.Creature.nonartifact())
         effect = Effects.Composite(listOf(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
             Effects.AddCardType("ARTIFACT", creature)

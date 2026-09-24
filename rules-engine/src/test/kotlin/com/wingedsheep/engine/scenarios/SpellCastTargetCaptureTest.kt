@@ -27,6 +27,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * "Whenever you cast a spell that targets one or more [filter], **those** … " — the trigger-time
@@ -57,8 +58,8 @@ class SpellCastTargetCaptureTest : FunSpec({
         manaCost = "{G}"
         typeLine = "Instant"
         spell {
-            val a = target("first creature", Targets.Creature)
-            val b = target("second creature", Targets.Creature)
+            val a = target(TargetFilter.Creature)
+            val b = target(TargetFilter.Creature)
             effect = Effects.ModifyStats(1, 1, a).then(Effects.ModifyStats(1, 1, b))
         }
     }
@@ -68,8 +69,8 @@ class SpellCastTargetCaptureTest : FunSpec({
         manaCost = "{G}"
         typeLine = "Instant"
         spell {
-            val c = target("target creature", Targets.Creature)
-            val p = target("target player", Targets.Player)
+            val c = target(TargetFilter.Creature)
+            val p = target(Targets.Player)
             effect = Effects.ModifyStats(1, 1, c).then(Effects.GainLife(1, p))
         }
     }
@@ -118,7 +119,7 @@ class SpellCastTargetCaptureTest : FunSpec({
         manaCost = "{U}"
         typeLine = "Instant"
         spell {
-            target("target spell", Targets.Spell)
+            target(TargetFilter.SpellOnStack)
             effect = Effects.GainLife(1)
         }
     }
@@ -150,7 +151,7 @@ class SpellCastTargetCaptureTest : FunSpec({
         manaCost = "{U}"
         typeLine = "Instant"
         spell {
-            target("target spell with a single target", Targets.SpellOrAbilityWithSingleTarget)
+            target(TargetFilter.SpellOrAbilityOnStack)
             effect = Effects.ChangeTarget()
         }
     }

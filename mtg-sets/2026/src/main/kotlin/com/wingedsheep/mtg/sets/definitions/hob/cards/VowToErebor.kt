@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Vow to Erebor — The Hobbit #31
@@ -35,7 +35,7 @@ val VowToErebor = card("Vow to Erebor") {
         "If it's a Dwarf, you may attach an Equipment you control to it."
 
     spell {
-        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target(TargetFilter.CreatureYouControl)
         effect = Effects.Composite(
             Effects.Untap(creatureYouControl),
             Effects.ModifyStats(2, 2, creatureYouControl, Duration.EndOfTurn),

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ty Lee, Artful Acrobat
@@ -37,7 +37,7 @@ val TyLeeArtfulAcrobat = card("Ty Lee, Artful Acrobat") {
             action = Effects.PayMana("{1}"),
             optional = true) {
             // "When you do, target creature can't block this turn."
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.CantBlock(creature)
         }
     }

@@ -32,7 +32,7 @@ val BoggartShenanigans = card("Boggart Shenanigans") {
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype("Goblin").youControl()).dies()
         optional = true
-        val t = target("target player or planeswalker", Targets.PlayerOrPlaneswalker)
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(1, t)
         description = "you may have this enchantment deal 1 damage to target player or planeswalker."
     }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Wiccan, Rising Magician
@@ -46,12 +45,7 @@ val WiccanRisingMagician = card("Wiccan, Rising Magician") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        val permanent = target(
-            "another target nonland, nontoken permanent",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.NonlandPermanent.nontoken()).other(),
-            ),
-        )
+        val permanent = target(TargetFilter(GameObjectFilter.NonlandPermanent.nontoken()).other())
         effect = Effects.Composite(
             Effects.Move(permanent, Zone.EXILE),
             Effects.CreateDelayedTrigger(

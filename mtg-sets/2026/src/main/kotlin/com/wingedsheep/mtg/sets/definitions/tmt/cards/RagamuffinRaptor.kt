@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ragamuffin Raptor
@@ -31,23 +30,20 @@ val RagamuffinRaptor = card("Ragamuffin Raptor") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val card = target(
-            "creature or Food card from your graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter(
-                        cardPredicates = listOf(
-                            CardPredicate.Or(
-                                listOf(
-                                    CardPredicate.IsCreature,
-                                    CardPredicate.HasSubtype(Subtype("Food")),
-                                )
+            TargetFilter(
+                GameObjectFilter(
+                    cardPredicates = listOf(
+                        CardPredicate.Or(
+                            listOf(
+                                CardPredicate.IsCreature,
+                                CardPredicate.HasSubtype(Subtype("Food")),
                             )
                         )
-                    ).ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                )
-            )
+                    )
+                ).ownedByYou(),
+                zone = Zone.GRAVEYARD,
+            ),
+            optional = true,
         )
         effect = Effects.ReturnToHand(card)
     }

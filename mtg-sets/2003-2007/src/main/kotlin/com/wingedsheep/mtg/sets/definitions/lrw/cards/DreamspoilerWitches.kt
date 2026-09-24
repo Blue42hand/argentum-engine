@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dreamspoiler Witches
@@ -41,7 +41,7 @@ val DreamspoilerWitches = card("Dreamspoiler Witches") {
     triggeredAbility {
         trigger = Triggers.you.casts()
         triggerRestriction = Conditions.IsNotYourTurn
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.May(Effects.ModifyStats(-1, -1, creature))
         description = "Whenever you cast a spell during an opponent's turn, you may have target " +
             "creature get -1/-1 until end of turn."

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.ModifyStats
@@ -22,6 +21,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import com.wingedsheep.engine.core.Outcome
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * One Last Job — {2}{W} Sorcery, Spree.
@@ -41,7 +42,7 @@ class OtjOneLastJobScenarioTest : FunSpec({
         manaCost = "{W}"
         typeLine = "Enchantment — Aura"
         oracleText = "Enchant creature\nEnchanted creature gets +2/+2."
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
         staticAbility { ability = ModifyStats(2, 2) }
     }
 

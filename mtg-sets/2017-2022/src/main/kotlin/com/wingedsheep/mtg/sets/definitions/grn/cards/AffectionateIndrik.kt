@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -30,10 +29,7 @@ val AffectionateIndrik = card("Affectionate Indrik") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val t = target(
-            "target creature you don't control",
-            TargetCreature(filter = TargetFilter.CreatureOpponentControls),
-        )
+        val t = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Fight(EffectTarget.Self, t)
     }
     metadata {

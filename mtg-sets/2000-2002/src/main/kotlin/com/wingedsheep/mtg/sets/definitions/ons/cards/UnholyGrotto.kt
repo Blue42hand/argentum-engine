@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -32,12 +31,7 @@ val UnholyGrotto = card("Unholy Grotto") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.Tap)
-        val t = target("target", TargetObject(
-            filter = TargetFilter(
-                GameObjectFilter.Any.withSubtype("Zombie").ownedByYou(),
-                zone = Zone.GRAVEYARD
-            )
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Any.withSubtype("Zombie").ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.Move(
             target = t,
             destination = Zone.LIBRARY,

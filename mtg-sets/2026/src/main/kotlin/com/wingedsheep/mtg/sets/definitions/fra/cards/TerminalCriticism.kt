@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 val TerminalCriticism = card("Terminal Criticism") {
     manaCost = "{1}{B}"
@@ -15,9 +14,7 @@ val TerminalCriticism = card("Terminal Criticism") {
     oracleText = "Destroy target creature or planeswalker that's blue or red. You gain 1 life."
 
     spell {
-        val permanent = target("permanent", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.withAnyColor(Color.BLUE, Color.RED))
-        ))
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.withAnyColor(Color.BLUE, Color.RED)))
         effect = Effects.Composite(Effects.Destroy(permanent), Effects.GainLife(1))
     }
 

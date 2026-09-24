@@ -38,7 +38,7 @@ val Thoughtseize = card("Thoughtseize") {
         "That player discards that card. You lose 2 life."
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(player))
             val revealedHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))

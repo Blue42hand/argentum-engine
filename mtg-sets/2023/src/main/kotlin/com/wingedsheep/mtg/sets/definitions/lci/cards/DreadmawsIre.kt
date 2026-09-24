@@ -2,14 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -27,7 +25,7 @@ val DreadmawsIre = card("Dreadmaw's Ire") {
         "\"Whenever this creature deals combat damage to a player, destroy target artifact that player controls.\""
 
     spell {
-        val t = target("target", Targets.AttackingCreature)
+        val t = target(TargetFilter.AttackingCreature)
         effect = Effects.Composite(
             listOf(
                 Effects.ModifyStats(2, 2, t),
@@ -35,9 +33,7 @@ val DreadmawsIre = card("Dreadmaw's Ire") {
                 Effects.GrantTriggeredAbility(
                     ability = grantedTriggeredAbility {
                         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-                        val artifact = target("target artifact", TargetPermanent(
-                            filter = TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer())
-                        ))
+                        val artifact = target(TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer()))
                         effect = Effects.Destroy(artifact)
                         description = "Whenever this creature deals combat damage to a player, " +
                             "destroy target artifact that player controls."

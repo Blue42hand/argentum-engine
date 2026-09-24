@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -27,7 +27,7 @@ val ViashinoPyromancer = card("Viashino Pyromancer") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetPlayerOrPlaneswalker())
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(2, t)
     }
     metadata {

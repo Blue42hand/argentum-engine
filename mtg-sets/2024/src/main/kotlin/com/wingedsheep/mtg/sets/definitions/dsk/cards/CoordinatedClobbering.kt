@@ -2,14 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Coordinated Clobbering
@@ -34,15 +32,8 @@ val CoordinatedClobbering = card("Coordinated Clobbering") {
     spell {
         // Keep the fixed-count victim first so the flattened target list remains unambiguous when
         // the controller chooses only one creature from the following one-or-two target group.
-        target("creature an opponent controls", Targets.CreatureOpponentControls)
-        target(
-            "untapped creatures you control",
-            TargetCreature(
-                count = 2,
-                minCount = 1,
-                filter = TargetFilter(GameObjectFilter.Creature.untapped().youControl()),
-            ),
-        )
+        target(TargetFilter.CreatureOpponentControls)
+        targets(TargetFilter(GameObjectFilter.Creature.untapped().youControl()), count = 2, minCount = 1)
 
         effect = Effects.Pipeline {
             // Gather every chosen target, then separate the clobberers from the victim.

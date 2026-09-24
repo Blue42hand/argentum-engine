@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sparring Regimen — Strixhaven: School of Mages #29 (canonical printing)
@@ -40,7 +41,7 @@ val SparringRegimen = card("Sparring Regimen") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val attacker = target("target attacking creature", Targets.AttackingCreature)
+        val attacker = target(TargetFilter.AttackingCreature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker) then
             Effects.Untap(attacker)
     }

@@ -48,7 +48,7 @@ private val ChaliceOfDeath = card("Chalice of Death") {
 
     activatedAbility {
         cost = Costs.Tap
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.LoseLife(5, player)
         description = "Target player loses 5 life."
     }

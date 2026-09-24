@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 
 /**
@@ -26,11 +24,8 @@ val BiteDown = card("Bite Down") {
     typeLine = "Instant"
     oracleText = "Target creature you control deals damage equal to its power to target creature or planeswalker you don't control."
     spell {
-        val t1 = target("target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        val t2 = target(
-            "target creature or planeswalker you don't control",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())),
-        )
+        val t1 = target(TargetFilter.Creature.youControl())
+        val t2 = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
         effect = Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
     }
     metadata {

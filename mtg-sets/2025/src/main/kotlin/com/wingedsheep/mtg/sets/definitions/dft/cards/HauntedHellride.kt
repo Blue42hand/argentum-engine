@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Haunted Hellride
@@ -35,7 +35,7 @@ val HauntedHellride = card("Haunted Hellride") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val creature = target("target creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, creature),
             Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),

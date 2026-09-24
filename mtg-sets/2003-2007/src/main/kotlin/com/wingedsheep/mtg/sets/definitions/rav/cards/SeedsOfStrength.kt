@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Seeds of Strength
@@ -25,9 +24,9 @@ val SeedsOfStrength = card("Seeds of Strength") {
         "Target creature gets +1/+1 until end of turn.\n" +
         "Target creature gets +1/+1 until end of turn."
     spell {
-        val first = target("first", TargetCreature(filter = TargetFilter.Creature))
-        val second = target("second", TargetCreature(filter = TargetFilter.Creature))
-        val third = target("third", TargetCreature(filter = TargetFilter.Creature))
+        val first = target(TargetFilter.Creature)
+        val second = target(TargetFilter.Creature)
+        val third = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, first),
             Effects.ModifyStats(1, 1, second),

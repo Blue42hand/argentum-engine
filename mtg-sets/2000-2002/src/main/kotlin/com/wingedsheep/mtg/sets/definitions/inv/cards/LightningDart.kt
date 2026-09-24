@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lightning Dart
@@ -23,7 +23,7 @@ val LightningDart = card("Lightning Dart") {
         "Lightning Dart deals 4 damage to it instead."
 
     spell {
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(Filters.Creature.withAnyColor(Color.WHITE, Color.BLUE), t),
             then = Effects.DealDamage(4, t),

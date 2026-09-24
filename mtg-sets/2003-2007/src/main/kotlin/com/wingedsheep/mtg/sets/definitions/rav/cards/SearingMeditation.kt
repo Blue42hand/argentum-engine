@@ -25,7 +25,7 @@ val SearingMeditation = card("Searing Meditation") {
 
     triggeredAbility {
         trigger = Triggers.you.gainsLife()
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.MayPay(ManaCost.parse("{2}"), Effects.DealDamage(2, t))
     }
 

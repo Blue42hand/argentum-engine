@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.rtr.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Survey the Wreckage
@@ -25,7 +25,7 @@ val SurveyTheWreckage = card("Survey the Wreckage") {
     oracleText = "Destroy target land. Create a 1/1 red Goblin creature token."
 
     spell {
-        val t = target("target land", Targets.Land)
+        val t = target(TargetFilter.Land)
         effect = Effects.Composite(
             Effects.Destroy(t),
             Effects.CreateToken(

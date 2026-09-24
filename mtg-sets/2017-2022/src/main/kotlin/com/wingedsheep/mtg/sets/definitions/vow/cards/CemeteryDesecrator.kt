@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Cemetery Desecrator
@@ -83,10 +82,7 @@ private val desecrate: Effect =
         reflexiveEffect = ModalEffect.chooseOne(
             mode("Remove X counters from target permanent, " +
                 "where X is the mana value of the exiled card") {
-                val permanent = target(
-                    "target permanent",
-                    TargetObject(filter = TargetFilter.Permanent, id = "target permanent")
-                )
+                val permanent = target(TargetFilter.Permanent)
                 effect = Effects.RemoveCounterOfAnyKind(
                     target = permanent,
                     count = DynamicAmounts.manaValueOf(EXILED_CARD)
@@ -94,10 +90,7 @@ private val desecrate: Effect =
             },
             mode("Target creature an opponent controls gets -X/-X until end of turn, " +
                 "where X is the mana value of the exiled card") {
-                val creature = target("target creature", TargetObject(
-                    filter = TargetFilter.Creature.opponentControls(),
-                    id = "target creature an opponent controls"
-                ))
+                val creature = target(TargetFilter.Creature.opponentControls())
                 effect = Effects.ModifyStats(
                     -DynamicAmounts.manaValueOf(EXILED_CARD),
                     -DynamicAmounts.manaValueOf(EXILED_CARD),

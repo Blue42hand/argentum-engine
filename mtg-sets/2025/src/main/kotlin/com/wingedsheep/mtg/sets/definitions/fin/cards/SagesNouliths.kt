@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
@@ -11,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantSubtype
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sage's Nouliths
@@ -45,7 +45,7 @@ val SagesNouliths = card("Sage's Nouliths") {
         ability = GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.self.attacks()
-                val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
+                val attackingCreature = target(TargetFilter.AttackingCreature)
                 effect = Effects.Untap(attackingCreature)
             },
             filter = Filters.EquippedCreature,

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -43,7 +41,7 @@ val SunstarChaplain = card("Sunstar Chaplain") {
             ComparisonOperator.GTE,
             2
         )
-        val t = target("target creature you control", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = "put a +1/+1 counter on target creature you control"
     }
@@ -53,10 +51,7 @@ val SunstarChaplain = card("Sunstar Chaplain") {
             Costs.Mana("{2}"),
             Costs.RemovePlusOnePlusOneCounters(GameObjectFilter.Creature.youControl(), 1)
         )
-        val t = target(
-            "target artifact or creature",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact))
-        )
+        val t = target(TargetFilter(GameObjectFilter.CreatureOrArtifact))
         effect = Effects.Tap(t)
         description = "Tap target artifact or creature."
     }

@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.SetBasePowerToughnessStatic
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Puppet Crafting — Reality Fracture #111
@@ -36,11 +36,9 @@ val PuppetCrafting = card("Puppet Crafting") {
         "Enchanted permanent is a Construct creature with base power and toughness 5/5 in addition to its other types.\n" +
         "{4}{G}: Return this card from your graveyard to your hand."
 
-    auraTarget = TargetPermanent(
-        filter = TargetFilter(
+    auraTarget = TargetObject(filter = TargetFilter(
             GameObjectFilter.Artifact or GameObjectFilter.Enchantment.notSubtype(Subtype.AURA)
-        )
-    )
+        ))
 
     staticAbility {
         ability = GrantCardType("CREATURE", filter = GroupFilter.attachedCreature())

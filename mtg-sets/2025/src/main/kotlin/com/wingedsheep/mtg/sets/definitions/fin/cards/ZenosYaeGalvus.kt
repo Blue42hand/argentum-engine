@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Zenos yae Galvus // Shinryu, Transcendent Rival (Final Fantasy #127)
@@ -104,10 +103,7 @@ private val ZenosYaeGalvusFront = card("Zenos yae Galvus") {
     // of turn, then, if a creature was chosen, set up the transform-watch on it.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val chosen = target(
-            "creature an opponent controls",
-            TargetPermanent(filter = TargetFilter.CreatureOpponentControls, optional = true)
-        )
+        val chosen = target(TargetFilter.CreatureOpponentControls, optional = true)
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures.other().otherThanTarget(),

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -49,10 +48,7 @@ val RatKingVerminister = card("Rat King, Verminister") {
     }
 
     activatedAbility {
-        val creatureCardInYourGraveyard = target(
-            "target creature card in your graveyard",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
-        )
+        val creatureCardInYourGraveyard = target(TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
         cost = Costs.Composite(
             Costs.Tap,
             Costs.SacrificeMultiple(3, GameObjectFilter.Creature.withSubtype(Subtype("Rat")))

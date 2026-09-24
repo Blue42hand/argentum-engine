@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Lowland Oaf
@@ -44,10 +43,7 @@ val LowlandOaf = card("Lowland Oaf") {
 
     activatedAbility {
         cost = Costs.Tap
-        val goblin = target(
-            "target Goblin creature you control",
-            TargetCreature(filter = TargetFilter.Creature.withSubtype(Subtype.GOBLIN).youControl())
-        )
+        val goblin = target(TargetFilter.Creature.withSubtype(Subtype.GOBLIN).youControl())
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, goblin),
             Effects.GrantKeyword(Keyword.FLYING, goblin, Duration.EndOfTurn),

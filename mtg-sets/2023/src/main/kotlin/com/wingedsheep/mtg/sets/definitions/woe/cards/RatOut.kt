@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rat Out
@@ -24,7 +24,7 @@ val RatOut = card("Rat Out") {
         "You create a 1/1 black Rat creature token with \"This token can't block.\""
 
     spell {
-        val t = target("target", Targets.UpToCreatures(1))
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.Composite(
             Effects.ModifyStats(-1, -1, t),
             woeRatToken()

@@ -5,12 +5,12 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Altar of Shadows — Mirrodin #143 (canonical printing, only printing)
@@ -45,7 +45,7 @@ val AltarOfShadows = card("Altar of Shadows") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{7}"), Costs.Tap)
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.Destroy(creature),
             Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)

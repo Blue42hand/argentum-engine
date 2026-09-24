@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -28,7 +27,7 @@ val GreatWhale = card("Great Whale") {
     toughness = 5
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetPermanent(optional = true, count = 7, filter = TargetFilter.Land))
+        targets(TargetFilter.Land, count = 7, optional = true)
         effect = Effects.UntapEachTarget()
     }
     metadata {

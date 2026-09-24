@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Daretti, Rocketeer Engineer — Aetherdrift #120.
@@ -33,12 +32,7 @@ val DarettiRocketeerEngineer = card("Daretti, Rocketeer Engineer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val artifactCard = target(
-            "target artifact card in your graveyard",
-            TargetObject(
-                filter = TargetFilter.ArtifactInYourGraveyard
-            )
-        )
+        val artifactCard = target(TargetFilter.ArtifactInYourGraveyard)
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(GameObjectFilter.Artifact),
             then = Effects.Move(artifactCard, Zone.BATTLEFIELD)
@@ -47,12 +41,7 @@ val DarettiRocketeerEngineer = card("Daretti, Rocketeer Engineer") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val artifactCard = target(
-            "target artifact card in your graveyard",
-            TargetObject(
-                filter = TargetFilter.ArtifactInYourGraveyard
-            )
-        )
+        val artifactCard = target(TargetFilter.ArtifactInYourGraveyard)
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(GameObjectFilter.Artifact),
             then = Effects.Move(artifactCard, Zone.BATTLEFIELD)

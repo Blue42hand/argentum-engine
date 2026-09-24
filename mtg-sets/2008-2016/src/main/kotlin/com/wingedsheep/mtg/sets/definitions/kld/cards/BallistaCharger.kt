@@ -30,7 +30,7 @@ val BallistaCharger = card("Ballista Charger") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(1, victim)
     }
 

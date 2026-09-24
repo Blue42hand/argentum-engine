@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
@@ -11,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Isildur's Fateful Strike
@@ -28,7 +28,7 @@ val IsildursFatefulStrike = card("Isildur's Fateful Strike") {
         "Destroy target creature. If its controller has more than four cards in hand, they exile cards from their hand equal to the difference."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         val controller = Player.ControllerOf("target creature")
 
         // Number of cards to exile = (controller's hand size − 4), but never negative.

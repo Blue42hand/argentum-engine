@@ -20,7 +20,7 @@ val TurfWound = card("Turf Wound") {
     oracleText = "Target player can't play lands this turn.\nDraw a card."
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Composite(
             Effects.CantPlayLandsThisTurn(player),
             Effects.DrawCards(1)

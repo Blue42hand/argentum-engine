@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Song of Stupefaction
@@ -41,7 +41,7 @@ val SongOfStupefaction = card("Song of Stupefaction") {
         "When this Aura enters, you may mill two cards. (You may put the top two cards of your library into your graveyard.)\n" +
         "Fathomless descent — Enchanted permanent gets -X/-0, where X is the number of permanent cards in your graveyard."
 
-    auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
+    auraTarget = TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
 
     triggeredAbility {
         trigger = Triggers.self.enters()

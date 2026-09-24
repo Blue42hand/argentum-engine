@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
@@ -13,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Getaway Glamer {W}
@@ -52,10 +50,7 @@ val GetawayGlamer = card("Getaway Glamer") {
             modes = listOf(
                 mode("+ {1} — Exile target nontoken creature. Return it to the " +
                     "battlefield under its owner's control at the beginning of the next end step.") {
-                    val creature = target(
-                        "target creature",
-                        TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.nontoken()))
-                    )
+                    val creature = target(TargetFilter(GameObjectFilter.Creature.nontoken()))
                     additionalManaCost = "{1}"
                     effect = Effects.Composite(
                         Effects.Move(creature, Zone.EXILE),
@@ -66,7 +61,7 @@ val GetawayGlamer = card("Getaway Glamer") {
                     )
                 },
                 mode("+ {2} — Destroy target creature if no other creature has greater power.") {
-                    val creature = target("target creature", Targets.Creature)
+                    val creature = target(TargetFilter.Creature)
                     additionalManaCost = "{2}"
                     effect = Effects.If(
                         condition = Conditions.CompareAmounts(

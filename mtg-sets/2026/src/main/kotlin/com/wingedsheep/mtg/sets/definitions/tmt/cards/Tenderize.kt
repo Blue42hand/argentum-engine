@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Tenderize
@@ -21,8 +21,8 @@ val Tenderize = card("Tenderize") {
     oracleText = "Target creature you control deals damage equal to its power to target creature an opponent controls."
 
     spell {
-        val myCreature = target("creature you control", Targets.CreatureYouControl)
-        val theirCreature = target("creature an opponent controls", Targets.CreatureOpponentControls)
+        val myCreature = target(TargetFilter.CreatureYouControl)
+        val theirCreature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,

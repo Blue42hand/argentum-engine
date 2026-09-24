@@ -46,7 +46,7 @@ val MidnightSnack = card("Midnight Snack") {
             Costs.Mana("{2}{B}"),
             Costs.SacrificeSelf
         )
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.LoseLife(DynamicAmounts.lifeGainedThisTurn(), opponent)
         description = "Target opponent loses X life, where X is the amount of life you gained this turn."
     }

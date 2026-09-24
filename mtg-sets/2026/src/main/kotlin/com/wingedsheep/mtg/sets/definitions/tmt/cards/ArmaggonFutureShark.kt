@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Armaggon, Future Shark
@@ -29,7 +29,7 @@ val ArmaggonFutureShark = card("Armaggon, Future Shark") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("up to three target creatures", TargetCreature(count = 3, optional = true))
+        targets(TargetFilter.Creature, count = 3, optional = true)
         effect = Effects.ForEachTarget(
             Effects.Destroy(EffectTarget.ContextTarget(0))
         )

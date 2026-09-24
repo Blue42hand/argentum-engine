@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 private val createHuntmasterWolf = Effects.CreateToken(
@@ -79,18 +78,15 @@ private val RavagerOfTheFells = card("Ravager of the Fells") {
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
         trigger = Triggers.self.transforms(true)
-        val playerOrPlaneswalker = target("target opponent or planeswalker", Targets.OpponentOrPlaneswalker)
+        val playerOrPlaneswalker = target(Targets.OpponentOrPlaneswalker)
         // "That player or that planeswalker's controller": the first branch reads a player
         // target, the second the controller of a planeswalker target (as on Chandra Nalaar).
         val creature = target(
-            "target creature that player or that planeswalker's controller controls",
-            TargetCreature(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.targetPlayerControls(playerOrPlaneswalker) or
-                        GameObjectFilter.Creature.targetPlayerControls(EffectTarget.TargetController),
-                ),
+            TargetFilter(
+                GameObjectFilter.Creature.targetPlayerControls(playerOrPlaneswalker) or
+                    GameObjectFilter.Creature.targetPlayerControls(EffectTarget.TargetController),
             ),
+            optional = true,
         )
         effect = Effects.Composite(
             Effects.DealDamage(2, playerOrPlaneswalker),

@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.training
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Hopeful Initiate
@@ -49,7 +49,7 @@ val HopefulInitiate = card("Hopeful Initiate") {
             Costs.Mana("{2}{W}"),
             Costs.RemoveCounters(2, CounterType.PLUS_ONE_PLUS_ONE, Filters.Creature),
         )
-        val victim = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
+        val victim = target(TargetFilter.ArtifactOrEnchantment)
         effect = Effects.Destroy(victim)
     }
 

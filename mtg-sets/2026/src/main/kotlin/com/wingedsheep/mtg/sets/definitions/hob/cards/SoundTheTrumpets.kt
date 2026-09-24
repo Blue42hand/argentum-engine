@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sound the Trumpets
@@ -38,7 +38,7 @@ val SoundTheTrumpets = card("Sound the Trumpets") {
         "Human Soldier creature token.)"
 
     spell {
-        val spell = target("target spell", Targets.Spell)
+        val spell = target(TargetFilter.SpellOnStack)
         effect = Effects.If(
             condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2), spell),
             then = Effects.Composite(

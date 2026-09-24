@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tinybones, the Pickpocket
@@ -53,15 +52,7 @@ val TinybonesThePickpocket = card("Tinybones, the Pickpocket") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        target(
-            "target nonland permanent card from that player's graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.NonlandPermanent.ownedByOpponent(),
-                    zone = Zone.GRAVEYARD,
-                )
-            )
-        )
+        target(TargetFilter(GameObjectFilter.NonlandPermanent.ownedByOpponent(), zone = Zone.GRAVEYARD))
         effect = Effects.Pipeline {
             val stolenCard = gather(CardSource.ChosenTargets)
             run(Effects.GrantMayPlayFromExile(

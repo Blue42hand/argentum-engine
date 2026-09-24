@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tractor Beam
@@ -31,11 +31,9 @@ val TractorBeam = card("Tractor Beam") {
         "You control enchanted permanent.\n" +
         "Enchanted permanent doesn't untap during its controller's untap step."
 
-    auraTarget = TargetPermanent(
-        filter = TargetFilter(
+    auraTarget = TargetObject(filter = TargetFilter(
             GameObjectFilter.Creature.or(GameObjectFilter.Permanent.withSubtype("Spacecraft"))
-        )
-    )
+        ))
 
     triggeredAbility {
         trigger = Triggers.self.enters()

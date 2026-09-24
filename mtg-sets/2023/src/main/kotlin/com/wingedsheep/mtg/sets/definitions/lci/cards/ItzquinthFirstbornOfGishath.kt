@@ -8,8 +8,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Itzquinth, Firstborn of Gishath
@@ -44,15 +44,9 @@ val ItzquinthFirstbornOfGishath = card("Itzquinth, Firstborn of Gishath") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         // t1 (index 0): the Dinosaur you control that deals the damage.
-        val t1 = target(
-            "target Dinosaur you control",
-            TargetCreature(filter = TargetFilter.Creature.withSubtype("Dinosaur").youControl())
-        )
+        val t1 = target(TargetFilter.Creature.withSubtype("Dinosaur").youControl())
         // t2 (index 1): must be a different creature from t1 (the "another" constraint).
-        val t2 = target(
-            "another target creature",
-            TargetOther(TargetCreature())
-        )
+        val t2 = target(TargetOther(TargetObject(filter = TargetFilter.Creature)))
         // "you may pay {2}. When you do" → Gate.MayPay; if paid, t1 deals damage to t2.
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),

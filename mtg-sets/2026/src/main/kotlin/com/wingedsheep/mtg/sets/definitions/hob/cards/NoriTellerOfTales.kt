@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -29,7 +28,7 @@ val NoriTellerOfTales = card("Nori, Teller of Tales") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.attacking()))
+        val t = target(TargetFilter.Creature.attacking())
         effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
     metadata {

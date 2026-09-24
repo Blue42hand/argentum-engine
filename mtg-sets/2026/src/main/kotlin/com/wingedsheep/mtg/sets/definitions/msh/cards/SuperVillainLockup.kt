@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Super Villain Lockup — Marvel Super Heroes #37
@@ -34,10 +33,7 @@ val SuperVillainLockup = card("Super Villain Lockup") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "tapped creature an opponent controls",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.tapped().opponentControls())),
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.tapped().opponentControls()))
         effect = Effects.ExileUntilLeaves(creature)
         description = "When this enchantment enters, exile target tapped creature an opponent " +
             "controls until this enchantment leaves the battlefield."

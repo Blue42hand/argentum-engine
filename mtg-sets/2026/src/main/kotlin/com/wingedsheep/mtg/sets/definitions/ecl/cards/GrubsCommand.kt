@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
  * Grub's Command
@@ -37,14 +35,11 @@ val GrubsCommand = card("Grub's Command") {
     spell {
         modal(chooseCount = 2) {
             mode("Create a token that's a copy of target Goblin you control") {
-                val goblin = target(
-                    "target Goblin you control",
-                    TargetObject(filter = TargetFilter(GameObjectFilter.Creature.youControl().withSubtype("Goblin")))
-                )
+                val goblin = target(TargetFilter(GameObjectFilter.Creature.youControl().withSubtype("Goblin")))
                 effect = Effects.CreateTokenCopyOfTarget(goblin)
             }
             mode("Creatures target player controls get +1/+1 and gain haste until end of turn") {
-                val player = target("target player", TargetPlayer())
+                val player = target(Targets.Player)
                 effect = Patterns.Group.pumpAndGrantToAll(
                     power = 1,
                     toughness = 1,
@@ -53,11 +48,11 @@ val GrubsCommand = card("Grub's Command") {
                 )
             }
             mode("Destroy target artifact or creature") {
-                val perm = target("target artifact or creature", Targets.CreatureOrArtifact)
+                val perm = target(TargetFilter.CreatureOrArtifact)
                 effect = Effects.Destroy(perm)
             }
             mode("Target player mills five cards, then puts each Goblin card milled this way into their hand") {
-                val player = target("target player", TargetPlayer())
+                val player = target(Targets.Player)
                 effect = Effects.Pipeline {
                     val milled = gather(CardSource.TopOfLibrary(5, player.asPlayer))
                     toGraveyard(milled, player.asPlayer)

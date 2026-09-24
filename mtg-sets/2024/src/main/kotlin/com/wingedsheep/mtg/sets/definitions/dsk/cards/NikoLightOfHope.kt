@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Niko, Light of Hope — Duskmourn: House of Horror #224
@@ -62,10 +61,7 @@ val NikoLightOfHope = card("Niko, Light of Hope") {
             Costs.Mana("{2}"),
             Costs.Tap
         )
-        val nonlegendaryCreatureYouControl = target(
-            "target nonlegendary creature you control",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Creature.nonlegendary().youControl())),
-        )
+        val nonlegendaryCreatureYouControl = target(TargetFilter(GameObjectFilter.Creature.nonlegendary().youControl()))
         effect = Effects.Composite(
             Patterns.Exile.exileUntilEndStep(nonlegendaryCreatureYouControl),
             Effects.EachPermanentBecomesCopyOfTarget(

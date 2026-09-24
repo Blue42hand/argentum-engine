@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Secluded Starforge
@@ -36,7 +36,7 @@ val SecludedStarforge = card("Secluded Starforge") {
             Costs.Tap,
             Costs.TapXPermanents(GameObjectFilter.Artifact)
         )
-        val target = target("target creature", Targets.Creature)
+        val target = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(DynamicAmounts.xValue(), DynamicAmounts.fixed(0), target, Duration.EndOfTurn)
         timing = TimingRule.SorcerySpeed
     }

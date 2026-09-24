@@ -5,11 +5,11 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spinal Embrace
@@ -36,7 +36,7 @@ val SpinalEmbrace = card("Spinal Embrace") {
 
     spell {
         castOnlyDuring(Phase.COMBAT)
-        val t = target("target creature you don't control", Targets.CreatureOpponentControls)
+        val t = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.Untap(t),
             Effects.GainControl(t, Duration.Permanent),

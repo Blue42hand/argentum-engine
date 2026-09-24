@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.som.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Trigon of Rage
@@ -50,7 +50,7 @@ val TrigonOfRage = card("Trigon of Rage") {
             Costs.Tap,
             Costs.RemoveCounterFromSelf(CounterType.CHARGE)
         )
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(3, 0, t)
         description = "{2}, {T}, Remove a charge counter from this artifact: " +
             "Target creature gets +3/+0 until end of turn."

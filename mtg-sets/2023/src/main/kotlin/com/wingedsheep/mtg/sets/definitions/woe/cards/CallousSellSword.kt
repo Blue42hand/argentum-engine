@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Callous Sell-Sword // Burn Together
@@ -60,8 +60,8 @@ val CallousSellSword = card("Callous Sell-Sword") {
             "target. Then sacrifice it. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            val yourCreature = target("target creature you control", Targets.CreatureYouControl)
-            val other = target("any other target", TargetOther(baseRequirement = AnyTarget()))
+            val yourCreature = target(TargetFilter.CreatureYouControl)
+            val other = target(TargetOther(baseRequirement = AnyTarget()))
             effect = Effects.DealDamage(
                 DynamicAmounts.powerOf(yourCreature),
                 other,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Frantic Firebolt
@@ -30,7 +29,7 @@ val FranticFirebolt = card("Frantic Firebolt") {
         "of cards in your graveyard that are instant cards, sorcery cards, and/or have an Adventure."
 
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.DealDamage(
             2 + DynamicAmounts.count(Player.You, Zone.GRAVEYARD, Filters.InstantSorceryOrAdventure),
             t

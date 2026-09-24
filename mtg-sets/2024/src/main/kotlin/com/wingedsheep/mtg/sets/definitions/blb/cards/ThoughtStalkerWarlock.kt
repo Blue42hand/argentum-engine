@@ -37,7 +37,7 @@ val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.If(
             // "If THEY lost life this turn" — bound to the chosen target opponent,
             // not any opponent (matters in multiplayer)

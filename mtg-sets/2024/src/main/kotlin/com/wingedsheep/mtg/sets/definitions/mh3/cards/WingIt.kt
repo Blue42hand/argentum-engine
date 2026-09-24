@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.mh3.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wing It
@@ -28,7 +28,7 @@ val WingIt = card("Wing It") {
     oracleText = "Target creature gets +2/+2 until end of turn. Put a flying counter on it. Scry 1."
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(2, 2, creature)
             .then(Effects.AddCounters(CounterType.FLYING, 1, creature))
             .then(Patterns.Library.scry(1))

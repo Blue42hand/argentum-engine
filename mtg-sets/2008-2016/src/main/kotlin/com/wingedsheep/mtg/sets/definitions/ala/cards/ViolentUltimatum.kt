@@ -4,7 +4,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Violent Ultimatum
@@ -26,7 +27,7 @@ val ViolentUltimatum = card("Violent Ultimatum") {
     oracleText = "Destroy three target permanents."
 
     spell {
-        target = TargetPermanent(count = 3)
+        target = TargetObject(filter = TargetFilter.Permanent, count = 3)
         effect = Effects.ForEachTarget(
             Effects.Destroy(EffectTarget.ContextTarget(0))
         )

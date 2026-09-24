@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Thunderscape Master
@@ -28,7 +28,7 @@ val ThunderscapeMaster = card("Thunderscape Master") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}{B}"), Costs.Tap)
-        val t = target("target player", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.LoseLife(2, t) then Effects.GainLife(2)
     }
 

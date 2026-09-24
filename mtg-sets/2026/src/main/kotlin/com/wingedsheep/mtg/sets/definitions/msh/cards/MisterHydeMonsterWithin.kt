@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -11,6 +10,8 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Mister Hyde, Monster Within (MSH #176) — {2}{G} Legendary Creature — Human Villain · 2/2
@@ -54,7 +55,7 @@ val MisterHydeMonsterWithin = card("Mister Hyde, Monster Within") {
             ),
             Mode.noTarget(
                 Effects.Pipeline {
-                    val hydeCounterSource = selectTarget(Targets.CreatureYouControl)
+                    val hydeCounterSource = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl))
                     run(Effects.IfYouDo(
                         action = Effects.RemoveCounterOfAnyKind(
                             hydeCounterSource.asTarget,

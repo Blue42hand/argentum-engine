@@ -4,12 +4,12 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * The Ooze
@@ -34,7 +34,7 @@ val TheOoze = card("The Ooze") {
     }
 
     activatedAbility {
-        val graveyardCard = target("target card from a graveyard", Targets.CardInGraveyard)
+        val graveyardCard = target(TargetFilter.CardInGraveyard)
         cost = Costs.Tap
         effect = Effects.Exile(graveyardCard).then(Effects.CreateMutagenToken())
     }

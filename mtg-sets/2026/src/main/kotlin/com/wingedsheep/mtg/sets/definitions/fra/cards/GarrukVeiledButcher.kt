@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Garruk, Veiled Butcher
@@ -57,7 +57,7 @@ val GarrukVeiledButcher = card("Garruk, Veiled Butcher") {
 
     // +2: Up to one target creature gets -4/-1 until your next turn.
     loyaltyAbility(+2) {
-        val creature = target("up to one target creature", TargetCreature(optional = true))
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.ModifyStats(-4, -1, creature, Duration.UntilYourNextTurn)
     }
 

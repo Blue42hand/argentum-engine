@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Shagrat, Loot Bearer
@@ -40,13 +39,7 @@ val ShagratLootBearer = card("Shagrat, Loot Bearer") {
         trigger = Triggers.self.attacks()
         // "up to one target Equipment" — any Equipment; control doesn't change, so it's not
         // restricted to Equipment you control.
-        val equipment = target(
-            "Equipment",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)),
-                optional = true
-            )
-        )
+        val equipment = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)), optional = true)
         effect = Effects.Composite(
             Effects.AttachTargetEquipmentToCreature(equipment, EffectTarget.Self),
             Effects.Amass(DynamicAmounts.equipmentAttachedToSelf(), "Orc")

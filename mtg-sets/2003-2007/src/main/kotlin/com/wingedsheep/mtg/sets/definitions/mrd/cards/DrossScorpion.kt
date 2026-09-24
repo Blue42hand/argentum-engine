@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Dross Scorpion — Mirrodin #164
@@ -34,7 +33,7 @@ val DrossScorpion = card("Dross Scorpion") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.ArtifactCreature).dies()
-        val artifact = target("target artifact", TargetPermanent(filter = TargetFilter.Artifact))
+        val artifact = target(TargetFilter.Artifact)
         effect = Effects.May(Effects.Untap(artifact))
         description = "Whenever this creature or another artifact creature dies, you may untap target artifact."
     }

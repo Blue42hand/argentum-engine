@@ -50,7 +50,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target creature with defender"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -61,7 +61,7 @@
                 "filter": {
                     "baseFilter": "creature kw:defender"
                 },
-                "id": "target creature with defender"
+                "id": "t0"
             }
         ]
     },

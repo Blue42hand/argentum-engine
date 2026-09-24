@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Raven Eagle
@@ -47,10 +46,7 @@ val RavenEagle = card("Raven Eagle") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val exiled = target(
-            "card from a graveyard",
-            TargetObject(optional = true, filter = TargetFilter.CardInGraveyard)
-        )
+        val exiled = target(TargetFilter.CardInGraveyard, optional = true)
         effect = Effects.Composite(
             Effects.Exile(exiled),
             Effects.If(
@@ -64,10 +60,7 @@ val RavenEagle = card("Raven Eagle") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val exiled = target(
-            "card from a graveyard",
-            TargetObject(optional = true, filter = TargetFilter.CardInGraveyard)
-        )
+        val exiled = target(TargetFilter.CardInGraveyard, optional = true)
         effect = Effects.Composite(
             Effects.Exile(exiled),
             Effects.If(

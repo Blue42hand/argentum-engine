@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Most Valuable Slayer
@@ -33,7 +34,7 @@ val MostValuableSlayer = card("Most Valuable Slayer") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val attacker = target("attacking creature", Targets.AttackingCreature)
+        val attacker = target(TargetFilter.AttackingCreature)
         effect = Effects.ModifyStats(1, 0, attacker)
             .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, attacker))
     }

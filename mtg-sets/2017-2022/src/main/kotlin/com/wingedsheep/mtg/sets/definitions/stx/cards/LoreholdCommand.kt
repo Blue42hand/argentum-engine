@@ -58,8 +58,8 @@ val LoreholdCommand = card("Lorehold Command") {
                 )
             }
             mode("Lorehold Command deals 3 damage to any target. Target player gains 3 life") {
-                val victim = target("any target", Targets.Any)
-                val player = target("target player", Targets.Player)
+                val victim = target(Targets.Any)
+                val player = target(Targets.Player)
                 effect = Effects.DealDamage(3, victim) then Effects.GainLife(3, player)
             }
             mode("Sacrifice a permanent, then draw two cards") {

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -36,22 +35,14 @@ val ToothCollector = card("Tooth Collector") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target creature an opponent controls",
-            TargetCreature(filter = TargetFilter.Creature.opponentControls()),
-        )
+        val t = target(TargetFilter.Creature.opponentControls())
         effect = Effects.ModifyStats(-1, -1, t, Duration.EndOfTurn)
     }
 
     triggeredAbility {
         trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.Delirium(4)
-        val t = target(
-            "target creature that player controls",
-            TargetCreature(
-                filter = TargetFilter(GameObjectFilter.Creature.controlledByTriggeringPlayer()),
-            ),
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.controlledByTriggeringPlayer()))
         effect = Effects.ModifyStats(-1, -1, t, Duration.EndOfTurn)
     }
 

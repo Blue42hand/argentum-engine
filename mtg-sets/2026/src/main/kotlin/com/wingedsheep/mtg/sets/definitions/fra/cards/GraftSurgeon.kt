@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val GraftSurgeon = card("Graft Surgeon") {
     manaCost = "{2}{W}"
@@ -26,10 +25,7 @@ val GraftSurgeon = card("Graft Surgeon") {
     ))
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(
-            optional = true,
-            filter = TargetFilter(GameObjectFilter.Creature.youControl())
-        ))
+        val creature = target(TargetFilter(GameObjectFilter.Creature.youControl()), optional = true)
         trigger = Triggers.self.dies()
         effect = Effects.MoveAllLastKnownCounters(creature)
     }

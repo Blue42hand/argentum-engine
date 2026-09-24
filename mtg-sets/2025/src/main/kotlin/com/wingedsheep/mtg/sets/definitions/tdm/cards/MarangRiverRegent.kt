@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Marang River Regent // Coil and Catch — Tarkir: Dragonstorm #51
@@ -38,10 +37,7 @@ val MarangRiverRegent = card("Marang River Regent") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to two other target nonland permanents",
-            TargetPermanent(count = 2, optional = true, filter = TargetFilter.NonlandPermanent.other())
-        )
+        targets(TargetFilter.NonlandPermanent.other(), count = 2, optional = true)
         effect = Effects.Pipeline {
             val marangRiverRegentTargets = gather(CardSource.ChosenTargets)
             toHand(marangRiverRegentTargets)

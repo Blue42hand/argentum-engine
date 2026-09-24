@@ -12,7 +12,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target nonland permanent"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -80,7 +80,7 @@
                 "filter": {
                     "baseFilter": "nonland permanent"
                 },
-                "id": "target nonland permanent"
+                "id": "t0"
             }
         ]
     },
@@ -139,7 +139,7 @@
                 "filter": {
                     "baseFilter": "creature ctrl:you"
                 },
-                "id": "any number of target creatures you control"
+                "id": "t0"
             }
         ]
     },
@@ -384,7 +384,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature an opponent controls"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -392,7 +392,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "target creature an opponent controls"
+                    "id": "t0"
                 }
             },
             {
@@ -415,7 +415,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature that player controls"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -423,7 +423,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:triggering-player"
                     },
-                    "id": "target creature that player controls"
+                    "id": "t0"
                 },
                 "interveningIf": {
                     "type": "Compare",
@@ -478,7 +478,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature an opponent controls"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -486,7 +486,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "target creature an opponent controls"
+                    "id": "t0"
                 }
             },
             {
@@ -501,7 +501,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature that player controls"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -509,7 +509,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:triggering-player"
                     },
-                    "id": "target creature that player controls"
+                    "id": "t0"
                 },
                 "interveningIf": {
                     "type": "Compare",

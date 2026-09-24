@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -31,13 +30,13 @@ val NahirisMachinations = card("Nahiri's Machinations") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val t = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }
 
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
-        val t = target("target", TargetCreature(filter = TargetFilter.BlockingCreature))
+        val t = target(TargetFilter.BlockingCreature)
         effect = Effects.DealDamage(1, t)
     }
 

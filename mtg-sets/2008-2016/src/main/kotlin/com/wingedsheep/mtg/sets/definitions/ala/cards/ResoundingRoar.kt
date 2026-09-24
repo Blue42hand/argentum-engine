@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ala.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Resounding Roar
@@ -32,7 +32,7 @@ val ResoundingRoar = card("Resounding Roar") {
         "When you cycle this card, target creature gets +6/+6 until end of turn."
 
     spell {
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(3, 3, t)
     }
 
@@ -40,7 +40,7 @@ val ResoundingRoar = card("Resounding Roar") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(6, 6, t)
     }
 

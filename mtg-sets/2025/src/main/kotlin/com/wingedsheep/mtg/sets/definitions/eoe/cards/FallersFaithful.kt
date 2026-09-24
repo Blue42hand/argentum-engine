@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Faller's Faithful
@@ -37,10 +36,7 @@ val FallersFaithful = card("Faller's Faithful") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one other target creature",
-            TargetCreature(optional = true, filter = TargetFilter.OtherCreature)
-        )
+        val creature = target(TargetFilter.OtherCreature, optional = true)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.copy(
                     statePredicates = listOf(StatePredicate.Not(StatePredicate.WasDealtDamageThisTurn))

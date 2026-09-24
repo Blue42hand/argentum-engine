@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Gideon's Memorial (Reality Fracture #198) — {1}{W} Legendary Artifact.
@@ -56,10 +55,7 @@ val GideonsMemorial = card("Gideon's Memorial") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.DiscardSelf)
         activateFromZone = Zone.HAND
-        val t = target(
-            "target attacking or blocking creature",
-            TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature)
-        )
+        val t = target(TargetFilter.AttackingOrBlockingCreature)
         effect = Effects.DealDamage(4, t)
         description = "{1}{W}, Discard this card: It deals 4 damage to target attacking or blocking creature."
     }

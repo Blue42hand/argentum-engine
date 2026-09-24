@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Demonic Junker — Aetherdrift #83
@@ -73,14 +72,8 @@ val DemonicJunker = card("Demonic Junker") {
 
         // "for each player, destroy up to one target creature that player controls"
         // (two-player rendering: one optional slot per player — see KDoc).
-        target(
-            "up to one target creature you control",
-            TargetPermanent(filter = TargetFilter.Creature.youControl(), optional = true)
-        )
-        target(
-            "up to one target creature an opponent controls",
-            TargetPermanent(filter = TargetFilter.Creature.opponentControls(), optional = true)
-        )
+        target(TargetFilter.Creature.youControl(), optional = true)
+        target(TargetFilter.Creature.opponentControls(), optional = true)
 
         effect = Effects.Pipeline(
             descriptionOverride = "For each player, destroy up to one target creature that player " +

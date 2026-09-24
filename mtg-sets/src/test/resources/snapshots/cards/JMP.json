@@ -20,7 +20,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact card in your graveyard"
+                        "name": "t0"
                     },
                     "destination": "Hand"
                 },
@@ -30,7 +30,7 @@
                         "baseFilter": "artifact own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "target artifact card in your graveyard"
+                    "id": "t0"
                 },
                 "descriptionOverride": "When this creature enters, return target artifact card from your graveyard to your hand."
             }
@@ -244,13 +244,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{5}, {T}, Sacrifice this creature: It deals 3 damage to any target."
@@ -751,7 +751,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target artifact or enchantment"
+                                    "name": "t0"
                                 },
                                 "destination": "Hand"
                             },
@@ -762,7 +762,7 @@
                                         "baseFilter": "artifact|enchantment own:you",
                                         "zone": "Graveyard"
                                     },
-                                    "id": "target artifact or enchantment"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Return target artifact or enchantment card from your graveyard to your hand"

@@ -18,7 +18,7 @@ val VraskasFinalMercy = card("Vraska's Final Mercy") {
     spell {
         modal(chooseCount = 1) {
             mode("You lose 2 life. Destroy target creature or planeswalker") {
-                val victim = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+                val victim = target(Targets.CreatureOrPlaneswalker)
                 effect = Effects.LoseLife(2, EffectTarget.Controller).then(Effects.Destroy(victim))
             }
             mode("You lose 2 life. Empower Jace 6") {

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * End-to-end rules coverage for the Station keyword ability (CR 702.184) and the `{N+}` station
@@ -66,7 +67,7 @@ class StationMechanicTest : ScenarioTestBase() {
         manaCost = "{1}{B}"
         typeLine = "Instant"
         spell {
-            val t = target("target creature", com.wingedsheep.sdk.scripting.targets.TargetCreature())
+            val t = target(TargetFilter.Creature)
             effect = Effects.Destroy(t)
         }
     }

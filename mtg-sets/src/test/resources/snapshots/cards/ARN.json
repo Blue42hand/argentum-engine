@@ -83,7 +83,7 @@
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target artifact"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileYouControlSource",
@@ -96,7 +96,7 @@
                         "filter": {
                             "baseFilter": "artifact"
                         },
-                        "id": "target artifact"
+                        "id": "t0"
                     }
                 ]
             }
@@ -243,13 +243,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -290,7 +290,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Wall"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -299,7 +299,7 @@
                         "filter": {
                             "baseFilter": "permanent Wall"
                         },
-                        "id": "target Wall"
+                        "id": "t0"
                     }
                 ]
             }
@@ -831,7 +831,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "controller target"
+                                "name": "t0"
                             }
                         },
                         {
@@ -842,7 +842,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "opponent target"
+                                "name": "t1"
                             }
                         }
                     ]
@@ -850,11 +850,11 @@
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "controller target"
+                        "id": "t0"
                     },
                     {
                         "type": "AnyTarget",
-                        "id": "opponent target",
+                        "id": "t1",
                         "chooser": "Opponent"
                     }
                 ]
@@ -1097,7 +1097,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target attacking creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1106,7 +1106,7 @@
                         "filter": {
                             "baseFilter": "creature attacking"
                         },
-                        "id": "target attacking creature"
+                        "id": "t0"
                     }
                 ],
                 "restrictions": [
@@ -1189,7 +1189,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target permanent"
+                "name": "t0"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -1200,7 +1200,7 @@
                 "filter": {
                     "baseFilter": "permanent"
                 },
-                "id": "target permanent"
+                "id": "t0"
             }
         ]
     },
@@ -1382,7 +1382,7 @@
                             "type": "TapUntap",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target attacking creature you control"
+                                "name": "t0"
                             },
                             "tap": false
                         },
@@ -1390,7 +1390,7 @@
                             "type": "PreventDamageShield",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target attacking creature you control"
+                                "name": "t0"
                             },
                             "scope": "CombatOnly",
                             "direction": "Both"
@@ -1403,7 +1403,7 @@
                         "filter": {
                             "baseFilter": "creature attacking ctrl:you"
                         },
-                        "id": "target attacking creature you control"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1483,7 +1483,7 @@
                     "type": "Regenerate",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Elephant"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1492,7 +1492,7 @@
                         "filter": {
                             "baseFilter": "permanent Elephant"
                         },
-                        "id": "target Elephant"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1603,7 +1603,7 @@
                     "keyword": "FORESTWALK",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "non-Wall creature an opponent controls"
+                        "name": "t0"
                     },
                     "duration": "UntilYourNextUpkeep"
                 },
@@ -1621,7 +1621,7 @@
                             "controllerPredicate": "ControlledByOpponent"
                         }
                     },
-                    "id": "non-Wall creature an opponent controls"
+                    "id": "t0"
                 }
             }
         ]
@@ -1731,7 +1731,7 @@
                     "keyword": "FLYING",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1740,7 +1740,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2023,7 +2023,7 @@
                     "type": "CantBeRegenerated",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2032,7 +2032,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2223,7 +2223,7 @@
                     "type": "SetBaseStats",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature with flying"
+                        "name": "t0"
                     },
                     "power": {
                         "type": "Fixed",
@@ -2237,7 +2237,7 @@
                         "filter": {
                             "baseFilter": "creature kw:flying"
                         },
-                        "id": "target creature with flying"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2334,7 +2334,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "tap": false
                 },
@@ -2344,7 +2344,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -2601,7 +2601,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Djinn or Efreet"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2640,7 +2640,7 @@
                                 ]
                             }
                         },
-                        "id": "target Djinn or Efreet"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3181,7 +3181,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -3194,7 +3194,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3232,7 +3232,7 @@
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "duration": {
                         "type": "WhileSourceTappedAndAffectedPowerAtMostSource",
@@ -3253,7 +3253,7 @@
                                 ]
                             }
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3289,7 +3289,7 @@
                     "type": "PhaseOutUntilLeaves",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     },
                     "tapOnPhaseIn": true
                 },
@@ -3298,7 +3298,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "creature"
+                    "id": "t0"
                 }
             },
             {
@@ -3388,7 +3388,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target enchantment"
+                                    "name": "t0"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -3413,7 +3413,7 @@
                                             ]
                                         }
                                     },
-                                    "id": "target enchantment"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "Destroy target Aura attached to a land"
@@ -3423,7 +3423,7 @@
                                 "type": "RemoveDamageShield",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "target land"
+                                    "name": "t0"
                                 }
                             },
                             "targetRequirements": [
@@ -3432,7 +3432,7 @@
                                     "filter": {
                                         "baseFilter": "land"
                                     },
-                                    "id": "target land"
+                                    "id": "t0"
                                 }
                             ],
                             "description": "The next time target land would be destroyed this turn, remove all damage marked on it instead"
@@ -3646,7 +3646,7 @@
                             "keyword": "ISLANDWALK",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature"
+                                "name": "t0"
                             }
                         },
                         {
@@ -3666,7 +3666,7 @@
                             },
                             "watchedTarget": {
                                 "type": "BoundVariable",
-                                "name": "target creature"
+                                "name": "t0"
                             }
                         }
                     ]
@@ -3677,7 +3677,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -3964,7 +3964,7 @@
                     "type": "SetBaseStats",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target attacking creature"
+                        "name": "t0"
                     },
                     "power": {
                         "type": "Fixed",
@@ -3978,7 +3978,7 @@
                         "filter": {
                             "baseFilter": "creature attacking"
                         },
-                        "id": "target attacking creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -4015,7 +4015,7 @@
                     "type": "SetBaseStats",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature other than this creature"
+                        "name": "t0"
                     },
                     "power": {
                         "type": "Fixed",
@@ -4034,7 +4034,7 @@
                             "baseFilter": "creature",
                             "excludeSelf": true
                         },
-                        "id": "target creature other than this creature"
+                        "id": "t0"
                     }
                 ]
             }
@@ -4178,7 +4178,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -4187,7 +4187,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ]
             }

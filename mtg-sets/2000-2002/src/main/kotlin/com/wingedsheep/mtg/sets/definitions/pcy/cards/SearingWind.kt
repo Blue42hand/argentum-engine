@@ -7,7 +7,7 @@ package com.wingedsheep.mtg.sets.definitions.pcy.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -22,7 +22,7 @@ val SearingWind = card("Searing Wind") {
     typeLine = "Instant"
     oracleText = "Searing Wind deals 10 damage to any target."
     spell {
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(10, t)
     }
     metadata {

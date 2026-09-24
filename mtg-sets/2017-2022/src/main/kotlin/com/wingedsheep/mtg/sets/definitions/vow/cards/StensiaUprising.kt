@@ -66,7 +66,7 @@ val StensiaUprising = card("Stensia Uprising") {
                     descriptionOverride = "You may sacrifice this enchantment. When you do, " +
                         "it deals 7 damage to any target."
                 ) {
-                    val anyTarget = target("target any", Targets.Any)
+                    val anyTarget = target(Targets.Any)
                     effect = Effects.DealDamage(
                         amount = 7,
                         target = anyTarget,

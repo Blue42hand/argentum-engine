@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Tamiyo's Safekeeping — Kamigawa: Neon Dynasty #211 (canonical printing)
@@ -26,10 +25,7 @@ val TamiyosSafekeeping = card("Tamiyo's Safekeeping") {
         "don't destroy it.)"
 
     spell {
-        val t = target(
-            "permanent you control",
-            TargetPermanent(filter = TargetFilter.PermanentYouControl),
-        )
+        val t = target(TargetFilter.PermanentYouControl)
         effect = (
             Effects.GrantKeyword(Keyword.HEXPROOF, t) then
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)

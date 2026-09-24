@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Venomspout Brackus
@@ -31,9 +30,7 @@ val VenomspoutBrackus = card("Venomspout Brackus") {
             Costs.Mana("{1}{G}"),
             AbilityCost.Tap
         )
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.attackingOrBlocking().withKeyword(Keyword.FLYING))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.attackingOrBlocking().withKeyword(Keyword.FLYING)))
         effect = Effects.DealDamage(5, t)
     }
 

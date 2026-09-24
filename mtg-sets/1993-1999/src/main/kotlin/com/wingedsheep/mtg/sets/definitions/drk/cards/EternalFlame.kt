@@ -34,7 +34,7 @@ val EternalFlame = card("Eternal Flame") {
         "damage, rounded up, to you, where X is the number of Mountains you control."
 
     spell {
-        val victim = target("target opponent or planeswalker", Targets.OpponentOrPlaneswalker)
+        val victim = target(Targets.OpponentOrPlaneswalker)
         val mountains = DynamicAmounts
             .battlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN))
             .count()

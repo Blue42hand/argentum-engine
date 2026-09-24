@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.rna.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Faerie Duelist — Ravnica Allegiance #39
@@ -27,7 +27,7 @@ val FaerieDuelist = card("Faerie Duelist") {
     keywords(Keyword.FLASH, Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target("target", Targets.CreatureOpponentControls)
+        val victim = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ModifyStats(-2, 0, victim)
     }
 

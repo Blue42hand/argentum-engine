@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Undead Butler
@@ -47,10 +46,7 @@ val UndeadButler = card("Undead Butler") {
             descriptionOverride = "You may exile this creature. When you do, return target " +
                 "creature card from your graveyard to your hand."
         ) {
-            val creatureInYourGraveyard = target(
-                "target creature in your graveyard",
-                TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-            )
+            val creatureInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
             effect = Effects.Move(creatureInYourGraveyard, Zone.HAND)
         }
     }

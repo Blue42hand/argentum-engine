@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val TethermagesAdvantage = card("Tethermage's Advantage") {
     manaCost = "{G}"
@@ -13,7 +13,7 @@ val TethermagesAdvantage = card("Tethermage's Advantage") {
     oracleText = "Target creature gets +2/+2 and gains reach until end of turn. Untap it."
 
     spell {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(2, 2, creature)
             .then(Effects.GrantKeyword(Keyword.REACH, creature))
             .then(Effects.Untap(creature))

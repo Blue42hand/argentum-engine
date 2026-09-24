@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
@@ -11,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Web-Shooters
@@ -38,10 +38,7 @@ val WebShooters = card("Web-Shooters") {
         ability = GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = Triggers.self.attacks()
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    Targets.CreatureOpponentControls
-                )
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.Tap(creatureOpponentControls)
             },
             filter = Filters.EquippedCreature,

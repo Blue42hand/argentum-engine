@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Werefox Bodyguard
@@ -44,14 +43,8 @@ val WerefoxBodyguard = card("Werefox Bodyguard") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(
-            "other target non-Fox creature",
-            TargetCreature(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.notSubtype(Subtype("Fox")),
-                    excludeSelf = true
-                )
-            )
+            TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Fox")), excludeSelf = true),
+            optional = true,
         )
         effect = Effects.ExileUntilLeaves(creature)
         description = "When this creature enters, exile up to one other target non-Fox creature " +

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Ghired, Mirror of the Wilds
@@ -44,11 +43,7 @@ val GhiredMirrorOfTheWilds = card("Ghired, Mirror of the Wilds") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Tap
-                val token = target("target token", TargetPermanent(
-                    filter = TargetFilter(
-                        GameObjectFilter.Token.youControl().enteredThisTurn(),
-                    ),
-                ))
+                val token = target(TargetFilter(GameObjectFilter.Token.youControl().enteredThisTurn()))
                 effect = Effects.CreateTokenCopyOfTarget(token)
             },
             filter = GroupFilter(GameObjectFilter.Creature.youControl().nontoken()),

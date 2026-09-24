@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Recover
@@ -20,7 +19,7 @@ val Recover = card("Recover") {
     oracleText = "Return target creature card from your graveyard to your hand.\nDraw a card."
 
     spell {
-        val target = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
+        val target = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.ReturnToHand(target)
             .then(Effects.DrawCards(1))
     }

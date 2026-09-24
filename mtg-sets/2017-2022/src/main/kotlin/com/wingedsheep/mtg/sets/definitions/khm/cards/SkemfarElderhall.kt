@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Skemfar Elderhall
@@ -53,15 +52,12 @@ val SkemfarElderhall = card("Skemfar Elderhall") {
             Costs.SacrificeSelf
         )
         val victim = target(
-            "target",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.copy(
-                        controllerPredicate = ControllerPredicate.Not(ControllerPredicate.ControlledByYou)
-                    )
+            TargetFilter(
+                GameObjectFilter.Creature.copy(
+                    controllerPredicate = ControllerPredicate.Not(ControllerPredicate.ControlledByYou)
                 )
-            )
+            ),
+            optional = true,
         )
         effect = Effects.Composite(
             Effects.ModifyStats(-2, -2, victim),

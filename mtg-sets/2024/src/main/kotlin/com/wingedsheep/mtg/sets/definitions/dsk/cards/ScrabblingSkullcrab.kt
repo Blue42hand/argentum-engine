@@ -36,7 +36,7 @@ val ScrabblingSkullcrab = card("Scrabbling Skullcrab") {
     // Eerie trigger — part 1: whenever an enchantment you control enters
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
-        val target = target("target", Targets.Player)
+        val target = target(Targets.Player)
         effect = Patterns.Library.mill(2, target)
         description = "Eerie — Whenever an enchantment you control enters, target player mills two cards."
     }
@@ -44,7 +44,7 @@ val ScrabblingSkullcrab = card("Scrabbling Skullcrab") {
     // Eerie trigger — part 2: whenever you fully unlock a Room
     triggeredAbility {
         trigger = Triggers.you.fullyUnlocksARoom()
-        val target = target("target", Targets.Player)
+        val target = target(Targets.Player)
         effect = Patterns.Library.mill(2, target)
         description = "Eerie — Whenever you fully unlock a Room, target player mills two cards."
     }

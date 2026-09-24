@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.core.Step
 
@@ -31,9 +30,7 @@ val EntrailsFeaster = card("Entrails Feaster") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
-        val t = target("target", TargetObject(
-            filter = TargetFilter.CreatureInGraveyard
-        ))
+        val t = target(TargetFilter.CreatureInGraveyard)
         effect = Effects.Composite(
             listOf(
                 Effects.Move(t, Zone.EXILE),

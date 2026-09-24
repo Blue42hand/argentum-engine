@@ -44,8 +44,8 @@ val NivMizzetGuildpact = card("Niv-Mizzet, Guildpact") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        val damaged = target("any target", Targets.Any)
-        val drawer = target("target player", Targets.Player)
+        val damaged = target(Targets.Any)
+        val drawer = target(Targets.Player)
         val colorPairs = DynamicAmounts.colorPairsAmongPermanents()
         effect = Effects.Composite(
             Effects.DealDamage(colorPairs, damaged),

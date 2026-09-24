@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Heroic Feast — Marvel Super Heroes #172
@@ -46,13 +45,10 @@ val HeroicFeast = card("Heroic Feast") {
 
     triggeredAbility {
         trigger = Triggers.you.gainsLife()
-        target(
-            "up to that many target creatures you control",
-            TargetCreature(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.youControl()),
-                dynamicMaxCount = DynamicAmounts.triggerLifeGained()
-            )
+        targets(
+            TargetFilter(GameObjectFilter.Creature.youControl()),
+            optional = true,
+            dynamicMaxCount = DynamicAmounts.triggerLifeGained(),
         )
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))

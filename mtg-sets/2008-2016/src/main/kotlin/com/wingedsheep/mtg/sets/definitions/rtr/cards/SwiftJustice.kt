@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.rtr.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Swift Justice
@@ -25,7 +25,7 @@ val SwiftJustice = card("Swift Justice") {
     oracleText = "Until end of turn, target creature gets +1/+0 and gains first strike and lifelink."
 
     spell {
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, t),
             Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),

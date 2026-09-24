@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Lobotomy
@@ -36,7 +36,7 @@ val Lobotomy = card("Lobotomy") {
         "and exile them. Then that player shuffles."
 
     spell {
-        val player = target("player", TargetPlayer())
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             // 1. Target player reveals their hand.
             run(Effects.RevealHand(player))

@@ -2,12 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Hullbreaker Horror
@@ -42,11 +43,11 @@ val HullbreakerHorror = card("Hullbreaker Horror") {
             modes = listOf(
                 Mode.withTarget(
                     Effects.ReturnSpellToOwnersHand(),
-                    Targets.SpellYouDontControl,
+                    TargetObject(filter = TargetFilter.SpellOnStack.opponentControls()),
                     "Return target spell you don't control to its owner's hand"
                 ),
                 mode("Return target nonland permanent to its owner's hand") {
-                    val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+                    val nonlandPermanent = target(TargetFilter.NonlandPermanent)
                     effect = Effects.ReturnToHand(nonlandPermanent)
                 }
             ),

@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * General Traag, Heart of Stone
@@ -36,7 +36,7 @@ val GeneralTraagHeartOfStone = card("General Traag, Heart of Stone") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(GameObjectFilter.Artifact, excludeSource = true),
             optional = true) {
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.DealDamage(4, creature, damageSource = EffectTarget.Self)
         }
         description = "When General Traag enters, you may sacrifice another artifact. When you do, General Traag deals 4 damage to target creature."

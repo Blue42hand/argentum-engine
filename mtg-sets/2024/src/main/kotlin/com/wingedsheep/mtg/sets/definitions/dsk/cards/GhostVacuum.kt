@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ghost Vacuum
@@ -52,10 +51,7 @@ val GhostVacuum = card("Ghost Vacuum") {
     // {T}: Exile target card from a graveyard (linked to this artifact).
     activatedAbility {
         cost = Costs.Tap
-        val t = target(
-            "target card in a graveyard",
-            TargetObject(filter = TargetFilter.CardInGraveyard),
-        )
+        val t = target(TargetFilter.CardInGraveyard)
         effect = Effects.Move(t, Zone.EXILE, linkToSource = true)
         description = "Exile target card from a graveyard."
     }

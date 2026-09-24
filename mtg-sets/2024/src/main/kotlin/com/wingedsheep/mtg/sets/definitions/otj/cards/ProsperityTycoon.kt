@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedActivatedAbility
@@ -13,6 +12,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Prosperity Tycoon
@@ -47,7 +47,7 @@ val ProsperityTycoon = card("Prosperity Tycoon") {
             activatedAbilities = listOf(
                 grantedActivatedAbility {
                     cost = AbilityCost.Tap
-                    val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                    val creatureYouControl = target(TargetFilter.CreatureYouControl)
                     effect = Effects.ModifyStats(1, 0, creatureYouControl)
                     timing = TimingRule.SorcerySpeed
                 }

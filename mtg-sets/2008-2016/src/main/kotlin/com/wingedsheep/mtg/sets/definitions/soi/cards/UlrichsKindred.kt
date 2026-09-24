@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ulrich's Kindred
@@ -30,11 +29,7 @@ val UlrichsKindred = card("Ulrich's Kindred") {
     keywords(Keyword.TRAMPLE)
 
     activatedAbility {
-        val target = target("target", TargetObject(
-            filter = TargetFilter(
-                GameObjectFilter.Creature.attacking().withAnySubtype("Wolf", "Werewolf")
-            )
-        ))
+        val target = target(TargetFilter(GameObjectFilter.Creature.attacking().withAnySubtype("Wolf", "Werewolf")))
         cost = Costs.Mana("{3}{G}")
         effect = Effects.GrantKeyword(
             Keyword.INDESTRUCTIBLE,

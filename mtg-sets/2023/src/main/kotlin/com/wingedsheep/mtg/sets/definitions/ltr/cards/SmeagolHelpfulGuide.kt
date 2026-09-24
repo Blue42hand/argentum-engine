@@ -49,7 +49,7 @@ val SmeagolHelpfulGuide = card("Sméagol, Helpful Guide") {
 
     triggeredAbility {
         trigger = Triggers.you.isTemptedByTheRing()
-        target("target opponent", Targets.Opponent)
+        target(Targets.Opponent)
         effect = Effects.Pipeline {
             val (_, allRevealed) = gatherUntilMatch(GameObjectFilter.Land, player = Player.TargetOpponent)
             reveal(allRevealed)

@@ -28,7 +28,7 @@ val Mournwhelk = card("Mournwhelk") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Discard(2, player)
         description = "target player discards two cards."
     }

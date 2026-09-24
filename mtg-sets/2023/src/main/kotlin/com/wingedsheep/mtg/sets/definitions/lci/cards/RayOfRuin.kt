@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Ray of Ruin
@@ -27,14 +26,11 @@ val RayOfRuin = card("Ray of Ruin") {
 
     spell {
         val t = target(
-            "target",
-            TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature or
-                        GameObjectFilter.Permanent.withSubtype("Vehicle") or
-                        GameObjectFilter.NonbasicLand
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Creature or
+                    GameObjectFilter.Permanent.withSubtype("Vehicle") or
+                    GameObjectFilter.NonbasicLand
+            ),
         )
         effect = Effects.Composite(
             Effects.Exile(t),

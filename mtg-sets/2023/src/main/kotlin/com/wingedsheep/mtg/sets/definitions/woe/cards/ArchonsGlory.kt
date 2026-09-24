@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Archon's Glory
@@ -38,7 +38,7 @@ val ArchonsGlory = card("Archon's Glory") {
     bargain()
 
     spell {
-        val creature = target("target creature", TargetCreature())
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(power = 2, toughness = 2, target = creature),
             Effects.If(

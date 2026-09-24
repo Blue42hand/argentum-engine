@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
@@ -31,10 +30,7 @@ val AnafenzaTheForemost = card("Anafenza, the Foremost") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val tappedCreature = target(
-            "another target tapped creature you control",
-            TargetCreature(filter = TargetFilter.TappedCreature.youControl().other())
-        )
+        val tappedCreature = target(TargetFilter.TappedCreature.youControl().other())
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, tappedCreature)
     }
 

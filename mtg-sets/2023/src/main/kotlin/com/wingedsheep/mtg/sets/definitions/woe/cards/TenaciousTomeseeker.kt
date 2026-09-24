@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tenacious Tomeseeker
@@ -47,10 +46,7 @@ val TenaciousTomeseeker = card("Tenacious Tomeseeker") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.WasBargained
-        val spellCard = target(
-            "target instant or sorcery card from your graveyard",
-            TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()),
-        )
+        val spellCard = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
         effect = Effects.ReturnToHand(spellCard)
         description = "When this creature enters, if it was bargained, return target instant or " +
             "sorcery card from your graveyard to your hand."

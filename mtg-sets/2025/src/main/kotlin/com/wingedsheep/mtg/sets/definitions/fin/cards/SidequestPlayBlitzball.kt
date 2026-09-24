@@ -11,8 +11,8 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Sidequest: Play Blitzball // World Champion, Celestial Weapon — Final Fantasy #158
@@ -74,7 +74,7 @@ private val SidequestPlayBlitzballFront = card("Sidequest: Play Blitzball") {
     // At the beginning of combat on your turn, target creature you control gets +2/+0 until end of turn.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val t = target(TargetFilter.Creature.youControl())
         effect = Effects.ModifyStats(2, 0, t)
     }
 
@@ -89,7 +89,7 @@ private val SidequestPlayBlitzballFront = card("Sidequest: Play Blitzball") {
             // ...then attach it to a creature you control. Chosen at resolution, not targeted:
             // auto-selects a lone creature, pauses to choose among several, no-ops with none.
             val host = selectTarget(
-                TargetCreature(filter = TargetFilter.Creature.youControl()),
+                TargetObject(filter = TargetFilter.Creature.youControl()),
             )
             ifNotEmpty(host) {
                 run(Effects.AttachEquipment(host.asTarget))

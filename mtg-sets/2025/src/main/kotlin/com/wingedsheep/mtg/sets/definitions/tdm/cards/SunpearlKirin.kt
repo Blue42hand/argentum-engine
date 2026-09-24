@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Sunpearl Kirin — Tarkir: Dragonstorm #29
@@ -44,13 +43,7 @@ val SunpearlKirin = card("Sunpearl Kirin") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "other nonland permanent you control",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter.NonlandPermanent.youControl().other()
-            )
-        )
+        val permanent = target(TargetFilter.NonlandPermanent.youControl().other(), optional = true)
         effect = Effects.Pipeline {
             // Capture the chosen permanent so we can inspect its token status before it leaves.
             val returned = gather(CardSource.ChosenTargets)

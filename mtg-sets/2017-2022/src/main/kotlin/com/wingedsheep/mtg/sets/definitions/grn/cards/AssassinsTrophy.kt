@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.grn.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Assassin's Trophy
@@ -41,7 +41,7 @@ val AssassinsTrophy = card("Assassin's Trophy") {
         "library for a basic land card, put it onto the battlefield, then shuffle."
 
     spell {
-        val permanent = target("target permanent an opponent controls", Targets.PermanentOpponentControls)
+        val permanent = target(TargetFilter.PermanentOpponentControls)
         effect = Effects.Destroy(permanent) then
             Effects.ForEachPlayer(
                 Player.ControllerOf("the destroyed permanent"),

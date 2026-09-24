@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Swallowed by Leviathan
@@ -36,7 +36,7 @@ val SwallowedByLeviathan = card("Swallowed by Leviathan") {
         "rest on top of your library in any order.)"
 
     spell {
-        val spell = target("target spell", Targets.Spell)
+        val spell = target(TargetFilter.SpellOnStack)
         effect = Effects.Composite(
             Effects.Surveil(2),
             Effects.CounterUnlessDynamicPays(

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Elektra, Daughter of the Hand — Marvel Super Heroes #97
@@ -40,10 +39,7 @@ val ElektraDaughterOfTheHand = card("Elektra, Daughter of the Hand") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target(
-            "target creature an opponent controls with power 3 or less",
-            TargetCreature(filter = TargetFilter.CreatureOpponentControls.powerAtMost(3)),
-        )
+        val victim = target(TargetFilter.CreatureOpponentControls.powerAtMost(3))
         effect = Effects.Destroy(victim)
         description = "When Elektra enters, destroy target creature an opponent controls with " +
             "power 3 or less."

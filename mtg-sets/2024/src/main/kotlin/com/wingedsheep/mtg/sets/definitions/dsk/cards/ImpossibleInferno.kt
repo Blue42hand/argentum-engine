@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Impossible Inferno
@@ -25,7 +24,7 @@ val ImpossibleInferno = card("Impossible Inferno") {
         "Delirium — If there are four or more card types among cards in your graveyard, exile the top card of your library. You may play it until the end of your next turn."
 
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.DealDamage(6, t),
             // Delirium: only exile/grant-play if there are four or more card types in your graveyard.

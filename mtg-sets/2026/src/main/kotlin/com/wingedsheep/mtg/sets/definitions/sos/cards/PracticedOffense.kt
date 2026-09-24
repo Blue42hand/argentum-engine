@@ -12,8 +12,8 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Practiced Offense — Secrets of Strixhaven #25
@@ -44,8 +44,8 @@ val PracticedOffense = card("Practiced Offense") {
         "Then exile it.)"
 
     spell {
-        val player = target("player", TargetPlayer())
-        val creature = target("creature", TargetCreature())
+        val player = target(Targets.Player)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             // Put a +1/+1 counter on each creature the target player controls.
             Effects.ForEachInGroup(

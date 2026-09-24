@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -39,11 +38,8 @@ val RangersOfIthilien = card("Rangers of Ithilien") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(
-            "up to one target creature with lesser power",
-            TargetCreature(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.powerLessThanEntity(EffectTarget.Self))
-            )
+            TargetFilter(GameObjectFilter.Creature.powerLessThanEntity(EffectTarget.Self)),
+            optional = true,
         )
         effect = Effects.GainControl(creature, Duration.WhileYouControlSource("Rangers of Ithilien"))
             .then(Effects.TheRingTemptsYou())

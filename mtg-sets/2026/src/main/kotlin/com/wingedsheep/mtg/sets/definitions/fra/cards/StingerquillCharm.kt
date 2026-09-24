@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val StingerquillCharm = card("Stingerquill Charm") {
     manaCost = "{B}{R}"
@@ -20,11 +21,11 @@ val StingerquillCharm = card("Stingerquill Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Stingerquill Charm deals 3 damage to any target") {
-                val t = target("any target", Targets.Any)
+                val t = target(Targets.Any)
                 effect = Effects.DealDamage(3, t)
             }
             mode("Target creature gains first strike and deathtouch until end of turn") {
-                val t = target("target creature", Targets.Creature)
+                val t = target(TargetFilter.Creature)
                 effect = Effects.Composite(
                     Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
                     Effects.GrantKeyword(Keyword.DEATHTOUCH, t)

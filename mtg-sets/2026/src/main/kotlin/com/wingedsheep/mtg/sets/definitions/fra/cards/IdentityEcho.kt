@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Identity Echo — Reality Fracture #87
@@ -37,10 +36,7 @@ val IdentityEcho = card("Identity Echo") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{R}")
-        val permanent = target(
-            "target creature or planeswalker you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.youControl()))
-        )
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.youControl()))
         effect = Effects.Pipeline(
             descriptionOverride = "Exile target creature or planeswalker you control. Reveal cards " +
                 "from the top of your library until you reveal a creature or planeswalker card. Put " +

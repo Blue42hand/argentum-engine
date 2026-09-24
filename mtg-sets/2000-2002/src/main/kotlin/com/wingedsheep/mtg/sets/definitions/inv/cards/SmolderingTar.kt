@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Smoldering Tar
@@ -25,14 +26,14 @@ val SmolderingTar = card("Smoldering Tar") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.LoseLife(1, player)
     }
 
     activatedAbility {
         cost = Costs.SacrificeSelf
         timing = TimingRule.SorcerySpeed
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.DealDamage(4, creature)
         description = "Sacrifice this enchantment: It deals 4 damage to target creature. Activate only as a sorcery."
     }

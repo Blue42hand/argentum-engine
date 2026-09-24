@@ -25,7 +25,7 @@ val TetherTechnician = card("Tether Technician") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
             optional = true) {
-            val anyTarget = target("target any", Targets.Any)
+            val anyTarget = target(Targets.Any)
             effect = Effects.DealDamage(2, anyTarget)
         }
     }

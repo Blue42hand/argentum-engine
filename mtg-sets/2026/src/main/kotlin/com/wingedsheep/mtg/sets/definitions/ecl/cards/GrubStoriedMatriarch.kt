@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -100,19 +99,13 @@ private val GrubStoriedMatriarchFrontFace = card("Grub, Storied Matriarch") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val goblin = target(
-            "Goblin card from your graveyard",
-            TargetObject(optional = true, filter = TargetFilter.CardInGraveyard.ownedByYou().withSubtype(Subtype.GOBLIN))
-        )
+        val goblin = target(TargetFilter.CardInGraveyard.ownedByYou().withSubtype(Subtype.GOBLIN), optional = true)
         effect = Effects.ReturnToHand(goblin)
     }
 
     triggeredAbility {
         trigger = Triggers.self.transforms(false)
-        val goblin = target(
-            "Goblin card from your graveyard",
-            TargetObject(optional = true, filter = TargetFilter.CardInGraveyard.ownedByYou().withSubtype(Subtype.GOBLIN))
-        )
+        val goblin = target(TargetFilter.CardInGraveyard.ownedByYou().withSubtype(Subtype.GOBLIN), optional = true)
         effect = Effects.ReturnToHand(goblin)
     }
 

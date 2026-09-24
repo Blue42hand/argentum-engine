@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.mbs.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spine of Ish Sah
@@ -23,7 +23,7 @@ val SpineOfIshSah = card("Spine of Ish Sah") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target("permanent", Targets.Permanent)
+        val permanent = target(TargetFilter.Permanent)
         effect = Effects.Destroy(permanent)
     }
 

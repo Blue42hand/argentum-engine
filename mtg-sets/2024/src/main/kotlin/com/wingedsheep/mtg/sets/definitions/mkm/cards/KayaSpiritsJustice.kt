@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -16,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Kaya, Spirits' Justice
@@ -83,7 +81,7 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature.youControl()).putIntoExile(setOf(Zone.BATTLEFIELD, Zone.GRAVEYARD), includeTokens = true)
-        val tokenYouControl = target("token you control", Targets.TokenYouControl)
+        val tokenYouControl = target(TargetFilter.TokenYouControl)
         effect = Effects.Pipeline {
             // "from among them" — the exiled batch, narrowed to creature cards that are still in
             // exile when this resolves.
@@ -151,16 +149,12 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
     // -2: Exile target creature you control. For each other player, exile up to one target creature
     // that player controls.
     loyaltyAbility(-2) {
-        target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
-        target(
-            "creature that player controls",
-            TargetCreature(
-                filter = TargetFilter.CreatureOpponentControls,
-                optional = true,
-                dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
-                differentControllers = true,
-                id = "one target creature each other player controls",
-            ),
+        target(TargetFilter.CreatureYouControl)
+        targets(
+            TargetFilter.CreatureOpponentControls,
+            optional = true,
+            dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
+            differentControllers = true,
         )
         // Every chosen target is exiled — yours and one per other player — so exile each of them.
         effect = Effects.ForEachTarget(Effects.Exile(EffectTarget.ContextTarget(0)))

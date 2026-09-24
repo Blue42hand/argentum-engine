@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.maxSpeed
@@ -25,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scenario tests for **speed** — "Start your engines!" (CR 702.179) and "Max speed" (CR 702.178),
@@ -136,7 +136,7 @@ class SpeedMechanicScenarioTest : ScenarioTestBase() {
         manaCost = "{U}"
         typeLine = "Sorcery"
         spell {
-            val t = target("target creature", Targets.Creature)
+            val t = target(TargetFilter.Creature)
             effect = Effects.GainControl(t)
         }
     }
@@ -146,7 +146,7 @@ class SpeedMechanicScenarioTest : ScenarioTestBase() {
         manaCost = "{B}"
         typeLine = "Sorcery"
         spell {
-            val t = target("target creature", Targets.Creature)
+            val t = target(TargetFilter.Creature)
             effect = Effects.Destroy(t)
         }
     }

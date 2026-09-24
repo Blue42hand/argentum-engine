@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * The Great Goblin — The Hobbit #158
@@ -56,7 +56,7 @@ val TheGreatGoblin = card("The Great Goblin") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()
                 .withAnySubtype("Goblin", "Orc", "Army")).getsCounters(by = Player.You)
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(2, opponent)
         description = "The Great Goblin deals 2 damage to target opponent."
     }

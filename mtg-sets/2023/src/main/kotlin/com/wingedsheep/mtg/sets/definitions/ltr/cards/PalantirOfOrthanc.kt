@@ -36,7 +36,7 @@ val PalantirOfOrthanc = card("Palantír of Orthanc") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
 
         val influenceCount = DynamicAmounts.countersOnSelf(CounterType.INFLUENCE)
 

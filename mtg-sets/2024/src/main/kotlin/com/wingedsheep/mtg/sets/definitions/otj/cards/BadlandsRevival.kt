@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Badlands Revival
@@ -29,20 +28,8 @@ val BadlandsRevival = card("Badlands Revival") {
         "Return up to one target permanent card from your graveyard to your hand."
 
     spell {
-        val creature = target(
-            "creature",
-            TargetObject(optional = true, filter = TargetFilter.CreatureInYourGraveyard),
-        )
-        val permanent = target(
-            "permanent",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
-            ),
-        )
+        val creature = target(TargetFilter.CreatureInYourGraveyard, optional = true)
+        val permanent = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD), optional = true)
         effect = Effects.Composite(
             listOf(
                 Effects.PutOntoBattlefield(creature),

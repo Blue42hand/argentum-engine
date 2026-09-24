@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -34,7 +33,7 @@ val ArtisticProcess = card("Artistic Process") {
     spell {
         modal(chooseCount = 1) {
             mode("Artistic Process deals 6 damage to target creature") {
-                val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+                val t = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(6, t)
             }
             mode("Artistic Process deals 2 damage to each creature you don't control") {

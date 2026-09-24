@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Suspend Aggression
@@ -30,7 +30,7 @@ val SuspendAggression = card("Suspend Aggression") {
         "those cards, its owner may play it until the end of their next turn."
 
     spell {
-        target("permanent", Targets.NonlandPermanent)
+        target(TargetFilter.NonlandPermanent)
         effect = Effects.Pipeline {
             // Exile the targeted nonland permanent; its owner may replay it.
             val suspendAggressionPermanent = gather(CardSource.ChosenTargets)

@@ -30,7 +30,7 @@ val BleakCovenVampires = card("Bleak Coven Vampires") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact)
-        val victim = target("target player", Targets.Player)
+        val victim = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(4, victim),
             Effects.GainLife(4),

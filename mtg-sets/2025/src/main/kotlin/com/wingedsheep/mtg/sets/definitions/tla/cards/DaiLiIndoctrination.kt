@@ -8,8 +8,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Dai Li Indoctrination — {1}{B} Sorcery — Lesson
@@ -36,7 +35,7 @@ val DaiLiIndoctrination = card("Dai Li Indoctrination") {
     spell {
         modal(chooseCount = 1) {
             mode("Target opponent reveals their hand. You choose a nonland permanent card from it. That player discards that card") {
-                val opponent = target("target opponent", TargetOpponent())
+                val opponent = target(Targets.Opponent)
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(opponent))
                     val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
@@ -53,7 +52,7 @@ val DaiLiIndoctrination = card("Dai Li Indoctrination") {
                 }
             }
             mode("Earthbend 2") {
-                val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+                val land = target(TargetFilter.Land.youControl())
                 effect = Effects.Earthbend(2, land)
             }
         }

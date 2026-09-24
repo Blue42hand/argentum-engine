@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Vengeful Villagers
@@ -37,10 +36,7 @@ val VengefulVillagers = card("Vengeful Villagers") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val chosen = target(
-            "chosen creature",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Creature.opponentControls()))
-        )
+        val chosen = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(chosen),
             Effects.MayPay(

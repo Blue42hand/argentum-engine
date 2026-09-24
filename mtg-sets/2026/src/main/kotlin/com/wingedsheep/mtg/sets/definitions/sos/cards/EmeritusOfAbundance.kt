@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Emeritus of Abundance // Regrowth — Secrets of Strixhaven #145
@@ -56,9 +55,7 @@ val EmeritusOfAbundance = card("Emeritus of Abundance") {
         typeLine = "Sorcery"
         oracleText = "Return target card from your graveyard to your hand."
         spell {
-            val target = target("target", TargetObject(
-                filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD)
-            ))
+            val target = target(TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD))
             effect = Effects.Move(target, Zone.HAND)
         }
     }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -24,7 +23,7 @@ val Strafe = card("Strafe") {
     typeLine = "Sorcery"
     oracleText = "Strafe deals 3 damage to target nonred creature."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.notColor(Color.RED)))
+        val t = target(TargetFilter.Creature.notColor(Color.RED))
         effect = Effects.DealDamage(3, t)
     }
     metadata {

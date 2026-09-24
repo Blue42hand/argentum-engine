@@ -43,7 +43,7 @@ val IridescentVinelasher = card("Iridescent Vinelasher") {
     // Landfall: whenever a land you control enters, deal 1 damage to target opponent
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(1, opponent)
     }
 

@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Merrow Reejerey
@@ -48,7 +48,7 @@ val MerrowReejerey = card("Merrow Reejerey") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.MERFOLK))
-        val permanent = target("target permanent", Targets.Permanent)
+        val permanent = target(TargetFilter.Permanent)
         effect = Effects.May(
             Effects.Modal(
                 modes = listOf(

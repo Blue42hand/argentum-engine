@@ -6,8 +6,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Viridian Longbow — Mirrodin #270
@@ -34,7 +34,7 @@ val ViridianLongbow = card("Viridian Longbow") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Tap
-                val anyTarget = target("target any", AnyTarget())
+                val anyTarget = target(Targets.Any)
                 effect = Effects.DealDamage(
                     amount = 1,
                     target = anyTarget,

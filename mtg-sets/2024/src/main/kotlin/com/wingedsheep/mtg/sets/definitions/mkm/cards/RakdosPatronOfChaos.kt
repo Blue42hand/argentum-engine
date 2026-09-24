@@ -63,7 +63,7 @@ val RakdosPatronOfChaos = card("Rakdos, Patron of Chaos") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         val fodder = GameObjectFilter.NonlandPermanent.nontoken()
         effect = Effects.ChooseAction(
             choices = listOf(

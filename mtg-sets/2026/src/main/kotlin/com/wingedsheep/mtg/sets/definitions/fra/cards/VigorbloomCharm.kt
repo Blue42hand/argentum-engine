@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val VigorbloomCharm = card("Vigorbloom Charm") {
     manaCost = "{G}{W}"
@@ -19,7 +19,7 @@ val VigorbloomCharm = card("Vigorbloom Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Target permanent you control gains hexproof and indestructible until end of turn") {
-                val t = target("target permanent you control", Targets.PermanentYouControl)
+                val t = target(TargetFilter.PermanentYouControl)
                 effect = Effects.Composite(
                     Effects.GrantKeyword(Keyword.HEXPROOF, t),
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
@@ -32,8 +32,8 @@ val VigorbloomCharm = card("Vigorbloom Charm") {
                 )
             }
             mode("Put a +1/+1 counter on target creature you control. Then it fights target creature an opponent controls") {
-                val yours = target("target creature you control", Targets.CreatureYouControl)
-                val theirs = target("target creature an opponent controls", Targets.CreatureOpponentControls)
+                val yours = target(TargetFilter.CreatureYouControl)
+                val theirs = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.Composite(
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours),
                     Effects.Fight(yours, theirs)

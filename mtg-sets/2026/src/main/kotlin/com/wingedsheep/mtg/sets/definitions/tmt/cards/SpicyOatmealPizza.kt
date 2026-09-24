@@ -25,7 +25,7 @@ val SpicyOatmealPizza = card("Spicy Oatmeal Pizza") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(4, anyTarget)
             .then(Effects.DealDamage(3, EffectTarget.Controller))
     }

@@ -28,7 +28,7 @@ val Rakalite = card("Rakalite") {
 
     activatedAbility {
         cost = Costs.Mana("{2}")
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.Composite(listOf(
             Effects.PreventNextDamage(1, t),
             Effects.CreateDelayedTrigger(

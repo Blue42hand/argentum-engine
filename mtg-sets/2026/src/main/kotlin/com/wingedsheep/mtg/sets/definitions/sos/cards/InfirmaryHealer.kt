@@ -37,7 +37,7 @@ val InfirmaryHealer = card("Infirmary Healer") {
         typeLine = "Sorcery"
         oracleText = "Target player gains X life."
         spell {
-            val player = target("target player", Targets.Player)
+            val player = target(Targets.Player)
             effect = Effects.GainLife(DynamicAmounts.xValue(), player)
         }
     }

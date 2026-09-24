@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Ingenious Leonin
@@ -38,10 +37,7 @@ val IngeniousLeonin = card("Ingenious Leonin") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{W}")
-        val t = target(
-            "target",
-            TargetCreature(filter = TargetFilter.Creature.attacking().youControl().other()),
-        )
+        val t = target(TargetFilter.Creature.attacking().youControl().other())
         effect = Effects.Composite(
             listOf(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),

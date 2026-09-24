@@ -40,11 +40,7 @@ val BackForSeconds = card("Back for Seconds") {
     bargain()
 
     spell {
-        val target = target("target", TargetObject(
-            count = 2,
-            optional = true,
-            filter = TargetFilter.CreatureInYourGraveyard,
-        ))
+        val target = target(TargetObject(filter = TargetFilter.CreatureInYourGraveyard, count = 2, optional = true))
         effect = Effects.Pipeline {
             val backForSecondsTargets = gather(CardSource.ChosenTargets)
             run(Effects.If(

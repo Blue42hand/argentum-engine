@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Justice, Vance Astrovik — Marvel Super Heroes #61
@@ -46,13 +45,7 @@ val JusticeVanceAstrovik = card("Justice, Vance Astrovik") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "up to one target nonland, nontoken permanent",
-            TargetPermanent(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.NonlandPermanent.nontoken()),
-            )
-        )
+        val t = target(TargetFilter(GameObjectFilter.NonlandPermanent.nontoken()), optional = true)
         effect = Effects.ReturnToHand(t)
         description = "When Justice enters, return up to one target nonland, nontoken permanent to its owner's hand."
     }

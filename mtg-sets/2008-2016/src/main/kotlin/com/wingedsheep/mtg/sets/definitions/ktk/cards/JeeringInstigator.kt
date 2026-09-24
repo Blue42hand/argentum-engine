@@ -3,13 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Jeering Instigator
@@ -33,7 +31,7 @@ val JeeringInstigator = card("Jeering Instigator") {
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
         interveningIf = Conditions.IsYourTurn
-        val t = target("another creature", TargetCreature(filter = TargetFilter.OtherCreature))
+        val t = target(TargetFilter.OtherCreature)
         effect = Effects.Composite(
             Effects.GainControl(t, Duration.EndOfTurn),
             Effects.Untap(t),

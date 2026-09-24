@@ -33,7 +33,7 @@ val WarriorsBlades = card("Warrior's Blades") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(3, anyTarget)
             .then(Effects.GainLife(3))
     }

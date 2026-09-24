@@ -6,8 +6,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Rocket Launcher
@@ -35,7 +35,7 @@ val RocketLauncher = card("Rocket Launcher") {
 
     activatedAbility {
         cost = Costs.Mana("{2}")
-        val t = target("any target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(1, t),
             Effects.CreateDelayedTrigger(

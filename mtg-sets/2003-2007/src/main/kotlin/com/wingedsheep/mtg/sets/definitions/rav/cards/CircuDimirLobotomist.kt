@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Circu, Dimir Lobotomist — Ravnica: City of Guilds #196
@@ -55,13 +56,13 @@ val CircuDimirLobotomist = card("Circu, Dimir Lobotomist") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.BLUE))
-        target("target player", TargetPlayer())
+        target(Targets.Player)
         effect = exileTopOfTargetPlayersLibrary()
     }
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.BLACK))
-        target("target player", TargetPlayer())
+        target(Targets.Player)
         effect = exileTopOfTargetPlayersLibrary()
     }
 

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Natural End
@@ -22,7 +23,7 @@ val NaturalEnd = card("Natural End") {
     oracleText = "Destroy target artifact or enchantment. You gain 3 life."
 
     spell {
-        val permanent = target("target", Targets.ArtifactOrEnchantment)
+        val permanent = target(TargetFilter.ArtifactOrEnchantment)
         effect = Effects.Composite(
             Effects.Destroy(permanent),
             Effects.GainLife(3),

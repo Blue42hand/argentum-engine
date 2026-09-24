@@ -25,7 +25,7 @@ val Bargain = card("Bargain") {
     oracleText = "Target opponent draws a card.\nYou gain 7 life."
 
     spell {
-        val opponent = target("target", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.DrawCards(1, opponent),
             Effects.GainLife(7),

@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.som.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lux Cannon
@@ -38,7 +38,7 @@ val LuxCannon = card("Lux Cannon") {
             Costs.Tap,
             Costs.RemoveCounterFromSelf(CounterType.CHARGE, 3)
         )
-        val t = target("target", Targets.Permanent)
+        val t = target(TargetFilter.Permanent)
         effect = Effects.Destroy(t)
         description = "{T}, Remove three charge counters from this artifact: Destroy target permanent."
     }

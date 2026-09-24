@@ -28,7 +28,7 @@ val Embersmith = card("Embersmith") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Artifact)
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.DealDamage(1, t)

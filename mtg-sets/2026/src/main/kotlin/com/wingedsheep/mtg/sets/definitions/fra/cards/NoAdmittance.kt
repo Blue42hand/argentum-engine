@@ -14,7 +14,7 @@ val NoAdmittance = card("No Admittance") {
         "Empower Jace 1. (Put a loyalty counter on a Jace token you control. If you don't control one, first create a blue Jace planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\")"
 
     spell {
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(3, t).then(Patterns.Mechanic.empowerJace(1))
     }
 

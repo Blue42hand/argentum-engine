@@ -24,10 +24,10 @@ val AltarOfDementia = card("Altar of Dementia") {
 
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Creature)
-        val player = target("player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Patterns.Library.mill(
             DynamicAmounts.sacrificedPower(),
-            EffectTarget.BoundVariable("player")
+            player
         )
         description = "Sacrifice a creature: Target player mills cards equal to the sacrificed creature's power."
     }

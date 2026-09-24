@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyKeywordAction
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -61,10 +60,7 @@ val LeaderSuperGenius = card("Leader, Super-Genius") {
     // At the beginning of combat on your turn, target creature you control connives.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val creature = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl)
-        )
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.Connive(target = creature)
         description = "At the beginning of combat on your turn, target creature you control connives."
     }

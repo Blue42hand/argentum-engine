@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ecologist's Terrarium — Kamigawa: Neon Dynasty #246 (canonical printing)
@@ -47,7 +47,7 @@ val EcologistsTerrarium = card("Ecologist's Terrarium") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
-        val t = target("creature to grow", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         timing = TimingRule.SorcerySpeed
         description = "{2}, {T}, Sacrifice this artifact: Put a +1/+1 counter on target creature. " +

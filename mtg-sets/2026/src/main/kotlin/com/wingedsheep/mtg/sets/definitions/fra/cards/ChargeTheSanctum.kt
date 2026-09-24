@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val ChargeTheSanctum = card("Charge the Sanctum") {
     manaCost = "{2}{R/W}"
@@ -26,7 +26,7 @@ val ChargeTheSanctum = card("Charge the Sanctum") {
                 )
             }
             mode("Target creature gets +2/+0 and gains first strike until end of turn. Put a +1/+1 counter on it") {
-                val t = target("target creature", Targets.Creature)
+                val t = target(TargetFilter.Creature)
                 effect = Effects.Composite(
                     Effects.ModifyStats(2, 0, t),
                     Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),

@@ -10,8 +10,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Legolas, Master Archer
@@ -52,7 +52,7 @@ val LegolasMasterArcher = card("Legolas, Master Archer") {
         trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature.withControllerPredicate(
                 ControllerPredicate.Not(ControllerPredicate.ControlledByYou)
             ))))
-        val t = target("up to one target creature", TargetCreature(optional = true))
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.DealDamage(DynamicAmounts.sourcePower(), t)
     }
 

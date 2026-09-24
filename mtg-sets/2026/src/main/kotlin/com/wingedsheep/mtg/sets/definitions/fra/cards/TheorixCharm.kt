@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val TheorixCharm = card("Theorix Charm") {
     manaCost = "{U}{B}"
@@ -18,11 +18,11 @@ val TheorixCharm = card("Theorix Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Counter target noncreature spell unless its controller pays {2}") {
-                val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
+                val noncreatureSpell = target(TargetFilter.NoncreatureSpellOnStack)
                 effect = Effects.CounterUnlessPays("{2}")
             }
             mode("Target creature gets -2/-2 until end of turn") {
-                val t = target("target creature", Targets.Creature)
+                val t = target(TargetFilter.Creature)
                 effect = Effects.ModifyStats(-2, -2, t)
             }
             mode("Mill three cards, then draw a card") {

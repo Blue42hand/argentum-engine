@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Perigee Beckoner
@@ -35,10 +34,7 @@ val PerigeeBeckoner = card("Perigee Beckoner") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "another target creature you control",
-            TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
-        )
+        val creature = target(TargetFilter.OtherCreatureYouControl)
 
         val diesReturnTapped = TriggeredAbility.create(
             trigger = Triggers.self.dies(),

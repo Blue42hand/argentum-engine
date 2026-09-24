@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Tracker
@@ -39,7 +39,7 @@ val Tracker = card("Tracker") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}{G}"), Costs.Tap)
-        val prey = target("target creature", Targets.Creature)
+        val prey = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.DealDamage(
                 DynamicAmounts.sourcePower(),

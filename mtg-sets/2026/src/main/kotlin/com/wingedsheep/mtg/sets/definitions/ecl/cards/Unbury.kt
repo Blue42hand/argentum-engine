@@ -40,10 +40,7 @@ val Unbury = card("Unbury") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Return target creature card from your graveyard to your hand") {
-                val creatureInYourGraveyard = target(
-                    "target creature in your graveyard",
-                    TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-                )
+                val creatureInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
                 effect = Effects.ReturnToHand(creatureInYourGraveyard)
             },
             Mode.withTarget(

@@ -7,6 +7,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Strands of Undeath
@@ -30,11 +32,11 @@ val StrandsOfUndeath = card("Strands of Undeath") {
         "When this Aura enters, target player discards two cards.\n" +
         "{B}: Regenerate enchanted creature."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target player", Targets.Player)
+        val t = target(Targets.Player)
         effect = Effects.Discard(count = 2, target = t)
     }
 

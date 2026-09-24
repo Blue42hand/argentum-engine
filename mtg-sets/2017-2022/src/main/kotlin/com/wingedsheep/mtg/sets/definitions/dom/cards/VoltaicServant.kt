@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Voltaic Servant
@@ -24,7 +24,7 @@ val VoltaicServant = card("Voltaic Servant") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val t = target("target", Targets.Artifact)
+        val t = target(TargetFilter.Artifact)
         effect = Effects.Untap(t)
     }
 

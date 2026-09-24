@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Coiling Rebirth {3}{B}{B}
@@ -35,18 +34,12 @@ val CoilingRebirth = card("Coiling Rebirth") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — return target creature card from graveyard to battlefield
             mode("Don't promise a gift — return target creature card from your graveyard to the battlefield") {
-                val creatureCard = target(
-                    "target creature card in your graveyard",
-                    TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-                )
+                val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
                 effect = returnToBattlefield(creatureCard)
             },
             // Mode 2: Gift a card — opponent draws, return creature, then if nonlegendary create 1/1 copy
             mode("Promise a gift — opponent draws a card, return target creature card from your graveyard to the battlefield, then if it isn't legendary create a 1/1 token copy") {
-                val creatureInYourGraveyard = target(
-                    "target creature in your graveyard",
-                    TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-                )
+                val creatureInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
                 effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
                     .then(returnToBattlefield(creatureInYourGraveyard))
                     .then(

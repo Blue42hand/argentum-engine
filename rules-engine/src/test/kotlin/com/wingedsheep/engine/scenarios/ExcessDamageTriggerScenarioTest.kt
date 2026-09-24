@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -24,6 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Gap 12 substrate: `DealsDamageEvent(requireExcess = true)` fires only when the recipient took
@@ -62,7 +62,7 @@ class ExcessDamageTriggerScenarioTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "This deals 5 damage to target creature."
         spell {
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.DealDamage(5, creature)
         }
     }
@@ -73,7 +73,7 @@ class ExcessDamageTriggerScenarioTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "This deals 2 damage to target creature."
         spell {
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.DealDamage(2, creature)
         }
     }

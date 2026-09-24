@@ -22,7 +22,7 @@ val VaultPlunderer = card("Vault Plunderer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Player)
+        val t = target(Targets.Player)
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(1, t),

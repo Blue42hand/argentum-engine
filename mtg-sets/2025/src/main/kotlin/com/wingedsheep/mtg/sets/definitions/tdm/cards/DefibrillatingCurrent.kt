@@ -18,7 +18,7 @@ val DefibrillatingCurrent = card("Defibrillating Current") {
     oracleText = "Defibrillating Current deals 4 damage to target creature or planeswalker and you gain 2 life."
 
     spell {
-        val t = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Composite(
             listOf(
                 Effects.DealDamage(4, t),

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Jade Guardian
@@ -34,12 +33,7 @@ val JadeGuardian = card("Jade Guardian") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val merfolk = target(
-            "target",
-            TargetObject(
-                filter = TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl())
-            )
-        )
+        val merfolk = target(TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, merfolk)
     }
 

@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Trade Secrets
@@ -21,7 +21,7 @@ val TradeSecrets = card("Trade Secrets") {
     oracleText = "Target opponent draws two cards, then you draw up to four cards. That opponent may repeat this process as many times as they choose."
 
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.RepeatWhile(
             body = Effects.Composite(
                 Effects.DrawCards(2, t),

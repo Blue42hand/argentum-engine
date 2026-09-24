@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Goatnapper
@@ -39,10 +38,7 @@ val Goatnapper = card("Goatnapper") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val goat = target(
-            "target Goat",
-            TargetCreature(filter = TargetFilter.Creature.withSubtype(Subtype.GOAT))
-        )
+        val goat = target(TargetFilter.Creature.withSubtype(Subtype.GOAT))
         effect = Effects.Composite(
             Effects.Untap(goat),
             Effects.GainControl(goat, Duration.EndOfTurn),

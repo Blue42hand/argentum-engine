@@ -38,7 +38,7 @@ val ThoughtKnotSeer = card("Thought-Knot Seer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Patterns.Hand.revealHandAndExileChosen(target = opponent)
         description = "When this creature enters, target opponent reveals their hand. You " +
             "choose a nonland card from it and exile that card."
@@ -46,7 +46,7 @@ val ThoughtKnotSeer = card("Thought-Knot Seer") {
 
     triggeredAbility {
         trigger = Triggers.self.leaves()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DrawCards(1, opponent)
         description = "When this creature leaves the battlefield, target opponent draws a card."
     }

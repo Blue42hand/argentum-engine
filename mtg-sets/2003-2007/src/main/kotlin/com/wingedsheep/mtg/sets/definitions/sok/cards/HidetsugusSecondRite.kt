@@ -31,7 +31,7 @@ val HidetsugusSecondRite = card("Hidetsugu's Second Rite") {
     oracleText = "If target player has exactly 10 life, Hidetsugu's Second Rite deals 10 damage to that player."
 
     spell {
-        val targetPlayer = target("target player", Targets.Player)
+        val targetPlayer = target(Targets.Player)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.lifeTotal(targetPlayer.asPlayer),

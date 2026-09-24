@@ -63,7 +63,7 @@ val RakdosTheMuscle = card("Rakdos, the Muscle") {
 
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Creature, batch = true)
-        val targetPlayer = target("target player", Targets.Player)
+        val targetPlayer = target(Targets.Player)
         effect = Effects.Pipeline {
             val rakdosExiled = gather(
                 CardSource.TopOfLibrary(

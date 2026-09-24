@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.madness
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Fiery Temper (Torment #97)
@@ -27,7 +27,7 @@ val FieryTemper = card("Fiery Temper") {
         "its madness cost or put it into your graveyard.)"
 
     spell {
-        val target = target("target", AnyTarget())
+        val target = target(Targets.Any)
         effect = Effects.DealDamage(3, target)
     }
 

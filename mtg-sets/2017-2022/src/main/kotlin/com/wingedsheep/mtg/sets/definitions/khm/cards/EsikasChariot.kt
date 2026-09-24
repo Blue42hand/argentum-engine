@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Esika's Chariot
@@ -46,10 +45,7 @@ val EsikasChariot = card("Esika's Chariot") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val token = target(
-            "target token you control",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Token.youControl()))
-        )
+        val token = target(TargetFilter(GameObjectFilter.Token.youControl()))
         effect = Effects.CreateTokenCopyOfTarget(target = token)
     }
 

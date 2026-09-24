@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.renew
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Adorned Crocodile
@@ -46,7 +46,7 @@ val AdornedCrocodile = card("Adorned Crocodile") {
         effect = Effects.AddCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
             1,
-            target("creature", Targets.Creature)
+            target(TargetFilter.Creature)
         )
     }
 

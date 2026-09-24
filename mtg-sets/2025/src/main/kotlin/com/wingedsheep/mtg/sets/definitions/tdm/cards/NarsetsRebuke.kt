@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Narset's Rebuke
@@ -28,7 +27,7 @@ val NarsetsRebuke = card("Narset's Rebuke") {
         "If that creature would die this turn, exile it instead."
 
     spell {
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val creature = target(TargetFilter.Creature)
         effect = Effects.DealDamage(5, creature)
             .then(
                 Effects.Composite(

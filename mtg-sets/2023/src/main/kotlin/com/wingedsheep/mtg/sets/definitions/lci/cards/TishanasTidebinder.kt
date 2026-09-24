@@ -68,13 +68,7 @@ val TishanasTidebinder = card("Tishana's Tidebinder") {
     triggeredAbility {
         trigger = Triggers.self.enters()
 
-        target(
-            "up to one target activated or triggered ability",
-            TargetObject(
-                filter = TargetFilter.ActivatedOrTriggeredAbilityOnStack,
-                optional = true
-            )
-        )
+        target(TargetFilter.ActivatedOrTriggeredAbilityOnStack, optional = true)
 
         // Strip first (source still readable off the stack entity), then counter.
         effect = Effects.Composite(

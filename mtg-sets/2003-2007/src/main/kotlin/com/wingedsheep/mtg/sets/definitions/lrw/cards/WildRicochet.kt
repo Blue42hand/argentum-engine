@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wild Ricochet
@@ -38,7 +38,7 @@ val WildRicochet = card("Wild Ricochet") {
         "spell. You may choose new targets for the copy."
 
     spell {
-        val spell = target("target instant or sorcery spell", Targets.InstantOrSorcerySpell)
+        val spell = target(TargetFilter.InstantOrSorcerySpellOnStack)
         effect = Effects.Composite(
             Effects.ChangeTriggeringObjectTargets(spell = spell),
             Effects.CopyTargetSpell(spell),

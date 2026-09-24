@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.*
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Identifies the type of source that is doing the targeting.
@@ -386,7 +387,7 @@ class TargetFinder(
             !playerHasHexproofAgainst(state, it, controllerId) })
 
         // Add all creatures
-        targets.addAll(findPermanentTargets(state, TargetCreature(), controllerId, sourceId, targetingSourceType = targetingSourceType, pipelineContext = pipelineContext))
+        targets.addAll(findPermanentTargets(state, TargetObject(filter = TargetFilter.Creature), controllerId, sourceId, targetingSourceType = targetingSourceType, pipelineContext = pipelineContext))
 
         return targets
     }

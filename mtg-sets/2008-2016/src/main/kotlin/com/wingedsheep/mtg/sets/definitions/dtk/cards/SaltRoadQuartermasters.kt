@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Salt Road Quartermasters
@@ -37,7 +37,7 @@ val SaltRoadQuartermasters = card("Salt Road Quartermasters") {
             Costs.Mana("{2}{G}"),
             Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE)
         )
-        val t = target("target", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 

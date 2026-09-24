@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Duskwatch Hunter — The Hobbit #153
@@ -38,7 +38,7 @@ val DuskwatchHunter = card("Duskwatch Hunter") {
     }
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature())
+        val creature = target(TargetFilter.Creature)
         trigger = Triggers.self.enters()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }

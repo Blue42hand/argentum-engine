@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Guru Pathik
@@ -44,10 +43,7 @@ val GuruPathik = card("Guru Pathik") {
     // Whenever you cast a Lesson, Saga, or Shrine spell, put a +1/+1 counter on another target creature you control.
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Lesson", "Saga", "Shrine"))
-        val creature = target(
-            "another target creature you control",
-            TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
-        )
+        val creature = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 

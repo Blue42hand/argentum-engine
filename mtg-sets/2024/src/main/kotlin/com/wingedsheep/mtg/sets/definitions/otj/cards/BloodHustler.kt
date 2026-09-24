@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Blood Hustler
@@ -44,7 +44,7 @@ val BloodHustler = card("Blood Hustler") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{B}")
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.LoseLife(1, t),
             Effects.GainLife(1, EffectTarget.Controller)

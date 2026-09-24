@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -24,7 +23,7 @@ val SoulShred = card("Soul Shred") {
     typeLine = "Sorcery"
     oracleText = "Soul Shred deals 3 damage to target nonblack creature. You gain 3 life."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK)))
+        val t = target(TargetFilter.Creature.notColor(Color.BLACK))
         effect = Effects.Composite(
             Effects.DealDamage(3, t),
             Effects.GainLife(3)

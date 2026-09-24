@@ -26,7 +26,7 @@ val DiligentExcavator = card("Diligent Excavator") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Historic)
-        val t = target("target", Targets.Player)
+        val t = target(Targets.Player)
         effect = Patterns.Library.mill(2, t)
     }
 

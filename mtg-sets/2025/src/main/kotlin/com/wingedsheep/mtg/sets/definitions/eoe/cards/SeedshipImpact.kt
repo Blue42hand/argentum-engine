@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Seedship Impact
@@ -23,9 +22,7 @@ val SeedshipImpact = card("Seedship Impact") {
     oracleText = "Destroy target artifact or enchantment. If its mana value was 2 or less, create a Lander token. (It's an artifact with \"{2}, {T}, Sacrifice this token: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\")"
 
     spell {
-        val target = target("target artifact or enchantment", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment)
-        ))
+        val target = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment))
         effect = Effects.Move(target, Zone.GRAVEYARD, byDestruction = true)
             .then(
                 Effects.If(

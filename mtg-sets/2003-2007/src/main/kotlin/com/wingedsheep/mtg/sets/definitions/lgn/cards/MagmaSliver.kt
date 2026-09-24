@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Magma Sliver
@@ -35,9 +34,7 @@ val MagmaSliver = card("Magma Sliver") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Tap
-                val creature = target("target creature", TargetCreature(
-                    filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Sliver"))
-                ))
+                val creature = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Sliver")))
                 effect = Effects.ModifyStats(
                     power = DynamicAmounts.permanentsWithSubtype(Subtype.SLIVER),
                     toughness = DynamicAmounts.fixed(0),

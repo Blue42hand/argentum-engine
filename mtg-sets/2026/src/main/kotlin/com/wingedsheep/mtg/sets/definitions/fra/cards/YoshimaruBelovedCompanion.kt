@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyCounterPlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Yoshimaru, Beloved Companion — Hardened Scales on a body. The replacement also applies to the
@@ -28,10 +27,7 @@ val YoshimaruBelovedCompanion = card("Yoshimaru, Beloved Companion") {
 
     activatedAbility {
         cost = Costs.Mana("{6}")
-        val creature = target(
-            "target legendary creature",
-            TargetCreature(filter = TargetFilter.Creature.legendary()),
-        )
+        val creature = target(TargetFilter.Creature.legendary())
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 

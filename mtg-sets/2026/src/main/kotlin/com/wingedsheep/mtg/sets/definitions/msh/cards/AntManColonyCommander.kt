@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ant-Man, Colony Commander — Marvel Super Heroes #201 (uncommon)
@@ -61,7 +62,7 @@ val AntManColonyCommander = card("Ant-Man, Colony Commander") {
             optional = true,
         ) {
             // "When you do, put a +1/+1 counter on target creature."
-            val creature = target("target creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.AddCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
                 1,

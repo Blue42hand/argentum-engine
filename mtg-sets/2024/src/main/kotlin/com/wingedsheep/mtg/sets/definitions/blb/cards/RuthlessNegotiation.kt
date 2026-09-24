@@ -26,7 +26,7 @@ val RuthlessNegotiation = card("Ruthless Negotiation") {
     oracleText = "Target opponent exiles a card from their hand. If this spell was cast from a graveyard, draw a card.\nFlashback {4}{B} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Patterns.Hand.exileFromHand(1, opponent)
             .then(Effects.If(
                 condition = Conditions.WasCastFromZone(Zone.GRAVEYARD),

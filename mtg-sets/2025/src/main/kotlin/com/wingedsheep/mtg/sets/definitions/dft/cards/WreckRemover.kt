@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Wreck Remover — Aetherdrift #247
@@ -39,10 +38,7 @@ val WreckRemover = card("Wreck Remover") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "up to one target card in a graveyard",
-            TargetObject(optional = true, filter = TargetFilter.CardInGraveyard)
-        )
+        val t = target(TargetFilter.CardInGraveyard, optional = true)
         effect = Effects.Composite(
             Effects.Move(t, Zone.EXILE),
             Effects.GainLife(1)
@@ -53,10 +49,7 @@ val WreckRemover = card("Wreck Remover") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val t = target(
-            "up to one target card in a graveyard",
-            TargetObject(optional = true, filter = TargetFilter.CardInGraveyard)
-        )
+        val t = target(TargetFilter.CardInGraveyard, optional = true)
         effect = Effects.Composite(
             Effects.Move(t, Zone.EXILE),
             Effects.GainLife(1)

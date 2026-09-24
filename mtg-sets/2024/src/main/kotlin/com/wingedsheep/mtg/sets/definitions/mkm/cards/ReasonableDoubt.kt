@@ -2,10 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Reasonable Doubt — Murders at Karlov Manor #69
@@ -33,8 +32,8 @@ val ReasonableDoubt = card("Reasonable Doubt") {
         "Suspect up to one target creature. (A suspected creature has menace and can't block.)"
 
     spell {
-        target("target spell", Targets.Spell)
-        val creature = target("up to one target creature", TargetCreature(count = 1, optional = true))
+        target(TargetFilter.SpellOnStack)
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.Composite(
             Effects.CounterUnlessDynamicPays(DynamicAmounts.fixed(2)),
             Effects.Suspect(creature)

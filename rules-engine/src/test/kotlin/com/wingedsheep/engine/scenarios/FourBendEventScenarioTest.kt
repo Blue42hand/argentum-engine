@@ -130,7 +130,7 @@ class FourBendEventScenarioTest : FunSpec({
     val airbendSpellTester = card("Airbend Spell Tester") {
         manaCost = "{0}"; typeLine = "Instant"; oracleText = "Airbend target spell."
         spell {
-            target("target spell", TargetObject(count = 1, filter = TargetFilter.SpellOnStack))
+            target(TargetFilter.SpellOnStack)
             effect = Effects.AirbendSpell()
         }
     }

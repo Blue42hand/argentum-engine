@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 val LilianaTheFaultless = card("Liliana the Faultless") {
     manaCost = "{W}"
@@ -27,10 +26,7 @@ val LilianaTheFaultless = card("Liliana the Faultless") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap, Costs.DiscardCard)
-        val permanent = target(
-            "another target creature or planeswalker you control",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.youControl()).other()),
-        )
+        val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.youControl()).other())
         effect = Effects.GrantKeyword(Keyword.HEXPROOF, permanent)
         description = "Another target creature or planeswalker you control gains hexproof until end of turn."
     }

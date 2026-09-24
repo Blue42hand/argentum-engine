@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Mindswipe
@@ -26,7 +26,7 @@ val Mindswipe = card("Mindswipe") {
     oracleText = "Counter target spell unless its controller pays {X}. Mindswipe deals X damage to that spell's controller."
 
     spell {
-        val spell = target("target spell", Targets.Spell)
+        val spell = target(TargetFilter.SpellOnStack)
         effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.xValue())
             .then(Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.TargetController))
     }

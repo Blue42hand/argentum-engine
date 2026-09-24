@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Terra, Magical Adept // Esper Terra (Final Fantasy #245)
@@ -91,10 +90,7 @@ private val EsperTerra = card("Esper Terra") {
     // I, II, III — copy a nonlegendary enchantment you control.
     for (chapter in 1..3) {
         sagaChapter(chapter) {
-            val enchantment = target(
-                "enchantment",
-                TargetObject(filter = TargetFilter.Enchantment.youControl().nonlegendary()),
-            )
+            val enchantment = target(TargetFilter.Enchantment.youControl().nonlegendary())
             effect = copyChapterEffect(enchantment)
         }
     }

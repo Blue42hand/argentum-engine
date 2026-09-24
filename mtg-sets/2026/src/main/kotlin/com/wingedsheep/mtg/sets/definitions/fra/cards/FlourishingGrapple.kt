@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Flourishing Grapple — Reality Fracture #102
@@ -28,18 +26,12 @@ val FlourishingGrapple = card("Flourishing Grapple") {
 
     spell {
         val theirs = target(
-            "target red or white creature or planeswalker an opponent controls",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.CreatureOrPlaneswalker.opponentControls()
-                        .withAnyColor(Color.RED, Color.WHITE)
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.CreatureOrPlaneswalker.opponentControls()
+                    .withAnyColor(Color.RED, Color.WHITE)
+            ),
         )
-        val mine = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter.Creature.youControl())
-        )
+        val mine = target(TargetFilter.Creature.youControl())
         effect = Effects.RemoveAllAbilities(theirs)
             .then(Effects.DealDamage(DynamicAmounts.powerOf(mine), theirs, damageSource = mine))
     }

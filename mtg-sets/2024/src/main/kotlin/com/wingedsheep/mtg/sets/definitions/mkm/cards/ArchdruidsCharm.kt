@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Archdruid's Charm — Murders at Karlov Manor #151
@@ -100,14 +99,8 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
                 "Put a +1/+1 counter on target creature you control. It deals damage equal to its " +
                     "power to target creature you don't control."
             ) {
-                val yours = target(
-                    "target creature you control",
-                    TargetCreature(filter = TargetFilter.Creature.youControl()),
-                )
-                val theirs = target(
-                    "target creature you don't control",
-                    TargetCreature(filter = TargetFilter.Creature.opponentControls()),
-                )
+                val yours = target(TargetFilter.Creature.youControl())
+                val theirs = target(TargetFilter.Creature.opponentControls())
                 effect = Effects.Composite(
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours),
                     Effects.DealDamage(
@@ -119,10 +112,7 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
             }
 
             mode("Exile target artifact or enchantment") {
-                val permanent = target(
-                    "target artifact or enchantment",
-                    Targets.ArtifactOrEnchantment,
-                )
+                val permanent = target(TargetFilter.ArtifactOrEnchantment)
                 effect = Effects.Exile(permanent)
             }
         }

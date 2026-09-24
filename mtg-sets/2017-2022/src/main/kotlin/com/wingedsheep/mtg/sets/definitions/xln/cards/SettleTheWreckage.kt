@@ -54,7 +54,7 @@ val SettleTheWreckage = card("Settle the Wreckage") {
         "tapped, then shuffle."
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             val attackers = gather(GameObjectFilter.Creature.attacking().targetPlayerControls(player))
             exile(attackers)

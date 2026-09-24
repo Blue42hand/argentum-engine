@@ -37,7 +37,7 @@ val IronFistPulverizer = card("Iron-Fist Pulverizer") {
 
     triggeredAbility {
         trigger = Triggers.you.castsNth(2)
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             listOf(
                 Effects.DealDamage(2, opponent),

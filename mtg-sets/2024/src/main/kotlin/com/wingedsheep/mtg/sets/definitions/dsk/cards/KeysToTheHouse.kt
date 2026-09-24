@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Keys to the House — Duskmourn: House of Horror #251
@@ -54,10 +53,7 @@ val KeysToTheHouse = card("Keys to the House") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap, Costs.SacrificeSelf)
         timing = TimingRule.SorcerySpeed
-        val room = target(
-            "target Room",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl())),
-        )
+        val room = target(TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl()))
         effect = Effects.LockOrUnlockDoor(room)
         description = "{3}, {T}, Sacrifice this artifact: Lock or unlock a door of target Room you " +
             "control. Activate only as a sorcery."

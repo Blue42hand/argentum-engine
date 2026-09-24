@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Torch the Tower
@@ -42,7 +42,7 @@ val TorchTheTower = card("Torch the Tower") {
     bargain()
 
     spell {
-        val permanent = target("target creature or planeswalker", TargetCreatureOrPlaneswalker())
+        val permanent = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Composite(
             Effects.If(
                 condition = Conditions.WasBargained,

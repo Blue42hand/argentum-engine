@@ -42,13 +42,7 @@ val ShepherdOfTheCosmos = card("Shepherd of the Cosmos") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val card = target(
-            "target",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.manaValueAtMost(2).ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+            TargetFilter(GameObjectFilter.Permanent.manaValueAtMost(2).ownedByYou(), zone = Zone.GRAVEYARD),
         )
         effect = Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
     }

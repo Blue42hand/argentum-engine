@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Hunter's Talent {G}
@@ -39,8 +39,8 @@ val HuntersTalent = card("Hunter's Talent") {
     // Level 1: ETB — bite effect
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val myCreature = target("creature you control", Targets.CreatureYouControl)
-        val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
+        val myCreature = target(TargetFilter.CreatureYouControl)
+        val theirCreature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,
@@ -52,7 +52,7 @@ val HuntersTalent = card("Hunter's Talent") {
     classLevel(2, "{1}{G}") {
         triggeredAbility {
             trigger = Triggers.you.attacks()
-            val attacker = target("attacking creature", Targets.AttackingCreature)
+            val attacker = target(TargetFilter.AttackingCreature)
             effect = Effects.ModifyStats(1, 0, attacker)
                 .then(Effects.GrantKeyword(Keyword.TRAMPLE, attacker))
         }

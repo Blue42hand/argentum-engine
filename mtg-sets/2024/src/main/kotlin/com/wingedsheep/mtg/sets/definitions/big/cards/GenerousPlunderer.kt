@@ -43,7 +43,7 @@ val GenerousPlunderer = card("Generous Plunderer") {
             action = Effects.CreateTreasure(1),
             optional = true,
         ) {
-            val opponent = target("target opponent", Targets.Opponent)
+            val opponent = target(Targets.Opponent)
             effect = Effects.CreateTreasure(controller = opponent, tapped = true)
         }
     }

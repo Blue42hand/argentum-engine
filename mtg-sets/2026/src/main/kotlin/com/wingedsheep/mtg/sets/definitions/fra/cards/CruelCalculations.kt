@@ -21,7 +21,7 @@ val CruelCalculations = card("Cruel Calculations") {
         "graveyard from their library this turn."
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.DrawCards(
             DynamicAmounts.cardsPutIntoGraveyardFromLibraryThisTurn(player.asPlayer)
         )

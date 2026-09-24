@@ -69,7 +69,7 @@ val ArmorWars = card("Armor Wars") {
     // III — This Saga deals X damage to target opponent, where X is the greatest mana value
     //       among artifacts you control.
     sagaChapter(3) {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).maxManaValue(),
             opponent,

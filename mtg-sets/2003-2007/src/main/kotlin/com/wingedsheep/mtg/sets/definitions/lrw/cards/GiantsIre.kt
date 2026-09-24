@@ -23,7 +23,7 @@ val GiantsIre = card("Giant's Ire") {
         "Giant, draw a card."
 
     spell {
-        val recipient = target("target player or planeswalker", Targets.PlayerOrPlaneswalker)
+        val recipient = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.Composite(
             Effects.DealDamage(4, recipient),
             Effects.If(

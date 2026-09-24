@@ -4,12 +4,12 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Systems Override
@@ -24,7 +24,7 @@ val SystemsOverride = card("Systems Override") {
     oracleText = "Gain control of target artifact or creature until end of turn. Untap that permanent. It gains haste until end of turn. If it's a Spacecraft, put ten charge counters on it. If you do, remove ten charge counters from it at the beginning of the next end step."
 
     spell {
-        val target = target("target artifact or creature", Targets.CreatureOrArtifact)
+        val target = target(TargetFilter.CreatureOrArtifact)
         effect = Effects.Composite(
             listOf(
                 Effects.GainControl(target, Duration.EndOfTurn),

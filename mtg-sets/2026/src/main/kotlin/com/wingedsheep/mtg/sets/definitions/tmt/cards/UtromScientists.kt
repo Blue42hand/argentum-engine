@@ -2,11 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Utrom Scientists
@@ -27,10 +26,7 @@ val UtromScientists = card("Utrom Scientists") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one target creature",
-            TargetCreature(count = 1, optional = true)
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.Tap(creature)
             .then(Effects.AddCounters(CounterType.STUN, 1, creature))
     }

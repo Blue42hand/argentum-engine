@@ -8,8 +8,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dreamshackle Geist
@@ -57,11 +57,11 @@ val DreamshackleGeist = card("Dreamshackle Geist") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("Tap target creature") {
-                    val creature = target("target creature", TargetCreature())
+                    val creature = target(TargetFilter.Creature)
                     effect = Effects.Tap(creature)
                 },
                 mode("Target creature doesn't untap during its controller's next untap step") {
-                    val creature = target("target creature", TargetCreature())
+                    val creature = target(TargetFilter.Creature)
                     effect = Effects.GrantKeyword(
                         AbilityFlag.DOESNT_UNTAP,
                         creature,

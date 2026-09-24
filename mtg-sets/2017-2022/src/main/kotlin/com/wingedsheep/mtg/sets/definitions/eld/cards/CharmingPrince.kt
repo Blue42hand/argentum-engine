@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Charming Prince
@@ -51,10 +50,7 @@ val CharmingPrince = card("Charming Prince") {
                 Mode.noTarget(Effects.GainLife(3), "You gain 3 life."),
                 mode("Exile another target creature you own. Return it to the battlefield " +
                     "under your control at the beginning of the next end step.") {
-                    val creature = target(
-                        "target creature",
-                        TargetCreature(filter = TargetFilter.Creature.ownedByYou().other())
-                    )
+                    val creature = target(TargetFilter.Creature.ownedByYou().other())
                     effect = Effects.Move(creature, Zone.EXILE)
                         .then(
                             Effects.CreateDelayedTrigger(

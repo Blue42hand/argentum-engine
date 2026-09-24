@@ -13,16 +13,15 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 private const val ARLINN_EMBLEM = "Creatures you control have haste and '{T}: This creature deals damage equal to its power to any target.'"
 
 private val ArlinnEmbracedByTheMoon = card("Arlinn, Embraced by the Moon") {
     val arlinnEmblemAbility = grantedActivatedAbility {
         cost = Costs.Tap
-        val anyTarget = target("target any", AnyTarget())
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(DynamicAmounts.sourcePower(), anyTarget)
         description = "{T}: This creature deals damage equal to its power to any target."
     }
@@ -42,7 +41,7 @@ private val ArlinnEmbracedByTheMoon = card("Arlinn, Embraced by the Moon") {
         )
     }
     loyaltyAbility(-1) {
-        val target = target("target", AnyTarget())
+        val target = target(Targets.Any)
         effect = Effects.DealDamage(3, target) then Effects.Transform(EffectTarget.Self)
     }
     loyaltyAbility(-6) {
@@ -70,7 +69,7 @@ private val ArlinnKordFront = card("Arlinn Kord") {
         "0: Create a 2/2 green Wolf creature token. Transform Arlinn Kord."
 
     loyaltyAbility(+1) {
-        val creature = target("creature", TargetCreature(optional = true))
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.ModifyStats(2, 2, creature) then
             Effects.GrantKeyword(Keyword.VIGILANCE, creature, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.HASTE, creature, Duration.EndOfTurn)

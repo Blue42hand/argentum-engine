@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * The Last Agni Kai — {1}{R}
@@ -36,14 +35,8 @@ val TheLastAgniKai = card("The Last Agni Kai") {
         "Until end of turn, you don't lose unspent red mana as steps and phases end."
 
     spell {
-        val yourCreature = target(
-            "target creature you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl)
-        )
-        val theirCreature = target(
-            "target creature an opponent controls",
-            TargetCreature(filter = TargetFilter.CreatureOpponentControls)
-        )
+        val yourCreature = target(TargetFilter.CreatureYouControl)
+        val theirCreature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Fight(yourCreature, theirCreature, excessDamageVariable = "excess")
             .then(Effects.AddMana(Color.RED, DynamicAmounts.storedNumber("excess")))
             .then(Effects.RetainUnspentMana(Color.RED))

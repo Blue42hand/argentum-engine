@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Fear of Impostors
@@ -46,7 +46,7 @@ val FearOfImpostors = card("Fear of Impostors") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("target spell", TargetSpell())
+        target(TargetFilter.SpellOnStack)
         effect = Effects.Composite(
             Effects.CounterSpell(),
             // Its controller manifests dread — run the shared recipe under the spell's controller.

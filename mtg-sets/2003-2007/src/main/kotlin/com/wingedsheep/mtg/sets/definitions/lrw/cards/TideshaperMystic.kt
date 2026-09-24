@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.OptionType
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Tideshaper Mystic
@@ -33,7 +33,7 @@ val TideshaperMystic = card("Tideshaper Mystic") {
         "Activate only during your turn."
 
     activatedAbility {
-        val land = target("target land", Targets.Land)
+        val land = target(TargetFilter.Land)
         cost = AbilityCost.Tap
         effect = Effects.Pipeline {
             val landType = chooseOption(OptionType.BASIC_LAND_TYPE)

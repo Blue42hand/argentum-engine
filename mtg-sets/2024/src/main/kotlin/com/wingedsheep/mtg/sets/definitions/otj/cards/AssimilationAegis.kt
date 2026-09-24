@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Assimilation Aegis
@@ -45,10 +44,7 @@ val AssimilationAegis = card("Assimilation Aegis") {
     // ETB: exile up to one target creature until this Equipment leaves the battlefield.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one target creature",
-            TargetCreature(count = 1, optional = true, filter = TargetFilter.Creature)
-        )
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.ExileUntilLeaves(creature)
     }
 

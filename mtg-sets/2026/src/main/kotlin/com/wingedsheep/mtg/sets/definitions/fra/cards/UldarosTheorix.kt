@@ -44,13 +44,10 @@ val UldarosTheorix = card("Uldaros Theorix") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
-        target(
-            "up to one target nonland card of each card type from your graveyard",
-            TargetObject(
-                unlimited = true,
-                onePerCardType = true,
-                filter = TargetFilter(GameObjectFilter.Nonland.ownedByYou(), zone = Zone.GRAVEYARD),
-            )
+        targets(
+            TargetFilter(GameObjectFilter.Nonland.ownedByYou(), zone = Zone.GRAVEYARD),
+            unlimited = true,
+            onePerCardType = true,
         )
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.ChosenTargets)

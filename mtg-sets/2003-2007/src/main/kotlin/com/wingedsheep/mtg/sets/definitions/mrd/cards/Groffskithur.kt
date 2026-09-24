@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Groffskithur — Mirrodin #121 (canonical printing; the Salvat 2005 boxes are later reprints)
@@ -38,12 +37,9 @@ val Groffskithur = card("Groffskithur") {
         trigger = Triggers.self.becomesBlocked()
         optional = true
         val card = target(
-            "target card named Groffskithur from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Any.named("Groffskithur").ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
+            TargetFilter(
+                baseFilter = GameObjectFilter.Any.named("Groffskithur").ownedByYou(),
+                zone = Zone.GRAVEYARD,
             ),
         )
         effect = Effects.ReturnToHand(card)

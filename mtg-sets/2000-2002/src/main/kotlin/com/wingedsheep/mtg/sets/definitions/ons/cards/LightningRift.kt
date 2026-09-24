@@ -22,7 +22,7 @@ val LightningRift = card("Lightning Rift") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.cycles()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.DealDamage(2, t)

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Perilous Snare — Aetherdrift #23
@@ -47,10 +46,7 @@ val PerilousSnare = card("Perilous Snare") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val exiled = target(
-            "exiled",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.NonlandPermanent.opponentControls()))
-        )
+        val exiled = target(TargetFilter(GameObjectFilter.NonlandPermanent.opponentControls()))
         effect = Effects.ExileUntilLeaves(exiled)
         description = "When this artifact enters, exile target nonland permanent an opponent " +
             "controls until this artifact leaves the battlefield."
@@ -64,10 +60,7 @@ val PerilousSnare = card("Perilous Snare") {
     maxSpeed {
         activatedAbility {
             cost = Costs.Tap
-            val boosted = target(
-                "boosted",
-                TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl()))
-            )
+            val boosted = target(TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl()))
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, boosted)
             timing = TimingRule.SorcerySpeed
             description = "Put a +1/+1 counter on target creature or Vehicle you control."

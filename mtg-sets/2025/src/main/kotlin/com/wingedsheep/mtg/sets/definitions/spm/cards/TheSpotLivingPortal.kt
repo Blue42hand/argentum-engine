@@ -51,17 +51,8 @@ val TheSpotLivingPortal = card("The Spot, Living Portal") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "up to one target nonland permanent",
-            TargetObject(optional = true, filter = TargetFilter.NonlandPermanent),
-        )
-        val graveyardCard = target(
-            "up to one target nonland permanent card from a graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.NonlandPermanent, zone = Zone.GRAVEYARD),
-            ),
-        )
+        val permanent = target(TargetFilter.NonlandPermanent, optional = true)
+        val graveyardCard = target(TargetFilter(GameObjectFilter.NonlandPermanent, zone = Zone.GRAVEYARD), optional = true)
         effect = Effects.Composite(
             Effects.ExileUntilLeaves(permanent),
             Effects.ExileUntilLeaves(graveyardCard),

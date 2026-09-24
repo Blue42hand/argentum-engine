@@ -52,7 +52,7 @@ val EarthbenderAscension = card("Earthbender Ascension") {
     // put it onto the battlefield tapped, then shuffle.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.Composite(
             Effects.Earthbend(2, land),
             Patterns.Library.searchLibrary(

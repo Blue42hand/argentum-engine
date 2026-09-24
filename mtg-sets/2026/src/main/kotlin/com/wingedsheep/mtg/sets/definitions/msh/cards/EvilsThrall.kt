@@ -5,13 +5,13 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Evil's Thrall — Marvel Super Heroes #128
@@ -61,7 +61,7 @@ val EvilsThrall = card("Evil's Thrall") {
         "of your next turn instead. Untap that creature. It gains haste until end of turn."
 
     spell {
-        val stolen = target("target creature", Targets.Creature)
+        val stolen = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.If(
                 condition = Conditions.CompareAmounts(

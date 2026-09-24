@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.bfz.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Tandem Tactics
@@ -23,7 +23,7 @@ val TandemTactics = card("Tandem Tactics") {
     oracleText = "Up to two target creatures each get +1/+2 until end of turn. You gain 2 life."
 
     spell {
-        target("target creature", Targets.UpToCreatures(2))
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.Composite(
             Effects.ForEachTarget(Effects.ModifyStats(1, 2, EffectTarget.ContextTarget(0))),
             Effects.GainLife(2),

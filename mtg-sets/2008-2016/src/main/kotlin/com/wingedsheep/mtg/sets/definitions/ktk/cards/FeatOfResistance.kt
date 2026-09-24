@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Feat of Resistance
@@ -20,7 +20,7 @@ val FeatOfResistance = card("Feat of Resistance") {
     oracleText = "Put a +1/+1 counter on target creature you control. It gains protection from the color of your choice until end of turn."
 
     spell {
-        val t = target("target", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
             .then(Effects.ChooseColorThen(Effects.GrantProtectionFromChosenColor(t)))
     }

@@ -36,10 +36,7 @@ val CarelessCelebrant = card("Careless Celebrant") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val victim = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())),
-        )
+        val victim = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
         effect = Effects.DealDamage(2, victim)
         description = "When this creature dies, it deals 2 damage to target creature or " +
             "planeswalker an opponent controls."

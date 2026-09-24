@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Break Down the Door
@@ -35,11 +35,11 @@ val BreakDownTheDoor = card("Break Down the Door") {
     spell {
         modal(chooseCount = 1) {
             mode("Exile target artifact") {
-                val artifact = target("target", Targets.Artifact)
+                val artifact = target(TargetFilter.Artifact)
                 effect = Effects.Exile(artifact)
             }
             mode("Exile target enchantment") {
-                val enchantment = target("target", Targets.Enchantment)
+                val enchantment = target(TargetFilter.Enchantment)
                 effect = Effects.Exile(enchantment)
             }
             mode(

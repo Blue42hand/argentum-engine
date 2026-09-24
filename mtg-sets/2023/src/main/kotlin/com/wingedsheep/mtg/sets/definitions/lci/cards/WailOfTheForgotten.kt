@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wail of the Forgotten
@@ -56,11 +56,11 @@ val WailOfTheForgotten = card("Wail of the Forgotten") {
             )
         ) {
             mode("Return target nonland permanent to its owner's hand") {
-                val permanent = target("target nonland permanent", Targets.NonlandPermanent)
+                val permanent = target(TargetFilter.NonlandPermanent)
                 effect = Effects.ReturnToHand(permanent)
             }
             mode("Target opponent discards a card") {
-                val opponent = target("target opponent", TargetOpponent())
+                val opponent = target(Targets.Opponent)
                 effect = Patterns.Hand.discardCards(1, opponent)
             }
             mode("Look at the top three cards of your library. Put one of them into your hand and the rest into your graveyard") {

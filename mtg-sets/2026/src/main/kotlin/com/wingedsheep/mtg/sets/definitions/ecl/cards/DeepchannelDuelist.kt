@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -32,9 +31,7 @@ val DeepchannelDuelist = card("Deepchannel Duelist") {
         trigger = Triggers.you.beginningOf(Step.END)
         // "target Merfolk" is a Merfolk **permanent**, not a Merfolk creature — the reading the
         // differential settled corpus-wide, and the one this card's own static already uses.
-        val merfolk = target("merfolk", TargetObject(
-            filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Merfolk").youControl())
-        ))
+        val merfolk = target(TargetFilter(GameObjectFilter.Permanent.withSubtype("Merfolk").youControl()))
         effect = Effects.Untap(merfolk)
     }
 

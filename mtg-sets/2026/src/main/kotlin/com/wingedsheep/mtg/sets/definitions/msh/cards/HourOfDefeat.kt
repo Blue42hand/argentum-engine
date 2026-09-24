@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Hour of Defeat
@@ -23,7 +23,7 @@ val HourOfDefeat = card("Hour of Defeat") {
     oracleText = "Destroy target creature. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.Destroy(creature),
             Patterns.Library.surveil(1)

@@ -52,13 +52,13 @@
             "count": "XValue",
             "target": {
                 "type": "BoundVariable",
-                "name": "target player"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target player"
+                "id": "t0"
             }
         ],
         "selfShuffleIntoLibraryOnResolve": true
@@ -354,7 +354,7 @@
                         "type": "MarkExileOnDeath",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "any target"
+                            "name": "t0"
                         }
                     }
                 },
@@ -363,7 +363,7 @@
                     "amount": "XValue",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 }
             ]
@@ -371,7 +371,7 @@
         "targetRequirements": [
             {
                 "type": "AnyTarget",
-                "id": "any target"
+                "id": "t0"
             }
         ],
         "selfShuffleIntoLibraryOnResolve": true
@@ -474,7 +474,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "permanent"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -484,7 +484,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "permanent"
+                    "id": "t0"
                 }
             },
             {

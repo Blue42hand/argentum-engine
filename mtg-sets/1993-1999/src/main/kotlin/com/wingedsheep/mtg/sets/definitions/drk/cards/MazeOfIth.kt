@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Maze of Ith
@@ -25,7 +25,7 @@ val MazeOfIth = card("Maze of Ith") {
 
     activatedAbility {
         cost = Costs.Tap
-        val creature = target("target attacking creature", Targets.AttackingCreature)
+        val creature = target(TargetFilter.AttackingCreature)
         effect = Effects.Composite(
             Effects.Untap(creature),
             Effects.PreventCombatDamageToAndBy(creature)

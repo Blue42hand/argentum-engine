@@ -8,6 +8,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Sporogenic Infection
@@ -35,13 +37,13 @@ val SporogenicInfection = card("Sporogenic Infection") {
         "enchanted creature.\n" +
         "When enchanted creature is dealt damage, destroy it."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     // When this Aura enters, target player sacrifices a creature of their choice other than
     // enchanted creature.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Sacrifice(
             filter = GameObjectFilter.Creature.notAttachedToBySource(),
             count = 1,

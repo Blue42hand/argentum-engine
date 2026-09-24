@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Blade of the Swarm
@@ -50,12 +49,7 @@ val BladeOfTheSwarm = card("Blade of the Swarm") {
                 "Put two +1/+1 counters on this creature",
             ),
             mode("Put target exiled card with warp on the bottom of its owner's library") {
-                val targetedObject = target("target targeted object", TargetObject(
-                    filter = TargetFilter(
-                        GameObjectFilter.Any.warpExiled(),
-                        zone = Zone.EXILE,
-                    ),
-                ))
+                val targetedObject = target(TargetFilter(GameObjectFilter.Any.warpExiled(), zone = Zone.EXILE))
                 effect = Effects.Move(targetedObject, Zone.LIBRARY, ZonePlacement.Bottom)
             },
         )

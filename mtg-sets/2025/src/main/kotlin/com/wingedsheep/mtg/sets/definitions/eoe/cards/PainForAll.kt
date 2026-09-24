@@ -8,6 +8,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Pain for All
@@ -26,12 +28,12 @@ val PainForAll = card("Pain for All") {
         "When this Aura enters, enchanted creature deals damage equal to its power to any other target.\n" +
         "Whenever enchanted creature is dealt damage, it deals that much damage to each opponent."
 
-    auraTarget = Targets.CreatureYouControl
+    auraTarget = TargetObject(filter = TargetFilter.CreatureYouControl)
 
     // ETB: enchanted creature deals damage equal to its power to any other target.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target("any other target", Targets.AnyOtherThanEnchantedCreature)
+        val victim = target(Targets.AnyOtherThanEnchantedCreature)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.enchantedCreaturePower(),
             target = victim,

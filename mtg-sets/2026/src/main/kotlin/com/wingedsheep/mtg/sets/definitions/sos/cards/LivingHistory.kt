@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Living History
@@ -44,7 +44,7 @@ val LivingHistory = card("Living History") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         interveningIf = Conditions.CardsLeftGraveyardThisTurn(1)
-        val attacker = target("attacking creature", Targets.AttackingCreature)
+        val attacker = target(TargetFilter.AttackingCreature)
         effect = Effects.ModifyStats(2, 0, attacker)
     }
 

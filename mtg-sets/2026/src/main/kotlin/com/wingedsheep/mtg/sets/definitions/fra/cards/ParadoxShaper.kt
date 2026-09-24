@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -36,10 +35,7 @@ val ParadoxShaper = card("Paradox Shaper") {
 
     activatedAbility {
         cost = Costs.Mana("{2}")
-        val card = target(
-            "target card from your graveyard",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD))
-        )
+        val card = target(TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.Move(card, Zone.LIBRARY, ZonePlacement.Bottom)
         description = "Put target card from your graveyard on the bottom of your library."
     }

@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Vampire's Kiss
@@ -21,7 +21,7 @@ val VampiresKiss = card("Vampire's Kiss") {
         "artifacts with \"{1}, {T}, Discard a card, Sacrifice this token: Draw a card.\")"
 
     spell {
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(2, t),
             Effects.GainLife(2, EffectTarget.Controller),

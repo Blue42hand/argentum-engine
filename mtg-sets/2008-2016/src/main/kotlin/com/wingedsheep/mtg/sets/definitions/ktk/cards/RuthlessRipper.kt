@@ -32,7 +32,7 @@ val RuthlessRipper = card("Ruthless Ripper") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.LoseLife(2, player)
     }
 

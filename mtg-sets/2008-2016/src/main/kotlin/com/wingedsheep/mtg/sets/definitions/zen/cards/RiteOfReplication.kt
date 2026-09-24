@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rite of Replication
@@ -34,7 +34,7 @@ val RiteOfReplication = card("Rite of Replication") {
     keywordAbility(KeywordAbility.kicker("{5}"))
 
     spell {
-        val t = target("target", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = Conditions.WasKicked,
             then = Effects.CreateTokenCopyOfTarget(t, count = 5),

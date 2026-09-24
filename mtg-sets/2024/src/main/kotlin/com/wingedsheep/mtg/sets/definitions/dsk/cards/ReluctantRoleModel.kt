@@ -8,9 +8,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Reluctant Role Model — Duskmourn: House of Horror #26
@@ -75,7 +75,7 @@ val ReluctantRoleModel = card("Reluctant Role Model") {
     // Whenever this creature or another creature you control dies, if it had counters on it,
     // put those counters on up to one target creature.
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(optional = true))
+        val creature = target(TargetFilter.Creature, optional = true)
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         interveningIf = Conditions.TriggeringEntityHadCounters
         effect = Effects.MoveAllLastKnownCounters(creature)

@@ -29,16 +29,13 @@ val TrickShot = card("Trick Shot") {
     oracleText = "Trick Shot deals 6 damage to target creature and 2 damage to up to one other target creature token."
 
     spell {
-        val creature = target("creature", TargetObject(filter = TargetFilter.Creature))
-        val tokencreature = target(
-            "tokenCreature",
-            TargetOther(
+        val creature = target(TargetFilter.Creature)
+        val tokencreature = target(TargetOther(
                 baseRequirement = TargetObject(
                     optional = true,
                     filter = TargetFilter(GameObjectFilter.Creature.token())
                 )
-            )
-        )
+            ))
         effect = Effects.Composite(
             listOf(
                 Effects.DealDamage(6, creature),

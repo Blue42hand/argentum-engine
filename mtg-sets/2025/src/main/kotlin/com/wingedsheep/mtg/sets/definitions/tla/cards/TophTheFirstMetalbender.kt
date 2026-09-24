@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantAdditionalTypesToGroup
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -54,7 +53,7 @@ val TophTheFirstMetalbender = card("Toph, the First Metalbender") {
     // At the beginning of your end step, earthbend 2.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val t = target("target", TargetPermanent(filter = TargetFilter.Land.youControl()))
+        val t = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(2, t)
     }
 

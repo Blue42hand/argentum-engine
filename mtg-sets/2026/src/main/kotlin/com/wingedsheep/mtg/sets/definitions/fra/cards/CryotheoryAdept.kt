@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val CryotheoryAdept = card("Cryotheory Adept") {
     manaCost = "{1}{U}"
@@ -22,7 +22,7 @@ val CryotheoryAdept = card("Cryotheory Adept") {
         cost = Costs.Composite(Costs.Mana("{3}{U}"), Costs.ExileSelf)
         activateFromZone = Zone.GRAVEYARD
         timing = TimingRule.SorcerySpeed
-        val creature = target("creature", TargetCreature())
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(Effects.Tap(creature), Effects.AddCounters(CounterType.STUN, 1, creature))
         description = "Tap target creature and put a stun counter on it."
     }

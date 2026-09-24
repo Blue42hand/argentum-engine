@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Lagorin, Soul of Alacria — Aetherdrift #211
@@ -57,12 +57,7 @@ val LagorinSoulOfAlacria = card("Lagorin, Soul of Alacria") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
-        target = TargetPermanent(
-            count = 2,
-            optional = true,
-            filter = TargetFilter(MountsAndVehicles),
-            id = "two target Mounts and/or Vehicles"
-        )
+        target = TargetObject(filter = TargetFilter(MountsAndVehicles), count = 2, optional = true, id = "two target Mounts and/or Vehicles")
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )

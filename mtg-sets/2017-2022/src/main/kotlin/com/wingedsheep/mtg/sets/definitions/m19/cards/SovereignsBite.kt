@@ -3,7 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.m19.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Sovereign's Bite
@@ -18,7 +18,7 @@ val SovereignsBite = card("Sovereign's Bite") {
     oracleText = "Target player loses 3 life and you gain 3 life."
 
     spell {
-        val t = target("target", TargetPlayer())
+        val t = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(3, t),
             Effects.GainLife(3)

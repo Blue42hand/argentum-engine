@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -39,9 +38,7 @@ val GetOut = card("Get Out") {
             modes = listOf(
                 Mode.withTarget(
                     effect = Effects.CounterSpell(),
-                    target = TargetSpell(
-                        filter = TargetFilter(GameObjectFilter.CreatureOrEnchantment, zone = Zone.STACK)
-                    ),
+                    target = TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrEnchantment, zone = Zone.STACK)),
                     description = "Counter target creature or enchantment spell."
                 ),
                 Mode.withTarget(

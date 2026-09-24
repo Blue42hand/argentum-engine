@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -67,10 +66,7 @@ val BeornTheFierce = card("Beorn the Fierce") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.Creature.youControl())
-        )
+        target(TargetFilter.Creature.youControl(), optional = true)
         effect = Effects.Composite(
             Effects.ForEachTarget(
                 Effects.AddCounters(CounterType.TRAMPLE, 1, EffectTarget.ContextTarget(0)),

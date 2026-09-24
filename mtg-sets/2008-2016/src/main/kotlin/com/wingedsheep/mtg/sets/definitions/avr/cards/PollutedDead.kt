@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Polluted Dead — Avacyn Restored #116
@@ -26,7 +26,7 @@ val PollutedDead = card("Polluted Dead") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val t = target("target", Targets.Land)
+        val t = target(TargetFilter.Land)
         effect = Effects.Destroy(t)
     }
 

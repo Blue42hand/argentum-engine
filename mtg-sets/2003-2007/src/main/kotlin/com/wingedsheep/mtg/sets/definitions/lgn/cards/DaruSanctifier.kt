@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Daru Sanctifier
@@ -24,7 +24,7 @@ val DaruSanctifier = card("Daru Sanctifier") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val t = target("enchantment", Targets.Enchantment)
+        val t = target(TargetFilter.Enchantment)
         effect = Effects.Destroy(t)
     }
 

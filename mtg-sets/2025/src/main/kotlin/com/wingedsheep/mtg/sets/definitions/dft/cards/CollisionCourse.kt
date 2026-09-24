@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Collision Course
@@ -38,7 +38,7 @@ val CollisionCourse = card("Collision Course") {
             // Mode 1: deal X damage to target creature
             mode("Deals X damage to target creature, where X is the number of " +
                 "creatures and/or Vehicles you control") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.count(
                         Player.You,
@@ -50,7 +50,7 @@ val CollisionCourse = card("Collision Course") {
             },
             // Mode 2: destroy target artifact
             mode("Destroy target artifact") {
-                val artifact = target("target artifact", Targets.Artifact)
+                val artifact = target(TargetFilter.Artifact)
                 effect = Effects.Destroy(artifact)
             },
         )

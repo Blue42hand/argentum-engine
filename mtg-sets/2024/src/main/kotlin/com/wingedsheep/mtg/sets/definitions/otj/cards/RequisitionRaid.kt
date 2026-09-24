@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Requisition Raid {W}
@@ -38,17 +39,17 @@ val RequisitionRaid = card("Requisition Raid") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("+ {1} — Destroy target artifact.") {
-                    val artifact = target("target artifact", Targets.Artifact)
+                    val artifact = target(TargetFilter.Artifact)
                     additionalManaCost = "{1}"
                     effect = Effects.Destroy(artifact)
                 },
                 mode("+ {1} — Destroy target enchantment.") {
-                    val enchantment = target("target enchantment", Targets.Enchantment)
+                    val enchantment = target(TargetFilter.Enchantment)
                     additionalManaCost = "{1}"
                     effect = Effects.Destroy(enchantment)
                 },
                 mode("+ {1} — Put a +1/+1 counter on each creature target player controls.") {
-                    val player = target("target player", Targets.Player)
+                    val player = target(Targets.Player)
                     additionalManaCost = "{1}"
                     effect = Effects.ForEachInGroup(
                         filter = GroupFilter(

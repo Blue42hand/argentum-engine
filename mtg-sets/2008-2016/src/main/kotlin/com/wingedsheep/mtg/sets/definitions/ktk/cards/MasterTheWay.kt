@@ -25,7 +25,7 @@ val MasterTheWay = card("Master the Way") {
     oracleText = "Draw a card. Master the Way deals damage to any target equal to the number of cards in your hand."
 
     spell {
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DrawCards(1)
             .then(Effects.DealDamage(DynamicAmounts.cardsInYourHand(), t))
     }

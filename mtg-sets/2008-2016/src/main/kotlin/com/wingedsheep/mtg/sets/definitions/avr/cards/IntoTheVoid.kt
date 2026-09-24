@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Into the Void
@@ -25,7 +25,7 @@ val IntoTheVoid = card("Into the Void") {
     oracleText = "Return up to two target creatures to their owners' hands."
 
     spell {
-        target("up to two target creatures", Targets.UpToCreatures(2))
+        targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(Effects.ReturnToHand(EffectTarget.ContextTarget(0)))
     }
 

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Spikeshell Harrier — Aetherdrift #65
@@ -52,10 +51,7 @@ val SpikeshellHarrier = card("Spikeshell Harrier") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val bounced = target(
-            "target creature or Vehicle an opponent controls",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.opponentControls()))
-        )
+        val bounced = target(TargetFilter(GameObjectFilter.CreatureOrVehicle.opponentControls()))
         val thatOpponent = Player.ControllerOf("target creature or Vehicle an opponent controls")
 
         effect = Effects.Composite(

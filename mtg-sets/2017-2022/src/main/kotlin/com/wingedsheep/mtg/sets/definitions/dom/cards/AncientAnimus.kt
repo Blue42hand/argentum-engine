@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Ancient Animus
@@ -23,12 +22,8 @@ val AncientAnimus = card("Ancient Animus") {
     oracleText = "Put a +1/+1 counter on target creature you control if it's legendary. Then it fights target creature an opponent controls."
 
     spell {
-        val yourCreature = target("creature you control", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature.youControl())
-        ))
-        val theirCreature = target("creature an opponent controls", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature.opponentControls())
-        ))
+        val yourCreature = target(TargetFilter(GameObjectFilter.Creature.youControl()))
+        val theirCreature = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), yourCreature),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yourCreature)

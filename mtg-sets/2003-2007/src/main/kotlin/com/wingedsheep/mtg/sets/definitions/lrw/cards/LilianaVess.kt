@@ -39,7 +39,7 @@ val LilianaVess = card("Liliana Vess") {
 
     // +1: Target player discards a card.
     loyaltyAbility(+1) {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Discard(1, player)
     }
 

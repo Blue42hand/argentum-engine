@@ -21,7 +21,7 @@ val TendrilsOfAgony = card("Tendrils of Agony") {
     oracleText = "Target player loses 2 life and you gain 2 life.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 
     spell {
-        val t = target("target player", Targets.Player)
+        val t = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(2, t),
             Effects.GainLife(2)

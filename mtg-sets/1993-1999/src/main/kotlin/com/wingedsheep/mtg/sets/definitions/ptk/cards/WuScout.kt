@@ -30,7 +30,7 @@ val WuScout = card("Wu Scout") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", Targets.Opponent)
+        val t = target(Targets.Opponent)
         effect = Effects.LookAtHand(t)
     }
 

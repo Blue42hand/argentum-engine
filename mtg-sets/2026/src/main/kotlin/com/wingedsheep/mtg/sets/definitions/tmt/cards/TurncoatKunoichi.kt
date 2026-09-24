@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Turncoat Kunoichi
@@ -35,7 +35,7 @@ val TurncoatKunoichi = card("Turncoat Kunoichi") {
     // otherwise it returns when Turncoat Kunoichi leaves (the LTB trigger below).
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
+        val creature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.If(
             condition = SneakCostWasPaid,
             then = Effects.Exile(creature),

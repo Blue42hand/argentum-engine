@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.PreventionDirection
 import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Mourner's Shield — Mirrodin #209
@@ -47,7 +47,7 @@ val MournersShield = card("Mourner's Shield") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        val exiled = target("target card from a graveyard", Targets.CardInGraveyard)
+        val exiled = target(TargetFilter.CardInGraveyard)
         effect = Effects.ExileLinkedToSource(exiled)
         description = "Imprint — When this artifact enters, you may exile target card from a graveyard."
     }

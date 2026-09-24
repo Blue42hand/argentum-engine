@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val DiviningDuelist = card("Divining Duelist") {
     manaCost = "{2}{U}"
@@ -23,11 +23,11 @@ val DiviningDuelist = card("Divining Duelist") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Tap target creature.") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.Tap(creature)
             },
             mode("Untap target creature.") {
-                val creature = target("target creature", Targets.Creature)
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.Untap(creature)
             },
             Mode(effect = Effects.Composite(Effects.DrawCards(1), Effects.Discard(1)), description = "Draw a card, then discard a card.")

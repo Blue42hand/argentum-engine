@@ -9,7 +9,6 @@ import com.wingedsheep.mtg.sets.definitions.dsk.cards.EnduringInnocence
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
@@ -18,6 +17,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Scenario tests for the Duskmourn "Enduring" mechanic (the Glimmer cycle).
@@ -37,7 +37,7 @@ class EnduringMechanicTest : FunSpec({
         manaCost = "{1}{W}"
         typeLine = "Instant"
         spell {
-            val t = target("permanent", Targets.Permanent)
+            val t = target(TargetFilter.Permanent)
             effect = MoveToZoneEffect(t, Zone.GRAVEYARD, byDestruction = true)
         }
     }

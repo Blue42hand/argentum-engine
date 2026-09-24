@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Crawl from the Cellar
@@ -35,17 +34,8 @@ val CrawlFromTheCellar = card("Crawl from the Cellar") {
         "exile it.)"
 
     spell {
-        val creatureCard = target(
-            "creature card in your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-        )
-        val zombie = target(
-            "Zombie you control",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Zombie").youControl())
-            )
-        )
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
+        val zombie = target(TargetFilter(GameObjectFilter.Permanent.withSubtype("Zombie").youControl()), optional = true)
 
         effect = Effects.Move(creatureCard, Zone.HAND)
             .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, zombie))

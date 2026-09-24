@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Jade Seedstones // Jadeheart Attendant (CR 702.167, The Lost Caverns of Ixalan)
@@ -50,7 +50,7 @@ private val JadeSeedstonesFront = card("Jade Seedstones") {
     // ETB: distribute three +1/+1 counters among one, two, or three target creatures you control.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target = TargetCreature(count = 3, minCount = 1, filter = TargetFilter.CreatureYouControl)
+        target = TargetObject(filter = TargetFilter.CreatureYouControl, count = 3, minCount = 1)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 3)
     }
 

@@ -28,7 +28,7 @@ val MassacreGirlMostWanted = card("Massacre Girl, Most Wanted") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.CreatureOrPlaneswalker.youControl()).dies()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             Effects.DealDamage(1, opponent),
             Effects.GainLife(1)

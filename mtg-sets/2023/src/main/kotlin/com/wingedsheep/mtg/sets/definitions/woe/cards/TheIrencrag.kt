@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Irencrag {2}
@@ -59,7 +59,7 @@ val TheIrencrag = card("The Irencrag") {
         cost = AbilityCost.Atom(CostAtom.Mana(ManaCost.parse("{3}"))),
         effect = Effects.AttachEquipment(EffectTarget.BoundVariable("creature you control")),
         targetRequirements = listOf(
-            TargetCreature(filter = TargetFilter.CreatureYouControl, id = "creature you control")
+            TargetObject(filter = TargetFilter.CreatureYouControl, id = "creature you control")
         ),
         isEquipAbility = true,
         timing = TimingRule.SorcerySpeed,

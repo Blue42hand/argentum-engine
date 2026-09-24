@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Dion, Bahamut's Dominant // Bahamut, Warden of Light — Final Fantasy #16
@@ -80,7 +79,7 @@ private val BahamutWardenOfLight = card("Bahamut, Warden of Light") {
     // III — Gigaflare — Destroy target permanent. Exile Bahamut, then return it to the
     // battlefield (front face up).
     sagaChapter(3) {
-        val t = target("permanent", TargetObject(filter = TargetFilter(GameObjectFilter.Permanent)))
+        val t = target(TargetFilter(GameObjectFilter.Permanent))
         effect = Effects.Composite(
             Effects.Destroy(t),
             Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),

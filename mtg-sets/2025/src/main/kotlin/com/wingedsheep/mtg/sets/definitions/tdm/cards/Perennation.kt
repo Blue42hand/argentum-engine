@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Perennation
@@ -32,15 +31,7 @@ val Perennation = card("Perennation") {
         "hexproof counter and an indestructible counter on it."
 
     spell {
-        val returnTarget = target(
-            "target permanent card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Permanent.ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        )
+        val returnTarget = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.PutOntoBattlefield(returnTarget)
             .then(Effects.AddCounters(CounterType.HEXPROOF, 1, returnTarget))
             .then(Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, returnTarget))

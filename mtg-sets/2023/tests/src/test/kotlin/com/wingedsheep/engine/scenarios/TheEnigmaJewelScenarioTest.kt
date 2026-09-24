@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
@@ -35,6 +34,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Enigma Jewel // Locus of Enlightenment (LCI #55) — {U} Legendary Artifact // Legendary Artifact.
@@ -161,7 +162,7 @@ class TheEnigmaJewelScenarioTest : FunSpec({
         activatedAbility {
             cost = AbilityCost.Tap
             effect = Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0))
-            target = Targets.CreatureYouControl
+            target = TargetObject(filter = TargetFilter.CreatureYouControl)
             timing = TimingRule.InstantSpeed
         }
     }

@@ -71,7 +71,7 @@ val GreatTrainHeist = card("Great Train Heist") {
                     additionalManaCost = "{2}"
                 ),
                 mode("+ {R} — Choose target opponent. Whenever a creature you control deals combat damage to that player this turn, create a tapped Treasure token.") {
-                    val opponent = target("target opponent", Targets.Opponent)
+                    val opponent = target(Targets.Opponent)
                     additionalManaCost = "{R}"
                     effect = Effects.CreateDelayedTrigger(
                         trigger = Triggers.self.matching(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer),

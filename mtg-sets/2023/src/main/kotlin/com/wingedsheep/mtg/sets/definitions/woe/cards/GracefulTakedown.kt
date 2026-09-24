@@ -8,8 +8,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Graceful Takedown
@@ -48,20 +48,11 @@ val GracefulTakedown = card("Graceful Takedown") {
         "control."
 
     spell {
-        val victim = target(
-            "target creature you don't control",
-            TargetCreature(filter = TargetFilter.CreatureOpponentControls)
-        )
-        target(
-            "up to one other target creature you control",
-            TargetOther(TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl))
-        )
-        target(
-            "any number of target enchanted creatures you control",
-            TargetOther(
-                TargetCreature(unlimited = true, filter = TargetFilter.CreatureYouControl.enchanted())
-            )
-        )
+        val victim = target(TargetFilter.CreatureOpponentControls)
+        target(TargetOther(TargetObject(filter = TargetFilter.CreatureYouControl, optional = true)))
+        target(TargetOther(
+                TargetObject(filter = TargetFilter.CreatureYouControl.enchanted(), unlimited = true)
+            ))
 
         effect = Effects.Pipeline {
             val chosen = gather(CardSource.ChosenTargets)

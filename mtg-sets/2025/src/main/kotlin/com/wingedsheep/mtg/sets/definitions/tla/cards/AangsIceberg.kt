@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Aang's Iceberg
@@ -48,10 +47,7 @@ val AangsIceberg = card("Aang's Iceberg") {
     // ETB: exile up to one other target nonland permanent until this leaves.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "up to one other nonland permanent",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent.other())
-        )
+        val permanent = target(TargetFilter.NonlandPermanent.other(), optional = true)
         effect = Effects.ExileUntilLeaves(permanent)
     }
 

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Call a Surprise Witness — Murders at Karlov Manor #6
@@ -42,19 +41,16 @@ val CallASurpriseWitness = card("Call a Surprise Witness") {
 
     spell {
         val witness = target(
-            "target creature card with mana value 3 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter(
-                        cardPredicates = listOf(
-                            CardPredicate.IsCreature,
-                            CardPredicate.ManaValueAtMost(3),
-                        ),
-                        controllerPredicate = ControllerPredicate.OwnedByYou,
+            TargetFilter(
+                GameObjectFilter(
+                    cardPredicates = listOf(
+                        CardPredicate.IsCreature,
+                        CardPredicate.ManaValueAtMost(3),
                     ),
-                    zone = Zone.GRAVEYARD,
-                )
-            )
+                    controllerPredicate = ControllerPredicate.OwnedByYou,
+                ),
+                zone = Zone.GRAVEYARD,
+            ),
         )
         effect = Effects.PutOntoBattlefield(witness)
             .then(Effects.AddCounters(CounterType.FLYING, 1, witness))

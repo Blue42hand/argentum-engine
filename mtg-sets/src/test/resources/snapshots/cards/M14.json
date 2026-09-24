@@ -47,7 +47,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target Beast creature you control"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -55,7 +55,7 @@
                     "filter": {
                         "baseFilter": "creature Beast ctrl:you"
                     },
-                    "id": "target Beast creature you control"
+                    "id": "t0"
                 },
                 "descriptionOverride": "At the beginning of your end step, put a +1/+1 counter on target Beast creature you control."
             }
@@ -109,13 +109,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "any target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "any target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{R}, Sacrifice a creature: This enchantment deals 1 damage to any target."
@@ -206,7 +206,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "descriptionOverride": "Whenever you cast an enchantment spell, you may have target creature get -2/-2 until end of turn."
@@ -216,7 +216,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever you cast an enchantment spell, you may have target creature get -2/-2 until end of turn."
             }
@@ -373,13 +373,13 @@
             },
             "target": {
                 "type": "BoundVariable",
-                "name": "target player"
+                "name": "t0"
             }
         },
         "targetRequirements": [
             {
                 "type": "TargetPlayer",
-                "id": "target player"
+                "id": "t0"
             }
         ]
     },
@@ -564,7 +564,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -583,7 +583,7 @@
                                 ]
                             }
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }
@@ -743,7 +743,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "player"
+                                "name": "t0"
                             }
                         },
                         {
@@ -758,7 +758,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "player"
+                        "id": "t0"
                     }
                 ]
             }
@@ -874,7 +874,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -895,7 +895,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1143,7 +1143,7 @@
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
-                            "name": "target"
+                            "name": "t0"
                         }
                     },
                     "descriptionOverride": "Whenever this enchantment or another enchantment you control enters, you may put a +1/+1 counter on target creature."
@@ -1153,7 +1153,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "target"
+                    "id": "t0"
                 },
                 "descriptionOverride": "Whenever this enchantment or another enchantment you control enters, you may put a +1/+1 counter on target creature."
             }
@@ -1253,7 +1253,7 @@
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -1261,7 +1261,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "creature"
+                    "id": "t0"
                 }
             },
             {
@@ -1778,7 +1778,7 @@
                     "keyword": "DEATHTOUCH",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -1787,7 +1787,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ],
                 "descriptionOverride": "{1}, Sacrifice this artifact: Target creature gains deathtouch until end of turn."
@@ -2010,7 +2010,7 @@
                     "keyword": "FLYING",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 "targetRequirements": [
@@ -2019,7 +2019,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target"
+                        "id": "t0"
                     }
                 ]
             }

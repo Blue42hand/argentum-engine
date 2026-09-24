@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Whoosh!
@@ -25,7 +25,7 @@ val Whoosh = card("Whoosh!") {
     keywordAbility(KeywordAbility.kicker("{1}{U}"))
 
     spell {
-        val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+        val nonlandPermanent = target(TargetFilter.NonlandPermanent)
         effect = Effects.Move(nonlandPermanent, Zone.HAND) then Effects.If(
             condition = WasKicked,
             then = Effects.DrawCards(1)

@@ -11,6 +11,8 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Cracked Skull
@@ -30,13 +32,13 @@ val CrackedSkull = card("Cracked Skull") {
         "from it. That player discards that card.\n" +
         "When enchanted creature is dealt damage, destroy it."
 
-    auraTarget = Targets.Creature
+    auraTarget = TargetObject(filter = TargetFilter.Creature)
 
     // When this Aura enters, look at target player's hand. You may choose a nonland card from it.
     // That player discards that card.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.LookAtHand(player))
             val targetHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))

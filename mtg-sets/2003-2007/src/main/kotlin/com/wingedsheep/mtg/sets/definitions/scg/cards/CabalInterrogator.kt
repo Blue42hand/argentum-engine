@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Cabal Interrogator
@@ -28,7 +29,7 @@ val CabalInterrogator = card("Cabal Interrogator") {
     oracleText = "{X}{B}, {T}: Target player reveals X cards from their hand and you choose one of them. That player discards that card. Activate only as a sorcery."
 
     activatedAbility {
-        val player = target("target player", TargetPlayer())
+        val player = target(Targets.Player)
         cost = Costs.Composite(Costs.Mana("{X}{B}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
         effect = Effects.Pipeline {

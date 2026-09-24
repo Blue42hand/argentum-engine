@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ember Island Production
@@ -35,10 +34,7 @@ val EmberIslandProduction = card("Ember Island Production") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Create a token that's a copy of target creature you control, except it's not legendary and it's a 4/4 Hero in addition to its other types") {
-                val creatureYouControl = target(
-                    "target creature you control",
-                    TargetObject(filter = TargetFilter.CreatureYouControl)
-                )
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
                 effect = Effects.CreateTokenCopyOfTarget(
                     target = creatureYouControl,
                     overridePower = 4,
@@ -48,10 +44,7 @@ val EmberIslandProduction = card("Ember Island Production") {
                 )
             },
             mode("Create a token that's a copy of target creature an opponent controls, except it's not legendary and it's a 2/2 Coward in addition to its other types") {
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    TargetObject(filter = TargetFilter.CreatureOpponentControls)
-                )
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.CreateTokenCopyOfTarget(
                     target = creatureOpponentControls,
                     overridePower = 2,

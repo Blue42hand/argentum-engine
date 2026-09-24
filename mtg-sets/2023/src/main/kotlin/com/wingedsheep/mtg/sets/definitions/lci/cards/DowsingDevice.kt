@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Dowsing Device // Geode Grotto (The Lost Caverns of Ixalan)
@@ -53,10 +52,7 @@ private val DowsingDeviceFront = card("Dowsing Device") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
-        val creature = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.Creature.youControl()),
-        )
+        val creature = target(TargetFilter.Creature.youControl(), optional = true)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, creature),
             Effects.GrantKeyword(Keyword.HASTE, creature),
@@ -94,7 +90,7 @@ private val GeodeGrotto = card("Geode Grotto") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.HASTE, creature),
             Effects.ModifyStats(

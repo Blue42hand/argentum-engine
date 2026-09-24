@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -30,14 +29,7 @@ val HuntingKavu = card("Hunting Kavu") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{R}{G}"), Costs.Tap)
-        val attacker = target(
-            "target creature without flying that's attacking you",
-            TargetCreature(
-                filter = TargetFilter(
-                    GameObjectFilter.Creature.attacking().withoutKeyword(Keyword.FLYING)
-                )
-            )
-        )
+        val attacker = target(TargetFilter(GameObjectFilter.Creature.attacking().withoutKeyword(Keyword.FLYING)))
         effect = Effects.Composite(
             Effects.Exile(EffectTarget.Self),
             Effects.Exile(attacker)

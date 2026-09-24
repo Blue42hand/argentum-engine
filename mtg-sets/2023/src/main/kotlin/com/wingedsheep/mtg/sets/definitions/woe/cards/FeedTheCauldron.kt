@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Feed the Cauldron
@@ -27,7 +26,7 @@ val FeedTheCauldron = card("Feed the Cauldron") {
         "(It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")"
 
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3)))
+        val t = target(TargetFilter.Creature.manaValueAtMost(3))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
             Effects.If(
                 condition = Conditions.IsYourTurn,

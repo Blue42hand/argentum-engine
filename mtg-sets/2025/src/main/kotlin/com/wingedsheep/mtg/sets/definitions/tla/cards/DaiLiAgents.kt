@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Dai Li Agents
@@ -48,8 +47,8 @@ val DaiLiAgents = card("Dai Li Agents") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val firstLand = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
-        val secondLand = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val firstLand = target(TargetFilter.Land.youControl())
+        val secondLand = target(TargetFilter.Land.youControl())
         effect = Effects.Composite(
             listOf(
                 Effects.Earthbend(1, firstLand),

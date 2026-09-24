@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.tmp.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Spike Drone
@@ -32,7 +32,7 @@ val SpikeDrone = card("Spike Drone") {
             Costs.Mana("{2}"),
             Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE, 1)
         )
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 

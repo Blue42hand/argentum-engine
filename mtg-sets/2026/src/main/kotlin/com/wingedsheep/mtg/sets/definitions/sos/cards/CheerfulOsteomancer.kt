@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Cheerful Osteomancer // Raise Dead — Secrets of Strixhaven #76
@@ -37,7 +37,7 @@ val CheerfulOsteomancer = card("Cheerful Osteomancer") {
         typeLine = "Sorcery"
         oracleText = "Return target creature card from your graveyard to your hand."
         spell {
-            val creatureCardInYourGraveyard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
+            val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
             effect = Effects.Move(creatureCardInYourGraveyard, Zone.HAND)
         }
     }

@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 /**
  * Biosynthic Burst
  * {1}{G}
@@ -19,7 +19,7 @@ val BiosynthicBurst = card("Biosynthic Burst") {
     oracleText = "Put a +1/+1 counter on target creature you control. It gains reach, trample, and indestructible until end of turn. Untap it. (Damage and effects that say \"destroy\" don't destroy it.)"
 
     spell {
-        val target = target("target creature you control", Targets.CreatureYouControl)
+        val target = target(TargetFilter.CreatureYouControl)
         effect = Effects.Composite(listOf(
             // Put a +1/+1 counter on target creature
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target),

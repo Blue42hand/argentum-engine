@@ -31,17 +31,14 @@ val FireAndBrimstone = card("Fire and Brimstone") {
         "4 damage to you."
 
     spell {
-        val attacker = target(
-            "target player who attacked this turn",
-            TargetPlayer(
+        val attacker = target(TargetPlayer(
                 restriction = PlayerAttackedWithCreaturesThisTurn(
                     player = Player.Candidate,
                     filter = GameObjectFilter.Creature,
                     atLeast = 1,
                 ),
                 descriptionOverride = "target player who attacked this turn",
-            ),
-        )
+            ))
         effect = Effects.Composite(
             Effects.DealDamage(4, attacker),
             Effects.DealDamage(4, EffectTarget.PlayerRef(Player.You)),

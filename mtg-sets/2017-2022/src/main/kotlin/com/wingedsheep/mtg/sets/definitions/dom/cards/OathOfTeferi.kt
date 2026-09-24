@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Oath of Teferi
@@ -26,9 +25,7 @@ val OathOfTeferi = card("Oath of Teferi") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("permanent", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Permanent.youControl(), excludeSelf = true)
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Permanent.youControl(), excludeSelf = true))
         effect = Patterns.Exile.exileUntilEndStep(t)
     }
 

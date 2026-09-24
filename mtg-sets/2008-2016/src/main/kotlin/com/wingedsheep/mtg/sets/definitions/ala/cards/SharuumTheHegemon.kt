@@ -36,12 +36,7 @@ val SharuumTheHegemon = card("Sharuum the Hegemon") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target",
-            TargetObject(
-                filter = TargetFilter.ArtifactInYourGraveyard
-            )
-        )
+        val t = target(TargetFilter.ArtifactInYourGraveyard)
         optional = true
         effect = Effects.PutOntoBattlefieldFromGraveyard(t)
     }

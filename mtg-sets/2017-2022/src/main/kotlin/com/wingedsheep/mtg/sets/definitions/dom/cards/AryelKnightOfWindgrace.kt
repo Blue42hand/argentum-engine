@@ -5,12 +5,12 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Aryel, Knight of Windgrace
@@ -50,7 +50,7 @@ val AryelKnightOfWindgrace = card("Aryel, Knight of Windgrace") {
             Costs.Tap,
             Costs.TapXPermanents(GameObjectFilter.Creature.withSubtype("Knight"))
         )
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         // At resolution, destroy the target only if its power <= X
         effect = Effects.If(
             condition = Conditions.CompareAmounts(

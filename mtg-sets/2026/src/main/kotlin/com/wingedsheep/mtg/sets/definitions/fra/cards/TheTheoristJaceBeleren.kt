@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -59,14 +58,11 @@ val TheTheoristJaceBeleren = card("The Theorist, Jace Beleren") {
     }
 
     loyaltyAbility(-2) {
-        target(
-            "up to one target artifact or creature each opponent controls",
-            TargetObject(
-                filter = TargetFilter.CreatureOrArtifact.opponentControls(),
-                optional = true,
-                dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
-                differentControllers = true,
-            ),
+        targets(
+            TargetFilter.CreatureOrArtifact.opponentControls(),
+            optional = true,
+            dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
+            differentControllers = true,
         )
         effect = Effects.ForEachTarget(
             Effects.ReturnToHand(EffectTarget.ContextTarget(0))

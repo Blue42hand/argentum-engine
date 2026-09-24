@@ -35,7 +35,7 @@ val HagraDiabolist = card("Hagra Diabolist") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Ally").youControl()).enters()
         optional = true
-        val player = target("player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.LoseLife(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Ally")).count(),
             player,

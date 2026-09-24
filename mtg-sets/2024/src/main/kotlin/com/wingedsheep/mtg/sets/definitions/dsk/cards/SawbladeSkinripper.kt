@@ -50,7 +50,7 @@ val SawbladeSkinripper = card("Sawblade Skinripper") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouSacrificedPermanentsThisTurn()
-        val any = target("any target", Targets.Any)
+        val any = target(Targets.Any)
         effect = Effects.DealDamage(
             DynamicAmounts.permanentsSacrificedThisTurn(),
             any,

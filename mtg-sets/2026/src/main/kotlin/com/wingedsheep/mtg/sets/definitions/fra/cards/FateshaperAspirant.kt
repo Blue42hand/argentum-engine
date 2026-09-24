@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val FateshaperAspirant = card("Fateshaper Aspirant") {
     manaCost = "{4}{W}"
@@ -29,14 +27,11 @@ val FateshaperAspirant = card("Fateshaper Aspirant") {
         effect = ModalEffect.chooseOne(
             // "Legendary card" is any card type — not narrowed to permanents or creatures.
             mode("Return target legendary card from your graveyard to your hand.") {
-                val cardInGraveyard = target(
-                    "target card in graveyard",
-                    TargetObject(filter = TargetFilter.CardInGraveyard.legendary().ownedByYou())
-                )
+                val cardInGraveyard = target(TargetFilter.CardInGraveyard.legendary().ownedByYou())
                 effect = Effects.Move(cardInGraveyard, Zone.HAND)
             },
             mode("Put a +1/+1 counter on target creature. It gains vigilance and indestructible until end of turn.") {
-                val creature = target("target creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.Composite(
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
                     Effects.GrantKeyword(Keyword.VIGILANCE, creature),

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /** The linked-exile slice needed by champion, independently of its sacrifice and champion event. */
 class LinkedExileSourceInstanceTest : FunSpec({
@@ -46,7 +47,7 @@ class LinkedExileSourceInstanceTest : FunSpec({
         manaCost = "{U}"
         typeLine = "Instant"
         spell {
-            val creature = target("creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.Exile(creature).then(Effects.PutOntoBattlefield(creature))
         }
     }
@@ -54,7 +55,7 @@ class LinkedExileSourceInstanceTest : FunSpec({
         manaCost = "{U}"
         typeLine = "Instant"
         spell {
-            val creature = target("creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.Exile(creature)
         }
     }
@@ -63,7 +64,7 @@ class LinkedExileSourceInstanceTest : FunSpec({
         manaCost = "{U}"
         typeLine = "Instant"
         spell {
-            val exiled = target("exiled", com.wingedsheep.sdk.scripting.targets.TargetObject(filter = Targets.Unified.inExile()))
+            val exiled = target(TargetFilter(GameObjectFilter.Any, zone = Zone.EXILE))
             effect = Effects.PutOntoBattlefield(exiled)
         }
     }

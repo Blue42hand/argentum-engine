@@ -42,7 +42,7 @@ val FiremindsResearch = card("Firemind's Research") {
             Costs.Mana("{1}{R}"),
             Costs.RemoveCounterFromSelf(CounterType.CHARGE, 5)
         )
-        val any = target("target", Targets.Any)
+        val any = target(Targets.Any)
         effect = Effects.DealDamage(5, any)
     }
 

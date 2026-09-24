@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CopyRecipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Chain of Vapor
@@ -24,8 +24,8 @@ val ChainOfVapor = card("Chain of Vapor") {
     oracleText = "Return target nonland permanent to its owner's hand. Then that permanent's controller may sacrifice a land of their choice. If the player does, they may copy this spell and may choose a new target for that copy."
 
     spell {
-        val permanent = TargetPermanent(filter = TargetFilter.NonlandPermanent)
-        val t = target("target nonland permanent", permanent)
+        val permanent = TargetObject(filter = TargetFilter.NonlandPermanent)
+        val t = target(permanent)
         effect = Effects.ChainCopy(
             action = Effects.ReturnToHand(t),
             target = t,

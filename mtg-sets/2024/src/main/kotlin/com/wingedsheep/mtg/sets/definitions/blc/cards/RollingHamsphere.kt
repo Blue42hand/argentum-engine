@@ -56,7 +56,7 @@ val RollingHamsphere = card("Rolling Hamsphere") {
     // the new tokens enter, per the Scryfall ruling — X is determined as the ability resolves).
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 1,

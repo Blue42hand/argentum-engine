@@ -23,7 +23,7 @@ val BlueSunsZenith = card("Blue Sun's Zenith") {
     oracleText = "Target player draws X cards. Shuffle Blue Sun's Zenith into its owner's library."
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.DrawCards(DynamicAmounts.xValue(), player)
         selfShuffleIntoLibrary()
     }

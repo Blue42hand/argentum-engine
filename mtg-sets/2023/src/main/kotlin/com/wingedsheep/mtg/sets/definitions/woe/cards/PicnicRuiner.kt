@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Picnic Ruiner // Stolen Goodies
@@ -62,14 +61,7 @@ val PicnicRuiner = card("Picnic Ruiner") {
         oracleText = "Distribute three +1/+1 counters among any number of target creatures you " +
             "control. (Then exile this card. You may cast the creature later from exile.)"
         spell {
-            target(
-                "any number of target creatures you control",
-                TargetCreature(
-                    count = 3,
-                    minCount = 0,
-                    filter = TargetFilter.CreatureYouControl,
-                ),
-            )
+            targets(TargetFilter.CreatureYouControl, count = 3, minCount = 0)
             effect = Effects.DistributeCountersAmongTargets(totalCounters = 3)
         }
     }

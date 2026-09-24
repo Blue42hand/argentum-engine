@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
@@ -25,6 +24,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * `SetBaseStatsEffect(reevaluateContinuously = true)` — the layer 7b base-P/T *set* whose
@@ -65,7 +65,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
         oracleText = "Until end of turn, target creature you control gains \"This creature's base " +
             "power is equal to the number of cards in your hand.\""
         spell {
-            val creature = target("creature", Targets.CreatureYouControl)
+            val creature = target(TargetFilter.CreatureYouControl)
             effect = Effects.SetBasePower(
                 creature,
                 DynamicAmounts.cardsInYourHand(),
@@ -81,7 +81,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
         oracleText = "Target creature's base power becomes the number of cards in your hand " +
             "until end of turn."
         spell {
-            val creature = target("creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.SetBasePower(
                 creature,
                 DynamicAmounts.cardsInYourHand(),
@@ -96,7 +96,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
         oracleText = "Until end of turn, target creature you control gains \"This creature's base " +
             "toughness is equal to the number of cards in your hand.\""
         spell {
-            val creature = target("creature", Targets.CreatureYouControl)
+            val creature = target(TargetFilter.CreatureYouControl)
             effect = Effects.SetBaseToughness(
                 creature,
                 DynamicAmounts.cardsInYourHand(),
@@ -120,7 +120,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
         typeLine = "Instant"
         oracleText = "Put a +1/+1 counter on target creature."
         spell {
-            val creature = target("creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         }
     }
@@ -130,7 +130,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
         typeLine = "Instant"
         oracleText = "Target creature gets +2/+2 until end of turn."
         spell {
-            val creature = target("creature", Targets.Creature)
+            val creature = target(TargetFilter.Creature)
             effect = Effects.ModifyStats(2, 2, creature)
         }
     }
@@ -149,7 +149,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
             "gains \"This creature's base power is equal to the number of cards in your hand.\""
         activatedAbility {
             cost = Costs.SacrificeSelf
-            val creature = target("creature", Targets.CreatureYouControl)
+            val creature = target(TargetFilter.CreatureYouControl)
             effect = Effects.SetBasePower(
                 creature,
                 DynamicAmounts.cardsInYourHand(),

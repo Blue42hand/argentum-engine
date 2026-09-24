@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Mana Clash
@@ -39,7 +39,7 @@ val ManaClash = card("Mana Clash") {
         "heads on the same flip."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         val myHeads = DynamicAmounts.storedNumber("manaClashMine")
         val theirHeads = DynamicAmounts.storedNumber("manaClashTheirs")
 

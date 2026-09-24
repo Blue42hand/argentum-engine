@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
@@ -17,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -429,7 +428,7 @@ class StepsTest : StringSpec({
             script = CardScript(
                 spellEffect = Effects.Destroy(Targets.bound()),
                 targetRequirements = listOf(
-                    TargetPermanent(
+                    TargetObject(
                         filter = TargetFilter(GameObjectFilter.Creature, excludeSelf = true),
                         id = Targets.SLOT,
                     )
@@ -658,7 +657,7 @@ class StepsTest : StringSpec({
             script = CardScript(
                 spellEffect = Effects.CounterSpell(),
                 targetRequirements = listOf(
-                    TargetSpell(filter = TargetFilter.SorcerySpellOnStack, id = Targets.SLOT),
+                    TargetObject(filter = TargetFilter.SorcerySpellOnStack, id = Targets.SLOT),
                 ),
             )
         )

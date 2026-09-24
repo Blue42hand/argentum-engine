@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Skrelv, Defector Mite
@@ -41,7 +40,7 @@ val SkrelvDefectorMite = card("Skrelv, Defector Mite") {
 
     activatedAbility {
         cost = AbilityCost.Composite(listOf(Costs.Mana(ManaCost.parse("{W}")), AbilityCost.Tap))
-        val t = target("another target creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ChooseColorThen(
             Effects.Composite(listOf(
                 Effects.GrantToxic(1, t),
@@ -53,7 +52,7 @@ val SkrelvDefectorMite = card("Skrelv, Defector Mite") {
 
     activatedAbility {
         cost = AbilityCost.Composite(listOf(Costs.PayLife(2), AbilityCost.Tap))
-        val t = target("another target creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ChooseColorThen(
             Effects.Composite(listOf(
                 Effects.GrantToxic(1, t),

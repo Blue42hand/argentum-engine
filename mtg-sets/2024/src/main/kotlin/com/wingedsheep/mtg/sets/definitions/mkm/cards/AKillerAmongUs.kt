@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * A Killer Among Us — Murders at Karlov Manor #167
@@ -101,10 +100,7 @@ val AKillerAmongUs = card("A Killer Among Us") {
     }
 
     activatedAbility {
-        val creature = target("target creature", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature.attacking().token()),
-            id = "target attacking creature token"
-        ))
+        val creature = target(TargetFilter(GameObjectFilter.Creature.attacking().token()))
         cost = Costs.Composite(Costs.SacrificeSelf, Costs.RevealNotedCreatureType)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtypeFromVariable("chosenCreatureType"), creature),

@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.craft
@@ -135,7 +134,7 @@ private val DireBlunderbuss = card("Dire Blunderbuss") {
                     // target creature." Source of the granted ability = the equipped
                     // creature, so sourcePower() is its (buffed) power and the damage
                     // source defaults to it.
-                    val creature = target("target creature", Targets.Creature)
+                    val creature = target(TargetFilter.Creature)
                     effect = Effects.DealDamage(
                         DynamicAmounts.sourcePower(),
                         creature

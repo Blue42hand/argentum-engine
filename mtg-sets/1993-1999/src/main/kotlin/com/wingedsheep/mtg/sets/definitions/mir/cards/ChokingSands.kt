@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Choking Sands
@@ -26,11 +25,7 @@ val ChokingSands = card("Choking Sands") {
     oracleText = "Destroy target non-Swamp land. If that land was nonbasic, Choking Sands deals 2 damage to the land's controller."
 
     spell {
-        val permanent = target("target permanent", TargetPermanent(
-            filter = TargetFilter(
-                GameObjectFilter.Land.notSubtype(Subtype.SWAMP)
-            )
-        ))
+        val permanent = target(TargetFilter(GameObjectFilter.Land.notSubtype(Subtype.SWAMP)))
         // Deal damage first (while the target is still on the battlefield with its
         // controller intact), then destroy. The conditional reads the target's current
         // nonbasic status, matching the past-tense oracle phrasing ("if that land was

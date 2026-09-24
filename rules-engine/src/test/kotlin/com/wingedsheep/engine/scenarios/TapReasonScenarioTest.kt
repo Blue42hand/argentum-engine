@@ -9,7 +9,6 @@ import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.EntityId
@@ -23,6 +22,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlinx.serialization.json.Json
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The **tap-reason** primitive: [TapReason] on [TappedEvent], matched by
@@ -60,7 +61,7 @@ class TapReasonScenarioTest : ScenarioTestBase() {
         typeLine = "Enchantment — Aura"
         oracleText = "Enchant creature\n" +
             "Whenever enchanted creature becomes tapped to pay a teamwork cost, draw a card."
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
         triggeredAbility {
             trigger = Triggers.attached.becomesTapped(TapReason.TEAMWORK)
             effect = Effects.DrawCards(1)

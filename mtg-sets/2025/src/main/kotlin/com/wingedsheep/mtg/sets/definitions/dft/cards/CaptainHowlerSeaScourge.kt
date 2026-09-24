@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Captain Howler, Sea Scourge — Aetherdrift #194
@@ -57,7 +58,7 @@ val CaptainHowlerSeaScourge = card("Captain Howler, Sea Scourge") {
 
     triggeredAbility {
         trigger = Triggers.you.discards(batch = true)
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(listOf(
             Effects.ModifyStats(
                 power = DynamicAmounts.triggerDiscardCount() * 2,

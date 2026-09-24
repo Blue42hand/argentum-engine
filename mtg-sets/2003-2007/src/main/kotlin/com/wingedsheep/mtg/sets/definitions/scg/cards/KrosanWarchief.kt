@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Krosan Warchief
@@ -36,9 +35,7 @@ val KrosanWarchief = card("Krosan Warchief") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{G}")
-        val t = target("target", TargetPermanent(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Beast"))
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Beast")))
         effect = Effects.Regenerate(t)
     }
 

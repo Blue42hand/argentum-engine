@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Galadriel, Gift-Giver
@@ -35,10 +34,7 @@ val GaladrielGiftGiver = card("Galadriel, Gift-Giver") {
 
     val galadrielModal = ModalEffect.chooseOne(
         mode("Put a +1/+1 counter on another target creature") {
-            val otherCreature = target(
-                "target other creature",
-                TargetCreature(filter = TargetFilter.OtherCreature)
-            )
+            val otherCreature = target(TargetFilter.OtherCreature)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, otherCreature)
         },
         Mode.noTarget(

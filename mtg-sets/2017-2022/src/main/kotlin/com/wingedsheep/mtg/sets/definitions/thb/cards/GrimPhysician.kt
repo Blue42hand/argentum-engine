@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.thb.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Grim Physician
@@ -28,7 +28,7 @@ val GrimPhysician = card("Grim Physician") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val victim = target("target", Targets.CreatureOpponentControls)
+        val victim = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ModifyStats(-1, -1, victim)
         description = "When this creature dies, target creature an opponent controls gets -1/-1 " +
             "until end of turn."

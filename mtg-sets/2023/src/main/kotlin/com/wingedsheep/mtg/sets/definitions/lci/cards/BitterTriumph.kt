@@ -5,8 +5,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Bitter Triumph
@@ -32,19 +32,13 @@ val BitterTriumph = card("Bitter Triumph") {
         effect = ModalEffect.chooseOne(
             // Mode 1: Discard a card
             mode("Discard a card — destroy target creature or planeswalker") {
-                val creatureOrPlaneswalker = target(
-                    "target creature or planeswalker",
-                    TargetCreatureOrPlaneswalker()
-                )
+                val creatureOrPlaneswalker = target(Targets.CreatureOrPlaneswalker)
                 additionalCosts = listOf(Costs.additional.DiscardCards(count = 1))
                 effect = Effects.Destroy(creatureOrPlaneswalker)
             },
             // Mode 2: Pay 3 life
             mode("Pay 3 life — destroy target creature or planeswalker") {
-                val creatureOrPlaneswalker = target(
-                    "target creature or planeswalker",
-                    TargetCreatureOrPlaneswalker()
-                )
+                val creatureOrPlaneswalker = target(Targets.CreatureOrPlaneswalker)
                 additionalCosts = listOf(Costs.additional.PayLife(amount = 3))
                 effect = Effects.Destroy(creatureOrPlaneswalker)
             },

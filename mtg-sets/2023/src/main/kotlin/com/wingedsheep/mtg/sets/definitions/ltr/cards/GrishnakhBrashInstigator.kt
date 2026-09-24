@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Grishnákh, Brash Instigator
@@ -45,12 +44,9 @@ val GrishnakhBrashInstigator = card("Grishnákh, Brash Instigator") {
         trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(action = Effects.Amass(2, "Orc"), optional = false) {
             val controlled = target(
-                "target nonlegendary creature an opponent controls",
-                TargetCreature(
-                    filter = TargetFilter.CreatureOpponentControls
-                        .nonlegendary()
-                        .powerAtMostEntity(EffectTarget.AmassedArmy)
-                )
+                TargetFilter.CreatureOpponentControls
+                    .nonlegendary()
+                    .powerAtMostEntity(EffectTarget.AmassedArmy),
             )
             effect = Effects.Composite(
                 Effects.GainControl(controlled, Duration.EndOfTurn),

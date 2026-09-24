@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Explosive Derailment {R}
@@ -32,12 +32,12 @@ val ExplosiveDerailment = card("Explosive Derailment") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("+ {2} — Explosive Derailment deals 4 damage to target creature.") {
-                    val creature = target("target creature", Targets.Creature)
+                    val creature = target(TargetFilter.Creature)
                     additionalManaCost = "{2}"
                     effect = Effects.DealDamage(4, creature)
                 },
                 mode("+ {2} — Destroy target artifact.") {
-                    val artifact = target("target artifact", Targets.Artifact)
+                    val artifact = target(TargetFilter.Artifact)
                     additionalManaCost = "{2}"
                     effect = Effects.Destroy(artifact)
                 }

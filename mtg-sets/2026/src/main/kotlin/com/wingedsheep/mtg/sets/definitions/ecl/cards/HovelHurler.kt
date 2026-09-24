@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Hovel Hurler
@@ -40,7 +39,7 @@ val HovelHurler = card("Hovel Hurler") {
             Costs.Mana("{R/W}{R/W}"),
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE)
         )
-        val creature = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
+        val creature = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ModifyStats(1, 0, creature)
             .then(Effects.GrantKeyword(Keyword.FLYING, creature))
         timing = TimingRule.SorcerySpeed

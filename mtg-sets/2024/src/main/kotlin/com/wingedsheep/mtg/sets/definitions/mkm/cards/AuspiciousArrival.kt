@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Auspicious Arrival — Murders at Karlov Manor #5
@@ -25,7 +25,7 @@ val AuspiciousArrival = card("Auspicious Arrival") {
         "(Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")"
 
     spell {
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, creature),
             Effects.Investigate()

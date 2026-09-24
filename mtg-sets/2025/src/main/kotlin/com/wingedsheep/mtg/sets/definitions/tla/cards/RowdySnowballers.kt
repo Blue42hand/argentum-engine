@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Rowdy Snowballers
@@ -28,10 +27,7 @@ val RowdySnowballers = card("Rowdy Snowballers") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "creature an opponent controls",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.Creature.opponentControls())),
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),
             Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t),

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Clash of Elements
@@ -29,7 +28,7 @@ val ClashOfElements = card("Clash of Elements") {
         "their library, they put it on the bottom."
 
     spell {
-        val permanent = target("target nonland permanent", TargetPermanent(filter = TargetFilter.NonlandPermanent))
+        val permanent = target(TargetFilter.NonlandPermanent)
         val owner = EffectTarget.PlayerRef(Player.OwnerOf("target nonland permanent"))
         effect = Effects.May(
             effect = Effects.Composite(

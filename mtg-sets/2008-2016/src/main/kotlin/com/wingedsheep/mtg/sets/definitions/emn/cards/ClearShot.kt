@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -24,8 +23,8 @@ val ClearShot = card("Clear Shot") {
     typeLine = "Instant"
     oracleText = "Target creature you control gets +1/+1 until end of turn. It deals damage equal to its power to target creature you don't control."
     spell {
-        val t1 = target("t1", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
+        val t1 = target(TargetFilter.Creature.youControl())
+        val t2 = target(TargetFilter.Creature.opponentControls())
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, t1),
             Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)

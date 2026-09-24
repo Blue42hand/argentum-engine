@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.ninjutsu
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Nezumi Prowler — Kamigawa: Neon Dynasty #116 (canonical printing)
@@ -36,10 +35,7 @@ val NezumiProwler = card("Nezumi Prowler") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "creature you control",
-            TargetCreature(filter = TargetFilter.CreatureYouControl),
-        )
+        val t = target(TargetFilter.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then
             Effects.GrantKeyword(Keyword.LIFELINK, t)
         description = "When this creature enters, target creature you control gains deathtouch " +

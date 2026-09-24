@@ -4,11 +4,11 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Induce Paranoia — Ravnica: City of Guilds #56
@@ -35,7 +35,7 @@ val InduceParanoia = card("Induce Paranoia") {
         "controller mills X cards, where X is the spell's mana value."
 
     spell {
-        val spellTarget = target("target spell", Targets.Spell)
+        val spellTarget = target(TargetFilter.SpellOnStack)
         effect = Effects.CounterSpell()
             .then(
                 Effects.If(

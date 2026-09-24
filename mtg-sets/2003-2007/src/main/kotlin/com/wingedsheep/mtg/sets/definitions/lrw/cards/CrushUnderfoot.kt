@@ -3,11 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Crush Underfoot
@@ -54,13 +53,10 @@ val CrushUnderfoot = card("Crush Underfoot") {
     oracleText = "Choose a Giant creature you control. It deals damage equal to its power to target creature."
 
     spell {
-        val victim = target("target creature", Targets.Creature)
+        val victim = target(TargetFilter.Creature)
         effect = Effects.Pipeline {
             val crushGiant = selectTarget(
-                TargetCreature(
-                    filter = TargetFilter.Creature.youControl().withSubtype(Subtype.GIANT),
-                    id = "a Giant creature you control"
-                )
+                TargetObject(filter = TargetFilter.Creature.youControl().withSubtype(Subtype.GIANT), id = "a Giant creature you control")
             )
             run(Effects.DealDamage(
                 amount = DynamicAmounts.powerOf(crushGiant.asTarget),

@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.stx.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -36,11 +35,8 @@ val RiseOfExtus = card("Rise of Extus") {
         "hand, or discard a card to draw a card.)"
 
     spell {
-        val creature = target("target creature", Targets.Creature)
-        val instantOrSorceryInGraveyard = target(
-            "up to one target instant or sorcery card from a graveyard",
-            TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard, optional = true)
-        )
+        val creature = target(TargetFilter.Creature)
+        val instantOrSorceryInGraveyard = target(TargetFilter.InstantOrSorceryInGraveyard, optional = true)
         effect = Effects.Exile(creature) then
             Effects.Exile(instantOrSorceryInGraveyard) then
             Patterns.Mechanic.learn()

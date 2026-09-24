@@ -65,7 +65,7 @@ val BarbedServitor = card("Barbed Servitor") {
 
     triggeredAbility {
         trigger = Triggers.self.isDealtDamage()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.LoseLife(
             DynamicAmounts.triggerDamageAmount(),
             opponent,

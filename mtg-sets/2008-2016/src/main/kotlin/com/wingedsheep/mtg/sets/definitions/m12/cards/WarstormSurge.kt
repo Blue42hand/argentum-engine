@@ -28,7 +28,7 @@ val WarstormSurge = card("Warstorm Surge") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
-        val any = target("any target", Targets.Any)
+        val any = target(Targets.Any)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggeringPower(),
             target = any,

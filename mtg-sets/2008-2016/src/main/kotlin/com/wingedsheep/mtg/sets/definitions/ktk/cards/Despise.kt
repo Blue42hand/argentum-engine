@@ -6,8 +6,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Despise
@@ -23,7 +23,7 @@ val Despise = card("Despise") {
     oracleText = "Target opponent reveals their hand. You choose a creature or planeswalker card from it. That player discards that card."
 
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Pipeline {
             // 1. Reveal opponent's hand
             run(Effects.RevealHand(t))

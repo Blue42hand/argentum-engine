@@ -4,8 +4,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Barrin's Spite
@@ -36,7 +36,7 @@ val BarrinsSpite = card("Barrin's Spite") {
     oracleText = "Choose two target creatures controlled by the same player. Their controller chooses and sacrifices one of them. Return the other to its owner's hand."
 
     spell {
-        val creature = target("target creature", TargetCreature(count = 2, sameController = true))
+        targets(TargetFilter.Creature, count = 2, sameController = true)
         effect = Effects.Pipeline {
             // 1. Reference the two targeted creatures (still on the battlefield).
             val spiteCreatures = gather(CardSource.ChosenTargets)

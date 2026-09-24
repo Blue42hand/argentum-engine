@@ -34,7 +34,7 @@ val ScreamingNemesis = card("Screaming Nemesis") {
     // If a player is dealt damage this way, they can't gain life for the rest of the game.
     triggeredAbility {
         trigger = Triggers.self.isDealtDamage()
-        val victim = target("any other target", TargetOther(AnyTarget()))
+        val victim = target(TargetOther(AnyTarget()))
         effect = Effects.Composite(
             listOf(
                 Effects.DealDamage(

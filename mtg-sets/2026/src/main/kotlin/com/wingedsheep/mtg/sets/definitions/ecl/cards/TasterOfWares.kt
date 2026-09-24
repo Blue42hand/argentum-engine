@@ -11,8 +11,8 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Taster of Wares
@@ -46,7 +46,7 @@ val TasterOfWares = card("Taster of Wares") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         description = "When this creature enters, target opponent reveals X cards from their hand, " +
             "where X is the number of Goblins you control. You choose one of those cards. " +
             "That player exiles it. If an instant or sorcery card is exiled this way, you may cast it " +

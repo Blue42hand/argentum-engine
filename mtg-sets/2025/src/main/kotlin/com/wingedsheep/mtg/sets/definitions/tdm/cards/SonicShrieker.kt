@@ -39,7 +39,7 @@ val SonicShrieker = card("Sonic Shrieker") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.Composite(listOf(
             Effects.DealDamage(2, anyTarget),
             Effects.GainLife(2),

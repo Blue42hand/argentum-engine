@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AdditionalManaOnSourceTap
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Badgermole Cub — {1}{G}
@@ -27,7 +26,7 @@ val BadgermoleCub = card("Badgermole Cub") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(1, land)
         description = "When this creature enters, earthbend 1."
     }

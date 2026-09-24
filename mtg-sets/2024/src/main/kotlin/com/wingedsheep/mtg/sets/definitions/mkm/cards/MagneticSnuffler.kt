@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Magnetic Snuffler — Murders at Karlov Manor #254
@@ -56,15 +55,12 @@ val MagneticSnuffler = card("Magnetic Snuffler") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val equipment = target(
-            "target Equipment card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    baseFilter = GameObjectFilter.Artifact
-                        .withSubtype(Subtype.EQUIPMENT)
-                        .ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+            TargetFilter(
+                baseFilter = GameObjectFilter.Artifact
+                    .withSubtype(Subtype.EQUIPMENT)
+                    .ownedByYou(),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.PutOntoBattlefieldUnderYourControl(equipment)
             .then(

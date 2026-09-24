@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Pharika's Mender
@@ -33,15 +32,7 @@ val PharikasMender = card("Pharika's Mender") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val recovered = target(
-            "creature or enchantment card in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.CreatureOrEnchantment.ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        )
+        val recovered = target(TargetFilter(GameObjectFilter.CreatureOrEnchantment.ownedByYou(), zone = Zone.GRAVEYARD))
         optional = true
         effect = Effects.ReturnToHand(recovered)
     }

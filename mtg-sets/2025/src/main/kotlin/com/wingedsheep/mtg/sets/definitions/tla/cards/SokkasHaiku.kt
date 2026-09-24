@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sokka's Haiku
@@ -26,8 +26,8 @@ val SokkasHaiku = card("Sokka's Haiku") {
     spell {
         // The countered spell must be the first target: CounterEffect (Chosen source)
         // resolves against context.targets.firstOrNull().
-        target("counter target spell", Targets.Spell)
-        val land = target("untap target land", Targets.Land)
+        target(TargetFilter.SpellOnStack)
+        val land = target(TargetFilter.Land)
         effect = Effects.CounterSpell() then
             Effects.DrawCards(1) then
             Patterns.Library.mill(3) then

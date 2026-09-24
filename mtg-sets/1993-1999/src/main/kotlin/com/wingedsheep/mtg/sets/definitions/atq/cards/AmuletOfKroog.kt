@@ -20,7 +20,7 @@ val AmuletOfKroog = card("Amulet of Kroog") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.PreventNextDamage(1, t)
         description = "{2}, {T}: Prevent the next 1 damage that would be dealt to any target this turn."
     }

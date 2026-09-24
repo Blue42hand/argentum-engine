@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Vampire Gourmand
@@ -35,12 +34,7 @@ val VampireGourmand = card("Vampire Gourmand") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val sacrificeTarget = target(
-            "another creature",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.Creature.youControl()).other()
-            )
-        )
+        val sacrificeTarget = target(TargetFilter(GameObjectFilter.Creature.youControl()).other())
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget) then
                 Effects.DrawCards(1) then

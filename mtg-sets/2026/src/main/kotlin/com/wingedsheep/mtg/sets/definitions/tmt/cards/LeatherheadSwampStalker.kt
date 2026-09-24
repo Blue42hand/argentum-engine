@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -66,11 +65,7 @@ val LeatherheadSwampStalker = card("Leatherhead, Swamp Stalker") {
             descriptionOverride = "You may remove a counter from Leatherhead. When you do, " +
                 "destroy target artifact or enchantment that player controls."
         ) {
-            val artifactOrEnchantment = target("target artifact or enchantment", TargetPermanent(
-                filter = TargetFilter(
-                    GameObjectFilter.ArtifactOrEnchantment.controlledByTriggeringPlayer()
-                )
-            ))
+            val artifactOrEnchantment = target(TargetFilter(GameObjectFilter.ArtifactOrEnchantment.controlledByTriggeringPlayer()))
             effect = Effects.Destroy(artifactOrEnchantment)
         }
         description = "Whenever Leatherhead deals combat damage to a player, you may remove a counter from her. When you do, destroy target artifact or enchantment that player controls."

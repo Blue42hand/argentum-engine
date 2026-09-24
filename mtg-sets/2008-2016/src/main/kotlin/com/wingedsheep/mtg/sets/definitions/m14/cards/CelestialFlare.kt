@@ -24,7 +24,7 @@ val CelestialFlare = card("Celestial Flare") {
     oracleText = "Target player sacrifices an attacking or blocking creature of their choice."
 
     spell {
-        val p = target("target player", Targets.Player)
+        val p = target(Targets.Player)
         effect = Effects.Sacrifice(
             GameObjectFilter.Creature.attackingOrBlocking(),
             1,

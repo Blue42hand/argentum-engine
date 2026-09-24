@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Blood Spatter Analysis — Murders at Karlov Manor #189
@@ -62,10 +60,7 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val victim = target(
-            "target creature an opponent controls",
-            TargetCreature(filter = TargetFilter.Creature.opponentControls())
-        )
+        val victim = target(TargetFilter.Creature.opponentControls())
         effect = Effects.DealDamage(3, victim)
         description = "When this enchantment enters, it deals 3 damage to target creature an " +
             "opponent controls."
@@ -81,12 +76,12 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
                     then = Effects.ReflexiveTrigger(
                         action = Effects.SacrificeTarget(EffectTarget.Self),
                         optional = false) {
-                        val creature = target("target creature", TargetObject(
-                            filter = TargetFilter(
+                        val creature = target(
+                            TargetFilter(
                                 baseFilter = GameObjectFilter.Creature.ownedByYou(),
                                 zone = Zone.GRAVEYARD
-                            )
-                        ))
+                            ),
+                        )
                         effect = Effects.ReturnToHand(creature)
                     }
                 )

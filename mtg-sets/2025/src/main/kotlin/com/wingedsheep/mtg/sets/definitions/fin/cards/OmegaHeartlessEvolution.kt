@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Omega, Heartless Evolution
@@ -48,10 +47,7 @@ val OmegaHeartlessEvolution = card("Omega, Heartless Evolution") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "permanent",
-            TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
-        )
+        val permanent = target(TargetFilter.NonlandPermanentOpponentControls, optional = true)
         val nonbasicLands = DynamicAmounts.count(
             Player.You,
             Zone.BATTLEFIELD,

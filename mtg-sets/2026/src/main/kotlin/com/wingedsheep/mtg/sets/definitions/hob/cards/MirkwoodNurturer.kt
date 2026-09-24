@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Mirkwood Nurturer
@@ -36,10 +35,7 @@ val MirkwoodNurturer = card("Mirkwood Nurturer") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "other permanent you control",
-            TargetPermanent(optional = true, filter = TargetFilter.PermanentYouControl.other())
-        )
+        target(TargetFilter.PermanentYouControl.other(), optional = true)
         effect = Effects.Pipeline {
             val bounceTarget = gather(CardSource.ChosenTargets)
             val returned = moveTracked(bounceTarget, CardDestination.ToZone(Zone.HAND))

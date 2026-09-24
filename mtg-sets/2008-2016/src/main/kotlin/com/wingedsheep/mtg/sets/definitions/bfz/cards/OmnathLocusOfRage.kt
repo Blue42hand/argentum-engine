@@ -42,7 +42,7 @@ val OmnathLocusOfRage = card("Omnath, Locus of Rage") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Elemental").youControl()).dies()
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(3, victim)
     }
 

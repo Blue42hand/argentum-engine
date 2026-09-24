@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Mindwhip Sliver
@@ -34,7 +34,7 @@ val MindwhipSliver = card("Mindwhip Sliver") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf)
-                val player = target("target player", TargetPlayer())
+                val player = target(Targets.Player)
                 effect = Patterns.Hand.discardRandom(1, player)
                 timing = TimingRule.SorcerySpeed
             },

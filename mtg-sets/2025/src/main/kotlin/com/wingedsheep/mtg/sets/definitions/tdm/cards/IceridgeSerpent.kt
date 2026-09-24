@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Iceridge Serpent — Tarkir: Dragonstorm #49
@@ -23,7 +23,7 @@ val IceridgeSerpent = card("Iceridge Serpent") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("creature", Targets.CreatureOpponentControls)
+        val creature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.ReturnToHand(creature)
         description = "When this creature enters, return target creature an opponent controls to its owner's hand."
     }

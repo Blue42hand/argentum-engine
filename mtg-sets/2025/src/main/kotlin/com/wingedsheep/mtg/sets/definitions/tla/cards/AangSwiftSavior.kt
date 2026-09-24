@@ -86,16 +86,13 @@ private val AangSwiftSaviorFront = card("Aang, Swift Savior") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to one other target creature or spell",
-            TargetOther(
+        target(TargetOther(
                 baseRequirement = TargetObject(
                     count = 1,
                     optional = true,
                     filter = TargetFilter.anyOf(TargetFilter.Creature, TargetFilter.SpellOnStack)
                 )
-            )
-        )
+            ))
         effect = Effects.If(
             condition = Conditions.TargetIsSpellOnStack(0),
             // Spell branch: airbend "exiles it" — this is NOT a counter (so it works on spells that

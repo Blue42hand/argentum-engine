@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Pegasus Courser
@@ -29,9 +28,7 @@ val PegasusCourser = card("Pegasus Courser") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature.attacking(), excludeSelf = true)
-        ))
+        val creature = target(TargetFilter(GameObjectFilter.Creature.attacking(), excludeSelf = true))
         trigger = Triggers.self.attacks()
         effect = Effects.GrantKeyword(Keyword.FLYING, creature)
     }

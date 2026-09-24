@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -51,16 +50,16 @@ val WhiteWidowFreeAgent = card("White Widow, Free Agent") {
                         EffectTarget.ContextTarget(0),
                     )
                 ),
-                targetRequirements = listOf(TargetCreature(count = 2, optional = true)),
+                targetRequirements = listOf(TargetObject(filter = TargetFilter.Creature, count = 2, optional = true)),
                 description = "Put a +1/+1 counter on each of up to two target creatures",
             ),
             mode("Return target artifact or enchantment card from your graveyard to your hand") {
-                val artifactOrEnchantment = target("target artifact or enchantment", TargetObject(
-                    filter = TargetFilter(
+                val artifactOrEnchantment = target(
+                    TargetFilter(
                         baseFilter = GameObjectFilter.ArtifactOrEnchantment.ownedByYou(),
                         zone = Zone.GRAVEYARD,
-                    )
-                ))
+                    ),
+                )
                 effect = Effects.ReturnToHand(artifactOrEnchantment)
             },
         )

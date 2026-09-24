@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Gollum, Silent Slinker // Meager Meal — The Hobbit #71
@@ -48,8 +49,8 @@ val GollumSilentSlinker = card("Gollum, Silent Slinker") {
         oracleText = "Put a +1/+1 counter on up to one target creature. Target player gains 2 life. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            val player = target("player", Targets.Player)
-            val creature = target("creature", Targets.UpToCreatures(1))
+            val player = target(Targets.Player)
+            val creature = target(TargetFilter.Creature, optional = true)
             effect = Effects.Composite(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
                 Effects.GainLife(2, player)

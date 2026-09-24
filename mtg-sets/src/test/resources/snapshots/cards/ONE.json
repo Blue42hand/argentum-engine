@@ -59,7 +59,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -67,7 +67,7 @@
                             "keyword": "FLYING",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -85,7 +85,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "target creature you control"
+                        "id": "t0"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -156,7 +156,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -200,7 +200,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -229,7 +229,7 @@
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature"
+                        "name": "t0"
                     }
                 },
                 {
@@ -250,7 +250,7 @@
                         "type": "CreateTokenCopyOfTarget",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "creature"
+                            "name": "t0"
                         }
                     }
                 }
@@ -267,7 +267,7 @@
                         ]
                     }
                 },
-                "id": "creature"
+                "id": "t0"
             }
         ]
     },
@@ -376,7 +376,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target creature an opponent controls"
+                        "name": "t0"
                     }
                 },
                 "targetRequirement": {
@@ -384,7 +384,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "target creature an opponent controls"
+                    "id": "t0"
                 }
             }
         ]
@@ -452,7 +452,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature card in your graveyard"
+                                "name": "t0"
                             },
                             "destination": "Hand"
                         },
@@ -472,7 +472,7 @@
                             "baseFilter": "creature own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "target creature card in your graveyard"
+                        "id": "t0"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -785,7 +785,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -793,7 +793,7 @@
                             "keyword": "TRAMPLE",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -811,7 +811,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "target creature you control"
+                        "id": "t0"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -964,7 +964,7 @@
                     "keyword": "DEATHTOUCH",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 },
                 {
@@ -972,7 +972,7 @@
                     "keyword": "INDESTRUCTIBLE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "target"
+                        "name": "t0"
                     }
                 }
             ]
@@ -983,7 +983,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "target"
+                "id": "t0"
             }
         ]
     },
@@ -1068,7 +1068,7 @@
                     "type": "MoveUntilSourceLeaves",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "creature or planeswalker an opponent controls"
+                        "name": "t0"
                     },
                     "destination": "Exile"
                 },
@@ -1077,7 +1077,7 @@
                     "filter": {
                         "baseFilter": "creature|planeswalker ctrl:opponent"
                     },
-                    "id": "creature or planeswalker an opponent controls"
+                    "id": "t0"
                 }
             }
         ],
@@ -1578,21 +1578,21 @@
                                 "keyword": "TOXIC_1",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "another target creature you control"
+                                    "name": "t0"
                                 }
                             },
                             {
                                 "type": "GrantHexproofFromChosenColor",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "another target creature you control"
+                                    "name": "t0"
                                 }
                             },
                             {
                                 "type": "GrantCantBeBlockedByChosenColor",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "another target creature you control"
+                                    "name": "t0"
                                 }
                             }
                         ]
@@ -1605,7 +1605,7 @@
                             "baseFilter": "creature ctrl:you",
                             "excludeSelf": true
                         },
-                        "id": "another target creature you control"
+                        "id": "t0"
                     }
                 ]
             },
@@ -1634,21 +1634,21 @@
                                 "keyword": "TOXIC_1",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "another target creature you control"
+                                    "name": "t0"
                                 }
                             },
                             {
                                 "type": "GrantHexproofFromChosenColor",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "another target creature you control"
+                                    "name": "t0"
                                 }
                             },
                             {
                                 "type": "GrantCantBeBlockedByChosenColor",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "another target creature you control"
+                                    "name": "t0"
                                 }
                             }
                         ]
@@ -1661,7 +1661,7 @@
                             "baseFilter": "creature ctrl:you",
                             "excludeSelf": true
                         },
-                        "id": "another target creature you control"
+                        "id": "t0"
                     }
                 ]
             }
@@ -1774,7 +1774,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature"
+                                "name": "t0"
                             },
                             "destination": "Hand"
                         },
@@ -1793,7 +1793,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "target creature"
+                        "id": "t0"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -2285,7 +2285,7 @@
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "target nonland permanent"
+                "name": "t0"
             },
             "destination": "Exile"
         },
@@ -2295,7 +2295,7 @@
                 "filter": {
                     "baseFilter": "nonland permanent"
                 },
-                "id": "target nonland permanent"
+                "id": "t0"
             }
         ],
         "staticAbilities": [
@@ -2351,7 +2351,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature you control"
+                                "name": "t0"
                             }
                         },
                         {
@@ -2359,7 +2359,7 @@
                             "keyword": "VIGILANCE",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "target creature you control"
+                                "name": "t0"
                             }
                         }
                     ]
@@ -2369,7 +2369,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "target creature you control"
+                    "id": "t0"
                 }
             }
         ]

@@ -4,12 +4,12 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ajani, Outland Chaperone
@@ -47,7 +47,7 @@ val AjaniOutlandChaperone = card("Ajani, Outland Chaperone") {
 
     // −2: Ajani deals 4 damage to target tapped creature.
     loyaltyAbility(-2) {
-        val tapped = target("creature", Targets.TappedCreature)
+        val tapped = target(TargetFilter.TappedCreature)
         effect = Effects.DealDamage(4, tapped)
     }
 

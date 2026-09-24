@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Shriekmaw
@@ -41,10 +40,7 @@ val Shriekmaw = card("Shriekmaw") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target nonartifact, nonblack creature",
-            TargetCreature(filter = TargetFilter.Creature.nonartifact().notColor(Color.BLACK)),
-        )
+        val t = target(TargetFilter.Creature.nonartifact().notColor(Color.BLACK))
         effect = Effects.Destroy(t)
         description = "destroy target nonartifact, nonblack creature."
     }

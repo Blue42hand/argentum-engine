@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.avr.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Geist Snatch
@@ -24,7 +24,7 @@ val GeistSnatch = card("Geist Snatch") {
     oracleText = "Counter target creature spell. Create a 1/1 blue Spirit creature token with flying."
 
     spell {
-        target("target", Targets.CreatureSpell)
+        target(TargetFilter.CreatureSpellOnStack)
         effect = Effects.Composite(
             Effects.CounterSpell(),
             Effects.CreateToken(

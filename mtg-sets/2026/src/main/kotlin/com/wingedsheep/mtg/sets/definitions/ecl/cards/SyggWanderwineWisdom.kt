@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -15,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sygg, Wanderwine Wisdom // Sygg, Wanderbrine Shield
@@ -62,7 +62,7 @@ private val SyggWanderbrineShield = card("Sygg, Wanderbrine Shield") {
 
     triggeredAbility {
         trigger = Triggers.self.transforms(true)
-        val t = target("target creature you control", Targets.CreatureYouControl)
+        val t = target(TargetFilter.CreatureYouControl)
         effect = protectionFromEachColor(t)
     }
 
@@ -105,7 +105,7 @@ private val SyggWanderwineWisdomFront = card("Sygg, Wanderwine Wisdom") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.GrantTriggeredAbility(
             ability = drawOnCombatDamage,
             target = t,
@@ -115,7 +115,7 @@ private val SyggWanderwineWisdomFront = card("Sygg, Wanderwine Wisdom") {
 
     triggeredAbility {
         trigger = Triggers.self.transforms(false)
-        val t = target("target creature", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.GrantTriggeredAbility(
             ability = drawOnCombatDamage,
             target = t,

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Kitesail Larcenist
@@ -109,20 +108,8 @@ val KitesailLarcenist = card("Kitesail Larcenist") {
 
         // "for each player, choose up to one other target artifact or creature that player controls"
         // (two-player rendering: one optional slot per player — see KDoc).
-        val yours = target(
-            "up to one other target artifact or creature you control",
-            TargetPermanent(
-                filter = TargetFilter.CreatureOrArtifact.youControl().other(),
-                optional = true
-            )
-        )
-        val theirs = target(
-            "up to one target artifact or creature an opponent controls",
-            TargetPermanent(
-                filter = TargetFilter.CreatureOrArtifact.opponentControls(),
-                optional = true
-            )
-        )
+        val yours = target(TargetFilter.CreatureOrArtifact.youControl().other(), optional = true)
+        val theirs = target(TargetFilter.CreatureOrArtifact.opponentControls(), optional = true)
 
         effect = Effects.Composite(
             Effects.BecomeArtifact(

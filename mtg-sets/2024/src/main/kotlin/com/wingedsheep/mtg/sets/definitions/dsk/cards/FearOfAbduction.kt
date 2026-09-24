@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostZone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Fear of Abduction
@@ -50,10 +49,7 @@ val FearOfAbduction = card("Fear of Abduction") {
     // ETB: exile target creature an opponent controls until this creature leaves the battlefield.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "creature an opponent controls",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.opponentControls()))
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
         effect = Effects.ExileUntilLeaves(creature)
     }
 

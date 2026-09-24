@@ -48,7 +48,7 @@ val TheBlackArrow = card("The Black Arrow") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(1, anyTarget),
             Effects.If(

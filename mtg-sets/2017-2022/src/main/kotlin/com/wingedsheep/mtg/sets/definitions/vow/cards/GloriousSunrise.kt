@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -67,7 +66,7 @@ val GloriousSunrise = card("Glorious Sunrise") {
                 "Creatures you control get +1/+1 and gain trample until end of turn"
             ),
             mode("Target land gains \"{T}: Add {G}{G}{G}\" until end of turn") {
-                val land = target("target land", TargetPermanent(filter = TargetFilter.Land))
+                val land = target(TargetFilter.Land)
                 effect = Effects.GrantActivatedAbility(
                     ability = ActivatedAbility(
                         id = AbilityId.next(),

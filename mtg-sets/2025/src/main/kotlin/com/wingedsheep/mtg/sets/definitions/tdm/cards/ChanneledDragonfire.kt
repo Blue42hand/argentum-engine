@@ -24,7 +24,7 @@ val ChanneledDragonfire = card("Channeled Dragonfire") {
         "You may tap a creature you control to reduce that cost by {X}, where X is its power. Then exile this spell.)"
 
     spell {
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t)
     }
 

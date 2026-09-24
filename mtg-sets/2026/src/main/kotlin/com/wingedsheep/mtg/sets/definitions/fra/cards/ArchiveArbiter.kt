@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 val ArchiveArbiter = card("Archive Arbiter") {
     manaCost = "{6}"
@@ -29,9 +28,7 @@ val ArchiveArbiter = card("Archive Arbiter") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy target noncreature, nonland permanent.") {
-                val nonlandPermanent = target("target nonland permanent", TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.NonlandPermanent.notCreature())
-                ))
+                val nonlandPermanent = target(TargetFilter(GameObjectFilter.NonlandPermanent.notCreature()))
                 effect = Effects.Destroy(nonlandPermanent)
             },
             Mode.noTarget(

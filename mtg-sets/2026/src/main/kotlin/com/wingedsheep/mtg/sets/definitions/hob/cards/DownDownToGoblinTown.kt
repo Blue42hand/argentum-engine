@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Down, Down to Goblin-town
@@ -49,7 +49,7 @@ val DownDownToGoblinTown = card("Down, Down to Goblin-town") {
     // I — Target opponent reveals their hand. You choose a nonland card from it. That player
     //     discards that card.
     sagaChapter(1) {
-        val opponent = target("target opponent to strip a card from", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
             val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
@@ -75,11 +75,11 @@ val DownDownToGoblinTown = card("Down, Down to Goblin-town") {
 
     // III, IV — Target opponent loses 1 life and you gain 1 life.
     sagaChapter(3) {
-        val opponent = target("target opponent to lose 1 life", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = goblinTownDrain(opponent)
     }
     sagaChapter(4) {
-        val opponent = target("target opponent to lose 1 life", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = goblinTownDrain(opponent)
     }
 

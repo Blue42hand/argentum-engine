@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Vraska, the Cutting Glare — "They" is the destroyed permanent's controller, read through
@@ -32,7 +32,7 @@ val VraskaTheCuttingGlare = card("Vraska, the Cutting Glare") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.ControlLandsAtLeast(6)
-        val permanent = target("target permanent an opponent controls", Targets.PermanentOpponentControls)
+        val permanent = target(TargetFilter.PermanentOpponentControls)
         effect = Effects.Composite(
             Effects.Destroy(permanent),
             Effects.CreateTreasure(controller = EffectTarget.TargetController),

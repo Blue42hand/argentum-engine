@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Old Man Willow
@@ -37,10 +37,7 @@ val OldManWillow = card("Old Man Willow") {
             ),
             optional = true) {
             // "When you do, target creature an opponent controls gets -2/-2 until end of turn."
-            val creatureOpponentControls = target(
-                "target creature opponent controls",
-                Targets.CreatureOpponentControls
-            )
+            val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
             effect = Effects.ModifyStats(-2, -2, creatureOpponentControls)
         }
     }

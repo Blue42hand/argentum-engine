@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -47,15 +46,7 @@ val DawnBlessedPennant = card("Dawn-Blessed Pennant") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
-        val card = target(
-            "target card of the chosen type from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Any.ownedByYou().withChosenSubtype(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        )
+        val card = target(TargetFilter(GameObjectFilter.Any.ownedByYou().withChosenSubtype(), zone = Zone.GRAVEYARD))
         effect = Effects.ReturnToHand(card)
     }
 

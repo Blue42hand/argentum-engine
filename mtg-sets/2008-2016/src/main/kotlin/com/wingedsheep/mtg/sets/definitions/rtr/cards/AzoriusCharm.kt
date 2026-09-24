@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Azorius Charm
@@ -47,10 +46,7 @@ val AzoriusCharm = card("Azorius Charm") {
                 effect = Effects.DrawCards(1)
             }
             mode("Put target attacking or blocking creature on top of its owner's library") {
-                val t = target(
-                    "target attacking or blocking creature",
-                    TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature)
-                )
+                val t = target(TargetFilter.AttackingOrBlockingCreature)
                 effect = Effects.PutOnTopOfLibrary(t)
             }
         }

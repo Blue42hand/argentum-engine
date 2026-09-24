@@ -36,7 +36,7 @@ val ShockingSharpshooter = card("Shocking Sharpshooter") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        val t = target("target", Targets.Opponent)
+        val t = target(Targets.Opponent)
         effect = Effects.DealDamage(1, t)
     }
 

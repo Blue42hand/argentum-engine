@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldBeNull
@@ -87,7 +86,7 @@ class FirstTimeTappedThisTurnScenarioTest : ScenarioTestBase() {
         typeLine = "Instant"
         oracleText = "Tap target creature."
         spell {
-            val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+            val t = target(TargetFilter.Creature)
             effect = Effects.Tap(t)
         }
     }
@@ -98,7 +97,7 @@ class FirstTimeTappedThisTurnScenarioTest : ScenarioTestBase() {
         typeLine = "Instant"
         oracleText = "Untap target creature."
         spell {
-            val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+            val t = target(TargetFilter.Creature)
             effect = Effects.Untap(t)
         }
     }

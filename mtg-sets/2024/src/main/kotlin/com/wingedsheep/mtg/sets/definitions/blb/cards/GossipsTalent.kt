@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
@@ -12,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Gossip's Talent
@@ -47,10 +45,7 @@ val GossipsTalent = card("Gossip's Talent") {
     classLevel(2, "{1}{U}") {
         triggeredAbility {
             trigger = Triggers.you.attacks()
-            val creature = target(
-                "attacking creature with power 3 or less",
-                TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.attacking().powerAtMost(3)))
-            )
+            val creature = target(TargetFilter(GameObjectFilter.Creature.attacking().powerAtMost(3)))
             effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature)
         }
     }

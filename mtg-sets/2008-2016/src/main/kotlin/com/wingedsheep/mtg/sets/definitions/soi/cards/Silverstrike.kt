@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.soi.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Silverstrike (Shadows over Innistrad #37)
@@ -19,7 +19,7 @@ val Silverstrike = card("Silverstrike") {
     oracleText = "Destroy target attacking creature. You gain 3 life."
 
     spell {
-        val victim = target("target", Targets.AttackingCreature)
+        val victim = target(TargetFilter.AttackingCreature)
         effect = Effects.Composite(
             Effects.Destroy(victim),
             Effects.GainLife(3)

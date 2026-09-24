@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.rix.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Needletooth Raptor
@@ -25,10 +25,7 @@ val NeedletoothRaptor = card("Needletooth Raptor") {
 
     triggeredAbility {
         trigger = Triggers.self.isDealtDamage()
-        val victim = target(
-            "target creature an opponent controls",
-            Targets.CreatureOpponentControls
-        )
+        val victim = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.DealDamage(5, victim)
         description = "Enrage — Whenever this creature is dealt damage, it deals 5 damage to " +
             "target creature an opponent controls."

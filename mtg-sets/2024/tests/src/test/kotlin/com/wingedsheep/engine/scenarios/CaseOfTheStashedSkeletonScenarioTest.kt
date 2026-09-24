@@ -33,12 +33,7 @@ class CaseOfTheStashedSkeletonScenarioTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Destroy target creature."
         spell {
-            val t = target(
-                "target",
-                com.wingedsheep.sdk.scripting.targets.TargetCreature(
-                    filter = com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.Creature
-                )
-            )
+            val t = target(com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.Creature)
             effect = com.wingedsheep.sdk.dsl.Effects.Destroy(t)
         }
     }

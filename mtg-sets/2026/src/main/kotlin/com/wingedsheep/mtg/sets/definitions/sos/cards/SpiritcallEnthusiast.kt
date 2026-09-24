@@ -6,7 +6,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Spiritcall Enthusiast // Scrollboost — Secrets of Strixhaven #33
@@ -49,7 +50,7 @@ val SpiritcallEnthusiast = card("Spiritcall Enthusiast") {
             effect = Effects.ForEachTarget(
                 Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
             )
-            target = TargetCreature(count = 2, minCount = 1)
+            target = TargetObject(filter = TargetFilter.Creature, count = 2, minCount = 1)
         }
     }
 

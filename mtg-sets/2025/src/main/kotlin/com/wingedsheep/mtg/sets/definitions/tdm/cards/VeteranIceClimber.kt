@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Veteran Ice Climber — Tarkir: Dragonstorm #64
@@ -40,7 +41,7 @@ val VeteranIceClimber = card("Veteran Ice Climber") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val upToOnePlayer = target("up to one target player", TargetPlayer(optional = true))
+        val upToOnePlayer = target(Targets.Player, optional = true)
         effect = Patterns.Library.mill(DynamicAmounts.sourcePower(), upToOnePlayer)
         description = "Whenever this creature attacks, up to one target player mills cards equal to this creature's power."
     }

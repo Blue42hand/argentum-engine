@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Clive, Ifrit's Dominant // Ifrit, Warden of Inferno
@@ -46,7 +45,7 @@ private val IfritWardenOfInferno = card("Ifrit, Warden of Inferno") {
 
     // I — Lunge — Ifrit fights up to one other target creature.
     sagaChapter(1) {
-        val foe = target("creature", TargetObject(optional = true, filter = TargetFilter.OtherCreature))
+        val foe = target(TargetFilter.OtherCreature, optional = true)
         effect = Effects.Fight(EffectTarget.Self, foe)
     }
 

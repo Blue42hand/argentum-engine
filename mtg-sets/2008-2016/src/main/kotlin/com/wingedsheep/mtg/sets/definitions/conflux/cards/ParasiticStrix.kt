@@ -39,7 +39,7 @@ val ParasiticStrix = card("Parasitic Strix") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControl(GameObjectFilter.Permanent.withColor(Color.BLACK))
-        val victim = target("target", Targets.Player)
+        val victim = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(2, victim),
             Effects.GainLife(2)

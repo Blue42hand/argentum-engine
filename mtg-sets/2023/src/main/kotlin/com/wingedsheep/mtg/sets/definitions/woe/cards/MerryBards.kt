@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Merry Bards
@@ -35,7 +35,7 @@ val MerryBards = card("Merry Bards") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val targetCreature = target("target creature you control", Targets.CreatureYouControl)
+        val targetCreature = target(TargetFilter.CreatureYouControl)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.CreateRoleToken("Young Hero Role", targetCreature)

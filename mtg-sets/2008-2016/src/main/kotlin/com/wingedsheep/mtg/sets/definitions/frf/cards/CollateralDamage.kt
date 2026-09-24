@@ -24,7 +24,7 @@ val CollateralDamage = card("Collateral Damage") {
     additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Creature))
 
     spell {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(3, anyTarget)
     }
 

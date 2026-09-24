@@ -26,7 +26,7 @@ val ScorchingDragonfire = card("Scorching Dragonfire") {
         "If that creature or planeswalker would die this turn, exile it instead."
 
     spell {
-        val t = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.DealDamage(3, t) then Effects.MarkExileOnDeath(t)
     }
 

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Rumbling Rockslide — {3}{R}
@@ -22,7 +21,7 @@ val RumblingRockslide = card("Rumbling Rockslide") {
     oracleText = "Rumbling Rockslide deals damage to target creature equal to the number of lands you control."
 
     spell {
-        val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.landsYouControl(),
             target = t,

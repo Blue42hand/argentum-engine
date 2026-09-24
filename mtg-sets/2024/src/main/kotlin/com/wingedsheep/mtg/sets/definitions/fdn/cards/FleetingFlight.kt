@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Fleeting Flight
@@ -22,7 +22,7 @@ val FleetingFlight = card("Fleeting Flight") {
         "Prevent all combat damage that would be dealt to it this turn."
 
     spell {
-        val target = target("target creature", Targets.Creature)
+        val target = target(TargetFilter.Creature)
         effect = Effects.Composite(listOf(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target),
             Effects.GrantKeyword(Keyword.FLYING, target),

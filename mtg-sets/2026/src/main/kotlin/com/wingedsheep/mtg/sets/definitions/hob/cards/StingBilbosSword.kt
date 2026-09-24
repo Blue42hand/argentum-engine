@@ -11,8 +11,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Sting, Bilbo's Sword
@@ -52,11 +52,8 @@ val StingBilbosSword = card("Sting, Bilbo's Sword") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("target opponent", TargetOpponent())
-        val creature = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
-        )
+        target(Targets.Opponent)
+        val creature = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.AddDynamicCounters(
             CounterType.HONE,
             DynamicAmounts.battlefield(Player.TargetOpponent, GameObjectFilter.Creature).count(),

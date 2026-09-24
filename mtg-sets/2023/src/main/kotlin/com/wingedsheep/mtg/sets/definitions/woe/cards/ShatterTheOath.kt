@@ -1,11 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Shatter the Oath
@@ -36,11 +34,8 @@ val ShatterTheOath = card("Shatter the Oath") {
         "graveyard, each opponent loses 1 life.)"
 
     spell {
-        val doomed = target("target creature or enchantment", Targets.CreatureOrEnchantment)
-        val roleTarget = target(
-            "up to one target creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
-        )
+        val doomed = target(TargetFilter.CreatureOrEnchantment)
+        val roleTarget = target(TargetFilter.CreatureYouControl, optional = true)
         effect = Effects.Composite(
             Effects.Destroy(doomed),
             Effects.CreateRoleToken("Wicked Role", roleTarget),

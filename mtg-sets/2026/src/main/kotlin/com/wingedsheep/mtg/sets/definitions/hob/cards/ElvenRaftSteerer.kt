@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -35,17 +34,11 @@ val ElvenRaftSteerer = card("Elven Raft-Steerer") {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = ModalEffect.chooseOne(
             mode("Tap target creature an opponent controls") {
-                val creature = target(
-                    "target creature",
-                    TargetCreature(filter = TargetFilter.Creature.opponentControls())
-                )
+                val creature = target(TargetFilter.Creature.opponentControls())
                 effect = Effects.Tap(creature)
             },
             mode("Untap target creature you control") {
-                val creature = target(
-                    "target creature",
-                    TargetCreature(filter = TargetFilter.Creature.youControl())
-                )
+                val creature = target(TargetFilter.Creature.youControl())
                 effect = Effects.Untap(creature)
             }
         )

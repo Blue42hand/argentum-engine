@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Engineered Might
@@ -35,7 +35,7 @@ val EngineeredMight = card("Engineered Might") {
     spell {
         modal {
             mode("Target creature gets +5/+5 and gains trample until end of turn") {
-                val t = target("target", Targets.Creature)
+                val t = target(TargetFilter.Creature)
                 effect = Effects.Composite(
                     Effects.ModifyStats(5, 5, t),
                     Effects.GrantKeyword(Keyword.TRAMPLE, t),

@@ -30,7 +30,7 @@ val WrathOfTheBloodmane = card("Wrath of the Bloodmane") {
     }
 
     spell {
-        val t = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.DealDamage(4, t)
     }
 

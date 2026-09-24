@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Flame Fusillade — Ravnica: City of Guilds #123
@@ -37,7 +37,7 @@ val FlameFusillade = card("Flame Fusillade") {
             Effects.GrantActivatedAbility(
                 ability = grantedActivatedAbility {
                     cost = Costs.Tap
-                    val anyTarget = target("target any", AnyTarget())
+                    val anyTarget = target(Targets.Any)
                     effect = Effects.DealDamage(
                         amount = 1,
                         target = anyTarget,

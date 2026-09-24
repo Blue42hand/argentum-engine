@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Quag Feast
@@ -33,12 +32,7 @@ val QuagFeast = card("Quag Feast") {
         "your graveyard."
 
     spell {
-        val creaturePlaneswalkerOrVehicle = target(
-            "creature, planeswalker, or Vehicle",
-            TargetPermanent(
-                filter = TargetFilter(GameObjectFilter.CreatureOrVehicle or GameObjectFilter.Planeswalker),
-            ),
-        )
+        val creaturePlaneswalkerOrVehicle = target(TargetFilter(GameObjectFilter.CreatureOrVehicle or GameObjectFilter.Planeswalker))
         effect = Patterns.Library.mill(2).then(
             Effects.If(
                 condition = Conditions.CompareAmounts(

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val RewriteRegrets = card("Rewrite Regrets") {
     manaCost = "{3}{B}"
@@ -18,12 +17,9 @@ val RewriteRegrets = card("Rewrite Regrets") {
 
     spell {
         val card = target(
-            "target creature or planeswalker card with mana value 6 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.CreatureOrPlaneswalker.ownedByYou().manaValueAtMost(6),
-                    zone = Zone.GRAVEYARD,
-                )
+            TargetFilter(
+                GameObjectFilter.CreatureOrPlaneswalker.ownedByYou().manaValueAtMost(6),
+                zone = Zone.GRAVEYARD,
             ),
         )
         effect = Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)

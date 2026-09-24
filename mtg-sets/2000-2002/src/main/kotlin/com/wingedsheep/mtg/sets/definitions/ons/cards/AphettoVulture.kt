@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -33,12 +32,7 @@ val AphettoVulture = card("Aphetto Vulture") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         optional = true
-        val t = target("target", TargetObject(
-            filter = TargetFilter(
-                GameObjectFilter.Any.withSubtype("Zombie").ownedByYou(),
-                zone = Zone.GRAVEYARD
-            )
-        ))
+        val t = target(TargetFilter(GameObjectFilter.Any.withSubtype("Zombie").ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.Move(
             target = t,
             destination = Zone.LIBRARY,

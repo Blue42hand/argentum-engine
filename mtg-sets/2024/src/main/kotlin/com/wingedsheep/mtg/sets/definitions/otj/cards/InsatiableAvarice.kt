@@ -50,7 +50,7 @@ val InsatiableAvarice = card("Insatiable Avarice") {
                     additionalManaCost = "{2}"
                 ),
                 mode("+ {B}{B} — Target player draws three cards and loses 3 life.") {
-                    val player = target("target player", Targets.Player)
+                    val player = target(Targets.Player)
                     additionalManaCost = "{B}{B}"
                     effect = Effects.Composite(
                         Effects.DrawCards(3, player),

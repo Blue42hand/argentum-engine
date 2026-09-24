@@ -49,7 +49,7 @@ val ScreamingSwarm = card("Screaming Swarm") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val victim = target("target", Targets.Player)
+        val victim = target(Targets.Player)
         effect = Patterns.Library.mill(
             DynamicAmounts.attackingCreaturesYouControl(),
             victim

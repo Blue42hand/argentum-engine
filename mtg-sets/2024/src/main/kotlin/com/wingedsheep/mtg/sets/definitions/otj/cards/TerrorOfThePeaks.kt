@@ -33,7 +33,7 @@ val TerrorOfThePeaks = card("Terror of the Peaks") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(
             DynamicAmounts.triggeringPower(),
             anyTarget

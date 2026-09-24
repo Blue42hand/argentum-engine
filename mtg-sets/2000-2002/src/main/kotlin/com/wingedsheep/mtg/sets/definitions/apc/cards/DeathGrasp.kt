@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -23,7 +23,7 @@ val DeathGrasp = card("Death Grasp") {
     typeLine = "Sorcery"
     oracleText = "Death Grasp deals X damage to any target. You gain X life."
     spell {
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(DynamicAmounts.xValue(), t),
             Effects.GainLife(DynamicAmounts.xValue())

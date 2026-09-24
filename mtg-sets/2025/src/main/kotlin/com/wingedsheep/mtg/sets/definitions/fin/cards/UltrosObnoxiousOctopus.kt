@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Ultros, Obnoxious Octopus
@@ -43,7 +44,7 @@ val UltrosObnoxiousOctopus = card("Ultros, Obnoxious Octopus") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         interveningIf = Conditions.TriggeringSpellManaSpentAtLeast(4)
-        val t = target("target", Targets.CreatureOpponentControls)
+        val t = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.Tap(t),
             Effects.AddCounters(CounterType.STUN, 1, t),

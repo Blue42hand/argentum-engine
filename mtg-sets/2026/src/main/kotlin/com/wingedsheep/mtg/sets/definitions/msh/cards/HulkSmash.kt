@@ -2,14 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.teamwork
 import com.wingedsheep.sdk.dsl.teamworkModal
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * HULK SMASH! — Marvel Super Heroes #135
@@ -47,21 +45,15 @@ val HulkSmash = card("HULK SMASH!") {
     spell {
         teamworkModal {
             mode("Destroy target noncreature artifact") {
-                val artifact = target(
-                    "target noncreature artifact",
-                    TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.notCreature())),
-                )
+                val artifact = target(TargetFilter(GameObjectFilter.Artifact.notCreature()))
                 effect = Effects.Destroy(artifact)
             }
             mode(
                 "Target creature you control deals damage equal to its power to target creature " +
                     "an opponent controls",
             ) {
-                val yours = target("target creature you control", Targets.CreatureYouControl)
-                val theirs = target(
-                    "target creature an opponent controls",
-                    Targets.CreatureOpponentControls,
-                )
+                val yours = target(TargetFilter.CreatureYouControl)
+                val theirs = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.powerOf(yours),
                     target = theirs,

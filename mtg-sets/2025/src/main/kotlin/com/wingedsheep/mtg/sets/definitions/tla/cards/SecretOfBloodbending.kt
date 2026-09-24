@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Secret of Bloodbending
@@ -34,7 +34,7 @@ val SecretOfBloodbending = card("Secret of Bloodbending") {
     waterbendCost(amount = 10, optional = true)
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         selfExile()
         effect = Effects.If(
             condition = Conditions.WaterbendWasPaid,

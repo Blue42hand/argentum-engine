@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Archon of Justice
@@ -30,7 +31,7 @@ val ArchonOfJustice = card("Archon of Justice") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val t = target("target permanent", Targets.Permanent)
+        val t = target(TargetFilter.Permanent)
         effect = Effects.Exile(t)
     }
 

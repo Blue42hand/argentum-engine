@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -52,13 +51,8 @@ val ClementTheWorrywort = card("Clement, the Worrywort") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
         val creature = target(
-            "up to one target creature you control with lesser mana value",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter.CreatureYouControl.manaValueAtMostDynamic(
-                    DynamicAmounts.triggeringManaValue() - 1
-                )
-            )
+            TargetFilter.CreatureYouControl.manaValueAtMostDynamic(DynamicAmounts.triggeringManaValue() - 1),
+            optional = true,
         )
         effect = Effects.ReturnToHand(creature)
     }

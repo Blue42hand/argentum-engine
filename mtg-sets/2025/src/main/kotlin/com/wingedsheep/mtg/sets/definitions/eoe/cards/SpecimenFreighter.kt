@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
 
@@ -40,13 +39,10 @@ val SpecimenFreighter = card("Specimen Freighter") {
     // ETB: return up to two target non-Spacecraft creatures to their owners' hands
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(
-            "up to two target non-Spacecraft creatures",
-            TargetCreature(
-                count = 2,
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Spacecraft")))
-            )
+        targets(
+            TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Spacecraft"))),
+            count = 2,
+            optional = true,
         )
         effect = Effects.ForEachTarget(
             Effects.ReturnToHand(EffectTarget.ContextTarget(0))

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * The Sackville-Bagginses — The Hobbit #83
@@ -41,12 +40,9 @@ val TheSackvilleBagginses = card("The Sackville-Bagginses") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val sacrificed = target(
-            "another creature or artifact",
-            TargetPermanent(
-                filter = TargetFilter(
+            TargetFilter(
                     GameObjectFilter.Creature.youControl().or(GameObjectFilter.Artifact.youControl())
-                ).other()
-            )
+                ).other(),
         )
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificed) then
@@ -59,7 +55,7 @@ val TheSackvilleBagginses = card("The Sackville-Bagginses") {
 
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Any.token())
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.LoseLife(1, opponent)
         description = "Whenever you sacrifice a token, target opponent loses 1 life."
     }

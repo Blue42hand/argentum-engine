@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Bitter Work
@@ -40,7 +39,7 @@ val BitterWork = card("Bitter Work") {
         isExhaust = true
         cost = Costs.Mana("{4}")
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(4, land)
     }
 

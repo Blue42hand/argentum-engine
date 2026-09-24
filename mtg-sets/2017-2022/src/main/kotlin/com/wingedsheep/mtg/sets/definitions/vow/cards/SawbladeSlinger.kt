@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Sawblade Slinger
@@ -42,16 +40,11 @@ val SawbladeSlinger = card("Sawblade Slinger") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("Destroy target artifact an opponent controls") {
-                    val artifact = target(
-                        "target artifact",
-                        TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.opponentControls()))
-                    )
+                    val artifact = target(TargetFilter(GameObjectFilter.Artifact.opponentControls()))
                     effect = Effects.Destroy(artifact)
                 },
                 mode("This creature fights target Zombie an opponent controls") {
-                    val creature = target("target creature", TargetCreature(
-                        filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Zombie").opponentControls())
-                    ))
+                    val creature = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Zombie").opponentControls()))
                     effect = Effects.Fight(EffectTarget.Self, creature)
                 }
             ),

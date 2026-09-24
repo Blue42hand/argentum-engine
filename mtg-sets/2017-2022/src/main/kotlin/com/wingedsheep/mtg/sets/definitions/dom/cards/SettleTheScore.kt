@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -27,7 +26,7 @@ val SettleTheScore = card("Settle the Score") {
     oracleText = "Exile target creature. Put two loyalty counters on a planeswalker you control."
 
     spell {
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Pipeline {
             run(Effects.Exile(creature))
             val chosenPW = selectTarget(TargetObject(filter = TargetFilter(GameObjectFilter.Planeswalker.youControl())))

@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Uncanny Speed
@@ -23,7 +23,7 @@ val UncannySpeed = card("Uncanny Speed") {
     oracleText = "Target creature gets +3/+0 and gains haste until end of turn."
 
     spell {
-        val t = target("target", Targets.Creature)
+        val t = target(TargetFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(3, 0, t),
             Effects.GrantKeyword(Keyword.HASTE, t),

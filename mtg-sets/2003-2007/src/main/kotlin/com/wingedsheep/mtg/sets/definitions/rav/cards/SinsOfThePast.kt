@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Sins of the Past — Ravnica: City of Guilds #106
@@ -31,7 +30,7 @@ val SinsOfThePast = card("Sins of the Past") {
         "instead. Exile Sins of the Past."
 
     spell {
-        val target = target("target", TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()))
+        val target = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
         effect = Effects.GrantFreeCastTargetFromExile(
             target = target,
             exileAfterResolve = true

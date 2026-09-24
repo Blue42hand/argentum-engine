@@ -10,8 +10,8 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Retreat to Hagra
@@ -36,7 +36,7 @@ val RetreatToHagra = card("Retreat to Hagra") {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = ModalEffect.chooseOne(
             mode("Target creature gets +1/+0 and gains deathtouch until end of turn") {
-                val creature = target("target creature", TargetCreature())
+                val creature = target(TargetFilter.Creature)
                 effect = Effects.Composite(
                     Effects.ModifyStats(1, 0, creature),
                     Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),

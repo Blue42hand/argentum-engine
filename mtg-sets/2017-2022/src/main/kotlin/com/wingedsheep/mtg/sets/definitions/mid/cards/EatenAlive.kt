@@ -32,7 +32,7 @@ val EatenAlive = card("Eaten Alive") {
     )
 
     spell {
-        val creatureOrPlaneswalker = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val creatureOrPlaneswalker = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Exile(creatureOrPlaneswalker)
     }
 

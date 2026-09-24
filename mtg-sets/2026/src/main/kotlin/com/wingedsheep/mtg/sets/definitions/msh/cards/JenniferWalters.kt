@@ -123,7 +123,7 @@ private val TheSensationalSheHulkBack = card("The Sensational She-Hulk") {
 
     triggeredAbility {
         trigger = Triggers.a().dealsDamage(Recipient.CreatureYouControl)
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.May(
             Effects.DealDamage(
                 DynamicAmounts.triggerDamageAmount(),

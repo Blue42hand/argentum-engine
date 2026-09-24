@@ -38,13 +38,13 @@ val CruelclawsHeist = card("Cruelclaw's Heist") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — reveal, choose nonland, exile (can't cast it)
             mode("Don't promise a gift — exile a nonland card from target opponent's hand") {
-                val opponent = target("target opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = Effects.Composite(revealChooseExile(opponent))
             },
             // Mode 2: Gift a card — opponent draws, then reveal, choose nonland, exile
             //         with permanent cast-from-exile permission
             mode("Promise a gift — an opponent draws a card, then exile a nonland card from target opponent's hand (you may cast it from exile)") {
-                val opponent = target("target opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = Effects.Composite(
                     listOf(Effects.DrawCards(1, opponent)) +
                     listOf(revealChooseExile(opponent)) +

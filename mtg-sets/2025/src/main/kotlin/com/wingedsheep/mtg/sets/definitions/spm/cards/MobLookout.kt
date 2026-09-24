@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 val MobLookout = card("Mob Lookout") {
     manaCost = "{1}{U/B}"
@@ -17,7 +17,7 @@ val MobLookout = card("Mob Lookout") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.Connive(target = creature)
         description = "When this creature enters, target creature you control connives."
     }

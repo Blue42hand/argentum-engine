@@ -37,7 +37,7 @@ val TheSentryGoldenGuardian = card("The Sentry, Golden Guardian") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE, Keyword.INDESTRUCTIBLE)
 
     triggeredAbility {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         trigger = Triggers.self.enters()
         effect = Effects.CreatePredefinedToken("The Void", controller = opponent)
         description = "When The Sentry enters, target opponent creates The Void, a legendary 5/5 " +

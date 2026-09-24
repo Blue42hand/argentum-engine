@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.zen.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Narrow Escape
@@ -18,7 +18,7 @@ val NarrowEscape = card("Narrow Escape") {
     oracleText = "Return target permanent you control to its owner's hand. You gain 4 life."
 
     spell {
-        val permanent = target("permanent you control", Targets.PermanentYouControl)
+        val permanent = target(TargetFilter.PermanentYouControl)
         effect = Effects.Composite(
             Effects.ReturnToHand(permanent),
             Effects.GainLife(4),

@@ -24,6 +24,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Scenario tests for the unified [GatedEffect] resolution frame (phase-rs Lesson 1).
@@ -86,7 +88,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                                 cost = PayLifeEffect(2),
                                 then = Effects.Destroy(EffectTarget.ContextTarget(0))
                             ),
-                            targetRequirement = Targets.Creature
+                            targetRequirement = TargetObject(filter = TargetFilter.Creature)
                         )
                     )
                 )

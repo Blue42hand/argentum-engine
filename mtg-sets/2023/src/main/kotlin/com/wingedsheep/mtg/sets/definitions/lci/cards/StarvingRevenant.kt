@@ -74,7 +74,7 @@ val StarvingRevenant = card("Starving Revenant") {
     triggeredAbility {
         trigger = Triggers.you.draws()
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(8, GameObjectFilter.Permanent)
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(1, opponent),

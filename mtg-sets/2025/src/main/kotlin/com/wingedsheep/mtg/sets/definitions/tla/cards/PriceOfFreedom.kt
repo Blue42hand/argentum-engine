@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Price of Freedom — {1}{R} Sorcery — Lesson
@@ -39,7 +38,7 @@ val PriceOfFreedom = card("Price of Freedom") {
         "Draw a card."
 
     spell {
-        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactOrLand.opponentControls())))
+        val permanent = target(TargetFilter(GameObjectFilter.ArtifactOrLand.opponentControls()))
         effect = Effects.Destroy(permanent)
             .then(
                 Effects.May(

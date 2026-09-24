@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -35,7 +34,7 @@ val ThisTownAintBigEnough = card("This Town Ain't Big Enough") {
     spell {
         // "Return up to two target nonland permanents" — one up-to-two target requirement; the bounce
         // visits each chosen target, routing each permanent to its owner's hand.
-        target("target", TargetPermanent(optional = true, count = 2, filter = TargetFilter.NonlandPermanent))
+        targets(TargetFilter.NonlandPermanent, count = 2, optional = true)
         effect = Effects.ForEachTarget(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND))
     }
 

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Suspension Field
@@ -24,10 +23,7 @@ val SuspensionField = card("Suspension Field") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "creature with toughness 3 or greater",
-            TargetCreature(filter = TargetFilter.Creature.toughnessAtLeast(3))
-        )
+        val creature = target(TargetFilter.Creature.toughnessAtLeast(3))
         effect = Effects.ExileUntilLeaves(creature)
         optional = true
     }

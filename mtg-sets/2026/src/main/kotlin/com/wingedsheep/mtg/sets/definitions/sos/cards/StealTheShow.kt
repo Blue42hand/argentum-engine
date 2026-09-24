@@ -41,7 +41,7 @@ val StealTheShow = card("Steal the Show") {
     spell {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Target player discards any number of cards, then draws that many cards") {
-                val player = target("target player", Targets.Player)
+                val player = target(Targets.Player)
                 effect = Effects.Pipeline {
                     val hand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
                     val discarded = chooseAnyNumber(
@@ -63,7 +63,7 @@ val StealTheShow = card("Steal the Show") {
                 }
             }
             mode("Steal the Show deals damage equal to the number of instant and sorcery cards in your graveyard to target creature or planeswalker") {
-                val tgt = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+                val tgt = target(Targets.CreatureOrPlaneswalker)
                 effect = Effects.DealDamage(
                     DynamicAmounts.count(
                         Player.You,

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -32,12 +31,9 @@ val CometCrawler = card("Comet Crawler") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val sacrificeTarget = target(
-            "another creature or artifact",
-            com.wingedsheep.sdk.scripting.targets.TargetPermanent(
-                filter = TargetFilter(
+            TargetFilter(
                     GameObjectFilter.Creature.youControl().or(GameObjectFilter.Artifact.youControl())
-                ).other()
-            )
+                ).other(),
         )
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget) then Effects.ModifyStats(2, 0, EffectTarget.Self)

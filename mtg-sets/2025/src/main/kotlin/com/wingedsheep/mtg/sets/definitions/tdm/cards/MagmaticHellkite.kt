@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Magmatic Hellkite — Tarkir: Dragonstorm #111
@@ -58,17 +57,14 @@ val MagmaticHellkite = card("Magmatic Hellkite") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val land = target(
-            "nonbasic land an opponent controls",
-            TargetPermanent(
-                filter = TargetFilter(
+            TargetFilter(
                     GameObjectFilter(
                         cardPredicates = listOf(
                             CardPredicate.IsLand,
                             CardPredicate.Not(CardPredicate.IsBasicLand),
                         )
                     )
-                ).opponentControls()
-            )
+                ).opponentControls(),
         )
 
         // The land controller (target[0]'s controller) ramps a basic, tapped, stunned.

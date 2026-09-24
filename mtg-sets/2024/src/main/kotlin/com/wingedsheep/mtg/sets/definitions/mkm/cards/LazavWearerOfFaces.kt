@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,6 +9,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Lazav, Wearer of Faces — Murders at Karlov Manor #216
@@ -56,7 +56,7 @@ val LazavWearerOfFaces = card("Lazav, Wearer of Faces") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        val graveyardCard = target("target card from a graveyard", Targets.CardInGraveyard)
+        val graveyardCard = target(TargetFilter.CardInGraveyard)
         effect = Effects.Composite(
             Effects.Move(graveyardCard, Zone.EXILE, linkToSource = true),
             Effects.Investigate(),

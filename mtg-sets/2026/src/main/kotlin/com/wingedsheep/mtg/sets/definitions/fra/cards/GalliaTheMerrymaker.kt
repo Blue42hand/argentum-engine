@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val GalliaTheMerrymaker = card("Gallia, the Merrymaker") {
     manaCost = "{1}{R}"
@@ -33,10 +32,7 @@ val GalliaTheMerrymaker = card("Gallia, the Merrymaker") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{R}"), Costs.Tap)
-        val t = target(
-            "target creature that entered this turn",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.enteredThisTurn()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Creature.enteredThisTurn()))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = "{1}{R}, {T}: Put a +1/+1 counter on target creature that entered this turn."
     }

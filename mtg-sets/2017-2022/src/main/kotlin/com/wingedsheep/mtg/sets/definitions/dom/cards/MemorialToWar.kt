@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Memorial to War
@@ -35,7 +34,7 @@ val MemorialToWar = card("Memorial to War") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}{R}"), Costs.Tap, Costs.SacrificeSelf)
-        val land = target("target land", TargetObject(filter = TargetFilter(GameObjectFilter.Land)))
+        val land = target(TargetFilter(GameObjectFilter.Land))
         effect = Effects.Destroy(land)
     }
 

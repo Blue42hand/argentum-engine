@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sanguine Savior — Murders at Karlov Manor #230
@@ -45,7 +46,7 @@ val SanguineSavior = card("Sanguine Savior") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        val other = target("another target creature you control", Targets.OtherCreatureYouControl)
+        val other = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.LIFELINK, other)
         description = "When this creature is turned face up, another target creature you control " +
             "gains lifelink until end of turn."

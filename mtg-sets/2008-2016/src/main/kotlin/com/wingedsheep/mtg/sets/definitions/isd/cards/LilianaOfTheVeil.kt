@@ -63,14 +63,14 @@ val LilianaOfTheVeil = card("Liliana of the Veil") {
 
     // −2: Target player sacrifices a creature.
     loyaltyAbility(-2) {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Sacrifice(GameObjectFilter.Creature, count = 1, target = player)
     }
 
     // −6: Separate all permanents target player controls into two piles. That player sacrifices
     //     all permanents in the pile of their choice.
     loyaltyAbility(-6) {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline(
             descriptionOverride = "Separate all permanents target player controls into two piles. " +
                 "That player sacrifices all permanents in the pile of their choice."

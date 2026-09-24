@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ignis Scientia
@@ -57,7 +56,7 @@ val IgnisScientia = card("Ignis Scientia") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{G}{U}"), Costs.Tap)
-        target("target", TargetObject(filter = TargetFilter.CardInGraveyard))
+        target(TargetFilter.CardInGraveyard)
         effect = Effects.Pipeline {
             // Gather the targeted graveyard card so we can both exile it and test its type.
             val exiled = gather(CardSource.ChosenTargets)

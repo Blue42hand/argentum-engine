@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Fear of Immobility
@@ -35,7 +35,7 @@ val FearOfImmobility = card("Fear of Immobility") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(optional = true))
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.Composite(
             Effects.Tap(t),
             Effects.If(

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Rattleback Apothecary
@@ -42,7 +41,7 @@ val RattlebackApothecary = card("Rattleback Apothecary") {
 
     triggeredAbility {
         trigger = Triggers.you.commitsCrime()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val t = target(TargetFilter.Creature.youControl())
         effect = ModalEffect.chooseOne(
             Mode.noTarget(Effects.GrantKeyword(Keyword.MENACE, t, Duration.EndOfTurn), "Menace"),
             Mode.noTarget(Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn), "Lifelink")

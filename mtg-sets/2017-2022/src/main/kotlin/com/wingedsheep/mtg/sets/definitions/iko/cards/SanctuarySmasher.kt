@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.iko.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sanctuary Smasher
@@ -37,7 +37,7 @@ val SanctuarySmasher = card("Sanctuary Smasher") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        val creature = target("target", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature)
     }
 

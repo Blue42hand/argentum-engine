@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Defiled Crypt // Cadaver Lab (DSK 91) — split-layout Room (CR 709.5).
@@ -59,10 +59,7 @@ val DefiledCryptCadaverLab = card("Defiled Crypt // Cadaver Lab") {
 
         triggeredAbility {
             trigger = Triggers.self.doorUnlocked()
-            val creatureCard = target(
-                "target creature card from your graveyard",
-                Targets.CreatureCardInYourGraveyard
-            )
+            val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
             effect = Effects.ReturnToHand(creatureCard)
         }
     }

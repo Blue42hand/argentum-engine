@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -69,10 +68,7 @@ val AlacrianArmory = card("Alacrian Armory") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val permanent = target(
-            "up to one target Mount or Vehicle you control",
-            TargetPermanent(optional = true, filter = TargetFilter(MountOrVehicleYouControl))
-        )
+        val permanent = target(TargetFilter(MountOrVehicleYouControl), optional = true)
         effect = Effects.Composite(
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(Mount, permanent),

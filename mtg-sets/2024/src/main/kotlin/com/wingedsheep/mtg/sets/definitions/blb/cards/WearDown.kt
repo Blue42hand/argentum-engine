@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Wear Down
@@ -33,22 +33,13 @@ val WearDown = card("Wear Down") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — destroy one artifact or enchantment
             mode("Don't promise a gift — destroy target artifact or enchantment") {
-                val artifactOrEnchantment = target(
-                    "target artifact or enchantment",
-                    Targets.ArtifactOrEnchantment
-                )
+                val artifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
                 effect = Effects.Destroy(artifactOrEnchantment)
             },
             // Mode 2: Gift a card — opponent draws, then destroy two artifacts and/or enchantments
             mode("Promise a gift — an opponent draws a card, then destroy two target artifacts and/or enchantments") {
-                val firstArtifactOrEnchantment = target(
-                    "target first artifact or enchantment",
-                    Targets.ArtifactOrEnchantment
-                )
-                val secondArtifactOrEnchantment = target(
-                    "target second artifact or enchantment",
-                    Targets.ArtifactOrEnchantment
-                )
+                val firstArtifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
+                val secondArtifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
                 effect = Effects.Composite(
                     listOf(
                         Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),

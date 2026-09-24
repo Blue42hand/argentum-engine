@@ -66,7 +66,7 @@ private val SephirothOneWingedAngel = card("Sephiroth, One-Winged Angel") {
             duration = Duration.Permanent,
             ability = grantedTriggeredAbility {
                 trigger = Triggers.a(GameObjectFilter.Creature).dies()
-                val opponent = target("target opponent", Targets.Opponent)
+                val opponent = target(Targets.Opponent)
                 effect = Effects.Composite(
                     listOf(
                         Effects.LoseLife(1, opponent),
@@ -148,7 +148,7 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
     // the fourth time this ability has resolved this turn, transform Sephiroth.
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature).dies()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(1, opponent),

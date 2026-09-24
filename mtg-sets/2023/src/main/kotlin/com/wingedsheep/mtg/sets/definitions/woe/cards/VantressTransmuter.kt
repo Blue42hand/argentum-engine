@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Vantress Transmuter // Croaking Curse
@@ -32,7 +32,7 @@ val VantressTransmuter = card("Vantress Transmuter") {
             "(If you control another Role on it, put that one into the graveyard. Enchanted creature has base power and toughness 1/1.) " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            val t = target("target", Targets.Creature)
+            val t = target(TargetFilter.Creature)
             effect = Effects.Composite(
                 Effects.Tap(t),
                 Effects.CreateRoleToken("Cursed Role", t)

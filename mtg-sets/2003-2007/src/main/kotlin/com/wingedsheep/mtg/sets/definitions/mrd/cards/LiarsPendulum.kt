@@ -53,7 +53,7 @@ val LiarsPendulum = card("Liar's Pendulum") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        target("target opponent", Targets.Opponent)
+        target(Targets.Opponent)
 
         effect = Effects.Pipeline {
             val pendulumName = chooseCardName(prompt = "Choose a card name")

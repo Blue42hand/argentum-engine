@@ -30,7 +30,7 @@ val DecorumDissertation = card("Decorum Dissertation") {
         "your first main phases.)"
 
     spell {
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Composite(
             Effects.DrawCards(2, player),
             Effects.LoseLife(2, player),

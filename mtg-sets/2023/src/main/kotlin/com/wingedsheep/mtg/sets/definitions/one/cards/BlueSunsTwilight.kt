@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Blue Sun's Twilight
@@ -25,7 +24,7 @@ val BlueSunsTwilight = card("Blue Sun's Twilight") {
     oracleText = "Gain control of target creature with mana value X or less. If X is 5 or more, create a token that's a copy of that creature."
 
     spell {
-        val t = target("creature", TargetObject(filter = TargetFilter.Creature.manaValueAtMostX()))
+        val t = target(TargetFilter.Creature.manaValueAtMostX())
         effect = Effects.GainControl(t, Duration.Permanent)
             .then(
                 Effects.If(

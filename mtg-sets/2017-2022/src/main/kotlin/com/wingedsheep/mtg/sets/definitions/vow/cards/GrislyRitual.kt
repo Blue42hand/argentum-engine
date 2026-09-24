@@ -20,7 +20,7 @@ val GrislyRitual = card("Grisly Ritual") {
         "artifacts with \"{1}, {T}, Discard a card, Sacrifice this token: Draw a card.\")"
 
     spell {
-        val t = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.Composite(
             Effects.Destroy(t),
             Effects.CreateBlood(2),

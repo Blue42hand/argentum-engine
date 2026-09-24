@@ -33,8 +33,8 @@ val SurveyMechan = card("Survey Mechan") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{10}"), Costs.SacrificeSelf)
-        val damageTarget = target("any target", Targets.Any)
-        val drawTarget = target("target player", Targets.Player)
+        val damageTarget = target(Targets.Any)
+        val drawTarget = target(Targets.Player)
         effect = Effects.Composite(
             Effects.DealDamage(3, damageTarget),
             Effects.DrawCards(3, drawTarget),

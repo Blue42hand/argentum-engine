@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -41,7 +40,7 @@ val BeifongsBountyHunters = card("Beifong's Bounty Hunters") {
 
     triggeredAbility {
         trigger = Triggers.a((GameObjectFilter.Creature and GameObjectFilter.Nonland).youControl()).dies()
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
+        val land = target(TargetFilter.Land.youControl())
         effect = Effects.Earthbend(
             DynamicAmounts.triggeringPower(),
             land,

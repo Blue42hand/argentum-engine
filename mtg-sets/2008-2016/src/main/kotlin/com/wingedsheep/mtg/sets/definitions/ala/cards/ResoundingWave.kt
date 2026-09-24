@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ala.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Resounding Wave
@@ -35,7 +34,7 @@ val ResoundingWave = card("Resounding Wave") {
         "When you cycle this card, return two target permanents to their owners' hands."
 
     spell {
-        val t = target("target", Targets.Permanent)
+        val t = target(TargetFilter.Permanent)
         effect = Effects.ReturnToHand(t)
     }
 
@@ -43,7 +42,7 @@ val ResoundingWave = card("Resounding Wave") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        target("target", TargetPermanent(count = 2))
+        targets(TargetFilter.Permanent, count = 2)
         effect = Effects.ForEachTarget(
             Effects.ReturnToHand(EffectTarget.ContextTarget(0))
         )

@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Radiant Lotus — {6}
@@ -49,7 +49,7 @@ val RadiantLotus = card("Radiant Lotus") {
             Costs.Tap,
             Costs.SacrificePermanents(GameObjectFilter.Artifact, minCount = 1, excludeSelf = false)
         )
-        val player = target("target player", TargetPlayer())
+        val player = target(Targets.Player)
         effect = Effects.AddManaOfChoice(
             colorSet = ManaColorSet.AnyColor,
             amount = DynamicAmounts.xValue() * 3,

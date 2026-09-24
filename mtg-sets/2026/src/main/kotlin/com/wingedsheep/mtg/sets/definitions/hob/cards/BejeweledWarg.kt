@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -54,10 +53,7 @@ val BejeweledWarg = card("Bejeweled Warg") {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = ModalEffect.chooseOne(
             mode("Put a +1/+1 counter on target Wolf you control") {
-                val permanentYouControl = target(
-                    "target permanent you control",
-                    TargetPermanent(filter = TargetFilter.PermanentYouControl.withSubtype(Subtype.WOLF))
-                )
+                val permanentYouControl = target(TargetFilter.PermanentYouControl.withSubtype(Subtype.WOLF))
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, permanentYouControl)
             },
             Mode.noTarget(

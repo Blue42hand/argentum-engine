@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 
 /**
@@ -28,7 +28,7 @@ val ErtaiTheCorrupted = card("Ertai, the Corrupted") {
     toughness = 4
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.Tap, Costs.Sacrifice(GameObjectFilter.CreatureOrEnchantment))
-        val t = target("target", TargetSpell())
+        val t = target(TargetFilter.SpellOnStack)
         effect = Effects.CounterSpell()
     }
     metadata {

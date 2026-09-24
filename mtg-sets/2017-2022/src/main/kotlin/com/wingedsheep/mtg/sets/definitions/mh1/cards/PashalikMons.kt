@@ -32,7 +32,7 @@ val PashalikMons = card("Pashalik Mons") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Goblin").youControl()).dies()
-        val t = target("target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(1, t)
         description = "Whenever Pashalik Mons or another Goblin you control dies, Pashalik Mons deals 1 damage to any target."
     }

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Blackmail
@@ -22,7 +23,7 @@ val Blackmail = card("Blackmail") {
     oracleText = "Target player reveals three cards from their hand and you choose one of them. That player discards that card."
 
     spell {
-        val player = target("target player", TargetPlayer())
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             // 1. Gather all cards from target player's hand
             val hand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))

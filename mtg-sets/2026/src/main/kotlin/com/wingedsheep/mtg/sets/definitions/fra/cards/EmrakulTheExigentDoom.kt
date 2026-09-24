@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
@@ -62,7 +61,7 @@ val EmrakulTheExigentDoom = card("Emrakul, the Exigent Doom") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.ExileSelf)
         activateFromZone = Zone.HAND
-        val land = target("target land", TargetPermanent(filter = TargetFilter.Land))
+        val land = target(TargetFilter.Land)
         effect = Effects.Composite(
             Effects.GrantActivatedAbility(
                 ability = ActivatedAbility(

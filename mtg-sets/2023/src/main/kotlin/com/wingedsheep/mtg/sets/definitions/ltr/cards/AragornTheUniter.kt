@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Aragorn, the Uniter
@@ -51,7 +52,7 @@ val AragornTheUniter = card("Aragorn, the Uniter") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.RED))
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.DealDamage(
             amount = 3,
             target = opponent,
@@ -61,7 +62,7 @@ val AragornTheUniter = card("Aragorn, the Uniter") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.GREEN))
-        val creature = target("creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(4, 4, creature)
     }
 

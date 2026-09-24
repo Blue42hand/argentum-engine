@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Rabid Bite
@@ -20,8 +20,8 @@ val RabidBite = card("Rabid Bite") {
     oracleText = "Target creature you control deals damage equal to its power to target creature you don't control."
 
     spell {
-        val myCreature = target("creature you control", Targets.CreatureYouControl)
-        val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
+        val myCreature = target(TargetFilter.CreatureYouControl)
+        val theirCreature = target(TargetFilter.CreatureOpponentControls)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,

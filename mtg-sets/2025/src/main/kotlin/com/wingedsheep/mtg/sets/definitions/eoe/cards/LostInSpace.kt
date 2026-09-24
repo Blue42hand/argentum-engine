@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Lost in Space
@@ -22,7 +20,7 @@ val LostInSpace = card("Lost in Space") {
     oracleText = "Target artifact or creature's owner puts it on their choice of the top or bottom of their library. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     spell {
-        val target = target("target artifact or creature", TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature)))
+        val target = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature))
         effect = Effects.Composite(
             listOf(
                 Effects.PutOnTopOrBottomOfLibrary(target),

@@ -5,12 +5,12 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Roiling Canopy (Reality Fracture #187) — Land.
@@ -35,7 +35,7 @@ val RoilingCanopy = card("Roiling Canopy") {
     triggeredAbility {
         trigger = Triggers.a(Filters.ForestCard.youControl()).enters()
         interveningIf = Conditions.YouControlAtLeastOtherThanTriggering(5, Filters.ForestCard)
-        val creature = target("target creature you control", Targets.CreatureYouControl)
+        val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.ModifyStats(3, 3, creature)
         description = "Whenever a Forest you control enters, if you control at least five other Forests, " +
             "target creature you control gets +3/+3 until end of turn."

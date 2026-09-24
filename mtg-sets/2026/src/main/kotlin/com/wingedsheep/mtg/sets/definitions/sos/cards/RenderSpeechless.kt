@@ -8,8 +8,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Render Speechless — Secrets of Strixhaven #220
@@ -33,8 +33,8 @@ val RenderSpeechless = card("Render Speechless") {
         "player discards that card.\nPut two +1/+1 counters on up to one target creature."
 
     spell {
-        val opponent = target("target opponent", TargetOpponent())
-        val creature = target("up to one target creature", TargetCreature(optional = true))
+        val opponent = target(Targets.Opponent)
+        val creature = target(TargetFilter.Creature, optional = true)
         effect = Effects.Composite(
             // Targeted discard: reveal the opponent's hand (target 0), the controller chooses a nonland
             // card from it, that player discards it. The opponent is the first chosen target, addressed

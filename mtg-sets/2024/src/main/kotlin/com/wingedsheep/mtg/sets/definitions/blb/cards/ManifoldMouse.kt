@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -49,9 +48,7 @@ val ManifoldMouse = card("Manifold Mouse") {
     // At the beginning of combat on your turn, target Mouse you control gains
     // your choice of double strike or trample until end of turn.
     triggeredAbility {
-        val creature = target("target creature", TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Mouse").youControl())
-        ))
+        val creature = target(TargetFilter(GameObjectFilter.Creature.withSubtype("Mouse").youControl()))
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(

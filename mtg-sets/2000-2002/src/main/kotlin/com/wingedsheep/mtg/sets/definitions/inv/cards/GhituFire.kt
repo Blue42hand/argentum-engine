@@ -24,7 +24,7 @@ val GhituFire = card("Ghitu Fire") {
     keywordAbility(KeywordAbility.flashKicker("{2}"))
 
     spell {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealXDamage(anyTarget)
     }
 

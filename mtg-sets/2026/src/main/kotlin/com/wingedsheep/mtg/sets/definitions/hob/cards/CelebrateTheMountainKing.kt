@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Celebrate the Mountain-king
@@ -43,10 +42,7 @@ val CelebrateTheMountainKing = card("Celebrate the Mountain-king") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val exiled = target(
-            "up to one target nonland permanent that player controls",
-            TargetPermanent(count = 1, optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
-        )
+        val exiled = target(TargetFilter.NonlandPermanentOpponentControls, optional = true)
         effect = Effects.ExileUntilLeaves(exiled)
         description = "When this enchantment enters, for each opponent, exile up to one target " +
             "nonland permanent that player controls until this enchantment leaves the battlefield."

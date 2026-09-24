@@ -7,7 +7,8 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Untimely Malfunction
@@ -38,17 +39,17 @@ val UntimelyMalfunction = card("Untimely Malfunction") {
         effect = Effects.Modal(
             modes = listOf(
                 mode("Destroy target artifact") {
-                    val artifact = target("target artifact", Targets.Artifact)
+                    val artifact = target(TargetFilter.Artifact)
                     effect = Effects.Destroy(artifact)
                 },
                 Mode.withTarget(
                     effect = Effects.ChangeTarget(),
-                    target = Targets.SpellOrAbilityWithSingleTarget,
+                    target = TargetObject(filter = TargetFilter.SpellOrAbilityOnStack),
                     description = "Change the target of target spell or ability with a single target"
                 ),
                 Mode.withTarget(
                     effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0))),
-                    target = TargetCreature(count = 2, minCount = 1),
+                    target = TargetObject(filter = TargetFilter.Creature, count = 2, minCount = 1),
                     description = "One or two target creatures can't block this turn"
                 )
             ),

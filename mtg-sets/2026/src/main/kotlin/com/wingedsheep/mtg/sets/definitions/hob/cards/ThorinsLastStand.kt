@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
 /**
@@ -37,7 +36,7 @@ val ThorinsLastStand = card("Thorin's Last Stand") {
                 )
             }
             mode("Destroy target artifact or enchantment. You gain 2 life") {
-                val t = target("target", TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment))
+                val t = target(TargetFilter.ArtifactOrEnchantment)
                 effect = Effects.Composite(
                     Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
                     Effects.GainLife(2)

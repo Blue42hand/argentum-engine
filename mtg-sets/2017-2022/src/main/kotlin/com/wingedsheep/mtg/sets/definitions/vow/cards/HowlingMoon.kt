@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -41,11 +40,8 @@ val HowlingMoon = card("Howling Moon") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val wolfOrWerewolf = target(
-            "target Wolf or Werewolf you control",
-            TargetCreature(
-                filter = TargetFilter.CreatureYouControl.withSubtype(Subtype.WOLF)
-                    .or(TargetFilter.CreatureYouControl.withSubtype(Subtype.WEREWOLF)),
-            ),
+            TargetFilter.CreatureYouControl.withSubtype(Subtype.WOLF)
+                .or(TargetFilter.CreatureYouControl.withSubtype(Subtype.WEREWOLF)),
         )
         effect = Effects.ModifyStats(2, 2, wolfOrWerewolf)
         description = "At the beginning of combat on your turn, target Wolf or Werewolf you control " +

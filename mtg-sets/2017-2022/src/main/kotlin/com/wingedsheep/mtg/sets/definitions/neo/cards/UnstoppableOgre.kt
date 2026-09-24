@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Unstoppable Ogre — Kamigawa: Neon Dynasty #169 (canonical printing)
@@ -22,7 +22,7 @@ val UnstoppableOgre = card("Unstoppable Ogre") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("creature that can't block", TargetCreature())
+        val t = target(TargetFilter.Creature)
         effect = Effects.CantBlock(t)
         description = "When this creature enters, target creature can't block this turn."
     }

@@ -52,13 +52,7 @@ val SaviorOfOllenbock = card("Savior of Ollenbock") {
 
     triggeredAbility {
         trigger = Triggers.self.trains()
-        val victim = target(
-            "up to one other target creature from the battlefield or creature card from a graveyard",
-            TargetObject(
-                optional = true,
-                filter = TargetFilter.OtherCreature.or(TargetFilter.CreatureInGraveyard),
-            ),
-        )
+        val victim = target(TargetFilter.OtherCreature.or(TargetFilter.CreatureInGraveyard), optional = true)
         effect = Effects.ExileUntilLeaves(victim)
     }
 

@@ -55,7 +55,7 @@ val WeatherMaker = card("Weather Maker") {
             Costs.Tap,
             Costs.RemoveCounterFromSelf(CounterType.CHARGE, 3)
         )
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         effect = Effects.DealDamage(3, anyTarget)
     }
 

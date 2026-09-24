@@ -34,7 +34,7 @@ val HydraAssaultRobot = card("HYDRA Assault Robot") {
     toughness = 3
 
     triggeredAbility {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         trigger = Triggers.another((
                 GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN) or GameObjectFilter.Artifact
                 ).youControl()).enters()

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Edgar's Awakening — Innistrad: Crimson Vow #110.
@@ -31,7 +31,7 @@ val EdgarsAwakening = card("Edgar's Awakening") {
         "from your graveyard to your hand."
 
     spell {
-        val creature = target("target creature card from your graveyard", Targets.CreatureCardInYourGraveyard)
+        val creature = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.PutOntoBattlefield(creature)
     }
 
@@ -44,10 +44,7 @@ val EdgarsAwakening = card("Edgar's Awakening") {
             descriptionOverride = "You may pay {B}. When you do, return target creature card " +
                 "from your graveyard to your hand."
         ) {
-            val creatureCardInYourGraveyard = target(
-                "target creature card in your graveyard",
-                Targets.CreatureCardInYourGraveyard
-            )
+            val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
             effect = Effects.ReturnToHand(creatureCardInYourGraveyard)
         }
     }

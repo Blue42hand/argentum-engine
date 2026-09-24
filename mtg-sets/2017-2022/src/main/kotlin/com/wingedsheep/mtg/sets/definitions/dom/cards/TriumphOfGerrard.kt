@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Triumph of Gerrard
@@ -26,22 +26,20 @@ val TriumphOfGerrard = card("Triumph of Gerrard") {
         "I, II — Put a +1/+1 counter on target creature you control with the greatest power.\n" +
         "III — Target creature you control with the greatest power gains flying, first strike, and lifelink until end of turn."
 
-    val greatestPowerTarget = TargetCreature(
-        filter = TargetFilter.CreatureYouControl.hasGreatestPower()
-    )
+    val greatestPowerTarget = TargetObject(filter = TargetFilter.CreatureYouControl.hasGreatestPower())
 
     sagaChapter(1) {
-        val creature = target("creature you control with the greatest power", greatestPowerTarget)
+        val creature = target(greatestPowerTarget)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     sagaChapter(2) {
-        val creature = target("creature you control with the greatest power", greatestPowerTarget)
+        val creature = target(greatestPowerTarget)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     sagaChapter(3) {
-        val creature = target("creature you control with the greatest power", greatestPowerTarget)
+        val creature = target(greatestPowerTarget)
         effect = Effects.Composite(listOf(
             Effects.GrantKeyword(Keyword.FLYING, creature),
             Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature),

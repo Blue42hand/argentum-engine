@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -30,10 +29,7 @@ val EzekielSimsSpiderTotem = card("Ezekiel Sims, Spider-Totem") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val t = target(
-            "target Spider you control",
-            TargetCreature(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.SPIDER).youControl()))
-        )
+        val t = target(TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.SPIDER).youControl()))
         effect = Effects.ModifyStats(2, 2, t)
     }
 

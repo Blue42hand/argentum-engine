@@ -5,8 +5,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Feed the Cycle
@@ -34,20 +34,14 @@ val FeedTheCycle = card("Feed the Cycle") {
         effect = ModalEffect.chooseOne(
             // Mode 1: Pay {B} additional — total mana cost becomes {1}{B}{B}
             mode("Pay {B} — destroy target creature or planeswalker") {
-                val creatureOrPlaneswalker = target(
-                    "target creature or planeswalker",
-                    TargetCreatureOrPlaneswalker()
-                )
+                val creatureOrPlaneswalker = target(Targets.CreatureOrPlaneswalker)
                 additionalManaCost = "{B}"
                 additionalCosts = emptyList()
                 effect = Effects.Destroy(creatureOrPlaneswalker)
             },
             // Mode 2: Forage — total mana cost stays {1}{B} plus forage
             mode("Forage — destroy target creature or planeswalker") {
-                val creatureOrPlaneswalker = target(
-                    "target creature or planeswalker",
-                    TargetCreatureOrPlaneswalker()
-                )
+                val creatureOrPlaneswalker = target(Targets.CreatureOrPlaneswalker)
                 additionalCosts = listOf(Costs.additional.Forage)
                 effect = Effects.Destroy(creatureOrPlaneswalker)
             },

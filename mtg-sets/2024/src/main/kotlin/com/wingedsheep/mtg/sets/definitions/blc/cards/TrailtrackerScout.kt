@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val TrailtrackerScout = card("Trailtracker Scout") {
     manaCost = "{1}{G}"
@@ -31,14 +30,7 @@ val TrailtrackerScout = card("Trailtracker Scout") {
 
     triggeredAbility {
         trigger = Triggers.you.expends(8)
-        val card = target(
-            "permanent card from your graveyard",
-            TargetObject(
-                count = 1,
-                optional = true,
-                filter = TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD)
-            )
-        )
+        val card = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD), optional = true)
         effect = Effects.ReturnToHand(card)
     }
 

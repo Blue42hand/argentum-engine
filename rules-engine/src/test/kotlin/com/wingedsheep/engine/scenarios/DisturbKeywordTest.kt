@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.disturb
 import com.wingedsheep.sdk.model.CardDefinition
@@ -37,6 +36,8 @@ import io.kotest.inspectors.forAll
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Tests for the Disturb [cost] keyword (CR 702.146, Innistrad: Midnight Hunt / Crimson Vow).
@@ -89,7 +90,7 @@ class DisturbKeywordTest : FunSpec({
         manaCost = ""
         colorIndicator = "U"
         typeLine = "Enchantment — Aura"
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
         staticAbility { ability = GrantKeyword(Keyword.FLYING) }
         replacementEffect(
             RedirectZoneChange(

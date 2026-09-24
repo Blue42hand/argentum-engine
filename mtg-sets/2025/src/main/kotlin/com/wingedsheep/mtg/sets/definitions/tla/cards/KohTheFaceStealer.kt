@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Koh, the Face Stealer
@@ -55,10 +54,7 @@ val KohTheFaceStealer = card("Koh, the Face Stealer") {
     // "When Koh enters, exile up to one other target creature." — permanent exile into Koh's pile.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one other target creature",
-            TargetPermanent(optional = true, filter = TargetFilter.Creature.other())
-        )
+        val creature = target(TargetFilter.Creature.other(), optional = true)
         effect = Effects.ExileLinkedToSource(creature)
     }
 

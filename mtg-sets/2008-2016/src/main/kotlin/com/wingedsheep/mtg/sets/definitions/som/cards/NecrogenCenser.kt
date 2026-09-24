@@ -36,7 +36,7 @@ val NecrogenCenser = card("Necrogen Censer") {
             Costs.Tap,
             Costs.RemoveCounterFromSelf(CounterType.CHARGE)
         )
-        val victim = target("target player", Targets.Player)
+        val victim = target(Targets.Player)
         effect = Effects.LoseLife(2, victim)
         description = "{T}, Remove a charge counter from this artifact: Target player loses 2 life."
     }

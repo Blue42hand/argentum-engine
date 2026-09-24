@@ -38,7 +38,7 @@ val KalastriaHighborn = card("Kalastria Highborn") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Vampire").youControl()).dies()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
             then = Effects.Composite(

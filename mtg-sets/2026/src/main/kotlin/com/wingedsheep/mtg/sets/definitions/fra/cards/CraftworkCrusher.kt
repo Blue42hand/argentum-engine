@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 val CraftworkCrusher = card("Craftwork Crusher") {
     manaCost = "{3}{R}{R}{G}{G}"
@@ -28,10 +28,7 @@ val CraftworkCrusher = card("Craftwork Crusher") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseTwo(
             mode("This creature deals 4 damage to target creature or planeswalker.") {
-                val creatureOrPlaneswalker = target(
-                    "target creature or planeswalker",
-                    TargetCreatureOrPlaneswalker()
-                )
+                val creatureOrPlaneswalker = target(Targets.CreatureOrPlaneswalker)
                 effect = Effects.DealDamage(4, creatureOrPlaneswalker)
             },
             Mode.noTarget(

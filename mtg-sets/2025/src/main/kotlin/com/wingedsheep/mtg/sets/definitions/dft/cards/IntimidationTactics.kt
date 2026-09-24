@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Intimidation Tactics
@@ -25,7 +25,7 @@ val IntimidationTactics = card("Intimidation Tactics") {
         "Cycling {3} ({3}, Discard this card: Draw a card.)"
 
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(t))
             val hand = gather(CardSource.FromZone(Zone.HAND, t.asPlayer))

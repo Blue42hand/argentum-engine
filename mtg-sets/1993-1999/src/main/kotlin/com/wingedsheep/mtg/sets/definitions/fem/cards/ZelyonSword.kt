@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Zelyon Sword
@@ -31,7 +30,7 @@ val ZelyonSword = card("Zelyon Sword") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
-        val target = target("target creature", TargetCreature(filter = TargetFilter.Creature))
+        val target = target(TargetFilter.Creature)
         effect = Effects.ModifyStats(2, 0, target, Duration.WhileSourceTapped("this artifact"))
     }
 

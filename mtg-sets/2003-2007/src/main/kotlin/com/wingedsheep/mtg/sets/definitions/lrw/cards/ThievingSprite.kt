@@ -50,7 +50,7 @@ val ThievingSprite = card("Thieving Sprite") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("target player", Targets.Player)
+        target(Targets.Player)
         effect = Effects.Pipeline {
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.TargetPlayer))
             val revealed = chooseExactly(

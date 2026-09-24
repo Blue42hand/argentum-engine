@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,10 +34,7 @@ val CircleOfConfinement = card("Circle of Confinement") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target",
-            TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3).opponentControls())
-        )
+        val t = target(TargetFilter.Creature.manaValueAtMost(3).opponentControls())
         effect = Effects.ExileUntilLeaves(t)
     }
 

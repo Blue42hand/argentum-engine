@@ -19,7 +19,7 @@ val RangersFirebrand = card("Ranger's Firebrand") {
     oracleText = "Ranger's Firebrand deals 2 damage to any target. The Ring tempts you."
 
     spell {
-        val t = target("any target", Targets.Any)
+        val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t).then(Effects.TheRingTemptsYou())
     }
 

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -66,16 +65,12 @@ val AbsorbingMan = card("Absorbing Man") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         val copySource = target(
-            "up to one target artifact, non-Aura enchantment, or land",
-            TargetObject(
-                count = 1,
-                optional = true,
-                filter = TargetFilter(
-                    GameObjectFilter.Artifact or
-                        GameObjectFilter.Enchantment.notSubtype(Subtype.AURA) or
-                        GameObjectFilter.Land
-                ),
+            TargetFilter(
+                GameObjectFilter.Artifact or
+                    GameObjectFilter.Enchantment.notSubtype(Subtype.AURA) or
+                    GameObjectFilter.Land
             ),
+            optional = true,
         )
         effect = Effects.EachPermanentBecomesCopyOfTarget(
             target = copySource,

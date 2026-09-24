@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 val SurgicalPrecision = card("Surgical Precision") {
     manaCost = "{1}{W}"
@@ -18,10 +17,7 @@ val SurgicalPrecision = card("Surgical Precision") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Destroy target creature with toughness 4 or greater. You gain 1 life.") {
-                val creature = target(
-                    "target creature",
-                    TargetCreature(filter = TargetFilter.Creature.toughnessAtLeast(4))
-                )
+                val creature = target(TargetFilter.Creature.toughnessAtLeast(4))
                 effect = Effects.Composite(Effects.Destroy(creature), Effects.GainLife(1))
             },
             Mode(

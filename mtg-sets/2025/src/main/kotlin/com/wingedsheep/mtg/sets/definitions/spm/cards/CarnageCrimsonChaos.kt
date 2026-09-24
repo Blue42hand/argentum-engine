@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.MustAttack
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -42,10 +41,7 @@ val CarnageCrimsonChaos = card("Carnage, Crimson Chaos") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "target creature card",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
-        )
+        val creature = target(TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
         effect = Effects.Composite(
             Effects.Move(creature, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
             Effects.GrantStaticAbility(MustAttack(), creature, Duration.Permanent),

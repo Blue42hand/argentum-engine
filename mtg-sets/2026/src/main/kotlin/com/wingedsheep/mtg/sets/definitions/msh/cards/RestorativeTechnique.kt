@@ -13,8 +13,8 @@ import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Restorative Technique — Marvel Super Heroes #183
@@ -39,11 +39,8 @@ val RestorativeTechnique = card("Restorative Technique") {
         "to one target creature."
 
     spell {
-        val player = target("target player", TargetPlayer())
-        val creature = target(
-            "up to one target creature",
-            TargetCreature(optional = true, filter = TargetFilter.Creature)
-        )
+        val player = target(Targets.Player)
+        val creature = target(TargetFilter.Creature, optional = true)
 
         effect = Effects.Composite(
             Effects.GainLife(2, player),

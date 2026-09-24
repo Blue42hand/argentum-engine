@@ -25,7 +25,7 @@ val CompulsiveResearch = card("Compulsive Research") {
     oracleText = "Target player draws three cards. Then that player discards two cards unless they discard a land card."
 
     spell {
-        val player = target("player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.DrawCards(3, player)
             .then(Effects.DiscardUnlessMatching(2, GameObjectFilter.Land, target = player))
     }

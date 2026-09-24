@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Molten Collapse
@@ -49,18 +48,11 @@ val MoltenCollapse = card("Molten Collapse") {
             )
         ) {
             mode("Destroy target creature or planeswalker") {
-                val victim = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
+                val victim = target(Targets.CreatureOrPlaneswalker)
                 effect = Effects.Destroy(victim)
             }
             mode("Destroy target noncreature, nonland permanent with mana value 1 or less") {
-                val victim = target(
-                    "target noncreature, nonland permanent with mana value 1 or less",
-                    TargetPermanent(
-                        filter = TargetFilter(
-                            GameObjectFilter.NonlandPermanent.notCreature().manaValueAtMost(1)
-                        )
-                    )
-                )
+                val victim = target(TargetFilter(GameObjectFilter.NonlandPermanent.notCreature().manaValueAtMost(1)))
                 effect = Effects.Destroy(victim)
             }
         }

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
@@ -22,6 +21,8 @@ import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Engine-level coverage for `ReflexiveTriggerEffectExecutor.isActionFeasible` — the walker that
@@ -126,7 +127,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
             trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.Composite(
-                    Effects.SelectTarget(Targets.CreatureYouControl, storeAs = "counterSource"),
+                    Effects.SelectTarget(TargetObject(filter = TargetFilter.CreatureYouControl), storeAs = "counterSource"),
                     Effects.RemoveCounterOfAnyKind(EffectTarget.PipelineTarget("counterSource", 0))
                 ),
                 optional = true,

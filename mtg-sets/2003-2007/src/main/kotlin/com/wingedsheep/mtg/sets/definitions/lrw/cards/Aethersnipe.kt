@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Aethersnipe
@@ -32,7 +32,7 @@ val Aethersnipe = card("Aethersnipe") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target("target nonland permanent", Targets.NonlandPermanent)
+        val permanent = target(TargetFilter.NonlandPermanent)
         effect = Effects.ReturnToHand(permanent)
         description = "return target nonland permanent to its owner's hand."
     }

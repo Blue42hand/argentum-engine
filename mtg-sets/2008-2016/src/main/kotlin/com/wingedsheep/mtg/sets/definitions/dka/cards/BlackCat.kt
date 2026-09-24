@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Black Cat
@@ -23,7 +23,7 @@ val BlackCat = card("Black Cat") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        val opponent = target("target opponent", TargetOpponent())
+        val opponent = target(Targets.Opponent)
         effect = Patterns.Hand.discardRandom(1, opponent)
     }
 

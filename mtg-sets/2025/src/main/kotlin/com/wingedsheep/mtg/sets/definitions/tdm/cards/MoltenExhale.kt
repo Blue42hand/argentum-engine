@@ -34,7 +34,7 @@ val MoltenExhale = card("Molten Exhale") {
     keywordAbility(KeywordAbility.flashKicker(Costs.additional.Behold(filter = Filters.WithSubtype("Dragon"))))
 
     spell {
-        val t = target("target", Targets.CreatureOrPlaneswalker)
+        val t = target(Targets.CreatureOrPlaneswalker)
         effect = Effects.DealDamage(4, t)
     }
 

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Swashbuckler's Whip
@@ -41,10 +40,7 @@ val SwashbucklersWhip = card("Swashbuckler's Whip") {
         ability = GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-                val artifact = target(
-                    "target artifact",
-                    TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature))
-                )
+                val artifact = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature))
                 effect = Effects.Tap(artifact)
                 description = "{2}, {T}: Tap target artifact or creature."
             },

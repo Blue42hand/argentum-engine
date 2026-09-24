@@ -30,7 +30,7 @@ val GempalmPolluter = card("Gempalm Polluter") {
 
     triggeredAbility {
         trigger = Triggers.self.isCycled()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.May(
             Effects.LoseLife(
                 DynamicAmounts.permanentsWithSubtype(Subtype("Zombie")),

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.akh.cards
 
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Sparring Mummy
@@ -23,7 +23,7 @@ val SparringMummy = card("Sparring Mummy") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target("target creature", Targets.Creature)
+        val creature = target(TargetFilter.Creature)
         effect = Effects.Untap(creature)
         description = "When this creature enters, untap target creature."
     }

@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Bloodrite Invoker
@@ -36,7 +37,7 @@ val BloodriteInvoker = card("Bloodrite Invoker") {
 
     activatedAbility {
         cost = Costs.Mana("{8}")
-        val victim = target("target player", TargetPlayer())
+        val victim = target(Targets.Player)
         effect = Effects.Composite(
             Effects.LoseLife(3, victim),
             Effects.GainLife(3)

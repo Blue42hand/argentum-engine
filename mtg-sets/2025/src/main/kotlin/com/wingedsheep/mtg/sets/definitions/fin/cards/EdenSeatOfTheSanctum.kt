@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Eden, Seat of the Sanctum
@@ -50,13 +49,13 @@ val EdenSeatOfTheSanctum = card("Eden, Seat of the Sanctum") {
                 action = Effects.SacrificeTarget(EffectTarget.Self),
                 optional = true,
             ) {
-                val permanent = target("target permanent", TargetObject(
-                    filter = TargetFilter(
+                val permanent = target(
+                    TargetFilter(
                         baseFilter = GameObjectFilter.Permanent.ownedByYou(),
                         zone = Zone.GRAVEYARD,
                         excludeSelf = true,
-                    )
-                ))
+                    ),
+                )
                 effect = Effects.ReturnToHand(permanent)
             },
         )

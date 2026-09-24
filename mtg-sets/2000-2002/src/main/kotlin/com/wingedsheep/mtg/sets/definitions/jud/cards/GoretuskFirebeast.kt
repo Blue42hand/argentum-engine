@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 
 /**
@@ -27,7 +27,7 @@ val GoretuskFirebeast = card("Goretusk Firebeast") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetPlayerOrPlaneswalker())
+        val t = target(Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(4, t)
     }
     metadata {

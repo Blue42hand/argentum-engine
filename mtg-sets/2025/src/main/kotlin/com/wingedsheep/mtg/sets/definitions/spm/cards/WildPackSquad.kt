@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -26,7 +25,7 @@ val WildPackSquad = card("Wild Pack Squad") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val t = target("target", TargetCreature(optional = true, filter = TargetFilter.Creature))
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
             Effects.GrantKeyword(Keyword.VIGILANCE, t)

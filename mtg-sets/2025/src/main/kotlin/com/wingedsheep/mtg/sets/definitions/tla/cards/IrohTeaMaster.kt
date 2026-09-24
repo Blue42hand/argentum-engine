@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -71,11 +70,8 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
     // counter on that token for each permanent you own that your opponents control.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val opponent = target("target opponent", Targets.Opponent)
-        val permanent = target(
-            "target permanent you control",
-            TargetPermanent(filter = TargetFilter.Permanent.youControl())
-        )
+        val opponent = target(Targets.Opponent)
+        val permanent = target(TargetFilter.Permanent.youControl())
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Effects.GiveControl(

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
@@ -27,6 +26,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import java.util.UUID
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * BDD: connive whose +1/+1 counter lands on a *reflexively chosen* target — the Teo, Spirited
@@ -51,7 +52,7 @@ class ConniveTargetingTest : FunSpec({
             ActivatedAbility(
                 id = abilityId,
                 cost = AbilityCost.Tap,
-                effect = Effects.ConniveTargeting(Targets.CreatureYouControl)
+                effect = Effects.ConniveTargeting(TargetObject(filter = TargetFilter.CreatureYouControl))
             )
         )
     )

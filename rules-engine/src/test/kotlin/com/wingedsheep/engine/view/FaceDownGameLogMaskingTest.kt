@@ -47,7 +47,6 @@ import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.RevealTopOfLibrary
 import com.wingedsheep.sdk.scripting.CastSpellTypesFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import io.kotest.assertions.withClue
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
@@ -59,6 +58,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * The game log must never print the name of a card that is face down on the battlefield.
@@ -103,7 +103,7 @@ class FaceDownGameLogMaskingTest : FunSpec({
         toughness = 1
         triggeredAbility {
             trigger = Triggers.self.enters()
-            target("target creature", TargetCreature())
+            target(TargetFilter.Creature)
             effect = Effects.Tap(EffectTarget.ContextTarget(0))
             description = "When this creature enters, tap target creature."
         }

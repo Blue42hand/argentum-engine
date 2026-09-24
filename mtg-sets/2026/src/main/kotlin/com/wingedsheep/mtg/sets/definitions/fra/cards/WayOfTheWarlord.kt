@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 
 /**
  * The granted −4 declares "target player" before "up to one target creature or planeswalker",
@@ -33,8 +32,8 @@ val WayOfTheWarlord = card("Way of the Warlord") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = grantedLoyaltyAbility(-4) {
-                val player = target("target player", Targets.Player)
-                val permanent = target("up to one target creature or planeswalker", TargetCreatureOrPlaneswalker(optional = true))
+                val player = target(Targets.Player)
+                val permanent = target(Targets.CreatureOrPlaneswalker, optional = true)
                 effect = Effects.Composite(
                     Effects.DealDamage(2, permanent),
                     Effects.DealDamage(2, player)

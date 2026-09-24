@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Woodfall Primus
@@ -35,7 +34,7 @@ val WoodfallPrimus = card("Woodfall Primus") {
     keywords(Keyword.TRAMPLE, Keyword.PERSIST)
 
     triggeredAbility {
-        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter.NoncreaturePermanent))
+        val permanent = target(TargetFilter.NoncreaturePermanent)
         trigger = Triggers.self.enters()
         effect = Effects.Destroy(permanent)
         description = "When this creature enters, destroy target noncreature permanent."

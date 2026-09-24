@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Swarm Culler
@@ -30,12 +29,9 @@ val SwarmCuller = card("Swarm Culler") {
     triggeredAbility {
         trigger = Triggers.self.becomesTapped()
         val sacrificeTarget = target(
-            "another creature or artifact",
-            TargetPermanent(
-                filter = TargetFilter(
+            TargetFilter(
                     GameObjectFilter.Creature.youControl().or(GameObjectFilter.Artifact.youControl())
-                ).other()
-            )
+                ).other(),
         )
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget) then Effects.DrawCards(1)

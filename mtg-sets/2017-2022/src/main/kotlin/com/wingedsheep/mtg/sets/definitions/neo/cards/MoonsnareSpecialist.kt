@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.ninjutsu
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Moonsnare Specialist — Kamigawa: Neon Dynasty #70 (canonical printing)
@@ -31,7 +31,7 @@ val MoonsnareSpecialist = card("Moonsnare Specialist") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("creature to bounce", TargetCreature(optional = true))
+        val t = target(TargetFilter.Creature, optional = true)
         effect = Effects.ReturnToHand(t)
         description = "When this creature enters, return up to one target creature to its owner's hand."
     }

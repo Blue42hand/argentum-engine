@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Old Hob, Alleycat Blues
@@ -74,10 +73,7 @@ val OldHobAlleycatBlues = card("Old Hob, Alleycat Blues") {
         val attackingTokenFilter = GameObjectFilter.Creature.attacking().let { base ->
             base.copy(cardPredicates = base.cardPredicates + CardPredicate.IsToken)
         }
-        val token = target(
-            "target attacking creature token",
-            TargetPermanent(filter = TargetFilter(attackingTokenFilter)),
-        )
+        val token = target(TargetFilter(attackingTokenFilter))
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, token, Duration.EndOfTurn)
     }
 

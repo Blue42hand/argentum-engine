@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Miasma Demon — Duskmourn: House of Horror #109
@@ -51,10 +51,7 @@ val MiasmaDemon = card("Miasma Demon") {
                 Effects.ModifyStats(-2, -2, EffectTarget.ContextTarget(0))
             ),
             reflexiveTargetRequirements = listOf(
-                TargetCreature(
-                    optional = true,
-                    dynamicMaxCount = Patterns.Hand.discarded.count
-                )
+                TargetObject(filter = TargetFilter.Creature, optional = true, dynamicMaxCount = Patterns.Hand.discarded.count)
             ),
             descriptionOverride = "You may discard any number of cards. When you do, up to that " +
                 "many target creatures each get -2/-2 until end of turn."

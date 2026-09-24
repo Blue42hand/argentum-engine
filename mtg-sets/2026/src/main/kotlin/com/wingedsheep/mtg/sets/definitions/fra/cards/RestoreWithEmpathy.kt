@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val RestoreWithEmpathy = card("Restore with Empathy") {
     manaCost = "{2}{G}"
@@ -15,9 +14,7 @@ val RestoreWithEmpathy = card("Restore with Empathy") {
     oracleText = "Return target permanent card from your graveyard to your hand. You gain 4 life."
 
     spell {
-        val permanent = target("permanent", TargetObject(
-            filter = TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD)
-        ))
+        val permanent = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.ReturnToHand(permanent) then Effects.GainLife(4)
     }
 

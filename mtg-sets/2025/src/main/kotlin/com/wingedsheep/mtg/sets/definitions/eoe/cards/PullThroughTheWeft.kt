@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -36,26 +35,14 @@ val PullThroughTheWeft = card("Pull Through the Weft") {
 
     spell {
         targets(
-            "nonland permanent card in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.NonlandPermanent.ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
-                count = 2,
-                optional = true,
-            ),
+            TargetFilter(GameObjectFilter.NonlandPermanent.ownedByYou(), zone = Zone.GRAVEYARD),
+            count = 2,
+            optional = true,
         )
         targets(
-            "land card in your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Land.ownedByYou(),
-                    zone = Zone.GRAVEYARD,
-                ),
-                count = 2,
-                optional = true,
-            ),
+            TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD),
+            count = 2,
+            optional = true,
         )
         effect = Effects.Pipeline {
             val chosen = gather(CardSource.ChosenTargets)

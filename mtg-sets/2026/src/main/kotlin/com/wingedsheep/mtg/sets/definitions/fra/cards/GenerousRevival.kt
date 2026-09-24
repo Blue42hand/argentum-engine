@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Generous Revival — Reality Fracture #8
@@ -29,10 +28,7 @@ val GenerousRevival = card("Generous Revival") {
         "Flashback {4}{W} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
-        val creatureCard = target(
-            "target creature card with mana value 3 or less from your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
-        )
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
         effect = Effects.Move(
             creatureCard,
             Zone.BATTLEFIELD,

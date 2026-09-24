@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Pileated Provisioner
@@ -31,9 +30,7 @@ val PileatedProvisioner = card("Pileated Provisioner") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("creature without flying", TargetObject(
-            filter = TargetFilter.CreatureYouControl.withoutKeyword(Keyword.FLYING)
-        ))
+        val t = target(TargetFilter.CreatureYouControl.withoutKeyword(Keyword.FLYING))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 

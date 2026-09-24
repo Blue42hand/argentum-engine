@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mayhem
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Prison Break — Marvel's Spider-Man #61
@@ -30,10 +30,7 @@ val PrisonBreak = card("Prison Break") {
         "this turn. Timing rules still apply.)"
 
     spell {
-        val creatureCard = target(
-            "target creature card from your graveyard",
-            Targets.CreatureCardInYourGraveyard
-        )
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
             .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureCard))
     }

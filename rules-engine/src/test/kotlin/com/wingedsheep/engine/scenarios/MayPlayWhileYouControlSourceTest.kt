@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
@@ -25,6 +24,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Tests for [MayPlayExpiry.WhileYouControlSource] — the "you may cast it for as long as you
@@ -113,7 +113,7 @@ class MayPlayWhileYouControlSourceTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Destroy target permanent."
         spell {
-            val t = target("permanent", Targets.Permanent)
+            val t = target(TargetFilter.Permanent)
             effect = Effects.Destroy(t)
         }
     }
@@ -123,7 +123,7 @@ class MayPlayWhileYouControlSourceTest : FunSpec({
         typeLine = "Sorcery"
         oracleText = "Gain control of target permanent until end of turn."
         spell {
-            val t = target("permanent", Targets.Permanent)
+            val t = target(TargetFilter.Permanent)
             effect = Effects.GainControl(t, Duration.EndOfTurn)
         }
     }

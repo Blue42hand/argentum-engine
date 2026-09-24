@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Vigor Mortis — Ravnica: City of Guilds #111
@@ -34,10 +34,7 @@ val VigorMortis = card("Vigor Mortis") {
         "If {G} was spent to cast this spell, that creature enters with an additional +1/+1 counter on it."
 
     spell {
-        val creatureCard = target(
-            "target creature card from your graveyard",
-            Targets.CreatureCardInYourGraveyard
-        )
+        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.If(
             condition = Conditions.ManaSpentToCastIncludes(requiredGreen = 1),
             then = Effects.Move(

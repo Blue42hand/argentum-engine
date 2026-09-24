@@ -71,14 +71,7 @@ val SpellweaverHelix = card("Spellweaver Helix") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         optional = true
-        target(
-            "two target sorcery cards from a single graveyard",
-            TargetObject(
-                count = 2,
-                filter = TargetFilter(GameObjectFilter.Sorcery, zone = Zone.GRAVEYARD),
-                sameOwner = true
-            )
-        )
+        targets(TargetFilter(GameObjectFilter.Sorcery, zone = Zone.GRAVEYARD), count = 2, sameOwner = true)
         effect = Effects.Pipeline {
             val helixImprints = gather(CardSource.ChosenTargets)
             exile(helixImprints, linkToSource = true)

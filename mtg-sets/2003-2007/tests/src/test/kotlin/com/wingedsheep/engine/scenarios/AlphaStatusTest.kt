@@ -7,7 +7,6 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
@@ -20,6 +19,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Alpha Status: "Enchanted creature gets +2/+2 for each OTHER creature on the battlefield that
@@ -42,7 +43,7 @@ class AlphaStatusTest : FunSpec({
     val AlphaStatus = card("Alpha Status") {
         manaCost = "{2}{G}"
         typeLine = "Enchantment — Aura"
-        auraTarget = Targets.Creature
+        auraTarget = TargetObject(filter = TargetFilter.Creature)
 
         staticAbility {
             val sharedTypeCount = DynamicAmount.AggregateBattlefield(

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Azog, Moria's Ruin — The Hobbit #61
@@ -35,10 +34,7 @@ val AzogMoriasRuin = card("Azog, Moria's Ruin") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val creature = target(
-            "up to one other target creature",
-            TargetCreature(optional = true, filter = TargetFilter.OtherCreature),
-        )
+        val creature = target(TargetFilter.OtherCreature, optional = true)
 
         val resolveForItsController = Effects.Pipeline {
             val targetPower = storeNumber(DynamicAmounts.powerOf(creature))

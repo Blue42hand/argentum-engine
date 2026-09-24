@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Solitary Cell — Reality Fracture #149
@@ -31,10 +30,7 @@ val SolitaryCell = card("Solitary Cell") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val permanent = target(
-            "target nonland permanent an opponent controls with mana value 3 or less",
-            TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls.manaValueAtMost(3))
-        )
+        val permanent = target(TargetFilter.NonlandPermanentOpponentControls.manaValueAtMost(3))
         effect = Effects.ExileUntilLeaves(permanent)
     }
 

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Brown Ouphe
@@ -27,10 +26,7 @@ val BrownOuphe = card("Brown Ouphe") {
         "(Mana abilities can't be targeted.)"
 
     activatedAbility {
-        val target = target("target", TargetObject(
-            filter = TargetFilter.ActivatedAbilityOnStack
-                .abilitySourceMatches(GameObjectFilter.Artifact)
-        ))
+        val target = target(TargetFilter.ActivatedAbilityOnStack .abilitySourceMatches(GameObjectFilter.Artifact))
         cost = Costs.Composite(Costs.Mana("{1}{G}"), Costs.Tap)
         effect = Effects.CounterAbility()
         description = "{1}{G}, {T}: Counter target activated ability from an artifact source."

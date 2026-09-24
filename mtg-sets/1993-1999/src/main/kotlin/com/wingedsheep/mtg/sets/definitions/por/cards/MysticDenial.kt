@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
 /**
@@ -23,7 +22,7 @@ val MysticDenial = card("Mystic Denial") {
     typeLine = "Instant"
     oracleText = "Counter target creature or sorcery spell."
     spell {
-        val t = target("target", TargetSpell(filter = TargetFilter.CreatureOrSorcerySpellOnStack))
+        val t = target(TargetFilter.CreatureOrSorcerySpellOnStack)
         effect = Effects.CounterSpell()
     }
     metadata {

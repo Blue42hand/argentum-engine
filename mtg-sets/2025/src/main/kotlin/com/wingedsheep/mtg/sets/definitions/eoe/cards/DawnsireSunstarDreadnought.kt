@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCardType
@@ -37,7 +36,7 @@ val DawnsireSunstarDreadnought = card("Dawnsire, Sunstar Dreadnought") {
     // 10+ charge counters: Whenever you attack, deal 100 damage to target
     triggeredAbility {
         trigger = Triggers.you.attacks()
-        val target = target("up to one target creature or planeswalker", TargetCreatureOrPlaneswalker(optional = true))
+        val target = target(Targets.CreatureOrPlaneswalker, optional = true)
         effect = Effects.If(
             condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10),
             then = Effects.DealDamage(100, target)

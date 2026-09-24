@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -48,7 +47,7 @@ val RootwiseSurvivor = card("Rootwise Survivor") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.SourceIsTapped
-        val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl(), optional = true))
+        val land = target(TargetFilter.Land.youControl(), optional = true)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, land),
             Effects.BecomeCreature(

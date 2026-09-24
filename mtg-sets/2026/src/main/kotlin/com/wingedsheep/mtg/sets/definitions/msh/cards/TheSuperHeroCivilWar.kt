@@ -6,14 +6,12 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 
@@ -75,14 +73,11 @@ val TheSuperHeroCivilWar = card("The Super Hero Civil War") {
     // I — Gain control of up to two target creatures with total mana value 6 or less for as long
     //     as this Saga remains on the battlefield.
     sagaChapter(1) {
-        target(
-            "up to two target creatures with total mana value 6 or less",
-            TargetObject(
-                count = 2,
-                optional = true,
-                filter = TargetFilter.Creature,
-                totalManaValueAtMost = DynamicAmounts.fixed(6),
-            )
+        targets(
+            TargetFilter.Creature,
+            count = 2,
+            optional = true,
+            totalManaValueAtMost = DynamicAmounts.fixed(6),
         )
         effect = Effects.ForEachTarget(
             Effects.GainControl(
@@ -104,11 +99,8 @@ val TheSuperHeroCivilWar = card("The Super Hero Civil War") {
 
     // III — Target creature you control fights up to one other target creature.
     sagaChapter(3) {
-        val mine = target("target creature you control", Targets.CreatureYouControl)
-        val other = target(
-            "up to one other target creature",
-            TargetOther(TargetCreature(optional = true)),
-        )
+        val mine = target(TargetFilter.CreatureYouControl)
+        val other = target(TargetOther(TargetObject(filter = TargetFilter.Creature, optional = true)))
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, other),
             then = Effects.Fight(mine, other),

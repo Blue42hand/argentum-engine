@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -33,10 +32,7 @@ val QuakeAgentOfShield = card("Quake, Agent of S.H.I.E.L.D.") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        val shaken = target(
-            "target creature or land",
-            TargetPermanent(filter = TargetFilter.CreatureOrLandPermanent)
-        )
+        val shaken = target(TargetFilter.CreatureOrLandPermanent)
         effect = Effects.Tap(shaken)
         description = "Seismic Takedown — Whenever you cast a noncreature spell, tap target creature or land."
     }

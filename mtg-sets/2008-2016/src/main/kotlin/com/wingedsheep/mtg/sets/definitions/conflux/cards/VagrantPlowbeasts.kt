@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Vagrant Plowbeasts
@@ -29,10 +28,7 @@ val VagrantPlowbeasts = card("Vagrant Plowbeasts") {
 
     activatedAbility {
         cost = Costs.Mana("{1}")
-        val creature = target(
-            "target",
-            TargetObject(filter = TargetFilter(GameObjectFilter.Creature.powerAtLeast(5)))
-        )
+        val creature = target(TargetFilter(GameObjectFilter.Creature.powerAtLeast(5)))
         effect = Effects.Regenerate(creature)
     }
 

@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Heritage Reclamation
@@ -30,20 +30,17 @@ val HeritageReclamation = card("Heritage Reclamation") {
     spell {
         effect = ModalEffect.chooseOne(
             mode("Destroy target artifact") {
-                val artifact = target("target artifact", Targets.Artifact)
+                val artifact = target(TargetFilter.Artifact)
                 effect = Effects.Destroy(artifact)
             },
             mode("Destroy target enchantment") {
-                val enchantment = target("target enchantment", Targets.Enchantment)
+                val enchantment = target(TargetFilter.Enchantment)
                 effect = Effects.Destroy(enchantment)
             },
             // "Exile up to one target card from a graveyard. Draw a card."
             // The exile target is optional (up to one); the draw happens unconditionally.
             mode("Exile up to one target card from a graveyard. Draw a card.") {
-                val targetedObject = target(
-                    "target targeted object",
-                    TargetObject(filter = Targets.Unified.cardInGraveyard, optional = true)
-                )
+                val targetedObject = target(TargetFilter.CardInGraveyard, optional = true)
                 effect = Effects.Exile(targetedObject)
                     .then(Effects.DrawCards(1))
             }

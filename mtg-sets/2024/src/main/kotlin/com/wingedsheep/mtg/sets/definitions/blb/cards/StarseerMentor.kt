@@ -36,7 +36,7 @@ val StarseerMentor = card("Starseer Mentor") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouGainedOrLostLifeThisTurn
-        val opponent = target("opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Choice(
                 listOf(

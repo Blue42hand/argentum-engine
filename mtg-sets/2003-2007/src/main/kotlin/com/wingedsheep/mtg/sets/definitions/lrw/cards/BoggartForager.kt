@@ -30,7 +30,7 @@ val BoggartForager = card("Boggart Forager") {
             Costs.Mana("{R}"),
             Costs.SacrificeSelf
         )
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.ShuffleLibrary(target = player)
         description = "{R}, Sacrifice this creature: Target player shuffles their library."
     }

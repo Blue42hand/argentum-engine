@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.startYourEngines
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Outpace Oblivion — Aetherdrift #139
@@ -46,10 +46,7 @@ val OutpaceOblivion = card("Outpace Oblivion") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "up to one target creature or planeswalker",
-            TargetCreatureOrPlaneswalker(optional = true),
-        )
+        val t = target(Targets.CreatureOrPlaneswalker, optional = true)
         effect = Effects.DealDamage(5, t)
         description = "When this enchantment enters, it deals 5 damage to up to one target " +
             "creature or planeswalker."

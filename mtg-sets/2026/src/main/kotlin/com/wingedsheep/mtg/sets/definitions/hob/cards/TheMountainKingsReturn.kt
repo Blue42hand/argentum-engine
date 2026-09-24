@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * The Mountain-king's Return
@@ -51,26 +49,20 @@ val TheMountainKingsReturn = card("The Mountain-king's Return") {
     // II — Return target creature card with mana value 3 or less from your graveyard to the battlefield.
     sagaChapter(2) {
         val reanimated = target(
-            "target creature card with mana value 3 or less from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter(
-                        cardPredicates = listOf(CardPredicate.IsCreature, CardPredicate.ManaValueAtMost(3)),
-                        controllerPredicate = ControllerPredicate.OwnedByYou,
-                    ),
-                    zone = Zone.GRAVEYARD,
-                )
-            )
+            TargetFilter(
+                GameObjectFilter(
+                    cardPredicates = listOf(CardPredicate.IsCreature, CardPredicate.ManaValueAtMost(3)),
+                    controllerPredicate = ControllerPredicate.OwnedByYou,
+                ),
+                zone = Zone.GRAVEYARD,
+            ),
         )
         effect = Effects.PutOntoBattlefield(reanimated)
     }
 
     // III — Put a +1/+1 counter on up to one target creature.
     sagaChapter(3) {
-        val boosted = target(
-            "up to one target creature",
-            TargetCreature(count = 1, optional = true)
-        )
+        val boosted = target(TargetFilter.Creature, optional = true)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, boosted)
     }
 

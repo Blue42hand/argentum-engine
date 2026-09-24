@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
 /**
@@ -34,7 +33,7 @@ val HuntingDrake = card("Hunting Drake") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.withAnyColor(Color.RED, Color.GREEN)))
+        val t = target(TargetFilter.Creature.withAnyColor(Color.RED, Color.GREEN))
         effect = Effects.Move(t, Zone.LIBRARY, ZonePlacement.Top)
     }
     metadata {

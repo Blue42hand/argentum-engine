@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Pippin, Guard of the Citadel
@@ -38,7 +38,7 @@ val PippinGuardOfTheCitadel = card("Pippin, Guard of the Citadel") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
 
     activatedAbility {
-        val otherCreatureYouControl = target("target other creature you control", Targets.OtherCreatureYouControl)
+        val otherCreatureYouControl = target(TargetFilter.OtherCreatureYouControl)
         cost = Costs.Tap
         effect = Effects.GrantProtectionFromChosenCardType(target = otherCreatureYouControl)
     }

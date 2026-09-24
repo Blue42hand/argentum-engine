@@ -53,7 +53,7 @@ val HamaTheBloodbender: CardDefinition = card("Hama, the Bloodbender") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.Pipeline {
             // target opponent mills three cards
             run(Patterns.Library.mill(3, opponent))

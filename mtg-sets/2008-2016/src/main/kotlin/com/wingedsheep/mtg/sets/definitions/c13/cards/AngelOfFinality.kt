@@ -35,7 +35,7 @@ val AngelOfFinality = card("Angel of Finality") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target("target player", Targets.Player)
+        target(Targets.Player)
         effect = Effects.Pipeline {
             val targetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.TargetPlayer))
             exile(targetGraveyard)

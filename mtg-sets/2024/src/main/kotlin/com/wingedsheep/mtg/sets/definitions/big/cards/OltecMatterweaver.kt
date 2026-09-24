@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Oltec Matterweaver
@@ -47,9 +46,7 @@ val OltecMatterweaver = card("Oltec Matterweaver") {
                 "Create a 1/1 colorless Gnome artifact creature token"
             ),
             mode("Create a token that's a copy of target artifact token you control") {
-                val artifact = target("target artifact", TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.Artifact.token().youControl())
-                ))
+                val artifact = target(TargetFilter(GameObjectFilter.Artifact.token().youControl()))
                 effect = Effects.CreateTokenCopyOfTarget(target = artifact)
             }
         )

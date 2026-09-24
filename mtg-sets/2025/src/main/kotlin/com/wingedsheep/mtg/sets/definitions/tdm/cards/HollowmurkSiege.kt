@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,6 +11,7 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Hollowmurk Siege
@@ -71,7 +71,7 @@ val HollowmurkSiege = card("Hollowmurk Siege") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         triggerRestriction = SourceChosenModeIs("abzan")
-        val attacker = target("target attacking creature", Targets.AttackingCreature)
+        val attacker = target(TargetFilter.AttackingCreature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker)
             .then(Effects.GrantKeyword(Keyword.MENACE, attacker))
     }

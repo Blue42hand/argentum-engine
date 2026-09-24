@@ -3191,6 +3191,7 @@ private val IRREGULAR_PLURAL_HEAD_NOUNS: Map<String, String> = mapOf(
     "Homunculus" to "Homunculi",
     "Octopus" to "Octopuses",
     // invariant plurals
+    "Equipment" to "Equipment",
     "Fish" to "Fish",
     "Jellyfish" to "Jellyfish",
     "Merfolk" to "Merfolk",

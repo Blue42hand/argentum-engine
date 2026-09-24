@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.c14.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Unstable Obelisk
@@ -27,7 +27,7 @@ val UnstableObelisk = card("Unstable Obelisk") {
     }
 
     activatedAbility {
-        val permanent = target("target permanent", Targets.Permanent)
+        val permanent = target(TargetFilter.Permanent)
         cost = Costs.Composite(Costs.Mana("{7}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.Destroy(permanent)
         description = "{7}, {T}, Sacrifice this artifact: Destroy target permanent."

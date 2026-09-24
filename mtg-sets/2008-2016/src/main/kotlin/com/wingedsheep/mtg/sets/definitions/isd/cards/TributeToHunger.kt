@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.dsl.Targets
 
 /**
  * Tribute to Hunger
@@ -30,7 +30,7 @@ val TributeToHunger = card("Tribute to Hunger") {
         "You gain life equal to that creature's toughness."
 
     spell {
-        val t = target("target", TargetOpponent())
+        val t = target(Targets.Opponent)
         effect = Effects.Composite(
             listOf(
                 Effects.Sacrifice(GameObjectFilter.Creature, 1, t),

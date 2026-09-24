@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
@@ -40,10 +39,7 @@ val ForumNecroscribe = card("Forum Necroscribe") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
-        val returned = target(
-            "target creature card from your graveyard",
-            TargetObject(filter = TargetFilter.CreatureInYourGraveyard),
-        )
+        val returned = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
     }
 

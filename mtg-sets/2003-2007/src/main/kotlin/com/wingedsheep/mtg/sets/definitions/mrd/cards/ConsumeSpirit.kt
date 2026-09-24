@@ -36,7 +36,7 @@ val ConsumeSpirit = card("Consume Spirit") {
         "Consume Spirit deals X damage to any target and you gain X life."
 
     spell {
-        val anyTarget = target("any target", Targets.Any)
+        val anyTarget = target(Targets.Any)
         xManaRestriction = setOf(Color.BLACK)
         effect = Effects.Composite(
             Effects.DealXDamage(anyTarget),

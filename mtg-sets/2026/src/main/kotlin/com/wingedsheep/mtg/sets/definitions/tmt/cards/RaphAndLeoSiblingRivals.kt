@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Raph & Leo, Sibling Rivals
@@ -45,10 +44,7 @@ val RaphAndLeoSiblingRivals = card("Raph & Leo, Sibling Rivals") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         oncePerTurn = true
-        target(
-            "one or two attacking creatures",
-            TargetCreature(count = 2, minCount = 1, filter = TargetFilter.AttackingCreature)
-        )
+        targets(TargetFilter.AttackingCreature, count = 2, minCount = 1)
         effect = Effects.Composite(
             listOf(
                 Effects.ForEachTarget(

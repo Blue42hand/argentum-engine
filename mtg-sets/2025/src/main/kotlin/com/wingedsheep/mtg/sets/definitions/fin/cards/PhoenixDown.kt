@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Phoenix Down
@@ -38,10 +36,7 @@ val PhoenixDown = card("Phoenix Down") {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.Tap, Costs.ExileSelf)
         effect = ModalEffect.chooseOne(
             mode("Return target creature card with mana value 4 or less from your graveyard to the battlefield tapped") {
-                val creatureInYourGraveyard = target(
-                    "target creature in your graveyard",
-                    TargetObject(filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMost(4))
-                )
+                val creatureInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard.manaValueAtMost(4))
                 effect = Effects.Move(
                     creatureInYourGraveyard,
                     Zone.BATTLEFIELD,
@@ -50,9 +45,7 @@ val PhoenixDown = card("Phoenix Down") {
                 )
             },
             mode("Exile target Skeleton, Spirit, or Zombie") {
-                val creature = target("target creature", TargetCreature(
-                    filter = TargetFilter(GameObjectFilter.Creature.withAnySubtype("Skeleton", "Spirit", "Zombie"))
-                ))
+                val creature = target(TargetFilter(GameObjectFilter.Creature.withAnySubtype("Skeleton", "Spirit", "Zombie")))
                 effect = Effects.Exile(creature)
             },
             countsAsModalSpell = false

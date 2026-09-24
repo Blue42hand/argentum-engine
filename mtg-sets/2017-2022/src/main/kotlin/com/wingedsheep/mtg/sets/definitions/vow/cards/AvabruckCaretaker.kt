@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Avabruck Caretaker // Hollowhenge Huntmaster (Innistrad: Crimson Vow)
@@ -54,7 +55,7 @@ private val AvabruckCaretakerFront = card("Avabruck Caretaker") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        val creature = target("another target creature you control", Targets.OtherCreatureYouControl)
+        val creature = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
         description = "Put two +1/+1 counters on another target creature you control."
     }

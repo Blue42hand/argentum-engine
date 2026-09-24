@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Vendetta
@@ -43,10 +42,7 @@ val Vendetta = card("Vendetta") {
     oracleText = "Destroy target nonblack creature. It can't be regenerated. You lose life equal to that creature's toughness."
 
     spell {
-        val creature = target(
-            "target nonblack creature",
-            TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK))
-        )
+        val creature = target(TargetFilter.Creature.notColor(Color.BLACK))
         effect = Effects.CantBeRegenerated(creature)
             .then(Effects.LoseLife(DynamicAmounts.toughnessOf(creature), EffectTarget.Controller))
             .then(Effects.Destroy(creature))

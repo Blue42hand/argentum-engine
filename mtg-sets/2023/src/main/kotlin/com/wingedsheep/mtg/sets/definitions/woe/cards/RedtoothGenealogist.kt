@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Redtooth Genealogist
@@ -33,7 +34,7 @@ val RedtoothGenealogist = card("Redtooth Genealogist") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target("another target creature you control", Targets.OtherCreatureYouControl)
+        val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.CreateRoleToken("Royal Role", t)
     }
 

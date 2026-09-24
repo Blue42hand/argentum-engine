@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Abuelo's Awakening
@@ -51,14 +50,11 @@ val AbuelosAwakening = card("Abuelo's Awakening") {
 
     spell {
         val t = target(
-            "target artifact or non-Aura enchantment card from your graveyard",
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.Artifact.ownedByYou() or
-                        GameObjectFilter.Enchantment.notSubtype(Subtype.AURA).ownedByYou(),
-                    zone = Zone.GRAVEYARD
-                )
-            )
+            TargetFilter(
+                GameObjectFilter.Artifact.ownedByYou() or
+                    GameObjectFilter.Enchantment.notSubtype(Subtype.AURA).ownedByYou(),
+                zone = Zone.GRAVEYARD
+            ),
         )
         effect = Effects.PutOntoBattlefield(t)
             .then(

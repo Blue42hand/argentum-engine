@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Become Brutes
@@ -30,11 +30,7 @@ val BecomeBrutes = card("Become Brutes") {
         "put that one into the graveyard. Enchanted creature gets +1/+1 and has trample.)"
 
     spell {
-        target = TargetCreature(
-            count = 2,
-            minCount = 1,
-            filter = TargetFilter(GameObjectFilter.Creature),
-        )
+        target = TargetObject(filter = TargetFilter(GameObjectFilter.Creature), count = 2, minCount = 1)
         effect = Effects.ForEachTarget(
             Effects.GrantKeyword(Keyword.HASTE, EffectTarget.ContextTarget(0)),
             Effects.CreateRoleToken("Monster Role", EffectTarget.ContextTarget(0)),

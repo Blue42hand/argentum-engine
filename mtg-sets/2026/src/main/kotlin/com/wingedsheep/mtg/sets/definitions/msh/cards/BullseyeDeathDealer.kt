@@ -78,7 +78,7 @@ val BullseyeDeathDealer = card("Bullseye, Death Dealer") {
             descriptionOverride = "You may sacrifice an artifact or discard a nonland card. " +
                 "When you do, Bullseye deals 2 damage to any target.",
         ) {
-            val anyTarget = target("target any", Targets.Any)
+            val anyTarget = target(Targets.Any)
             effect = Effects.DealDamage(2, anyTarget)
         }
         description = "When Bullseye enters, you may sacrifice an artifact or discard a nonland " +
@@ -92,7 +92,7 @@ val BullseyeDeathDealer = card("Bullseye, Death Dealer") {
             Costs.Tap,
             Costs.Sacrifice(GameObjectFilter.Artifact),
         )
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(2, victim)
         description = "{3}, {T}, Sacrifice an artifact: Bullseye deals 2 damage to any target."
     }
@@ -105,7 +105,7 @@ val BullseyeDeathDealer = card("Bullseye, Death Dealer") {
             Costs.Tap,
             Costs.Discard(GameObjectFilter.Nonland),
         )
-        val victim = target("any target", Targets.Any)
+        val victim = target(Targets.Any)
         effect = Effects.DealDamage(2, victim)
         description = "{3}, {T}, Discard a nonland card: Bullseye deals 2 damage to any target."
     }

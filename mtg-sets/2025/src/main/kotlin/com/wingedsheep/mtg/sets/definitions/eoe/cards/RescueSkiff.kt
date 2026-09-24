@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
 
@@ -43,10 +42,7 @@ val RescueSkiff = card("Rescue Skiff") {
     // to the battlefield.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val t = target(
-            "target creature or enchantment card from your graveyard",
-            TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrEnchantment.ownedByYou(), zone = Zone.GRAVEYARD))
-        )
+        val t = target(TargetFilter(GameObjectFilter.CreatureOrEnchantment.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.Move(target = t, destination = Zone.BATTLEFIELD)
         description = "return target creature or enchantment card from your graveyard to the battlefield"
     }

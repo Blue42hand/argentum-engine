@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -57,10 +56,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
 
     // +1: Add {R}. Chandra deals 1 damage to up to one target player or planeswalker.
     loyaltyAbility(+1) {
-        val victim = target(
-            "up to one target player or planeswalker",
-            TargetPlayerOrPlaneswalker(optional = true)
-        )
+        val victim = target(Targets.PlayerOrPlaneswalker, optional = true)
         effect = Effects.AddMana(Color.RED, 1) then Effects.DealDamage(1, victim)
     }
 
@@ -90,7 +86,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
             run(Effects.CreateGlobalTriggeredAbility(
                 ability = grantedTriggeredAbility {
                     trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.RED))
-                    val anyTarget = target("target any", Targets.Any)
+                    val anyTarget = target(Targets.Any)
                     effect = Effects.DealDamage(
                         DynamicAmounts.propertyOf(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaSpent),
                         anyTarget

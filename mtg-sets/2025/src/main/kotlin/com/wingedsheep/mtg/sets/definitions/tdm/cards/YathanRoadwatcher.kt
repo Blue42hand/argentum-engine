@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Yathan Roadwatcher — Tarkir: Dragonstorm #236
@@ -36,10 +35,7 @@ val YathanRoadwatcher = card("Yathan Roadwatcher") {
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(4),
             optional = false) {
-            val creatureInYourGraveyard = target(
-                "target creature in your graveyard",
-                TargetObject(filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
-            )
+            val creatureInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
             effect = Effects.PutOntoBattlefield(creatureInYourGraveyard)
         }
     }

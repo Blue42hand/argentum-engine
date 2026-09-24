@@ -44,7 +44,7 @@ val SauronsRansom = card("Sauron's Ransom") {
     oracleText = "Choose an opponent. They look at the top four cards of your library and separate them into a face-down pile and a face-up pile. Put one pile into your hand and the other into your graveyard. The Ring tempts you."
 
     spell {
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         // "Choose an opponent." — the caster picks which opponent looks and partitions.
         effect = Effects.Pipeline {
             // 1. The chosen opponent looks at the top four cards. LookAudience.None keeps

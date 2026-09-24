@@ -7,6 +7,8 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Phantom Interference
@@ -55,7 +57,7 @@ val PhantomInterference = card("Phantom Interference") {
                 // + {1} — Counter target spell unless its controller pays {2}.
                 Mode(
                     effect = Effects.CounterUnlessPays("{2}"),
-                    targetRequirements = listOf(Targets.Spell),
+                    targetRequirements = listOf(TargetObject(filter = TargetFilter.SpellOnStack)),
                     description = "+ {1} — Counter target spell unless its controller pays {2}.",
                     additionalManaCost = "{1}"
                 )

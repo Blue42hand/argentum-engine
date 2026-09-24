@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -56,12 +55,9 @@ val SquallSeedMercenary = card("Squall, SeeD Mercenary") {
     }
 
     triggeredAbility {
-        val target = target("target", TargetObject(
-            filter = TargetFilter(
-                GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3),
-                zone = Zone.GRAVEYARD,
-            ),
-        ))
+        val target = target(
+            TargetFilter(GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3), zone = Zone.GRAVEYARD),
+        )
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.PutOntoBattlefield(target)
         description = "Whenever Squall deals combat damage to a player, return target permanent card with " +

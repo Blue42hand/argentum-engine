@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.model.Rarity
 
@@ -57,7 +56,7 @@ val BatColony = card("Bat Colony") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.withSubtype("Cave").youControl()).enters()
-        val t = target("target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl()))
+        val t = target(TargetFilter.Creature.youControl())
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = "Whenever a Cave you control enters, put a +1/+1 counter on target creature you control."
     }

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
  * Aggressive Negotiations
@@ -34,11 +33,8 @@ val AggressiveNegotiations = card("Aggressive Negotiations") {
         "exile that card. Put a +1/+1 counter on up to one target creature you control."
 
     spell {
-        val opponent = target("target opponent", Targets.Opponent)
-        val creature = target(
-            "creature you control",
-            TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl)
-        )
+        val opponent = target(Targets.Opponent)
+        val creature = target(TargetFilter.CreatureYouControl, optional = true)
 
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))

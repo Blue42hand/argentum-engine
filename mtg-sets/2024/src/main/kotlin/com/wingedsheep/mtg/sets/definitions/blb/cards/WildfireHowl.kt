@@ -45,7 +45,7 @@ val WildfireHowl = card("Wildfire Howl") {
             ),
             // Mode 2: Gift a card — opponent draws, then 1 damage to any target, then 2 damage to each creature
             mode("Promise a gift — an opponent draws a card, then deal 1 damage to any target and 2 damage to each creature") {
-                val anyTarget = target("target any", Targets.Any)
+                val anyTarget = target(Targets.Any)
                 effect = Effects.Composite(
                     listOf(
                         Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),

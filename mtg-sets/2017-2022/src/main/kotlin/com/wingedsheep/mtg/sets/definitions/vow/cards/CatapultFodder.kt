@@ -91,7 +91,7 @@ private val CatapultCaptain = card("Catapult Captain") {
             Costs.Tap,
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.LoseLife(DynamicAmounts.sacrificedToughness(), opponent)
         description = "{2}{B}, {T}, Sacrifice another creature: Target opponent loses life equal " +
             "to the sacrificed creature's toughness."

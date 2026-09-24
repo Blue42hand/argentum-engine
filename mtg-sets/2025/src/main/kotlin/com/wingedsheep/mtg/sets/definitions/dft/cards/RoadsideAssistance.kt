@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Roadside Assistance — Aetherdrift #26
@@ -25,7 +25,7 @@ val RoadsideAssistance = card("Roadside Assistance") {
         "saddles Mounts and crews Vehicles as though its power were 2 greater.\"\n" +
         "Enchanted permanent gets +1/+1 and has lifelink."
 
-    auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
+    auraTarget = TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
 
     triggeredAbility {
         trigger = Triggers.self.enters()

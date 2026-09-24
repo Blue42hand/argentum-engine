@@ -51,7 +51,7 @@ val MistbindClique = card("Mistbind Clique") {
 
     triggeredAbility {
         trigger = Triggers.self.champions()
-        val player = target("target player", Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
             val mistbindCliqueLands = gather(
                 CardSource.BattlefieldMatching(

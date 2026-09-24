@@ -2,14 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
  * Plow Through
@@ -36,18 +34,13 @@ val PlowThrough = card("Plow Through") {
         effect = ModalEffect.chooseOne(
             // Mode 1: fight
             mode("Target creature you control fights target creature an opponent controls") {
-                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                val creatureOpponentControls = target(
-                    "target creature opponent controls",
-                    Targets.CreatureOpponentControls
-                )
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
+                val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
                 effect = Effects.Fight(creatureYouControl, creatureOpponentControls)
             },
             // Mode 2: destroy target Vehicle
             mode("Destroy target Vehicle") {
-                val artifact = target("target artifact", TargetPermanent(
-                    filter = TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.VEHICLE)),
-                ))
+                val artifact = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.VEHICLE)))
                 effect = Effects.Destroy(artifact)
             },
         )

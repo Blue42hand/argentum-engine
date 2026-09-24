@@ -35,7 +35,7 @@ val HuntedDragon = card("Hunted Dragon") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        val opponent = target("target opponent", Targets.Opponent)
+        val opponent = target(Targets.Opponent)
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

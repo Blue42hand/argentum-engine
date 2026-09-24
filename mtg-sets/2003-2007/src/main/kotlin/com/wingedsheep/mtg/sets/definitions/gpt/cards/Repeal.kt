@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Repeal
@@ -24,10 +23,7 @@ val Repeal = card("Repeal") {
     oracleText = "Return target nonland permanent with mana value X to its owner's hand.\nDraw a card."
 
     spell {
-        val t = target(
-            "nonland permanent",
-            TargetObject(filter = TargetFilter.NonlandPermanent.manaValueEqualsX())
-        )
+        val t = target(TargetFilter.NonlandPermanent.manaValueEqualsX())
         effect = Effects.ReturnToHand(t).then(Effects.DrawCards(1))
     }
 
