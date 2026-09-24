@@ -43,7 +43,7 @@ val BreakUnderPressure = card("Break Under Pressure") {
             ),
             FilterCollectionEffect(
                 from = "candidates",
-                filter = CollectionFilter.GreatestManaValue,
+                collectionFilter = CollectionFilter.GreatestManaValue,
                 storeMatching = "greatest"
             ),
             SelectFromCollectionEffect(

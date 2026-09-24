@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -36,7 +35,7 @@ val HarshMercy = card("Harsh Mercy") {
                 ),
                 FilterCollectionEffect(
                     from = "destroyAll_gathered",
-                    filter = CollectionFilter.ExcludeSubtypesFromStored("chosenTypes"),
+                    filter = GameObjectFilter.Any.withoutSubtypeInStoredList("chosenTypes"),
                     storeMatching = "destroyAll_filtered"
                 ),
                 MoveCollectionEffect(

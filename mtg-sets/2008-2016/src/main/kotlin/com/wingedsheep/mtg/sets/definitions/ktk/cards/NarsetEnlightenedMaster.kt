@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
@@ -53,9 +52,9 @@ val NarsetEnlightenedMaster = card("Narset, Enlightened Master") {
                 // Filter to noncreature, nonland cards
                 FilterCollectionEffect(
                     from = "exiledCards",
-                    filter = CollectionFilter.MatchesFilter(
+                    filter = 
                         GameObjectFilter.Noncreature and GameObjectFilter.Nonland
-                    ),
+                    ,
                     storeMatching = "castable"
                 ),
                 // Grant free casting permission until end of turn

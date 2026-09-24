@@ -47,15 +47,14 @@ enum class ExploreReveal { ANY, LAND, NONLAND }
  * ```kotlin
  * // "Combat damage from red sources to creatures you control"
  * EventPattern.DamageEvent(
- *     recipient = RecipientFilter.CreatureYouControl,
- *     source = SourceFilter.HasColor(Color.RED),
+ *     recipient = Recipient.CreatureYouControl,
+ *     source = GameObjectFilter.Any.withColor(Color.RED),
  *     damageType = DamageType.Combat
  * )
  * ```
  *
  * Supporting filter types are organized in the events/ subdirectory:
- * - EventFilters.kt - RecipientFilter, SourceFilter, DamageType,
- *                     ControllerFilter, Player
+ * - EventFilters.kt - Recipient, DamageType, AmountFilter and the per-event predicate sets
  * - Zone.kt - Zone enumeration
  */
 @Serializable
@@ -86,15 +85,15 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * When damage would be dealt (used by replacement effects).
      *
      * Examples:
-     * - "damage would be dealt to you" → DamageEvent(recipient = RecipientFilter.You)
+     * - "damage would be dealt to you" → DamageEvent(recipient = Recipient.You)
      * - "combat damage would be dealt" → DamageEvent(damageType = DamageType.Combat)
-     * - "damage from red sources" → DamageEvent(source = SourceFilter.HasColor(RED))
+     * - "damage from red sources" → DamageEvent(source = GameObjectFilter.Any.withColor(RED))
      */
     @SerialName("DamageEvent")
     @Serializable
     data class DamageEvent(
-        val recipient: RecipientFilter = RecipientFilter.Any,
-        val source: SourceFilter = SourceFilter.Any,
+        val recipient: Recipient = Recipient.Any,
+        val source: GameObjectFilter = GameObjectFilter.Any,
         val damageType: DamageType = DamageType.Any,
         val amount: AmountFilter = AmountFilter.Any
     ) : EventPattern {
@@ -109,7 +108,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
             }
             append("damage would be dealt to ")
             append(recipient.description)
-            if (source != SourceFilter.Any) {
+            if (source != GameObjectFilter.Any) {
                 append(" from ")
                 append(source.description)
             }
@@ -201,13 +200,13 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      *
      * Examples:
      * - "counters would be placed" → CounterPlacementEvent()
-     * - "+1/+1 counters on creatures you control" → CounterPlacementEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, recipient = RecipientFilter.CreatureYouControl)
+     * - "+1/+1 counters on creatures you control" → CounterPlacementEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, recipient = Recipient.CreatureYouControl)
      */
     @SerialName("CounterPlacementEvent")
     @Serializable
     data class CounterPlacementEvent(
         val counterType: CounterType? = null,
-        val recipient: RecipientFilter = RecipientFilter.Any
+        val recipient: Recipient = Recipient.Any
     ) : EventPattern {
         override val description: String = buildString {
             if (counterType != null) {
@@ -227,13 +226,17 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * When tokens would be created.
      *
      * Examples:
-     * - "tokens under your control" → TokenCreationEvent(controller = ControllerFilter.You)
-     * - "any tokens" → TokenCreationEvent(controller = ControllerFilter.Any)
+     * - "tokens under your control" → TokenCreationEvent(controller = Player.You)
+     * - "tokens under an opponent's control" → TokenCreationEvent(controller = Player.EachOpponent)
+     * - "any tokens" → TokenCreationEvent(controller = Player.Any)
+     *
+     * [controller] names the player the tokens are created under, read relative to the observing
+     * ability's controller — the same [Player] vocabulary as [LifeLossEvent.player].
      */
     @SerialName("TokenCreationEvent")
     @Serializable
     data class TokenCreationEvent(
-        val controller: ControllerFilter = ControllerFilter.You,
+        val controller: Player = Player.You,
         val tokenFilter: GameObjectFilter? = null
     ) : EventPattern {
         override val description: String = buildString {
@@ -243,9 +246,11 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
                 append(" ")
             }
             append("tokens would be created")
-            if (controller != ControllerFilter.Any) {
-                append(" ")
-                append(controller.description)
+            when (controller) {
+                Player.Any, Player.Each -> {}
+                Player.You -> append(" under your control")
+                Player.EachOpponent -> append(" under an opponent's control")
+                else -> append(" under ${controller.description}'s control")
             }
         }
 
@@ -1144,7 +1149,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @Serializable
     data class DealsDamageEvent(
         val damageType: DamageType = DamageType.Any,
-        val recipient: RecipientFilter = RecipientFilter.Any,
+        val recipient: Recipient = Recipient.Any,
         val sourceFilter: GameObjectFilter? = null,
         /** Extensible, conjunctive facts about the damage event and its source. */
         val requires: Set<com.wingedsheep.sdk.scripting.events.DamagePredicate> = emptySet(),
@@ -1173,7 +1178,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
             if (batch) {
                 // Recipient-side batch wording: "one or more [recipients] are dealt … damage".
                 append("one or more ")
-                append(if (recipient != RecipientFilter.Any) recipient.description else "permanents or players")
+                append(if (recipient != Recipient.Any) recipient.description else "permanents or players")
                 append(" are dealt ")
                 if (requireExcess) append("excess ")
                 if (damageType != DamageType.Any) {
@@ -1197,7 +1202,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
                     append(" ")
                 }
                 append("damage")
-                if (recipient != RecipientFilter.Any) {
+                if (recipient != Recipient.Any) {
                     append(" to ")
                     append(recipient.description)
                 }
@@ -1221,11 +1226,11 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @SerialName("DamageReceivedEvent")
     @Serializable
     data class DamageReceivedEvent(
-        val source: SourceFilter = SourceFilter.Any
+        val source: GameObjectFilter = GameObjectFilter.Any
     ) : EventPattern {
         override val description: String = buildString {
             append("this is dealt damage")
-            if (source != SourceFilter.Any) {
+            if (source != GameObjectFilter.Any) {
                 append(" by ")
                 append(source.description)
             }
@@ -2318,7 +2323,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * [targetMatch] optionally narrows the trigger to abilities that target a particular kind of
      * object or player. When non-null, the activated ability must have at least one chosen target
      * satisfying it — a non-targeting ability never fires. Ertha Jo, Frontier Mentor uses
-     * [com.wingedsheep.sdk.scripting.events.AbilityTargetMatch.CreatureOrPlayer] for
+     * [com.wingedsheep.sdk.scripting.events.Recipient.CreatureOrPlayer] for
      * "Whenever you activate an ability that targets a creature or player".
      *
      * [sourceFilter] optionally restricts which permanent the activated ability must belong to
@@ -2353,7 +2358,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @Serializable
     data class AbilityActivatedEvent(
         val player: Player = Player.You,
-        val targetMatch: com.wingedsheep.sdk.scripting.events.AbilityTargetMatch? = null,
+        val targetMatch: com.wingedsheep.sdk.scripting.events.Recipient? = null,
         val sourceFilter: GameObjectFilter? = null,
         val requireNoTapInCost: Boolean = false,
         val requireExhaust: Boolean = false,
@@ -2639,7 +2644,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * payoff can say "from among **them**". Note CR 111.7 has already swept any token out of that
      * collection by the time the ability resolves, and a card that has since left exile is likewise
      * no longer choosable (Kaya, Spirits' Justice's ruling) — filter the collection with
-     * `CollectionFilter.InZone(Zone.EXILE)` when the payoff must still find the card in exile.
+     * `GameObjectFilter.Any.currentlyIn(Zone.EXILE)` when the payoff must still find the card in exile.
      *
      * The common "during your turn" timing restriction is expressed on the card via
      * `triggerRestriction = Conditions.IsYourTurn` rather than baked into the event.

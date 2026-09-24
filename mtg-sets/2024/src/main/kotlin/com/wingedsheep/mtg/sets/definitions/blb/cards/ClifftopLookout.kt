@@ -48,7 +48,7 @@ val ClifftopLookout = card("Clifftop Lookout") {
             // allRevealed includes the matched land, so subtract it before bottoming.
             FilterCollectionEffect(
                 from = "allRevealed",
-                filter = CollectionFilter.ExcludeOtherCollection("revealedLand"),
+                collectionFilter = CollectionFilter.ExcludeOtherCollection("revealedLand"),
                 storeMatching = "nonLandRevealed"
             ),
             MoveCollectionEffect(

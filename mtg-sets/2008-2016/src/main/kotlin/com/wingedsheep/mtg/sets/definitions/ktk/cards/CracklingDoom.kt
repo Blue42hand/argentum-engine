@@ -34,7 +34,7 @@ val CracklingDoom = card("Crackling Doom") {
                         ),
                         FilterCollectionEffect(
                             from = "creatures",
-                            filter = CollectionFilter.GreatestPower,
+                            collectionFilter = CollectionFilter.GreatestPower,
                             storeMatching = "greatest"
                         ),
                         SelectFromCollectionEffect(

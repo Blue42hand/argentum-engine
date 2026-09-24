@@ -113,7 +113,7 @@ val RaidingParty = card("Raiding Party") {
             ),
             FilterCollectionEffect(
                 from = "allPlains",
-                filter = CollectionFilter.ExcludeOtherCollection("allSpared"),
+                collectionFilter = CollectionFilter.ExcludeOtherCollection("allSpared"),
                 storeMatching = "doomed",
             ),
             MoveCollectionEffect(

@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Keeper of Fables
@@ -30,7 +30,7 @@ val KeeperOfFables = card("Keeper of Fables") {
         // CR 603.2c batch trigger: one draw no matter how many of them connect at once.
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Creature.youControl().notSubtype(Subtype.HUMAN),
             binding = TriggerBinding.ANY,
             batch = true,

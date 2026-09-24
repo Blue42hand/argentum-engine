@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * - Attack trigger: [Triggers.YouAttack] ([TriggerBinding.ANY]) fires once per declare-attackers;
  *   it targets an attacking creature ([TargetFilter.AttackingCreature]) and adds a +1/+1 counter.
  * - Modified-source combat-damage trigger: same shape as SP//dr, Piloted by Peni — a live
- *   [Triggers.dealsDamage] event ([DamageType.Combat] to [RecipientFilter.AnyPlayer]) whose source
+ *   [Triggers.dealsDamage] event ([DamageType.Combat] to [Recipient.AnyPlayer]) whose source
  *   filter is "creature you control" narrowed by [StatePredicate.IsModified] (CR 700.4: a permanent
  *   with a counter, an Aura you control, or Equipment attached to it). The filter evaluates against
  *   current projected state at trigger time, so it is a normal source-filtered event trigger.
@@ -67,7 +67,7 @@ val AranaHeartOfTheSpider = card("Araña, Heart of the Spider") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             DamageType.Combat,
-            RecipientFilter.AnyPlayer,
+            Recipient.AnyPlayer,
             sourceFilter = modifiedCreatureYouControl,
             binding = TriggerBinding.ANY,
         )

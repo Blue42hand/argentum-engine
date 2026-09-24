@@ -74,7 +74,7 @@ val AuroraAwakener = card("Aurora Awakener") {
             // the bottom of the library in a random order.
             FilterCollectionEffect(
                 from = "allRevealed",
-                filter = CollectionFilter.ExcludeOtherCollection("toBattlefield"),
+                collectionFilter = CollectionFilter.ExcludeOtherCollection("toBattlefield"),
                 storeMatching = "toBottom"
             ),
             MoveCollectionEffect(

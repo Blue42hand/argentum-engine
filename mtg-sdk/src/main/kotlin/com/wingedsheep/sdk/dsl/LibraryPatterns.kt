@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.ChoosePileEffect
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
@@ -307,7 +306,7 @@ object LibraryPatterns {
             RevealCollectionEffect(from = "looked"),
             FilterCollectionEffect(
                 from = "looked",
-                filter = CollectionFilter.MatchesFilter(filter),
+                filter = filter,
                 storeMatching = "kept",
                 storeNonMatching = "rest"
             ),
@@ -700,7 +699,7 @@ object LibraryPatterns {
             RevealCollectionEffect(from = "revealed"),
             FilterCollectionEffect(
                 from = "revealed",
-                filter = CollectionFilter.MatchesFilter(filter),
+                filter = filter,
                 storeMatching = "matchedToHand",
                 storeNonMatching = "rest"
             ),

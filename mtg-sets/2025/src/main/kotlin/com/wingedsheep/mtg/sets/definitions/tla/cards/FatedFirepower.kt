@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -8,8 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyDamageAmount
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -29,8 +29,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * permanent. The outgoing-damage amplification is a [ModifyDamageAmount] whose
  * `dynamicModifier` reads this enchantment's own fire-counter count
  * ([DynamicAmounts.countersOnSelf]); the [EventPattern.DamageEvent] scopes it to a source
- * the controller owns ([SourceFilter.YouControl]) dealing damage to an opponent or a
- * permanent an opponent controls ([RecipientFilter.OpponentOrPermanentTheyControl]).
+ * the controller owns (`GameObjectFilter.Any.youControl()`) dealing damage to an opponent or a
+ * permanent an opponent controls ([Recipient.OpponentOrPermanentTheyControl]).
  */
 val FatedFirepower = card("Fated Firepower") {
     manaCost = "{X}{R}{R}{R}"
@@ -58,8 +58,8 @@ val FatedFirepower = card("Fated Firepower") {
         ModifyDamageAmount(
             dynamicModifier = DynamicAmounts.countersOnSelf(CounterType.FIRE),
             appliesTo = EventPattern.DamageEvent(
-                source = SourceFilter.YouControl,
-                recipient = RecipientFilter.OpponentOrPermanentTheyControl
+                source = GameObjectFilter.Any.youControl(),
+                recipient = Recipient.OpponentOrPermanentTheyControl
             )
         )
     )

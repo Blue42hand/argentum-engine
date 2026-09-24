@@ -59,7 +59,7 @@ val EndOfTheHunt = card("End of the Hunt") {
                 ),
                 FilterCollectionEffect(
                     from = "controlled",
-                    filter = CollectionFilter.GreatestManaValue,
+                    collectionFilter = CollectionFilter.GreatestManaValue,
                     storeMatching = "greatestManaValue"
                 ),
                 SelectFromCollectionEffect(

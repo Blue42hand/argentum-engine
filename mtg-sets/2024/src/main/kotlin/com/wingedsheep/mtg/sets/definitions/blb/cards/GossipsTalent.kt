@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -63,7 +63,7 @@ val GossipsTalent = card("Gossip's Talent") {
         triggeredAbility {
             trigger = Triggers.dealsDamage(
                 damageType = DamageType.Combat,
-                recipient = RecipientFilter.AnyPlayer,
+                recipient = Recipient.AnyPlayer,
                 sourceFilter = GameObjectFilter.Creature.youControl(),
                 binding = TriggerBinding.ANY,
             )

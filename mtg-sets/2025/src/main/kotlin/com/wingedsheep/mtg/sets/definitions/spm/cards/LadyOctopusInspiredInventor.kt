@@ -71,7 +71,7 @@ val LadyOctopusInspiredInventor = card("Lady Octopus, Inspired Inventor") {
             ),
             FilterCollectionEffect(
                 from = "ladyOctopusCandidates",
-                filter = CollectionFilter.ManaValueAtMost(
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(
                     DynamicAmounts.countersOnSelf(CounterType.INGENUITY),
                 ),
                 storeMatching = "ladyOctopusEligible",

@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -58,7 +58,7 @@ val OrcristGoblinCleaver = card("Orcrist, Goblin-cleaver") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             DamageType.Combat,
-            RecipientFilter.AnyPlayer,
+            Recipient.AnyPlayer,
             binding = TriggerBinding.ATTACHED
         )
         effect = Effects.Composite(

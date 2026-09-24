@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -54,9 +53,9 @@ private val TranceKujaFateDefied = card("Trance Kuja, Fate Defied") {
     replacementEffect(
         DoubleDamage(
             appliesTo = EventPattern.DamageEvent(
-                source = SourceFilter.Matching(
+                source = 
                     GameObjectFilter.Creature.withSubtype("Wizard").youControl()
-                ),
+                ,
             )
         )
     )

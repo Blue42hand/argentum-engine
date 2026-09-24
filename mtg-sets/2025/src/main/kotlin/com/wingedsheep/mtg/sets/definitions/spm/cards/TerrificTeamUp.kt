@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -79,7 +78,7 @@ val TerrificTeamUp = card("Terrific Team-Up") {
             ),
             FilterCollectionEffect(
                 from = "allTargets",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Creature.youControl()),
+                filter = GameObjectFilter.Creature.youControl(),
                 storeMatching = "team",
             ),
             // Each chosen creature gets +1/+0 until end of turn.

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -70,7 +69,7 @@ val PartInFriendship = card("Part in Friendship") {
                 RevealCollectionEffect(from = "revealed"),
                 FilterCollectionEffect(
                     from = "revealed",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Creature),
+                    filter = GameObjectFilter.Creature,
                     storeMatching = "found",
                     storeNonMatching = "rest"
                 ),

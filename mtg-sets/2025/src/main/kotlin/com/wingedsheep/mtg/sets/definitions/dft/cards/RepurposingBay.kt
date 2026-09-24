@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -69,7 +68,7 @@ val RepurposingBay = card("Repurposing Bay") {
                 ),
                 FilterCollectionEffect(
                     from = "libraryArtifacts",
-                    filter = CollectionFilter.ManaValueEquals(
+                    filter = GameObjectFilter.Any.manaValueEqualsDynamic(
                         DynamicAmount.Add(
                             DynamicAmount.EntityProperty(
                                 EffectTarget.SacrificedAsCost(0),

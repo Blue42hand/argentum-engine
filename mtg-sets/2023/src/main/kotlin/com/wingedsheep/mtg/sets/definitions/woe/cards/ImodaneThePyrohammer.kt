@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamagePredicate
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -36,7 +36,7 @@ val ImodaneThePyrohammer = card("Imodane, the Pyrohammer") {
 
     triggeredAbility {
         trigger = Triggers.dealsDamage(
-            recipient = RecipientFilter.AnyCreature,
+            recipient = Recipient.AnyCreature,
             sourceFilter = GameObjectFilter.InstantOrSorcery.youControl(),
             binding = TriggerBinding.ANY,
             requires = setOf(DamagePredicate.SourceSoleTargetIsRecipient),

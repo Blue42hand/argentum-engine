@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -58,7 +57,7 @@ val CantankerousKeepers = card("Cantankerous Keepers") {
                 // Then put all Elf cards from among them into your hand.
                 FilterCollectionEffect(
                     from = "milled",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.ELF)),
+                    filter = GameObjectFilter.Any.withSubtype(Subtype.ELF),
                     storeMatching = "elves",
                     storeNonMatching = "rest"
                 ),

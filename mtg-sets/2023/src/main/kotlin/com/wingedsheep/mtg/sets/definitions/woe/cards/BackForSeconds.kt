@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -74,7 +73,7 @@ val BackForSeconds = card("Back for Seconds") {
                     ),
                     FilterCollectionEffect(
                         from = "backForSecondsTargets",
-                        filter = CollectionFilter.InZone(Zone.GRAVEYARD),
+                        filter = GameObjectFilter.Any.currentlyIn(Zone.GRAVEYARD),
                         storeMatching = "backForSecondsToHand",
                     ),
                     MoveCollectionEffect(

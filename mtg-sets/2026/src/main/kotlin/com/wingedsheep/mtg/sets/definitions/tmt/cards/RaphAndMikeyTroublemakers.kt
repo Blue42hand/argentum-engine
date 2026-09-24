@@ -66,7 +66,7 @@ val RaphAndMikeyTroublemakers = card("Raph & Mikey, Troublemakers") {
             // off the battlefield right after it landed.
             FilterCollectionEffect(
                 from = "raph_revealed",
-                filter = CollectionFilter.ExcludeOtherCollection("raph_creature"),
+                collectionFilter = CollectionFilter.ExcludeOtherCollection("raph_creature"),
                 storeMatching = "raph_rest"
             ),
             MoveCollectionEffect(

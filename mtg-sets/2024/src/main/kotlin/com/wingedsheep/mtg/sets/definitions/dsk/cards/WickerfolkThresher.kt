@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -58,7 +57,7 @@ val WickerfolkThresher = card("Wickerfolk Thresher") {
                 // Split into land and non-land.
                 FilterCollectionEffect(
                     from = "looked",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                    filter = GameObjectFilter.Land,
                     storeMatching = "landCards",
                     storeNonMatching = "nonLandCards"
                 ),

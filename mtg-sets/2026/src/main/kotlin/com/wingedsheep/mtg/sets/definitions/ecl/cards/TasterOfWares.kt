@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -105,7 +104,7 @@ val TasterOfWares = card("Taster of Wares") {
                 // If the exiled card is an instant or sorcery, grant cast-from-exile
                 FilterCollectionEffect(
                     from = "chosen",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.InstantOrSorcery),
+                    filter = GameObjectFilter.InstantOrSorcery,
                     storeMatching = "instantOrSorcery"
                 ),
                 GrantMayPlayFromExileEffect(

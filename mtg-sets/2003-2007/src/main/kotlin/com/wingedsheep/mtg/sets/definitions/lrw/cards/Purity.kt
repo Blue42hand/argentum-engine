@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Purity — Lorwyn #37
@@ -35,7 +35,7 @@ val Purity = card("Purity") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.You,
+                recipient = Recipient.You,
                 damageType = DamageType.NonCombat
             ),
             onPrevented = Effects.GainLife(DynamicAmounts.preventedDamage())

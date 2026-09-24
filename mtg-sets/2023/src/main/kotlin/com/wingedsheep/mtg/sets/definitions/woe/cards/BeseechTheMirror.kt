@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
@@ -67,7 +66,7 @@ val BeseechTheMirror = card("Beseech the Mirror") {
                 then = Effects.Composite(
                     FilterCollectionEffect(
                         from = "beseechExiled",
-                        filter = CollectionFilter.ManaValueAtMost(DynamicAmount.Fixed(4)),
+                        filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.Fixed(4)),
                         storeMatching = "beseechCastable"
                     ),
                     ConditionalOnCollectionEffect(
@@ -80,7 +79,7 @@ val BeseechTheMirror = card("Beseech the Mirror") {
             ),
             FilterCollectionEffect(
                 from = "beseechExiled",
-                filter = CollectionFilter.InZone(Zone.EXILE),
+                filter = GameObjectFilter.Any.currentlyIn(Zone.EXILE),
                 storeMatching = "beseechUncast"
             ),
             MoveCollectionEffect(

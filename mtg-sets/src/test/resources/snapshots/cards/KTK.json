@@ -30,7 +30,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -2375,7 +2378,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "creatures",
-                                "filter": "GreatestPower",
+                                "collectionFilter": "GreatestPower",
                                 "storeMatching": "greatest"
                             },
                             {
@@ -5736,7 +5739,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -8023,10 +8029,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "exiledCards",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "noncreature nonland"
-                            },
+                            "filter": "noncreature nonland",
                             "storeMatching": "castable"
                         },
                         {
@@ -8557,7 +8560,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "Gated",
@@ -13121,18 +13127,19 @@
                 {
                     "type": "FilterCollection",
                     "from": "exiled",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "nonland"
-                    },
+                    "filter": "nonland",
                     "storeMatching": "nonland"
                 },
                 {
                     "type": "FilterCollection",
                     "from": "nonland",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": "XValue"
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": "XValue"
+                            }
+                        ]
                     },
                     "storeMatching": "castable"
                 },

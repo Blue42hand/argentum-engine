@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyCounterPlacement
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Caradora, Heart of Alacria — Aetherdrift #195
@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.events.RecipientFilter
  *
  * The counter clause is Hardened Scales' [ModifyCounterPlacement] with a widened recipient. The
  * default `appliesTo` is "a creature you control"; Caradora also covers uncrewed Vehicles, which
- * aren't creatures, so the recipient becomes a [RecipientFilter.Matching] over the
+ * aren't creatures, so the recipient becomes a [Recipient.Object] over the
  * creature-or-Vehicle union. Modelling it as the counter-placement *replacement* (rather than a
  * trigger that adds one more counter) is what makes the printed rulings fall out for free:
  * a permanent entering with +1/+1 counters enters with one extra, two Caradoras stack, and the
@@ -67,7 +67,7 @@ val CaradoraHeartOfAlacria = card("Caradora, Heart of Alacria") {
             modifier = 1,
             appliesTo = EventPattern.CounterPlacementEvent(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                recipient = RecipientFilter.Matching(CreatureOrVehicleYouControl)
+                recipient = Recipient.Object(CreatureOrVehicleYouControl)
             )
         )
     )

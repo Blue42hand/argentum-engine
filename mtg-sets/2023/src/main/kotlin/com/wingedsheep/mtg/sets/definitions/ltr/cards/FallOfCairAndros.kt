@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -35,7 +35,7 @@ val FallOfCairAndros = card("Fall of Cair Andros") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.NonCombat,
-            recipient = RecipientFilter.CreatureOpponentControls,
+            recipient = Recipient.CreatureOpponentControls,
             binding = TriggerBinding.ANY,
             requireExcess = true,
         )

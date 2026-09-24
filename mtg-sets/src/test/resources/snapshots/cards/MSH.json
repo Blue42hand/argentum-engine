@@ -2334,7 +2334,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -2605,7 +2608,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -5085,7 +5091,10 @@
                 "type": "ModifyCounterPlacement",
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
-                    "recipient": "PermanentYouControl"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "permanent ctrl:you"
+                    }
                 },
                 "placedByYou": true
             }
@@ -5306,10 +5315,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "exiled_top",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "nonland"
-                                },
+                                "filter": "nonland",
                                 "storeMatching": "castable"
                             },
                             {
@@ -7438,8 +7444,22 @@
                 },
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "OpponentOrPermanentTheyControl",
-                    "source": "SourceYouControl",
+                    "recipient": {
+                        "type": "RecipientAnyOf",
+                        "options": [
+                            {
+                                "type": "RecipientPlayer",
+                                "player": "EachOpponent"
+                            },
+                            {
+                                "type": "RecipientObject",
+                                "filter": "permanent ctrl:opponent"
+                            }
+                        ]
+                    },
+                    "source": {
+                        "controllerPredicate": "ControlledByYou"
+                    },
                     "damageType": "DamageNonCombat"
                 }
             }
@@ -8921,7 +8941,10 @@
                     "id": "ability_2",
                     "trigger": {
                         "type": "DealsDamageEvent",
-                        "recipient": "CreatureYouControl"
+                        "recipient": {
+                            "type": "RecipientObject",
+                            "filter": "creature ctrl:you"
+                        }
                     },
                     "binding": "ANY",
                     "effect": {
@@ -9703,7 +9726,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",
@@ -9720,7 +9746,14 @@
                     "type": "PreventDamage",
                     "appliesTo": {
                         "type": "DamageEvent",
-                        "recipient": "RecipientSelf"
+                        "recipient": {
+                            "type": "RecipientObject",
+                            "filter": {
+                                "statePredicates": [
+                                    "IsSource"
+                                ]
+                            }
+                        }
                     }
                 }
             ]
@@ -11067,7 +11100,11 @@
                 "type": "DoubleDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "source": "SourceEquippedCreature"
+                    "source": {
+                        "statePredicates": [
+                            "IsAttachedToBySource"
+                        ]
+                    }
                 }
             }
         ]
@@ -18455,7 +18492,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "Hero ctrl:you",
                     "batch": true
                 },
@@ -19197,10 +19237,7 @@
                             {
                                 "type": "FilterCollection",
                                 "from": "putOntoBattlefield",
-                                "filter": {
-                                    "type": "MatchesFilter",
-                                    "filter": "artifact Equipment"
-                                },
+                                "filter": "artifact Equipment",
                                 "storeMatching": "enteredEquipment"
                             },
                             {

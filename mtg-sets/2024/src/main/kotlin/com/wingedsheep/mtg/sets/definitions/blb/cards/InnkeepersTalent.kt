@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.effects.WardCost
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -63,7 +63,7 @@ val InnkeepersTalent = card("Innkeeper's Talent") {
                 placedByYou = true,
                 appliesTo = EventPattern.CounterPlacementEvent(
                     counterType = null,
-                    recipient = RecipientFilter.Any
+                    recipient = Recipient.Any
                 )
             )
         )

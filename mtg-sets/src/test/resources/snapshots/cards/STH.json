@@ -161,10 +161,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "revealed",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "basicland"
-                            },
+                            "filter": "basicland",
                             "storeMatching": "matchedToHand",
                             "storeNonMatching": "rest"
                         },
@@ -277,10 +274,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "looked",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "land"
-                    },
+                    "filter": "land",
                     "storeMatching": "kept",
                     "storeNonMatching": "rest"
                 },

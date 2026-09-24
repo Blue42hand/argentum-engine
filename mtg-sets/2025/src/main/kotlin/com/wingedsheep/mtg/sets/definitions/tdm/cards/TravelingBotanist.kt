@@ -58,7 +58,7 @@ val TravelingBotanist = card("Traveling Botanist") {
                 // Only a land card may be put into hand.
                 FilterCollectionEffect(
                     from = "looked",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                    filter = GameObjectFilter.Land,
                     storeMatching = "landCard"
                 ),
                 // You may reveal the land and put it into your hand.
@@ -79,7 +79,7 @@ val TravelingBotanist = card("Traveling Botanist") {
                 // went to hand. This is any top card (land or not), not just a declined land.
                 FilterCollectionEffect(
                     from = "looked",
-                    filter = CollectionFilter.ExcludeOtherCollection("toHand"),
+                    collectionFilter = CollectionFilter.ExcludeOtherCollection("toHand"),
                     storeMatching = "notInHand"
                 ),
                 // If you didn't put the card into your hand, you may put it into your graveyard.

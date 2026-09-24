@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -60,7 +59,7 @@ val KamahlsDruidicVow = card("Kamahl's Druidic Vow") {
                 // Filter to cards with mana value X or less
                 FilterCollectionEffect(
                     from = "looked",
-                    filter = CollectionFilter.ManaValueAtMost(DynamicAmount.XValue),
+                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.XValue),
                     storeMatching = "mvOk",
                     storeNonMatching = "mvTooHigh"
                 ),

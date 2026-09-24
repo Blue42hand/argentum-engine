@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -38,7 +38,7 @@ val SpiritOfResistance = card("Spirit of Resistance") {
                     DynamicAmount.Fixed(5)
                 )
             ),
-            appliesTo = EventPattern.DamageEvent(recipient = RecipientFilter.You)
+            appliesTo = EventPattern.DamageEvent(recipient = Recipient.You)
         )
     )
 

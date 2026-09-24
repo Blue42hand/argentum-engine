@@ -278,7 +278,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "bolsterCreatures",
-                            "filter": "LeastToughness",
+                            "collectionFilter": "LeastToughness",
                             "storeMatching": "bolsterLeastToughness"
                         },
                         {
@@ -1767,7 +1767,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",

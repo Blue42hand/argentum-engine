@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyCounterPlacement
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Mauhúr, Uruk-hai Captain
@@ -36,7 +36,7 @@ val MauhurUrukhaiCaptain = card("Mauhúr, Uruk-hai Captain") {
             modifier = 1,
             appliesTo = EventPattern.CounterPlacementEvent(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                recipient = RecipientFilter.Matching(
+                recipient = Recipient.Object(
                     GameObjectFilter.Permanent.withAnySubtype("Army", "Goblin", "Orc").youControl()
                 )
             )

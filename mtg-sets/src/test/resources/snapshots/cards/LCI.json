@@ -6016,7 +6016,10 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayer"
+                            "recipient": {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            }
                         },
                         "effect": {
                             "type": "MoveToZone",
@@ -10553,7 +10556,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
-                    "recipient": "CreatureOpponentControls",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature ctrl:opponent"
+                    },
                     "requireExcess": true,
                     "batch": true
                 },
@@ -10924,7 +10930,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -12180,10 +12189,18 @@
                 },
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientOpponent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "red ctrl:you"
+                        "cardPredicates": [
+                            {
+                                "type": "HasColor",
+                                "color": "RED"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     },
                     "damageType": "DamageNonCombat"
                 }
@@ -12288,7 +12305,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",

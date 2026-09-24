@@ -115,7 +115,7 @@ object MechanicPatterns {
             ),
             FilterCollectionEffect(
                 from = "bolsterCreatures",
-                filter = CollectionFilter.LeastToughness,
+                collectionFilter = CollectionFilter.LeastToughness,
                 storeMatching = "bolsterLeastToughness"
             ),
             SelectFromCollectionEffect(
@@ -159,7 +159,7 @@ object MechanicPatterns {
             ),
             FilterCollectionEffect(
                 from = "explored",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                filter = GameObjectFilter.Land,
                 storeMatching = "exploredLand",
                 storeNonMatching = "exploredNonland"
             ),

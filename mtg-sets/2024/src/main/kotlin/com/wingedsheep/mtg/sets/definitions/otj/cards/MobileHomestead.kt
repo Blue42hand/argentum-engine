@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -70,7 +69,7 @@ val MobileHomestead = card("Mobile Homestead") {
                 // Keep only land cards as candidates.
                 FilterCollectionEffect(
                     from = "looked",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                    filter = GameObjectFilter.Land,
                     storeMatching = "landCards",
                 ),
                 // You may put the land onto the battlefield tapped; otherwise it stays on top.

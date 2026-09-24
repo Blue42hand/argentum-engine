@@ -507,20 +507,23 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     // =========================================================================
 
     /** Keep only the cards in [from] matching [filter] ([FilterCollectionEffect]). */
-    fun filter(from: CollectionSlot, filter: CollectionFilter, name: String? = null): CollectionSlot {
+    fun filter(from: CollectionSlot, filter: GameObjectFilter, name: String? = null): CollectionSlot {
         val slot = CollectionSlot(slotKey("matching", nextIndex(), name))
         steps += FilterCollectionEffect(from = from.key, filter = filter, storeMatching = slot.key)
         return slot
     }
 
-    /** Keep only the cards in [from] matching [filter] ([CollectionFilter.MatchesFilter] shorthand). */
-    fun filter(from: CollectionSlot, filter: GameObjectFilter, name: String? = null): CollectionSlot =
-        filter(from, CollectionFilter.MatchesFilter(filter), name)
+    /** Keep only the cards in [from] passing the collection-relative [filter] ([FilterCollectionEffect]). */
+    fun filter(from: CollectionSlot, filter: CollectionFilter, name: String? = null): CollectionSlot {
+        val slot = CollectionSlot(slotKey("matching", nextIndex(), name))
+        steps += FilterCollectionEffect(from = from.key, collectionFilter = filter, storeMatching = slot.key)
+        return slot
+    }
 
-    /** Partition [from] into matching and non-matching slots ([FilterCollectionEffect]). */
+    /** Partition [from] by a [GameObjectFilter] into matching and non-matching slots. */
     fun filterSplit(
         from: CollectionSlot,
-        filter: CollectionFilter,
+        filter: GameObjectFilter,
         name: String? = null,
         restName: String? = null
     ): FilterSlots {
@@ -535,14 +538,6 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         )
         return FilterSlots(matching, rest)
     }
-
-    /** Partition [from] by a [GameObjectFilter] into matching and non-matching slots. */
-    fun filterSplit(
-        from: CollectionSlot,
-        filter: GameObjectFilter,
-        name: String? = null,
-        restName: String? = null
-    ): FilterSlots = filterSplit(from, CollectionFilter.MatchesFilter(filter), name, restName)
 
     /**
      * Set difference: the members of [from] that are **not** in [minus]

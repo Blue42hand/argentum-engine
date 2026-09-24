@@ -55,6 +55,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.predicates.evaluateWith
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -181,6 +182,68 @@ class PredicateEvaluator {
             return filter.anyOf.any { matchesSnapshot(state, snapshot, it, context) }
         }
         return true
+    }
+
+    /**
+     * Whether [entityId] — a player or an object — is the [recipient] an event pattern names: the
+     * one matcher behind every damage-recipient, counter-recipient and ability-target test, so the
+     * trigger side and every replacement scan answer the same question the same way.
+     *
+     * A [Recipient.Player] reads its [Player] reference relative to [context] — `You` is
+     * [PredicateContext.controllerId], `EachOpponent` a real opponent of that player (a teammate in
+     * a team game is not one, CR 102.3), `EnchantedPlayer` the player the context's source is
+     * attached to. A [Recipient.Object] is a [matches] of its filter against the live object, with
+     * the context's [PredicateContext.sourceId] answering `sourceItself()` /
+     * `attachedToBySource()`; an object that isn't on the battlefield yet (a creature entering with
+     * counters) reads its own characteristics, as [matches] always does off the battlefield.
+     *
+     * @param lastKnown the recipient as it last existed when the event happened — pass it when the
+     *   event may have *removed* the recipient before the question is asked (a creature destroyed
+     *   by the damage whose trigger is being matched, CR 603.10). It is consulted only when the
+     *   object is no longer on the battlefield, through [matchesSnapshot]; a token swept by
+     *   CR 704.5d has nothing else left to read.
+     */
+    fun matchesRecipient(
+        state: GameState,
+        projected: ProjectedState,
+        entityId: EntityId,
+        recipient: Recipient,
+        context: PredicateContext,
+        lastKnown: EntitySnapshot? = null,
+    ): Boolean = when (recipient) {
+        is Recipient.AnyOf -> recipient.options.any {
+            matchesRecipient(state, projected, entityId, it, context, lastKnown)
+        }
+        is Recipient.Player ->
+            entityId in state.turnOrder && matchesPlayer(state, projected, recipient.player, entityId, context)
+        is Recipient.Object -> when {
+            entityId in state.turnOrder -> false
+            lastKnown != null && entityId !in state.getBattlefield() ->
+                matchesSnapshot(state, lastKnown, recipient.filter, context)
+            else -> matches(state, projected, entityId, recipient.filter, context)
+        }
+    }
+
+    /**
+     * Whether [playerId] is the player [player] names, read relative to [context] — the player half
+     * of [matchesRecipient], also used on its own where an event names a player symbolically (the
+     * player a token is being created under).
+     */
+    fun matchesPlayer(
+        state: GameState,
+        projected: ProjectedState,
+        player: Player,
+        playerId: EntityId,
+        context: PredicateContext,
+    ): Boolean = when (player) {
+        Player.Any, Player.Each -> true
+        Player.You -> playerId == context.controllerId
+        Player.EachOpponent, Player.AnOpponent -> state.isOpponentOf(playerId, context.controllerId)
+        else -> {
+            val reference = EffectTarget.PlayerRef(player)
+            (context.resolvePlayerTarget(reference)
+                ?: resolveReferencedPlayerFromState(state, projected, reference, context)) == playerId
+        }
     }
 
     /**
@@ -1273,13 +1336,18 @@ class PredicateEvaluator {
             ControllerPredicate.ControlledByTriggeringPlayer,
             is ControllerPredicate.ControlledByReferencedPlayer -> {
                 // Use projected controller if available; otherwise fall back to the base
-                // ControllerComponent or, for stack objects (spells and abilities), the
-                // controllerId stored on their stack components.
+                // ControllerComponent, for stack objects (spells and abilities) the controllerId
+                // stored on their stack components, and for a departed permanent its last-known one.
                 val controllerId = projected.getController(entityId)
                     ?: container.get<ControllerComponent>()?.playerId
                     ?: container.get<SpellOnStackComponent>()?.casterId
                     ?: container.get<TriggeredAbilityOnStackComponent>()?.controllerId
                     ?: container.get<ActivatedAbilityOnStackComponent>()?.controllerId
+                    // An object that has left the battlefield answers with the controller it had
+                    // there (CR 608.2h) — "a source you control" for a creature sacrificed to pay
+                    // for its own damage ability (Fanatical Firebrand), which deals that damage
+                    // from the graveyard.
+                    ?: container.get<LastKnownPermanentComponent>()?.snapshot?.controllerId
                     ?: return false
                 when (predicate) {
                     ControllerPredicate.ControlledByYou -> controllerId == context.controllerId
@@ -1447,6 +1515,9 @@ class PredicateEvaluator {
             // Zone. Deliberately a *live* read with no last-known fallback — this predicate exists
             // to cancel the fallbacks the combat predicates below carry.
             StatePredicate.IsOnBattlefield -> entityId in state.getBattlefield()
+            // The object's current zone — a resolving spell still reads STACK until it has finished
+            // resolving, which is when a spell deals its damage.
+            is StatePredicate.InZone -> state.logicalZone(entityId)?.zoneType == predicate.zone
 
             // Tap state
             StatePredicate.IsTapped -> container.has<TappedComponent>()
@@ -2377,7 +2448,14 @@ data class PredicateContext(
      * for an entity that is not in `state.getBattlefield()`, so a live source keeps reading
      * projected state and a stale snapshot could not shadow it either way.
      */
-    val lastKnownSourceSnapshot: EntitySnapshot? = null
+    val lastKnownSourceSnapshot: EntitySnapshot? = null,
+    /**
+     * The resolution context this predicate context was taken from ([fromEffectContext]), kept so
+     * [toEffectContext] can hand a predicate's dynamic amount *everything* the resolution knows —
+     * the pipeline's stored numbers, the sacrificed permanents, the trigger's damage amount — not
+     * only the fields mirrored here. Null for a context built directly (targeting, projection).
+     */
+    val resolution: EffectContext? = null,
 ) {
     /**
      * The entity an enclosing `ForEachInGroup` is currently iterating over, carried in
@@ -2413,31 +2491,37 @@ data class PredicateContext(
     }
 
     /**
-     * The resolution context this predicate context was taken from, as far as it carries one —
-     * the inverse of [fromEffectContext]. Lets a predicate hand an entity reference or a dynamic
-     * amount to the resolvers effects use instead of keeping its own copy of them.
+     * The resolution context this predicate context was taken from — the inverse of
+     * [fromEffectContext]. Lets a predicate hand an entity reference or a dynamic amount to the
+     * resolvers effects use instead of keeping its own copy of them. This context's own fields win
+     * (a caller may have rebound the controller or the source); everything it doesn't mirror comes
+     * from [resolution] when there is one, so a `manaValueAtMostDynamic(VariableReference(…))`
+     * collection filter reads the pipeline's stored number exactly as the effect would.
      */
-    fun toEffectContext(): EffectContext = EffectContext(
-        sourceId = sourceId,
-        controllerId = controllerId,
-        granterId = granterId,
-        sourceBattlefieldTimestamp = sourceBattlefieldTimestamp,
-        objectReferences = objectReferences,
-        targets = targets,
-        xValue = xValue,
-        lastKnownSourceSnapshot = lastKnownSourceSnapshot,
-        triggeringEntityId = triggeringEntityId,
-        triggeringPlayerId = triggeringPlayerId,
-        chosenColor = chosenColor,
-        affectedEntityId = affectedEntityId,
-        pipeline = PipelineState(
-            storedCollections = storedCollections,
-            namedTargets = namedTargets,
-            chosenValues = chosenValues,
-            storedStringLists = storedStringLists,
-            storedSubtypeGroups = storedSubtypeGroups,
-        ),
-    )
+    fun toEffectContext(): EffectContext {
+        val base = resolution ?: EffectContext(sourceId = sourceId, controllerId = controllerId)
+        return base.copy(
+            sourceId = sourceId,
+            controllerId = controllerId,
+            granterId = granterId,
+            sourceBattlefieldTimestamp = sourceBattlefieldTimestamp,
+            objectReferences = objectReferences,
+            targets = targets,
+            xValue = xValue,
+            lastKnownSourceSnapshot = lastKnownSourceSnapshot,
+            triggeringEntityId = triggeringEntityId,
+            triggeringPlayerId = triggeringPlayerId,
+            chosenColor = chosenColor,
+            affectedEntityId = affectedEntityId,
+            pipeline = base.pipeline.copy(
+                storedCollections = storedCollections,
+                namedTargets = namedTargets,
+                chosenValues = chosenValues,
+                storedStringLists = storedStringLists,
+                storedSubtypeGroups = storedSubtypeGroups,
+            ),
+        )
+    }
 
     companion object {
         /**
@@ -2468,6 +2552,8 @@ data class PredicateContext(
                 namedTargets = context.pipeline.namedTargets,
                 xValue = context.xValue,
                 chosenColor = context.chosenColor,
+                lastKnownSourceSnapshot = context.lastKnownSourceSnapshot,
+                resolution = context,
             )
         }
     }

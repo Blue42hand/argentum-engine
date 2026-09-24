@@ -1741,7 +1741,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -1955,7 +1958,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "TapUntap",
@@ -3094,8 +3100,13 @@
                 "counterType": "MINUS_ONE_MINUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "CreatureOpponentControls",
-                    "source": "SourceYouControl",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature ctrl:opponent"
+                    },
+                    "source": {
+                        "controllerPredicate": "ControlledByYou"
+                    },
                     "damageType": "DamageNonCombat"
                 },
                 "counterRecipient": "DamagedPermanent"

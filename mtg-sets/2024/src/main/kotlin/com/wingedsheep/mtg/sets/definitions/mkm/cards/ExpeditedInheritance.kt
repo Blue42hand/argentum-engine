@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -27,7 +27,7 @@ val ExpeditedInheritance = card("Expedited Inheritance") {
 
     triggeredAbility {
         trigger = Triggers.dealsDamage(
-            recipient = RecipientFilter.AnyCreature,
+            recipient = Recipient.AnyCreature,
             binding = TriggerBinding.ANY,
         )
         // Damage triggers bind the recipient as the triggering entity, so this makes the damaged

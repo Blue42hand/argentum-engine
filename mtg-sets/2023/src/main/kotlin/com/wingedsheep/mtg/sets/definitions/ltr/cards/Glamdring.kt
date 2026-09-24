@@ -13,12 +13,11 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -77,7 +76,7 @@ val Glamdring = card("Glamdring") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             binding = TriggerBinding.ATTACHED
         )
         effect = Effects.Composite(
@@ -97,7 +96,7 @@ val Glamdring = card("Glamdring") {
             ),
             FilterCollectionEffect(
                 from = "handSpells",
-                filter = CollectionFilter.ManaValueAtMost(DynamicAmount.VariableReference("combatDamage")),
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.VariableReference("combatDamage")),
                 storeMatching = "castable"
             ),
             // You may cast one of them without paying its mana cost.

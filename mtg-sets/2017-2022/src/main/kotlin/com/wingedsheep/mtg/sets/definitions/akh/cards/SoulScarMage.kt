@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.akh.cards
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -7,8 +8,7 @@ import com.wingedsheep.sdk.scripting.DamageCounterRecipient
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Soul-Scar Mage — Amonkhet #148 (canonical printing)
@@ -60,8 +60,8 @@ val SoulScarMage = card("Soul-Scar Mage") {
         ReplaceDamageWithCounters(
             counterType = CounterType.MINUS_ONE_MINUS_ONE,
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.CreatureOpponentControls,
-                source = SourceFilter.YouControl,
+                recipient = Recipient.CreatureOpponentControls,
+                source = GameObjectFilter.Any.youControl(),
                 damageType = DamageType.NonCombat
             ),
             counterRecipient = DamageCounterRecipient.DamagedPermanent

@@ -1814,7 +1814,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "AddCounters",
@@ -2482,7 +2485,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "AddCounters",
@@ -5072,7 +5078,10 @@
                     "id": "ability_3",
                     "trigger": {
                         "type": "DealsDamageEvent",
-                        "recipient": "RecipientOpponent"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "EachOpponent"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",

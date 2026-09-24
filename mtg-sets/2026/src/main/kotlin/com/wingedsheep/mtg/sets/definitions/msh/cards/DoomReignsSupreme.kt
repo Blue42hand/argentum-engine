@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -98,7 +97,7 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
                 Patterns.Library.exileTop(5, EffectTarget.PlayerRef(Player.TargetOpponent)),
                 FilterCollectionEffect(
                     from = "exiled_top",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Nonland),
+                    filter = GameObjectFilter.Nonland,
                     storeMatching = "castable",
                 ),
                 Effects.CastUpToNFromCollectionWithoutPayingCost("castable", maxCasts = 2),

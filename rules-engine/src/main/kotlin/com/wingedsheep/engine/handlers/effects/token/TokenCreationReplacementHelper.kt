@@ -36,7 +36,7 @@ import com.wingedsheep.sdk.scripting.EventPattern as SdkGameEvent
 import com.wingedsheep.sdk.scripting.ModifyTokenCount
 import com.wingedsheep.sdk.scripting.ReplaceTokenCreationWithAttachedCopy
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.events.ControllerFilter
+import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Checks for token creation replacement effects (e.g., Mirrormind Crown)
@@ -46,20 +46,21 @@ import com.wingedsheep.sdk.scripting.events.ControllerFilter
 object TokenCreationReplacementHelper {
 
     /**
-     * CR 614-style "whose replacement is this" test: `You` matches when the replacement's own
-     * controller is the player the tokens are being created under, `Opponent` when it isn't,
-     * `Any` always. Shared by the count and additional-token read paths so a printed ability and
-     * a durational grant are dispatched identically.
+     * "Whose tokens" test: whether the player the tokens are being created under is the one the
+     * event's [Player] names, relative to the replacement's own controller — `You` matches when
+     * that's the replacement's controller, `EachOpponent` when it's an opponent of theirs, `Any`
+     * always. No token entity exists yet, so this is read off the player alone. Shared by the count
+     * and additional-token read paths so a printed ability and a durational grant are dispatched
+     * identically.
      */
     private fun controllerMatches(
-        filter: ControllerFilter,
+        player: Player,
+        state: GameState,
         sourceControllerId: EntityId,
         tokenControllerId: EntityId
-    ): Boolean = when (filter) {
-        is ControllerFilter.You -> sourceControllerId == tokenControllerId
-        is ControllerFilter.Opponent -> sourceControllerId != tokenControllerId
-        is ControllerFilter.Any -> true
-    }
+    ): Boolean = PredicateEvaluator().matchesPlayer(
+        state, state.projectedState, player, tokenControllerId, PredicateContext(controllerId = sourceControllerId)
+    )
 
     /**
      * Apply token-count replacement effects whose [SdkGameEvent.TokenCreationEvent] filter
@@ -106,7 +107,7 @@ object TokenCreationReplacementHelper {
             // against; no card uses it yet, so we conservatively skip filtered events
             // rather than treating them as match-all.
             if (event.tokenFilter != null) continue
-            if (!controllerMatches(event.controller, active.controllerId, tokenControllerId)) continue
+            if (!controllerMatches(event.controller, state, active.controllerId, tokenControllerId)) continue
             when (effect) {
                 is MultiplyTokenCreation -> factors += effect.factor
                 is ModifyTokenCount -> modifier += effect.modifier
@@ -163,7 +164,7 @@ object TokenCreationReplacementHelper {
             val event = effect.appliesTo
             if (event !is SdkGameEvent.TokenCreationEvent) continue
 
-            if (!controllerMatches(event.controller, active.controllerId, tokenControllerId)) continue
+            if (!controllerMatches(event.controller, state, active.controllerId, tokenControllerId)) continue
 
             // The replacement applies only if at least one of the just-created tokens
             // matches the event's token filter (e.g. "artifact tokens"). A null filter

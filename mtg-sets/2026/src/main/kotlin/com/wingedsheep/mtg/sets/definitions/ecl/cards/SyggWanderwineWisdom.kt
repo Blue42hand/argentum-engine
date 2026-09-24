@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -41,7 +41,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 private val drawOnCombatDamageSpec = Triggers.dealsDamage(
     damageType = DamageType.Combat,
-    recipient = RecipientFilter.AnyPlayerOrPlaneswalker,
+    recipient = Recipient.AnyPlayerOrPlaneswalker,
 )
 
 private val drawOnCombatDamage = TriggeredAbility.create(

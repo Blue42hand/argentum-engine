@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -26,7 +26,7 @@ val Tephraderm = card("Tephraderm") {
     oracleText = "Whenever a creature deals damage to Tephraderm, Tephraderm deals that much damage to that creature.\nWhenever a spell deals damage to Tephraderm, Tephraderm deals that much damage to that spell's controller."
 
     triggeredAbility {
-        trigger = Triggers.takesDamage(source = SourceFilter.Creature)
+        trigger = Triggers.takesDamage(source = GameObjectFilter.Creature)
         effect = DealDamageEffect(
             amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.TriggeringEntity
@@ -34,7 +34,10 @@ val Tephraderm = card("Tephraderm") {
     }
 
     triggeredAbility {
-        trigger = Triggers.takesDamage(source = SourceFilter.Spell)
+        // The only spells that deal damage as spells are instants and sorceries (a permanent spell
+        // resolves into a permanent first), and by the time this triggers the spell has finished
+        // resolving and left the stack — so "a spell" is read off the card's type, not its zone.
+        trigger = Triggers.takesDamage(source = GameObjectFilter.InstantOrSorcery)
         effect = DealDamageEffect(
             amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.ControllerOfTriggeringEntity

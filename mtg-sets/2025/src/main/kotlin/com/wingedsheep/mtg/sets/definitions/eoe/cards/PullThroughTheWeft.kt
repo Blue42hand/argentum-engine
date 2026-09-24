@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -69,7 +68,7 @@ val PullThroughTheWeft = card("Pull Through the Weft") {
                 ),
                 FilterCollectionEffect(
                     from = "chosen",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                    filter = GameObjectFilter.Land,
                     storeMatching = "chosenLands",
                     storeNonMatching = "chosenNonlands",
                 ),

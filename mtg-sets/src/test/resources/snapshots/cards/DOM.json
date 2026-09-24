@@ -6400,8 +6400,12 @@
                     "type": "FilterCollection",
                     "from": "looked",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": "XValue"
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": "XValue"
+                            }
+                        ]
                     },
                     "storeMatching": "mvOk",
                     "storeNonMatching": "mvTooHigh"
@@ -6790,7 +6794,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "CreatureOpponentControls"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature ctrl:opponent"
+                    }
                 },
                 "binding": "ANY",
                 "effect": {
@@ -10482,7 +10489,14 @@
                 "amount": 2,
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientEquippedCreature"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsAttachedToBySource"
+                            ]
+                        }
+                    }
                 }
             }
         ]
@@ -12477,10 +12491,7 @@
                 "effect": {
                     "type": "GrantDamageBonus",
                     "bonusAmount": 2,
-                    "sourceFilter": {
-                        "type": "HasColor",
-                        "color": "RED"
-                    }
+                    "sourceFilter": "red"
                 }
             }
         ]
@@ -13528,7 +13539,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -14212,7 +14226,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",

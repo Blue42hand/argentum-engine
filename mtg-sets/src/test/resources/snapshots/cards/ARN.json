@@ -624,7 +624,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": {
                             "statePredicates": [
                                 "InSameBandAsSource"
@@ -632,8 +632,13 @@
                         }
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "land Desert"
+                        "cardPredicates": [
+                            "IsLand",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Desert"
+                            }
+                        ]
                     }
                 }
             }
@@ -1141,10 +1146,22 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "land Desert"
+                        "cardPredicates": [
+                            "IsLand",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Desert"
+                            }
+                        ]
                     }
                 }
             }
@@ -3083,7 +3100,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreateDelayedTrigger",
@@ -3876,8 +3896,12 @@
                             "type": "FilterCollection",
                             "from": "toDraw",
                             "filter": {
-                                "type": "InZone",
-                                "zone": "Hand"
+                                "statePredicates": [
+                                    {
+                                        "type": "InZone",
+                                        "zone": "Hand"
+                                    }
+                                ]
                             },
                             "storeMatching": "drawn"
                         },
@@ -3889,10 +3913,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "drawn",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "keptLand",
                             "storeNonMatching": "notLand"
                         },

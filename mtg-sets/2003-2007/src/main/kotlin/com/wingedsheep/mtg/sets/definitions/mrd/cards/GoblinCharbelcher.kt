@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -69,7 +68,7 @@ val GoblinCharbelcher = card("Goblin Charbelcher") {
                 RevealCollectionEffect(from = "revealed"),
                 FilterCollectionEffect(
                     from = "revealed",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Nonland),
+                    filter = GameObjectFilter.Nonland,
                     storeMatching = "nonlands"
                 ),
                 Effects.DealDamage(

@@ -12,11 +12,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TapReason
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.events.AbilityTargetMatch
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 
 import com.wingedsheep.sdk.scripting.references.Player
@@ -551,7 +549,7 @@ object Triggers {
      * When this creature deals combat damage to a player. Binding: SELF.
      */
     val DealsCombatDamageToPlayer: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = RecipientFilter.AnyPlayer),
+        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = Recipient.AnyPlayer),
         binding = TriggerBinding.SELF
     )
 
@@ -559,7 +557,7 @@ object Triggers {
      * When this creature deals combat damage to a creature. Binding: SELF.
      */
     val DealsCombatDamageToCreature: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = RecipientFilter.AnyCreature),
+        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = Recipient.AnyCreature),
         binding = TriggerBinding.SELF
     )
 
@@ -621,21 +619,21 @@ object Triggers {
      *
      * Examples:
      * - "Whenever a creature you control deals combat damage to a player":
-     *   `dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer,
+     *   `dealsDamage(DamageType.Combat, Recipient.AnyPlayer,
      *                GameObjectFilter.Creature.youControl(), TriggerBinding.ANY)`
      * - "Whenever enchanted creature deals damage":
      *   `dealsDamage(binding = TriggerBinding.ATTACHED)`
      * - "Whenever this deals combat damage to a player or planeswalker":
-     *   `dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayerOrPlaneswalker)`
+     *   `dealsDamage(DamageType.Combat, Recipient.AnyPlayerOrPlaneswalker)`
      * - "Whenever one or more creatures your opponents control are dealt excess
      *   noncombat damage" (batch wording, CR 603.2c — fires once per event batch,
      *   not once per damaged creature; ANY binding only):
-     *   `dealsDamage(DamageType.NonCombat, RecipientFilter.CreatureOpponentControls,
+     *   `dealsDamage(DamageType.NonCombat, Recipient.CreatureOpponentControls,
      *                binding = TriggerBinding.ANY, requireExcess = true, batch = true)`
      */
     fun dealsDamage(
         damageType: DamageType = DamageType.Any,
-        recipient: RecipientFilter = RecipientFilter.Any,
+        recipient: Recipient = Recipient.Any,
         sourceFilter: GameObjectFilter? = null,
         binding: TriggerBinding = TriggerBinding.SELF,
         requireExcess: Boolean = false,
@@ -1403,11 +1401,11 @@ object Triggers {
 
     /**
      * Whenever you activate an ability whose chosen targets satisfy [targetMatch] — e.g.
-     * [AbilityTargetMatch.CreatureOrPlayer] for Ertha Jo, Frontier Mentor's
+     * [Recipient.CreatureOrPlayer] for Ertha Jo, Frontier Mentor's
      * "Whenever you activate an ability that targets a creature or player". A non-targeting
      * ability (a tap-for-mana, etc.) never matches.
      */
-    fun youActivateAbilityTargeting(targetMatch: AbilityTargetMatch): TriggerSpec = TriggerSpec(
+    fun youActivateAbilityTargeting(targetMatch: Recipient): TriggerSpec = TriggerSpec(
         event = AbilityActivatedEvent(player = Player.You, targetMatch = targetMatch),
         binding = TriggerBinding.ANY
     )
@@ -1611,7 +1609,7 @@ object Triggers {
      * is dealt damage": `takesDamage(binding = TriggerBinding.ATTACHED)`).
      */
     fun takesDamage(
-        source: SourceFilter = SourceFilter.Any,
+        source: GameObjectFilter = GameObjectFilter.Any,
         binding: TriggerBinding = TriggerBinding.SELF,
     ): TriggerSpec = TriggerSpec(
         event = DamageReceivedEvent(source = source),
@@ -1630,7 +1628,7 @@ object Triggers {
      * Use [damageDealtToYou] to restrict which sources count.
      */
     val YouAreDealtDamage: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(recipient = RecipientFilter.You),
+        event = DealsDamageEvent(recipient = Recipient.You),
         binding = TriggerBinding.ANY
     )
 
@@ -1653,7 +1651,7 @@ object Triggers {
     ): TriggerSpec = TriggerSpec(
         event = DealsDamageEvent(
             damageType = damageType,
-            recipient = RecipientFilter.You,
+            recipient = Recipient.You,
             sourceFilter = sourceFilter,
         ),
         binding = TriggerBinding.ANY

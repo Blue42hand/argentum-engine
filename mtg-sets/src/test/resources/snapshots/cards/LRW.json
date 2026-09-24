@@ -1797,7 +1797,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "permanent Goblin ctrl:you"
                 },
                 "binding": "ANY",
@@ -4168,7 +4171,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "creature attacking ctrl:you"
                     },
                     "damageType": "DamageCombat"
@@ -4240,7 +4243,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "You",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    },
                     "sourceFilter": "creature"
                 },
                 "binding": "ANY",
@@ -5446,10 +5452,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "revealed",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "nonland"
-                    },
+                    "filter": "nonland",
                     "storeMatching": "matchedToHand",
                     "storeNonMatching": "rest"
                 },
@@ -8169,8 +8172,19 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientOpponent",
-                    "source": "SourceSpellYouControl"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    },
+                    "source": {
+                        "statePredicates": [
+                            {
+                                "type": "InZone",
+                                "zone": "Stack"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
                 },
                 "onPrevented": {
                     "type": "CreateToken",
@@ -13722,7 +13736,10 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "You",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    },
                     "damageType": "DamageNonCombat"
                 },
                 "onPrevented": {
@@ -17707,7 +17724,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": {
                             "cardPredicates": [
                                 "IsCreature"
@@ -18323,7 +18340,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",

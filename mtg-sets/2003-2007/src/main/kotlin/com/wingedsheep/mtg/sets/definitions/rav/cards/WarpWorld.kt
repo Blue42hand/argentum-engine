@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerCollectingEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -71,7 +70,7 @@ val WarpWorld = card("Warp World") {
                     ),
                     FilterCollectionEffect(
                         from = "owned",
-                        filter = CollectionFilter.MatchesFilter(GameObjectFilter.Any.token()),
+                        filter = GameObjectFilter.Any.token(),
                         storeMatching = "ownedTokens",
                         storeNonMatching = "ownedCards"
                     ),
@@ -90,18 +89,18 @@ val WarpWorld = card("Warp World") {
                     ),
                     FilterCollectionEffect(
                         from = "revealed",
-                        filter = CollectionFilter.MatchesFilter(GameObjectFilter.Any.nontoken()),
+                        filter = GameObjectFilter.Any.nontoken(),
                         storeMatching = "revealedCards"
                     ),
                     FilterCollectionEffect(
                         from = "revealedCards",
-                        filter = CollectionFilter.MatchesFilter(artifactCreatureOrLand),
+                        filter = artifactCreatureOrLand,
                         storeMatching = "acl",
                         storeNonMatching = "notAcl"
                     ),
                     FilterCollectionEffect(
                         from = "notAcl",
-                        filter = CollectionFilter.MatchesFilter(GameObjectFilter.Enchantment),
+                        filter = GameObjectFilter.Enchantment,
                         storeMatching = "enchantments",
                         storeNonMatching = "rest"
                     ),
@@ -127,7 +126,7 @@ val WarpWorld = card("Warp World") {
             // choice pauses the move, and whatever didn't make it is simply not on the battlefield.
             FilterCollectionEffect(
                 from = "warpEnchantments",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Any.onBattlefield()),
+                filter = GameObjectFilter.Any.onBattlefield(),
                 storeMatching = "warpEnchantmentsEntered",
                 storeNonMatching = "warpStranded"
             ),

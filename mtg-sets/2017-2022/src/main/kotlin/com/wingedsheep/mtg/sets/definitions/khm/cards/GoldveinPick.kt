@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 
 /**
@@ -31,7 +31,7 @@ val GoldveinPick = card("Goldvein Pick") {
         ability = ModifyStats(1, 1)
     }
     triggeredAbility {
-        trigger = Triggers.dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.dealsDamage(DamageType.Combat, Recipient.AnyPlayer, binding = TriggerBinding.ATTACHED)
         effect = Effects.CreateTreasure()
     }
     equipAbility("{1}")

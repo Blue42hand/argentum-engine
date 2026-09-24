@@ -493,12 +493,16 @@
                             "type": "FilterCollection",
                             "from": "hand_permanents",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "AggregateBattlefield",
-                                    "player": "You",
-                                    "filter": "land"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "land"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "eligible_permanents"
                         },
@@ -7392,7 +7396,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -8786,7 +8793,7 @@
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": {
                             "cardPredicates": [
                                 {
@@ -11525,10 +11532,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "chosen",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "land"
-                    },
+                    "filter": "land",
                     "storeMatching": "chosenLands",
                     "storeNonMatching": "chosenNonlands"
                 },
@@ -14860,7 +14864,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature ctrl:you"
                 },
                 "binding": "ANY",
@@ -18514,7 +18521,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature artifact nontoken ctrl:you"
                 },
                 "binding": "ANY",

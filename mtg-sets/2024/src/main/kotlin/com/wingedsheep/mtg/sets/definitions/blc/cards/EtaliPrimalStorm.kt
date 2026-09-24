@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CastAnyNumberFromCollectionWithoutPayingCostEffect
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -41,7 +40,7 @@ val EtaliPrimalStorm = card("Etali, Primal Storm") {
                 ),
                 FilterCollectionEffect(
                     from = "exiledCards",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Nonland),
+                    filter = GameObjectFilter.Nonland,
                     storeMatching = "castable"
                 ),
                 // Cast any number of them for free, during this trigger's resolution (the

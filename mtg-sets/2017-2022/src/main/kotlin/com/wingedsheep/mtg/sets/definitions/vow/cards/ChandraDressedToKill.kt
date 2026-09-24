@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -38,7 +37,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *    with no target chosen the mana is still added.
  *  - **The two "cast from exile" clauses differ, and the rulings are explicit about how.** The
  *    middle +1 tests the *exiled card's* characteristics ("If it's **red**"), so the pipeline
- *    filters the exiled collection with [CollectionFilter.MatchesFilter] before granting — a red
+ *    filters the exiled collection with a `FilterCollectionEffect` before granting — a red
  *    modal double-faced card qualifies and *either* face may then be cast. The −7 instead tests the
  *    *spell* ("you may cast red **spells**"), which is the permission-level
  *    `castColorRestriction`: all five cards are granted, but the check runs against the face being
@@ -86,7 +85,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
                 // "If it's red" is a property of the exiled *card*, so it gates the grant itself.
                 FilterCollectionEffect(
                     from = "chandraExiled",
-                    filter = CollectionFilter.MatchesFilter(GameObjectFilter.Any.withColor(Color.RED)),
+                    filter = GameObjectFilter.Any.withColor(Color.RED),
                     storeMatching = "chandraExiledRed"
                 ),
                 Effects.GrantMayPlayFromExile("chandraExiledRed", nonLandOnly = true),

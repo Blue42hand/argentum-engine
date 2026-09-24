@@ -725,7 +725,7 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "permanent Dinosaur"
                     }
                 },
@@ -2518,7 +2518,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "permanent Merfolk ctrl:you"
                 },
                 "binding": "ANY",

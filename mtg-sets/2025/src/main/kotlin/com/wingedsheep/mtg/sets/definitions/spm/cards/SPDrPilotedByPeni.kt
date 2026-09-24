@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -43,7 +43,7 @@ val SPDrPilotedByPeni = card("SP//dr, Piloted by Peni") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             DamageType.Combat,
-            RecipientFilter.AnyPlayer,
+            Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Creature.youControl().copy(
                 statePredicates = GameObjectFilter.Creature.youControl().statePredicates +
                     StatePredicate.IsModified

@@ -2542,19 +2542,13 @@
                 {
                     "type": "FilterCollection",
                     "from": "allTargets",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:you"
-                    },
+                    "filter": "creature ctrl:you",
                     "storeMatching": "clobberers"
                 },
                 {
                     "type": "FilterCollection",
                     "from": "allTargets",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:opponent"
-                    },
+                    "filter": "creature ctrl:opponent",
                     "storeMatching": "victim"
                 },
                 {
@@ -4562,7 +4556,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature ctrl:you"
                 },
                 "binding": "ANY",
@@ -5416,7 +5413,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
-                    "recipient": "RecipientOpponent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    },
                     "sourceFilter": "ctrl:you"
                 },
                 "binding": "ANY",
@@ -5533,7 +5533,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -7118,7 +7121,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "UnlockDoor",
@@ -8644,7 +8650,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "revealedLand"
                             },
@@ -10798,10 +10804,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "enchantment"
-                            },
+                            "filter": "enchantment",
                             "storeMatching": "kept",
                             "storeNonMatching": "rest"
                         },
@@ -11883,7 +11886,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -16365,7 +16371,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Modal",
@@ -17415,10 +17424,12 @@
                 "type": "ReplaceDamageWithMill",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientOpponent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "ctrl:you"
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }
@@ -17496,8 +17507,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "ctrl:you"
+                        "controllerPredicate": "ControlledByYou"
                     },
                     "damageType": "DamageNonCombat"
                 }
@@ -19723,7 +19733,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "LoseLife",
@@ -21361,10 +21374,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCards",
                             "storeNonMatching": "nonLandCards"
                         },

@@ -2462,10 +2462,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land Island"
-                            },
+                            "filter": "land Island",
                             "storeMatching": "kept",
                             "storeNonMatching": "rest"
                         },

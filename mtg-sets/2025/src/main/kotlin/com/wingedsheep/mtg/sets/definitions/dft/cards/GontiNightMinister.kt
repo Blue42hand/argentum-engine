@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -42,7 +42,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * controller. Gonti's own second ability is the main way an opponent ends up casting a card they
  * don't own, so the two halves feed each other.
  *
- * **Theft trigger** — an ANY-bound combat-damage observer (`RecipientFilter.Opponent` for "one of
+ * **Theft trigger** — an ANY-bound combat-damage observer (`Recipient.Opponent` for "one of
  * your opponents", `sourceFilter = Creature` for "a creature"). Because the trigger carries a
  * source filter, the engine binds the *damaging creature* as the triggering entity and the
  * *damaged player* as the triggering player, which is exactly the pair the text needs:
@@ -85,7 +85,7 @@ val GontiNightMinister = card("Gonti, Night Minister") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.Opponent,
+            recipient = Recipient.Opponent,
             sourceFilter = GameObjectFilter.Creature,
             binding = TriggerBinding.ANY,
         )

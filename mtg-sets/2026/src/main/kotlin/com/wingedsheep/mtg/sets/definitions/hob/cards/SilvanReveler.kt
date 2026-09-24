@@ -63,7 +63,7 @@ val SilvanReveler = card("Silvan Reveler") {
             // "If you discard a land card this way, put it from your graveyard onto the
             // battlefield tapped."
             val discardedLand = filter(discarded, GameObjectFilter.Land)
-            val landInGraveyard = filter(discardedLand, CollectionFilter.InZone(Zone.GRAVEYARD))
+            val landInGraveyard = filter(discardedLand, GameObjectFilter.Any.currentlyIn(Zone.GRAVEYARD))
             move(
                 landInGraveyard,
                 CardDestination.ToZone(Zone.BATTLEFIELD, Player.You, ZonePlacement.Tapped)

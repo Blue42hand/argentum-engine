@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Vigor — Lorwyn #240
@@ -38,7 +38,7 @@ val Vigor = card("Vigor") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Matching(
+                recipient = Recipient.Object(
                     GameObjectFilter.Creature.youControl().notSourceItself()
                 )
             ),

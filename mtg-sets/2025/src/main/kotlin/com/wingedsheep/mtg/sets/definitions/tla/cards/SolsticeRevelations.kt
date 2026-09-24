@@ -67,7 +67,7 @@ val SolsticeRevelations = card("Solstice Revelations") {
                 // Only a mana value less than the number of Mountains you control may be cast free.
                 FilterCollectionEffect(
                     from = "nonland",
-                    filter = CollectionFilter.ManaValueAtMost(
+                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(
                         DynamicAmount.Subtract(
                             DynamicAmount.AggregateBattlefield(
                                 Player.You,
@@ -88,7 +88,7 @@ val SolsticeRevelations = card("Solstice Revelations") {
                 // exile for the stack, so only the nonland still in exile moves.
                 FilterCollectionEffect(
                     from = "nonland",
-                    filter = CollectionFilter.InZone(Zone.EXILE),
+                    filter = GameObjectFilter.Any.currentlyIn(Zone.EXILE),
                     storeMatching = "uncast"
                 ),
                 MoveCollectionEffect(

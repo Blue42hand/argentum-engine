@@ -192,10 +192,19 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact creature"
+                        "cardPredicates": [
+                            "IsArtifact",
+                            "IsCreature"
+                        ]
                     }
                 }
             }
@@ -229,10 +238,18 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 }
             }
@@ -455,10 +472,18 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientEnchantedCreature",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsAttachedToBySource"
+                            ]
+                        }
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 }
             }
@@ -2211,10 +2236,14 @@
                 "redirectTo": "Self",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "You",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 },
                 "condition": {

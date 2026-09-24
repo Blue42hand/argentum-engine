@@ -2162,7 +2162,14 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "damageType": "DamageCombat"
                 }
             },
@@ -2170,7 +2177,11 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "source": "SourceSelf",
+                    "source": {
+                        "statePredicates": [
+                            "IsSource"
+                        ]
+                    },
                     "damageType": "DamageCombat"
                 }
             }

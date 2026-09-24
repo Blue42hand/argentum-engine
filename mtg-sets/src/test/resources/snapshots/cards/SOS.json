@@ -4670,7 +4670,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "controlled",
-                    "filter": "GreatestManaValue",
+                    "collectionFilter": "GreatestManaValue",
                     "storeMatching": "greatestManaValue"
                 },
                 {
@@ -9652,10 +9652,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "discarded",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "land"
-                    },
+                    "filter": "land",
                     "storeMatching": "discardedLands"
                 },
                 {
@@ -14790,7 +14787,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -18767,10 +18767,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "kept",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "land"
-                    },
+                    "filter": "land",
                     "storeMatching": "keptLands",
                     "storeNonMatching": "keptCreatures"
                 },

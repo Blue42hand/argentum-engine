@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -66,7 +67,7 @@ val TripleTriad = card("Triple Triad") {
                 // Others with strictly lesser mana value than your card (< mineMV  ==  <= mineMV - 1)
                 FilterCollectionEffect(
                     from = "others",
-                    filter = CollectionFilter.ManaValueAtMost(
+                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(
                         DynamicAmount.Subtract(DynamicAmount.StoredCardManaValue("mine"), DynamicAmount.Fixed(1))
                     ),
                     storeMatching = "playableOthers"

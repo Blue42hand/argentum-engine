@@ -546,6 +546,7 @@ class BeginningPhaseManager(
         // true preserves the historical "no constraint" behavior, but the case is now
         // explicit so adding a new StatePredicate variant becomes a compile-time decision.
         StatePredicate.IsOnBattlefield,
+        is StatePredicate.InZone,
         StatePredicate.IsTapped,
         StatePredicate.IsUntapped,
         StatePredicate.IsPrepared,

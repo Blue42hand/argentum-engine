@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.CounterRemovalAmount
 import com.wingedsheep.sdk.scripting.PreventDamageByRemovingCounter
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Consume one shield counter from [entityId], the single mutation behind both halves of
@@ -149,7 +149,7 @@ fun applyPreventByRemovingCounterToDamage(
     val effect = effects.filterIsInstance<PreventDamageByRemovingCounter>().firstOrNull { candidate ->
         val pattern = candidate.appliesTo
         pattern is EventPattern.DamageEvent &&
-            pattern.recipient == RecipientFilter.Self &&
+            pattern.recipient == Recipient.Self &&
             when (pattern.damageType) {
                 is DamageType.Any -> true
                 is DamageType.Combat -> isCombatDamage

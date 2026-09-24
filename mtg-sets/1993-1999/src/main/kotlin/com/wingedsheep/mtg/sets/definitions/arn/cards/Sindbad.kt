@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -46,13 +45,13 @@ val Sindbad = card("Sindbad") {
             Effects.DrawCards(1),
             FilterCollectionEffect(
                 from = "toDraw",
-                filter = CollectionFilter.InZone(Zone.HAND),
+                filter = GameObjectFilter.Any.currentlyIn(Zone.HAND),
                 storeMatching = "drawn"
             ),
             RevealCollectionEffect(from = "drawn", revealToSelf = false),
             FilterCollectionEffect(
                 from = "drawn",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                filter = GameObjectFilter.Land,
                 storeMatching = "keptLand",
                 storeNonMatching = "notLand"
             ),

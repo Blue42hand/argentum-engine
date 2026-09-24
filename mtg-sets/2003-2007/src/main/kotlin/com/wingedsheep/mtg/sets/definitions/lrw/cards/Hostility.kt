@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -13,8 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.events.SourceFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Hostility — Lorwyn #176
@@ -37,8 +37,8 @@ val Hostility = card("Hostility") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Opponent,
-                source = SourceFilter.SpellYouControl
+                recipient = Recipient.Opponent,
+                source = GameObjectFilter.Any.currentlyIn(Zone.STACK).youControl()
             ),
             onPrevented = Effects.CreateToken(
                 count = DynamicAmounts.preventedDamage(),

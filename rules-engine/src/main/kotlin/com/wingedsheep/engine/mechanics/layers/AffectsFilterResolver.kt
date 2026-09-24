@@ -428,6 +428,7 @@ internal class AffectsFilterResolver {
         // is trivially satisfied here; it only does work in PredicateEvaluator, where an object
         // that has left the battlefield can still be asked about.
         StatePredicate.IsOnBattlefield -> true
+        is StatePredicate.InZone -> predicate.zone == com.wingedsheep.sdk.core.Zone.BATTLEFIELD
         StatePredicate.IsTapped -> container.has<TappedComponent>()
         StatePredicate.IsUntapped -> !container.has<TappedComponent>()
         StatePredicate.IsPrepared -> container.has<PreparedComponent>()

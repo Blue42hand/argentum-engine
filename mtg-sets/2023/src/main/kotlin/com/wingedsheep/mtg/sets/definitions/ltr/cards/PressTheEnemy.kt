@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -70,7 +69,7 @@ val PressTheEnemy = card("Press the Enemy") {
                 ),
                 FilterCollectionEffect(
                     from = "handSpells",
-                    filter = CollectionFilter.ManaValueAtMost(DynamicAmount.VariableReference("bouncedMv")),
+                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.VariableReference("bouncedMv")),
                     storeMatching = "castable"
                 ),
                 // You may cast one of them without paying its mana cost.

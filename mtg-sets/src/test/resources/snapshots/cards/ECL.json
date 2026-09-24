@@ -1008,7 +1008,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "toBattlefield"
                             },
@@ -3159,8 +3159,12 @@
                     "type": "FilterCollection",
                     "from": "searchable",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": "XValue"
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": "XValue"
+                            }
+                        ]
                     },
                     "storeMatching": "mvOk"
                 },
@@ -4221,13 +4225,10 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": {
-                            "cardPredicates": [
-                                "HasChosenSubtype"
-                            ],
-                            "controllerPredicate": "ControlledByYou"
-                        }
+                        "cardPredicates": [
+                            "HasChosenSubtype"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }
@@ -7375,7 +7376,10 @@
                         "event": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayer",
+                            "recipient": {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            },
                             "sourceFilter": "creature ctrl:you"
                         },
                         "binding": "ANY"
@@ -7799,12 +7803,9 @@
                             "type": "FilterCollection",
                             "from": "looked",
                             "filter": {
-                                "type": "MatchesFilter",
-                                "filter": {
-                                    "cardPredicates": [
-                                        "HasChosenSubtype"
-                                    ]
-                                }
+                                "cardPredicates": [
+                                    "HasChosenSubtype"
+                                ]
                             },
                             "storeMatching": "matchingCard",
                             "storeNonMatching": "nonMatchingCard"
@@ -7906,12 +7907,9 @@
                             "type": "FilterCollection",
                             "from": "looked",
                             "filter": {
-                                "type": "MatchesFilter",
-                                "filter": {
-                                    "cardPredicates": [
-                                        "HasChosenSubtype"
-                                    ]
-                                }
+                                "cardPredicates": [
+                                    "HasChosenSubtype"
+                                ]
                             },
                             "storeMatching": "matchingCard",
                             "storeNonMatching": "nonMatchingCard"
@@ -10491,12 +10489,16 @@
                             "type": "FilterCollection",
                             "from": "handCreatures",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "AggregateBattlefield",
-                                    "player": "You",
-                                    "filter": "creature attacking"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "creature attacking"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "eligible"
                         },
@@ -14959,7 +14961,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "toExile"
                             },
@@ -17394,7 +17396,19 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayerOrPlaneswalker"
+                            "recipient": {
+                                "type": "RecipientAnyOf",
+                                "options": [
+                                    {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    },
+                                    {
+                                        "type": "RecipientObject",
+                                        "filter": "planeswalker"
+                                    }
+                                ]
+                            }
                         },
                         "effect": {
                             "type": "DrawCards",
@@ -17430,7 +17444,19 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayerOrPlaneswalker"
+                            "recipient": {
+                                "type": "RecipientAnyOf",
+                                "options": [
+                                    {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    },
+                                    {
+                                        "type": "RecipientObject",
+                                        "filter": "planeswalker"
+                                    }
+                                ]
+                            }
                         },
                         "effect": {
                             "type": "DrawCards",
@@ -17788,10 +17814,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "chosen",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "instant|sorcery"
-                            },
+                            "filter": "instant|sorcery",
                             "storeMatching": "instantOrSorcery"
                         },
                         {
@@ -20072,16 +20095,13 @@
                         "type": "FilterCollection",
                         "from": "rest",
                         "filter": {
-                            "type": "MatchesFilter",
-                            "filter": {
-                                "cardPredicates": [
-                                    "IsCreature",
-                                    {
-                                        "type": "HasSubtypeInEachStoredGroup",
-                                        "groupName": "chosenSubtypes"
-                                    }
-                                ]
-                            }
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "HasSubtypeInEachStoredGroup",
+                                    "groupName": "chosenSubtypes"
+                                }
+                            ]
                         },
                         "storeMatching": "shareTypes",
                         "storeNonMatching": "noShareTypes"

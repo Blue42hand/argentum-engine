@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -60,7 +59,7 @@ val GatheringStone = card("Gathering Stone") {
             ),
             FilterCollectionEffect(
                 from = "looked",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Any.withChosenSubtype()),
+                filter = GameObjectFilter.Any.withChosenSubtype(),
                 storeMatching = "matchingCard",
                 storeNonMatching = "nonMatchingCard"
             ),

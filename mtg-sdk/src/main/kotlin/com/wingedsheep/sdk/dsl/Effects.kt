@@ -1889,8 +1889,8 @@ object Effects {
         duration: Duration = Duration.EndOfTurn,
         counterType: CounterType =
             CounterType.PLUS_ONE_PLUS_ONE,
-        recipient: com.wingedsheep.sdk.scripting.events.RecipientFilter =
-            com.wingedsheep.sdk.scripting.events.RecipientFilter.CreatureYouControl
+        recipient: com.wingedsheep.sdk.scripting.events.Recipient =
+            com.wingedsheep.sdk.scripting.events.Recipient.CreatureYouControl
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.GrantCounterPlacementModifierEffect(
             modifier = modifier,
@@ -4690,7 +4690,7 @@ object Effects {
      */
     fun GrantDamageBonus(
         bonusAmount: Int,
-        sourceFilter: com.wingedsheep.sdk.scripting.events.SourceFilter = com.wingedsheep.sdk.scripting.events.SourceFilter.Any,
+        sourceFilter: GameObjectFilter = GameObjectFilter.Any,
         target: EffectTarget = EffectTarget.Controller,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantDamageBonusEffect(bonusAmount, sourceFilter, target, duration)

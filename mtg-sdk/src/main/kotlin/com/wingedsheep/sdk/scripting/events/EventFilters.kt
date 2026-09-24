@@ -8,259 +8,116 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 // =============================================================================
-// Recipient Filters - Who/what receives damage or effects
+// Recipient - a player or an object an event happens to
 // =============================================================================
 
 /**
- * Filter for damage/effect recipients.
+ * Who or what an event happens to — the recipient of damage, the permanent a counter is put on, the
+ * thing an activated ability targets. It can be a **player or an object**, which is exactly why it
+ * isn't a [GameObjectFilter]: that type describes objects only. Rather than grow a third vocabulary,
+ * [Recipient] names each half with the vocabulary that already exists for it — a [Player] reference
+ * for players, a [GameObjectFilter] for objects — and [AnyOf] unions them ("a player or
+ * planeswalker", "an opponent or a permanent an opponent controls").
+ *
+ * Every reading is relative to the observing ability: [Player] `You` / `EachOpponent` / `EnchantedPlayer`
+ * and a filter's `youControl()` / `sourceItself()` / `attachedToBySource()` resolve against the
+ * permanent that carries the trigger or replacement and its controller. An [Object] is matched against
+ * the recipient's last-known information when the recipient has already left the battlefield — a
+ * creature killed by the very damage that is being asked about is still "a creature you control",
+ * because the trigger event is checked against the objects as they existed right after it (CR 603.10)
+ * — and against its own characteristics while it is still on its way onto the battlefield (a counter
+ * placed on an entering creature, CR 614.12).
+ *
+ * The companion constants spell the common recipients so card code stays readable:
+ * `Recipient.AnyPlayer`, `Recipient.CreatureYouControl`, `Recipient.Self`, …
  */
 @Serializable
-sealed interface RecipientFilter {
+sealed interface Recipient {
     val description: String
 
-    @SerialName("RecipientAny")
+    /** A player named by a [com.wingedsheep.sdk.scripting.references.Player] reference. */
+    @SerialName("RecipientPlayer")
     @Serializable
-    data object Any : RecipientFilter {
-        override val description = "any target"
+    data class Player(val player: com.wingedsheep.sdk.scripting.references.Player) : Recipient {
+        override val description: String get() = when (player) {
+            com.wingedsheep.sdk.scripting.references.Player.EachOpponent -> "an opponent"
+            else -> player.description
+        }
     }
 
-    @SerialName("You")
+    /** An object (a permanent, or a spell for an ability's target) matching [filter]. */
+    @SerialName("RecipientObject")
     @Serializable
-    data object You : RecipientFilter {
-        override val description = "you"
+    data class Object(val filter: GameObjectFilter) : Recipient {
+        override val description: String get() = filter.description
     }
 
-    @SerialName("RecipientOpponent")
+    /** Any of [options] — the heterogeneous "player or object" unions. */
+    @SerialName("RecipientAnyOf")
     @Serializable
-    data object Opponent : RecipientFilter {
-        override val description = "an opponent"
+    data class AnyOf(val options: List<Recipient>) : Recipient {
+        init {
+            require(options.size >= 2) { "Recipient.AnyOf needs at least two options, got ${options.size}" }
+        }
+
+        override val description: String get() = options.joinToString(" or ") { it.description }
     }
 
-    @SerialName("AnyPlayer")
-    @Serializable
-    data object AnyPlayer : RecipientFilter {
-        override val description = "a player"
-    }
+    companion object {
+        /** Any player. */
+        val AnyPlayer: Recipient = Player(com.wingedsheep.sdk.scripting.references.Player.Any)
 
-    @SerialName("AnyPlayerOrPlaneswalker")
-    @Serializable
-    data object AnyPlayerOrPlaneswalker : RecipientFilter {
-        override val description = "a player or planeswalker"
-    }
+        /** You — the controller of the observing ability. */
+        val You: Recipient = Player(com.wingedsheep.sdk.scripting.references.Player.You)
 
-    @SerialName("CreatureYouControl")
-    @Serializable
-    data object CreatureYouControl : RecipientFilter {
-        override val description = "a creature you control"
-    }
+        /** An opponent of the observing ability's controller. */
+        val Opponent: Recipient = Player(com.wingedsheep.sdk.scripting.references.Player.EachOpponent)
 
-    @SerialName("CreatureOpponentControls")
-    @Serializable
-    data object CreatureOpponentControls : RecipientFilter {
-        override val description = "a creature an opponent controls"
-    }
+        /**
+         * The player the observing Aura is attached to — "deals combat damage to enchanted player"
+         * (Curse of Hospitality). Scoped by the source's *attachment*, not its controller, so a
+         * curse on one opponent doesn't fire off damage dealt to another; matches nothing when the
+         * source isn't attached to a player.
+         */
+        val EnchantedPlayer: Recipient = Player(com.wingedsheep.sdk.scripting.references.Player.EnchantedPlayer)
 
-    @SerialName("AnyCreature")
-    @Serializable
-    data object AnyCreature : RecipientFilter {
-        override val description = "a creature"
-    }
+        /** Any object at all — every permanent a damage or counter event can reach. */
+        val AnyObject: Recipient = Object(GameObjectFilter.Any)
 
-    @SerialName("PermanentYouControl")
-    @Serializable
-    data object PermanentYouControl : RecipientFilter {
-        override val description = "a permanent you control"
-    }
+        /** Anything: any player or any object — the unrestricted default. */
+        val Any: Recipient = AnyOf(listOf(AnyPlayer, AnyObject))
 
-    @SerialName("AnyPermanent")
-    @Serializable
-    data object AnyPermanent : RecipientFilter {
-        override val description = "a permanent"
-    }
+        val AnyCreature: Recipient = Object(GameObjectFilter.Creature)
+        val AnyPermanent: Recipient = Object(GameObjectFilter.Permanent)
+        val CreatureYouControl: Recipient = Object(GameObjectFilter.Creature.youControl())
+        val CreatureOpponentControls: Recipient = Object(GameObjectFilter.Creature.opponentControls())
+        val PermanentYouControl: Recipient = Object(GameObjectFilter.Permanent.youControl())
 
-    /**
-     * An opponent (player) of the effect's controller, or a permanent that an opponent
-     * controls. Models the common damage-recipient template "an opponent or a permanent
-     * an opponent controls" (Fated Firepower). Unlike [Opponent] (player only) or
-     * [CreatureOpponentControls] (creature only), this matches both the opponent player
-     * and every permanent type they control.
-     */
-    @SerialName("OpponentOrPermanentTheyControl")
-    @Serializable
-    data object OpponentOrPermanentTheyControl : RecipientFilter {
-        override val description = "an opponent or a permanent an opponent controls"
-    }
+        /** The permanent carrying the observing ability ("this creature"). */
+        val Self: Recipient = Object(GameObjectFilter.Any.sourceItself())
 
-    @SerialName("RecipientSelf")
-    @Serializable
-    data object Self : RecipientFilter {
-        override val description = "this permanent"
-    }
+        /**
+         * The permanent the observing Aura is attached to ("enchanted creature"). The same object as
+         * [EquippedCreature] — both read the source's attachment — named twice so an Aura and an
+         * Equipment each read in their own vocabulary.
+         */
+        val EnchantedCreature: Recipient = Object(GameObjectFilter.Any.attachedToBySource())
 
-    @SerialName("RecipientEnchantedCreature")
-    @Serializable
-    data object EnchantedCreature : RecipientFilter {
-        override val description = "enchanted creature"
-    }
+        /** The permanent the observing Equipment is attached to ("equipped creature"); see [EnchantedCreature]. */
+        val EquippedCreature: Recipient = EnchantedCreature
 
-    /**
-     * The *player* the observing ability's source Aura is attached to — "deals combat damage to
-     * enchanted player" (Curse of Hospitality). The enchant-player sibling of [EnchantedCreature]
-     * (CR 303, [com.wingedsheep.sdk.scripting.references.Player.EnchantedPlayer]).
-     *
-     * Scoped by the source's *attachment*, not by its controller, which is why an Aura curse can't
-     * reuse [Opponent]: a curse on one opponent must not fire off damage dealt to another. Matches
-     * only when the attachment target is a player, so a planeswalker that player controls never
-     * counts; fails closed when the source isn't attached to a player.
-     *
-     * Pair with `binding = TriggerBinding.ANY` and a `sourceFilter`, not with
-     * [com.wingedsheep.sdk.scripting.TriggerBinding.ATTACHED]: the text needs the *damaging
-     * creature* as the triggering entity ("that creature's controller"), and a source-filtered
-     * observer is what binds it there.
-     */
-    @SerialName("RecipientEnchantedPlayer")
-    @Serializable
-    data object EnchantedPlayer : RecipientFilter {
-        override val description = "enchanted player"
-    }
+        /** "A player or planeswalker". */
+        val AnyPlayerOrPlaneswalker: Recipient = AnyOf(listOf(AnyPlayer, Object(GameObjectFilter.Planeswalker)))
 
-    @SerialName("RecipientEquippedCreature")
-    @Serializable
-    data object EquippedCreature : RecipientFilter {
-        override val description = "equipped creature"
-    }
+        /** "A creature or player" — Ertha Jo, Frontier Mentor's "an ability that targets a creature or player". */
+        val CreatureOrPlayer: Recipient = AnyOf(listOf(Object(GameObjectFilter.Creature), AnyPlayer))
 
-    @SerialName("RecipientMatching")
-    @Serializable
-    data class Matching(val filter: GameObjectFilter) : RecipientFilter {
-        override val description = filter.description
-    }
-}
-
-// =============================================================================
-// Source Filters - Where damage or effects come from
-// =============================================================================
-
-/**
- * Filter for damage/effect sources.
- */
-@Serializable
-sealed interface SourceFilter {
-    val description: String
-
-    @SerialName("SourceAny")
-    @Serializable
-    data object Any : SourceFilter {
-        override val description = "any source"
-    }
-
-    /**
-     * The permanent that owns the effect — i.e. damage dealt *by this permanent*. Mirror of
-     * [RecipientFilter.Self] for the source side. Used by static foggers like Fog Bank
-     * ("prevent all combat damage that would be dealt to and dealt by this creature").
-     */
-    @SerialName("SourceSelf")
-    @Serializable
-    data object Self : SourceFilter {
-        override val description = "this permanent"
-    }
-
-    @SerialName("SourceCombat")
-    @Serializable
-    data object Combat : SourceFilter {
-        override val description = "combat"
-    }
-
-    @SerialName("SourceNonCombat")
-    @Serializable
-    data object NonCombat : SourceFilter {
-        override val description = "a non-combat source"
-    }
-
-    @SerialName("Spell")
-    @Serializable
-    data object Spell : SourceFilter {
-        override val description = "a spell"
-    }
-
-    @SerialName("Ability")
-    @Serializable
-    data object Ability : SourceFilter {
-        override val description = "an ability"
-    }
-
-    @SerialName("HasColor")
-    @Serializable
-    data class HasColor(val color: Color) : SourceFilter {
-        override val description = "a ${color.name.lowercase()} source"
-    }
-
-    @SerialName("HasType")
-    @Serializable
-    data class HasType(val type: String) : SourceFilter {
-        override val description = "a $type"
-    }
-
-    /**
-     * The creature this replacement's host Aura is attached to — damage dealt *by* the enchanted
-     * creature. Source-side mirror of [RecipientFilter.EnchantedCreature].
-     */
-    @SerialName("SourceEnchantedCreature")
-    @Serializable
-    data object EnchantedCreature : SourceFilter {
-        override val description = "enchanted creature"
-    }
-
-    /**
-     * The creature this replacement's host Equipment is attached to — damage dealt *by* the
-     * equipped creature ("Double all damage equipped creature would deal", Mjölnir, Hammer of
-     * Thor). Source-side mirror of [RecipientFilter.EquippedCreature].
-     *
-     * Resolves identically to [EnchantedCreature] (both read the host's attachment), and the two
-     * share a branch in the engine's source matcher exactly as the [RecipientFilter] pair does.
-     * They are kept distinct so an Equipment's card definition reads in Equipment vocabulary
-     * rather than borrowing Aura wording.
-     */
-    @SerialName("SourceEquippedCreature")
-    @Serializable
-    data object EquippedCreature : SourceFilter {
-        override val description = "equipped creature"
-    }
-
-    @SerialName("SourceCreature")
-    @Serializable
-    data object Creature : SourceFilter {
-        override val description = "a creature"
-    }
-
-    /**
-     * A source (of any kind — permanent, spell, or ability) controlled by the effect's
-     * controller. Models "a source you control" (Fated Firepower). The source's controller
-     * is compared against the replacement's controller, so it covers attacking creatures,
-     * burn spells on the stack, and ability sources alike.
-     */
-    @SerialName("SourceYouControl")
-    @Serializable
-    data object YouControl : SourceFilter {
-        override val description = "a source you control"
-    }
-
-    /**
-     * A spell controlled by the effect's controller — Hostility's "If a spell you control would
-     * deal damage to an opponent". A spell deals its damage while it is resolving on the stack, so
-     * this matches a source that is a spell on the stack (a copy included) and not an ability or a
-     * permanent, and compares that spell's controller with the replacement's.
-     */
-    @SerialName("SourceSpellYouControl")
-    @Serializable
-    data object SpellYouControl : SourceFilter {
-        override val description = "a spell you control"
-    }
-
-    @SerialName("SourceMatching")
-    @Serializable
-    data class Matching(val filter: GameObjectFilter) : SourceFilter {
-        override val description = filter.description
+        /**
+         * "An opponent or a permanent an opponent controls" (Fated Firepower, Twinflame Tyrant) —
+         * the opponent player and every permanent type they control.
+         */
+        val OpponentOrPermanentTheyControl: Recipient =
+            AnyOf(listOf(Opponent, Object(GameObjectFilter.Permanent.opponentControls())))
     }
 }
 
@@ -341,36 +198,6 @@ sealed interface AmountFilter {
     data class Exactly(val value: Int) : AmountFilter {
         override val description = "exactly $value"
         override fun matches(amount: Int) = amount == value
-    }
-}
-
-// =============================================================================
-// Controller Filters
-// =============================================================================
-
-/**
- * Controller/owner filters.
- */
-@Serializable
-sealed interface ControllerFilter {
-    val description: String
-
-    @SerialName("ControllerYou")
-    @Serializable
-    data object You : ControllerFilter {
-        override val description = "under your control"
-    }
-
-    @SerialName("ControllerOpponent")
-    @Serializable
-    data object Opponent : ControllerFilter {
-        override val description = "under an opponent's control"
-    }
-
-    @SerialName("ControllerAny")
-    @Serializable
-    data object Any : ControllerFilter {
-        override val description = ""
     }
 }
 
@@ -726,55 +553,5 @@ sealed interface AttackPredicate {
     @Serializable
     data object AttackedAlongsideGreaterPower : AttackPredicate {
         override val description = "with another creature with greater power"
-    }
-}
-
-// =============================================================================
-// Ability Target Match - constrains an activated ability by its chosen targets
-// =============================================================================
-
-/**
- * A predicate over the set of targets an activated ability on the stack was given.
- *
- * Used by [com.wingedsheep.sdk.scripting.EventPattern.AbilityActivatedEvent.targetMatch] to express
- * "Whenever you activate an ability that targets X" (Ertha Jo, Frontier Mentor — "...that targets a
- * creature or player"). A constraint is satisfied when **at least one** of the ability's chosen
- * targets matches it; a non-targeting ability (e.g. a tap-for-mana) never matches, so it doesn't
- * fire the trigger.
- *
- * The match space is wider than [GameObjectFilter] because an ability can target a *player* as well
- * as an object, and `GameObjectFilter` only describes objects. [AnyPlayer] covers the player half;
- * [ObjectMatching] covers the object half; [AnyOf] composes them into heterogeneous unions such as
- * "creature or player".
- */
-@Serializable
-sealed interface AbilityTargetMatch {
-    val description: String
-
-    /** At least one chosen target is a player. */
-    @SerialName("AbilityTargetAnyPlayer")
-    @Serializable
-    data object AnyPlayer : AbilityTargetMatch {
-        override val description = "player"
-    }
-
-    /** At least one chosen target is an object matching [filter] (creature, permanent, …). */
-    @SerialName("AbilityTargetObjectMatching")
-    @Serializable
-    data class ObjectMatching(val filter: GameObjectFilter) : AbilityTargetMatch {
-        override val description = filter.description
-    }
-
-    /** At least one chosen target matches any of [options] (heterogeneous OR). */
-    @SerialName("AbilityTargetAnyOf")
-    @Serializable
-    data class AnyOf(val options: List<AbilityTargetMatch>) : AbilityTargetMatch {
-        override val description = options.joinToString(" or ") { it.description }
-    }
-
-    companion object {
-        /** "...that targets a creature or player." */
-        val CreatureOrPlayer: AbilityTargetMatch =
-            AnyOf(listOf(ObjectMatching(GameObjectFilter.Creature), AnyPlayer))
     }
 }

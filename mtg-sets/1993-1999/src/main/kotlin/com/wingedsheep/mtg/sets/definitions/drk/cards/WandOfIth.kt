@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -86,7 +85,7 @@ val WandOfIth = card("Wand of Ith") {
             RevealCollectionEffect(from = "ithRevealed"),
             FilterCollectionEffect(
                 from = "ithRevealed",
-                filter = CollectionFilter.MatchesFilter(GameObjectFilter.Land),
+                filter = GameObjectFilter.Land,
                 storeMatching = "ithLand",
                 storeNonMatching = "ithNonland",
             ),

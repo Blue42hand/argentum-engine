@@ -17,11 +17,10 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.NotedCreatureTypesComponent
-import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
-import com.wingedsheep.engine.state.components.stack.projectedTypeLine
+import com.wingedsheep.engine.state.components.stack.captureLastKnown
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
@@ -446,20 +445,8 @@ internal class ActivationCostPayer(
         // `CardPredicate.AbilitySourceMatches` in PredicateEvaluator. Reading the *projected* type
         // line here also gets the animated-artifact / crewed-Vehicle source right.
         //
-        // The state-aware `captureEntitySnapshots` overload already freezes token-ness and the
-        // name; only the projected type line, keywords and card-definition id are layered on top.
         val lastKnownSourceSnapshot: EntitySnapshot? =
-            if (movesSource) {
-                captureEntitySnapshots(listOf(action.sourceId), state)
-                    .firstOrNull()
-                    ?.copy(
-                        typeLine = projectedTypeLine(state, action.sourceId),
-                        keywords = state.projectedState.getKeywords(action.sourceId),
-                        cardDefinitionId = state.getEntity(action.sourceId)
-                            ?.get<CardComponent>()
-                            ?.cardDefinitionId,
-                    )
-            } else null
+            if (movesSource) captureLastKnown(state, action.sourceId) else null
 
         // Snapshot the entity ids attached to the source before a self-exile / self-sacrifice cost
         // moves it off the battlefield (CR 113.7a). The host's live AttachmentsComponent is gone by

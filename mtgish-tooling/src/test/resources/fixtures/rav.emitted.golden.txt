@@ -4308,7 +4308,7 @@ val GolgariGraveTroll = card("Golgari Grave-Troll") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -6456,7 +6456,7 @@ val NecromanticThirst = card("Necromantic Thirst") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8541,7 +8541,7 @@ val ShadowOfDoubt = card("Shadow of Doubt") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10553,7 +10553,7 @@ val VindictiveMob = card("Vindictive Mob") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity

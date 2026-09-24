@@ -1442,7 +1442,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -2979,10 +2982,7 @@
                                     {
                                         "type": "FilterCollection",
                                         "from": "top",
-                                        "filter": {
-                                            "type": "MatchesFilter",
-                                            "filter": "creature"
-                                        },
+                                        "filter": "creature",
                                         "storeMatching": "topCreature"
                                     },
                                     {
@@ -3474,7 +3474,7 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "creature Goblin|Orc"
                     }
                 },
@@ -4671,7 +4671,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
-                    "recipient": "CreatureOpponentControls",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature ctrl:opponent"
+                    },
                     "requireExcess": true
                 },
                 "binding": "ANY",
@@ -5904,7 +5907,14 @@
                 ],
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    }
                 }
             }
         ]
@@ -6009,7 +6019,10 @@
                                     "trigger": {
                                         "type": "DealsDamageEvent",
                                         "damageType": "DamageCombat",
-                                        "recipient": "AnyPlayer"
+                                        "recipient": {
+                                            "type": "RecipientPlayer",
+                                            "player": "Any"
+                                        }
                                     },
                                     "effect": {
                                         "type": "Gated",
@@ -7156,7 +7169,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "binding": "ATTACHED",
                 "effect": {
@@ -7183,11 +7199,15 @@
                             "type": "FilterCollection",
                             "from": "handSpells",
                             "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "VariableReference",
-                                    "variableName": "combatDamage"
-                                }
+                                "cardPredicates": [
+                                    {
+                                        "type": "ManaValueAtMostDynamic",
+                                        "amount": {
+                                            "type": "VariableReference",
+                                            "variableName": "combatDamage"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "castable"
                         },
@@ -7883,7 +7903,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": {
                         "cardPredicates": [
                             {
@@ -10522,7 +10545,7 @@
                     "type": "CounterPlacementEvent",
                     "counterType": "PLUS_ONE_PLUS_ONE",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "permanent Army|Goblin|Orc ctrl:you"
                     }
                 }
@@ -10562,7 +10585,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -11519,7 +11545,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature Goblin|Orc ctrl:you"
                 },
                 "binding": "ANY",
@@ -13126,11 +13155,15 @@
                     "type": "FilterCollection",
                     "from": "handSpells",
                     "filter": {
-                        "type": "ManaValueAtMost",
-                        "max": {
-                            "type": "VariableReference",
-                            "variableName": "bouncedMv"
-                        }
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": {
+                                    "type": "VariableReference",
+                                    "variableName": "bouncedMv"
+                                }
+                            }
+                        ]
                     },
                     "storeMatching": "castable"
                 },
@@ -15089,7 +15122,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature Army ctrl:you"
                 },
                 "binding": "ANY",

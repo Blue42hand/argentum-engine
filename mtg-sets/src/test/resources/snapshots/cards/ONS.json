@@ -955,7 +955,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "You",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    },
                     "sourceFilter": "creature"
                 },
                 "binding": "ANY",
@@ -2243,7 +2246,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "ForceSacrifice",
@@ -2285,7 +2291,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature Goblin"
                 },
                 "binding": "ANY",
@@ -3036,7 +3045,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -4190,7 +4202,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "creature Cleric ctrl:you"
                     }
                 }
@@ -4235,7 +4247,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -5225,7 +5240,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "LoseLife",
@@ -5735,7 +5753,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "sharingType_gathered",
-                    "filter": "SharesSubtypeWithSacrificed",
+                    "collectionFilter": "SharesSubtypeWithSacrificed",
                     "storeMatching": "sharingType_filtered"
                 },
                 {
@@ -7868,8 +7886,10 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "creature ctrl:you"
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }
@@ -8378,8 +8398,15 @@
                             "type": "FilterCollection",
                             "from": "destroyAll_gathered",
                             "filter": {
-                                "type": "ExcludeSubtypesFromStored",
-                                "storedKey": "chosenTypes"
+                                "cardPredicates": [
+                                    {
+                                        "type": "Not",
+                                        "predicate": {
+                                            "type": "HasSubtypeInStoredList",
+                                            "listName": "chosenTypes"
+                                        }
+                                    }
+                                ]
                             },
                             "storeMatching": "destroyAll_filtered"
                         },
@@ -8439,7 +8466,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -8635,7 +8665,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "ForEach",
@@ -8764,7 +8797,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -12281,7 +12317,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -12863,7 +12902,14 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientEnchantedCreature",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsAttachedToBySource"
+                            ]
+                        }
+                    },
                     "damageType": "DamageCombat"
                 }
             },
@@ -12871,7 +12917,11 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "source": "SourceEnchantedCreature",
+                    "source": {
+                        "statePredicates": [
+                            "IsAttachedToBySource"
+                        ]
+                    },
                     "damageType": "DamageCombat"
                 }
             }
@@ -13248,7 +13298,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyCreature"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    }
                 },
                 "effect": {
                     "type": "CreateDelayedTrigger",
@@ -13654,7 +13707,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "ForEach",
@@ -13837,7 +13893,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -14286,7 +14345,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -15689,7 +15751,11 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DamageReceivedEvent",
-                    "source": "SourceCreature"
+                    "source": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
                 },
                 "effect": {
                     "type": "DealDamage",
@@ -15704,7 +15770,17 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "DamageReceivedEvent",
-                    "source": "Spell"
+                    "source": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsInstant",
+                                    "IsSorcery"
+                                ]
+                            }
+                        ]
+                    }
                 },
                 "effect": {
                     "type": "DealDamage",

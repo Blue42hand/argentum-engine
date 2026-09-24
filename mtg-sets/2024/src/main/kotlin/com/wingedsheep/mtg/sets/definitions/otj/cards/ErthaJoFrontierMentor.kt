@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.events.AbilityTargetMatch
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * the Mercenary token's `{T}:` ability does, so activating it copies the pump onto a second creature.
  *
  * The "targets a creature or player" restriction is enforced by
- * [AbilityTargetMatch.CreatureOrPlayer] on the trigger — a non-targeting ability (tap-for-mana,
+ * [Recipient.CreatureOrPlayer] on the trigger — a non-targeting ability (tap-for-mana,
  * etc.) never fires it.
  */
 val ErthaJoFrontierMentor = card("Ertha Jo, Frontier Mentor") {
@@ -65,7 +65,7 @@ val ErthaJoFrontierMentor = card("Ertha Jo, Frontier Mentor") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youActivateAbilityTargeting(AbilityTargetMatch.CreatureOrPlayer)
+        trigger = Triggers.youActivateAbilityTargeting(Recipient.CreatureOrPlayer)
         effect = Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity)
     }
 

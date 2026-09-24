@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -56,7 +55,7 @@ val TheRollercrusherRide = card("The Rollercrusher Ride") {
         DoubleDamage(
             restrictions = listOf(Conditions.Delirium(4)),
             appliesTo = EventPattern.DamageEvent(
-                source = SourceFilter.Matching(GameObjectFilter.Any.youControl()),
+                source = GameObjectFilter.Any.youControl(),
                 damageType = DamageType.NonCombat,
             ),
         )

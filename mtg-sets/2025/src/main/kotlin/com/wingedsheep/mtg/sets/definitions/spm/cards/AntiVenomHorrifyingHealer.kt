@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * If damage would be dealt to Anti-Venom, prevent that damage and put that many +1/+1 counters
  * on him.
  *
- * The damage-to-counters clause is a `RecipientFilter.Self` `ReplaceDamageWithCounters`, now wired
+ * The damage-to-counters clause is a `Recipient.Self` `ReplaceDamageWithCounters`, now wired
  * on the creature-damage paths (`CombatDamageManager.applyDamageToCreature` +
  * `DamageUtils.applyDamage`).
  */
@@ -48,7 +48,7 @@ val AntiVenomHorrifyingHealer = card("Anti-Venom, Horrifying Healer") {
     replacementEffect(
         ReplaceDamageWithCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            appliesTo = EventPattern.DamageEvent(recipient = RecipientFilter.Self)
+            appliesTo = EventPattern.DamageEvent(recipient = Recipient.Self)
         )
     )
 

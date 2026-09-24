@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -77,7 +77,7 @@ val GreatTrainHeist = card("Great Train Heist") {
                     effect = CreateDelayedTriggerEffect(
                         trigger = Triggers.dealsDamage(
                             damageType = DamageType.Combat,
-                            recipient = RecipientFilter.AnyPlayer,
+                            recipient = Recipient.AnyPlayer,
                             sourceFilter = GameObjectFilter.Creature.youControl(),
                         ),
                         watchedRecipient = EffectTarget.ContextTarget(0),

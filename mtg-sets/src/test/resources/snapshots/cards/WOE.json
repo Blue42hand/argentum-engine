@@ -1161,8 +1161,12 @@
                                 "type": "FilterCollection",
                                 "from": "backForSecondsTargets",
                                 "filter": {
-                                    "type": "InZone",
-                                    "zone": "Graveyard"
+                                    "statePredicates": [
+                                        {
+                                            "type": "InZone",
+                                            "zone": "Graveyard"
+                                        }
+                                    ]
                                 },
                                 "storeMatching": "backForSecondsToHand"
                             },
@@ -1755,11 +1759,15 @@
                                 "type": "FilterCollection",
                                 "from": "beseechExiled",
                                 "filter": {
-                                    "type": "ManaValueAtMost",
-                                    "max": {
-                                        "type": "Fixed",
-                                        "amount": 4
-                                    }
+                                    "cardPredicates": [
+                                        {
+                                            "type": "ManaValueAtMostDynamic",
+                                            "amount": {
+                                                "type": "Fixed",
+                                                "amount": 4
+                                            }
+                                        }
+                                    ]
                                 },
                                 "storeMatching": "beseechCastable"
                             },
@@ -1782,8 +1790,12 @@
                     "type": "FilterCollection",
                     "from": "beseechExiled",
                     "filter": {
-                        "type": "InZone",
-                        "zone": "Exile"
+                        "statePredicates": [
+                            {
+                                "type": "InZone",
+                                "zone": "Exile"
+                            }
+                        ]
                     },
                     "storeMatching": "beseechUncast"
                 },
@@ -2679,19 +2691,16 @@
                     "type": "FilterCollection",
                     "from": "breakSpellTarget",
                     "filter": {
-                        "type": "MatchesFilter",
-                        "filter": {
-                            "anyOf": [
-                                {
-                                    "controllerPredicate": "ControlledByYou"
-                                },
-                                {
-                                    "cardPredicates": [
-                                        "IsToken"
-                                    ]
-                                }
-                            ]
-                        }
+                        "anyOf": [
+                            {
+                                "controllerPredicate": "ControlledByYou"
+                            },
+                            {
+                                "cardPredicates": [
+                                    "IsToken"
+                                ]
+                            }
+                        ]
                     },
                     "storeMatching": "breakSpellYoursOrToken",
                     "storeNonMatching": "breakSpellNeither"
@@ -2709,7 +2718,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "breakSpellDestroyed",
-                    "filter": {
+                    "collectionFilter": {
                         "type": "ExcludeOtherCollection",
                         "otherCollectionName": "breakSpellNeither"
                     },
@@ -5541,10 +5550,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "faerieSlumberPartyCreatures",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:opponent"
-                    },
+                    "filter": "creature ctrl:opponent",
                     "storeMatching": "faerieSlumberPartyOpponentCreatures",
                     "storeNonMatching": "faerieSlumberPartyOwnCreatures"
                 },
@@ -7244,10 +7250,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "gathered0",
-                    "filter": {
-                        "type": "MatchesFilter",
-                        "filter": "creature ctrl:you"
-                    },
+                    "filter": "creature ctrl:you",
                     "storeMatching": "matching1"
                 },
                 {
@@ -8975,7 +8978,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "AnyCreature",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    },
                     "sourceFilter": "instant|sorcery ctrl:you",
                     "requires": [
                         "DamageSourceSoleTargetIsRecipient"
@@ -14087,7 +14093,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -14723,7 +14732,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -17818,8 +17830,12 @@
                             "type": "FilterCollection",
                             "from": "selected",
                             "filter": {
-                                "type": "InZone",
-                                "zone": "Hand"
+                                "statePredicates": [
+                                    {
+                                        "type": "InZone",
+                                        "zone": "Hand"
+                                    }
+                                ]
                             },
                             "storeMatching": "selectedFromHand"
                         },
@@ -20100,7 +20116,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
-                    "recipient": "RecipientOpponent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    },
                     "sourceFilter": "ctrl:you"
                 },
                 "binding": "ANY",

@@ -1293,7 +1293,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -3855,10 +3858,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "chandraExiled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "red"
-                            },
+                            "filter": "red",
                             "storeMatching": "chandraExiledRed"
                         },
                         {
@@ -4634,7 +4634,7 @@
                 {
                     "type": "FilterCollection",
                     "from": "gathered0",
-                    "filter": {
+                    "collectionFilter": {
                         "type": "ExcludeOtherCollection",
                         "otherCollectionName": "kept1"
                     },
@@ -5156,7 +5156,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "RecipientEnchantedPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EnchantedPlayer"
+                    },
                     "sourceFilter": "creature"
                 },
                 "binding": "ANY",
@@ -7572,7 +7575,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -10834,7 +10840,10 @@
                     "id": "ability_3",
                     "trigger": {
                         "type": "DealsDamageEvent",
-                        "recipient": "PermanentYouControl"
+                        "recipient": {
+                            "type": "RecipientObject",
+                            "filter": "permanent ctrl:you"
+                        }
                     },
                     "binding": "ANY",
                     "effect": {
@@ -13500,7 +13509,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -13526,7 +13538,10 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayer"
+                            "recipient": {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            }
                         },
                         "effect": {
                             "type": "DrawCards",
@@ -19765,7 +19780,7 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "permanent Vampire"
                     }
                 },

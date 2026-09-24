@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.HijackScope
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.ManaSpellRider
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import kotlinx.serialization.Serializable
 
@@ -1646,13 +1645,13 @@ data class LoseAtEndStepComponent(
  * would deal damage to a permanent or player this turn, it deals that much damage plus 2 instead."
  *
  * @param bonusAmount The flat bonus to add to damage
- * @param sourceFilter Which sources get the bonus (e.g., SourceFilter.HasColor(Color.RED) for red sources)
+ * @param sourceFilter Which sources get the bonus (e.g., GameObjectFilter.Any.withColor(Color.RED) for red sources)
  * @param removeOn When this component should be removed
  */
 @Serializable
 data class DamageBonusComponent(
     val bonusAmount: Int,
-    val sourceFilter: SourceFilter = SourceFilter.Any,
+    val sourceFilter: GameObjectFilter = GameObjectFilter.Any,
     val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
 ) : Component
 
