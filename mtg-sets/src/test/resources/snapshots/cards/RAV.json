@@ -1894,6 +1894,51 @@
     ]
 }
 
+// Chorus of the Conclave
+{
+    "name": "Chorus of the Conclave",
+    "manaCost": "{4}{G}{G}{W}{W}",
+    "typeLine": "Legendary Creature — Dryad",
+    "oracleText": "Forestwalk (This creature can't be blocked as long as defending player controls a Forest.)\nAs an additional cost to cast creature spells, you may pay any amount of mana. If you do, that creature enters with that many additional +1/+1 counters on it.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 8
+    },
+    "keywords": [
+        "FORESTWALK"
+    ],
+    "script": {
+        "staticAbilities": [
+            "AdditionalManaForEntryCounters"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "195",
+        "rarity": "RARE",
+        "artist": "Brian Despain",
+        "flavorText": "\"We are many, yet one. We are separate in body, yet speak with a single voice. Join us in our chorus.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/2/d2792033-19e1-4629-8155-85c6c2d89106.jpg?1783943626",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "Chorus of the Conclave's ability works only while it's on the battlefield, so you can't use it to put +1/+1 counters on itself."
+            },
+            {
+                "date": "2005-10-01",
+                "text": "Chorus of the Conclave's ability applies to creature spells only as they're being cast. You can't pay mana to put counters on creatures being put onto the battlefield by an effect."
+            },
+            {
+                "date": "2005-10-01",
+                "text": "Chorus of the Conclave's ability combines well with the convoke mechanic, effectively letting you tap creatures to put +1/+1 counters on the creature with convoke that you're casting, if you choose to do so."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Circu, Dimir Lobotomist
 {
     "name": "Circu, Dimir Lobotomist",
@@ -9023,6 +9068,51 @@
     ]
 }
 
+// Master Warcraft
+{
+    "name": "Master Warcraft",
+    "manaCost": "{2}{R/W}{R/W}",
+    "typeLine": "Instant",
+    "oracleText": "Cast this spell only before attackers are declared.\nYou choose which creatures attack this turn.\nYou choose which creatures block this turn and how those creatures block.",
+    "script": {
+        "spellEffect": "ControlCombatDeclarationsThisTurn",
+        "castRestrictions": [
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "BeforeAttackersDeclaredThisTurn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "250",
+        "rarity": "RARE",
+        "artist": "Zoltan Boros & Gabor Szikszai",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d111510-ca7f-4127-b540-48265aa36311.jpg?1783943603",
+        "rulings": [
+            {
+                "date": "2013-09-20",
+                "text": "If a turn has multiple combat phases, this spell can only be cast before the beginning of the Declare Attackers Step of the first combat phase in that turn."
+            },
+            {
+                "date": "2008-04-01",
+                "text": "If the defending player controls a planeswalker, the person who cast Master Warcraft first chooses the complete group of creatures that are going to attack. Then, for each of those creatures, the active player chooses who or what it's going to attack."
+            },
+            {
+                "date": "2006-01-01",
+                "text": "You can decide that a creature won't block."
+            },
+            {
+                "date": "2005-10-01",
+                "text": "You choose attackers and make blocking assignments regardless of whether it's your turn and regardless of whether the creatures are attacking you. Your choices must be legal within the normal rules for attacking and blocking."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}
+
 // Mausoleum Turnkey
 {
     "name": "Mausoleum Turnkey",
@@ -11127,6 +11217,68 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Quickchange
+{
+    "name": "Quickchange",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature becomes the color or colors of your choice until end of turn.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ChooseColorThen",
+                    "then": {
+                        "type": "ChangeColorToChosen",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature"
+                        }
+                    },
+                    "prompt": "Choose one or more colors",
+                    "maxColors": 5
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "62",
+        "artist": "Christopher Moeller",
+        "flavorText": "Most Ravnicans lead lives of desperate survival. Those who thrive are malleable enough to change with the ever-shifting politics of the guilds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/f/3f90c1a1-679d-45c5-a1d4-53dad05e45fa.jpg?1783943680",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "You can choose any single color or any combination of more than one color. You can't choose colorless."
+            },
+            {
+                "date": "2005-10-01",
+                "text": "Quickchange won't make an artifact stop being an artifact. It'll just be a colorful artifact."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -13379,6 +13531,59 @@
     "colorIdentityOverride": [
         "BLUE"
     ]
+}
+
+// Spectral Searchlight
+{
+    "name": "Spectral Searchlight",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Choose a player. That player adds one mana of any color they choose.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "SelectTarget",
+                            "requirement": {
+                                "type": "TargetPlayer",
+                                "descriptionOverride": "a player"
+                            },
+                            "storeAs": "chosenManaRecipient"
+                        },
+                        {
+                            "type": "AddManaOfChoice",
+                            "recipient": {
+                                "type": "PipelineTarget",
+                                "collectionName": "chosenManaRecipient"
+                            },
+                            "colorChosenByRecipient": true
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Choose a player. That player adds one mana of any color they choose."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "271",
+        "rarity": "UNCOMMON",
+        "artist": "Martina Pilcerova",
+        "flavorText": "The first searchlights were given as gifts, symbols of cooperation, to the emissaries present at the signing of the Guildpact.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1b7209e2-8e62-40aa-ad84-16c6ad52fd69.jpg?1783943595",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "You may choose yourself."
+            }
+        ]
+    }
 }
 
 // Stasis Cell
