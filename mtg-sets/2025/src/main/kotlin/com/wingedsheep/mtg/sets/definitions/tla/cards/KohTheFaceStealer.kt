@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -37,7 +36,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - The ETB exiles up to one other target creature into Koh's [Effects.ExileLinkedToSource] pile
  *    (a permanent exile with no return — unlike Aang's Iceberg's exile-until-leaves).
  *  - A dies trigger ([TriggerBinding.OTHER], nontoken creatures) offers to exile the dying creature
- *    from its graveyard into the same pile ([MayEffect] + [EffectTarget.TriggeringEntity]).
+ *    from its graveyard into the same pile ([Effects.May] + [EffectTarget.TriggeringEntity]).
  *  - "Pay 1 life: Choose a creature card exiled with Koh" gathers the linked-exile pile, lets the
  *    controller pick one creature card, and stamps it as the last chosen card via
  *    [Effects.RecordChosenLinkedExile].
@@ -81,7 +80,7 @@ val KohTheFaceStealer = card("Koh, the Face Stealer") {
             ),
             binding = TriggerBinding.OTHER
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.ExileLinkedToSource(EffectTarget.TriggeringEntity),
             inlineOnTrigger = true
         )

@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.model.CardDefinition.Companion.doubleFacedPermanent
 import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -820,7 +819,7 @@ object PredefinedTokens {
 
         triggeredAbility {
             trigger = Triggers.attacks()
-            effect = MayEffect(Patterns.Library.mill(1))
+            effect = Effects.May(Patterns.Library.mill(1))
             description = "Whenever this token attacks, you may mill a card."
         }
 

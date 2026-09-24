@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -64,7 +63,7 @@ val AuratouchedMage = card("Auratouched Mage") {
                 storeSelected = "found",
                 prompt = "Search for an Aura card that could enchant Auratouched Mage"
             ),
-            ConditionalEffect(
+            Effects.If(
                 Conditions.SourceInZone(Zone.BATTLEFIELD),
                 MoveCollectionEffect(
                     from = "found",

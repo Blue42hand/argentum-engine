@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -104,14 +103,14 @@ private fun zoralineReanimateEffect() = Effects.Composite(
             ),
             storeAs = "eligible"
         ),
-        OptionalCostEffect(
+        Effects.MayPay(
             cost = Effects.Composite(
                 listOf(
                     PayManaCostEffect(ManaCost.parse("{W}{B}")),
                     PayLifeEffect(2)
                 )
             ),
-            ifPaid = Effects.Composite(
+            then = Effects.Composite(
                 listOf(
                     // Select one to return
                     SelectFromCollectionEffect(

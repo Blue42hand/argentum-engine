@@ -602,7 +602,7 @@ object Conditions {
      * a binary comparison can't express. Counts come from the projected battlefield.
      *
      * Wrap it in a per-player loop for "each player who controls the most X" (No Witnesses):
-     * `ForEachPlayerEffect(Player.Each, ConditionalEffect(PlayerControlsMostPermanents(Player.You,
+     * `ForEachPlayerEffect(Player.Each, Effects.If(PlayerControlsMostPermanents(Player.You,
      * GameObjectFilter.Creature), …))` — inside the loop `Player.You` is the iterated player.
      */
     fun PlayerControlsMostPermanents(
@@ -891,7 +891,7 @@ object Conditions {
      * [NoManaSpentToCast]. True iff **every** permanent a batch trigger captured (the
      * `Triggers.OneOrMorePermanentsEnter` batch, exposed at resolution as the `trigger.captured`
      * collection) had no mana spent to cast it; an empty capture is vacuously true. Use as a
-     * resolution-time [com.wingedsheep.sdk.dsl.Effects] `ConditionalEffect` gate on the payoff —
+     * resolution-time [com.wingedsheep.sdk.dsl.Effects] `Effects.If` gate on the payoff —
      * Satoru, the Infiltrator.
      */
     val NoManaSpentToCastEntered: ConditionInterface =

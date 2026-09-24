@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -42,10 +42,10 @@ val TheLastRoninsTechnique = card("The Last Ronin's Technique") {
     sneak("{1}{W}")
 
     spell {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = SneakCostWasPaid,
-            effect = spiritTokens(tappedAndAttacking = true),
-            elseEffect = spiritTokens(tappedAndAttacking = false)
+            then = spiritTokens(tappedAndAttacking = true),
+            otherwise = spiritTokens(tappedAndAttacking = false)
         )
     }
 

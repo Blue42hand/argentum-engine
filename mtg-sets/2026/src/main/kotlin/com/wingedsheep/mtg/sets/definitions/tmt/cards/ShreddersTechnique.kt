@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,10 +33,10 @@ val ShreddersTechnique = card("Shredder's Technique") {
 
     spell {
         val t = target("target creature or enchantment", Targets.CreatureOrEnchantment)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment),
-            effect = Effects.Destroy(t).then(Effects.LoseLife(2, EffectTarget.Controller)),
-            elseEffect = Effects.Destroy(t)
+            then = Effects.Destroy(t).then(Effects.LoseLife(2, EffectTarget.Controller)),
+            otherwise = Effects.Destroy(t)
         )
     }
 

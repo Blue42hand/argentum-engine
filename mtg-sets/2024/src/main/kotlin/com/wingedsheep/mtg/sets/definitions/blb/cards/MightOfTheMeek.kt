@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Might of the Meek
@@ -28,9 +27,9 @@ val MightOfTheMeek = card("Might of the Meek") {
         val creature = target("target creature to gain trample", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ControlCreatureOfType(Subtype("Mouse")),
-                    effect = Effects.ModifyStats(1, 0, creature)
+                    then = Effects.ModifyStats(1, 0, creature)
                 )
             )
             .then(Effects.DrawCards(1))

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RetainUnspentColoredMana
-import com.wingedsheep.sdk.scripting.effects.MayPayXForEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -53,8 +52,8 @@ val ElectroAssaultingBattery = card("Electro, Assaulting Battery") {
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
         val target = target("target player", Targets.Player)
-        effect = MayPayXForEffect(
-            effect = Effects.DealDamage(DynamicAmount.XValue, target)
+        effect = Effects.MayPayX(
+            then = Effects.DealDamage(DynamicAmount.XValue, target)
         )
     }
 

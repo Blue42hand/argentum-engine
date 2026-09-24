@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -40,10 +38,10 @@ val VaultguardTrooper = card("Vaultguard Trooper") {
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(2)
         )
-        effect = MayEffect(
-            IfYouDoEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
                 action = Patterns.Hand.discardHand(EffectTarget.Controller),
-                ifYouDo = Effects.DrawCards(2),
+                then = Effects.DrawCards(2),
                 // Discarding your hand always succeeds, even with zero cards in it — Auto's
                 // "graveyard grew" probe would wrongly skip the draw on an empty hand.
                 successCriterion = SuccessCriterion.Always

@@ -30,7 +30,6 @@ import com.wingedsheep.sdk.scripting.effects.OpenLifeBidEffect
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.AddCountersUpToEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicCountersEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveAllLastKnownCountersEffect
 import com.wingedsheep.sdk.scripting.effects.AddSubtypeEffect
 import com.wingedsheep.sdk.scripting.effects.SetLandTypeEffect
@@ -80,7 +79,6 @@ import com.wingedsheep.sdk.scripting.effects.CantPlayCardsFromHandEffect
 import com.wingedsheep.sdk.scripting.effects.PreventLandPlaysThisTurnEffect
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EmitBendEventEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
@@ -92,8 +90,9 @@ import com.wingedsheep.sdk.scripting.effects.PlayFromCollectionWithoutPayingCost
 import com.wingedsheep.sdk.scripting.effects.CastAnyNumberFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect
 import com.wingedsheep.sdk.scripting.costs.PayCost
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
+import com.wingedsheep.sdk.scripting.effects.DynamicHint
+import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.GrantDamageBonusEffect
 import com.wingedsheep.sdk.scripting.effects.DamageCantBePreventedThisTurnEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
@@ -377,8 +376,8 @@ object Effects {
     /**
      * Pay life equal to a [DynamicAmount] (e.g. "pay life equal to its power"). Used as the
      * `cost` effect inside a [com.wingedsheep.sdk.scripting.effects.Gate.MayPay] gate — pair with
-     * `Effects.OptionalCost` / `MayPayManaEffect`-style gating so the same dynamic amount can
-     * also feed the `ifPaid` effect. A non-positive evaluated amount pays nothing (still "paid").
+     * `Effects.OptionalCost` / `Effects.MayPay`-style gating so the same dynamic amount can
+     * also feed the `then` effect. A non-positive evaluated amount pays nothing (still "paid").
      */
     fun PayDynamicLife(
         amount: DynamicAmount,
@@ -878,9 +877,9 @@ object Effects {
         ),
         // CR 701.65b: airbending fires "whenever you airbend" only if one or more objects were
         // actually exiled (an "up to one" airbend that chose nothing exiles nothing → no bend).
-        ConditionalEffect(
+        Effects.If(
             condition = CollectionContainsMatch("airbendExiled"),
-            effect = EmitBendEventEffect(BendType.AIR)
+            then = EmitBendEventEffect(BendType.AIR)
         )
     ))
 
@@ -920,9 +919,9 @@ object Effects {
             fixedAlternativeManaCost = cost
         ),
         // CR 701.65b: fire "whenever you airbend" only if one or more objects were exiled.
-        ConditionalEffect(
+        Effects.If(
             condition = CollectionContainsMatch("airbendExiled"),
-            effect = EmitBendEventEffect(BendType.AIR)
+            then = EmitBendEventEffect(BendType.AIR)
         )
     ))
 
@@ -3463,6 +3462,133 @@ object Effects {
         CreatureTypePatterns.chooseCreatureTypeGainControl(duration)
 
     // =========================================================================
+    // Conditional & optional effects — every "if" and "you may" is one GatedEffect
+    // =========================================================================
+    //
+    // Four printed shapes, four facades, one frame. Each lowers to a [GatedEffect] whose [Gate]
+    // names *what* must succeed; the gated executor owns the unwind order for all of them (targets
+    // lock when the ability is put on the stack, the gate resolves at resolution, then `then` or
+    // `otherwise` runs). Card code never builds a `GatedEffect` or a `Gate` itself.
+
+    /**
+     * "If [condition], [then]. Otherwise, [otherwise]." — a state test evaluated at resolution;
+     * no decision, no pause.
+     */
+    fun If(
+        condition: Condition,
+        then: Effect,
+        otherwise: Effect? = null,
+        descriptionOverride: String? = null
+    ): GatedEffect = GatedEffect(
+        gate = Gate.WhenCondition(condition),
+        then = then,
+        otherwise = otherwise,
+        descriptionOverride = descriptionOverride
+    )
+
+    /**
+     * "You may [effect]." — the controller (or [decisionMaker]) answers yes or no at resolution.
+     *
+     * @param otherwise Runs iff the chooser declines ("If that player doesn't, …").
+     * @param decisionMaker Who answers. Defaults to the controller; only the prompt is delegated
+     *   (e.g. [EffectTarget.TargetController] for "that creature's controller may …").
+     * @param sourceRequiredZone Skip silently if the source has left this zone by resolution.
+     * @param inlineOnTrigger Render the yes/no inline on the triggering permanent.
+     * @param hint Reminder text shown under the prompt.
+     * @param dynamicHint Reminder text whose `{n}` is filled in at resolution ([DynamicHint]); use it
+     *   when several instances of one ability can be on the stack carrying different numbers.
+     * @param feasibility Precondition for the action being possible at all. Unmet at resolution ⇒ the
+     *   prompt is skipped and [otherwise] runs directly. Only for preconditions the *engine* can
+     *   decide — never to pre-empt a genuine player choice.
+     * @param prompt The question the yes/no asks, when it differs from the effect's description
+     *   ("Buy your way out of Worms of the Earth?").
+     * @param descriptionOverride Hand-written ability text instead of the derived "You may …".
+     */
+    fun May(
+        effect: Effect,
+        otherwise: Effect? = null,
+        prompt: String? = null,
+        decisionMaker: EffectTarget? = null,
+        sourceRequiredZone: Zone? = null,
+        inlineOnTrigger: Boolean = false,
+        hint: String? = null,
+        dynamicHint: DynamicHint? = null,
+        feasibility: FeasibilityCheck? = null,
+        descriptionOverride: String? = null
+    ): GatedEffect = GatedEffect(
+        gate = Gate.MayDecide(
+            prompt = prompt,
+            hint = hint,
+            dynamicHint = dynamicHint,
+            sourceRequiredZone = sourceRequiredZone,
+            inlineOnTrigger = inlineOnTrigger,
+            feasibility = feasibility
+        ),
+        then = effect,
+        otherwise = otherwise,
+        decisionMaker = decisionMaker,
+        descriptionOverride = descriptionOverride
+    )
+
+    /**
+     * "You may [cost]. If you do, [then]. Otherwise, [otherwise]." — the gate is *paying* a
+     * recognized cost primitive (mana, life, …); the player is only asked when they can pay.
+     *
+     * @param decisionMaker Who is offered the payment ("…unless that creature's controller pays
+     *   {1}"). Defaults to the controller.
+     */
+    fun MayPay(
+        cost: Effect,
+        then: Effect,
+        otherwise: Effect? = null,
+        decisionMaker: EffectTarget? = null,
+        descriptionOverride: String? = null
+    ): GatedEffect = GatedEffect(
+        gate = Gate.MayPay(cost),
+        then = then,
+        otherwise = otherwise,
+        decisionMaker = decisionMaker,
+        descriptionOverride = descriptionOverride
+    )
+
+    /**
+     * "You may pay [cost]. If you do, [then]." — the mana form of [MayPay]. With no [otherwise] the
+     * engine gives it the optional-mana-payment UX (manual source selection; for a targeted trigger,
+     * pay → select mana → choose target).
+     */
+    fun MayPay(cost: ManaCost, then: Effect, otherwise: Effect? = null): GatedEffect =
+        MayPay(PayManaCostEffect(cost), then, otherwise)
+
+    /**
+     * "You may pay {X}. If you do, [then]." — prompts for X (0 to the most the player can afford),
+     * pays it, and binds it into [then]'s context as `DynamicAmount.XValue`.
+     */
+    fun MayPayX(then: Effect): GatedEffect = GatedEffect(gate = Gate.MayPayX, then = then)
+
+    /**
+     * "[action]. If you do, [then]. If you don't, [otherwise]." — gates on whether [action]
+     * actually accomplished its work, not on a decision. Wrap in [May] for the common
+     * "You may [action]. If you do, [then]".
+     *
+     * The default [SuccessCriterion.Auto] is only legal on action shapes it can infer success
+     * from (a terminal zone move) — card-load validation rejects it elsewhere; pass
+     * [SuccessCriterion.Always] / [SuccessCriterion.CollectionNonEmpty] explicitly for actions
+     * whose outcome isn't a zone-size delta.
+     */
+    fun IfYouDo(
+        action: Effect,
+        then: Effect,
+        otherwise: Effect? = null,
+        successCriterion: SuccessCriterion = SuccessCriterion.Auto,
+        descriptionOverride: String? = null
+    ): GatedEffect = GatedEffect(
+        gate = Gate.DoAction(action, successCriterion),
+        then = then,
+        otherwise = otherwise,
+        descriptionOverride = descriptionOverride
+    )
+
+    // =========================================================================
     // Composite Effects
     // =========================================================================
 
@@ -3631,7 +3757,7 @@ object Effects {
      * cast it" wording without "without paying its mana cost" — Kaervek, the Punisher). The card
      * must already be in a zone where casting is legal (e.g. exile after a copy step). When
      * [storeCastTo] is set, the cast card's id is published to that pipeline collection on a
-     * successful cast, so an enclosing [IfYouDoEffect] with
+     * successful cast, so an enclosing [Effects.IfYouDo] with
      * [com.wingedsheep.sdk.scripting.effects.SuccessCriterion.CollectionNonEmpty] can gate a
      * follow-up ("If you do, …").
      */
@@ -3708,23 +3834,6 @@ object Effects {
      */
     fun RepeatWhile(body: Effect, repeatCondition: RepeatCondition): Effect =
         RepeatWhileEffect(body, repeatCondition)
-
-    /**
-     * "[action]. If you do, [ifYouDo]" — gates [ifYouDo] on whether [action] actually
-     * accomplished its work, not on a yes/no decision. Wrap with `MayEffect` for the
-     * common "You may [action]. If you do, [effect]" pattern.
-     *
-     * The default [SuccessCriterion.Auto] is only legal on action shapes it can infer
-     * success from (a terminal zone move) — card-load validation rejects it elsewhere;
-     * pass [SuccessCriterion.Always] / [SuccessCriterion.CollectionNonEmpty] explicitly
-     * for actions whose outcome isn't a zone-size delta.
-     */
-    fun IfYouDo(
-        action: Effect,
-        ifYouDo: Effect,
-        ifYouDont: Effect? = null,
-        successCriterion: SuccessCriterion = SuccessCriterion.Auto
-    ): Effect = IfYouDoEffect(action, ifYouDo, ifYouDont, successCriterion)
 
     /**
      * Present a player with labeled options and execute the chosen effect.
@@ -5299,7 +5408,7 @@ object Effects {
     fun Endure(
         amount: DynamicAmount,
         target: EffectTarget = EffectTarget.Self
-    ): Effect = MayEffect(
+    ): Effect = Effects.May(
         effect = AddDynamicCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
         otherwise = CreateTokenEffect(
             count = DynamicAmount.Fixed(1),

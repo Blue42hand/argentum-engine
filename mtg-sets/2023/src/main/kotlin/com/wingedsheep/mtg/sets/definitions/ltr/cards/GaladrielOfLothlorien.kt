@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
@@ -52,7 +51,7 @@ val GaladrielOfLothlorien = card("Galadriel of Lothlórien") {
 
     triggeredAbility {
         trigger = Triggers.WheneverYouScry
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 listOf(
                     GatherCardsEffect(

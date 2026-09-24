@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - **Trigger** — "a Mountain you control" is any *land* with the Mountain subtype (a nonbasic dual
  *    with the type counts), so the filter is `Land.withSubtype(MOUNTAIN).youControl()` with an `ANY`
  *    binding rather than a basic-land-only filter.
- *  - **Threshold** — the counter goes on unconditionally, then a [ConditionalEffect] gated on the
+ *  - **Threshold** — the counter goes on unconditionally, then a [Effects.If] gated on the
  *    *live* count ([Conditions.SourceCounterCountAtLeast]`(QUEST, 6)`) fires the payoff, exactly
  *    like the Ascension cycle. "Six or more" (not "exactly six") matters because proliferate can
  *    overshoot six between triggers.
@@ -67,9 +66,9 @@ val LastLightOfDurinsDay = card("Last Light of Durin's Day") {
         )
         effect = Effects.Composite(
             Effects.AddCounters(Counters.QUEST, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 6),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.SacrificeTarget(EffectTarget.Self),
                     Patterns.Library.searchMultipleZones(
                         zones = listOf(Zone.HAND, Zone.LIBRARY),

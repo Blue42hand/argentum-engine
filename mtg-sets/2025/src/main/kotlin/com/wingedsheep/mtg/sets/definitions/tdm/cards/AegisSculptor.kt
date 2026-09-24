@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -30,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * At the beginning of your upkeep, you may exile two cards from your graveyard. If you do,
  * put a +1/+1 counter on this creature.
  *
- * The upkeep ability is an optional "exile exactly two" pipeline gated by [IfYouDoEffect]: gather
+ * The upkeep ability is an optional "exile exactly two" pipeline gated by [Effects.IfYouDo]: gather
  * your graveyard, let the player choose exactly two cards, move them to exile, and only add the
  * counter when both cards were actually exiled ([SuccessCriterion.CollectionNonEmpty] with
  * `min = 2`). With fewer than two cards in the graveyard the player can decline / cannot complete
@@ -53,8 +51,8 @@ val AegisSculptor = card("Aegis Sculptor") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = MayEffect(
-            IfYouDoEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
                 action = Effects.Composite(
                     listOf(
                         GatherCardsEffect(
@@ -73,7 +71,7 @@ val AegisSculptor = card("Aegis Sculptor") {
                         )
                     )
                 ),
-                ifYouDo = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 successCriterion = SuccessCriterion.CollectionNonEmpty("toExile", min = 2)
             )
         )

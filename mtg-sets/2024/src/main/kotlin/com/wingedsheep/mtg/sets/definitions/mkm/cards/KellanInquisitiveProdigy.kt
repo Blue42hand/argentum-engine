@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.PlayAdditionalLandsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -39,10 +38,10 @@ val KellanInquisitiveProdigy = card("Kellan, Inquisitive Prodigy") {
             "up to one target artifact",
             TargetObject(filter = TargetFilter.Artifact, optional = true),
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Artifact.youControl()),
-            effect = Effects.Destroy(artifact).then(Effects.DrawCards(1)),
-            elseEffect = Effects.Destroy(artifact),
+            then = Effects.Destroy(artifact).then(Effects.DrawCards(1)),
+            otherwise = Effects.Destroy(artifact),
         )
         description = "Whenever Kellan attacks, destroy up to one target artifact. If you " +
             "controlled that permanent, draw a card."

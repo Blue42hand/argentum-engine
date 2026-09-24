@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -63,13 +61,11 @@ val CrystalShard = card("Crystal Shard") {
     }
 }
 
-private fun bounceUnlessControllerPays(creature: EffectTarget) = GatedEffect(
-    gate = Gate.MayPay(
-        Effects.PayDynamicMana(
+private fun bounceUnlessControllerPays(creature: EffectTarget) = Effects.MayPay(
+    cost = Effects.PayDynamicMana(
             amount = DynamicAmount.Fixed(1),
             payer = Player.ControllerOf("target creature")
-        )
-    ),
+        ),
     decisionMaker = EffectTarget.TargetController,
     then = Effects.Composite(emptyList()),
     otherwise = Effects.ReturnToHand(creature),

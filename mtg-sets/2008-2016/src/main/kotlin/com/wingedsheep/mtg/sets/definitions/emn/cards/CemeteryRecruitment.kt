@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *
  * The "if it's a Zombie card" bonus is checked against the target's printed types before it moves
  * (the target is still the graveyard card at resolution start, and its type is invariant across the
- * zone change), so the draw is folded into a [ConditionalEffect] that gates the extra draw.
+ * zone change), so the draw is folded into a [Effects.If] that gates the extra draw.
  */
 val CemeteryRecruitment = card("Cemetery Recruitment") {
     manaCost = "{1}{B}"
@@ -36,10 +35,10 @@ val CemeteryRecruitment = card("Cemetery Recruitment") {
             "creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE)),
-            effect = Effects.Move(creature, Zone.HAND).then(Effects.DrawCards(1)),
-            elseEffect = Effects.Move(creature, Zone.HAND)
+            then = Effects.Move(creature, Zone.HAND).then(Effects.DrawCards(1)),
+            otherwise = Effects.Move(creature, Zone.HAND)
         )
     }
 

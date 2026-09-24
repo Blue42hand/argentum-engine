@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -41,7 +40,7 @@ val EsotericDuplicator = card("Esoteric Duplicator") {
 
     triggeredAbility {
         trigger = Triggers.YouSacrificeOneOrMore(GameObjectFilter.Artifact)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             ManaCost.parse("{2}"),
             CreateDelayedTriggerEffect(
                 step = Step.END,

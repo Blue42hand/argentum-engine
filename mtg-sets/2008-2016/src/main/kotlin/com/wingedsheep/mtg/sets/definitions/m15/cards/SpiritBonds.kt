@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -42,8 +40,8 @@ val SpiritBonds = card("Spirit Bonds") {
             filter = GameObjectFilter.Creature.nontoken().youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = GatedEffect(
-            gate = Gate.MayPay(PayManaCostEffect(ManaCost.parse("{W}"))),
+        effect = Effects.MayPay(
+            cost = PayManaCostEffect(ManaCost.parse("{W}")),
             then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,

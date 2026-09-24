@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * The end-step ability is gated by an intervening-if (`interveningIf`, checked both on trigger
  * and on resolution — CR 603.4) requiring four or more artifacts. It returns a captured target
  * creature card to hand (Ruin-Lurker Bat's `interveningIf` shape + Rakdos Joins Up's captured
- * target handle), then a [ConditionalEffect] runs only when you control eight or more artifacts:
+ * target handle), then a [Effects.If] runs only when you control eight or more artifacts:
  * each opponent loses life equal to the returned card's power, read via
  * [DynamicAmounts.targetPower] off the same bound target.
  */
@@ -62,9 +61,9 @@ val GolbezCrystalCollector = card("Golbez, Crystal Collector") {
         )
         effect = Effects.Move(creatureCard, Zone.HAND)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControlAtLeast(8, GameObjectFilter.Artifact.youControl()),
-                    effect = Effects.LoseLife(
+                    then = Effects.LoseLife(
                         DynamicAmounts.targetPower(0),
                         EffectTarget.PlayerRef(Player.EachOpponent),
                     ),

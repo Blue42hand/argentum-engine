@@ -36,7 +36,7 @@ val FanaticOfTheHarrowing = card("Fanatic of the Harrowing") {
             Patterns.Hand.eachOpponentDiscards(1),
             Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.DrawCards(1),
+                then = Effects.DrawCards(1),
             ),
         )
         description = "When this creature enters, each player discards a card. If you discarded a " +

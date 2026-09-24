@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,9 +35,9 @@ val PyreZombie = card("Pyre Zombie") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         triggerZone = Zone.GRAVEYARD
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{B}{B}"),
-            effect = Effects.ReturnToHand(EffectTarget.Self),
+            then = Effects.ReturnToHand(EffectTarget.Self),
         )
     }
 

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -28,9 +27,9 @@ val Whoosh = card("Whoosh!") {
 
     spell {
         target = Targets.NonlandPermanent
-        effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND) then ConditionalEffect(
+        effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND) then Effects.If(
             condition = WasKicked,
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
     }
 

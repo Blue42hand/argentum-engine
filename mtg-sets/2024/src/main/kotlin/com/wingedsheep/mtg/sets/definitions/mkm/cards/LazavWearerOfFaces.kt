@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * The copy half is Lazav, Familiar Stranger's shape with a different pool: gather → keep the
  * creature cards → choose up to one → become a copy of it until end of turn, reading the copy
  * source from exile via `sourceFromAnyZone`. `chooseUpTo(1)` *is* the printed "you may" —
- * declining selects nothing and the [ConditionalEffect] gate leaves Lazav alone. Copying takes
+ * declining selects nothing and the [Effects.If] gate leaves Lazav alone. Copying takes
  * copiable values only (CR 707.2), so Lazav keeps his counters, his tapped-and-attacking state and
  * any Auras, and reverts at end of turn.
  *
@@ -82,9 +81,9 @@ val LazavWearerOfFaces = card("Lazav, Wearer of Faces") {
                 name = "lazavCopySource",
             )
             run(
-                ConditionalEffect(
+                Effects.If(
                     condition = whenMatches(chosen),
-                    effect = Effects.EachPermanentBecomesCopyOfTarget(
+                    then = Effects.EachPermanentBecomesCopyOfTarget(
                         target = EffectTarget.PipelineTarget(chosen.key),
                         duration = Duration.EndOfTurn,
                         affected = EffectTarget.Self,

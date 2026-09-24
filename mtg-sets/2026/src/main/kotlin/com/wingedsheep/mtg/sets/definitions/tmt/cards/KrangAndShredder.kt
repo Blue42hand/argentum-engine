@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -79,7 +78,7 @@ val KrangAndShredder = card("Krang & Shredder") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 listOf(
                     GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "krangCastable"),

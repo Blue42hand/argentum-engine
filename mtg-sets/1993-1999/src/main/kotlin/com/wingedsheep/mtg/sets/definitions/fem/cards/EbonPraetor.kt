@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -63,9 +62,9 @@ val EbonPraetor = card("Ebon Praetor") {
         )
         effect = Effects.RemoveCounters(Counters.MINUS_TWO_MINUS_TWO, 1, EffectTarget.Self)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SacrificedHadSubtype(Subtype.THRULL.value),
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ZERO, 1, EffectTarget.Self)
+                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ZERO, 1, EffectTarget.Self)
                 )
             )
         description = "Sacrifice a creature: Remove a -2/-2 counter from this creature. If the sacrificed creature was a Thrull, put a +1/+0 counter on this creature. Activate only during your upkeep and only once each turn."

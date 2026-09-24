@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseOptionEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.GainControlEffect
@@ -163,9 +162,9 @@ object CreatureTypePatterns {
                 optionType = OptionType.CREATURE_TYPE,
                 storeAs = key
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = YouControlMostOfChosenType(key),
-                effect = ForEachInGroupEffect(
+                then = ForEachInGroupEffect(
                     filter = GroupFilter.ChosenSubtypeCreatures(key),
                     effect = GainControlEffect(
                         target = EffectTarget.Self,

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -38,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - "Enters with four ice counters" is a replacement effect (CR 614.1c), not an ETB trigger:
  *    [EntersWithCounters] over the new [Counters.ICE] counter, `selfOnly`.
  *  - The cast trigger is [Triggers.YouCastInstantOrSorcery] → [Effects.RemoveCounters] of one ice
- *    counter, then a [ConditionalEffect] on [Conditions.SourceCounterCountAtMost]`(ice, 0)` that
+ *    counter, then a [Effects.If] on [Conditions.SourceCounterCountAtMost]`(ice, 0)` that
  *    flips it. Gating the transform on the *live* count after the removal is what makes the printed
  *    ruling hold: taking the last counter off any other way never transforms it, because only this
  *    ability's resolution runs the check.
@@ -76,9 +75,9 @@ private val ThingInTheIceFront = card("Thing in the Ice") {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.Composite(
             Effects.RemoveCounters(Counters.ICE, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtMost(Counters.ICE, 0),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "Remove an ice counter from this creature. Then if it has no ice counters " +

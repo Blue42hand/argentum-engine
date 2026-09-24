@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 
 /**
@@ -31,7 +31,7 @@ val CommandoRaid = card("Commando Raid") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsCombatDamageToPlayer.event,
                 binding = Triggers.DealsCombatDamageToPlayer.binding,
-                effect = MayEffect(DealDamageEffect(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0))),
+                effect = Effects.May(DealDamageEffect(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0))),
                 targetRequirement = Targets.CreatureOpponentControls
             ),
             target = t

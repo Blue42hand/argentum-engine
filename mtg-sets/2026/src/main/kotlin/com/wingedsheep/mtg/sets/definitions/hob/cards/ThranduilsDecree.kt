@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Thranduil's Decree — The Hobbit #56
@@ -18,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  *
  * Modeling notes:
  *  - The exile rider is conditional on the countered spell being a *permanent* spell, so the two
- *    counter destinations are a [ConditionalEffect] rather than a single
+ *    counter destinations are a [Effects.If] rather than a single
  *    `CounterSpellToExile`: an instant or sorcery countered by the Decree goes to its owner's
  *    graveyard as usual and is never castable from exile. [Conditions.TargetMatchesFilter] is
  *    evaluated at resolution, while the countered spell is still on the stack, and the predicate
@@ -41,10 +40,10 @@ val ThranduilsDecree = card("Thranduil's Decree") {
 
     spell {
         target = Targets.Spell
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent),
-            effect = Effects.CounterSpellToExile(grantFreeCast = true),
-            elseEffect = Effects.CounterSpell()
+            then = Effects.CounterSpellToExile(grantFreeCast = true),
+            otherwise = Effects.CounterSpell()
         )
     }
 

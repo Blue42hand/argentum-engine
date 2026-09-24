@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,8 +31,8 @@ val VoroshTheHunter = card("Vorosh, the Hunter") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = GatedEffect(
-            gate = Gate.MayPay(PayManaCostEffect(ManaCost.parse("{2}{G}"))),
+        effect = Effects.MayPay(
+            cost = PayManaCostEffect(ManaCost.parse("{2}{G}")),
             then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 6, EffectTarget.Self)
         )
     }

@@ -23,7 +23,6 @@ import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveKeywordEffect
@@ -348,7 +347,7 @@ object SelfSteps {
      * English contracts the two into the causative "you may **have** ~ **become** …" rather than
      * repeating them. That is [Steps.mayCountedStep]'s contraction, one family over: both spellings
      * are generated from one call site so the pair cannot drift, and the model is the same
-     * `MayEffect` either way.
+     * `Effects.May` either way.
      */
     private fun selfAnimate(
         target: EffectTarget,
@@ -375,7 +374,7 @@ object SelfSteps {
                 colors = colour?.let { setOf(it.name) },
                 duration = Duration.EndOfTurn,
             )
-            return CardScript(spellEffect = if (may) MayEffect(animate) else animate)
+            return CardScript(spellEffect = if (may) Effects.May(animate) else animate)
         }
 
         val noun = "a {p}/{t} " +

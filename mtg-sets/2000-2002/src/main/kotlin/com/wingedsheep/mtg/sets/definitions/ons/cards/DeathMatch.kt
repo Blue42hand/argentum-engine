@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.scripting.TriggerSpec
@@ -30,7 +30,7 @@ val DeathMatch = card("Death Match") {
         trigger = TriggerSpec(ZoneChangeEvent(filter = GameObjectFilter.Creature, to = Zone.BATTLEFIELD), TriggerBinding.OTHER)
         controlledByTriggeringEntityController = true
         val t = target("target", Targets.Creature)
-        effect = MayEffect(
+        effect = Effects.May(
             ModifyStatsEffect(
                 powerModifier = -3,
                 toughnessModifier = -3,

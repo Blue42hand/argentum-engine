@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -44,9 +43,9 @@ val Homesickness = card("Homesickness") {
         effect = DrawCardsEffect(2, EffectTarget.ContextTarget(0)).then(
             ForEachTargetEffect(
                 listOf(
-                    ConditionalEffect(
+                    Effects.If(
                         condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
-                        effect = Effects.Tap(EffectTarget.ContextTarget(0))
+                        then = Effects.Tap(EffectTarget.ContextTarget(0))
                             .then(AddCountersEffect(Counters.STUN, 1, EffectTarget.ContextTarget(0))),
                     )
                 )

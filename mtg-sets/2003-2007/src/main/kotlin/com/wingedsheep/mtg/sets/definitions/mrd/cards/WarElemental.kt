@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -39,13 +38,13 @@ val WarElemental = card("War Elemental") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmount.TurnTracking(Player.EachOpponent, TurnTracker.DAMAGE_RECEIVED),
                 ComparisonOperator.LT,
                 DynamicAmount.Fixed(1),
             ),
-            effect = Effects.SacrificeTarget(EffectTarget.Self),
+            then = Effects.SacrificeTarget(EffectTarget.Self),
         )
     }
 

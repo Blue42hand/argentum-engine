@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
@@ -66,7 +65,7 @@ val RotisserieElemental = card("Rotisserie Elemental") {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.AddCounters(Counters.SKEWER, 1, EffectTarget.Self)
             .then(
-                MayEffect(
+                Effects.May(
                     GatherCardsEffect(
                         source = CardSource.TopOfLibrary(
                             DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.SKEWER))

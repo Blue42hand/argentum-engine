@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Farsight Mask — Mirrodin #170
@@ -37,7 +35,7 @@ val FarsightMask = card("Farsight Mask") {
     triggeredAbility {
         trigger = Triggers.damageDealtToYou(GameObjectFilter.Any.opponentControls())
         interveningIf = Conditions.SourceIsUntapped
-        effect = MayEffect(Effects.DrawCards(1))
+        effect = Effects.May(Effects.DrawCards(1))
     }
 
     metadata {

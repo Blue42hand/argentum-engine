@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -49,7 +48,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    has nowhere to go).
  *
  *  - **"If he's attacking, untap him and there is an additional combat phase after this phase"** is
- *    checked when the trigger *resolves*, not when it fires — so it is a [ConditionalEffect] over
+ *    checked when the trigger *resolves*, not when it fires — so it is a [Effects.If] over
  *    [Conditions.SourceIsAttacking], not an intervening-if `interveningIf`. The body is the
  *    Combat Celebrant / Genji Glove pair: [Effects.Untap] on the source so he can attack again,
  *    then [Effects.AddCombatPhase], which inserts one extra combat phase (no trailing main phase)
@@ -110,7 +109,7 @@ private val TheIncredibleHulkBack = card("The Incredible Hulk") {
         trigger = Triggers.TakesDamage
         effect = Effects.Composite(
             Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 // "If he's attacking" — a *live* check, hence the `onBattlefield()` conjunct.
                 // Bare `SourceIsAttacking` resolves through PredicateEvaluator, whose IsAttacking
                 // arm falls back to `LastKnownPermanentComponent.snapshot.wasAttacking` for any
@@ -120,7 +119,7 @@ private val TheIncredibleHulkBack = card("The Incredible Hulk") {
                 condition = Conditions.SourceMatches(
                     GameObjectFilter.Any.onBattlefield().attacking(),
                 ),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     // "untap him"
                     Effects.Untap(EffectTarget.Self),
                     // "there is an additional combat phase after this phase" (combat only — no main)

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * You may play that card this turn.
  *
  * Implementation notes:
- * - The upkeep trigger is an [OptionalCostEffect]: the sacrifice is the optional
+ * - The upkeep trigger is an [Effects.MayPay]: the sacrifice is the optional
  *   cost (`excludeSource` enforces "another"), and paying it runs the counter +
  *   impulse rewards. Per the 2024-11-08 ruling, if Redcap leaves the battlefield
  *   before the trigger resolves, the sacrifice and impulse still happen — the
@@ -58,13 +57,13 @@ val RedcapGutterDweller = card("Redcap Gutter-Dweller") {
     // put a +1/+1 counter on this creature and impulse the top card of your library.
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = SacrificeEffect(
                 filter = GameObjectFilter.Creature,
                 count = 1,
                 excludeSource = true,
             ),
-            ifPaid = Effects.Composite(listOf(
+            then = Effects.Composite(listOf(
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 Patterns.Exile.impulse(count = 1, storeAs = "redcapImpulseExiled"),
             )),

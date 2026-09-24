@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -37,13 +36,13 @@ val FinaleOfRevelation = card("Finale of Revelation") {
 
     spell {
         selfExile()
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmount.XValue,
                 ComparisonOperator.GTE,
                 DynamicAmount.Fixed(10),
             ),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Patterns.Library.shuffleGraveyardIntoLibrary(EffectTarget.Controller),
                 Effects.DrawCards(DynamicAmount.XValue),
                 GatherCardsEffect(
@@ -60,7 +59,7 @@ val FinaleOfRevelation = card("Finale of Revelation") {
                 TapUntapCollectionEffect(collectionName = "landsToUntap", tap = false),
                 Effects.RemoveMaximumHandSize(),
             ),
-            elseEffect = Effects.DrawCards(DynamicAmount.XValue),
+            otherwise = Effects.DrawCards(DynamicAmount.XValue),
         )
     }
 

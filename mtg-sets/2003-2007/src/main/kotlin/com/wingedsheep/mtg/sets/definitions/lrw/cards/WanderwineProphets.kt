@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.champion
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 
 /**
@@ -21,7 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
  * Whenever this creature deals combat damage to a player, you may sacrifice a Merfolk. If you do,
  * take an extra turn after this one.
  *
- * "You may sacrifice a Merfolk. If you do, …" is [MayEffect] over [IfYouDoEffect]: the yes/no is
+ * "You may sacrifice a Merfolk. If you do, …" is [Effects.May] over [Effects.IfYouDo]: the yes/no is
  * the "may", and the extra turn is gated on the sacrifice actually happening — declining, or having
  * no Merfolk to give, takes no extra turn. The Prophets are themselves a Merfolk, so sacrificing
  * this creature to its own trigger is a legal (and printed) line.
@@ -41,12 +39,12 @@ val WanderwineProphets = card("Wanderwine Prophets") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = MayEffect(
-            IfYouDoEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
                 action = Effects.SacrificeOwn(
                     GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK)
                 ),
-                ifYouDo = Effects.TakeExtraTurn(),
+                then = Effects.TakeExtraTurn(),
                 successCriterion = SuccessCriterion.PermanentsSacrificed
             )
         )

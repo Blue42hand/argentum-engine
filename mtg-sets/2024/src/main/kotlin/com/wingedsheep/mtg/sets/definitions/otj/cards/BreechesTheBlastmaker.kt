@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Modeling notes:
  * - "your second spell each turn" → [Triggers.NthSpellCast] with n = 2, player = You.
- * - "you may sacrifice an artifact. If you do, …" → [OptionalCostEffect]: the optional
+ * - "you may sacrifice an artifact. If you do, …" → [Effects.MayPay]: the optional
  *   [SacrificeEffect] cost gates the coin flip (declining or having no artifact skips the flip,
  *   matching the ruling that neither delayed trigger fires unless an artifact is sacrificed).
  * - The flip's branches copy the triggering spell ([EffectTarget.TriggeringEntity]) and deal
@@ -57,9 +56,9 @@ val BreechesTheBlastmaker = card("Breeches, the Blastmaker") {
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
         val damageTarget = target("any target", Targets.Any)
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = SacrificeEffect(filter = GameObjectFilter.Artifact),
-            ifPaid = FlipCoinEffect(
+            then = FlipCoinEffect(
                 wonEffect = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),
                 lostEffect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(

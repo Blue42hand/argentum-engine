@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * with [TriggerBinding.ANY] — the enchantment can never be the creature that entered, and the printed
  * line says "a creature", not "another". The counters land on [EffectTarget.TriggeringEntity] (the
  * creature that entered, not a fresh target), and `optional = true` lowers the printed "you may" into
- * the same `Gate.MayDecide` a hand-written `MayEffect` would build.
+ * the same `Gate.MayDecide` a hand-written `Effects.May` would build.
  */
 val MightyEmergence = card("Mighty Emergence") {
     manaCost = "{2}{G}"

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -36,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * trigger at all unless you gained life *before* the end step began, and it re-checks the same
  * condition at resolution — modeled the same way as Resplendent Angel's near-identical ability.
  * The "Then if…" clause is a separate, resolution-time-only conditional chained after the token
- * creation ([ConditionalEffect]), not a second intervening-if — per the 2024-06-07 ruling, the
+ * creation ([Effects.If]), not a second intervening-if — per the 2024-06-07 ruling, the
  * Cat token created earlier in the *same* resolution has already entered this turn by the time
  * this clause is reached, so [GroupFilter]'s `enteredThisTurn()` correctly picks it up alongside
  * any other token gained this turn. [Effects.ForEachInGroup] snapshots the matching tokens before
@@ -72,9 +71,9 @@ val OcelotPride = card("Ocelot Pride") {
             creatureTypes = setOf("Cat"),
             imageUri = "https://cards.scryfall.io/normal/front/7/4/74bacab2-a4c6-4ba5-a208-6bd09ae4cf9f.jpg?1783911119"
         ).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouHaveCitysBlessing,
-                effect = Effects.ForEachInGroup(
+                then = Effects.ForEachInGroup(
                     filter = GroupFilter(GameObjectFilter.Token.youControl().enteredThisTurn()),
                     effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.Self)
                 )

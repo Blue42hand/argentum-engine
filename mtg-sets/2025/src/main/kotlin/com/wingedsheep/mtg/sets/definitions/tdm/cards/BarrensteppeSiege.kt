@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -83,9 +82,9 @@ val BarrensteppeSiege = card("Barrensteppe Siege") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = SourceChosenModeIs("mardu")
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.ControlledCreatureDiedThisTurn,
-            effect = Effects.Sacrifice(
+            then = Effects.Sacrifice(
                 filter = GameObjectFilter.Creature,
                 count = 1,
                 target = EffectTarget.PlayerRef(com.wingedsheep.sdk.scripting.references.Player.EachOpponent)

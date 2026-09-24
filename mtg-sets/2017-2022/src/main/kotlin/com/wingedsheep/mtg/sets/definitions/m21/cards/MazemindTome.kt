@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * The third ability is state-triggered (CR 603.8): there is no event to hang it on, the engine
  * polls the counter count and fires on the false → true transition. The exile is scoped
  * `fromZone = BATTLEFIELD` so a Tome that has already left while the trigger sits on the stack
- * isn't dragged out of its new zone — and because `IfYouDoEffect`'s `Auto` criterion measures the
+ * isn't dragged out of its new zone — and because `Effects.IfYouDo`'s `Auto` criterion measures the
  * exile zone's growth, a skipped exile also means no life (Scryfall ruling below).
  */
 val MazemindTome = card("Mazemind Tome") {
@@ -51,13 +50,13 @@ val MazemindTome = card("Mazemind Tome") {
 
     stateTriggeredAbility {
         condition = Conditions.SourceCounterCountAtLeast(Counters.PAGE, 4)
-        effect = IfYouDoEffect(
+        effect = Effects.IfYouDo(
             action = Effects.Move(
                 target = EffectTarget.Self,
                 destination = Zone.EXILE,
                 fromZone = Zone.BATTLEFIELD,
             ),
-            ifYouDo = Effects.GainLife(4, EffectTarget.Controller),
+            then = Effects.GainLife(4, EffectTarget.Controller),
         )
         description = "When there are four or more page counters on this artifact, exile it. " +
             "If you do, you gain 4 life"

@@ -10,9 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -64,16 +62,16 @@ val KellanDaringTraveler = card("Kellan, Daring Traveler") {
                     storeAs = "revealed",
                     revealed = true
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = CollectionContainsMatch(
                         collection = "revealed",
                         filter = GameObjectFilter.Creature.manaValueAtMost(3)
                     ),
-                    effect = MoveCollectionEffect(
+                    then = MoveCollectionEffect(
                         from = "revealed",
                         destination = CardDestination.ToZone(Zone.HAND, Player.You)
                     ),
-                    elseEffect = MayEffect(
+                    otherwise = Effects.May(
                         MoveCollectionEffect(
                             from = "revealed",
                             destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.You)

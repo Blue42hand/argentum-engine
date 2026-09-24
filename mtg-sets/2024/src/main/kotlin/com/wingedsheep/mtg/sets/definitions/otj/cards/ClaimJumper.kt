@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 /**
@@ -27,9 +25,9 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  * The enters ability is a [Triggers.EntersBattlefield] triggered ability with an intervening-if
  * ([CardBuilder] `interveningIf`) of [Conditions.OpponentControlsMoreLands] — checked both as
  * the trigger goes on the stack and again as it resolves (CR 603.4). Each "process" is an optional
- * ([MayEffect]) `searchLibrary` for a Plains card straight onto the battlefield tapped, which
+ * ([Effects.May]) `searchLibrary` for a Plains card straight onto the battlefield tapped, which
  * shuffles only when a search actually happens (declining the may means no search and no shuffle).
- * "Repeat this process once" is a single re-run gated by a fresh [ConditionalEffect] check of the
+ * "Repeat this process once" is a single re-run gated by a fresh [Effects.If] check of the
  * same land-count comparison, so the second search only occurs if an opponent still controls more
  * lands than you.
  */
@@ -48,7 +46,7 @@ val ClaimJumper = card("Claim Jumper") {
     keywords(Keyword.VIGILANCE)
 
     // One "process": optionally search for a Plains card and put it onto the battlefield tapped.
-    val searchForPlains = MayEffect(
+    val searchForPlains = Effects.May(
         Patterns.Library.searchLibrary(
             filter = GameObjectFilter.Land.withSubtype(Subtype.PLAINS),
             count = 1,
@@ -64,9 +62,9 @@ val ClaimJumper = card("Claim Jumper") {
             listOf(
                 searchForPlains,
                 // "Then if an opponent controls more lands than you, repeat this process once."
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.OpponentControlsMoreLands,
-                    effect = searchForPlains
+                    then = searchForPlains
                 )
             )
         )

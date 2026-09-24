@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -60,9 +59,9 @@ val SkirkDrillSergeant = card("Skirk Drill Sergeant") {
         )
     )
 
-    val mayPayEffect = MayPayManaEffect(
+    val mayPayEffect = Effects.MayPay(
         cost = ManaCost.parse("{2}{R}"),
-        effect = revealAndPlace
+        then = revealAndPlace
     )
 
     // "Whenever Skirk Drill Sergeant ... dies" (self death trigger)

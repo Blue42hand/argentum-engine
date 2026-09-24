@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -29,12 +28,12 @@ val StrengthOfArms = card("Strength of Arms") {
         target = Targets.Creature
         effect = Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControlAtLeast(
                         1,
                         GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
                     ),
-                    effect = Effects.CreateToken(
+                    then = Effects.CreateToken(
                         power = 1,
                         toughness = 1,
                         colors = setOf(Color.WHITE),

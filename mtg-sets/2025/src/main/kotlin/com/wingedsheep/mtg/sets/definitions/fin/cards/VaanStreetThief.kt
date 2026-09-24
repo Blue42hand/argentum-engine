@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -36,7 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * First ability is a per-damaged-player combat batch ([OneOrMoreDealCombatDamageToPlayerEvent]): it
  * fires once for each player dealt combat damage by a matching creature, and `Player.TriggeringPlayer`
  * resolves to that damaged player so we exile the top card of *their* library. The cast is offered
- * during this ability's resolution ([MayEffect] + [CastFromCollectionWithoutPayingCostEffect] with
+ * during this ability's resolution ([Effects.May] + [CastFromCollectionWithoutPayingCostEffect] with
  * `payManaCost = true`) — per the official ruling you must cast it while the ability is on the stack;
  * you can't wait. Declining runs the `otherwise` branch and makes a Treasure. Because the exiled card
  * is owned by the damaged player, casting it is "a spell you don't own" and triggers the second ability.
@@ -73,7 +72,7 @@ val VaanStreetThief = card("Vaan, Street Thief") {
                 destination = CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer),
                 storeMovedAs = "vaanExiled"
             ),
-            MayEffect(
+            Effects.May(
                 effect = CastFromCollectionWithoutPayingCostEffect(from = "vaanExiled", payManaCost = true),
                 descriptionOverride = "Cast the exiled card",
                 otherwise = Effects.CreateTreasure(1)

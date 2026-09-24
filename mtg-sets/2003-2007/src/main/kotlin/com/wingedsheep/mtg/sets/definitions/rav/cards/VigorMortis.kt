@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Vigor Mortis — Ravnica: City of Guilds #111
@@ -39,15 +38,15 @@ val VigorMortis = card("Vigor Mortis") {
             "target creature card from your graveyard",
             Targets.CreatureCardInYourGraveyard
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.ManaSpentToCastIncludes(requiredGreen = 1),
-            effect = Effects.Move(
+            then = Effects.Move(
                 creatureCard,
                 Zone.BATTLEFIELD,
                 fromZone = Zone.GRAVEYARD,
                 addCounterType = CounterType.PLUS_ONE_PLUS_ONE,
             ),
-            elseEffect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+            otherwise = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
         )
     }
 

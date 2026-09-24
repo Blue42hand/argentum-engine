@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Parts 2 and 3 are deliberately **two abilities, not one fused countdown**. Suspend
  * ([Suspend.countdownAbility]) folds its "when the last is removed" clause into a
- * [com.wingedsheep.sdk.scripting.effects.ConditionalEffect] inside the upkeep trigger because
+ * [com.wingedsheep.sdk.dsl.Effects.If] inside the upkeep trigger because
  * nothing else ever removes a suspended card's time counters. A vanishing permanent sits on the
  * battlefield where Vampire Hexmage, Hex Parasite and friends can strip its counters at instant
  * speed — and CR 702.62c says it is sacrificed *whenever* the last one leaves, not only on an

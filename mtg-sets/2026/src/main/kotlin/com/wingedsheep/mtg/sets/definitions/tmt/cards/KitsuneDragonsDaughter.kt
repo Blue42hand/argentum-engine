@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -43,7 +42,7 @@ val KitsuneDragonsDaughter = card("Kitsune, Dragon's Daughter") {
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.CreatureOpponentControls)
         )
-        effect = MayEffect(Effects.ExchangeControl(yours, theirs))
+        effect = Effects.May(Effects.ExchangeControl(yours, theirs))
         description = "When Kitsune enters, you may exchange control of two other target creatures controlled by different players."
     }
 
@@ -57,7 +56,7 @@ val KitsuneDragonsDaughter = card("Kitsune, Dragon's Daughter") {
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.CreatureOpponentControls)
         )
-        effect = MayEffect(Effects.ExchangeControl(yours, theirs))
+        effect = Effects.May(Effects.ExchangeControl(yours, theirs))
         description = "Whenever Kitsune deals combat damage to a player, you may exchange control of two other target creatures controlled by different players."
     }
 

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -61,14 +60,14 @@ val FromFatherToSon = card("From Father to Son") {
                 prompt = "Search for a Vehicle card",
                 selectedLabel = "Reveal it",
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = WasCastFromZone(Zone.GRAVEYARD),
-                effect = MoveCollectionEffect(
+                then = MoveCollectionEffect(
                     from = "found",
                     destination = CardDestination.ToZone(Zone.BATTLEFIELD),
                     revealed = true
                 ),
-                elseEffect = MoveCollectionEffect(
+                otherwise = MoveCollectionEffect(
                     from = "found",
                     destination = CardDestination.ToZone(Zone.HAND),
                     revealed = true

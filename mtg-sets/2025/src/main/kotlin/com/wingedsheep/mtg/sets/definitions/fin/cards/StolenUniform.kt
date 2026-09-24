@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -62,12 +61,12 @@ val StolenUniform = card("Stolen Uniform") {
                 watchedTarget = equipment,
                 fireOnce = true,
                 expiry = DelayedTriggerExpiry.EndOfTurn,
-                effect = ConditionalEffect(
+                effect = Effects.If(
                     condition = Conditions.EntityMatches(
                         EffectTarget.TriggeringEntity,
                         GameObjectFilter.Any.attachedTo(GameObjectFilter.Creature.youControl())
                     ),
-                    effect = Effects.UnattachEquipment(EffectTarget.TriggeringEntity)
+                    then = Effects.UnattachEquipment(EffectTarget.TriggeringEntity)
                 )
             )
         )

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -32,9 +31,9 @@ val Efflorescence = card("Efflorescence") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = t),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouGainedLifeThisTurn,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.GrantKeyword(Keyword.TRAMPLE, t),
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
                 )

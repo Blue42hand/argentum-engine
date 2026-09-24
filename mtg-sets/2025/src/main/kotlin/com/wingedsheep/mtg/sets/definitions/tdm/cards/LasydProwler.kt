@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.renew
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -37,7 +36,7 @@ val LasydProwler = card("Lasyd Prowler") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             Patterns.Library.mill(DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, Filters.Land)),
             descriptionOverride = "You may mill cards equal to the number of lands you control."
         )

@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -31,9 +30,9 @@ val ZealousDisplay = card("Zealous Display") {
                     ModifyStatsEffect(2, 0, EffectTarget.Self)
                 ),
                 // If it's not your turn, untap those creatures
-                ConditionalEffect(
+                Effects.If(
                     condition = IsNotYourTurn,
-                    effect = Effects.ForEachInGroup(
+                    then = Effects.ForEachInGroup(
                         GroupFilter.AllCreaturesYouControl,
                         TapUntapEffect(EffectTarget.Self, tap = false)
                     )

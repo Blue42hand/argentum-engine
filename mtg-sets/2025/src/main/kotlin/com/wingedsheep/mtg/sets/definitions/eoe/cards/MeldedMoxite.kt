@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Melded Moxite
@@ -26,10 +24,10 @@ val MeldedMoxite = card("Melded Moxite") {
     // ETB ability: May discard a card to draw two cards
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
-            IfYouDoEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.DrawCards(2)
+                then = Effects.DrawCards(2)
             )
         )
     }

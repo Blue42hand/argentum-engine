@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,10 +31,10 @@ val OrimsTouch = card("Orim's Touch") {
 
     spell {
         target = Targets.Any
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = Effects.PreventNextDamage(4, EffectTarget.ContextTarget(0)),
-            elseEffect = Effects.PreventNextDamage(2, EffectTarget.ContextTarget(0))
+            then = Effects.PreventNextDamage(4, EffectTarget.ContextTarget(0)),
+            otherwise = Effects.PreventNextDamage(2, EffectTarget.ContextTarget(0))
         )
     }
 

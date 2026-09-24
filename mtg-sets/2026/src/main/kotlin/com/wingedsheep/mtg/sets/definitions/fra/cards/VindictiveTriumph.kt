@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -49,9 +48,9 @@ val VindictiveTriumph = card("Vindictive Triumph") {
 
     spell {
         val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.manaValueAtMost(3)),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 listOf(
                     GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "vindictiveTriumphTarget"),
                     MoveCollectionEffect(
@@ -71,7 +70,7 @@ val VindictiveTriumph = card("Vindictive Triumph") {
                     )
                 )
             ),
-            elseEffect = Effects.Exile(permanent)
+            otherwise = Effects.Exile(permanent)
         )
     }
 

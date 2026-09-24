@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -48,7 +47,7 @@ val FarrelsMantle = card("Farrel's Mantle") {
             "another target creature",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.notAttachedToBySource()))
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.DealDamage(
                     DynamicAmount.Add(

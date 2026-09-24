@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Lightning Dart
@@ -25,12 +24,12 @@ val LightningDart = card("Lightning Dart") {
 
     spell {
         val t = target("target creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(
                 Filters.Creature.withAnyColor(Color.WHITE, Color.BLUE)
             ),
-            effect = Effects.DealDamage(4, t),
-            elseEffect = Effects.DealDamage(1, t)
+            then = Effects.DealDamage(4, t),
+            otherwise = Effects.DealDamage(1, t)
         )
     }
 

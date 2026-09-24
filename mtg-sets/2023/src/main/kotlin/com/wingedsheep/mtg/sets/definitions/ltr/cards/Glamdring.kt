@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -104,7 +103,7 @@ val Glamdring = card("Glamdring") {
             // You may cast one of them without paying its mana cost.
             ConditionalOnCollectionEffect(
                 collection = "castable",
-                ifNotEmpty = MayEffect(Effects.CastFromCollectionWithoutPayingCost("castable"))
+                ifNotEmpty = Effects.May(Effects.CastFromCollectionWithoutPayingCost("castable"))
             )
         )
     }

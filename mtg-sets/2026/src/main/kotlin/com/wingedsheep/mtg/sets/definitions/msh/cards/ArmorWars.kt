@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *       artifacts you control.
  *
  * Modeling notes:
- *  - Chapter I is a single [MayEffect] wrapping *both* halves rather than an `IfYouDoEffect`.
+ *  - Chapter I is a single [Effects.May] wrapping *both* halves rather than an `Effects.IfYouDo`.
  *    The "If you do" here keys off the may-choice, and there is no draw-flavoured
  *    `SuccessCriterion` to gate on, so a declined chapter runs neither draw and an accepted one
  *    runs both — which is the card's behaviour in every case that matters. The one wrinkle worth
@@ -48,7 +47,7 @@ val ArmorWars = card("Armor Wars") {
 
     // I — You may draw a card for each artifact you control. If you do, each opponent draws a card.
     sagaChapter(1) {
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Composite(
                 Effects.DrawCards(
                     DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()

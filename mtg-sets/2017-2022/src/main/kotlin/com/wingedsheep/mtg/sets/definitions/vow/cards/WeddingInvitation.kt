@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -42,11 +41,11 @@ val WeddingInvitation = card("Wedding Invitation") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature, Duration.EndOfTurn),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(
                     GameObjectFilter.Creature.withSubtype(Subtype("Vampire"))
                 ),
-                effect = Effects.GrantKeyword(Keyword.LIFELINK, creature, Duration.EndOfTurn),
+                then = Effects.GrantKeyword(Keyword.LIFELINK, creature, Duration.EndOfTurn),
             ),
         )
         description = "{T}, Sacrifice this artifact: Target creature can't be blocked this turn. " +

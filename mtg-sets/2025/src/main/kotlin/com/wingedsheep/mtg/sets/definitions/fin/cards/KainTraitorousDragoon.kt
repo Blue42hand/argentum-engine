@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -57,12 +56,12 @@ val KainTraitorousDragoon = card("Kain, Traitorous Dragoon") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
-        effect = IfYouDoEffect(
+        effect = Effects.IfYouDo(
             action = GiveControlToTargetPlayerEffect(
                 permanent = EffectTarget.Self,
                 newController = EffectTarget.PlayerRef(Player.TriggeringPlayer),
             ),
-            ifYouDo = Effects.Composite(
+            then = Effects.Composite(
                 listOf(
                     Effects.DrawCards(damageDealt),
                     Effects.CreateTreasure(count = damageDealt, tapped = true),

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * - The draw trigger fires **per card drawn** (2007-10-01 ruling), which is what
  *   [Triggers.YouDraw] already does — a "draw three cards" spell gives three separate triggers,
- *   each with its own "you may". [MayEffect] is that optionality; declining one doesn't decline
+ *   each with its own "you may". [Effects.May] is that optionality; declining one doesn't decline
  *   the rest.
  * - "Activate only during your turn" is a timing restriction on the ability, not sorcery speed:
  *   [ActivationRestriction.OnlyDuringYourTurn] permits activation during your own upkeep or in
@@ -50,7 +49,7 @@ val HoofprintsOfTheStag = card("Hoofprints of the Stag") {
 
     triggeredAbility {
         trigger = Triggers.YouDraw
-        effect = MayEffect(
+        effect = Effects.May(
             AddCountersEffect(
                 counterType = Counters.HOOFPRINT,
                 count = 1,

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -53,9 +52,9 @@ val CultivatorColossus = card("Cultivator Colossus") {
                 // "you may put a land card from your hand onto the battlefield tapped"
                 Patterns.Hand.putFromHand(GameObjectFilter.Land, count = 1, entersTapped = true),
                 // "If you do, draw a card"
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch("putting", GameObjectFilter.Land),
-                    effect = Effects.DrawCards(1)
+                    then = Effects.DrawCards(1)
                 )
             ),
             // "and repeat this process" — continue only while a land was put this pass.

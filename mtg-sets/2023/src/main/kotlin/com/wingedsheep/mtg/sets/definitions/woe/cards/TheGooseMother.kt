@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * "Half X, rounded up" is `Divide(CastX, 2, roundUp = true)` — X=0 makes no Food, X=1 makes one.
  *
- * The attack ability is [ProvisionsMerchant]'s exactly: a [MayEffect] over
+ * The attack ability is [ProvisionsMerchant]'s exactly: a [Effects.May] over
  * `Sacrifice(Food).then(draw)`, so declining leaves the ability resolving harmlessly rather than
  * fizzling, and "If you do" (not "When you do") keeps the draw in the same resolution instead of a
  * reflexive trigger. The `feasibility` gate suppresses the prompt when the controller has no Food
@@ -69,7 +68,7 @@ val TheGooseMother = card("The Goose Mother") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Sacrifice(
                 GameObjectFilter.Artifact.withSubtype("Food"),
                 count = 1,

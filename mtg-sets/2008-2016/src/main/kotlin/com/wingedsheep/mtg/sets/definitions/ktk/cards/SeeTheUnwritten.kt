@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -65,10 +64,10 @@ val SeeTheUnwritten = card("See the Unwritten") {
                     storeAs = "revealed",
                     revealed = true
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = ferocious,
-                    effect = selectAndMove(2),
-                    elseEffect = selectAndMove(1)
+                    then = selectAndMove(2),
+                    otherwise = selectAndMove(1)
                 )
             )
         )

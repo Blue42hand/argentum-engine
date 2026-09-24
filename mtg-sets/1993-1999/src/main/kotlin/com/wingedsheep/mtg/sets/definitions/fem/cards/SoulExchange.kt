@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostZone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Soul Exchange
@@ -48,9 +47,9 @@ val SoulExchange = card("Soul Exchange") {
         )
         effect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ExiledAsCostHadSubtype("Thrull"),
-                    effect = Effects.AddCounters(Counters.PLUS_TWO_PLUS_TWO, 1, creatureCard)
+                    then = Effects.AddCounters(Counters.PLUS_TWO_PLUS_TWO, 1, creatureCard)
                 )
             )
     }

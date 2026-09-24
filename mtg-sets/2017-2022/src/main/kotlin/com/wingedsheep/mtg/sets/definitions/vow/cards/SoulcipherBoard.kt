@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
@@ -53,7 +52,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * `Triggers.CardsPutIntoYourGraveyard`: two creature cards hitting the graveyard at once remove two
  * counters, not one. "From anywhere" is expressed by leaving `from` unset. The follow-up
  * "Then if it has no omen counters on it" is an intervening check at resolution, so it is a
- * [ConditionalEffect] over the *current* counter count rather than a second trigger.
+ * [Effects.If] over the *current* counter count rather than a second trigger.
  *
  * `nontoken()` is the printed word "**card**": a dying creature *token* is not a card and never
  * counts down the board (the card's second Gatherer ruling says so outright). The engine's LKI
@@ -105,13 +104,13 @@ private val SoulcipherBoardFront = card("Soulcipher Board") {
         )
         effect = Effects.Composite(
             Effects.RemoveCounters(Counters.OMEN, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.OMEN)),
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(0),
                 ),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "Whenever a creature card is put into your graveyard from anywhere, remove " +

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.references.Player
@@ -59,15 +58,15 @@ val FaramirPrinceOfIthilien = card("Faramir, Prince of Ithilien") {
             // turn — CURRENT_TURN_OR_LATER avoids a turn-floor off-by-one while still firing only
             // at "that player's next end step" (same axis as Nafs Asp).
             timing = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 condition = Conditions.Not(
                     Conditions.PlayerAttackedPlayerThisTurn(
                         attacker = Player.TriggeringPlayer,
                         defender = Player.You
                     )
                 ),
-                effect = Effects.DrawCards(1),
-                elseEffect = Effects.CreateToken(
+                then = Effects.DrawCards(1),
+                otherwise = Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.WHITE),

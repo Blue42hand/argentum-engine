@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -74,13 +73,13 @@ val ScavengersTalent = card("Scavenger's Talent") {
     classLevel(3, "{2}{B}") {
         triggeredAbility {
             trigger = Triggers.YourEndStep
-            effect = OptionalCostEffect(
+            effect = Effects.MayPay(
                 cost = SacrificeEffect(
                     filter = GameObjectFilter.NonlandPermanent,
                     count = 3,
                     excludeSource = true
                 ),
-                ifPaid = Effects.Composite(
+                then = Effects.Composite(
                     listOf(
                         GatherCardsEffect(
                             source = CardSource.FromZone(

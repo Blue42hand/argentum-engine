@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ReduceEquipCost
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * until end of turn instead.
  * Equip abilities you activate cost {1} less to activate.
  *
- * The combat trigger composes existing primitives: a [ConditionalEffect] gated on
+ * The combat trigger composes existing primitives: a [Effects.If] gated on
  * [Conditions.TargetMatchesFilter] for `GameObjectFilter.Creature.equipped()` — when the target is
  * equipped it grants both keywords; otherwise a [ModalEffect.chooseOne] lets the controller pick a
  * single keyword. The cost clause uses the new controller-scoped [ReduceEquipCost] static, which
@@ -44,13 +43,13 @@ val EowynLadyOfRohan = card("Éowyn, Lady of Rohan") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         val creature = target("target creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.equipped(), targetIndex = 0),
             // Target is equipped: it gains first strike AND vigilance.
-            effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn)
+            then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn)
                 .then(Effects.GrantKeyword(Keyword.VIGILANCE, creature, Duration.EndOfTurn)),
             // Otherwise: choose first strike OR vigilance.
-            elseEffect = ModalEffect.chooseOne(
+            otherwise = ModalEffect.chooseOne(
                 Mode.noTarget(
                     Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn),
                     "First strike"

@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.GainControlEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
 /**
@@ -29,7 +29,7 @@ val RiptideEntrancer = card("Riptide Entrancer") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         val t = target("target", Targets.CreatureOpponentControls)
-        effect = MayEffect(
+        effect = Effects.May(
             SacrificeSelfEffect then GainControlEffect(t)
         )
     }

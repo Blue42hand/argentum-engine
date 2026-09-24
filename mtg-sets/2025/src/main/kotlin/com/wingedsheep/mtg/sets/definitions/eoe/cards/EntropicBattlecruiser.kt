@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -59,10 +58,10 @@ val EntropicBattlecruiser = card("Entropic Battlecruiser") {
         effect = ForEachPlayerEffect(
             players = Player.EachOpponent,
             effects = listOf(
-                ConditionalEffect(
+                Effects.If(
                     condition = Exists(Player.You, Zone.HAND),
-                    effect = Patterns.Hand.discardCards(1, EffectTarget.Controller),
-                    elseEffect = LoseLifeEffect(3, EffectTarget.Controller)
+                    then = Patterns.Hand.discardCards(1, EffectTarget.Controller),
+                    otherwise = LoseLifeEffect(3, EffectTarget.Controller)
                 )
             )
         )

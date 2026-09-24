@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -80,14 +78,12 @@ val ThelonsCurse = card("Thelon's Curse") {
                 ),
                 ConditionalOnCollectionEffect(
                     collection = "chosen",
-                    ifNotEmpty = GatedEffect(
-                        gate = Gate.MayPay(
-                            Effects.PayDynamicMana(
+                    ifNotEmpty = Effects.MayPay(
+                        cost = Effects.PayDynamicMana(
                                 amount = DynamicAmount.VariableReference("chosen_count"),
                                 payer = Player.TriggeringPlayer,
                                 color = Color.BLUE,
-                            )
-                        ),
+                            ),
                         decisionMaker = EffectTarget.PlayerRef(Player.TriggeringPlayer),
                         then = ForEachInCollectionEffect(
                             collection = "chosen",

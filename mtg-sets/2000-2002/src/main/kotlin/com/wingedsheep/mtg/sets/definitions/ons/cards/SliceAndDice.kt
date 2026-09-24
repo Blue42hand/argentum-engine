@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -32,7 +31,7 @@ val SliceAndDice = card("Slice and Dice") {
 
     triggeredAbility {
         trigger = Triggers.YouCycleThis
-        effect = MayEffect(Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(1, EffectTarget.Self)))
+        effect = Effects.May(Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(1, EffectTarget.Self)))
     }
 
     metadata {

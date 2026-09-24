@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttackUnless
 import com.wingedsheep.sdk.scripting.CantBlockUnless
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -32,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   reminder text "(Zero is even.)" is not an exception but a consequence: a freshly-resolved
  *   Sab-Sunen has zero counters, which is even, so it can attack immediately.
  * - **"Then if …" is checked on resolution, not as an intervening-if.** The draw is a
- *   [ConditionalEffect] chained after the counter is added, so it reads the post-counter total (CR
+ *   [Effects.If] chained after the counter is added, so it reads the post-counter total (CR
  *   608.2) — that is what makes the ability draw on the turns it cannot attack.
  *
  * The combat restriction is a plain pair of statics whose condition routes through the standard
@@ -68,9 +67,9 @@ val SabSunenLuxaEmbodied = card("Sab-Sunen, Luxa Embodied") {
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
         effect = Effects.AddCounters("+1/+1", 1, EffectTarget.Self).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.AmountIsOdd(countersOnSabSunen),
-                effect = Effects.DrawCards(2),
+                then = Effects.DrawCards(2),
             )
         )
         description = "At the beginning of your first main phase, put a +1/+1 counter on " +

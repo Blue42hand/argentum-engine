@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *      the nonland stored as `nonland`, every revealed card (lands + the nonland) as `allRevealed`,
  *   2. move `allRevealed` to exile,
  *   3. narrow the nonland to mana value ≤ 8 ([CollectionFilter.ManaValueAtMost]) → `castable`,
- *   4. `MayEffect(CastFromCollectionWithoutPayingCost("castable"))` — you may cast it for free
+ *   4. `Effects.May(CastFromCollectionWithoutPayingCost("castable"))` — you may cast it for free
  *      (the may-cast simply has no candidate when MV > 8, so it's skipped),
  *   5. of the nonland, keep only the copy still in exile ([CollectionFilter.InZone] — the cast
  *      one has moved to the stack) → `uncast`, and put it into hand.
@@ -74,7 +73,7 @@ val BreachingDragonstorm = card("Breaching Dragonstorm") {
                 // mana-value-≤-8 nonland to cast (no empty "may cast" when MV > 8).
                 ConditionalOnCollectionEffect(
                     collection = "castable",
-                    ifNotEmpty = MayEffect(Effects.CastFromCollectionWithoutPayingCost("castable"))
+                    ifNotEmpty = Effects.May(Effects.CastFromCollectionWithoutPayingCost("castable"))
                 ),
                 // If you don't (declined, or MV > 8), put that card into your hand. The card just
                 // cast has left exile for the stack, so only the nonland still in exile moves.

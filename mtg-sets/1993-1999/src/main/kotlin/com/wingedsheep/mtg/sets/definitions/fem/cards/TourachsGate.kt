@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -55,9 +54,9 @@ val TourachsGate = card("Tourach's Gate") {
         trigger = Triggers.YourUpkeep
         effect = Effects.RemoveCounters(Counters.TIME, 1, EffectTarget.Self)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Not(Conditions.SourceCounterCountAtLeast(Counters.TIME, 1)),
-                    effect = SacrificeSelfEffect
+                    then = SacrificeSelfEffect
                 )
             )
         description = "At the beginning of your upkeep, remove a time counter from this Aura. If there are no time counters on this Aura, sacrifice it."

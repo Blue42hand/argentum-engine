@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
@@ -40,7 +39,7 @@ val DuelForDominance = card("Duel for Dominance") {
         val mine = target("creature you control", Targets.CreatureYouControl)
         val theirs = target("creature you don't control", Targets.CreatureOpponentControls)
 
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 left = DynamicAmount.AggregateBattlefield(
                     player = Player.You,
@@ -51,7 +50,7 @@ val DuelForDominance = card("Duel for Dominance") {
                 operator = ComparisonOperator.GTE,
                 right = DynamicAmount.Fixed(3),
             ),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine),
+            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine),
         ).then(Effects.Fight(mine, theirs))
     }
 

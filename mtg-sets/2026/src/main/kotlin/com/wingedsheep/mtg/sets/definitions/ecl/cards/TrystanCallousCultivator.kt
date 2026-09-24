@@ -15,10 +15,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -49,9 +47,9 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 private val millThenGainLifeIfElf = Effects.Composite(
     listOf(
         Patterns.Library.mill(3),
-        ConditionalEffect(
+        Effects.If(
             condition = Conditions.GraveyardContainsSubtype(Subtype.ELF),
-            effect = Effects.GainLife(2)
+            then = Effects.GainLife(2)
         )
     )
 )
@@ -108,9 +106,9 @@ private val TrystanPenitentCuller = card("Trystan, Penitent Culler") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 
@@ -146,9 +144,9 @@ private val TrystanCallousCultivatorFrontFace = card("Trystan, Callous Cultivato
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 

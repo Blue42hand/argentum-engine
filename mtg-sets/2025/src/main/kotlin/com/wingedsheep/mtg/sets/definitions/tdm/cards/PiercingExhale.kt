@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -70,9 +69,9 @@ val PiercingExhale = card("Piercing Exhale") {
                     target = victim,
                     damageSource = myCreature
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch("beheld"),
-                    effect = Patterns.Library.surveil(2)
+                    then = Patterns.Library.surveil(2)
                 )
             )
         )

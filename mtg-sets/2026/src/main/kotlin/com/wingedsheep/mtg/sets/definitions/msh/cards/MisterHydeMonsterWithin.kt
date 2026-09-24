@@ -58,7 +58,7 @@ val MisterHydeMonsterWithin = card("Mister Hyde, Monster Within") {
                         action = Effects.RemoveCounterOfAnyKind(
                             EffectTarget.PipelineTarget("hydeCounterSource", 0),
                         ),
-                        ifYouDo = Effects.DrawCards(1),
+                        then = Effects.DrawCards(1),
                         successCriterion = SuccessCriterion.CountersRemoved,
                     ),
                 ),

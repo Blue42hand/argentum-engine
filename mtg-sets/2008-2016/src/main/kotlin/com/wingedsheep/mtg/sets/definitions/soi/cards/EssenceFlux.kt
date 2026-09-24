@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 
 /**
@@ -35,14 +34,14 @@ val EssenceFlux = card("Essence Flux") {
         effect = Effects.Move(creature, Zone.EXILE)
             .then(Effects.Move(creature, Zone.BATTLEFIELD))
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(
                         filter = GameObjectFilter(
                             cardPredicates = listOf(CardPredicate.HasSubtype(Subtype("Spirit")))
                         ),
                         targetIndex = 0
                     ),
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
                 )
             )
     }

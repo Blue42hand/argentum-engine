@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCantLoseGameFromLife
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -63,9 +62,9 @@ val MarinaVendrellsGrimoire = card("Marina Vendrell's Grimoire") {
         trigger = Triggers.YouLoseLife
         effect = Effects.Composite(
             Effects.Discard(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST)),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.EmptyHand,
-                effect = Effects.LoseGame()
+                then = Effects.LoseGame()
             )
         )
     }

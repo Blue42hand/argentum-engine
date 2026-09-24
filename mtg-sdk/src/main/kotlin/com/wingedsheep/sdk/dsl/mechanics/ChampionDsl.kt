@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.EmitChampionedEventEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -63,7 +62,7 @@ private fun article(noun: String): String =
  *    only option when you control no other matching permanent (the selection resolves without a
  *    prompt over an empty candidate set). The move carries `linkToSource`, which files the card in
  *    the *originating visit's* linked-exile pile.
- *  - **The "unless".** An [IfYouDoEffect] gate over that pipeline whose criterion is
+ *  - **The "unless".** An [Effects.IfYouDo] gate over that pipeline whose criterion is
  *    [SuccessCriterion.CollectionNonEmpty] on the move's `storeMovedAs` ([CHAMPIONED_CARDS]) — the
  *    cards that actually reached exile, not merely the ones picked. Its `otherwise` is
  *    [SacrificeSelfEffect]; its `then` is [EmitChampionedEventEffect], the CR 702.72c signal that
@@ -95,7 +94,7 @@ fun CardBuilder.champion(quality: GameObjectFilter, qualityDescription: String) 
         TriggeredAbility.create(
             trigger = Triggers.EntersBattlefield.event,
             binding = Triggers.EntersBattlefield.binding,
-            effect = IfYouDoEffect(
+            effect = Effects.IfYouDo(
                 action = CompositeEffect(
                     listOf(
                         GatherCardsEffect(
@@ -125,8 +124,8 @@ fun CardBuilder.champion(quality: GameObjectFilter, qualityDescription: String) 
                         )
                     )
                 ),
-                ifYouDo = EmitChampionedEventEffect(),
-                ifYouDont = SacrificeSelfEffect,
+                then = EmitChampionedEventEffect(),
+                otherwise = SacrificeSelfEffect,
                 successCriterion = SuccessCriterion.CollectionNonEmpty(CHAMPIONED_CARDS)
             ),
             descriptionOverride = championReminder(qualityDescription)

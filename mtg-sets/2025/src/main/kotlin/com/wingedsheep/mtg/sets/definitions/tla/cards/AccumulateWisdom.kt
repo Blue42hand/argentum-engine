@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -37,7 +37,7 @@ val AccumulateWisdom = card("Accumulate Wisdom") {
         "hand instead if there are three or more Lesson cards in your graveyard."
 
     spell {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmount.Count(
                     Player.You,
@@ -48,13 +48,13 @@ val AccumulateWisdom = card("Accumulate Wisdom") {
                 DynamicAmount.Fixed(3)
             ),
             // Three or more Lesson cards in graveyard: put each of the looked-at cards into hand.
-            effect = Patterns.Library.lookAtTopAndKeep(
+            then = Patterns.Library.lookAtTopAndKeep(
                 count = 3,
                 keepCount = 3,
                 keepDestination = CardDestination.ToZone(Zone.HAND),
             ),
             // Default: keep one, rest to the bottom of the library in any order.
-            elseEffect = Patterns.Library.lookAtTopAndKeep(
+            otherwise = Patterns.Library.lookAtTopAndKeep(
                 count = DynamicAmount.Fixed(3),
                 keepCount = DynamicAmount.Fixed(1),
                 keepDestination = CardDestination.ToZone(Zone.HAND),

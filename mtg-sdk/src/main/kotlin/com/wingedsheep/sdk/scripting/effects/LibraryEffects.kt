@@ -351,7 +351,7 @@ data class ExileLibraryUntilManaValueEffect(
  *
  * **Gating a follow-up on whether the cast happened.** Set [storeCastTo] to publish the cast
  * card's id into that pipeline collection once the cast successfully initiates (synchronously or
- * after a target / X pause). Pair it with `IfYouDoEffect(this, then, SuccessCriterion
+ * after a target / X pause). Pair it with `Effects.IfYouDo(this, then, SuccessCriterion
  * .CollectionNonEmpty(storeCastTo))` for "you may cast … . If you do, [then]" — the follow-up is
  * skipped when the player declines or the cast can't be paid for (Kaervek's "If you do, you lose
  * 2 life"). The collection is left empty when nothing was cast.

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Wakandan Royal Guard — Marvel Super Heroes #195
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  * another Hero, put two +1/+1 counters on it instead.
  *
  * The "instead" clause is a resolution-time branch on the chosen target, not a replacement
- * effect: a [ConditionalEffect] that puts two counters when the target is a Hero *other than*
+ * effect: a [Effects.If] that puts two counters when the target is a Hero *other than*
  * this creature (the Guard is itself a Hero, so targeting itself takes the one-counter branch —
  * hence [Conditions.TargetIsSource] under [Conditions.Not]).
  */
@@ -41,13 +40,13 @@ val WakandanRoyalGuard = card("Wakandan Royal Guard") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val creature = target("target creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.All(
                 Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.HERO)),
                 Conditions.Not(Conditions.TargetIsSource())
             ),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
-            elseEffect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
+            otherwise = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
         )
         description = "When this creature enters, put a +1/+1 counter on target creature. If " +
             "that creature is another Hero, put two +1/+1 counters on it instead."

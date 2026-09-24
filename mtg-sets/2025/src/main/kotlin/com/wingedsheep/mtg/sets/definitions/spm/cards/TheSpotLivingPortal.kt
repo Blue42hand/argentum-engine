@@ -74,7 +74,7 @@ val TheSpotLivingPortal = card("The Spot, Living Portal") {
         trigger = Triggers.Dies
         effect = Effects.IfYouDo(
             action = Effects.PutOnBottomOfLibrary(EffectTarget.Self),
-            ifYouDo = Effects.ReturnLinkedExileToHand(),
+            then = Effects.ReturnLinkedExileToHand(),
         )
         description = "When The Spot dies, put him on the bottom of his owner's library. If you " +
             "do, return the exiled cards to their owners' hands."

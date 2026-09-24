@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -14,8 +15,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -77,10 +76,10 @@ val RestlessVents = card("Restless Vents") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = DrawCardsEffect(1),
+                then = DrawCardsEffect(1),
             ),
         )
         description = "Whenever this land attacks, you may discard a card. If you do, draw a card."

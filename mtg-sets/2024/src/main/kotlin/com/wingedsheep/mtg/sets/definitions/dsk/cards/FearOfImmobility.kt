@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -40,9 +39,9 @@ val FearOfImmobility = card("Fear of Immobility") {
         val t = target("target", TargetCreature(optional = true))
         effect = Effects.Composite(
             Effects.Tap(t),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.opponentControls()),
-                effect = AddCountersEffect(counterType = Counters.STUN, count = 1, target = t),
+                then = AddCountersEffect(counterType = Counters.STUN, count = 1, target = t),
             ),
         )
         description = "When this creature enters, tap up to one target creature. If an opponent " +

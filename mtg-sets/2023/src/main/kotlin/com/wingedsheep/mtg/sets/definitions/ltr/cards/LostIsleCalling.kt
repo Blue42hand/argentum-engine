@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -53,13 +52,13 @@ val LostIsleCalling = card("Lost Isle Calling") {
                 Effects.DrawCards(
                     DynamicAmounts.lastKnownSourceCounters(CounterTypeFilter.Named(Counters.VERSE))
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Compare(
                         DynamicAmounts.lastKnownSourceCounters(CounterTypeFilter.Named(Counters.VERSE)),
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(7)
                     ),
-                    effect = Effects.TakeExtraTurn()
+                    then = Effects.TakeExtraTurn()
                 )
             )
         )

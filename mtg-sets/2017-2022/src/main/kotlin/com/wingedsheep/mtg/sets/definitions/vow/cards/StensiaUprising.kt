@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * A single [Triggers.YourEndStep] trigger whose effect is a [Effects.Composite]:
  *  1. [Effects.CreateToken] — one 1/1 red Human.
- *  2. A [ConditionalEffect] gated on `CompareAmounts(AggregateBattlefield(You, Any) == 13)` — the
+ *  2. A [Effects.If] gated on `CompareAmounts(AggregateBattlefield(You, Any) == 13)` — the
  *     "then if you control exactly thirteen permanents" intervening clause. GTE-style helpers
  *     (`ControlPermanentsAtLeast`) can't express *exactly* 13, so this uses the general
  *     [Conditions.CompareAmounts] with `ComparisonOperator.EQ`. The token just created counts toward
@@ -55,13 +54,13 @@ val StensiaUprising = card("Stensia Uprising") {
                 creatureTypes = setOf(Subtype.HUMAN.value),
                 imageUri = "https://cards.scryfall.io/normal/front/1/1/11c8ff82-b598-4ccc-83a7-99f1e53b64d3.jpg?1783924697"
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Any),
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(13)
                 ),
-                effect = ReflexiveTriggerEffect(
+                then = ReflexiveTriggerEffect(
                     action = Effects.SacrificeTarget(EffectTarget.Self),
                     optional = true,
                     reflexiveEffect = Effects.DealDamage(

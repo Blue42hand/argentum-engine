@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -63,13 +62,13 @@ val CausticBronco = card("Caustic Bronco") {
                     destination = CardDestination.ToZone(Zone.HAND, Player.You),
                     revealed = true
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceIsSaddled,
-                    effect = LoseLifeEffect(
+                    then = LoseLifeEffect(
                         DynamicAmount.StoredCardManaValue("revealed"),
                         EffectTarget.PlayerRef(Player.EachOpponent)
                     ),
-                    elseEffect = LoseLifeEffect(
+                    otherwise = LoseLifeEffect(
                         DynamicAmount.StoredCardManaValue("revealed"),
                         EffectTarget.Controller
                     )

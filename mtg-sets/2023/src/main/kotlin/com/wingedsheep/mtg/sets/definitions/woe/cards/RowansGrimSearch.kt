@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * You draw two cards and you lose 2 life.
  *
  * The spell-rider shape of bargain (CR 702.166c) like [CandyGrapple]: the bargained fact is read
- * off the spell while it's still on the stack, so the dig is a [ConditionalEffect] gated on
+ * off the spell while it's still on the stack, so the dig is a [Effects.If] gated on
  * [Conditions.WasBargained] wrapping the whole clause — an unbargained cast is just "draw two,
  * lose 2".
  *
@@ -54,9 +53,9 @@ val RowansGrimSearch = card("Rowan's Grim Search") {
 
     spell {
         effect = Effects.Composite(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasBargained,
-                effect = Effects.Pipeline {
+                then = Effects.Pipeline {
                     val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
                     val (kept, rest) = chooseUpToSplit(
                         2,

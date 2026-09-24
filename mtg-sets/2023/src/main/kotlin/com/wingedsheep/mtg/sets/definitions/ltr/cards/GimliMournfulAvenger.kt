@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -68,9 +67,9 @@ val GimliMournfulAvenger = card("Gimli, Mournful Avenger") {
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(IncrementAbilityResolutionCountEffect)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    effect = ReflexiveTriggerEffect(
+                    then = ReflexiveTriggerEffect(
                         action = Effects.Composite(emptyList()),
                         optional = false,
                         reflexiveEffect = Effects.Fight(EffectTarget.Self, EffectTarget.ContextTarget(0)),

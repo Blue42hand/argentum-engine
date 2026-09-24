@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -38,7 +37,7 @@ val ShadowOfTheGoblin = card("Shadow of the Goblin") {
     // Unreliable Visions — first main phase: discard a card. If you do, draw a card.
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = IfYouDoEffect(action = Patterns.Hand.discardCards(1), ifYouDo = DrawCardsEffect(1))
+        effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(1))
     }
 
     // Undying Vengeance — play a land from a non-hand zone → 1 damage to each opponent.

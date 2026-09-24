@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddSubtypeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Aquitect's Will
@@ -54,9 +53,9 @@ val AquitectsWill = card("Aquitect's Will") {
                 )
             )
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControl(GameObjectFilter.Any.withSubtype("Merfolk")),
-                    effect = Effects.DrawCards(1)
+                    then = Effects.DrawCards(1)
                 )
             )
     }

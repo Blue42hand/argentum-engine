@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *
  * The kicker simply swaps the destination of the single target: unkicked returns it to
  * hand, kicked puts that same card onto the battlefield tapped ("instead"), so the two
- * outcomes are the if/else branches of one [ConditionalEffect] gated on [WasKicked].
+ * outcomes are the if/else branches of one [Effects.If] gated on [WasKicked].
  */
 val ZukosConviction = card("Zuko's Conviction") {
     manaCost = "{B}"
@@ -33,10 +32,10 @@ val ZukosConviction = card("Zuko's Conviction") {
 
     spell {
         target = TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = Effects.PutOntoBattlefield(EffectTarget.ContextTarget(0), tapped = true),
-            elseEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+            then = Effects.PutOntoBattlefield(EffectTarget.ContextTarget(0), tapped = true),
+            otherwise = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
         )
     }
 

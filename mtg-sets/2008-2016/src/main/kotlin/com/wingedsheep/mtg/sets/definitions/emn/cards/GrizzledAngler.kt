@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   {6}: Creatures your opponents control attack this turn if able.
  *
  * Implementation:
- *  - The front's tap ability is [Patterns.Library.mill] (2) followed by a [ConditionalEffect] on
+ *  - The front's tap ability is [Patterns.Library.mill] (2) followed by a [Effects.If] on
  *    [Conditions.CardsInGraveyardMatchingAtLeast]`(1, colorless creature)` that flips the permanent
  *    with [TransformEffect] — the Treasure Map "do a thing, then conditionally transform" shape. The
  *    condition is re-read *after* the mill, so cards milled by this very activation count, and the
@@ -62,9 +61,9 @@ private val GrizzledAnglerFront = card("Grizzled Angler") {
         cost = Costs.Tap
         effect = Effects.Composite(
             Patterns.Library.mill(2),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CardsInGraveyardMatchingAtLeast(1, ColorlessCreatureCard),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "Mill two cards. Then if there is a colorless creature card in your " +

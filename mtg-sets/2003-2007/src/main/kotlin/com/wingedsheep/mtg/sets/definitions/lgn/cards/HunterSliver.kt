@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,7 +45,7 @@ val HunterSliver = card("Hunter Sliver") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.Attacks.event,
                 binding = Triggers.Attacks.binding,
-                effect = MayEffect(Effects.Provoke(EffectTarget.ContextTarget(0))),
+                effect = Effects.May(Effects.Provoke(EffectTarget.ContextTarget(0))),
                 targetRequirement = Targets.CreatureOpponentControls
             ),
             filter = sliverFilter

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -38,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *  - The Bear subtype is [Duration.Permanent], not end-of-turn: the text has no duration, so the
  *    creature stays a Bear (CR 205.1b). It is [Effects.AddSubtype] rather than any "becomes"
  *    primitive that *sets* subtypes — "in addition to its other types" is purely additive.
- *  - The draw check is a plain [ConditionalEffect] evaluated after the type change, and the count is
+ *  - The draw check is a plain [Effects.If] evaluated after the type change, and the count is
  *    a projected battlefield read, so the creature that just became a Bear is already counted.
  */
 val BeornTheFierce = card("Beorn the Fierce") {
@@ -83,12 +82,12 @@ val BeornTheFierce = card("Beorn the Fierce") {
                     )
                 )
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControlAtLeast(
                     3,
                     GameObjectFilter.Creature.withSubtype(Subtype.BEAR)
                 ),
-                effect = Effects.DrawCards(2)
+                then = Effects.DrawCards(2)
             )
         )
         description = "At the beginning of combat on your turn, put a trample counter on up to one " +

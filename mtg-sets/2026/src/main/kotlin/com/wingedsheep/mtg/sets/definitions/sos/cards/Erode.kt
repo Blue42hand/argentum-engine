@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * card, put it onto the battlefield tapped, then shuffle.
  *
  * A Path-to-Exile-shaped compensation effect. The destroy resolves first, then the destroyed
- * permanent's controller — not Erode's controller — gets the optional search, so the [MayEffect]
+ * permanent's controller — not Erode's controller — gets the optional search, so the [Effects.May]
  * gate is delegated to [EffectTarget.TargetController] and the whole search pipeline is scoped to
  * [Player.ControllerOf] (library to gather from, battlefield to put the land onto tapped, and the
  * library to shuffle). "Its controller" is resolved from the targeted permanent at resolution;
@@ -44,7 +43,7 @@ val Erode = card("Erode") {
 
     spell {
         val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
-        effect = Effects.Destroy(permanent) then MayEffect(
+        effect = Effects.Destroy(permanent) then Effects.May(
             effect = Effects.Composite(
                 listOf(
                     GatherCardsEffect(

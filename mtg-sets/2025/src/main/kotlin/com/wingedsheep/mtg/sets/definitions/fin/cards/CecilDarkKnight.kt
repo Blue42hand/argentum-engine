@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -78,13 +77,13 @@ private val CecilDarkKnightFrontFace = card("Cecil, Dark Knight") {
         trigger = Triggers.DealsDamage
         effect = Effects.Composite(listOf(
             Effects.LoseLife(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT), EffectTarget.Controller),
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmount.LifeTotal(Player.You),
                     ComparisonOperator.LTE,
                     DynamicAmount.Divide(DynamicAmounts.startingLifeTotal(Player.You), DynamicAmount.Fixed(2), roundUp = false)
                 ),
-                effect = Effects.Composite(listOf(
+                then = Effects.Composite(listOf(
                     Effects.Untap(EffectTarget.Self),
                     TransformEffect(EffectTarget.Self)
                 ))

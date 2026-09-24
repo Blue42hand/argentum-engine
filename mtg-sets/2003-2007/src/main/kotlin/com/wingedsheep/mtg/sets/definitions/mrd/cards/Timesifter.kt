@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -51,13 +50,13 @@ val Timesifter = card("Timesifter") {
         trigger = Triggers.EachUpkeep
         effect = Effects.Composite(
             Effects.ExileTopCardContest(storeWinnerAs = WINNER),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmount.DistinctEntitiesInCollections(listOf(WINNER)),
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(1)
                 ),
-                effect = Effects.TakeExtraTurn(target = EffectTarget.PipelineTarget(WINNER))
+                then = Effects.TakeExtraTurn(target = EffectTarget.PipelineTarget(WINNER))
             )
         )
         description = "At the beginning of each upkeep, each player exiles the top card of their " +

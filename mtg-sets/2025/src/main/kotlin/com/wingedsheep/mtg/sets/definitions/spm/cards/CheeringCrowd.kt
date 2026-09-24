@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * That player, not this creature's controller, both makes the "may" choice and receives the
  * mana. We rebind the resolution controller to the triggering (active) player by wrapping the
  * body in `ForEachPlayer(Player.TriggeringPlayer, …)`: a single-player iteration whose only
- * effect is to bind `controllerId` to that player, so the default `MayEffect` decision-maker is
+ * effect is to bind `controllerId` to that player, so the default `Effects.May` decision-maker is
  * that player and the colorless mana lands in that player's pool. The +1/+1 counter always goes
  * on this creature ([EffectTarget.Self] is unaffected by the controller rebind), and the {C}
  * amount counts every counter on it (any kind, including the one just placed — the counter is
@@ -44,7 +43,7 @@ val CheeringCrowd = card("Cheering Crowd") {
         effect = Effects.ForEachPlayer(
             Player.TriggeringPlayer,
             listOf(
-                MayEffect(
+                Effects.May(
                     Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                         then Effects.AddColorlessMana(
                             DynamicAmounts.countersOnSelf(CounterTypeFilter.Any)

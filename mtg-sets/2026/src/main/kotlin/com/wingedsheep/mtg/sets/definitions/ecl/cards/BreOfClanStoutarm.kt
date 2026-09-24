@@ -13,9 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -80,7 +78,7 @@ val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
                 destination = CardDestination.ToZone(Zone.EXILE)
             ),
             // Compare the exiled nonland's mana value to the life gained this turn.
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     left = DynamicAmount.StoredCardManaValue("nonland"),
                     operator = ComparisonOperator.LTE,
@@ -89,7 +87,7 @@ val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
                 // MV ≤ life gained: you may cast it for free *while this ability resolves* (the
                 // printed ruling — you can't wait to cast it later), so cast inline from exile
                 // rather than granting deferred may-play permission.
-                effect = MayEffect(
+                then = Effects.May(
                     Effects.CastFromCollectionWithoutPayingCost("nonland"),
                     otherwise = nonlandToHand
                 ),
@@ -100,7 +98,7 @@ val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
                 // onto the battlefield for any reason, you put the card into your hand." Cf. Fecund
                 // Greenshell and Aid from the Cowl, both ruled the same way. Nothing is ever left
                 // stranded in exile.
-                elseEffect = nonlandToHand
+                otherwise = nonlandToHand
             )
         ))
     }

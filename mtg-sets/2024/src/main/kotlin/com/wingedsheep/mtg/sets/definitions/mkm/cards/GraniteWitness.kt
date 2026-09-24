@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
  * would-be blocker before blocks, or to untap one of yours after it attacked. Vigilance on the
  * face-up side makes the second line free.
  *
- * "You may tap or untap target creature" is the [SewerVeillanceCam] idiom — a [MayEffect] wrapping
+ * "You may tap or untap target creature" is the [SewerVeillanceCam] idiom — a [Effects.May] wrapping
  * a two-[Mode] [ModalEffect] over the single declared target, with `countsAsModalSpell = false` so
  * the tap/untap choice isn't mistaken for a modal *spell*. The target is chosen when the trigger
  * goes on the stack; the tap-or-untap choice is made on resolution, so an opponent who taps the
@@ -51,7 +51,7 @@ val GraniteWitness = card("Granite Witness") {
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
         val creature = target("target creature", Targets.Creature)
-        effect = MayEffect(
+        effect = Effects.May(
             ModalEffect(
                 modes = listOf(
                     Mode.noTarget(TapUntapEffect(creature, tap = true), "Tap that creature"),

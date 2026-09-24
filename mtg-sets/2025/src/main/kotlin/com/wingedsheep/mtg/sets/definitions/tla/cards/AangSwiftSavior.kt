@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -98,16 +97,16 @@ private val AangSwiftSaviorFront = card("Aang, Swift Savior") {
                 )
             )
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetIsSpellOnStack(0),
             // Spell branch: airbend "exiles it" — this is NOT a counter (so it works on spells that
             // can't be countered and fires no "spell was countered" trigger). Exile the spell from
             // the stack; its owner may recast it for {2} via the same fixed-alternative-cost grant.
             // AirbendSpell also fires "whenever you airbend" once the spell is exiled (CR 701.65b),
             // so this counts toward Avatar Aang's four-bend trigger.
-            effect = Effects.AirbendSpell(ManaCost.parse("{2}")),
+            then = Effects.AirbendSpell(ManaCost.parse("{2}")),
             // Permanent branch: the normal airbend exile + {2}-recast-to-owner.
-            elseEffect = Effects.Airbend()
+            otherwise = Effects.Airbend()
         )
         description = "When Aang enters, airbend up to one other target creature or spell."
     }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - Reveal → gather the opponent's hand → `ChooseUpTo(1)` nonland (the "you may choose")
  *    → discard. The optional selection stores `toDiscard`; an empty selection means no
  *    card was chosen.
- *  - The "Otherwise" half is a resolution-time state test ([ConditionalEffect], lowering to
+ *  - The "Otherwise" half is a resolution-time state test ([Effects.If], lowering to
  *    `Gate.WhenCondition`) gated on `toDiscard` being empty — i.e. nothing was discarded.
  *    It gathers the opponent's *face-up* exiled cards, offers an optional choice, and moves
  *    the chosen card to its owner's (the opponent's) graveyard.
@@ -74,9 +73,9 @@ val BindingNegotiation = card("Binding Negotiation") {
                 ),
                 // "Otherwise, you may put a face-up exiled card they own into their graveyard."
                 // Fires only if no card was discarded (toDiscard is empty).
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Not(Conditions.CollectionContainsMatch("toDiscard")),
-                    effect = Effects.Composite(
+                    then = Effects.Composite(
                         listOf(
                             GatherCardsEffect(
                                 source = CardSource.FromZone(

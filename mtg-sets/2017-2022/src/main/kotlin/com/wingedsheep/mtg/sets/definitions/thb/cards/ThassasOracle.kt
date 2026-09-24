@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -67,13 +66,13 @@ val ThassasOracle = card("Thassa's Oracle") {
                 toLibraryTop(split.selected)
                 toLibraryBottom(split.remainder, order = CardOrder.Random)
             },
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmount.DevotionTo(listOf(Color.BLUE)),
                     ComparisonOperator.GTE,
                     DynamicAmount.AggregateZone(Player.You, Zone.LIBRARY)
                 ),
-                effect = Effects.WinGame(
+                then = Effects.WinGame(
                     message = "Thassa's Oracle: devotion to blue was at least the number of cards " +
                         "in your library."
                 )

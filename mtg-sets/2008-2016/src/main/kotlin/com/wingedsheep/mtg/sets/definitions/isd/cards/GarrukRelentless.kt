@@ -155,7 +155,7 @@ private val GarrukTheVeilCursed = card("Garruk, the Veil-Cursed") {
                 count = 1,
                 target = EffectTarget.PlayerRef(Player.You),
             ),
-            ifYouDo = Patterns.Library.searchLibrary(
+            then = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Creature,
                 destination = SearchDestination.HAND,
                 reveal = true,

@@ -6,9 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -37,7 +34,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    [GatedEffect] with a [Gate.WhenCondition] on `excess >= 1` — a synchronous state test that
  *    reads the fight's stored number, so the destroy branch is entered **only** when excess damage
  *    was actually dealt (never otherwise; the artifact is not touched on a plain lethal/whiff). The
- *    "up to one target" optionality is a [MayEffect] wrapping a resolution-time
+ *    "up to one target" optionality is a [Effects.May] wrapping a resolution-time
  *    [Effects.SelectTarget] + [Effects.Destroy]: gating outside the targeting means no artifact
  *    target is offered at all unless excess occurred, and the player may still decline to destroy
  *    anything ("up to one"). "noncreature artifact with mana value 3 or less" is
@@ -64,15 +61,13 @@ val RhinosRampage = card("Rhino's Rampage") {
         effect = Effects.ModifyStats(1, 0, yourCreature)
             .then(Effects.Fight(yourCreature, theirCreature, excessDamageVariable = "excess"))
             .then(
-                GatedEffect(
-                    gate = Gate.WhenCondition(
-                        Conditions.CompareAmounts(
+                Effects.If(
+                    condition = Conditions.CompareAmounts(
                             DynamicAmount.VariableReference("excess"),
                             ComparisonOperator.GTE,
                             DynamicAmount.Fixed(1),
-                        )
-                    ),
-                    then = MayEffect(
+                        ),
+                    then = Effects.May(
                         effect = Effects.SelectTarget(
                             TargetPermanent(
                                 filter = TargetFilter(

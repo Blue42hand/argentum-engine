@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -30,9 +30,9 @@ private val ratsYouControl = GameObjectFilter.Creature.withSubtype("Rat").youCon
  * "enters or attacks" card).
  */
 private fun ratSwarmAndRally(): Effect = woeRatToken(DynamicAmount.Fixed(2)).then(
-    ConditionalEffect(
+    Effects.If(
         condition = Conditions.YouControlAtLeast(5, ratsYouControl),
-        effect = Patterns.Group.modifyStatsForAll(
+        then = Patterns.Group.modifyStatsForAll(
             power = 2,
             toughness = 0,
             filter = GroupFilter(ratsYouControl)

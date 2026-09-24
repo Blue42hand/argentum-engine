@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -38,7 +37,7 @@ val DirgeOfDread = card("Dirge of Dread") {
     triggeredAbility {
         trigger = Triggers.YouCycleThis
         val t = target("target", Targets.Creature)
-        effect = MayEffect(GrantKeywordEffect(Keyword.FEAR, t))
+        effect = Effects.May(GrantKeywordEffect(Keyword.FEAR, t))
     }
 
     metadata {

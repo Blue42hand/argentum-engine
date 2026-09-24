@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -55,7 +54,7 @@ val GrothamaAllDevouring = card("Grothama, All-Devouring") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.Attacks.event,
                 binding = Triggers.Attacks.binding,
-                effect = MayEffect(Effects.Fight(EffectTarget.Self, EffectTarget.ContextTarget(0))),
+                effect = Effects.May(Effects.Fight(EffectTarget.Self, EffectTarget.ContextTarget(0))),
                 targetRequirement = grothamaTarget,
             ),
             filter = GroupFilter.AllCreatures.other(),

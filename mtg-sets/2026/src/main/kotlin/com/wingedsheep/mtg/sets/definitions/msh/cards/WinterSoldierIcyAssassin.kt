@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -44,7 +43,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    modelled.
  *
  * The "Then you may attach an Equipment you control to him" tail is a *resolution-time* choice, not
- * a cast-time target: [MayEffect] asks the yes/no (skipped outright via [FeasibilityCheck] when you
+ * a cast-time target: [Effects.May] asks the yes/no (skipped outright via [FeasibilityCheck] when you
  * control no Equipment, so a player who can't attach anything is never asked), then
  * [SelectTargetEffect] picks the Equipment and [Effects.AttachTargetEquipmentToCreature] moves it
  * onto Winter Soldier ([EffectTarget.Self], which is the permanent that just entered). Attaching an
@@ -79,7 +78,7 @@ val WinterSoldierIcyAssassin = card("Winter Soldier, Icy Assassin") {
         effect = Effects.Composite(
             Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
             AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = EffectTarget.Self),
-            MayEffect(
+            Effects.May(
                 effect = Effects.Composite(
                     SelectTargetEffect(
                         requirement = TargetObject(

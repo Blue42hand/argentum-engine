@@ -64,7 +64,7 @@ val LordSkittersButcher = card("Lord Skitter's Butcher") {
                         )
                         sacrifice(chosen)
                     },
-                    ifYouDo = Effects.Composite(
+                    then = Effects.Composite(
                         Patterns.Library.scry(2),
                         Effects.DrawCards(1)
                     )

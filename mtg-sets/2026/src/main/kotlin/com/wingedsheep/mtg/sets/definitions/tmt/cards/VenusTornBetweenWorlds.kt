@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -51,7 +50,7 @@ val VenusTornBetweenWorlds = card("Venus, Torn Between Worlds") {
             sourceFilter = GameObjectFilter.Creature.youControl().withAnyCounter(),
             binding = TriggerBinding.ANY
         )
-        effect = MayPayManaEffect(ManaCost.parse("{U}"), Effects.DrawCards(1))
+        effect = Effects.MayPay(ManaCost.parse("{U}"), Effects.DrawCards(1))
         description = "Whenever a creature you control with a counter on it deals combat damage to a player, you may pay {U}. If you do, draw a card."
     }
 

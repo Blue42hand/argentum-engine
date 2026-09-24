@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -54,9 +52,8 @@ val VirtueOfCourage = card("Virtue of Courage") {
             sourceFilter = GameObjectFilter.Any.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = GatedEffect(
-            gate = Gate.MayDecide(),
-            then = Patterns.Exile.impulse(
+        effect = Effects.May(
+            effect = Patterns.Exile.impulse(
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
             ),
             // Becomes the yes/no prompt text — the pipeline's auto-description would read as

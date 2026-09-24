@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.references.Player
@@ -44,9 +43,9 @@ val ManaSculpt = card("Mana Sculpt") {
 
     spell {
         target = Targets.Spell
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Wizard")),
-            effect = CreateDelayedTriggerEffect(
+            then = CreateDelayedTriggerEffect(
                 step = Step.PRECOMBAT_MAIN,
                 fireOnPlayer = EffectTarget.PlayerRef(Player.You),
                 timing = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,

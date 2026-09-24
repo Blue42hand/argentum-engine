@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -57,9 +56,9 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
         )
         effect = Effects.Untap(target)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature),
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target)
+                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target)
                 )
             )
     }
@@ -89,9 +88,9 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
                     3,
                     EffectTarget.ContextTarget(0)
                 ).then(
-                    ConditionalEffect(
+                    Effects.If(
                         condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature),
-                        effect = Effects.BecomeCreature(
+                        then = Effects.BecomeCreature(
                             target = EffectTarget.ContextTarget(0),
                             power = 0,
                             toughness = 0,

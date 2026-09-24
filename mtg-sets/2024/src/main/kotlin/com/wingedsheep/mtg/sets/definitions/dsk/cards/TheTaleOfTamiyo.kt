@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
@@ -55,9 +54,9 @@ val TheTaleOfTamiyo = card("The Tale of Tamiyo") {
     val millRepeat = Effects.RepeatWhile(
         body = Effects.Composite(
             Patterns.Library.mill(2),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionSharesCardType("milled"),
-                effect = Effects.DrawCards(1),
+                then = Effects.DrawCards(1),
             ),
         ),
         repeatCondition = RepeatCondition.WhileCondition(

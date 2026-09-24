@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -56,9 +55,9 @@ val NurturingPixie = card("Nurturing Pixie") {
             ),
         )
         effect = Effects.ReturnToHand(t).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent),
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             ),
         )
         description = "When this creature enters, return up to one target non-Faerie, nonland " +

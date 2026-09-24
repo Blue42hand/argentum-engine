@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,12 +52,12 @@ val TheBlackArrow = card("The Black Arrow") {
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(1, anyTarget),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(
                     GameObjectFilter.Any.withSubtype(Subtype.DRAGON),
                     targetIndex = 0
                 ),
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+                then = Effects.Destroy(EffectTarget.ContextTarget(0))
             )
         )
         description = "When The Black Arrow enters, it deals 1 damage to any target. " +

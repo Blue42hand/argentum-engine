@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Whenever another Human you control enters, untap this creature.
  * {1}{U}, {T}: You may tap or untap target permanent.
  *
- * "You may tap or untap target permanent" is the corpus idiom for the clause — a [MayEffect] over a
+ * "You may tap or untap target permanent" is the corpus idiom for the clause — a [Effects.May] over a
  * two-[Mode] [ModalEffect] with `countsAsModalSpell = false`, shared with Pestermite, Stonybrook
  * Angler, Merrow Reejerey, Granite Witness, Sewer-veillance Cam, Elite Interceptor and Inverted
  * Iceberg. The target is locked in when the ability goes on the stack; the tap-or-untap choice is
@@ -59,7 +58,7 @@ val CaptainOfTheMists = card("Captain of the Mists") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
         val t = target("target permanent", TargetPermanent())
-        effect = MayEffect(
+        effect = Effects.May(
             ModalEffect(
                 modes = listOf(
                     Mode.noTarget(TapUntapEffect(t, tap = true), "Tap that permanent"),

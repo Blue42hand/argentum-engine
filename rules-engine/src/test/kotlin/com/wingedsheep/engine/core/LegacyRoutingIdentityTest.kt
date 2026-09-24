@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.GameRng
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -40,7 +39,7 @@ class LegacyRoutingIdentityTest : ScenarioTestBase() {
             val game = scenario().withPlayers().build()
             val paused = EffectHandler(cardRegistry = cardRegistry).execute(
                 game.state,
-                MayEffect(MayEffect(Effects.GainLife(2))),
+                Effects.May(Effects.May(Effects.GainLife(2))),
                 EffectContext(sourceId = null, controllerId = game.player1Id)
             )
             paused.error shouldBe null

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * creature you control has flying. The same is true for fear, first strike, double strike,
  * landwalk, protection, trample, and vigilance.
  *
- * The Odric, Lunarch Marshal shape: one [ConditionalEffect] per fixed keyword, each fanning an
+ * The Odric, Lunarch Marshal shape: one [Effects.If] per fixed keyword, each fanning an
  * end-of-turn grant over the creatures you control with [Effects.ForEachInGroup]. The gates are
  * resolution-time tests and the grants are snapshotted per creature, which is exactly the rulings:
  * creatures keep what they gained even if Concerted Effort or the creature that supplied it leaves.
@@ -64,9 +63,9 @@ val ConcertedEffort = card("Concerted Effort") {
         trigger = Triggers.EachUpkeep
         effect = Effects.Composite(
             SHARED_KEYWORDS.map { keyword ->
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ControlCreatureWithKeyword(keyword),
-                    effect = Effects.ForEachInGroup(
+                    then = Effects.ForEachInGroup(
                         CREATURES_YOU_CONTROL,
                         Effects.GrantKeyword(keyword, EffectTarget.Self, Duration.EndOfTurn)
                     )

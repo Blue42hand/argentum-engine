@@ -34,11 +34,8 @@ import com.wingedsheep.sdk.scripting.effects.ForEachEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayXForEffect
 import com.wingedsheep.sdk.scripting.effects.RedirectNextDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
@@ -50,7 +47,6 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
@@ -432,18 +428,18 @@ object Steps {
      * [mayClause] cannot reach these. It spells "you may {inner}" over a clause that states no
      * subject of its own ("draw a card"), and a clause that states "you" would come back as "you may
      * you gain 3 life": English contracts the wrapper's subject with the clause's, and the model is
-     * the same `MayEffect` either way. So the contraction is a printed-shape fact, and it is written
+     * the same `Effects.May` either way. So the contraction is a printed-shape fact, and it is written
      * as a *variant of the same row* rather than as a rule of its own — one call site, and the
      * numeral and the "equal to …" clause both inherit the wrapper, which is what stops the two
      * drifting.
      */
     private fun mayWrap(script: (DynamicAmount) -> CardScript): (DynamicAmount) -> CardScript =
-        { amount -> wrap(script(amount)) { MayEffect(it) } ?: script(amount) }
+        { amount -> wrap(script(amount)) { Effects.May(it) } ?: script(amount) }
 
     /** [mayWrap]'s inverse: the amount under the decision, or null when the gate is not one. */
     private fun mayUnwrap(amount: (Effect) -> DynamicAmount?): (Effect) -> DynamicAmount? = { effect ->
         val gated = effect as? GatedEffect
-        if (gated == null || gated.gate !is Gate.MayDecide || gated != MayEffect(gated.then)) {
+        if (gated == null || gated.gate !is Gate.MayDecide || gated != Effects.May(gated.then)) {
             null
         } else {
             amount(gated.then)
@@ -888,7 +884,7 @@ object Steps {
      */
     private val exchangeControl: Phrase<CardScript> = run {
         fun scriptFor(mine: GameObjectFilter, theirs: GameObjectFilter) = CardScript(
-            spellEffect = MayEffect(Effects.ExchangeControl(Targets.bound(0), Targets.bound(1))),
+            spellEffect = Effects.May(Effects.ExchangeControl(Targets.bound(0), Targets.bound(1))),
             targetRequirements = listOf(Targets.permanent(mine, 0), Targets.permanent(theirs, 1)),
         )
         phrase("you may exchange control of target {mine} and target {theirs}", name = "exchange control") {
@@ -1158,7 +1154,7 @@ object Steps {
     private val mayPumpTargetPermanent: List<Phrase<CardScript>> =
         Targets.singularQuantifiers.map { quantifier ->
             fun scriptFor(modifiers: Pair<Int, Int>, filter: GameObjectFilter) = CardScript(
-                spellEffect = MayEffect(
+                spellEffect = Effects.May(
                     quantifier.effectOver { Effects.ModifyStats(modifiers.first, modifiers.second, it) },
                 ),
                 targetRequirements = listOf(quantifier.requirement(1, filter)),
@@ -1691,7 +1687,7 @@ object Steps {
      * "You may have target opponent **sacrifice** a creature of their choice." is the same sacrifice
      * behind a consent gate, and English marks the gate by moving the subject inside "have" and
      * dropping the verb's agreement. An `alsoSpelled` cannot carry it: that mechanism shares the
-     * row's `build`, and this model is `MayEffect(ForceSacrificeEffect(…))` rather than the bare
+     * row's `build`, and this model is `Effects.May(ForceSacrificeEffect(…))` rather than the bare
      * effect. So it is a parameter on the row — two printed words and one wrapper — which is
      * [mayWrap]'s argument for the "may gain life" contraction applied to a whole script.
      *
@@ -1703,7 +1699,7 @@ object Steps {
      *
      * @param count null spells the singular through [Filters.indefinite], which carries the article;
      *   a phrase spells the plural, over [Filters.plural].
-     * @param causative the "you may have … sacrifice" surface and its `MayEffect` wrapper.
+     * @param causative the "you may have … sacrifice" surface and its `Effects.May` wrapper.
      */
     private fun forcedSacrifice(
         subject: SacrificeSubject,
@@ -1717,7 +1713,7 @@ object Steps {
         )
         fun scriptFor(filter: GameObjectFilter, n: Int): CardScript {
             val script = bare(filter, n)
-            return if (causative) wrap(script) { MayEffect(it) } ?: script else script
+            return if (causative) wrap(script) { Effects.May(it) } ?: script else script
         }
         val counted = if (count == null) "" else "{n} "
         // English's causative rewrite: the subject moves inside "you may have …" and the finite verb
@@ -1754,13 +1750,13 @@ object Steps {
      * top-level effect is not exactly one.
      *
      * The same test [mayUnwrap] makes on an amount, lifted to the whole script — a `GatedEffect`
-     * whose gate is `Gate.MayDecide` *and* which equals `MayEffect(its own consequence)`, so a gate
+     * whose gate is `Gate.MayDecide` *and* which equals `Effects.May(its own consequence)`, so a gate
      * carrying anything extra (an `otherwise` branch, a cost) declines rather than reading as a
      * plain may.
      */
     private fun unwrapMay(script: CardScript): CardScript? {
         val gated = script.spellEffect as? GatedEffect ?: return null
-        if (gated.gate !is Gate.MayDecide || gated != MayEffect(gated.then)) return null
+        if (gated.gate !is Gate.MayDecide || gated != Effects.May(gated.then)) return null
         return script.copy(spellEffect = gated.then)
     }
 
@@ -3032,12 +3028,12 @@ object Steps {
          */
         private val mayClause: Phrase<CardScript> = phrase("you may {inner}", name = "you may$tag") {
             slot("inner", atom)
-            build { bindings -> wrap(bindings.value("inner")) { MayEffect(it) } }
+            build { bindings -> wrap(bindings.value("inner")) { Effects.May(it) } }
             match { script ->
                 val gated = script.spellEffect as? GatedEffect ?: return@match null
                 if (gated.gate !is Gate.MayDecide) return@match null
                 val inner = CardScript(spellEffect = gated.then, targetRequirements = script.targetRequirements)
-                if (wrap(inner) { MayEffect(it) } != script) return@match null
+                if (wrap(inner) { Effects.May(it) } != script) return@match null
                 bind("inner" to inner)
             }
         }
@@ -3106,7 +3102,7 @@ object Steps {
                 build { bindings ->
                     val cost = bindings.value<ManaCost>("cost")
                     if (cost == payX) return@build null
-                    wrap(bindings.value("inner")) { MayPayManaEffect(cost, it) }
+                    wrap(bindings.value("inner")) { Effects.MayPay(cost, it) }
                 }
                 match { script ->
                     val gated = script.spellEffect as? GatedEffect ?: return@match null
@@ -3114,18 +3110,18 @@ object Steps {
                     val cost = (gate.cost as? PayManaCostEffect)?.cost ?: return@match null
                     if (cost == payX) return@match null
                     val inner = CardScript(spellEffect = gated.then, targetRequirements = script.targetRequirements)
-                    if (wrap(inner) { MayPayManaEffect(cost, it) } != script) return@match null
+                    if (wrap(inner) { Effects.MayPay(cost, it) } != script) return@match null
                     bind("cost" to cost, "inner" to inner)
                 }
             },
             phrase("you may pay {X}. if you do, {inner}", name = "you may pay X$tag") {
                 slot("inner", gatedConsequence)
-                build { bindings -> wrap(bindings.value("inner")) { MayPayXForEffect(it) } }
+                build { bindings -> wrap(bindings.value("inner")) { Effects.MayPayX(it) } }
                 match { script ->
                     val gated = script.spellEffect as? GatedEffect ?: return@match null
                     if (gated.gate !is Gate.MayPayX) return@match null
                     val inner = CardScript(spellEffect = gated.then, targetRequirements = script.targetRequirements)
-                    if (wrap(inner) { MayPayXForEffect(it) } != script) return@match null
+                    if (wrap(inner) { Effects.MayPayX(it) } != script) return@match null
                     bind("inner" to inner)
                 }
             },
@@ -3135,7 +3131,7 @@ object Steps {
          * "If an opponent controls more lands than you, search your library for …" — Gift of
          * Estates.
          *
-         * The SDK lowers a spell's `condition` into a `ConditionalEffect` wrapping the whole
+         * The SDK lowers a spell's `condition` into a `Effects.If` wrapping the whole
          * effect, so this is a wrapper for the same reason [mayClause] is one, and the condition is
          * the slot. The condition vocabulary is [Conditions].
          *
@@ -3159,13 +3155,13 @@ object Steps {
                 slot("inner", gatedConsequence)
                 build { bindings ->
                     val condition = bindings.value<Condition>("cond")
-                    wrap(bindings.value("inner")) { ConditionalEffect(condition, it) }
+                    wrap(bindings.value("inner")) { Effects.If(condition, it) }
                 }
                 match { script ->
                     val gated = script.spellEffect as? GatedEffect ?: return@match null
                     val gate = gated.gate as? Gate.WhenCondition ?: return@match null
                     val inner = CardScript(spellEffect = gated.then, targetRequirements = script.targetRequirements)
-                    if (wrap(inner) { ConditionalEffect(gate.condition, it) } != script) return@match null
+                    if (wrap(inner) { Effects.If(gate.condition, it) } != script) return@match null
                     bind("cond" to gate.condition, "inner" to inner)
                 }
             }

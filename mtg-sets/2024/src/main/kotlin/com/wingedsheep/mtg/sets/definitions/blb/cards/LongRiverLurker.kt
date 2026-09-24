@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -60,7 +59,7 @@ val LongRiverLurker = card("Long River Lurker") {
         effect = Effects.Composite(listOf(
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature),
             CreateDelayedTriggerEffect(
-                effect = MayEffect(
+                effect = Effects.May(
                     effect = Effects.Composite(listOf(
                         Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
                         Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD)

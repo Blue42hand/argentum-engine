@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Soul Search — Murders at Karlov Manor #232
@@ -45,9 +44,9 @@ val SoulSearch = card("Soul Search") {
         target("opponent", Targets.Opponent)
         effect = Effects.Composite(
             Patterns.Hand.revealHandAndExileChosen(storeExiledAs = "exiledCard"),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch("exiledCard", Filters.ManaValueAtMost(1)),
-                effect = Effects.CreateToken(
+                then = Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.WHITE, Color.BLACK),

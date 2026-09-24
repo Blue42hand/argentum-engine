@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
@@ -32,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    via [Triggers.dealsDamage] — same shape as Impostor Syndrome.
  *  - Intervening-"if" payoff (CR 603.4): putting the quest counter is mandatory; only if the
  *    enchantment then has four or more quest counters does the draw happen. The counter add is
- *    sequenced first, then [ConditionalEffect] gates the draw on the live count
+ *    sequenced first, then [Effects.If] gates the draw on the live count
  *    (`SourceCounterCountAtLeast`) — mirrors Earthbender Ascension's quest-counter pattern.
  *  - Waterbend is a keyword cost ({4}, payable by tapping your artifacts/creatures) modeled with
  *    `hasWaterbend = true` like Geyser Leaper; the can't-be-blocked grant defaults to end of turn.
@@ -55,9 +54,9 @@ val WaterbenderAscension = card("Waterbender Ascension") {
         )
         effect = Effects.Composite(
             Effects.AddCounters(Counters.QUEST, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 4),
-                effect = Effects.DrawCards(1)
+                then = Effects.DrawCards(1)
             )
         )
         description = "Whenever a creature you control deals combat damage to a player, put a quest counter on this enchantment. Then if it has four or more quest counters on it, draw a card."

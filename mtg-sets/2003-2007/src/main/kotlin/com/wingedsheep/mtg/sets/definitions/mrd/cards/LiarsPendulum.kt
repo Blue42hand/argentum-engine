@@ -11,9 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -78,17 +75,15 @@ val LiarsPendulum = card("Liar's Pendulum") {
                 )
             )
             .then(
-                MayEffect(
+                Effects.May(
                     effect = RevealHandEffect(EffectTarget.Controller)
                         .then(
-                            GatedEffect(
-                                gate = Gate.WhenCondition(
-                                    Conditions.CompareAmounts(
+                            Effects.If(
+                                condition = Conditions.CompareAmounts(
                                         DynamicAmount.VariableReference("pendulumGuessedRight"),
                                         ComparisonOperator.EQ,
                                         DynamicAmount.Fixed(0),
-                                    )
-                                ),
+                                    ),
                                 then = Effects.DrawCards(1),
                                 descriptionOverride = "If your opponent guessed wrong, draw a card.",
                             )

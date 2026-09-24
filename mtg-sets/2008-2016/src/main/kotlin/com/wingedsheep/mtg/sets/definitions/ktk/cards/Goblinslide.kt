@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Goblinslide
@@ -24,9 +24,9 @@ val Goblinslide = card("Goblinslide") {
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = CreateTokenEffect(
+            then = CreateTokenEffect(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),

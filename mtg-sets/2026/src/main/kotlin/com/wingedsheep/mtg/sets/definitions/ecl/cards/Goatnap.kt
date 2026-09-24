@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 val Goatnap = card("Goatnap") {
     manaCost = "{2}{R}"
@@ -22,9 +21,9 @@ val Goatnap = card("Goatnap") {
             Effects.GainControl(t, Duration.EndOfTurn),
             Effects.Untap(t),
             Effects.GrantKeyword(Keyword.HASTE, t),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Goat")),
-                effect = Effects.ModifyStats(3, 0, t)
+                then = Effects.ModifyStats(3, 0, t)
             )
         )
     }

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -43,13 +42,13 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 private val rogueCombatDamageAbility = TriggeredAbility.create(
     trigger = Triggers.DealsCombatDamageToPlayer.event,
     binding = Triggers.DealsCombatDamageToPlayer.binding,
-    effect = ConditionalEffect(
+    effect = Effects.If(
         condition = Conditions.RingHasTemptedYouAtLeast(4),
-        effect = Effects.LoseGame(
+        then = Effects.LoseGame(
             target = EffectTarget.PlayerRef(Player.TriggeringPlayer),
             message = "Frodo, Sauron's Bane dealt combat damage (Ring tempted you 4+ times)"
         ),
-        elseEffect = Effects.TheRingTemptsYou()
+        otherwise = Effects.TheRingTemptsYou()
     ),
     descriptionOverride = "Whenever this creature deals combat damage to a player, that player loses the game if the Ring has tempted you four or more times this game. Otherwise, the Ring tempts you."
 )
@@ -66,9 +65,9 @@ val FrodoSauronsBane = card("Frodo, Sauron's Bane") {
     // {W/B}{W/B}: If Frodo is a Citizen, becomes a 2/3 Halfling Scout with lifelink.
     activatedAbility {
         cost = Costs.Mana("{W/B}{W/B}")
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceHasSubtype(Subtype.CITIZEN),
-            effect = Effects.BecomeCreature(
+            then = Effects.BecomeCreature(
                 target = EffectTarget.Self,
                 power = 2,
                 toughness = 3,
@@ -84,9 +83,9 @@ val FrodoSauronsBane = card("Frodo, Sauron's Bane") {
     // the triggered ability is granted permanently.
     activatedAbility {
         cost = Costs.Mana("{B}{B}{B}")
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceHasSubtype(Subtype.SCOUT),
-            effect = Effects.SetCreatureSubtypes(
+            then = Effects.SetCreatureSubtypes(
                 subtypes = setOf("Halfling", "Rogue"),
                 target = EffectTarget.Self,
                 duration = Duration.Permanent

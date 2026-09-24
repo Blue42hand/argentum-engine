@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - `Effects.Sacrifice(Creature, count=1, target=Player.Each)` — each player auto-sacrifices
  *    a sole creature or chooses among multiples. Snapshots flow into
  *    `EffectContext.sacrificedPermanents` so the rider can read them.
- *  - The rider is a `ConditionalEffect` gated on `YouSacrificedThisWay` (LTR Gap 17).
+ *  - The rider is a `Effects.If` gated on `YouSacrificedThisWay` (LTR Gap 17).
  *  - The reanimation half is the standard Gather → Select(`ChooseUpTo(1)`) → Move
  *    pipeline against the graveyard: the player is offered the eligible permanent cards
  *    in their graveyard and may pick zero or one of them. The Gather uses
@@ -55,9 +54,9 @@ val RiseOfTheWitchKing = card("Rise of the Witch-king") {
             count = 1,
             target = EffectTarget.PlayerRef(Player.Each)
         ).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouSacrificedThisWay,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     listOf(
                         GatherCardsEffect(
                             source = CardSource.FromZone(

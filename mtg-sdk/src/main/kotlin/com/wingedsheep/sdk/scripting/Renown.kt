@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    CR 702.112c relies on: a creature with two instances of renown puts *two* abilities on the
  *    stack, the first to resolve makes it renowned, and the second then does nothing because its
  *    intervening-`if` no longer holds. Modelling the check as a
- *    [com.wingedsheep.sdk.scripting.effects.ConditionalEffect] inside the effect would get the
+ *    [com.wingedsheep.sdk.dsl.Effects.If] inside the effect would get the
  *    same end result for the common case but would let the ability trigger at all while renowned,
  *    which the rules do not.
  *  - **The counters and the designation are one effect**, applied in printed order — the counters

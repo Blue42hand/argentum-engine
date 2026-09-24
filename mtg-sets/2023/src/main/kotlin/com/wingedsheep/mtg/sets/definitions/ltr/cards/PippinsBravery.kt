@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -27,8 +26,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Otherwise, that creature gets +2/+2 until end of turn.
  *
  * Sacrificing a Food is a resolution-time optional action, not a cost, so it's modeled with an
- * [IfYouDoEffect] over a Gather → choose-up-to-1 → sacrifice pipeline (cf. Heated Argument), not an
- * OptionalCostEffect cost-gate. The optional `ChooseUpTo(1)` is the "you may"; gating on
+ * [Effects.IfYouDo] over a Gather → choose-up-to-1 → sacrifice pipeline (cf. Heated Argument), not an
+ * Effects.MayPay cost-gate. The optional `ChooseUpTo(1)` is the "you may"; gating on
  * `SuccessCriterion.CollectionNonEmpty` over the *chosen* pile (rather than the move's destination)
  * is what distinguishes +4/+4 (a Food was chosen and sacrificed) from +2/+2 (none was — declined,
  * or none controlled, in which case there's nothing to choose so no prompt appears).
@@ -41,7 +40,7 @@ val PippinsBravery = card("Pippin's Bravery") {
 
     spell {
         val creature = target("target creature", Targets.Creature)
-        effect = IfYouDoEffect(
+        effect = Effects.IfYouDo(
             action = Effects.Composite(
                 listOf(
                     GatherCardsEffect(
@@ -66,8 +65,8 @@ val PippinsBravery = card("Pippin's Bravery") {
                     )
                 )
             ),
-            ifYouDo = Effects.ModifyStats(4, 4, creature),
-            ifYouDont = Effects.ModifyStats(2, 2, creature),
+            then = Effects.ModifyStats(4, 4, creature),
+            otherwise = Effects.ModifyStats(2, 2, creature),
             successCriterion = SuccessCriterion.CollectionNonEmpty("sacrificedFood", min = 1)
         )
     }

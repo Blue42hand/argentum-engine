@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   {1}{B}, Discard a card: This creature gains indestructible until end of turn. Tap it.
  *
  * The front's activated ability pays `{1}{B}` plus discarding a card ([Costs.Composite]) for a
- * [Effects.Composite] of grant-indestructible-until-EOT, tap itself, and a [ConditionalEffect] gated
+ * [Effects.Composite] of grant-indestructible-until-EOT, tap itself, and a [Effects.If] gated
  * on [Conditions.CreatureCardsInGraveyardAtLeast] 4 that transforms it (Immersturm Predator's
  * indestructible-then-tap idiom). The back's characteristic-defining P/T is a self-referential
  * [SetBasePowerToughnessDynamicStatic] CDA counting creature cards in your graveyard, and it repeats
@@ -54,9 +53,9 @@ private val BloodswornSquireFront = card("Bloodsworn Squire") {
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
             Effects.Tap(EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CreatureCardsInGraveyardAtLeast(4),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "This creature gains indestructible until end of turn. Tap it. Then if there " +

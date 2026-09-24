@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -40,13 +39,13 @@ val TurtleVan = card("Turtle Van") {
         )
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, crewer)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(
                         GameObjectFilter.Creature.withAnyOfSubtypes(
                             listOf(Subtype("Mutant"), Subtype("Ninja"), Subtype("Turtle"))
                         )
                     ),
-                    effect = Effects.DoubleCounters(Counters.PLUS_ONE_PLUS_ONE, crewer)
+                    then = Effects.DoubleCounters(Counters.PLUS_ONE_PLUS_ONE, crewer)
                 )
             )
         description = "Whenever this Vehicle attacks, put a +1/+1 counter on target creature that crewed it this turn. Then if that creature is a Mutant, Ninja, or Turtle, double the number of +1/+1 counters on it."

@@ -81,7 +81,7 @@ val ColfenorsUrn = card("Colfenor's Urn") {
         )
         effect = Effects.IfYouDo(
             action = Effects.SacrificeTarget(EffectTarget.Self),
-            ifYouDo = Effects.ReturnLinkedExileUnderOwnersControl(),
+            then = Effects.ReturnLinkedExileUnderOwnersControl(),
             successCriterion = SuccessCriterion.PermanentsSacrificed
         )
         description = "At the beginning of the end step, if three or more cards have been " +

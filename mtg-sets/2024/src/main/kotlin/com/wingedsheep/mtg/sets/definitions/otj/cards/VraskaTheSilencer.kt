@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -61,9 +60,9 @@ val VraskaTheSilencer = card("Vraska, the Silencer") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY
         )
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 // Return that card to the battlefield tapped under your control.
                 Effects.Move(
                     target = EffectTarget.TriggeringEntity,

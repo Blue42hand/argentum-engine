@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.craft
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -51,10 +49,10 @@ private val SaheelisLatticeFront = card("Saheeli's Lattice") {
     // ETB: you may discard a card. If you do, draw two cards.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
-            IfYouDoEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.DrawCards(2)
+                then = Effects.DrawCards(2)
             )
         )
     }

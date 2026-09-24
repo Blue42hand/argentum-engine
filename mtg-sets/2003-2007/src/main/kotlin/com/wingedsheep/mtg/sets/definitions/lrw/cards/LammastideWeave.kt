@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -50,12 +49,12 @@ val LammastideWeave = card("Lammastide Weave") {
                     prompt = "Choose a card name",
                 ),
                 Patterns.Library.mill(1, EffectTarget.ContextTarget(0)),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch(
                         "milled",
                         GameObjectFilter.Any.namedFromVariable("weaveChosenName"),
                     ),
-                    effect = Effects.GainLife(DynamicAmount.ManaValueSumOfCollection("milled")),
+                    then = Effects.GainLife(DynamicAmount.ManaValueSumOfCollection("milled")),
                 ),
                 Effects.DrawCards(1),
             )

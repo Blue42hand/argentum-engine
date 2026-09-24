@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -93,9 +92,9 @@ private val JacobHaukenInspectorFront = card("Jacob Hauken, Inspector") {
                 linkToSource = true,
                 lookableInExile = true,
             ),
-            MayPayManaEffect(
+            Effects.MayPay(
                 cost = ManaCost.parse("{4}{U}{U}"),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "{T}: Draw a card, then exile a card from your hand face down. You may look " +

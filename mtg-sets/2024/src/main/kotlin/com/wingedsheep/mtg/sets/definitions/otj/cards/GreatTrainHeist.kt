@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -59,9 +58,9 @@ val GreatTrainHeist = card("Great Train Heist") {
                 Mode(
                     effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl)
                         .then(
-                            ConditionalEffect(
+                            Effects.If(
                                 condition = Conditions.IsInPhase(Phase.COMBAT, yoursOnly = true),
-                                effect = Effects.AddCombatPhase
+                                then = Effects.AddCombatPhase
                             )
                         ),
                     description = "+ {2}{R} — Untap all creatures you control. If it's your combat phase, there is an additional combat phase after this phase.",

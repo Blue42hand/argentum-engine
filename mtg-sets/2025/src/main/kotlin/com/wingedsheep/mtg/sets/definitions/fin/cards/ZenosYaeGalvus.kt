@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
@@ -117,12 +116,12 @@ private val ZenosYaeGalvusFront = card("Zenos yae Galvus") {
                 filter = GroupFilter.AllCreatures.other().otherThanTarget(),
                 effect = ModifyStatsEffect(-2, -2, EffectTarget.Self)
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.EntityMatches(
                     EffectTarget.ContextTarget(0),
                     GameObjectFilter.Creature
                 ),
-                effect = CreateDelayedTriggerEffect(
+                then = CreateDelayedTriggerEffect(
                     trigger = Triggers.LeavesBattlefield,
                     watchedTarget = chosen,
                     fireOnce = true,

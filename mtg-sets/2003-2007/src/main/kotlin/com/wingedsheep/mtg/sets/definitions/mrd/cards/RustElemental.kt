@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * and you lose 4 life.
  *
  * A four-mana 4/4 flier that eats your board. The "if you can't" clause is the whole card, so it
- * is modelled as an explicit [ConditionalEffect] rather than leaning on the sacrifice silently
+ * is modelled as an explicit [Effects.If] rather than leaning on the sacrifice silently
  * fizzling: the condition asks whether you control an artifact *other than* Rust Elemental, and
  * only the failing branch taps it and drains 4.
  *
@@ -46,10 +45,10 @@ val RustElemental = card("Rust Elemental") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Artifact, excludeSelf = true),
-            effect = SacrificeEffect(GameObjectFilter.Artifact, excludeSource = true),
-            elseEffect = Effects.Composite(
+            then = SacrificeEffect(GameObjectFilter.Artifact, excludeSource = true),
+            otherwise = Effects.Composite(
                 Effects.Tap(EffectTarget.Self),
                 Effects.LoseLife(4, EffectTarget.PlayerRef(Player.You))
             )

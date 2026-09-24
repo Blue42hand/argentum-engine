@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * accomplish nothing.
  *
  * Mode 2's sacrifice is **mandatory, not a "may"**, so it is [Effects.IfYouDo] rather than a
- * `MayEffect`: with no artifact to sacrifice nothing is sacrificed and the counters don't happen.
+ * `Effects.May`: with no artifact to sacrifice nothing is sacrificed and the counters don't happen.
  * [SuccessCriterion.PermanentsSacrificed] is the criterion that reads that correctly — `Auto`
  * can't infer a sacrifice (which graveyard it lands in isn't known until the chooser picks) and
  * `Always` would fail open and hand out counters for free. Gearbane Orangutan is itself a
@@ -63,7 +63,7 @@ val GearbaneOrangutan = card("Gearbane Orangutan") {
                         count = 1,
                         target = EffectTarget.Controller
                     ),
-                    ifYouDo = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
                     successCriterion = SuccessCriterion.PermanentsSacrificed
                 ),
                 "Sacrifice an artifact — if you do, put two +1/+1 counters on this creature"

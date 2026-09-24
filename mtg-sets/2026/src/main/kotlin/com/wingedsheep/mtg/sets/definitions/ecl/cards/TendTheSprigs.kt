@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -44,13 +43,13 @@ val TendTheSprigs = card("Tend the Sprigs") {
                 entersTapped = true,
                 shuffleAfter = true
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmount.AggregateBattlefield(Player.You, landsAndTreefolk),
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(7)
                 ),
-                effect = Effects.CreateToken(
+                then = Effects.CreateToken(
                     power = 3,
                     toughness = 4,
                     colors = setOf(Color.GREEN),

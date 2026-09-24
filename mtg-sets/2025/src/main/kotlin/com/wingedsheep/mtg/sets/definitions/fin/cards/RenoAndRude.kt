@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Resolution-time chain over existing pipeline primitives:
  *   1. exile the top card of the *damaged* player's library ([Player.TriggeringPlayer]
  *      is the player dealt combat damage; the card stays owned by them in exile),
- *   2. an [OptionalCostEffect] models "you may sacrifice another creature or artifact.
+ *   2. an [Effects.MayPay] models "you may sacrifice another creature or artifact.
  *      If you do, ...": the sacrifice is the optional cost (`excludeSource` makes it
  *      "another"), and only paying it grants the play permission,
  *   3. the reward is a [GrantMayPlayFromExileEffect] with `withAnyManaType` for
@@ -67,13 +66,13 @@ val RenoAndRude = card("Reno and Rude") {
                     from = "exiled",
                     destination = CardDestination.ToZone(Zone.EXILE, player = Player.TriggeringPlayer),
                 ),
-                OptionalCostEffect(
+                Effects.MayPay(
                     cost = SacrificeEffect(
                         filter = GameObjectFilter.CreatureOrArtifact,
                         count = 1,
                         excludeSource = true,
                     ),
-                    ifPaid = GrantMayPlayFromExileEffect(
+                    then = GrantMayPlayFromExileEffect(
                         from = "exiled",
                         expiry = MayPlayExpiry.EndOfTurn,
                         withAnyManaType = true,

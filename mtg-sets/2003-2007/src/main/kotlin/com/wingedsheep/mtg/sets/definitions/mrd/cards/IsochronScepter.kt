@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -47,7 +46,7 @@ val IsochronScepter = card("Isochron Scepter") {
     // less from your hand.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             Patterns.Hand.revealHandAndExileChosen(
                 target = EffectTarget.Controller,
                 filter = GameObjectFilter.Instant.manaValueAtMost(2),
@@ -64,7 +63,7 @@ val IsochronScepter = card("Isochron Scepter") {
     // mana cost.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 GatherCardsEffect(
                     source = CardSource.FromLinkedExile(),

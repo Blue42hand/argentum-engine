@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -74,7 +73,7 @@ val GetawayGlamer = card("Getaway Glamer") {
                     additionalManaCost = "{1}"
                 ),
                 Mode(
-                    effect = ConditionalEffect(
+                    effect = Effects.If(
                         condition = Compare(
                             left = DynamicAmount.EntityProperty(
                                 EntityReference.Target(0),
@@ -88,7 +87,7 @@ val GetawayGlamer = card("Getaway Glamer") {
                                 property = CardNumericProperty.POWER
                             )
                         ),
-                        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+                        then = Effects.Destroy(EffectTarget.ContextTarget(0))
                     ),
                     targetRequirements = listOf(Targets.Creature),
                     description = "+ {2} — Destroy target creature if no other creature has greater power.",

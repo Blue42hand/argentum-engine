@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
@@ -51,7 +51,7 @@ val MerrowReejerey = card("Merrow Reejerey") {
     triggeredAbility {
         trigger = Triggers.YouCastSubtype(Subtype.MERFOLK)
         val permanent = target("target permanent", Targets.Permanent)
-        effect = MayEffect(
+        effect = Effects.May(
             ModalEffect(
                 modes = listOf(
                     Mode.noTarget(TapUntapEffect(permanent, tap = true), "Tap that permanent"),

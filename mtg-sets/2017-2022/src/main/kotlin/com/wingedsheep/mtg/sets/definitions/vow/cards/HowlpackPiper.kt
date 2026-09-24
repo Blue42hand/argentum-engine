@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -32,7 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * is the Cultivator Colossus [Patterns.Hand.putFromHand] rail — `ChooseUpTo(1)` makes "you **may** put"
  * a legal decline. It's sorcery-speed (`timing = TimingRule.SorcerySpeed`) and taps as a cost
  * ([Costs.Composite] of `{1}{G}` and [Costs.Tap]). The untap rider fires only when the put creature is a
- * Wolf or Werewolf: a [ConditionalEffect] gated on [Conditions.CollectionContainsMatch] over the
+ * Wolf or Werewolf: a [Effects.If] gated on [Conditions.CollectionContainsMatch] over the
  * pipeline's `putting` collection (the same collection Cultivator Colossus's loop reads), so declining or
  * putting a non-Wolf leaves the Piper tapped.
  *
@@ -68,12 +67,12 @@ private val HowlpackPiperFront = card("Howlpack Piper") {
         timing = TimingRule.SorcerySpeed
         effect = Effects.Composite(
             Patterns.Hand.putFromHand(filter = GameObjectFilter.Creature, count = 1),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch(
                     "putting",
                     GameObjectFilter.Creature.withAnySubtype("Wolf", "Werewolf"),
                 ),
-                effect = Effects.Untap(EffectTarget.Self),
+                then = Effects.Untap(EffectTarget.Self),
             ),
         )
         description = "You may put a creature card from your hand onto the battlefield. If it's a Wolf " +

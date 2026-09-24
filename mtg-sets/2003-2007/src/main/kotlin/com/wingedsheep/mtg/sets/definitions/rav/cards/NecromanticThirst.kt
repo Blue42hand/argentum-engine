@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 
@@ -42,7 +41,7 @@ val NecromanticThirst = card("Necromantic Thirst") {
             binding = TriggerBinding.ATTACHED,
         )
         val t = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
-        effect = MayEffect(Effects.ReturnToHandFromGraveyard(t))
+        effect = Effects.May(Effects.ReturnToHandFromGraveyard(t))
     }
 
     metadata {

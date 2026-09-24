@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,7 +41,7 @@ val DecreeOfSavagery = card("Decree of Savagery") {
     triggeredAbility {
         trigger = Triggers.YouCycleThis
         val t = target("target creature", Targets.Creature)
-        effect = MayEffect(
+        effect = Effects.May(
             AddCountersEffect(
                 counterType = Counters.PLUS_ONE_PLUS_ONE,
                 count = 4,

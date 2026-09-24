@@ -121,7 +121,7 @@ class GatedEffectExecutor(
             return executeMayPayX(state, effect, context)
         }
 
-        // Gate.MayDecide: two cases where the former MayEffect skipped the prompt entirely.
+        // Gate.MayDecide: two cases where the former Effects.May skipped the prompt entirely.
         if (gate is Gate.MayDecide) {
             // Source must still be in its required zone (e.g. a dies-trigger "may" whose source
             // has since left) — otherwise the may-action is impossible, so skip silently.
@@ -227,7 +227,7 @@ class GatedEffectExecutor(
                 ?: EffectResult.success(state)
         }
 
-        // An optional *mana* payment (the lowered MayPayManaEffect shape) keeps its bespoke UX —
+        // An optional *mana* payment (the lowered Effects.MayPay shape) keeps its bespoke UX —
         // a "Pay {cost}?" yes/no that, on "yes", routes through the mana-source-selection
         // continuations rather than the generic auto-tapping cost composite. See [OptionalManaPayment].
         effect.asOptionalManaPayment()?.let { mana ->
@@ -454,7 +454,7 @@ class GatedEffectExecutor(
     }
 
     /**
-     * Resolve a [Gate.MayPayX] gate (the lowered `MayPayXForEffect`). Computes the most generic mana
+     * Resolve a [Gate.MayPayX] gate (the lowered `Effects.MayPayX`). Computes the most generic mana
      * the decision-maker can produce and, if any, pauses with a 0..max number chooser; the existing
      * [MayPayXContinuation] resumer (`resumeMayPayX`) then auto-taps the chosen X and runs
      * [GatedEffect.then] with `xValue` bound into the context. An unaffordable gate (max <= 0) falls
@@ -676,7 +676,7 @@ class GatedEffectExecutor(
     }
 
     /**
-     * Resolve a [Gate.DoAction] gate (the lowered `IfYouDoEffect`). Follows the former
+     * Resolve a [Gate.DoAction] gate (the lowered `Effects.IfYouDo`). Follows the former
      * `IfYouDoEffectExecutor`'s pre-push pattern: a [GatedActionContinuation] is pushed *before*
      * the action runs. If the action completes synchronously the continuation is popped inline and
      * the outcome evaluated; otherwise it stays on the stack for the auto-resumer

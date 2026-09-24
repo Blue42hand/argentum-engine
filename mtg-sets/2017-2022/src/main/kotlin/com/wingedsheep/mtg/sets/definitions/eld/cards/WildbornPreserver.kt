@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayPayXForEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * "You may pay {X}. **When you do**, …" is a reflexive triggered ability (CR 603.7): the payment
  * happens while the first ability resolves, and the counters go on the stack as a *separate*
- * ability that players may respond to. So the payment gate is [MayPayXForEffect] (a 0..max
+ * ability that players may respond to. So the payment gate is [Effects.MayPayX] (a 0..max
  * number chooser that auto-taps X generic mana) and its post-payment effect is a
  * [ReflexiveTriggerEffect] with an empty `action` — the "when you do" condition is already the
  * pay-{X} gate — whose reflexive half reads the X just paid via [DynamicAmount.XValue].
@@ -53,8 +52,8 @@ val WildbornPreserver = card("Wildborn Preserver") {
             filter = GameObjectFilter.Creature.youControl().notSubtype(Subtype.HUMAN),
             binding = TriggerBinding.OTHER,
         )
-        effect = MayPayXForEffect(
-            effect = ReflexiveTriggerEffect(
+        effect = Effects.MayPayX(
+            then = ReflexiveTriggerEffect(
                 action = Effects.Composite(emptyList()),
                 optional = false,
                 reflexiveEffect = Effects.AddDynamicCounters(

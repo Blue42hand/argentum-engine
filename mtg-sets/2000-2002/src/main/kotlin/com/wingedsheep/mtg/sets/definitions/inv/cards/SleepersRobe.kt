@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -41,7 +40,7 @@ val SleepersRobe = card("Sleeper's Robe") {
             recipient = RecipientFilter.Opponent,
             binding = TriggerBinding.ATTACHED,
         )
-        effect = MayEffect(Effects.DrawCards(1))
+        effect = Effects.May(Effects.DrawCards(1))
     }
 
     metadata {

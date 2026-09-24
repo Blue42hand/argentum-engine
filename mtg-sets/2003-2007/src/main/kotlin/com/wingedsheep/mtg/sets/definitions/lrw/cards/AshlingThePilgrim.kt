@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
@@ -61,9 +60,9 @@ val AshlingThePilgrim = card("Ashling the Pilgrim") {
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(IncrementAbilityResolutionCountEffect)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    effect = Effects.Composite(
+                    then = Effects.Composite(
                         listOf(
                             Effects.StoreNumber(
                                 "ashlingRemovedCounters",

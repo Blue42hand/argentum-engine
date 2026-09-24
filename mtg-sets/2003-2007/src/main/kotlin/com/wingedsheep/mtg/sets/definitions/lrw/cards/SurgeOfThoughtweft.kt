@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -28,9 +27,9 @@ val SurgeOfThoughtweft = card("Surge of Thoughtweft") {
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 Effects.ModifyStats(1, 1, EffectTarget.Self)
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.ControlPermanentOfType(Subtype.KITHKIN),
-                effect = Effects.DrawCards(1)
+                then = Effects.DrawCards(1)
             )
         )
     }

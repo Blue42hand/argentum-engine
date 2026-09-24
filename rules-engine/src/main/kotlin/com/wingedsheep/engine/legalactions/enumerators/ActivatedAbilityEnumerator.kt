@@ -1431,8 +1431,8 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
      * Regenerate is also excluded: a single shield is enough to survive a destruction, so stacking
      * redundant shields has no practical payoff and the prompt would only be clutter.
      *
-     * Walks through CompositeEffect / ConditionalEffect / ModalEffect wrappers so an ability whose
-     * "real" effect is hidden inside (e.g., Figure of Fable's `ConditionalEffect(... BecomeCreature)`) is
+     * Walks through CompositeEffect / Effects.If / ModalEffect wrappers so an ability whose
+     * "real" effect is hidden inside (e.g., Figure of Fable's `Effects.If(... BecomeCreature)`) is
      * also excluded.
      */
     /** True when [cost] contains a [CostAtom.VariablePermanents] atom (top-level or in a Composite). */

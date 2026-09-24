@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -35,7 +34,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The end-step trigger's intervening-"if" reads the opponents' creatures-died-this-turn
  * tracker ([DynamicAmount.TurnTracking] over [Player.EachOpponent] sums across opponents);
- * the "Then if" Treasure-count check is a resolution-time [ConditionalEffect], evaluated
+ * the "Then if" Treasure-count check is a resolution-time [Effects.If], evaluated
  * after the Treasure is created.
  */
 private val YiazmatUltimateMark = card("Yiazmat, Ultimate Mark") {
@@ -102,9 +101,9 @@ private val SidequestHuntTheMarkFront = card("Sidequest: Hunt the Mark") {
         )
         effect = Effects.Composite(
             Effects.CreateTreasure(1),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact.withSubtype("Treasure")),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
     }

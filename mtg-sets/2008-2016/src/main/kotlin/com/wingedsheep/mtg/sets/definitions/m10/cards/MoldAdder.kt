@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The trigger watches any opponent spell whose color set includes blue or black
  * ([GameObjectFilter.withAnyColor]); the "you may" is the controller's optional choice
- * ([MayEffect]) to grow this creature with a +1/+1 counter on itself ([EffectTarget.Self]).
+ * ([Effects.May]) to grow this creature with a +1/+1 counter on itself ([EffectTarget.Self]).
  */
 val MoldAdder = card("Mold Adder") {
     manaCost = "{G}"
@@ -31,7 +30,7 @@ val MoldAdder = card("Mold Adder") {
 
     triggeredAbility {
         trigger = Triggers.opponentCasts(GameObjectFilter.Any.withAnyColor(Color.BLUE, Color.BLACK))
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }

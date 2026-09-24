@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -35,9 +33,9 @@ val GuidingHydra = card("Guiding Hydra") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceHasCounter(CounterTypeFilter.PlusOnePlusOne),
-            effect = MayEffect(
+            then = Effects.May(
                 Effects.Composite(
                     Effects.RemoveCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     Effects.ForEachInGroup(

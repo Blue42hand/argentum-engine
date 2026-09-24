@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CanAttackDespiteDefender
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,7 +45,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    difference is printed. The Judge's clause gates the trigger *and* is rechecked on resolution,
  *    so it rides `interveningIf`; a fourth counter can therefore never land. The Aura's clause is
  *    the word "Then", which is checked only while the ability resolves and *after* the counter has
- *    been added — so it is a [ConditionalEffect] sequenced behind the add, and the third counter
+ *    been added — so it is a [Effects.If] sequenced behind the add, and the third counter
  *    kills the enchanted player on the very upkeep it lands.
  *  - **"three or more"/"two or fewer" are counter-count conditions on the source**, not board
  *    conditions: [Conditions.SourceCounterCountAtLeast] and its downward twin
@@ -129,9 +128,9 @@ private val SinnersJudgment = card("Sinner's Judgment") {
         trigger = Triggers.YourUpkeep
         effect = Effects.Composite(
             Effects.AddCounters(Counters.JUDGMENT, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(Counters.JUDGMENT, 3),
-                effect = Effects.LoseGame(
+                then = Effects.LoseGame(
                     target = EffectTarget.PlayerRef(Player.EnchantedPlayer),
                     message = "Sinner's Judgment"
                 ),

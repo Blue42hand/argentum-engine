@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -68,9 +67,9 @@ val OsseousExhale = card("Osseous Exhale") {
                 ),
                 RevealCollectionEffect(from = "beheld"),
                 Effects.DealDamage(5, t),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch("beheld"),
-                    effect = Effects.GainLife(2)
+                    then = Effects.GainLife(2)
                 )
             )
         )

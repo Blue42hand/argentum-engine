@@ -10,9 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -49,8 +46,8 @@ val RebellionOfTheFlamekin = card("Rebellion of the Flamekin") {
 
     triggeredAbility {
         trigger = Triggers.WheneverYouClash
-        effect = GatedEffect(
-            gate = Gate.MayPay(PayManaCostEffect(ManaCost.parse("{1}"))),
+        effect = Effects.MayPay(
+            cost = PayManaCostEffect(ManaCost.parse("{1}")),
             then = Effects.Composite(
                 Effects.CreateToken(
                     power = 3,
@@ -59,7 +56,7 @@ val RebellionOfTheFlamekin = card("Rebellion of the Flamekin") {
                     creatureTypes = setOf("Elemental", "Shaman"),
                     imageUri = "https://cards.scryfall.io/normal/front/a/2/a280aee2-e15a-4625-b429-4032eae08a41.jpg?1783942839"
                 ),
-                ConditionalEffect(
+                Effects.If(
                     Conditions.YouWonTheClash,
                     Effects.GrantKeyword(
                         Keyword.HASTE,

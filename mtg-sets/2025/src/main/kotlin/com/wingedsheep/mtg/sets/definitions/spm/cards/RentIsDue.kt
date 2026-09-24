@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -40,10 +39,10 @@ val RentIsDue = card("Rent Is Due") {
             ),
             TapUntapCollectionEffect("toTap", tap = true)
         ))
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = tapCost,
-            ifPaid = Effects.DrawCards(1),
-            ifNotPaid = SacrificeSelfEffect,
+            then = Effects.DrawCards(1),
+            otherwise = SacrificeSelfEffect,
             descriptionOverride = "You may tap two untapped creatures and/or Treasures you control. If you do, draw a card. Otherwise, sacrifice this enchantment."
         )
     }

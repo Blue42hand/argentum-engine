@@ -10,12 +10,10 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -64,9 +62,9 @@ val BeseechTheMirror = card("Beseech the Mirror") {
                 storeMovedAs = "beseechExiled"
             ),
             ShuffleLibraryEffect(),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasBargained,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     FilterCollectionEffect(
                         from = "beseechExiled",
                         filter = CollectionFilter.ManaValueAtMost(DynamicAmount.Fixed(4)),
@@ -74,7 +72,7 @@ val BeseechTheMirror = card("Beseech the Mirror") {
                     ),
                     ConditionalOnCollectionEffect(
                         collection = "beseechCastable",
-                        ifNotEmpty = MayEffect(
+                        ifNotEmpty = Effects.May(
                             Effects.CastFromCollectionWithoutPayingCost("beseechCastable")
                         )
                     )

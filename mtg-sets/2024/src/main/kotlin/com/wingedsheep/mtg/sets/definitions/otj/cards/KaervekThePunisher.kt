@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -32,9 +30,9 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *      spell becomes a token when cast; an instant/sorcery copy ceases to exist).
  *   2. **You may cast the copy — paying its cost.** Unlike Shiko, Kaervek doesn't say "without
  *      paying its mana cost", so this uses [Effects.CastFromCollection] (payManaCost) inside a
- *      [MayEffect]. The cast routes through the normal machinery (X / targets / modes prompt).
+ *      [Effects.May]. The cast routes through the normal machinery (X / targets / modes prompt).
  *   3. **If you do, you lose 2 life.** [Effects.CastFromCollection] publishes the cast card to the
- *      `kaervekCast` collection on a successful cast; the [IfYouDoEffect] gates the life loss on
+ *      `kaervekCast` collection on a successful cast; the [Effects.IfYouDo] gates the life loss on
  *      [SuccessCriterion.CollectionNonEmpty] so declining (or being unable to pay) loses no life.
  *
  * "Up to one target" → an optional target requirement (minCount 0); a copy that's declined or
@@ -68,10 +66,10 @@ val KaervekThePunisher = card("Kaervek, the Punisher") {
         effect = Effects.Composite(
             Effects.Move(exiledCard, Zone.EXILE),
             Effects.CopyCardIntoCollection(exiledCard, storeAs = "copy"),
-            MayEffect(
-                IfYouDoEffect(
+            Effects.May(
+                Effects.IfYouDo(
                     action = Effects.CastFromCollection("copy", storeCastTo = "kaervekCast"),
-                    ifYouDo = Effects.LoseLife(2, EffectTarget.Controller),
+                    then = Effects.LoseLife(2, EffectTarget.Controller),
                     successCriterion = SuccessCriterion.CollectionNonEmpty("kaervekCast"),
                 ),
                 descriptionOverride = "You may cast the copy. If you do, you lose 2 life.",

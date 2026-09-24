@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -106,12 +105,12 @@ val YarusRoarOfTheOldGods = card("Yarus, Roar of the Old Gods") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.EntityMatches(
                 EffectTarget.TriggeringEntity,
                 GameObjectFilter.Permanent
             ),
-            effect = Effects.Move(
+            then = Effects.Move(
                 target = EffectTarget.TriggeringEntity,
                 destination = Zone.BATTLEFIELD,
                 fromZone = Zone.GRAVEYARD,

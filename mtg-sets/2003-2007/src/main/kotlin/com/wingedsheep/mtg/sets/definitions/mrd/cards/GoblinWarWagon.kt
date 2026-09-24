@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   controller's untap step"), *not* [AbilityFlag.CANT_BECOME_UNTAPPED] — an "untap target
  *   permanent" effect from elsewhere still untaps the Wagon, and so does the ability below.
  *   It is scoped to [GroupFilter.source] so the static only ever affects this permanent.
- * - The upkeep trigger is a plain "you may pay {2}. If you do, …" gate ([MayPayManaEffect]),
+ * - The upkeep trigger is a plain "you may pay {2}. If you do, …" gate ([Effects.MayPay]),
  *   which is the CR 601-style optional-cost payment window, not an additional cost or a
  *   cumulative upkeep. Declining simply leaves the Wagon tapped.
  */
@@ -42,9 +41,9 @@ val GoblinWarWagon = card("Goblin War Wagon") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            effect = Effects.Untap(EffectTarget.Self)
+            then = Effects.Untap(EffectTarget.Self)
         )
         description = "At the beginning of your upkeep, you may pay {2}. If you do, untap this creature."
     }

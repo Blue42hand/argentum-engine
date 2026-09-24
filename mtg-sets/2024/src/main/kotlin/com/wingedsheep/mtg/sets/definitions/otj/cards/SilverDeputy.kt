@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 /**
@@ -31,7 +30,7 @@ val SilverDeputy = card("Silver Deputy") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand or GameObjectFilter.Land.withSubtype("Desert"),
                 count = 1,

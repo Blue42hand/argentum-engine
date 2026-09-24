@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -35,9 +34,9 @@ val IcyBlast = card("Icy Blast") {
         // dynamicMaxCount (Builder's Bane / Distorting Wake pattern), so no magic count.
         target = TargetCreature(optional = true, dynamicMaxCount = DynamicAmount.XValue)
         effect = Effects.TapEachTarget()
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
-                effect = ForEachTargetEffect(listOf(
+                then = ForEachTargetEffect(listOf(
                     GrantKeywordEffect(
                         AbilityFlag.DOESNT_UNTAP.name,
                         EffectTarget.ContextTarget(0),

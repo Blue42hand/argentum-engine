@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -61,12 +60,12 @@ val CacheGrab = card("Cache Grab") {
                     destination = CardDestination.ToZone(Zone.HAND)
                 ),
                 // If you control a Squirrel or returned a Squirrel card, create a Food token
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Any(
                         Conditions.ControlCreatureOfType(com.wingedsheep.sdk.core.Subtype("Squirrel")),
                         Conditions.CollectionContainsMatch("selected", squirrelFilter)
                     ),
-                    effect = Effects.CreateFood()
+                    then = Effects.CreateFood()
                 )
             )
         )

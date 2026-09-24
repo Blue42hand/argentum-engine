@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -39,12 +38,12 @@ val ThrowFromTheSaddle = card("Throw from the Saddle") {
         val mine = target("creature you control", Targets.CreatureYouControl)
         val theirs = target("creature you don't control", Targets.CreatureOpponentControls)
 
-        val boost = ConditionalEffect(
+        val boost = Effects.If(
             condition = Conditions.TargetMatchesFilter(
                 GameObjectFilter.Creature.withSubtype(Subtype("Mount")), targetIndex = 0
             ),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine),
-            elseEffect = Effects.ModifyStats(1, 1, mine)
+            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine),
+            otherwise = Effects.ModifyStats(1, 1, mine)
         )
 
         val damage = DealDamageEffect(

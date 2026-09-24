@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.TapUntapCollectionEffect
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Whenever Caparocti Sunborn attacks, you may tap two untapped artifacts and/or creatures you
  * control. If you do, discover 3.
  *
- * "You may tap two … If you do" is an [OptionalCostEffect] whose payable cost is the
+ * "You may tap two … If you do" is an [Effects.MayPay] whose payable cost is the
  * Gather → Select-exactly-2 → Tap pipeline (same shape as Aziza, Mage Tower Captain).
  */
 val CaparoctiSunborn = card("Caparocti Sunborn") {
@@ -54,9 +53,9 @@ val CaparoctiSunborn = card("Caparocti Sunborn") {
                 TapUntapCollectionEffect("caparoctiToTap", tap = true),
             ),
         )
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = tapCost,
-            ifPaid = Effects.Discover(3),
+            then = Effects.Discover(3),
             descriptionOverride = "You may tap two untapped artifacts and/or creatures you control. If you do, discover 3.",
         )
     }

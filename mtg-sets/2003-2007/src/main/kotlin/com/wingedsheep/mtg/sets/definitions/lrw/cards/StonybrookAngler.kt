@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
@@ -34,7 +34,7 @@ val StonybrookAngler = card("Stonybrook Angler") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
         val creature = target("target creature", Targets.Creature)
-        effect = MayEffect(
+        effect = Effects.May(
             ModalEffect(
                 modes = listOf(
                     Mode.noTarget(TapUntapEffect(creature, tap = true), "Tap that creature"),

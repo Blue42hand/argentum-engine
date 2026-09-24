@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -61,7 +60,7 @@ val IngeniousProdigy = card("Ingenious Prodigy") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         interveningIf = Conditions.SourceHasCounter(CounterTypeFilter.PlusOnePlusOne)
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 RemoveCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 Effects.DrawCards(1),

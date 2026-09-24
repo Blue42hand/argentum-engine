@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -50,11 +49,11 @@ val BrillianceUnleashed = card("Brilliance Unleashed") {
                     destination = Zone.BATTLEFIELD,
                     fromZone = Zone.GRAVEYARD,
                 ).then(
-                    ConditionalEffect(
+                    Effects.If(
                         condition = Conditions.Not(
                             Conditions.TargetMatchesFilter(GameObjectFilter.Creature)
                         ),
-                        effect = Effects.BecomeCreature(
+                        then = Effects.BecomeCreature(
                             target = com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget(0),
                             power = 3,
                             toughness = 3,

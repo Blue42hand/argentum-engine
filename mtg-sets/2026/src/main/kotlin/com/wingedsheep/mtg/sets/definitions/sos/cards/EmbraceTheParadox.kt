@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-
 
 /**
  * Embrace the Paradox
@@ -27,7 +25,7 @@ val EmbraceTheParadox = card("Embrace the Paradox") {
     spell {
         effect = Effects.Composite(
             DrawCardsEffect(3),
-            MayEffect(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land, entersTapped = true))
+            Effects.May(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land, entersTapped = true))
         )
     }
     metadata {

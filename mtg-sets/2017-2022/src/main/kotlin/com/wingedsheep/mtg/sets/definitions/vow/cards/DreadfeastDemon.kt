@@ -56,7 +56,7 @@ val DreadfeastDemon = card("Dreadfeast Demon") {
                 )
                 sacrifice(chosen)
             },
-            ifYouDo = CreateTokenCopyOfSourceEffect()
+            then = CreateTokenCopyOfSourceEffect()
         )
         description = "At the beginning of your end step, sacrifice a non-Demon creature. If you " +
             "do, create a token that's a copy of this creature."

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Markov Purifier
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  * draw a card.
  *
  * The end-step trigger uses an intervening-if ([Conditions.YouGainedLifeThisTurn]); on resolution
- * it offers a flat "you may pay {2}. If you do, draw a card" gate ([MayPayManaEffect]).
+ * it offers a flat "you may pay {2}. If you do, draw a card" gate ([Effects.MayPay]).
  */
 val MarkovPurifier = card("Markov Purifier") {
     manaCost = "{1}{W}{B}"
@@ -37,9 +36,9 @@ val MarkovPurifier = card("Markov Purifier") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouGainedLifeThisTurn
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
         description = "At the beginning of your end step, if you gained life this turn, you may " +
             "pay {2}. If you do, draw a card."

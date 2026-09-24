@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -104,7 +104,7 @@ private val SerahFarronFront = card("Serah Farron") {
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(2),
         )
-        effect = MayEffect(effect = TransformEffect(EffectTarget.Self))
+        effect = Effects.May(effect = TransformEffect(EffectTarget.Self))
     }
 
     metadata {

@@ -1261,14 +1261,14 @@ resolver. Wiring a new event into the trigger path means **two** `when` branches
 `TriggerMatcher` and `TriggerContext` — miss any one and the trigger compiles, ships and never fires.
 
 The fold: the two cards printing "you may forage. If you do, …" held it two different ways — Bushy
-Bodyguard as `MayEffect(forage(afterEffect = …))`, Treetop Sentries as
+Bodyguard as `Effects.May(forage(afterEffect = …))`, Treetop Sentries as
 `ReflexiveTriggerEffect(forage(), optional = true, …)`. The printed text settles it and the corpus
 agrees without being asked: **"If you do" is one resolution and "When you do" is CR 603.12's
 reflexive trigger**, a second stack object with its own priority window. Across 87
-`ReflexiveTriggerEffect` cards and 312 `MayEffect` cards, *zero* `MayEffect` card prints "When you
+`ReflexiveTriggerEffect` cards and 312 `Effects.May` cards, *zero* `Effects.May` card prints "When you
 do" — so Treetop Sentries was not a style divergence but a rules bug, giving opponents a response
 window the printed card does not create, and rendering its own prompt as "… When you do, draw a
-card". It is a `MayEffect` now, leaving Curious Forager ("**When** you do, return target permanent
+card". It is a `Effects.May` now, leaving Curious Forager ("**When** you do, return target permanent
 card…") as the set's sole and correct reflexive trigger. Two cards elsewhere in the corpus carry the
 same contradiction and are named in the PR rather than fixed here.
 
@@ -4209,7 +4209,7 @@ them "tap or untap" — died on the word after "tap", where the grammar was expe
 There is no "tap or untap" effect in `mtg-sdk` and there should not be one: `TapUntapEffect` carries
 the direction as a `Boolean`, and a choice between two fixed actions is what `ModalEffect` already
 means. The corpus had converged on that reading before the grammar reached it — Granite Witness,
-Sewer-veillance Cam, Elite Interceptor and Inverted Iceberg all write `MayEffect` over a two-`Mode`
+Sewer-veillance Cam, Elite Interceptor and Inverted Iceberg all write `Effects.May` over a two-`Mode`
 `ModalEffect` with `countsAsModalSpell = false`, and two of them say in their KDoc that they are
 copying the third. So the row is a sixth entry in an existing table, spelling the idiom the cards
 already agreed on.
@@ -4438,7 +4438,7 @@ wrong — the same class the gate exists to catch, reintroduced by the fix for i
 
 The last one to fall was the one the gate had been *waiting* on, and it is the only divergence so far
 whose fix was in the engine rather than in a card or in a rule. Lavaborn Muse carried its
-intervening-if twice — once as the trigger's condition and once as a `ConditionalEffect` around the
+intervening-if twice — once as the trigger's condition and once as a `Effects.If` around the
 effect — because the engine checked the condition only at trigger detection, so a card that wanted CR
 603.4's second check had to hand-write it. That second copy is a condition the printed line does not
 spell, which is what made it a divergence rather than only a rules bug, and the grammar was right
@@ -4532,7 +4532,7 @@ Found the way all five were, by running it on a card class it had never reached.
     are mana abilities as much as "Add {G}" is, and reading only the two symbol effects had made
     Blood Celebrant, Goblin Clearcutter and Wirewood Channeler instant-speed abilities that use the
     stack. Chromatic Sphere remains, because its mana step is inside a composite.
-  - **"You may" on a triggered ability (~10).** `optional = true` versus a `MayEffect` wrapping the
+  - **"You may" on a triggered ability (~10).** `optional = true` versus a `Effects.May` wrapping the
     effect. *Since resolved by removing the flag from the SDK — see the closed finding below.*
   - **A mass effect written as a pipeline (~19).** `ForEachInGroup` versus a `Patterns.Group` recipe
     for the same sweep, and the already-documented `DealDamage(n, PlayerRef(Each))` versus
@@ -4551,7 +4551,7 @@ Found the way all five were, by running it on a card class it had never reached.
   - **Phage the Untouchable, on its own.** The band taught `Triggers` to read an intervening-if the
     way CR 603.4 defines it — a condition printed between the event and the effect is checked twice.
     At the time the engine checked it only once, so a card that wanted both checks had to carry the
-    condition *and* a `ConditionalEffect`, and Phage carried only the condition. The CR 603.4 split
+    condition *and* a `Effects.If`, and Phage carried only the condition. The CR 603.4 split
     settled it in the grammar's favour: `interveningIf` is now both checks, the compensating gates
     are deleted, and Phage was never wrong — the engine was.
 - **Two more bugs of the Meteor Golem class, from the Portal band.** **Recollect** prints "Return
@@ -4684,7 +4684,7 @@ Found the way all five were, by running it on a card class it had never reached.
   so nothing is broken; it is one card and one type away from the corpus having a single spelling.
 - **Closed, by deleting the field: a trigger's "you may" said itself twice.** `TriggeredAbility`
   carried an `optional: Boolean` beside its effect, and 106 cards used it where 214 wrapped the
-  effect in a `MayEffect` — one sentence, two SDK spellings, bridged here by a `liftTriggerConsent`
+  effect in a `Effects.May` — one sentence, two SDK spellings, bridged here by a `liftTriggerConsent`
   fold. The fold's own justification was the argument for removing the flag: it cited
   `TriggerProcessor.putOnStack` *building* `GatedEffect(Gate.MayDecide, then, otherwise)` from the
   flag on every game, which is a lowering, not an equivalence someone asserted. So the flag went and

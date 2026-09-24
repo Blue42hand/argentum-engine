@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -59,7 +58,7 @@ val FinneasAceArcher = card("Finneas, Ace Archer") {
                     filter = otherTokenOrRabbitYouControl,
                     effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Compare(
                         left = DynamicAmount.AggregateBattlefield(
                             player = Player.You,
@@ -70,7 +69,7 @@ val FinneasAceArcher = card("Finneas, Ace Archer") {
                         operator = ComparisonOperator.GTE,
                         right = DynamicAmount.Fixed(10)
                     ),
-                    effect = DrawCardsEffect(DynamicAmount.Fixed(1), EffectTarget.Controller)
+                    then = DrawCardsEffect(DynamicAmount.Fixed(1), EffectTarget.Controller)
                 )
             )
         )

@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -36,7 +34,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  * `otherwise` is "lose 3 life" — declining (the "who doesn't") runs the life loss. The
  * [FeasibilityCheck.HasCardsInZone] on the gate makes an empty-handed player skip the
  * pointless prompt and take the 3 life loss directly (they can't discard, so they "don't").
- * The [GatedEffect] is built directly because the `MayEffect` facade doesn't expose the
+ * The [GatedEffect] is built directly because the `Effects.May` facade doesn't expose the
  * `feasibility` slot needed for that empty-hand branch.
  *
  * Chapter III targets "any number of target players" ([TargetPlayer] `unlimited`) and, per
@@ -64,13 +62,11 @@ val TheDeathOfGwenStacy = card("The Death of Gwen Stacy") {
         effect = ForEachPlayerEffect(
             players = Player.Each,
             effects = listOf(
-                GatedEffect(
-                    gate = Gate.MayDecide(
-                        feasibility = FeasibilityCheck.HasCardsInZone(Zone.HAND)
-                    ),
-                    then = Effects.Discard(1, EffectTarget.Controller),
+                Effects.May(
+                    effect = Effects.Discard(1, EffectTarget.Controller),
                     otherwise = Effects.LoseLife(3, EffectTarget.Controller),
-                    descriptionOverride = "You may discard a card. If you don't, you lose 3 life."
+                    descriptionOverride = "You may discard a card. If you don't, you lose 3 life.",
+                    feasibility = FeasibilityCheck.HasCardsInZone(Zone.HAND)
                 )
             )
         )

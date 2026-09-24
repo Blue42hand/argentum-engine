@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -61,18 +60,18 @@ val DawnOfANewAge = card("Dawn of a New Age") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         effect = Effects.Composite(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceHasCounter(CounterTypeFilter.Named(Counters.HOPE)),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     RemoveCountersEffect(Counters.HOPE, 1, EffectTarget.Self),
                     Effects.DrawCards(1)
                 )
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.Not(
                     Conditions.SourceHasCounter(CounterTypeFilter.Named(Counters.HOPE))
                 ),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.SacrificeTarget(EffectTarget.Self),
                     Effects.GainLife(4)
                 )

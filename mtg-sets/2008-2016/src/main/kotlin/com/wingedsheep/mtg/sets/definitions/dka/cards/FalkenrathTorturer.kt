@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,9 +35,9 @@ val FalkenrathTorturer = card("Falkenrath Torturer") {
         cost = Costs.Sacrifice(GameObjectFilter.Creature)
         effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SacrificedHadSubtype("Human"),
-                    effect = Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
+                    then = Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
                 )
             )
     }

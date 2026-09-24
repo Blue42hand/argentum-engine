@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -41,12 +40,12 @@ val VowToErebor = card("Vow to Erebor") {
         effect = Effects.Composite(
             Effects.Untap(EffectTarget.ContextTarget(0)),
             Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(
                     GameObjectFilter.Creature.withSubtype(Subtype.DWARF),
                     targetIndex = 0
                 ),
-                effect = Effects.Pipeline {
+                then = Effects.Pipeline {
                     val equipment = gather(
                         filter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT),
                         player = Player.You,

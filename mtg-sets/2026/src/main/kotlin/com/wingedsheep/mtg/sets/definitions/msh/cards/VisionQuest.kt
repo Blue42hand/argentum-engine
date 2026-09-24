@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -92,13 +91,13 @@ val VisionQuest = card("Vision Quest") {
                     counterType = Counters.PLUS_ONE_PLUS_ONE,
                     amount = DynamicAmount.XValue
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CompareAmounts(
                         DynamicAmount.XValue,
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(4)
                     ),
-                    effect = Effects.GrantKeyword(
+                    then = Effects.GrantKeyword(
                         Keyword.HASTE,
                         EffectTarget.PipelineTarget("visionQuestCreature"),
                         Duration.EndOfTurn

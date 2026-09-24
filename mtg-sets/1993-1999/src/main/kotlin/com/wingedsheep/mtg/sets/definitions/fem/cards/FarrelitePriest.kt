@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
@@ -39,9 +38,9 @@ val FarrelitePriest = card("Farrelite Priest") {
         manaAbility = true
         trackActivations = true
         effect = Effects.AddMana(Color.WHITE).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.ThisAbilityActivatedThisTurnAtLeast(4),
-                effect = CreateDelayedTriggerEffect(
+                then = CreateDelayedTriggerEffect(
                     step = Step.END,
                     effect = SacrificeSelfEffect,
                 )

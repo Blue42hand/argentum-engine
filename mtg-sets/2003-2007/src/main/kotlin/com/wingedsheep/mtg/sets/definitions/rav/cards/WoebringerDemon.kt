@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -53,14 +51,12 @@ val WoebringerDemon = card("Woebringer Demon") {
                 count = 1,
                 target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
             ),
-            GatedEffect(
-                gate = Gate.WhenCondition(
-                    Conditions.CompareAmounts(
+            Effects.If(
+                condition = Conditions.CompareAmounts(
                         DynamicAmount.PermanentsSacrificedThisWay,
                         ComparisonOperator.EQ,
                         DynamicAmount.Fixed(0)
-                    )
-                ),
+                    ),
                 then = Effects.SacrificeTarget(EffectTarget.Self)
             )
         )

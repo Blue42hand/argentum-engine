@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -32,10 +30,8 @@ val StatuteOfDenial = card("Statute of Denial") {
         target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
             .then(
-                GatedEffect(
-                    gate = Gate.WhenCondition(
-                        Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withColor(Color.BLUE))
-                    ),
+                Effects.If(
+                    condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withColor(Color.BLUE)),
                     then = Patterns.Hand.loot()
                 )
             )

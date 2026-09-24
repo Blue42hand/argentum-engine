@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.ForEachEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
@@ -164,7 +163,7 @@ object Graveyard {
      */
     private val putTargetFromThatPlayersGraveyard: Phrase<CardScript> = run {
         val script = CardScript(
-            spellEffect = MayEffect(Effects.PutOntoBattlefieldUnderYourControl(Targets.bound())),
+            spellEffect = Effects.May(Effects.PutOntoBattlefieldUnderYourControl(Targets.bound())),
             targetRequirements = listOf(
                 TargetObject(filter = TargetFilter.CreatureInGraveyard.ownedByOpponent(), id = Targets.SLOT)
             ),

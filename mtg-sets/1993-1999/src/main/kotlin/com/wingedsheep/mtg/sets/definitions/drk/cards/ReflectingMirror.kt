@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
@@ -45,7 +44,7 @@ val ReflectingMirror = card("Reflecting Mirror") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
         target = Targets.SpellOrAbilityWithSingleTarget
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmount.XValue,
                 ComparisonOperator.GTE,
@@ -57,7 +56,7 @@ val ReflectingMirror = card("Reflecting Mirror") {
                     multiplier = 2,
                 ),
             ),
-            effect = Effects.ChangeTarget(
+            then = Effects.ChangeTarget(
                 newTargetMustBePlayer = true,
                 onlyIfCurrentTargetIsController = true,
             ),

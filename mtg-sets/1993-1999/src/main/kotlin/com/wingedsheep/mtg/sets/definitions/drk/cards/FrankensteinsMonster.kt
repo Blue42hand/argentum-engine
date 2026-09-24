@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.OnEnterRunEffect
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * exiled this way, this creature enters with a +2/+0, +1/+1, or +0/+2 counter on it.
  *
  * The first sentence is all-or-nothing and the gate has to be asked before anything moves: a
- * `ConditionalEffect` on "creature cards in your graveyard >= X" runs the exile-and-count branch,
+ * `Effects.If` on "creature cards in your graveyard >= X" runs the exile-and-count branch,
  * and its else branch is the failed entry. Left ungated, `SelectionMode.ChooseExactly` clamps to
  * the number of eligible cards, so an X the graveyard can't pay — whether overpaid on purpose or
  * emptied in response to the spell — would quietly build a smaller Monster instead of none.
@@ -73,13 +72,13 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
             // Without it `ChooseExactly` quietly clamps to however many creature cards the graveyard
             // happens to hold, and an overpaid X — or a graveyard emptied in response to the spell —
             // yields a smaller Monster instead of no Monster.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature),
                     ComparisonOperator.GTE,
                     DynamicAmount.XValue,
                 ),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     GatherCardsEffect(
                         source = CardSource.FromZone(
                             zone = Zone.GRAVEYARD,
@@ -121,7 +120,7 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
                 // Not a sacrifice and not a destruction: the card says "put into its owner's
                 // graveyard", so nothing here should be stoppable by indestructible or by a
                 // "can't be sacrificed" clause.
-                elseEffect = Effects.Move(EffectTarget.Self, Zone.GRAVEYARD),
+                otherwise = Effects.Move(EffectTarget.Self, Zone.GRAVEYARD),
             )
         )
     )

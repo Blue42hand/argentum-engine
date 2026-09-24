@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
@@ -40,7 +39,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * the fetch would silently find nothing. Everything therefore stays in one pipeline scope, and the
  * target player is named explicitly instead: [Player.TargetPlayer] scopes the library gather, the
  * battlefield destination, and the shuffle, while [Chooser.TargetPlayer] makes *them* pick the
- * cards. The `may` is a [MayEffect] whose `decisionMaker` is the target player (only the prompt is
+ * cards. The `may` is a [Effects.May] whose `decisionMaker` is the target player (only the prompt is
  * delegated — the effect still resolves under the caster, which is why every step names its player).
  *
  * Deviation, deliberate: with zero attackers exiled the search is skipped instead of prompting.
@@ -65,7 +64,7 @@ val SettleTheWreckage = card("Settle the Wreckage") {
             exile(attackers)
             ifNotEmpty(attackers) {
                 run(
-                    MayEffect(
+                    Effects.May(
                         Effects.Pipeline {
                             val library = gather(
                                 CardSource.FromZone(

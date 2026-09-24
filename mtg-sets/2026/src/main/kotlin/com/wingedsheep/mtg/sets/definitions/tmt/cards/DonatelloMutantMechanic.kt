@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -46,9 +45,9 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
         timing = TimingRule.SorcerySpeed
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, art)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature),
-                    effect = Effects.BecomeCreature(
+                    then = Effects.BecomeCreature(
                         target = EffectTarget.ContextTarget(0),
                         power = 0,
                         toughness = 0,

@@ -18,7 +18,7 @@ import com.wingedsheep.engine.core.Outcome
  *  instead."
  *
  * Tests the unkicked one-sided "fight": the controlled creature deals damage equal to its power to
- * the opposing creature, and the dealer takes none back. Composes ConditionalEffect(WasKicked, …)
+ * the opposing creature, and the dealer takes none back. Composes Effects.If(WasKicked, …)
  * + DealDamage(targetPower(0), source = controlled creature); no new SDK.
  */
 class ChocoboKickScenarioTest : FunSpec({

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 
@@ -36,7 +35,7 @@ val OldThrush = card("Old Thrush") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
             GainLifeEffect(2),
-            MayEffect(
+            Effects.May(
                 Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.BasicLand,
                     destination = SearchDestination.TOP_OF_LIBRARY,

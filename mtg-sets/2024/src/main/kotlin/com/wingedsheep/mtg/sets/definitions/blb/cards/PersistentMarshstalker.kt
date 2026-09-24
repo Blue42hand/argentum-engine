@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -50,9 +49,9 @@ val PersistentMarshstalker = card("Persistent Marshstalker") {
         trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.withSubtype("Rat"))
         triggerZone = Zone.GRAVEYARD
         interveningIf = Conditions.CardsInGraveyardAtLeast(7)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{B}"),
-            effect = Effects.Move(
+            then = Effects.Move(
                 target = EffectTarget.Self,
                 destination = Zone.BATTLEFIELD,
                 placement = ZonePlacement.TappedAndAttacking

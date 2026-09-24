@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,8 +44,8 @@ val BuzzardWaspColony = card("Buzzard-Wasp Colony") {
     // When this creature enters, you may sacrifice an artifact or creature. If you do, draw a card.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = GatedEffect(
-            gate = Gate.MayPay(SacrificeEffect(GameObjectFilter.CreatureOrArtifact)),
+        effect = Effects.MayPay(
+            cost = SacrificeEffect(GameObjectFilter.CreatureOrArtifact),
             then = Effects.DrawCards(1)
         )
         description = "When this creature enters, you may sacrifice an artifact or creature. " +

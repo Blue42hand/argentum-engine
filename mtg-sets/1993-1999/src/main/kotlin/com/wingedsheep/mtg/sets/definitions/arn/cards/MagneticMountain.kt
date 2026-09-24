@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -89,16 +87,14 @@ val MagneticMountain = card("Magnetic Mountain") {
                 // tapped blue creatures (or who declines) is never asked to "pay {0}".
                 ConditionalOnCollectionEffect(
                     collection = "chosen",
-                    ifNotEmpty = GatedEffect(
-                        gate = Gate.MayPay(
-                            Effects.PayDynamicMana(
+                    ifNotEmpty = Effects.MayPay(
+                        cost = Effects.PayDynamicMana(
                                 amount = DynamicAmount.Multiply(
                                     DynamicAmount.VariableReference("chosen_count"),
                                     4
                                 ),
                                 payer = Player.TriggeringPlayer
-                            )
-                        ),
+                            ),
                         decisionMaker = EffectTarget.PlayerRef(Player.TriggeringPlayer),
                         then = ForEachInCollectionEffect(
                             collection = "chosen",

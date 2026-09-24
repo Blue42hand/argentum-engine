@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -43,9 +42,9 @@ val AntiquitiesOnTheLoose = card("Antiquities on the Loose") {
             creatureTypes = setOf("Spirit"),
             count = 2,
             imageUri = "https://cards.scryfall.io/normal/front/8/7/877f7ddb-ed70-41a0-b845-d9bf8ac65f9b.jpg?1775828448"
-        ) then ConditionalEffect(
+        ) then Effects.If(
             condition = Conditions.Not(Conditions.WasCastFromHand),
-            effect = Effects.ForEachInGroup(
+            then = Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withSubtype("Spirit")),
                 effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )

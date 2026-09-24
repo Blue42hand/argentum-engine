@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -58,9 +57,9 @@ val BackForSeconds = card("Back for Seconds") {
                 source = CardSource.ChosenTargets,
                 storeAs = "backForSecondsTargets",
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasBargained,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     SelectFromCollectionEffect(
                         from = "backForSecondsTargets",
                         selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
@@ -83,7 +82,7 @@ val BackForSeconds = card("Back for Seconds") {
                         destination = CardDestination.ToZone(Zone.HAND),
                     ),
                 ),
-                elseEffect = MoveCollectionEffect(
+                otherwise = MoveCollectionEffect(
                     from = "backForSecondsTargets",
                     destination = CardDestination.ToZone(Zone.HAND),
                 ),

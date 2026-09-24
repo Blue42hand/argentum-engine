@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,9 +26,9 @@ val IntoTheRoil = card("Into the Roil") {
 
     spell {
         target = Targets.NonlandPermanent
-        effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)) then ConditionalEffect(
+        effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)) then Effects.If(
             condition = WasKicked,
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
     }
 

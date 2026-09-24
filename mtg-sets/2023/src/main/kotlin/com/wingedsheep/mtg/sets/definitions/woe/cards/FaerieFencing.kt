@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -30,9 +29,9 @@ val FaerieFencing = card("Faerie Fencing") {
     spell {
         captureAtCast("controlledFaerie", Conditions.YouControl(GameObjectFilter.Creature.withSubtype(Subtype.FAERIE)))
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CapturedAtCast("controlledFaerie"),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.ModifyStats(
                     DynamicAmount.Multiply(DynamicAmount.XValue, -1),
                     DynamicAmount.Multiply(DynamicAmount.XValue, -1),
@@ -40,7 +39,7 @@ val FaerieFencing = card("Faerie Fencing") {
                 ),
                 Effects.ModifyStats(-3, -3, t)
             ),
-            elseEffect = Effects.ModifyStats(
+            otherwise = Effects.ModifyStats(
                 DynamicAmount.Multiply(DynamicAmount.XValue, -1),
                 DynamicAmount.Multiply(DynamicAmount.XValue, -1),
                 t

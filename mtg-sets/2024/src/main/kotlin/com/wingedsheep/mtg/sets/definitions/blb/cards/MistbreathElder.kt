@@ -10,9 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -45,11 +43,11 @@ val MistbreathElder = card("Mistbreath Elder") {
         description = "At the beginning of your upkeep, return another creature you control to " +
             "its owner's hand. If you do, put a +1/+1 counter on this creature. Otherwise, you " +
             "may return this creature to its owner's hand."
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.youControl(), excludeSelf = true),
             // If you control another creature: bounce one of them (Gather → Select → Move;
             // the battlefield→hand move routes to the owner's hand), then counter self.
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 GatherCardsEffect(
                     source = CardSource.BattlefieldMatching(
                         filter = GameObjectFilter.Creature,
@@ -72,7 +70,7 @@ val MistbreathElder = card("Mistbreath Elder") {
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             ),
             // Otherwise: you may return this creature to hand
-            elseEffect = MayEffect(Effects.ReturnToHand(EffectTarget.Self))
+            otherwise = Effects.May(Effects.ReturnToHand(EffectTarget.Self))
         )
     }
 

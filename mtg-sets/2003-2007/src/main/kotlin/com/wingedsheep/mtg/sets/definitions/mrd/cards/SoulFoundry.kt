@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -48,7 +47,7 @@ val SoulFoundry = card("Soul Foundry") {
     // Imprint — When this artifact enters, you may exile a creature card from your hand.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             Patterns.Hand.revealHandAndExileChosen(
                 target = EffectTarget.Controller,
                 filter = GameObjectFilter.Creature,

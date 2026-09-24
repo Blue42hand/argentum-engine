@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -43,9 +42,9 @@ val AgonizingDemise = card("Agonizing Demise") {
             TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK))
         )
         effect = CantBeRegeneratedEffect(creature) then
-            ConditionalEffect(
+            Effects.If(
                 condition = WasKicked,
-                effect = Effects.DealDamage(DynamicAmounts.targetPower(0), EffectTarget.TargetController)
+                then = Effects.DealDamage(DynamicAmounts.targetPower(0), EffectTarget.TargetController)
             ) then
             Effects.Destroy(creature)
     }

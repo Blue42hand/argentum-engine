@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -35,9 +34,9 @@ val RecursiveRecruitment = card("Recursive Recruitment") {
                 name = "Cadet",
                 imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318",
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
-                effect = Effects.AddCountersToCollection(
+                then = Effects.AddCountersToCollection(
                     CREATED_TOKENS,
                     Counters.PLUS_ONE_PLUS_ONE,
                     DynamicAmount.Divide(

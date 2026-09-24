@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -96,7 +95,7 @@ val DeadlyCoverUp = card("Deadly Cover-Up") {
 
         effect = Effects.Composite(
             Effects.DestroyAll(GameObjectFilter.Creature),
-            ConditionalEffect(Conditions.WasEvidenceCollected, extraction),
+            Effects.If(Conditions.WasEvidenceCollected, extraction),
         )
     }
 

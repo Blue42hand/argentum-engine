@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -124,7 +123,7 @@ class ClashScenarioTest : FunSpec({
             trigger = Triggers.WheneverYouClash
             effect = Effects.Composite(
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                ConditionalEffect(
+                Effects.If(
                     Conditions.YouWonTheClash,
                     Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
@@ -140,7 +139,7 @@ class ClashScenarioTest : FunSpec({
         power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 Conditions.YouWonTheClash,
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )

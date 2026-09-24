@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 /**
@@ -18,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
  *
  * When this creature enters, you may sacrifice an artifact or discard a card. If you do, draw a card.
  *
- * The ETB is Vision of Love's optional sacrifice-or-discard, one card smaller: a [MayEffect]
+ * The ETB is Vision of Love's optional sacrifice-or-discard, one card smaller: a [Effects.May]
  * over a [ChooseActionEffect] whose branches each pay their own cost and then draw. The
  * [FeasibilityCheck]s hide an option the controller can't perform, so the draw only ever
  * follows a cost that was actually paid ("If you do").
@@ -34,7 +33,7 @@ val KunLunWarrior = card("K'un-Lun Warrior") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             effect = ChooseActionEffect(
                 choices = listOf(
                     EffectChoice(

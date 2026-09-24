@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -38,7 +37,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *    (counters and pumps included), and the reflexive reads it back as a
  *    [DynamicAmount.VariableReference]. Reading `Power` off the card in the graveyard instead
  *    would silently drop every +1/+1 counter and Layer 7 bonus it had.
- *  - The excess-damage amass is the Orbital Plunge / Hell to Pay pair: [ConditionalEffect] gated on
+ *  - The excess-damage amass is the Orbital Plunge / Hell to Pay pair: [Effects.If] gated on
  *    [Conditions.IfTargetTookExcessDamage] for the "if excess damage was dealt" clause, and
  *    [EntityNumericProperty.ExcessMarkedDamage] for the amount. Both read the target's post-damage
  *    marked damage in the same composite, which has no interleaved SBA pass — so the only marked
@@ -83,9 +82,9 @@ val BolgOfTheNorth = card("Bolg of the North") {
                     DynamicAmount.VariableReference("bolgSacrificedPower"),
                     EffectTarget.ContextTarget(0),
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.IfTargetTookExcessDamage(),
-                    effect = Effects.Amass(
+                    then = Effects.Amass(
                         DynamicAmount.EntityProperty(
                             EntityReference.Target(0),
                             EntityNumericProperty.ExcessMarkedDamage,

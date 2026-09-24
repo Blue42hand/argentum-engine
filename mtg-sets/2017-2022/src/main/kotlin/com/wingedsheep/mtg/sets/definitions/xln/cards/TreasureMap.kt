@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -30,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Implementation:
  *  - Front activated ability composes [Effects.Scry] (1) → [Effects.AddCounters] (a passive
- *    [Counters.LANDMARK] counter on Self) → a [ConditionalEffect] gated on
+ *    [Counters.LANDMARK] counter on Self) → a [Effects.If] gated on
  *    [Conditions.SourceCounterCountAtLeast]`(landmark, 3)` that removes the three counters
  *    ([Effects.RemoveCounters]), flips the artifact ([TransformEffect]) and makes three
  *    Treasures ([Effects.CreateTreasure]). Same "add counter, then conditionally do more"
@@ -53,9 +52,9 @@ private val TreasureMapFront = card("Treasure Map") {
         effect = Effects.Composite(
             Effects.Scry(1),
             Effects.AddCounters(Counters.LANDMARK, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(Counters.LANDMARK, 3),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.RemoveCounters(Counters.LANDMARK, 3, EffectTarget.Self),
                     TransformEffect(EffectTarget.Self),
                     Effects.CreateTreasure(3),

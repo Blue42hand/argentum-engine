@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -77,7 +76,7 @@ val GrimReminder = card("Grim Reminder") {
                 Effects.ForEachPlayer(
                     Player.EachOpponent,
                     listOf(
-                        ConditionalEffect(
+                        Effects.If(
                             Conditions.YouCastSpellsThisTurn(
                                 atLeast = 1,
                                 filter = GameObjectFilter.Any.namedFromVariable(cardName.key)

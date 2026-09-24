@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -30,9 +29,9 @@ val AncientAnimus = card("Ancient Animus") {
         val theirCreature = target("creature an opponent controls", TargetCreature(
             filter = TargetFilter(GameObjectFilter.Creature.opponentControls())
         ))
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary()),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, yourCreature)
+            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, yourCreature)
         ).then(Effects.Fight(yourCreature, theirCreature))
     }
 

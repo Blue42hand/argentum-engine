@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 val PompousBattlemage = card("Pompous Battlemage") {
     manaCost = "{R}"
@@ -24,10 +22,10 @@ val PompousBattlemage = card("Pompous Battlemage") {
         typeLine = "Sorcery"
         oracleText = "You may discard a card. If you do, draw a card."
         spell {
-            effect = MayEffect(
-                effect = IfYouDoEffect(
+            effect = Effects.May(
+                effect = Effects.IfYouDo(
                     action = Patterns.Hand.discardCards(1),
-                    ifYouDo = Effects.DrawCards(1),
+                    then = Effects.DrawCards(1),
                 ),
                 descriptionOverride = "You may discard a card. If you do, draw a card.",
             )

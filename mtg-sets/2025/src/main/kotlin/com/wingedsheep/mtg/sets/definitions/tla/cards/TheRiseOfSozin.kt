@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayXForEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -56,7 +55,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * The back face reuses [firebending] (the display keyword + attack-triggered "add {R}{R}{R} until end
  * of combat") and [Keyword.MENACE], plus a pay-{X} *targeted* reflexive reanimation. Because the
  * reanimation targets "any number of target creature cards with total mana value X or less"
- * (CR 115.1a / 601.2c), the targets are chosen after X is paid: [MayPayXForEffect] gates on paying X,
+ * (CR 115.1a / 601.2c), the targets are chosen after X is paid: [Effects.MayPayX] gates on paying X,
  * and its post-payment `then` is a [ReflexiveTriggerEffect] whose [TargetObject] is `unlimited` (any
  * number) with the new [TargetObject.totalManaValueAtMost]` = DynamicAmount.XValue` aggregate cap —
  * resolved against the X in scope, and scoped to the damaged player's graveyard via the new
@@ -85,15 +84,15 @@ private val FireLordSozin = card("Fire Lord Sozin") {
     //
     // The reflexive ability is *targeted* (CR 115.1a / 601.2c): once you pay {X}, you announce which
     // creature cards you're reanimating, subject to their combined mana value not exceeding X. We
-    // model this by nesting the target selection inside [MayPayXForEffect]'s post-payment `then`, so
+    // model this by nesting the target selection inside [Effects.MayPayX]'s post-payment `then`, so
     // the `X` just paid is in scope when the reflexive [TargetObject.totalManaValueAtMost] cap
     // resolves. The [ReflexiveTriggerEffect] wrapper is borrowed only for its mid-resolution target
     // selection — its `action` is an empty composite because the "when you do" is already the pay-{X}
     // gate. `ownedByTriggeringPlayer()` scopes the graveyard to the player Sozin just damaged.
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = MayPayXForEffect(
-            effect = ReflexiveTriggerEffect(
+        effect = Effects.MayPayX(
+            then = ReflexiveTriggerEffect(
                 action = Effects.Composite(emptyList()),
                 optional = false,
                 reflexiveTargetRequirements = listOf(

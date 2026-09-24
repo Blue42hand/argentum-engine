@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -58,7 +57,7 @@ val AvengersDisassembled = card("Avengers Disassembled") {
                     "card, put it onto the battlefield tapped, then shuffle."
             ) {
                 val land = target("target land", Targets.Land)
-                effect = Effects.Destroy(land) then MayEffect(
+                effect = Effects.Destroy(land) then Effects.May(
                     effect = Effects.Composite(
                         listOf(
                             GatherCardsEffect(

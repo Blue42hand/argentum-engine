@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -42,9 +41,9 @@ val Helldozer = card("Helldozer") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}{B}{B}"), Costs.Tap)
         target = Targets.Land
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonbasicLand),
-            effect = Effects.Untap(EffectTarget.Self)
+            then = Effects.Untap(EffectTarget.Self)
         ) then Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
         description = "Destroy target land. If that land was nonbasic, untap this creature."
     }

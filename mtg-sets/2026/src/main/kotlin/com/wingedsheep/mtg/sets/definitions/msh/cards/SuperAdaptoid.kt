@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -46,12 +45,12 @@ private val ADAPTABLE_KEYWORDS: List<Pair<Keyword, String>> = listOf(
  */
 private fun absorbKeywords(): Effect = Effects.Composite(
     ADAPTABLE_KEYWORDS.map { (keyword, counter) ->
-        ConditionalEffect(
+        Effects.If(
             condition = Conditions.All(
                 Conditions.TargetMatchesFilter(GameObjectFilter.Any.withKeyword(keyword)),
                 Conditions.Not(Conditions.SourceHasKeyword(keyword)),
             ),
-            effect = Effects.AddCounters(counter, 1, EffectTarget.Self),
+            then = Effects.AddCounters(counter, 1, EffectTarget.Self),
         )
     }
 )

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * "You may mill two cards. Then return up to two creature cards from your graveyard to your hand."
  *
  * Implementation:
- *  - [MayEffect] wrapping [Patterns.Library.mill] handles the optional mill of 2 cards; resolving
+ *  - [Effects.May] wrapping [Patterns.Library.mill] handles the optional mill of 2 cards; resolving
  *    with "no" skips the mill and proceeds to the return step.
  *  - Gather creature cards from the controller's graveyard, [SelectionMode.ChooseUpTo](2), then
  *    move selected cards to hand. Choosing 0 is valid ("up to two" = 0–2). An empty graveyard
@@ -40,7 +39,7 @@ val AnotherChance = card("Another Chance") {
         effect = Effects.Composite(
             listOf(
                 // "You may mill two cards."
-                MayEffect(Patterns.Library.mill(2)),
+                Effects.May(Patterns.Library.mill(2)),
                 // "Then return up to two creature cards from your graveyard to your hand."
                 GatherCardsEffect(
                     source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature),

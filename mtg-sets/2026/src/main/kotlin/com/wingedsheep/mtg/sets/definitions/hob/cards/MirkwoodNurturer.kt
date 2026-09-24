@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -52,9 +51,9 @@ val MirkwoodNurturer = card("Mirkwood Nurturer") {
                     destination = CardDestination.ToZone(Zone.HAND),
                     storeMovedAs = "returned"
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch("returned"),
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
             )
         )

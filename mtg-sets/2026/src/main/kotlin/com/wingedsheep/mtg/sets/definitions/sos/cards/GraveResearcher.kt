@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * Prepare (Secrets of Strixhaven): like Joined Researchers, this creature does NOT enter prepared
  * — it has no PREPARED keyword. The upkeep trigger surveils 1 and *then*, as a single resolution,
  * makes the creature become prepared ([Effects.BecomePrepared]) when three or more creature cards
- * are in your graveyard. The "then if" rider is a [ConditionalEffect] sequenced after the surveil,
+ * are in your graveyard. The "then if" rider is a [Effects.If] sequenced after the surveil,
  * not a [interveningIf] — surveil happens unconditionally, the graveyard is checked afterward.
  *
  * Reanimate (back face): a {B} sorcery prepare spell that puts a creature card from any graveyard
@@ -48,9 +47,9 @@ val GraveResearcher = card("Grave Researcher") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Patterns.Library.surveil(1).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CreatureCardsInGraveyardAtLeast(3),
-                effect = Effects.BecomePrepared(),
+                then = Effects.BecomePrepared(),
             )
         )
         description = "At the beginning of your upkeep, surveil 1. Then if there are three or more " +

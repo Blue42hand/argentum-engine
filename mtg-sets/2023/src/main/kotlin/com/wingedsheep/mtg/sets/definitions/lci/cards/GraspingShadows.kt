@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.references.Player
@@ -37,7 +36,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - Attacks-alone trigger via [Triggers.attacks]`(Creature.youControl(), requires =
  *    AttackPredicate.Alone, binding = ANY)`; the lone attacker is [EffectTarget.TriggeringEntity].
  *    Effect grants deathtouch + lifelink (until end of turn), adds a [Counters.DREAD] counter to
- *    Self, then a [ConditionalEffect] on [Conditions.SourceCounterCountAtLeast]`(dread, 3)` flips
+ *    Self, then a [Effects.If] on [Conditions.SourceCounterCountAtLeast]`(dread, 3)` flips
  *    it. Same shape as Team Avatar's attacks-alone pump + The Emperor of Palamecia's threshold flip.
  *  - Back land: `{T}: Add {B}` mana ability + a `{B}, {T}, Remove a dread counter` ability
  *    ([Costs.RemoveCounterFromSelf]) that draws a card and loses 1 life.
@@ -61,9 +60,9 @@ private val GraspingShadowsFront = card("Grasping Shadows") {
             Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity),
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity),
             Effects.AddCounters(Counters.DREAD, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(Counters.DREAD, 3),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "Whenever a creature you control attacks alone, it gains deathtouch and " +

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -50,11 +49,11 @@ val CoilingRebirth = card("Coiling Rebirth") {
                 effect = DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
                     .then(returnEffect)
                     .then(
-                        ConditionalEffect(
+                        Effects.If(
                             condition = Conditions.TargetMatchesFilter(
                                 GameObjectFilter.Creature.nonlegendary()
                             ),
-                            effect = Effects.CreateTokenCopyOfTarget(
+                            then = Effects.CreateTokenCopyOfTarget(
                                 EffectTarget.ContextTarget(0),
                                 overridePower = 1,
                                 overrideToughness = 1

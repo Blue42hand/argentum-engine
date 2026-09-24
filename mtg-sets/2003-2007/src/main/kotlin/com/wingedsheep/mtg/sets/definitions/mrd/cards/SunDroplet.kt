@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -29,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The upkeep half is "at the beginning of *each* upkeep" — it fires on every player's upkeep, and
  * the controller is always the one who decides and gains the life. The "may … if you do" pair is a
- * [MayEffect] over remove-then-gain, wrapped in a [ConditionalEffect] on there being a charge
+ * [Effects.May] over remove-then-gain, wrapped in a [Effects.If] on there being a charge
  * counter to remove: with an empty Droplet the removal could not happen, so neither could the life
  * gain, and asking an unanswerable question every upkeep is noise rather than a choice.
  */
@@ -52,9 +50,9 @@ val SunDroplet = card("Sun Droplet") {
 
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceHasCounter(CounterTypeFilter.Named(Counters.CHARGE)),
-            effect = MayEffect(
+            then = Effects.May(
                 Effects.Composite(
                     RemoveCountersEffect(Counters.CHARGE, 1, EffectTarget.Self),
                     Effects.GainLife(1),

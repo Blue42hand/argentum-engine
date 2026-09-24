@@ -37,7 +37,7 @@ internal val tapLayerStateHandlers: Map<String, ActionHandler> = actionHandlers 
         // controller picks tap vs untap at resolution, so it renders as a non-spell
         // `ModalEffect.chooseOne` of `Effects.Tap`/`Effects.Untap` over the SAME chosen permanent
         // (cf. Effects.Endure, which models "choose one" as a two-mode chooseOne). Wrapped in
-        // MayEffect by the MayAction handler when the oracle says "you may tap or untap".
+        // Effects.May by the MayAction handler when the oracle says "you may tap or untap".
         val tgt = refTarget(args, tvar) ?: return@on null
         call(
             "ModalEffect.chooseOne",
@@ -63,10 +63,10 @@ internal val tapLayerStateHandlers: Map<String, ActionHandler> = actionHandlers 
     }
     on("If") { node, args, tvar ->
         // Resolution-time intervening-if inside a spell/ability ActionList:
-        //   If[<condition>, [<then actions>]]  ->  ConditionalEffect(condition = …, effect = …)
+        //   If[<condition>, [<then actions>]]  ->  Effects.If(condition = …, effect = …)
         // (Foolish Fate's "if you gained life this turn, …", Burrog Barrage's "+1/+0 if you've cast
         // another instant or sorcery this turn"). An `If` with an else-branch (args[2]) declines —
-        // a resolution ConditionalEffect can carry an else, but no calibrated card needs it yet and a
+        // a resolution Effects.If can carry an else, but no calibrated card needs it yet and a
         // wrong else is worse than a scaffold. The condition must render exactly via actionConditionDsl
         // and the then-branch via the normal effect-list path; either declining scaffolds the card.
         val arr = args.asArr ?: return@on null
@@ -78,9 +78,9 @@ internal val tapLayerStateHandlers: Map<String, ActionHandler> = actionHandlers 
         val condDsl = actionConditionDsl(cond) ?: return@on null
         val thenEffect = renderEffectList(thenActions, tvar) ?: return@on null
         call(
-            "ConditionalEffect",
+            "Effects.If",
             arg("condition", Lit(condDsl)),
-            arg("effect", thenEffect),
+            arg("then", thenEffect),
         )
     }
     on("RegeneratePermanent") { _, args, tvar ->

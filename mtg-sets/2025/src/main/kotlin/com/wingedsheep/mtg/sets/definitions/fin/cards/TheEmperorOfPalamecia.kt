@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -108,17 +107,17 @@ private val TheEmperorOfPalameciaFront = card("The Emperor of Palamecia") {
     // on it, transform it.
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Compare(
                 DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
                 ComparisonOperator.GTE,
                 DynamicAmount.Fixed(4),
             ),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 3),
-                    effect = TransformEffect(EffectTarget.Self),
+                    then = TransformEffect(EffectTarget.Self),
                 ),
             ),
         )

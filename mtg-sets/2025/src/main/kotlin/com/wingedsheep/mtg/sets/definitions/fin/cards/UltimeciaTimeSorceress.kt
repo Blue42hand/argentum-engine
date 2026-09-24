@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -33,8 +31,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   extra turn after this one.
  *
  * "Enters or attacks" is the Gilgamesh/Frodo shape: two sibling triggered abilities. The
- * end-step pay-and-exile is an [OptionalCostEffect] (Gate.MayPay) whose cost composes a mana
- * payment with a choose-exactly-8 exile pipeline, wrapped in a [ConditionalEffect] requiring
+ * end-step pay-and-exile is an [Effects.MayPay] (Gate.MayPay) whose cost composes a mana
+ * payment with a choose-exactly-8 exile pipeline, wrapped in a [Effects.If] requiring
  * eight cards in your graveyard — the MayPay affordability pre-pass checks the mana half but
  * cannot see into the pipeline half, so the condition keeps an unpayable "yes" from being
  * offered (you can't partially pay a cost).
@@ -95,9 +93,9 @@ private val UltimeciaTimeSorceressFront = card("Ultimecia, Time Sorceress") {
     // from your graveyard. If you do, transform Ultimecia.
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CardsInGraveyardAtLeast(8),
-            effect = OptionalCostEffect(
+            then = Effects.MayPay(
                 cost = Effects.Composite(
                     PayManaCostEffect(ManaCost.parse("{4}{U}{U}{B}{B}")),
                     Effects.Pipeline {
@@ -113,7 +111,7 @@ private val UltimeciaTimeSorceressFront = card("Ultimecia, Time Sorceress") {
                         move(toExile, CardDestination.ToZone(Zone.EXILE))
                     },
                 ),
-                ifPaid = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
                 descriptionOverride = "Pay {4}{U}{U}{B}{B} and exile eight cards from your " +
                     "graveyard? If you do, transform Ultimecia.",
             ),

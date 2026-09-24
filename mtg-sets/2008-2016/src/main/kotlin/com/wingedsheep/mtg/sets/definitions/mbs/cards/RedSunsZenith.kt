@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -40,14 +39,14 @@ val RedSunsZenith = card("Red Sun's Zenith") {
 
     spell {
         val t = target("any target", AnyTarget())
-        effect = ConditionalEffect(
+        effect = Effects.If(
             // CR 120.8 — X = 0 deals no damage, so nothing was "dealt damage this way".
             condition = Conditions.CompareAmounts(
                 DynamicAmount.XValue,
                 ComparisonOperator.GT,
                 DynamicAmount.Fixed(0),
             ),
-            effect = Effects.MarkExileOnDeath(t),
+            then = Effects.MarkExileOnDeath(t),
         ) then Effects.DealDamage(DynamicAmount.XValue, t)
         selfShuffleIntoLibrary()
     }

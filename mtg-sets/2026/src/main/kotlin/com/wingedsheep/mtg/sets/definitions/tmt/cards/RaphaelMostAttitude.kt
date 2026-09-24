@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -40,7 +39,7 @@ val RaphaelMostAttitude = card("Raphael, Most Attitude") {
     // Alliance: exile the top card linked to Raphael (accumulates the impulse pile).
     triggeredAbility {
         trigger = Triggers.OtherCreatureEnters
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 listOf(
                     GatherCardsEffect(source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)), storeAs = "raphaelTop"),

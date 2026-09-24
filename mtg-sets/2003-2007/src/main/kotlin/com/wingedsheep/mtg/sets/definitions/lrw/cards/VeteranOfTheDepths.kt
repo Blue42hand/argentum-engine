@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,7 +26,7 @@ val VeteranOfTheDepths = card("Veteran of the Depths") {
 
     triggeredAbility {
         trigger = Triggers.BecomesTapped
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
         description = "Whenever this creature becomes tapped, you may put a +1/+1 counter on it."

@@ -13,10 +13,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -102,9 +100,9 @@ val NickFuryAgentOfShield = card("Nick Fury, Agent of S.H.I.E.L.D.") {
                 destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You),
                 storeMovedAs = "fury_entered"
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch("fury_entered", Filters.DoubleFaced),
-                effect = MayEffect(
+                then = Effects.May(
                     ForEachInCollectionEffect("fury_entered", TransformEffect(EffectTarget.Self)),
                     descriptionOverride = "transform it"
                 )

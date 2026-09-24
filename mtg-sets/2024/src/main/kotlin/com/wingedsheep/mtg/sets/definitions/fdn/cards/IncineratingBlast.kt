@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -32,7 +30,7 @@ val IncineratingBlast = card("Incinerating Blast") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             DealDamageEffect(6, t),
-            MayEffect(effect = IfYouDoEffect(action = Patterns.Hand.discardCards(1), ifYouDo = DrawCardsEffect(1)))
+            Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(1)))
         )
     }
     metadata {

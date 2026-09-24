@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,12 +31,12 @@ val AuntMay = card("Aunt May") {
         trigger = Triggers.OtherCreatureEnters
         effect = Effects.GainLife(1)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.EntityMatches(
                         EffectTarget.TriggeringEntity,
                         GameObjectFilter.Creature.withSubtype(Subtype.SPIDER),
                     ),
-                    effect = Effects.AddCounters(
+                    then = Effects.AddCounters(
                         Counters.PLUS_ONE_PLUS_ONE,
                         1,
                         EffectTarget.TriggeringEntity,

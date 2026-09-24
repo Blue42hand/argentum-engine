@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -76,7 +75,7 @@ object Granted {
         constantClause(
             "its controller may draw a card.",
             "its controller may draw a card",
-            MayEffect(Effects.DrawCards(1)),
+            Effects.May(Effects.DrawCards(1)),
         ),
     )
 
@@ -104,13 +103,13 @@ object Granted {
             slot("token", Tokens.clause)
             build { bindings ->
                 val inner = bindings.value<CardScript>("token").spellEffect ?: return@build null
-                CardScript(spellEffect = MayEffect(inner))
+                CardScript(spellEffect = Effects.May(inner))
             }
             match { script ->
                 val gated = script.spellEffect as? GatedEffect ?: return@match null
-                if (gated.gate !is Gate.MayDecide || gated != MayEffect(gated.then)) return@match null
+                if (gated.gate !is Gate.MayDecide || gated != Effects.May(gated.then)) return@match null
                 val inner = CardScript(spellEffect = gated.then)
-                if (script != CardScript(spellEffect = MayEffect(gated.then))) return@match null
+                if (script != CardScript(spellEffect = Effects.May(gated.then))) return@match null
                 bind("token" to inner)
             }
         }

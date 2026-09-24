@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
@@ -32,15 +31,15 @@ val EntishRestoration = card("Entish Restoration") {
         effect = Effects.Composite(
             listOf(
                 SacrificeEffect(filter = GameObjectFilter.Land),
-                ConditionalEffect(
+                Effects.If(
                     condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
-                    effect = Patterns.Library.searchLibrary(
+                    then = Patterns.Library.searchLibrary(
                         filter = GameObjectFilter.BasicLand,
                         count = 3,
                         destination = SearchDestination.BATTLEFIELD,
                         entersTapped = true
                     ),
-                    elseEffect = Patterns.Library.searchLibrary(
+                    otherwise = Patterns.Library.searchLibrary(
                         filter = GameObjectFilter.BasicLand,
                         count = 2,
                         destination = SearchDestination.BATTLEFIELD,

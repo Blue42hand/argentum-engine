@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -111,7 +110,7 @@ val SpellweaverHelix = card("Spellweaver Helix") {
                 Conditions.LinkedExiledCardMatches(NAMED_AS_TRIGGERING_SPELL, index = 1)
             )
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "helixPile"),
                 SelectFromCollectionEffect(

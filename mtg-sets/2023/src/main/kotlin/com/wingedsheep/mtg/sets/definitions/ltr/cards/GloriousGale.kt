@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Glorious Gale
@@ -27,9 +26,9 @@ val GloriousGale = card("Glorious Gale") {
 
     spell {
         target("creature spell", Targets.CreatureSpell)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), 0),
-            effect = Effects.TheRingTemptsYou()
+            then = Effects.TheRingTemptsYou()
         ).then(Effects.CounterSpell())
     }
 

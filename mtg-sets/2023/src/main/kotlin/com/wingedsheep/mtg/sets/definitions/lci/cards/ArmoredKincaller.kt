@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -33,7 +32,7 @@ private val DinosaurCreatureFilter = GameObjectFilter.Creature.withSubtype(Subty
  * Implementation notes:
  *   The "if you do or if you control another Dinosaur" is modelled via a
  *   Gather → SelectUpTo(1) → Reveal pipeline over the controller's hand, storing the
- *   result in "kincallerRevealed". A ConditionalEffect then gates GainLife(3) on an
+ *   result in "kincallerRevealed". A Effects.If then gates GainLife(3) on an
  *   AnyCondition over two sub-checks:
  *     (1) CollectionContainsMatch("kincallerRevealed") — true iff the player actually
  *         selected a card to reveal.
@@ -81,7 +80,7 @@ val ArmoredKincaller = card("Armored Kincaller") {
                 // Step 3: Publicly reveal the selected card. No-op if empty.
                 RevealCollectionEffect(from = "kincallerRevealed", fromZone = Zone.HAND),
                 // Step 4: Gain 3 life if the player revealed a Dinosaur OR controls another one.
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Any(
                         Conditions.CollectionContainsMatch("kincallerRevealed"),
                         Conditions.YouControl(
@@ -89,7 +88,7 @@ val ArmoredKincaller = card("Armored Kincaller") {
                             excludeSelf = true,
                         ),
                     ),
-                    effect = Effects.GainLife(3),
+                    then = Effects.GainLife(3),
                 ),
             )
         )

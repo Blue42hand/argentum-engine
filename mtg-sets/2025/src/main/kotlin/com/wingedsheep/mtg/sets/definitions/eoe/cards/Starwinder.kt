@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -38,7 +37,7 @@ val Starwinder = card("Starwinder") {
             sourceFilter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.DrawCards(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
         )
         description = "Whenever a creature you control deals combat damage to a player, you may draw that many cards."

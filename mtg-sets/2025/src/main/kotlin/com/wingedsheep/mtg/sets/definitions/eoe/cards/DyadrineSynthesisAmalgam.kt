@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -53,7 +52,7 @@ val DyadrineSynthesisAmalgam = card("Dyadrine, Synthesis Amalgam") {
     // you control. If both removals happen, draw a card and create a 2/2 Robot token.
     triggeredAbility {
         trigger = Triggers.YouAttack
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Composite(
                 listOf(
                     GatherCardsEffect(

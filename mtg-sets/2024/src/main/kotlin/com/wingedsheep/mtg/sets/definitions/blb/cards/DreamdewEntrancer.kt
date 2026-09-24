@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Dreamdew Entrancer
@@ -37,9 +36,9 @@ val DreamdewEntrancer = card("Dreamdew Entrancer") {
         val t = target("creature", Targets.UpToCreatures(1))
         effect = Effects.Tap(t)
             .then(Effects.AddCounters("STUN", 3, t))
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), targetIndex = 0),
-                effect = Effects.DrawCards(2)
+                then = Effects.DrawCards(2)
             ))
     }
 

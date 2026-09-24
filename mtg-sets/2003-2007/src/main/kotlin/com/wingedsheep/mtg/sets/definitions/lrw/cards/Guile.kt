@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.CantBeBlockedByFewerThan
 import com.wingedsheep.sdk.scripting.ExileCounteredSpellInstead
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Guile — Lorwyn #69
@@ -36,7 +35,7 @@ val Guile = card("Guile") {
 
     replacementEffect(
         ExileCounteredSpellInstead(
-            then = MayEffect(
+            then = Effects.May(
                 Effects.CastFromCollectionWithoutPayingCost(ExileCounteredSpellInstead.EXILED_CARD),
                 descriptionOverride = "You may play that card without paying its mana cost"
             )

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -48,9 +47,9 @@ val LoafingGiant = card("Loafing Giant") {
             ),
             // If a land card was milled this way, prevent all combat damage this creature
             // would deal this turn.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch("milled", GameObjectFilter.Land),
-                effect = Effects.PreventCombatDamageFrom(GroupFilter.source())
+                then = Effects.PreventCombatDamageFrom(GroupFilter.source())
             )
         )
     )

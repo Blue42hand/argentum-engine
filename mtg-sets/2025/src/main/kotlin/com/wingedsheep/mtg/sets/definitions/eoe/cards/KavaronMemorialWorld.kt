@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -55,9 +54,9 @@ val KavaronMemorialWorld = card("Kavaron, Memorial World") {
             Costs.Tap,
             Costs.Sacrifice(GameObjectFilter.Land)
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = charge12,
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 listOf(
                     // Create a 2/2 colorless Robot artifact creature token
                     CreateTokenEffect(

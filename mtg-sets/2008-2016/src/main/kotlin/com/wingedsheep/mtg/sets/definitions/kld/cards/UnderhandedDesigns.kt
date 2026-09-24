@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The trigger takes `TriggerBinding.ANY` — an enchantment can never be the artifact that entered,
  * so "an artifact you control" is the whole group rather than "another". "You may pay {1}. If you
- * do, ..." is [MayPayManaEffect] (a `Gate.MayPay` over the payment), not a reflexive trigger.
+ * do, ..." is [Effects.MayPay] (a `Gate.MayPay` over the payment), not a reflexive trigger.
  */
 val UnderhandedDesigns = card("Underhanded Designs") {
     manaCost = "{1}{B}"
@@ -41,7 +40,7 @@ val UnderhandedDesigns = card("Underhanded Designs") {
             filter = GameObjectFilter.Artifact.youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             ManaCost.parse("{1}"),
             Effects.Composite(
                 Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),

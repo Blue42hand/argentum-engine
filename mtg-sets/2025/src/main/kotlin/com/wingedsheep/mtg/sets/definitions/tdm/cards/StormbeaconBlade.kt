@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Stormbeacon Blade — Tarkir: Dragonstorm #27
@@ -40,9 +39,9 @@ val StormbeaconBlade = card("Stormbeacon Blade") {
 
     triggeredAbility {
         trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.YouControlAtLeast(3, GameObjectFilter.Creature.attacking()),
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
     }
 

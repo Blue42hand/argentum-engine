@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -46,7 +45,7 @@ val HighSocietyHunter = card("High-Society Hunter") {
                 filter = TargetFilter(GameObjectFilter.Creature.youControl()).other()
             )
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget) then
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )

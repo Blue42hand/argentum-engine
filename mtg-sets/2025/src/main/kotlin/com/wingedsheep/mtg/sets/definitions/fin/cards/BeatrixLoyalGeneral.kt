@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  *  - **Trigger** — [Triggers.BeginCombat] is "at the beginning of combat on your turn"
  *    (`StepEvent(BEGIN_COMBAT, Player.You)`).
- *  - **"you may"** — a [MayEffect] wrapper: one yes/no decided up front (before targeting); "no"
+ *  - **"you may"** — a [Effects.May] wrapper: one yes/no decided up front (before targeting); "no"
  *    skips the whole effect. Beatrix always controls at least herself, so a legal target always
  *    exists and the may-question is always asked.
  *  - **Target** — only the creature is a *target* (the oracle says "target creature you control");
@@ -62,7 +61,7 @@ val BeatrixLoyalGeneral = card("Beatrix, Loyal General") {
         trigger = Triggers.BeginCombat
         val creature = target("target creature you control", Targets.CreatureYouControl)
         // "you may …" — a single yes/no decided before targeting; declining skips the whole effect.
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Pipeline {
                 // Look at the Equipment you control; choose any number of them.
                 val equipment = gather(

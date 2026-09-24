@@ -8,11 +8,9 @@ import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseOptionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.OptionType
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
@@ -35,7 +33,7 @@ import com.wingedsheep.sdk.dsl.Effects
  * the chosen type, put that card onto the battlefield instead of putting it into your hand.
  *
  * Implementation note: Oracle text frames the type-choice + behold as a cast-time additional
- * cost. We model the entire spell at resolution time as an optional MayEffect that chooses
+ * cost. We model the entire spell at resolution time as an optional Effects.May that chooses
  * a creature type and reveals two matching creatures from your battlefield + hand. Because
  * Behold has no cost component (it does not exile or pay anything), evaluating it at
  * resolution time produces equivalent gameplay: the chosen type is stored in
@@ -58,7 +56,7 @@ val CelestialReunion = card("Celestial Reunion") {
         effect = Effects.Composite(
             listOf(
                 // Optional: choose a creature type and behold two creatures of that type.
-                MayEffect(
+                Effects.May(
                     descriptionOverride = "Choose a creature type and behold two creatures of that type?",
                     effect = Effects.Composite(
                         listOf(
@@ -105,17 +103,17 @@ val CelestialReunion = card("Celestial Reunion") {
                 // Searcher just picked the card — reveal it to opponents only.
                 RevealCollectionEffect(from = "found", revealToSelf = false),
                 // If beheld and revealed card matches the chosen type → battlefield, else → hand.
-                ConditionalEffect(
+                Effects.If(
                     condition = CollectionContainsMatch(
                         collection = "found",
                         filter = GameObjectFilter.Creature
                             .withSubtypeFromVariable("chosenCreatureType")
                     ),
-                    effect = MoveCollectionEffect(
+                    then = MoveCollectionEffect(
                         from = "found",
                         destination = CardDestination.ToZone(Zone.BATTLEFIELD)
                     ),
-                    elseEffect = MoveCollectionEffect(
+                    otherwise = MoveCollectionEffect(
                         from = "found",
                         destination = CardDestination.ToZone(Zone.HAND)
                     )

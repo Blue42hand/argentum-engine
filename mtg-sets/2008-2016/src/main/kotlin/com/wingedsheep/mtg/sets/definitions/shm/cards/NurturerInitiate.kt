@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *   [Triggers.anyPlayerCasts] (ANY binding) rather than a "whenever you cast" trigger.
  * - The target is chosen when the ability goes on the stack (a `targetRequirement` on the trigger),
  *   *before* the optional {1} is paid — declining the payment still consumed the target choice.
- * - "You may pay {1}. If you do, …" is the [MayPayManaEffect] gate; the pump is the gate's `then`,
+ * - "You may pay {1}. If you do, …" is the [Effects.MayPay] gate; the pump is the gate's `then`,
  *   so nothing happens if the controller declines.
  */
 val NurturerInitiate = card("Nurturer Initiate") {
@@ -37,9 +36,9 @@ val NurturerInitiate = card("Nurturer Initiate") {
     triggeredAbility {
         trigger = Triggers.anyPlayerCasts(GameObjectFilter.Any.withColor(Color.GREEN))
         val creature = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.ModifyStats(1, 1, creature)
+            then = Effects.ModifyStats(1, 1, creature)
         )
         description = "Whenever a player casts a green spell, you may pay {1}. If you do, " +
             "target creature gets +1/+1 until end of turn."

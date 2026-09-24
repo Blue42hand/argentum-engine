@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -48,9 +47,9 @@ val FlashConscription = card("Flash Conscription") {
             .then(Effects.GainControl(conscript, Duration.EndOfTurn))
             .then(Effects.GrantKeyword(Keyword.HASTE, conscript))
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ManaSpentToCastIncludes(requiredWhite = 1),
-                    effect = GrantTriggeredAbilityEffect(
+                    then = GrantTriggeredAbilityEffect(
                         ability = TriggeredAbility.create(
                             trigger = Triggers.dealsDamage(damageType = DamageType.Combat).event,
                             binding = Triggers.dealsDamage(damageType = DamageType.Combat).binding,

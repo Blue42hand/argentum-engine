@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 
@@ -50,7 +49,7 @@ val NorinSwiftSurvivalist = card("Norin, Swift Survivalist") {
             filter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(listOf(
                 GatherCardsEffect(
                     source = CardSource.TriggeringEntity,

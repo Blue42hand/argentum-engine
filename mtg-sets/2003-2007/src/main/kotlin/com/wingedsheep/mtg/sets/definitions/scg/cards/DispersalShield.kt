@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -24,11 +23,11 @@ val DispersalShield = card("Dispersal Shield") {
 
     spell {
         target = Targets.Spell
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetSpellManaValueAtMost(
                 DynamicAmounts.battlefield(Player.You).maxManaValue()
             ),
-            effect = Effects.CounterSpell()
+            then = Effects.CounterSpell()
         )
     }
 

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -43,9 +42,9 @@ val DriftgloomCoyote = card("Driftgloom Coyote") {
             TargetCreature(filter = TargetFilter(com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.opponentControls()))
         )
         // Check power condition first (while creature is still on battlefield), then exile
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetPowerAtMost(DynamicAmount.Fixed(2)),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         ).then(Effects.ExileUntilLeaves(creature))
     }
 

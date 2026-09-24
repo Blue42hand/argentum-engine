@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -80,13 +79,13 @@ val CallTheSpiritDragons = card("Call the Spirit Dragons") {
         }
 
         // If five different Dragons received a +1/+1 counter this way, you win the game.
-        val winIfFiveDistinct = ConditionalEffect(
+        val winIfFiveDistinct = Effects.If(
             condition = Compare(
                 DynamicAmounts.distinctEntitiesIn(*perColor.map { it.second }.toTypedArray()),
                 ComparisonOperator.GTE,
                 DynamicAmount.Fixed(5)
             ),
-            effect = Effects.WinGame(message = "Five spirit Dragons answered the call.")
+            then = Effects.WinGame(message = "Five spirit Dragons answered the call.")
         )
 
         effect = Effects.Composite(counterSteps + winIfFiveDistinct)

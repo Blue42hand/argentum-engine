@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,8 +31,8 @@ val SeymourFlux = card("Seymour Flux") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = GatedEffect(
-            gate = Gate.MayPay(PayLifeEffect(1)),
+        effect = Effects.MayPay(
+            cost = PayLifeEffect(1),
             then = Effects.Composite(
                 Effects.DrawCards(1),
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

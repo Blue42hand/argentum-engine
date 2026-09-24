@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Elder Cathar
@@ -32,12 +31,12 @@ val ElderCathar = card("Elder Cathar") {
     triggeredAbility {
         trigger = Triggers.Dies
         val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(
                 GameObjectFilter.Creature.withSubtype(Subtype.HUMAN),
             ),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
-            elseEffect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
+            otherwise = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
         )
     }
 

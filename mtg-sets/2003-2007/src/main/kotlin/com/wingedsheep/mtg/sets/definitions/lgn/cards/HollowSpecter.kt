@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayXForEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -40,8 +39,8 @@ val HollowSpecter = card("Hollow Specter") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = MayPayXForEffect(
-            effect = Effects.Composite(
+        effect = Effects.MayPayX(
+            then = Effects.Composite(
                 listOf(
                     // 1. Gather all cards from damaged player's hand
                     GatherCardsEffect(

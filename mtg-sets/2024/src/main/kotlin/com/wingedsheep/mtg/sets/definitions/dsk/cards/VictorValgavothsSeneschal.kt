@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
@@ -96,19 +95,19 @@ val VictorValgavothsSeneschal = card("Victor, Valgavoth's Seneschal") {
 private fun eerieEscalation(): Effect = Effects.Composite(
     IncrementAbilityResolutionCountEffect,
     // 1st time — surveil 2.
-    ConditionalEffect(
+    Effects.If(
         condition = Conditions.SourceAbilityResolvedNTimes(1),
-        effect = Patterns.Library.surveil(2),
+        then = Patterns.Library.surveil(2),
     ),
     // 2nd time — each opponent discards a card.
-    ConditionalEffect(
+    Effects.If(
         condition = Conditions.SourceAbilityResolvedNTimes(2),
-        effect = Effects.EachOpponentDiscards(1),
+        then = Effects.EachOpponentDiscards(1),
     ),
     // 3rd time — put a creature card from a graveyard onto the battlefield under your control.
-    ConditionalEffect(
+    Effects.If(
         condition = Conditions.SourceAbilityResolvedNTimes(3),
-        effect = Effects.Composite(
+        then = Effects.Composite(
             GatherCardsEffect(
                 source = CardSource.FromZone(Zone.GRAVEYARD, Player.Each, GameObjectFilter.Creature),
                 storeAs = "victorReanimatable",

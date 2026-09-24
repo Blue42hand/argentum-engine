@@ -79,8 +79,8 @@ val KellanTheKid = card("Kellan, the Kid") {
                 ),
                 Effects.CastFromCollectionWithoutPayingCost("kellanChosen", storeCastTo = "kellanCast"),
             ),
-            ifYouDo = Effects.Composite(emptyList()),
-            ifYouDont = Patterns.Hand.putFromHand(GameObjectFilter.Land),
+            then = Effects.Composite(emptyList()),
+            otherwise = Patterns.Hand.putFromHand(GameObjectFilter.Land),
             successCriterion = SuccessCriterion.CollectionNonEmpty("kellanCast"),
         )
     }

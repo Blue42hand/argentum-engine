@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
@@ -72,8 +70,8 @@ val TransmuteArtifact = card("Transmute Artifact") {
                 moveType = MoveType.Sacrifice
             ),
             // If you sacrificed one, search and (conditionally) put the found artifact into play.
-            GatedEffect(
-                gate = Gate.WhenCondition(CollectionContainsMatch("sacrificed")),
+            Effects.If(
+                condition = CollectionContainsMatch("sacrificed"),
                 then = Effects.Composite(listOf(
                     GatherCardsEffect(
                         source = CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Artifact),
@@ -86,29 +84,24 @@ val TransmuteArtifact = card("Transmute Artifact") {
                         storeSelected = "found",
                         prompt = "Search your library for an artifact card"
                     ),
-                    GatedEffect(
-                        // found MV ≤ sacrificed MV → free to battlefield.
-                        gate = Gate.WhenCondition(
-                            Compare(
+                    Effects.If(
+                        condition = Compare(
                                 left = DynamicAmount.StoredCardManaValue("found"),
                                 operator = ComparisonOperator.LTE,
                                 right = DynamicAmount.StoredCardManaValue("sacrificed")
-                            )
-                        ),
+                            ),
                         then = MoveCollectionEffect(
                             from = "found",
                             destination = CardDestination.ToZone(Zone.BATTLEFIELD)
                         ),
                         // found MV > sacrificed MV → you may pay {X} = the difference.
-                        otherwise = GatedEffect(
-                            gate = Gate.MayPay(
-                                Effects.PayDynamicMana(
+                        otherwise = Effects.MayPay(
+                            cost = Effects.PayDynamicMana(
                                     DynamicAmount.Subtract(
                                         DynamicAmount.StoredCardManaValue("found"),
                                         DynamicAmount.StoredCardManaValue("sacrificed")
                                     )
-                                )
-                            ),
+                                ),
                             then = MoveCollectionEffect(
                                 from = "found",
                                 destination = CardDestination.ToZone(Zone.BATTLEFIELD)

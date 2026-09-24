@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -60,11 +59,11 @@ private val HydaelynTheMothercrystal = card("Hydaelyn, the Mothercrystal") {
         effect = Effects.Composite(
             Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.UntilYourNextTurn),
-            ConditionalEffect(
+            Effects.If(
                 // "If that creature is legendary, draw a card." The +1/+1 target is the first (only)
                 // chosen target, so test it via ContextTarget(0) like Blessing of Belzenlok.
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary()),
-                effect = Effects.DrawCards(1),
+                then = Effects.DrawCards(1),
             ),
         )
     }

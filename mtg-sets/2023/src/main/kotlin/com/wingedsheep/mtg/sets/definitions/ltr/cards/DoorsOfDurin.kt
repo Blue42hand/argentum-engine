@@ -14,10 +14,8 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
@@ -44,7 +42,7 @@ val DoorsOfDurin = card("Doors of Durin") {
     triggeredAbility {
         trigger = Triggers.YouAttack
         effect = Patterns.Library.scry(2).then(
-            MayEffect(
+            Effects.May(
                 effect = Effects.Composite(listOf(
                     GatherCardsEffect(
                         source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You),
@@ -64,17 +62,17 @@ val DoorsOfDurin = card("Doors of Durin") {
                             ZonePlacement.TappedAndAttacking
                         )
                     ),
-                    ConditionalEffect(
+                    Effects.If(
                         condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withSubtype("Dwarf")),
-                        effect = Effects.GrantKeyword(
+                        then = Effects.GrantKeyword(
                             Keyword.TRAMPLE,
                             EffectTarget.PipelineTarget("topCreature"),
                             Duration.UntilYourNextTurn
                         )
                     ),
-                    ConditionalEffect(
+                    Effects.If(
                         condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withSubtype("Elf")),
-                        effect = Effects.GrantKeyword(
+                        then = Effects.GrantKeyword(
                             Keyword.HEXPROOF,
                             EffectTarget.PipelineTarget("topCreature"),
                             Duration.UntilYourNextTurn

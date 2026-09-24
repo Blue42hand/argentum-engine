@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -96,9 +95,9 @@ val IronManArmor = card("Iron Man Armor") {
     // with flying and "This creature gets +1/+1 for each artifact you control" until end of turn.
     activatedAbility {
         cost = Costs.Mana("{2}")
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceMatches(GameObjectFilter.Noncreature),
-            effect = BecomeCreatureEffect(
+            then = BecomeCreatureEffect(
                 target = EffectTarget.Self,
                 power = DynamicAmount.Fixed(0),
                 toughness = DynamicAmount.Fixed(0),

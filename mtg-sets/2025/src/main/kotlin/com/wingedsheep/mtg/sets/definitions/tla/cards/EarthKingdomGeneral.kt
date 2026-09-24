@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -36,7 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * `placedBy = Player.You` — the recipient filter is unrestricted, so the "you put" scope comes from
  * the placer selector (CR 122.6a), not from a "you control" recipient filter; a counter placed by
  * an opponent doesn't fire it. Gains `TRIGGER_COUNTERS_PLACED_AMOUNT` ("that much") life, wrapped in
- * `MayEffect` for the "may" (a bare `optional = true` is ignored on a no-target ability, like
+ * `Effects.May` for the "may" (a bare `optional = true` is ignored on a no-target ability, like
  * Terrasymbiosis) plus `effectOncePerTurn = true` for "Do this only once each turn" — CR 603.2h,
  * the rider keyed to the action rather than the trigger cap.
  */
@@ -71,10 +70,10 @@ val EarthKingdomGeneral = card("Earth Kingdom General") {
         // using Earth Kingdom General's second ability, that ability won't trigger again that
         // turn" (Scryfall ruling). Declining a small placement keeps a bigger one later live.
         effectOncePerTurn = true
-        // The "you may" is a MayEffect, not a bare `optional = true` — the engine ignores that
+        // The "you may" is a Effects.May, not a bare `optional = true` — the engine ignores that
         // flag on a no-target ability with no elseEffect (same as Terrasymbiosis), gaining the life
         // unconditionally instead of offering the choice.
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.GainLife(
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_COUNTERS_PLACED_AMOUNT)
             )

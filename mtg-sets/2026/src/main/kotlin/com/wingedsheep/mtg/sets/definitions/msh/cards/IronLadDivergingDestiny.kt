@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -56,12 +55,12 @@ val IronLadDivergingDestiny = card("Iron Lad, Diverging Destiny") {
                     storeAs = "ironLadRevealed",
                     revealed = true,
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch(
                         "ironLadRevealed",
                         GameObjectFilter.Artifact,
                     ),
-                    effect = Effects.DrawCards(1),
+                    then = Effects.DrawCards(1),
                 ),
             )
         )

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.core.Step
 
@@ -33,9 +32,9 @@ val SystemsOverride = card("Systems Override") {
                 Effects.GainControl(target, Duration.EndOfTurn),
                 Effects.Untap(target),
                 Effects.GrantKeyword(Keyword.HASTE, target),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Spacecraft")),
-                    effect = Effects.Composite(
+                    then = Effects.Composite(
                         listOf(
                             AddCountersEffect(Counters.CHARGE, 10, target),
                             CreateDelayedTriggerEffect(

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.maxSpeed
 import com.wingedsheep.sdk.dsl.startYourEngines
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -30,9 +29,9 @@ val MendicantCoreGuidelight = card("Mendicant Core, Guidelight") {
     maxSpeed {
         triggeredAbility {
             trigger = Triggers.youCastSpell(GameObjectFilter.Artifact)
-            effect = MayPayManaEffect(
+            effect = Effects.MayPay(
                 cost = ManaCost.parse("{1}"),
-                effect = Effects.CopyTargetSpell(EffectTarget.TriggeringEntity)
+                then = Effects.CopyTargetSpell(EffectTarget.TriggeringEntity)
             )
         }
     }

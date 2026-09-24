@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -34,7 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *   3. narrow the nonland to mana value < the number of Mountains you control via
  *      [CollectionFilter.ManaValueAtMost] of `Mountains − 1` (integer "less than N" ⇔ "at most N−1")
  *      → `castable`,
- *   4. `MayEffect(CastFromCollectionWithoutPayingCost("castable"))` — you may cast it for free (no
+ *   4. `Effects.May(CastFromCollectionWithoutPayingCost("castable"))` — you may cast it for free (no
  *      candidate, so skipped, when the mana value isn't below your Mountain count),
  *   5. of the nonland, keep only the copy still in exile ([CollectionFilter.InZone] — a cast one has
  *      moved to the stack) → `uncast`, and put it into your hand.
@@ -83,7 +82,7 @@ val SolsticeRevelations = card("Solstice Revelations") {
                 // eligible nonland (no empty "may cast" when the mana value is too high).
                 ConditionalOnCollectionEffect(
                     collection = "castable",
-                    ifNotEmpty = MayEffect(Effects.CastFromCollectionWithoutPayingCost("castable"))
+                    ifNotEmpty = Effects.May(Effects.CastFromCollectionWithoutPayingCost("castable"))
                 ),
                 // If you don't cast it this way, put it into your hand. A card just cast has left
                 // exile for the stack, so only the nonland still in exile moves.

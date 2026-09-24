@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -39,7 +38,7 @@ val TurtlesInTime = card("Turtles in Time") {
                 Effects.ForEachPlayer(
                     Player.Each,
                     listOf(
-                        MayEffect(
+                        Effects.May(
                             Effects.Composite(
                                 listOf(
                                     GatherCardsEffect(

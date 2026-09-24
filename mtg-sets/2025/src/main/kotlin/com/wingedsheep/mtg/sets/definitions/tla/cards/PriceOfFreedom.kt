@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * Same Path-to-Exile-style compensation shape as [com.wingedsheep.mtg.sets.definitions.fin.cards.Sandworm]:
  * the destroy resolves first, then the destroyed permanent's controller — not the caster —
- * gets the optional basic-land search, so the [MayEffect] gate and the search pipeline are
+ * gets the optional basic-land search, so the [Effects.May] gate and the search pipeline are
  * delegated to [EffectTarget.TargetController] / [Player.ControllerOf]. "Its controller"
  * resolves from the targeted permanent at resolution; since it has just left the battlefield,
  * it falls back to its owner (last-known controller for a permanent that left play). Finally
@@ -49,7 +48,7 @@ val PriceOfFreedom = card("Price of Freedom") {
         target = TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactOrLand.opponentControls()))
         effect = Effects.Destroy(EffectTarget.ContextTarget(0))
             .then(
-                MayEffect(
+                Effects.May(
                     effect = Effects.Composite(
                         listOf(
                             GatherCardsEffect(

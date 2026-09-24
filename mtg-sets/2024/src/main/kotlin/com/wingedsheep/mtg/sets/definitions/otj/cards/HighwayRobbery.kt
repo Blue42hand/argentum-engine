@@ -44,7 +44,7 @@ val HighwayRobbery = card("Highway Robbery") {
                 Mode(
                     effect = Effects.IfYouDo(
                         action = Effects.Discard(1, EffectTarget.Controller),
-                        ifYouDo = Effects.DrawCards(2)
+                        then = Effects.DrawCards(2)
                     ),
                     description = "Discard a card, then draw two cards"
                 ),
@@ -60,7 +60,7 @@ val HighwayRobbery = card("Highway Robbery") {
                             )
                             sacrifice(chosen)
                         },
-                        ifYouDo = Effects.DrawCards(2)
+                        then = Effects.DrawCards(2)
                     ),
                     description = "Sacrifice a land, then draw two cards"
                 )

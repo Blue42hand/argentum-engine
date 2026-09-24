@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -34,10 +32,10 @@ val FormidableSpeaker = card("Formidable Speaker") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Patterns.Library.searchLibrary(
+                then = Patterns.Library.searchLibrary(
                     filter = GameObjectFilter.Creature,
                     count = 1,
                     destination = SearchDestination.HAND,

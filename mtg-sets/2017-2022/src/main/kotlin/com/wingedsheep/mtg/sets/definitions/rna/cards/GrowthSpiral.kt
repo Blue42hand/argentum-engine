@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-
 
 /**
  * Growth Spiral
@@ -27,7 +25,7 @@ val GrowthSpiral = card("Growth Spiral") {
     spell {
         effect = Effects.Composite(
             DrawCardsEffect(1),
-            MayEffect(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land))
+            Effects.May(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land))
         )
     }
     metadata {

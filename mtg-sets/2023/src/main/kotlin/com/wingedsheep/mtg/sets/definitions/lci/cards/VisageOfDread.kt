@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
@@ -50,7 +49,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - "Whenever this creature enters or attacks" on the back face follows the repo's
  *    established idiom for that wording (Sentinel of the Nameless City, Queen's Bay
  *    Paladin): TWO triggered abilities — [Triggers.EntersBattlefield] and
- *    [Triggers.Attacks] — sharing the same `MayEffect(Patterns.Library.mill(2))`
+ *    [Triggers.Attacks] — sharing the same `Effects.May(Patterns.Library.mill(2))`
  *    effect, which is functionally equivalent to a single or-trigger (there is no
  *    single enters-or-attacks TriggerSpec in the SDK).
  */
@@ -121,12 +120,12 @@ private val DreadOsseosaur = card("Dread Osseosaur") {
     // same effect (the repo's established idiom for this wording).
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(Patterns.Library.mill(2))
+        effect = Effects.May(Patterns.Library.mill(2))
     }
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(Patterns.Library.mill(2))
+        effect = Effects.May(Patterns.Library.mill(2))
     }
 
     metadata {

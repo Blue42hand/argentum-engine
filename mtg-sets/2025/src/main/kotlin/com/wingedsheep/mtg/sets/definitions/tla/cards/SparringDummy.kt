@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -62,12 +61,12 @@ val SparringDummy = card("Sparring Dummy") {
                     destination = CardDestination.ToZone(Zone.HAND)
                 ),
                 // You gain 2 life if a Lesson card is milled this way.
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch(
                         "milled",
                         GameObjectFilter.Any.withSubtype(Subtype.LESSON)
                     ),
-                    effect = Effects.GainLife(2)
+                    then = Effects.GainLife(2)
                 )
             )
         )

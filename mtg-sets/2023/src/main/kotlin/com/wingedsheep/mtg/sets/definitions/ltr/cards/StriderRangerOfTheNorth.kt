@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Strider, Ranger of the North
@@ -33,9 +32,9 @@ val StriderRangerOfTheNorth = card("Strider, Ranger of the North") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(1, 1, creature)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.powerAtLeast(4)),
-                    effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
+                    then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
                 )
             )
     }

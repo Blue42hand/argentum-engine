@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -31,9 +30,9 @@ val ConsumingAshes = card("Consuming Ashes") {
     spell {
         val creature = target("creature", Targets.Creature)
         effect = Effects.Exile(creature).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetSpellManaValueAtMost(DynamicAmount.Fixed(3)),
-                effect = Patterns.Library.surveil(2)
+                then = Patterns.Library.surveil(2)
             )
         )
     }

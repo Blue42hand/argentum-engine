@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
@@ -48,7 +47,7 @@ val GandalfTheGrey = card("Gandalf the Grey") {
         effect = ModalEffect.chooseOneNotYetChosen(
             // • You may tap or untap target permanent.
             Mode.withTarget(
-                MayEffect(
+                Effects.May(
                     Effects.ChooseAction(
                         listOf(
                             EffectChoice("Tap it", Effects.Tap(EffectTarget.ContextTarget(0))),

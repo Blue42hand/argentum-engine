@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,10 +32,10 @@ val TakeTheFall = card("Take the Fall") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.Composite(
             listOf(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControl(Filters.OutlawCreature),
-                    effect = Effects.ModifyStats(-4, 0, creature),
-                    elseEffect = Effects.ModifyStats(-1, 0, creature)
+                    then = Effects.ModifyStats(-4, 0, creature),
+                    otherwise = Effects.ModifyStats(-1, 0, creature)
                 ),
                 DrawCardsEffect(1, EffectTarget.Controller)
             )

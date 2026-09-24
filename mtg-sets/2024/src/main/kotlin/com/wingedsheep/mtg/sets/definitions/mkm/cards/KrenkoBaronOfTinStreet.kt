@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -58,9 +57,9 @@ val KrenkoBaronOfTinStreet = card("Krenko, Baron of Tin Street") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY,
         )
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.CreateToken(
                     power = 1,
                     toughness = 1,

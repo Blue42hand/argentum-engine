@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 
 /**
@@ -42,7 +41,7 @@ val HarvesterOfSouls = card("Harvester of Souls") {
             ),
             binding = TriggerBinding.OTHER,
         )
-        effect = MayEffect(Effects.DrawCards(1))
+        effect = Effects.May(Effects.DrawCards(1))
     }
 
     metadata {

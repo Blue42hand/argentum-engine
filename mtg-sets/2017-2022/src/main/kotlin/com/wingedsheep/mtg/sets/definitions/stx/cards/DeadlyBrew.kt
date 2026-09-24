@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -37,7 +36,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - `Effects.Sacrifice(CreatureOrPlaneswalker, count=1, target=Player.Each)` — each player
  *    auto-sacrifices a sole eligible permanent or chooses among multiples. The snapshots
  *    flow into `EffectContext.sacrificedPermanents` so the rider can read them.
- *  - The rider is a `ConditionalEffect` gated on `YouSacrificedThisWay`.
+ *  - The rider is a `Effects.If` gated on `YouSacrificedThisWay`.
  *  - The recursion half is the standard Gather → Select(`ChooseUpTo(1)`) → Move pipeline
  *    against your graveyard. `excludeSacrificedThisWay = true` keeps the permanent you just
  *    sacrificed (now in your graveyard) out of the "another permanent card" choice.
@@ -56,9 +55,9 @@ val DeadlyBrew = card("Deadly Brew") {
             count = 1,
             target = EffectTarget.PlayerRef(Player.Each)
         ).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouSacrificedThisWay,
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     listOf(
                         GatherCardsEffect(
                             source = CardSource.FromZone(

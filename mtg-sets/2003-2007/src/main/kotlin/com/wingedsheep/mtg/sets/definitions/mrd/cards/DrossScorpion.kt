@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * The Scorpion's own death fires this, which is the card's whole point in an untap-for-value deck:
  * the trigger is put on the stack from the graveyard as a leaves-the-battlefield trigger, so it
  * still resolves after the body is gone. The target is chosen as the trigger goes on the stack; the
- * "may" is a resolution-time decline ([MayEffect]), so declining still uses up the trigger.
+ * "may" is a resolution-time decline ([Effects.May]), so declining still uses up the trigger.
  */
 val DrossScorpion = card("Dross Scorpion") {
     manaCost = "{4}"
@@ -41,7 +40,7 @@ val DrossScorpion = card("Dross Scorpion") {
             binding = TriggerBinding.ANY
         )
         val artifact = target("target artifact", TargetPermanent(filter = TargetFilter.Artifact))
-        effect = MayEffect(Effects.Untap(artifact))
+        effect = Effects.May(Effects.Untap(artifact))
         description = "Whenever this creature or another artifact creature dies, you may untap target artifact."
     }
 

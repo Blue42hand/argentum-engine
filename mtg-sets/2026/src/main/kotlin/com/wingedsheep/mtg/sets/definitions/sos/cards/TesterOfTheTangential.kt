@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.increment
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayXForEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * At the beginning of combat on your turn, you may pay {X}. When you do, move X +1/+1 counters
  * from this creature onto another target creature.
  *
- * The second ability is a may-pay-{X} reflexive: [MayPayXForEffect] pauses for the X chooser and
+ * The second ability is a may-pay-{X} reflexive: [Effects.MayPayX] pauses for the X chooser and
  * binds the chosen X into [DynamicAmount.XValue], then resolves its inner pipeline — select
  * "another target creature", then [Effects.MoveCounters] moves X +1/+1 counters from this creature
  * (capped at the number present) onto the selected target. Targeting happens after the payment, as
@@ -42,8 +41,8 @@ val TesterOfTheTangential = card("Tester of the Tangential") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = MayPayXForEffect(
-            effect = Effects.SelectTarget(TargetCreature(filter = TargetFilter.OtherCreature), "moveTarget")
+        effect = Effects.MayPayX(
+            then = Effects.SelectTarget(TargetCreature(filter = TargetFilter.OtherCreature), "moveTarget")
                 .then(
                     Effects.MoveCounters(
                         counterType = Counters.PLUS_ONE_PLUS_ONE,

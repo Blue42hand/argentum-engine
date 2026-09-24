@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - The recursion ability fires from the graveyard via [triggerZone] = [Zone.GRAVEYARD], the same
  *    shape as Invasion's Pyre Zombie.
  *  - "your second card each turn" is [Triggers.NthCardDrawn] (n = 2, Player.You).
- *  - "you may pay {B}. If you do, ..." is a [MayPayManaEffect]; the payoff returns this card from
+ *  - "you may pay {B}. If you do, ..." is a [Effects.MayPay]; the payoff returns this card from
  *    the graveyard to the battlefield ([EffectTarget.Self]) and stamps a finality counter on it
  *    via [AddCountersEffect] / [Counters.FINALITY] (death replacement handled engine-side).
  */
@@ -47,9 +46,9 @@ val Wolfbat = card("Wolfbat") {
     triggeredAbility {
         trigger = Triggers.NthCardDrawn(2)
         triggerZone = Zone.GRAVEYARD
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
                 AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = EffectTarget.Self),
             ),

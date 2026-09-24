@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -32,7 +31,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Queller's last ability. The player can't wait to cast it later in the turn. Timing permissions
  * based on the card's type are ignored." That is exactly
  * [Effects.CastFromCollectionWithoutPayingCost] — a synthesized cast during resolution, like
- * Cascade — wrapped in a [MayEffect] for "may".
+ * Cascade — wrapped in a [Effects.May] for "may".
  *
  * The chooser and caster is the exiled card's *owner*, not this creature's controller, so both run
  * inside [Effects.ForEachPlayer] over [Player.OwnersOfLinkedExile], which rebinds the controller to
@@ -67,7 +66,7 @@ val SpellQueller = card("Spell Queller") {
             players = Player.OwnersOfLinkedExile,
             effects = listOf(
                 GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "quelledCard"),
-                MayEffect(
+                Effects.May(
                     Effects.CastFromCollectionWithoutPayingCost("quelledCard"),
                     descriptionOverride = "Cast the exiled card without paying its mana cost"
                 )

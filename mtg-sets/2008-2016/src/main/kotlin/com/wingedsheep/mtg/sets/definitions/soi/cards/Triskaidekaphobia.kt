@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * "Each player with exactly 13 life loses the game" is a [ForEachPlayerEffect] (APNAP order) whose
  * body rebinds the controller context to the iterated player, so [DynamicAmount.LifeTotal] of
- * [Player.You] reads *that* player's life (see Pox Plague) — a per-player [ConditionalEffect]
+ * [Player.You] reads *that* player's life (see Pox Plague) — a per-player [Effects.If]
  * makes them lose the game when it equals 13. Both modes share that clause; only the trailing
  * "each player gains / loses 1 life" differs.
  */
@@ -42,13 +41,13 @@ val Triskaidekaphobia = card("Triskaidekaphobia") {
         val eachPlayerWith13LosesTheGame = ForEachPlayerEffect(
             Player.ActivePlayerFirst,
             listOf(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CompareAmounts(
                         DynamicAmount.LifeTotal(Player.You),
                         ComparisonOperator.EQ,
                         DynamicAmount.Fixed(13)
                     ),
-                    effect = Effects.LoseGame()
+                    then = Effects.LoseGame()
                 )
             )
         )

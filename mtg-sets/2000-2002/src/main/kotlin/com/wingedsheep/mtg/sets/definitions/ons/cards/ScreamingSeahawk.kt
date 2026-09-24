@@ -1,13 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
+
 /**
  * Screaming Seahawk
  * {4}{U}
@@ -29,7 +30,7 @@ val ScreamingSeahawk = card("Screaming Seahawk") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any.named("Screaming Seahawk"),
                 count = 1,

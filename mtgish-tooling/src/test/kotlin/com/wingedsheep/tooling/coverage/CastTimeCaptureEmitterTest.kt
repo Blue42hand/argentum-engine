@@ -12,7 +12,7 @@ import kotlinx.serialization.json.JsonObject
  * Regression net for the `Modal_IfElse` "as you cast this spell" cast-time condition-capture handler
  * (CR 601.2i). Hermetic: feeds Steer Clear's exact mtgish IR (no 29 MB corpus, no network) and pins
  * that the emitter renders the cast-time form — `captureAtCast(...)` + `Conditions.CapturedAtCast(...)`
- * over a `ConditionalEffect`, NOT a resolution-time conditional that would test the Mount at the wrong
+ * over a `Effects.If`, NOT a resolution-time conditional that would test the Mount at the wrong
  * time. The two {X}-valued cards sharing the envelope (Faerie Fencing, Flame Discharge) intentionally
  * decline to SCAFFOLD through the inner effect renderer, so this fixed-damage card is the AUTO case.
  */

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -18,7 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * When this enchantment enters, each opponent loses 1 life, you gain 1 life, and you draw a card.
  * Whenever you commit a crime, you may return this enchantment to its owner's hand.
  *
- * The crime trigger uses [MayEffect] (a yes/no decision gate) so the controller may decline the
+ * The crime trigger uses [Effects.May] (a yes/no decision gate) so the controller may decline the
  * whole bounce — `optional = true` on a trigger only loosens target minimums, not the effect
  * itself. Returning happens only from the battlefield (the [Effects.ReturnToHand] of
  * [EffectTarget.Self] is a no-op if the source has already left), which matches the reminder text.
@@ -48,7 +47,7 @@ val IntimidationCampaign = card("Intimidation Campaign") {
 
     triggeredAbility {
         trigger = Triggers.YouCommitCrime
-        effect = MayEffect(Effects.ReturnToHand(EffectTarget.Self))
+        effect = Effects.May(Effects.ReturnToHand(EffectTarget.Self))
         description = "Whenever you commit a crime, you may return this enchantment to its owner's hand."
     }
 

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Unravel
@@ -28,14 +27,14 @@ val Unravel = card("Unravel") {
 
     spell {
         target = Targets.Spell
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Compare(
                 left = DynamicAmounts.targetManaSpent(),
                 operator = ComparisonOperator.LT,
                 right = DynamicAmounts.targetManaValue()
             ),
-            effect = Effects.CounterSpell().then(Effects.DrawCards(1)),
-            elseEffect = Effects.CounterSpell()
+            then = Effects.CounterSpell().then(Effects.DrawCards(1)),
+            otherwise = Effects.CounterSpell()
         )
     }
 

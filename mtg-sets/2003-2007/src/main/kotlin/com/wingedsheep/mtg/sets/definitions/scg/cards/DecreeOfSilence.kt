@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -46,13 +44,13 @@ val DecreeOfSilence = card("Decree of Silence") {
         effect = Effects.CounterTriggeringSpell()
             .then(Effects.AddCounters(Counters.DEPLETION, 1, EffectTarget.Self))
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Compare(
                         DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.DEPLETION)),
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(3)
                     ),
-                    effect = SacrificeSelfEffect
+                    then = SacrificeSelfEffect
                 )
             )
     }
@@ -64,7 +62,7 @@ val DecreeOfSilence = card("Decree of Silence") {
     triggeredAbility {
         trigger = Triggers.YouCycleThis
         val t = target("target spell", Targets.Spell)
-        effect = MayEffect(Effects.CounterSpell())
+        effect = Effects.May(Effects.CounterSpell())
     }
 
     metadata {

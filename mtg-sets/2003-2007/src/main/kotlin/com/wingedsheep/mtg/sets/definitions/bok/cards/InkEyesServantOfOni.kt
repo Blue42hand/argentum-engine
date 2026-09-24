@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.ninjutsu
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -40,7 +39,7 @@ val InkEyesServantOfOni = card("Ink-Eyes, Servant of Oni") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInGraveyard.ownedByOpponent()))
-        effect = MayEffect(Effects.PutOntoBattlefieldUnderYourControl(t))
+        effect = Effects.May(Effects.PutOntoBattlefieldUnderYourControl(t))
     }
 
     activatedAbility {

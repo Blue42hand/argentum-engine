@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
@@ -63,9 +62,9 @@ val AetherRift = card("Aether Rift") {
                     moveType = MoveType.Discard
                 ),
                 // If the discarded card was a creature, return it unless any player pays 5 life.
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch("discarded", GameObjectFilter.Creature),
-                    effect = Effects.UnlessAnyPlayerPays(
+                    then = Effects.UnlessAnyPlayerPays(
                         cost = Costs.pay.PayLife(5),
                         effect = MoveCollectionEffect(
                             from = "discarded",

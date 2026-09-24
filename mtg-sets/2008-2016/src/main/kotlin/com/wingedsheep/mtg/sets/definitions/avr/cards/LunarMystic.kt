@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 
 /**
@@ -31,8 +29,8 @@ val LunarMystic = card("Lunar Mystic") {
 
     triggeredAbility {
         trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Instant)
-        effect = GatedEffect(
-            gate = Gate.MayPay(PayManaCostEffect(ManaCost.parse("{1}"))),
+        effect = Effects.MayPay(
+            cost = PayManaCostEffect(ManaCost.parse("{1}")),
             then = Effects.DrawCards(1)
         )
     }

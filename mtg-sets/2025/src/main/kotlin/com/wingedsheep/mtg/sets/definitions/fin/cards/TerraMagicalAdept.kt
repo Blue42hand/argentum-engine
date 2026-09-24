@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
@@ -49,7 +48,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The chapter I–III copy is composed from atoms: `CreateTokenCopyOfTarget` (haste via addedKeywords,
  * sacrifice at the controller's next end step via sacrificeAtStep) publishes the token into
- * `CREATED_TOKENS`; a `ConditionalEffect` gated on that collection containing a Saga then runs
+ * `CREATED_TOKENS`; a `Effects.If` gated on that collection containing a Saga then runs
  * `AddCountersUpTo(LORE, 3, …)` so the controller may advance the copied Saga's chapters. Chapter IV
  * exile-returns Esper Terra front face up before the CR 714.4 final-chapter sacrifice applies (the
  * chapter is on the stack when lore reaches four, and on resolution the permanent is no longer a Saga),
@@ -73,12 +72,12 @@ private fun copyChapterEffect(chosen: EffectTarget): Effect = Effects.Composite(
     // "If it's a Saga, put up to three lore counters on it." The created token is in CREATED_TOKENS;
     // gate on it being a Saga, then let the controller choose 0..3 lore counters (advancing its
     // chapters). Copying a non-Saga enchantment offers no lore prompt.
-    ConditionalEffect(
+    Effects.If(
         condition = Conditions.CollectionContainsMatch(
             CREATED_TOKENS,
             GameObjectFilter.Enchantment.withSubtype(Subtype.SAGA),
         ),
-        effect = Effects.AddCountersUpTo(Counters.LORE, 3, EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
+        then = Effects.AddCountersUpTo(Counters.LORE, 3, EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
     ),
 )
 

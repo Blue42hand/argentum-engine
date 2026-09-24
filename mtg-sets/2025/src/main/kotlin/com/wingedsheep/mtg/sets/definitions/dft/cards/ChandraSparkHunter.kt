@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -88,7 +87,7 @@ val ChandraSparkHunter = card("Chandra, Spark Hunter") {
 
     // +2: You may sacrifice an artifact or discard a card. If you do, draw a card.
     loyaltyAbility(+2) {
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice(

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.champion
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 
@@ -48,7 +47,7 @@ val BoggartMob = card("Boggart Mob") {
             sourceFilter = GameObjectFilter.Permanent.withSubtype(Subtype.GOBLIN).youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.CreateToken(
                 power = 1,
                 toughness = 1,

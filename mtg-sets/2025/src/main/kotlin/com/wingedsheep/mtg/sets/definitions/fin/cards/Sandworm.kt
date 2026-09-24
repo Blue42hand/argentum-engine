@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -34,7 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * A Stone-Rain-shaped land destruction stapled to an ETB, with the same Path-to-Exile-style
  * compensation as [com.wingedsheep.mtg.sets.definitions.sos.cards.Erode]: the destroy resolves
  * first, then the destroyed land's controller — not Sandworm's controller — gets the optional
- * search, so the [MayEffect] gate is delegated to [EffectTarget.TargetController] and the search
+ * search, so the [Effects.May] gate is delegated to [EffectTarget.TargetController] and the search
  * pipeline is scoped to [Player.ControllerOf] (library to gather from, battlefield to put the basic
  * onto tapped, and the library to shuffle). "Its controller" resolves from the targeted land at
  * resolution; since the land has just left the battlefield, it falls back to its owner (the standard
@@ -55,7 +54,7 @@ val Sandworm = card("Sandworm") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val land = target("target land", Targets.Land)
-        effect = Effects.Destroy(land) then MayEffect(
+        effect = Effects.Destroy(land) then Effects.May(
             effect = Effects.Composite(
                 listOf(
                     GatherCardsEffect(

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -42,9 +41,9 @@ val DromarTheBanisher = card("Dromar, the Banisher") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{U}"),
-            effect = Effects.ChooseColorThen(
+            then = Effects.ChooseColorThen(
                 then = Effects.Composite(
                     listOf(
                         GatherCardsEffect(

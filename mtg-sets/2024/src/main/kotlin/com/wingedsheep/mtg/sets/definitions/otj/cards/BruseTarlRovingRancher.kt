@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
@@ -66,9 +65,9 @@ private val bruseTarlBody = Effects.Composite(
             storeNonMatching = "nonLandCards",
         ),
         // Land: create a 2/2 white Ox token (the land stays in exile, unused).
-        ConditionalEffect(
+        Effects.If(
             condition = Conditions.CollectionContainsMatch("landCards", GameObjectFilter.Land),
-            effect = Effects.CreateToken(
+            then = Effects.CreateToken(
                 power = 2,
                 toughness = 2,
                 colors = setOf(Color.WHITE),

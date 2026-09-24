@@ -79,8 +79,8 @@ val AinokWayfarer = card("Ainok Wayfarer") {
                             )
                         )
                     ),
-                    ifYouDo = Effects.Composite(),
-                    ifYouDont = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    then = Effects.Composite(),
+                    otherwise = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
             )
         )

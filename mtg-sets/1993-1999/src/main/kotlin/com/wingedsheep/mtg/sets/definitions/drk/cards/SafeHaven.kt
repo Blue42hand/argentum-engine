@@ -48,7 +48,7 @@ val SafeHaven = card("Safe Haven") {
         optional = true
         effect = Effects.IfYouDo(
             action = Effects.SacrificeTarget(EffectTarget.Self),
-            ifYouDo = Effects.ReturnLinkedExileUnderOwnersControl(),
+            then = Effects.ReturnLinkedExileUnderOwnersControl(),
             // "If you do" gates on the sacrifice actually happening. A sacrifice is a zone move,
             // but Auto can't infer it from the action's shape, and Always would fail open — a
             // Safe Haven that has already left the battlefield would still return its exiles.

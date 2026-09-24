@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -40,7 +39,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - ETB loots via [Patterns.Hand.discardAnyNumber] (stores the discard count under `discarded`),
  *    then draws `discarded_count + 1` ([DynamicAmount.Add] of the stored count and one).
  *  - End-step [Conditions.YouDescendedThisTurn] intervening-if adds a [Counters.BORE] passive
- *    counter; a resolution-time [ConditionalEffect] on [Conditions.SourceCounterCountAtLeast]`(bore,
+ *    counter; a resolution-time [Effects.If] on [Conditions.SourceCounterCountAtLeast]`(bore,
  *    3)` removes three and flips it (Grasping Shadows' dread idiom).
  *  - Tecutlan's cast trigger uses [SpellCastPredicate.PaidWithManaFromSource] — the mana-source
  *    provenance the engine records for the mana Tecutlan produced — and discovers for the triggering
@@ -78,9 +77,9 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
         interveningIf = Conditions.YouDescendedThisTurn()
         effect = Effects.Composite(
             Effects.AddCounters(Counters.BORE, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(Counters.BORE, 3),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.RemoveCounters(Counters.BORE, 3, EffectTarget.Self),
                     TransformEffect(EffectTarget.Self),
                 ),

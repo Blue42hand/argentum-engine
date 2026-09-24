@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
@@ -42,9 +41,9 @@ val RuinousWaterbending = card("Ruinous Waterbending") {
             // If the optional waterbend was paid, set up a this-turn delayed trigger that gains
             // 1 life each time a creature dies (the mass -2/-2 deaths happen as SBAs after this
             // spell finishes resolving, so the trigger is in place to catch them).
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WaterbendWasPaid,
-                effect = CreateDelayedTriggerEffect(
+                then = CreateDelayedTriggerEffect(
                     trigger = Triggers.AnyCreatureDies,
                     effect = Effects.GainLife(1),
                     expiry = DelayedTriggerExpiry.EndOfTurn,

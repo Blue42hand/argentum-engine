@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The spell-rider shape of bargain (CR 702.166c) — but here the payoff isn't a bigger number
  * ([FarsightRitual]) or an extra clause ([ArchonsGlory]); it's a different *destination* for the
- * same picked cards. So the branch is a [ConditionalEffect] on [Conditions.WasBargained] over two
+ * same picked cards. So the branch is a [Effects.If] on [Conditions.WasBargained] over two
  * moves of the one collection rather than two separate digs, which keeps the look-and-pick
  * identical either way and lets the player choose before knowing nothing new.
  *
@@ -64,13 +63,13 @@ val ThunderousDebut = card("Thunderous Debut") {
             // The controller hand-picked these, so only the opponents need the reveal overlay.
             reveal(chosen, revealToSelf = false)
             run(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.WasBargained,
-                    effect = MoveCollectionEffect(
+                    then = MoveCollectionEffect(
                         from = chosen.key,
                         destination = CardDestination.ToZone(Zone.BATTLEFIELD),
                     ),
-                    elseEffect = MoveCollectionEffect(
+                    otherwise = MoveCollectionEffect(
                         from = chosen.key,
                         destination = CardDestination.ToZone(Zone.HAND),
                     ),

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
@@ -97,11 +96,11 @@ private val ArchangelAvacynFront = card("Archangel Avacyn") {
         )
         effect = CreateDelayedTriggerEffect(
             step = Step.UPKEEP,
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 condition = Conditions.SourceMatches(
                     GameObjectFilter.Any.named("Archangel Avacyn"),
                 ),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "Transform Archangel Avacyn at the beginning of the next upkeep."

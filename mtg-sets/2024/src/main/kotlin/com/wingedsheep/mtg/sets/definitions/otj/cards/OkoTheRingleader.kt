@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -34,7 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *   (`affected = Self`), plus [Effects.GrantHexproof] on Self for the "except he has hexproof"
  *   clause — the same compose Fleeting Reflection uses. The target is optional ("up to one"), so
  *   omitting it makes the copy a no-op and Oko simply gains hexproof.
- * - +1: draw two, then a [ConditionalEffect] on [Conditions.YouCommittedCrimeThisTurn] discards one
+ * - +1: draw two, then a [Effects.If] on [Conditions.YouCommittedCrimeThisTurn] discards one
  *   (crime) or two (no crime).
  * - -1: create a 3/3 green Elk token.
  * - -5: [Effects.ForEachInGroup] over other nonland permanents you control, creating a token copy
@@ -79,10 +78,10 @@ val OkoTheRingleader = card("Oko, the Ringleader") {
     // +1: Draw two cards. If you've committed a crime this turn, discard a card. Otherwise, discard two.
     loyaltyAbility(+1) {
         effect = Effects.DrawCards(2).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouCommittedCrimeThisTurn,
-                effect = Patterns.Hand.discardCards(1),
-                elseEffect = Patterns.Hand.discardCards(2),
+                then = Patterns.Hand.discardCards(1),
+                otherwise = Patterns.Hand.discardCards(2),
             )
         )
     }

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -102,9 +101,9 @@ val FranticScapegoat = card("Frantic Scapegoat") {
             ),
             // Back at the top level, Self is the source again: the Goat sheds its own suspicion,
             // but only if a creature was actually chosen ("If you do").
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch("scapegoated"),
-                effect = Effects.NoLongerSuspected(EffectTarget.Self)
+                then = Effects.NoLongerSuspected(EffectTarget.Self)
             ),
         )
         description = "Whenever one or more other creatures you control enter, if this creature " +

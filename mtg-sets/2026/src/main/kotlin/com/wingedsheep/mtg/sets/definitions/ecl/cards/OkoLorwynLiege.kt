@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -58,9 +57,9 @@ private val OkoShadowmoorScion = card("Oko, Shadowmoor Scion") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{U}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 
@@ -145,9 +144,9 @@ private val OkoLorwynLiegeFront = card("Oko, Lorwyn Liege") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -49,7 +48,7 @@ val DelifsCone = card("Delif's Cone") {
         effect = CreateDelayedTriggerEffect(
             trigger = Triggers.AttacksAndIsntBlocked.copy(binding = TriggerBinding.ANY),
             watchedTarget = t,
-            effect = MayEffect(
+            effect = Effects.May(
                 Effects.Composite(
                     Effects.GainLife(
                         DynamicAmount.EntityProperty(

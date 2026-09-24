@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -48,9 +47,9 @@ val DigsiteConservator = card("Digsite Conservator") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{4}"),
-            effect = Effects.Discover(4)
+            then = Effects.Discover(4)
         )
     }
 

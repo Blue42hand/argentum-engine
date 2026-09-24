@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -61,9 +60,9 @@ private val BrigidDounsMind = card("Brigid, Doun's Mind") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 
@@ -96,9 +95,9 @@ private val BrigidClachansHeartFrontFace = card("Brigid, Clachan's Heart") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 

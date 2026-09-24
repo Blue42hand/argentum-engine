@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    Dragon never comes: reaching IV without four Treasures just ends the Saga the ordinary way
  *    (CR 714.4).
  *  - **Two gates, not one.** "Then if you control four or more Treasures" is a state check at
- *    resolution ([ConditionalEffect] over [Conditions.YouControlAtLeast]) — and it counts *after*
+ *    resolution ([Effects.If] over [Conditions.YouControlAtLeast]) — and it counts *after*
  *    this chapter's Treasure is created, so the fourth Treasure the chapter itself mints turns it
  *    on. "If you do" is a second gate on the sacrifice actually happening
  *    ([SuccessCriterion.PermanentsSacrificed]): if the Saga has already left the battlefield, or
@@ -60,14 +59,14 @@ val TheMistyMountainsCold = card("The Misty Mountains Cold") {
 private fun mistyMountainsChapter(): Effect =
     Effects.CreateTreasure()
         .then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControlAtLeast(
                     4,
                     GameObjectFilter.Artifact.withSubtype(Subtype.TREASURE)
                 ),
-                effect = Effects.IfYouDo(
+                then = Effects.IfYouDo(
                     action = Effects.SacrificeTarget(EffectTarget.Self),
-                    ifYouDo = Effects.CreateToken(
+                    then = Effects.CreateToken(
                         power = 6,
                         toughness = 6,
                         colors = setOf(Color.RED),

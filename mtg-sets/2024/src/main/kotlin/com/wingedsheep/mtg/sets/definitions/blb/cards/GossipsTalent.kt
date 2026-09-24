@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -68,7 +67,7 @@ val GossipsTalent = card("Gossip's Talent") {
                 sourceFilter = GameObjectFilter.Creature.youControl(),
                 binding = TriggerBinding.ANY,
             )
-            effect = MayEffect(
+            effect = Effects.May(
                 Effects.Composite(listOf(
                     Effects.Move(EffectTarget.TriggeringEntity, Zone.EXILE),
                     Effects.Move(EffectTarget.TriggeringEntity, Zone.BATTLEFIELD)

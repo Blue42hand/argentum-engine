@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,9 +26,9 @@ val DismantlingBlow = card("Dismantling Blow") {
 
     spell {
         target = Targets.ArtifactOrEnchantment
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0)) then ConditionalEffect(
+        effect = Effects.Destroy(EffectTarget.ContextTarget(0)) then Effects.If(
             condition = WasKicked,
-            effect = Effects.DrawCards(2)
+            then = Effects.DrawCards(2)
         )
     }
 

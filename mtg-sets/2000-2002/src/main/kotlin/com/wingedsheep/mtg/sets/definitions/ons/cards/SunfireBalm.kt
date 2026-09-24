@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Sunfire Balm
@@ -32,7 +31,7 @@ val SunfireBalm = card("Sunfire Balm") {
     triggeredAbility {
         trigger = Triggers.YouCycleThis
         val t = target("target", Targets.Any)
-        effect = MayEffect(Effects.PreventNextDamage(1, t))
+        effect = Effects.May(Effects.PreventNextDamage(1, t))
     }
 
     metadata {

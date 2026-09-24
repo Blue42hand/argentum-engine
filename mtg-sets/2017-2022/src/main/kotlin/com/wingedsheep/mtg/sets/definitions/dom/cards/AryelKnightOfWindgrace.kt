@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -54,13 +53,13 @@ val AryelKnightOfWindgrace = card("Aryel, Knight of Windgrace") {
         )
         val creature = target("creature", Targets.Creature)
         // At resolution, destroy the target only if its power <= X
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Compare(
                 left = DynamicAmounts.targetPower(0),
                 operator = ComparisonOperator.LTE,
                 right = DynamicAmount.XValue
             ),
-            effect = Effects.Destroy(creature)
+            then = Effects.Destroy(creature)
         )
     }
 

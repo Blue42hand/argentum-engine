@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * A per-ability resolution counter, not a per-turn trigger cap: the ability keeps triggering all
  * turn, and the payoff is selected by *which* resolution this is. [IncrementAbilityResolutionCountEffect]
- * must run before the three [ConditionalEffect]s read the count, or the first branch would test
+ * must run before the three [Effects.If]s read the count, or the first branch would test
  * against 0 and nothing would ever fire (same ordering trap as Elrond, Lord of Rivendell and
  * Harvestrite Host). `SourceAbilityResolvedNTimes` compares for **exact** equality, so the branches
  * are mutually exclusive and the fourth and later resolutions in a turn deliberately do nothing.
@@ -52,21 +51,21 @@ val BelladonnaTook = card("Belladonna Took") {
         )
         effect = IncrementAbilityResolutionCountEffect
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(1),
-                    effect = Effects.GainLife(1),
+                    then = Effects.GainLife(1),
                 )
             )
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    effect = Effects.DrawCards(1),
+                    then = Effects.DrawCards(1),
                 )
             )
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    effect = Effects.ForEachInGroup(
+                    then = Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Creature.youControl()),
                         AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     ),

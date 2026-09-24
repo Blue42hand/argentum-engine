@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -73,12 +72,12 @@ private val DelverOfSecretsFront = card("Delver of Secrets") {
             ),
             RevealCollectionEffect(from = "delverRevealed", revealToSelf = false),
             // If an instant or sorcery card is revealed this way, transform this creature.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch(
                     "delverRevealed",
                     GameObjectFilter.InstantOrSorcery,
                 ),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "At the beginning of your upkeep, look at the top card of your library. You " +

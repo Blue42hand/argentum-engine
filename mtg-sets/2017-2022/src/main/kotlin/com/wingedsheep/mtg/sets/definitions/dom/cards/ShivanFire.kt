@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
@@ -26,10 +26,10 @@ val ShivanFire = card("Shivan Fire") {
 
     spell {
         val t = target("target", Targets.CreatureOrPlaneswalker)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = DealDamageEffect(4, t),
-            elseEffect = DealDamageEffect(2, t)
+            then = DealDamageEffect(4, t),
+            otherwise = DealDamageEffect(2, t)
         )
     }
 

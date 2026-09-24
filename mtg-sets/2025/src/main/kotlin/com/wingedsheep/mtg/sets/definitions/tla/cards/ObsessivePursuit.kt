@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -60,9 +59,9 @@ val ObsessivePursuit = card("Obsessive Pursuit") {
                 attacker,
             ),
             // X is the per-controller "permanents sacrificed this turn" count; lifelink only when X >= 3.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouSacrificedPermanentsThisTurn(atLeast = 3),
-                effect = Effects.GrantKeyword(Keyword.LIFELINK, attacker),
+                then = Effects.GrantKeyword(Keyword.LIFELINK, attacker),
             ),
         )
     }

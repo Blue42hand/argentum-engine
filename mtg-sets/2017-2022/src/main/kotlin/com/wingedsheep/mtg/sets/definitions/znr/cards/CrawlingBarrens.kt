@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -43,7 +42,7 @@ val CrawlingBarrens = card("Crawling Barrens") {
         cost = Costs.Mana("{4}")
         effect = Effects.Composite(
             Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
-            MayEffect(
+            Effects.May(
                 effect = Effects.BecomeCreature(
                     target = EffectTarget.Self,
                     power = 0,

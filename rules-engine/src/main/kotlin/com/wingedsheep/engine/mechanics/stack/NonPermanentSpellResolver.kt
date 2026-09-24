@@ -652,7 +652,7 @@ internal class NonPermanentSpellResolver(
         return allocatedState.addDelayedTrigger(
             com.wingedsheep.engine.event.DelayedTriggeredAbility(
                 id = triggerId,
-                effect = com.wingedsheep.sdk.scripting.effects.MayEffect(
+                effect = com.wingedsheep.sdk.dsl.Effects.May(
                     com.wingedsheep.sdk.scripting.effects.CompositeEffect(
                         listOf(
                             com.wingedsheep.sdk.scripting.effects.GatherCardsEffect(

@@ -25,7 +25,7 @@ import io.kotest.matchers.shouldBe
  * triggered ability. The engine silently ignores that flag for no-target / no-elseEffect
  * abilities (it only wires `optional` for targeted abilities or ones with an elseEffect),
  * so the draw happened unconditionally and the player was never offered the "may" choice.
- * The fix wraps the draw in `MayEffect`; these tests pin both branches of the choice and
+ * The fix wraps the draw in `Effects.May`; these tests pin both branches of the choice and
  * the once-per-turn gate.
  */
 class TerrasymbiosisTest : FunSpec({
@@ -69,7 +69,7 @@ class TerrasymbiosisTest : FunSpec({
         // Place two +1/+1 counters → Terrasymbiosis triggers.
         driver.castSpell(player, spell, targets = listOf(creature))
         driver.bothPass()   // resolve Counter Infusion; the trigger goes on the stack
-        driver.bothPass()   // resolve the trigger → MayEffect yes/no decision
+        driver.bothPass()   // resolve the trigger → Effects.May yes/no decision
 
         // The "may" choice must be offered. Accept it.
         driver.submitYesNo(player, true)

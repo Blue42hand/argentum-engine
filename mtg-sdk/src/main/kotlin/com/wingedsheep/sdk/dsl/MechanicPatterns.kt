@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.scripting.effects.CLASH_WON
 import com.wingedsheep.sdk.scripting.effects.ClashEffect
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
@@ -457,9 +456,9 @@ object MechanicPatterns {
      */
     fun empowerJace(amount: DynamicAmount): CompositeEffect = CompositeEffect(
         listOf(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControl(JACE_PLANESWALKER_TOKEN, negate = true),
-                effect = CreatePredefinedTokenEffect(tokenType = "Jace")
+                then = CreatePredefinedTokenEffect(tokenType = "Jace")
             ),
             GatherCardsEffect(
                 source = CardSource.BattlefieldMatching(JACE_PLANESWALKER_TOKEN, Player.You),

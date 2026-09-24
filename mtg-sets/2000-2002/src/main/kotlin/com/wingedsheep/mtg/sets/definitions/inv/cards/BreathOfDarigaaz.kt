@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
@@ -49,10 +48,10 @@ val BreathOfDarigaaz = card("Breath of Darigaaz") {
     )
 
     spell {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = damageToNonFliersAndPlayers(4),
-            elseEffect = damageToNonFliersAndPlayers(1)
+            then = damageToNonFliersAndPlayers(4),
+            otherwise = damageToNonFliersAndPlayers(1)
         )
     }
 

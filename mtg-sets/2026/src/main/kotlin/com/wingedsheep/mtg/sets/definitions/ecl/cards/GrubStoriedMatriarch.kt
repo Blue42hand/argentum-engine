@@ -16,8 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
@@ -54,7 +52,7 @@ private val GrubNotoriousAuntie = card("Grub, Notorious Auntie") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Composite(
                 listOf(
                     GatherCardsEffect(
@@ -88,9 +86,9 @@ private val GrubNotoriousAuntie = card("Grub, Notorious Auntie") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 
@@ -134,9 +132,9 @@ private val GrubStoriedMatriarchFrontFace = card("Grub, Storied Matriarch") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 

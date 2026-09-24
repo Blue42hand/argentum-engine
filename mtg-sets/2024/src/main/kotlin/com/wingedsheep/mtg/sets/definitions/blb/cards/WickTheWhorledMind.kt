@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -52,21 +51,21 @@ val WickTheWhorledMind = card("Wick, the Whorled Mind") {
             ),
             binding = TriggerBinding.ANY
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Exists(
                 player = Player.You,
                 zone = Zone.BATTLEFIELD,
                 filter = GameObjectFilter.Creature.withSubtype("Snail"),
                 negate = true
             ),
-            effect = Effects.CreateToken(
+            then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.BLACK),
                 creatureTypes = setOf("Snail"),
                 imageUri = "https://cards.scryfall.io/normal/front/d/9/d9bb0a91-b73e-465b-8c0e-50fc28e66fda.jpg?1721425912"
             ),
-            elseEffect = Effects.Composite(
+            otherwise = Effects.Composite(
                 listOf(
                     GatherCardsEffect(
                         source = CardSource.BattlefieldMatching(

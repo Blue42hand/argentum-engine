@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Dawn of Hope
@@ -26,7 +25,7 @@ val DawnOfHope = card("Dawn of Hope") {
 
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = MayPayManaEffect(ManaCost.parse("{2}"), Effects.DrawCards(1))
+        effect = Effects.MayPay(ManaCost.parse("{2}"), Effects.DrawCards(1))
     }
     activatedAbility {
         cost = Costs.Mana("{3}{W}")

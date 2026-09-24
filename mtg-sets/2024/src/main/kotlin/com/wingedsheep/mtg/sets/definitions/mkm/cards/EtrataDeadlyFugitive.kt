@@ -16,9 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.LookAudience
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
@@ -95,10 +93,10 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
                 cost = Costs.Mana("{2}{U}{B}"),
-                effect = IfYouDoEffect(
+                effect = Effects.IfYouDo(
                     action = TurnFaceUpEffect(EffectTarget.Self),
-                    ifYouDo = Effects.Composite(emptyList()),
-                    ifYouDont = Effects.Pipeline {
+                    then = Effects.Composite(emptyList()),
+                    otherwise = Effects.Pipeline {
                         val thisCreature = gather(CardSource.Self)
                         val exiled = moveTracked(
                             thisCreature,
@@ -106,7 +104,7 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
                             name = "etrataExiled",
                         )
                         run(
-                            MayEffect(
+                            Effects.May(
                                 Effects.CastFromCollectionWithoutPayingCost(exiled.key),
                                 descriptionOverride = "You may cast the exiled card without " +
                                     "paying its mana cost.",

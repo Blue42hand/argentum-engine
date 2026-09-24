@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -29,13 +28,13 @@ val BlueSunsTwilight = card("Blue Sun's Twilight") {
         val t = target("creature", TargetObject(filter = TargetFilter.Creature.manaValueAtMostX()))
         effect = Effects.GainControl(t, Duration.Permanent)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Compare(
                         DynamicAmount.XValue,
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(5)
                     ),
-                    effect = Effects.CreateTokenCopyOfTarget(t)
+                    then = Effects.CreateTokenCopyOfTarget(t)
                 )
             )
     }

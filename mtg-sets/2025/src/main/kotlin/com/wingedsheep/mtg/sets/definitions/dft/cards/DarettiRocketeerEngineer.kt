@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -42,8 +40,8 @@ val DarettiRocketeerEngineer = card("Daretti, Rocketeer Engineer") {
                 filter = TargetFilter.ArtifactInYourGraveyard
             )
         )
-        effect = GatedEffect(
-            gate = Gate.MayPay(SacrificeEffect(GameObjectFilter.Artifact)),
+        effect = Effects.MayPay(
+            cost = SacrificeEffect(GameObjectFilter.Artifact),
             then = Effects.Move(artifactCard, Zone.BATTLEFIELD)
         )
     }
@@ -56,8 +54,8 @@ val DarettiRocketeerEngineer = card("Daretti, Rocketeer Engineer") {
                 filter = TargetFilter.ArtifactInYourGraveyard
             )
         )
-        effect = GatedEffect(
-            gate = Gate.MayPay(SacrificeEffect(GameObjectFilter.Artifact)),
+        effect = Effects.MayPay(
+            cost = SacrificeEffect(GameObjectFilter.Artifact),
             then = Effects.Move(artifactCard, Zone.BATTLEFIELD)
         )
     }

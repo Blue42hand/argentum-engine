@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,7 +34,7 @@ val CorpseberryCultivator = card("Corpseberry Cultivator") {
     // At the beginning of combat on your turn, you may forage.
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Patterns.Mechanic.forage(),
             descriptionOverride = "You may forage",
             hint = "Exile three cards from your graveyard or sacrifice a Food"

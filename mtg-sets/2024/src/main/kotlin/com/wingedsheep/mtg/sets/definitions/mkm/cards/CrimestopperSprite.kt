@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.collectEvidence
 import com.wingedsheep.sdk.model.Rarity
@@ -52,9 +51,9 @@ val CrimestopperSprite = card("Crimestopper Sprite") {
         val creature = target("target creature", TargetCreature())
         effect = Effects.Composite(
             Effects.Tap(creature),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasEvidenceCollected,
-                effect = Effects.AddCounters(Counters.STUN, 1, creature),
+                then = Effects.AddCounters(Counters.STUN, 1, creature),
             ),
         )
         description = "When this creature enters, tap target creature. If evidence was collected, " +

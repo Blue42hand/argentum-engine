@@ -28,7 +28,7 @@ import com.wingedsheep.engine.core.Outcome
  *  Delirium — If there are four or more card types among cards in your graveyard, instead search
  *  your library for any card, put it into your hand, then shuffle."
  *
- * Exercises a [Conditions.Delirium]-gated [ConditionalEffect] choosing between a Demon-only tutor
+ * Exercises a [Conditions.Delirium]-gated [Effects.If] choosing between a Demon-only tutor
  * (default) and an unrestricted tutor (Delirium active).
  */
 class DemonicCounselScenarioTest : FunSpec({

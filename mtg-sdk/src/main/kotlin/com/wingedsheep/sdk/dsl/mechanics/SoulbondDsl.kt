@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -34,7 +33,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * - **Another creature you control enters.** [Triggers.OtherCreatureEnters] already carries the
  *   "another creature **you control**" half of the intervening-if, and a creature that just entered
  *   can never already be paired, so the only clause left to check is that *this* creature is
- *   unpaired — [Conditions.SourceIsUnpaired] as the `interveningIf`. A [MayEffect] supplies
+ *   unpaired — [Conditions.SourceIsUnpaired] as the `interveningIf`. A [Effects.May] supplies
  *   the "you may" as a plain yes/no, which reads better than a one-candidate selection.
  *
  * The "for as long as both remain creatures on the battlefield under your control" duration is not
@@ -81,7 +80,7 @@ fun CardBuilder.soulbond() {
         TriggeredAbility.create(
             trigger = Triggers.OtherCreatureEnters.event,
             binding = Triggers.OtherCreatureEnters.binding,
-            effect = MayEffect(
+            effect = Effects.May(
                 Effects.Pipeline {
                     val partner = gather(CardSource.TriggeringEntity)
                     pairWithSource(partner)

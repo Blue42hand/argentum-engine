@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 /**
@@ -45,14 +43,12 @@ val Saw = card("Saw") {
 
     triggeredAbility {
         trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
-        effect = GatedEffect(
-            gate = Gate.MayPay(
-                SacrificeEffect(
+        effect = Effects.MayPay(
+            cost = SacrificeEffect(
                     filter = GameObjectFilter.Permanent.notAttachedToBySource(),
                     count = 1,
                     excludeSource = true
-                )
-            ),
+                ),
             then = Effects.DrawCards(1)
         )
         description = "Whenever equipped creature attacks, you may sacrifice a permanent other " +

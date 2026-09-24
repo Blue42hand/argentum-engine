@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -24,13 +23,13 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * destroy that artifact if its mana value is 5 or less instead.
  */
 private fun destroyIfManaValueAtMost(max: Int): Effect =
-    ConditionalEffect(
+    Effects.If(
         condition = Compare(
             left = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
             operator = ComparisonOperator.LTE,
             right = DynamicAmount.Fixed(max)
         ),
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        then = Effects.Destroy(EffectTarget.ContextTarget(0))
     )
 
 val Overload = card("Overload") {
@@ -45,10 +44,10 @@ val Overload = card("Overload") {
 
     spell {
         target = Targets.Artifact
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = destroyIfManaValueAtMost(5),
-            elseEffect = destroyIfManaValueAtMost(2)
+            then = destroyIfManaValueAtMost(5),
+            otherwise = destroyIfManaValueAtMost(2)
         )
     }
 

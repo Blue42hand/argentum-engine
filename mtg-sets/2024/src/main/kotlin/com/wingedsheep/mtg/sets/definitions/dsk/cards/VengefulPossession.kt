@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Vengeful Possession
@@ -30,10 +28,10 @@ val VengefulPossession = card("Vengeful Possession") {
             Effects.GainControl(t, Duration.EndOfTurn),
             Effects.Untap(t),
             Effects.GrantKeyword(Keyword.HASTE, t, Duration.EndOfTurn),
-            MayEffect(
-                effect = IfYouDoEffect(
+            Effects.May(
+                effect = Effects.IfYouDo(
                     action = Patterns.Hand.discardCards(1),
-                    ifYouDo = Effects.DrawCards(1),
+                    then = Effects.DrawCards(1),
                 ),
                 descriptionOverride = "You may discard a card. If you do, draw a card.",
             ),

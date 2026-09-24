@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Full Bore
@@ -27,12 +26,12 @@ val FullBore = card("Full Bore") {
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(3, 2, creature)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(
                         GameObjectFilter.Creature.castForWarp(),
                         targetIndex = 0
                     ),
-                    effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
+                    then = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
                         .then(Effects.GrantKeyword(Keyword.HASTE, creature))
                 )
             )

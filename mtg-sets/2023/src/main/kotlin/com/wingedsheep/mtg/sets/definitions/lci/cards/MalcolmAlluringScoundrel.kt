@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantFreeCastTargetFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -81,13 +80,13 @@ val MalcolmAlluringScoundrel = card("Malcolm, Alluring Scoundrel") {
                 // If Malcolm has four or more chorus counters, the controller may cast
                 // the discarded card for free. The card stays in the graveyard per oracle
                 // text — we just grant the permission on the graveyard card.
-                ConditionalEffect(
+                Effects.If(
                     condition = Compare(
                         DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHORUS)),
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(4)
                     ),
-                    effect = GrantFreeCastTargetFromExileEffect(
+                    then = GrantFreeCastTargetFromExileEffect(
                         target = EffectTarget.PipelineTarget("discarded", 0)
                     )
                 )

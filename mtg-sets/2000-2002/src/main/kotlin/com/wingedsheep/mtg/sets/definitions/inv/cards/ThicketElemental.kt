@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
@@ -41,7 +40,7 @@ val ThicketElemental = card("Thicket Elemental") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         interveningIf = WasKicked
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 listOf(
                     GatherUntilMatchEffect(

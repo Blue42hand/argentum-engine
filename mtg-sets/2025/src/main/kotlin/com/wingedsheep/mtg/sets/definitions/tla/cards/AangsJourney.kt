@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * hand, then shuffle.
  * You gain 2 life.
  *
- * The kicker swaps the entire search clause, so it is modeled as a [ConditionalEffect] keyed
+ * The kicker swaps the entire search clause, so it is modeled as a [Effects.If] keyed
  * on [WasKicked] (resolution-time state test, no decision/pause): the unkicked branch is the
  * ordinary single basic-land tutor-to-hand ([Patterns.Library.searchLibrary]); the kicked
  * branch adds a second selection for a Shrine card, then reveals + moves both finds to hand
@@ -91,10 +90,10 @@ val AangsJourney = card("Aang's Journey") {
             )
         )
 
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = kickedSearch,
-            elseEffect = Patterns.Library.searchLibrary(
+            then = kickedSearch,
+            otherwise = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
                 count = 1,
                 destination = SearchDestination.HAND,

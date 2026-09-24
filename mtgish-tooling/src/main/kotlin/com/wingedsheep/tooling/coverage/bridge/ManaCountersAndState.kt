@@ -131,7 +131,7 @@ internal fun BridgeBuilder.manaCountersAndState() {
     effect("UnpreparePermanent", "Unprepare", "a prepared permanent becomes unprepared (Biblioplex Tomekeeper)")
     // "Reveal target face-down permanent" (Hauntwoods Shrieker) — make the hidden card public (CR
     // 708.2). Informational only; the follow-up "if it's a creature card, you may turn it face up"
-    // composes a TargetIsCreatureCard gate + MayEffect(TurnFaceUp).
+    // composes a TargetIsCreatureCard gate + Effects.May(TurnFaceUp).
     effect("RevealFaceDownPermanent", "RevealFaceDownPermanent", "reveal a face-down permanent (Hauntwoods Shrieker)")
     // "turn it face up" — the free, no-cost flip of a revealed creature card (Hauntwoods Shrieker),
     // distinct from paying a morph/manifest turn-up cost. Maps to the TurnFaceUp effect.

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.conditions.AnyCondition
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -42,7 +41,7 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = AnyCondition(
                 listOf(
                     // Target creature's power is 2 or less
@@ -59,7 +58,7 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
                     )
                 )
             ),
-            effect = Effects.GainControl(creature, Duration.EndOfTurn)
+            then = Effects.GainControl(creature, Duration.EndOfTurn)
                 .then(Effects.Untap(creature))
                 .then(Effects.GrantKeyword(Keyword.HASTE, creature))
         )

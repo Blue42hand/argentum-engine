@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -61,7 +60,7 @@ val SpikeshellHarrier = card("Spikeshell Harrier") {
 
         effect = Effects.Composite(
             Effects.ReturnToHand(bounced),
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     left = DynamicAmount.CountPlayersWith(
                         scope = Player.Each,
@@ -74,7 +73,7 @@ val SpikeshellHarrier = card("Spikeshell Harrier") {
                     operator = ComparisonOperator.EQ,
                     right = DynamicAmount.Fixed(1)
                 ),
-                effect = Effects.ReduceSpeed(
+                then = Effects.ReduceSpeed(
                     amount = DynamicAmount.Fixed(1),
                     target = EffectTarget.PlayerRef(thatOpponent),
                     minimum = Speed.STARTING

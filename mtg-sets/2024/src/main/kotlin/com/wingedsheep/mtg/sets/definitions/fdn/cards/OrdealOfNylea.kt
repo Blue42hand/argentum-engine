@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -49,7 +48,7 @@ val OrdealOfNylea = card("Ordeal of Nylea") {
         // EntityReference.Triggering resolves to the enchanted (attacking) creature here —
         // AttachmentTriggerDetector sets triggeringEntityId to the attached entity.
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EnchantedCreature) then
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     left = DynamicAmount.EntityProperty(
                         entity = EntityReference.Triggering,
@@ -58,7 +57,7 @@ val OrdealOfNylea = card("Ordeal of Nylea") {
                     operator = ComparisonOperator.GTE,
                     right = DynamicAmount.Fixed(3)
                 ),
-                effect = Effects.SacrificeTarget(EffectTarget.Self)
+                then = Effects.SacrificeTarget(EffectTarget.Self)
             )
     }
 

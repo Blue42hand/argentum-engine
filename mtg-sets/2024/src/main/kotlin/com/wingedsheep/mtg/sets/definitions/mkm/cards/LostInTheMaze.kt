@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -75,12 +73,10 @@ val LostInTheMaze = card("Lost in the Maze") {
             .then(
                 ForEachTargetEffect(
                     listOf(
-                        GatedEffect(
-                            gate = Gate.WhenCondition(
-                                Conditions.TargetMatchesFilter(
+                        Effects.If(
+                            condition = Conditions.TargetMatchesFilter(
                                     GameObjectFilter.Creature.opponentControls()
-                                )
-                            ),
+                                ),
                             then = Effects.AddCounters(
                                 Counters.STUN,
                                 1,

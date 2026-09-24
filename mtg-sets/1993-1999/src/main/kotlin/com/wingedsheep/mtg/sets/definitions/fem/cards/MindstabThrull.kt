@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -31,7 +30,7 @@ val MindstabThrull = card("Mindstab Thrull") {
 
     triggeredAbility {
         trigger = Triggers.AttacksAndIsntBlocked
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 SacrificeSelfEffect,
                 Effects.Discard(3, EffectTarget.PlayerRef(Player.DefendingPlayer))

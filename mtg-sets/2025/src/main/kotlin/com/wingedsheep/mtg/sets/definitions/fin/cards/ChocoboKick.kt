@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -37,14 +36,14 @@ val ChocoboKick = card("Chocobo Kick") {
     spell {
         val yourCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature an opponent controls", Targets.CreatureOpponentControls)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = Effects.DealDamage(
+            then = Effects.DealDamage(
                 DynamicAmount.Multiply(DynamicAmounts.targetPower(0), 2),
                 theirCreature,
                 damageSource = yourCreature
             ),
-            elseEffect = Effects.DealDamage(
+            otherwise = Effects.DealDamage(
                 DynamicAmounts.targetPower(0),
                 theirCreature,
                 damageSource = yourCreature

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -30,9 +29,9 @@ val RiteOfTheSerpent = card("Rite of the Serpent") {
 
     spell {
         // Check counter condition before destroying (counters are removed on zone change)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetHasCounter(CounterTypeFilter.PlusOnePlusOne),
-            effect = Effects.CreateToken(
+            then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.GREEN),

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.effects.DynamicHint
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -67,7 +66,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    mirrored, the ability stops triggering for the turn and any instance still on the stack does
  *    nothing as it resolves. The trigger cap would be spent by the first trigger — even declined —
  *    and make the rest unreachable. Declining costs nothing: the engine lowers the flag into
- *    [com.wingedsheep.sdk.scripting.effects.Gate.OnceEachTurn] gates around the [MayEffect] consent
+ *    [com.wingedsheep.sdk.scripting.effects.Gate.OnceEachTurn] gates around the [Effects.May] consent
  *    gate, so only an action actually taken spends the turn's single use, and the "you may" is asked
  *    as each instance resolves (the Legolas, Counter of Kills ruling) rather than all at once.
  *
@@ -130,7 +129,7 @@ private val TheSensationalSheHulkBack = card("The Sensational She-Hulk") {
             TriggerBinding.ANY,
         )
         val victim = target("any target", Targets.Any)
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.DealDamage(
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
                 victim,

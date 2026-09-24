@@ -461,8 +461,8 @@ class CreateDelayedTriggerExecutor : EffectExecutor<CreateDelayedTriggerEffect> 
                 lostEffect = effect.lostEffect?.let { resolveContextTargets(it, context, state) },
             )
             is GatedEffect -> {
-                // Former MayEffect shape: resolve ContextTargets inside the optional `then` payoff,
-                // exactly as MayEffect did. Other gate shapes (MayPay / WhenCondition) were never
+                // Former Effects.May shape: resolve ContextTargets inside the optional `then` payoff,
+                // exactly as Effects.May did. Other gate shapes (MayPay / WhenCondition) were never
                 // resolved here, so leave them untouched.
                 if (effect.gate is Gate.MayDecide && effect.otherwise == null) {
                     val inner = resolveContextTargets(effect.then, context, state)

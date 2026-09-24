@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
@@ -111,12 +110,12 @@ val CovetedFalcon = card("Coveted Falcon") {
             GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "falconGifts"),
             ForEachInCollectionEffect(
                 collection = "falconGifts",
-                effect = IfYouDoEffect(
+                effect = Effects.IfYouDo(
                     action = GiveControlToTargetPlayerEffect(
                         permanent = EffectTarget.Self,
                         newController = opponent,
                     ),
-                    ifYouDo = Effects.DrawCards(1),
+                    then = Effects.DrawCards(1),
                     successCriterion = SuccessCriterion.ControlChanged,
                 ),
             ),

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
@@ -85,9 +84,9 @@ private val SyggWanderbrineShield = card("Sygg, Wanderbrine Shield") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{U}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 
@@ -136,9 +135,9 @@ private val SyggWanderwineWisdomFront = card("Sygg, Wanderwine Wisdom") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
-            effect = TransformEffect(EffectTarget.Self)
+            then = TransformEffect(EffectTarget.Self)
         )
     }
 

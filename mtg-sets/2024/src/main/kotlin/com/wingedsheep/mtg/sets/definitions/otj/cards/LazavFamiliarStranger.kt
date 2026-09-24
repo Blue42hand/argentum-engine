@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -32,8 +30,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  3. Filter the exiled pick to creature cards. If a creature card was exiled, the controller may
  *     have Lazav become a copy of that card until end of turn —
  *     [Effects.EachPermanentBecomesCopyOfTarget] with `affected = Self`, `sourceFromAnyZone = true`
- *     (the copy source sits in exile, not on the battlefield), wrapped in [MayEffect] and gated on
- *     the creature filter via [ConditionalEffect]. Copies copiable values only (Rule 707), so
+ *     (the copy source sits in exile, not on the battlefield), wrapped in [Effects.May] and gated on
+ *     the creature filter via [Effects.If]. Copies copiable values only (Rule 707), so
  *     Lazav keeps his counters and stays a Shapeshifter creature.
  */
 val LazavFamiliarStranger = card("Lazav, Familiar Stranger") {
@@ -71,9 +69,9 @@ val LazavFamiliarStranger = card("Lazav, Familiar Stranger") {
             // If a creature card was exiled this way, you may have Lazav become a copy of that card.
             val creatureExiled = filter(exiled, GameObjectFilter.Creature, name = "lazavCreature")
             run(
-                ConditionalEffect(
+                Effects.If(
                     condition = whenMatches(creatureExiled, GameObjectFilter.Creature),
-                    effect = MayEffect(
+                    then = Effects.May(
                         Effects.EachPermanentBecomesCopyOfTarget(
                             target = EffectTarget.PipelineTarget(creatureExiled.key),
                             duration = Duration.EndOfTurn,

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -31,7 +30,7 @@ val TrailOfMystery = card("Trail of Mystery") {
             filter = GameObjectFilter.Creature.faceDown().youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = Filters.BasicLand,
                 count = 1,

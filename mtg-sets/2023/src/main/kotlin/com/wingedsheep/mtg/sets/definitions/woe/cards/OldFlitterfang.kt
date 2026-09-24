@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * The Food trigger is an intervening-if (CR 603.4), which is exactly what the 2023-09-01 ruling
  * describes: the "a creature died this turn" check happens *as the end step begins*, and if nothing
  * died the ability never triggers at all — so [Conditions.CreatureDiedThisTurn] goes on
- * `interveningIf`, not into a [com.wingedsheep.sdk.scripting.effects.ConditionalEffect] wrapper
+ * `interveningIf`, not into a [com.wingedsheep.sdk.dsl.Effects.If] wrapper
  * around the effect. [Conditions.CreatureDiedThisTurn] is the global variant (any player's
  * creature), matching the unqualified "a creature".
  *

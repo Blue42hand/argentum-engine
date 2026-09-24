@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Whenever this creature attacks, you may sacrifice a Food. If you do, mill three cards. You may
  * put a permanent card from among them into your hand.
  *
- * The attack ability is an optional sacrifice gating a mill-and-recur ([MayEffect] over
+ * The attack ability is an optional sacrifice gating a mill-and-recur ([Effects.May] over
  * `Sacrifice(Food).then(...)`, the same shape as [com.wingedsheep.mtg.sets.definitions.eoe.cards.LarvalScoutlander]):
  * declining (or having no Food) skips the rest, and on a sacrifice the milled three cards are
  * gathered into a named collection so the optional "put a permanent card from among them into your
@@ -58,7 +57,7 @@ val BristlebudFarmer = card("Bristlebud Farmer") {
     // You may put a permanent card from among them into your hand.
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Sacrifice(
                 GameObjectFilter.Any.withSubtype("Food"),
                 count = 1,

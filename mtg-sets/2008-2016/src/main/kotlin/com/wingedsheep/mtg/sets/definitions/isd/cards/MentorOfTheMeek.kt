@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Mentor of the Meek
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  * 2X2, INR, etc. are reprints (Printing rows only).
  *
  * "Power 2 or less" is a battlefield-state characteristic, so the trigger filter resolves through
- * projected state. The optional {1} payment is modeled with [MayPayManaEffect] (the engine's
+ * projected state. The optional {1} payment is modeled with [Effects.MayPay] (the engine's
  * "you may pay {cost}; if you do, <effect>" gate) wrapping [Effects.DrawCards].
  */
 val MentorOfTheMeek = card("Mentor of the Meek") {
@@ -38,9 +37,9 @@ val MentorOfTheMeek = card("Mentor of the Meek") {
             filter = GameObjectFilter.Creature.youControl().powerAtMost(2),
             binding = TriggerBinding.OTHER
         )
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
     }
 

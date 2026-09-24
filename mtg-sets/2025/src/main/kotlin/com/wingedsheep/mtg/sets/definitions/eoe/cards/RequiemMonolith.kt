@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -52,7 +51,7 @@ val RequiemMonolith = card("Requiem Monolith") {
         effect = Effects.Composite(
             listOf(
                 GrantTriggeredAbilityEffect(ability = grantedAbility, target = creature),
-                MayEffect(
+                Effects.May(
                     effect = DealDamageEffect(amount = 1, target = creature, damageSource = EffectTarget.Self),
                     descriptionOverride = "Have Requiem Monolith deal 1 damage to that creature?",
                     decisionMaker = EffectTarget.TargetController

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -51,7 +50,7 @@ val ArtisanOfKozilek = card("Artisan of Kozilek") {
             "target creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
         )
-        effect = MayEffect(Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD))
+        effect = Effects.May(Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD))
         description = "When you cast this spell, you may return target creature card from your " +
             "graveyard to the battlefield."
     }

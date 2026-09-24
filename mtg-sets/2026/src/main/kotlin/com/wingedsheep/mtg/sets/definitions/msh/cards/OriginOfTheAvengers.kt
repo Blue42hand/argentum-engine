@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * III — Put a +1/+1 counter on each creature you control.
  *
  * Modeling notes:
- *  - Chapter II is the Courier of Comestibles / Kellan, the Kid shape: [IfYouDoEffect] gating on
+ *  - Chapter II is the Courier of Comestibles / Kellan, the Kid shape: [Effects.IfYouDo] gating on
  *    whether the action actually moved a card, with an empty `ifYouDo` and the draw as
  *    `ifYouDont`. `Patterns.Hand.putFromHand` is a Gather → Select(`ChooseUpTo` 1) → Move
  *    pipeline, so the "you may" lives in the selection (declining, or having no legal card,
@@ -48,14 +47,14 @@ val OriginOfTheAvengers = card("Origin of the Avengers") {
     }
 
     sagaChapter(2) {
-        effect = IfYouDoEffect(
+        effect = Effects.IfYouDo(
             action = Patterns.Hand.putFromHand(
                 filter = GameObjectFilter.Creature.withSubtype(Subtype.HERO).manaValueAtMost(3),
                 count = 1,
                 prompt = "You may put a Hero creature card with mana value 3 or less onto the battlefield",
             ),
-            ifYouDo = Effects.Composite(),
-            ifYouDont = Effects.DrawCards(1),
+            then = Effects.Composite(),
+            otherwise = Effects.DrawCards(1),
         )
     }
 

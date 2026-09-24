@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -39,13 +38,13 @@ val ZeroPointBallad = card("Zero Point Ballad") {
                     storeDestroyedAs = "destroyed"
                 ),
                 Effects.LoseLife(DynamicAmount.XValue, EffectTarget.Controller),
-                ConditionalEffect(
+                Effects.If(
                     condition = Compare(
                         DynamicAmount.XValue,
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(6)
                     ),
-                    effect = Effects.Composite(
+                    then = Effects.Composite(
                         listOf(
                             SelectFromCollectionEffect(
                                 from = "destroyed",

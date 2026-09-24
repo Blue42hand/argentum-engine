@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -56,10 +55,10 @@ val AzogMoriasRuin = card("Azog, Moria's Ruin") {
             ),
         )
 
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl()),
-            effect = resolveForItsController.then(Effects.DrawCards(1)),
-            elseEffect = resolveForItsController,
+            then = resolveForItsController.then(Effects.DrawCards(1)),
+            otherwise = resolveForItsController,
         )
     }
 

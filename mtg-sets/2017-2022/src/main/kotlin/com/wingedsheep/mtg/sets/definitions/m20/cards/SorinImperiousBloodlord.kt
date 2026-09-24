@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -52,9 +51,9 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t, Duration.EndOfTurn)
             .then(Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn))
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Vampire")),
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t),
+                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t),
                 )
             )
     }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventLifeGain
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -49,9 +48,9 @@ val GrimaWormtongue = card("Gríma Wormtongue") {
         )
         val player = target("target player", Targets.Player)
         effect = Effects.LoseLife(1, player)
-            .then(ConditionalEffect(
+            .then(Effects.If(
                 condition = Conditions.SacrificedWasLegendary,
-                effect = Effects.Amass(2, "Orc")
+                then = Effects.Amass(2, "Orc")
             ))
     }
 

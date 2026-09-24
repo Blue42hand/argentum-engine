@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Bonehoard Dracosaur
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  * Implementation notes:
  * - The upkeep trigger is [Patterns.Exile.impulse] over the top two cards (exile them into
  *   the shared collection "dracosaurExiled" + grant may-play until end of turn), followed by
- *   two independent [ConditionalEffect] gates that read that same collection: one checking
+ *   two independent [Effects.If] gates that read that same collection: one checking
  *   [GameObjectFilter.Land] for the Dinosaur token, one checking [GameObjectFilter.Nonland]
  *   for the Treasure token. Both conditions can be true simultaneously if both a land and a
  *   nonland are exiled (e.g. top card is a land, second is a nonland), producing both tokens —
@@ -54,9 +53,9 @@ val BonehoardDracosaur = card("Bonehoard Dracosaur") {
             // Exile the top two cards; you may play them this turn (impulse draw).
             Patterns.Exile.impulse(count = 2, storeAs = "dracosaurExiled"),
             // If you exiled a land card this way, create a 3/1 red Dinosaur creature token.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch("dracosaurExiled", GameObjectFilter.Land),
-                effect = Effects.CreateToken(
+                then = Effects.CreateToken(
                     power = 3,
                     toughness = 1,
                     colors = setOf(Color.RED),
@@ -65,9 +64,9 @@ val BonehoardDracosaur = card("Bonehoard Dracosaur") {
                 )
             ),
             // If you exiled a nonland card this way, create a Treasure token.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch("dracosaurExiled", GameObjectFilter.Nonland),
-                effect = Effects.CreateTreasure()
+                then = Effects.CreateTreasure()
             )
         ))
     }

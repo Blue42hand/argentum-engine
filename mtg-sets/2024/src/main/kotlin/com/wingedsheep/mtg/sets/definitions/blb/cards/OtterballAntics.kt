@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
@@ -24,10 +24,10 @@ val OtterballAntics = card("Otterball Antics") {
     oracleText = "Create a 1/1 blue and red Otter creature token with prowess. If this spell was cast from anywhere other than your hand, put a +1/+1 counter on that creature.\nFlashback {3}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.Not(Conditions.WasCastFromHand),
             // Not from hand: create token with +1/+1 counter
-            effect = CreateTokenEffect(
+            then = CreateTokenEffect(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.BLUE, Color.RED),
@@ -37,7 +37,7 @@ val OtterballAntics = card("Otterball Antics") {
                 initialCounters = mapOf("+1/+1" to 1)
             ),
             // From hand: create token without counter
-            elseEffect = CreateTokenEffect(
+            otherwise = CreateTokenEffect(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.BLUE, Color.RED),

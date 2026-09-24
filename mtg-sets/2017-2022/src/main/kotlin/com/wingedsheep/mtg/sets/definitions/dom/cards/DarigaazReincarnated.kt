@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -65,13 +64,13 @@ val DarigaazReincarnated = card("Darigaaz Reincarnated") {
             DynamicAmount.Fixed(1)
         )
         effect = RemoveCountersEffect(Counters.EGG, 1, EffectTarget.Self) then
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.EGG)),
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(0)
                 ),
-                effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
+                then = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
             )
     }
 

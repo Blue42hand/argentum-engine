@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -39,7 +38,7 @@ val RaidersSpoils = card("Raiders' Spoils") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsCombatDamageToPlayer.event,
                 binding = Triggers.DealsCombatDamageToPlayer.binding,
-                effect = MayEffect(
+                effect = Effects.May(
                     effect = Effects.Composite(listOf(
                         Effects.LoseLife(1, EffectTarget.Controller),
                         Effects.DrawCards(1)

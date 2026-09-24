@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
@@ -44,7 +43,7 @@ val OutlawsFury = card("Outlaws' Fury") {
                 // Creatures you control get +2/+0 until end of turn.
                 Patterns.Group.modifyStatsForAll(2, 0, Filters.Group.creaturesYouControl),
                 // If you control an outlaw, exile the top card and let it be played until your next turn ends.
-                ConditionalEffect(
+                Effects.If(
                     Conditions.YouControl(Filters.OutlawCreature),
                     Effects.Composite(
                         listOf(

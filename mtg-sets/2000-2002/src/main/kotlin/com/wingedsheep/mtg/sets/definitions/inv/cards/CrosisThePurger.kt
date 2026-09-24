@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
@@ -47,9 +46,9 @@ val CrosisThePurger = card("Crosis, the Purger") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{B}"),
-            effect = Effects.ChooseColorThen(
+            then = Effects.ChooseColorThen(
                 then = Effects.Composite(
                     listOf(
                         RevealHandEffect(EffectTarget.PlayerRef(Player.TriggeringPlayer)),

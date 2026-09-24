@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,7 +34,7 @@ val ForgottenAncient = card("Forgotten Ancient") {
             event = SpellCastEvent(player = Player.Each),
             binding = TriggerBinding.ANY
         )
-        effect = MayEffect(
+        effect = Effects.May(
             AddCountersEffect(
                 counterType = Counters.PLUS_ONE_PLUS_ONE,
                 count = 1,
@@ -46,7 +45,7 @@ val ForgottenAncient = card("Forgotten Ancient") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = MayEffect(Effects.DistributeCountersFromSelf(Counters.PLUS_ONE_PLUS_ONE))
+        effect = Effects.May(Effects.DistributeCountersFromSelf(Counters.PLUS_ONE_PLUS_ONE))
     }
 
     metadata {

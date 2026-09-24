@@ -14,8 +14,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -29,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * a sorcery.
  *
  * "Landfall" and "Summon" are ability words (CR 207.2c) — flavor only, no rules meaning. The
- * landfall trigger is the Giott rummage shape: [MayEffect] wrapping [IfYouDoEffect] (discard a
+ * landfall trigger is the Giott rummage shape: [Effects.May] wrapping [Effects.IfYouDo] (discard a
  * card → if you do, draw a card).
  *
  * The Summon ability is the Ent-Draught Basin "{X} in the activation cost" shape: the chosen X
@@ -51,10 +49,10 @@ val RydiaSummonerOfMist = card("Rydia, Summoner of Mist") {
 
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                ifYouDo = Effects.DrawCards(1),
+                then = Effects.DrawCards(1),
             ),
             descriptionOverride = "You may discard a card. If you do, draw a card.",
         )

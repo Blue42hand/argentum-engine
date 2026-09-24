@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
@@ -57,7 +56,7 @@ val BoggartMischief = card("Boggart Mischief") {
     // When this enchantment enters, you may blight 1. If you do, create two 1/1 black and red Goblin creature tokens.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Composite(
                 listOf(
                     GatherCardsEffect(

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -37,9 +36,9 @@ val DryadsCaress = card("Dryad's Caress") {
         effect = Effects.GainLife(
             DynamicAmount.AggregateBattlefield(Player.Each, GameObjectFilter.Creature)
         ).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.ManaSpentToCastIncludes(requiredWhite = 1),
-                effect = Effects.ForEachInGroup(
+                then = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
                     Effects.Untap(EffectTarget.Self),
                 ),

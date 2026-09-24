@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -75,17 +74,17 @@ val PartInFriendship = card("Part in Friendship") {
                     storeMatching = "found",
                     storeNonMatching = "rest"
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Compare(
                         left = DynamicAmount.StoredCardManaValue("found"),
                         operator = ComparisonOperator.LTE,
                         right = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land).count()
                     ),
-                    effect = MoveCollectionEffect(
+                    then = MoveCollectionEffect(
                         from = "found",
                         destination = CardDestination.ToZone(Zone.BATTLEFIELD)
                     ),
-                    elseEffect = MoveCollectionEffect(
+                    otherwise = MoveCollectionEffect(
                         from = "found",
                         destination = CardDestination.ToZone(Zone.HAND),
                         revealed = true

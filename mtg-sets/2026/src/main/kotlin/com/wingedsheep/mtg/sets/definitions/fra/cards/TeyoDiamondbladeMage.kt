@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Teyo, Diamondblade Mage — the creature and planeswalker riders are two independent resolution-time type
@@ -32,13 +31,13 @@ val TeyoDiamondbladeMage = card("Teyo, Diamondblade Mage") {
         val permanent = target("permanent you control", Targets.PermanentYouControl)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, permanent),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, permanent),
+                then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, permanent),
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Planeswalker),
-                effect = Effects.AddCounters(Counters.LOYALTY, 1, permanent),
+                then = Effects.AddCounters(Counters.LOYALTY, 1, permanent),
             ),
         )
         description = "When Teyo enters, target permanent you control gains deathtouch until end of turn. " +

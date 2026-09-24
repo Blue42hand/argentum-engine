@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * The power check is **not** an intervening-if: the printed wording is "draw a card *if* her
  * power is 4 or greater", with the condition trailing the effect rather than sitting between the
  * trigger and it. So the trigger always goes on the stack when she attacks, and the condition is
- * read once at resolution — a [ConditionalEffect], not a `interveningIf`. The distinction is
+ * read once at resolution — a [Effects.If], not a `interveningIf`. The distinction is
  * live on this card: pump her in response to the trigger and you still draw.
  *
  * Her power is read through [DynamicAmounts.sourcePower], which sees projected power, so counters
@@ -49,13 +48,13 @@ val VivVisionTeenSynthezoid = card("Viv Vision, Teen Synthezoid") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.sourcePower(),
                 ComparisonOperator.GTE,
                 DynamicAmount.Fixed(4)
             ),
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
         description = "Cybernetic Senses — Whenever Viv Vision attacks, draw a card if her power " +
             "is 4 or greater."

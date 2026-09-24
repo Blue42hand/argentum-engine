@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Implementation note: the optional behold (no real cost component) is modelled at
  * resolution time as a gather of your Dragons followed by a `ChooseUpTo(1)` selection
  * ("you may behold") storing the chosen Dragon under "beheld". The "{2}" vs "{4}" tax is
- * selected by a [ConditionalEffect] gated on [Conditions.CollectionContainsMatch] of that store.
+ * selected by a [Effects.If] gated on [Conditions.CollectionContainsMatch] of that store.
  */
 val DispellingExhale = card("Dispelling Exhale") {
     manaCost = "{1}{U}"
@@ -60,10 +59,10 @@ val DispellingExhale = card("Dispelling Exhale") {
                     prompt = "You may behold a Dragon"
                 ),
                 RevealCollectionEffect(from = "beheld"),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch("beheld"),
-                    effect = Effects.CounterUnlessPays("{4}"),
-                    elseEffect = Effects.CounterUnlessPays("{2}")
+                    then = Effects.CounterUnlessPays("{4}"),
+                    otherwise = Effects.CounterUnlessPays("{2}")
                 )
             )
         )

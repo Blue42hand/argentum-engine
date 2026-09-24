@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -49,13 +48,13 @@ val AridArchway = card("Arid Archway") {
         )
         // Evaluate the "another Desert" check while the land is still on the battlefield, then
         // bounce + surveil (true branch) or just bounce (false branch).
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.All(
                 Conditions.TargetMatchesFilter(GameObjectFilter.Land.withSubtype(Subtype.DESERT)),
                 Conditions.Not(Conditions.TargetIsSource()),
             ),
-            effect = Effects.ReturnToHand(land).then(Patterns.Library.surveil(1)),
-            elseEffect = Effects.ReturnToHand(land),
+            then = Effects.ReturnToHand(land).then(Patterns.Library.surveil(1)),
+            otherwise = Effects.ReturnToHand(land),
         )
     }
 

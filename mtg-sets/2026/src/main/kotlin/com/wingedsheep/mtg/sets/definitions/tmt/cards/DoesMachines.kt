@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -74,9 +73,9 @@ val DoesMachines = card("Does Machines") {
             )
             effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.ContextTarget(0))
                 .then(
-                    ConditionalEffect(
+                    Effects.If(
                         condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature)),
-                        effect = Effects.BecomeCreature(
+                        then = Effects.BecomeCreature(
                             target = EffectTarget.ContextTarget(0),
                             power = 0,
                             toughness = 0,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -38,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * sacrificed for having five counters *only while its second ability is resolving*. Get a fifth
  * bloodstain counter onto it some other way (proliferate, a counter-doubler) and nothing happens
  * until the next death batch. That is why the threshold lives inside the trigger's effect as a
- * [ConditionalEffect] over [Conditions.SourceCounterCountAtLeast] rather than as a
+ * [Effects.If] over [Conditions.SourceCounterCountAtLeast] rather than as a
  * state-trigger/SBA — the check is a step in the resolution, not a continuous one.
  *
  * **"When you do" is a genuine reflexive trigger** (CR 603.12), not an inline continuation, so the
@@ -78,9 +77,9 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
         effect = Patterns.Library.mill(1)
             .then(Effects.AddCounters(Counters.BLOODSTAIN, 1, EffectTarget.Self))
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceCounterCountAtLeast(Counters.BLOODSTAIN, 5),
-                    effect = ReflexiveTriggerEffect(
+                    then = ReflexiveTriggerEffect(
                         action = Effects.SacrificeTarget(EffectTarget.Self),
                         optional = false,
                         reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),

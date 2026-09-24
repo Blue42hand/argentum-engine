@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -38,11 +37,11 @@ val UnholyAnnexRitualChamber = card("Unholy Annex // Ritual Chamber") {
 
         triggeredAbility {
             trigger = Triggers.YourEndStep
-            effect = Effects.DrawCards(1) then ConditionalEffect(
+            effect = Effects.DrawCards(1) then Effects.If(
                 condition = Conditions.ControlCreatureOfType(Subtype.DEMON),
-                effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
+                then = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
                     then Effects.GainLife(2),
-                elseEffect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You))
+                otherwise = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You))
             )
         }
     }

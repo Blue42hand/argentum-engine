@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * "**If** you do" — not "when you do" — so the payoff happens inside the same resolution, with no
  * second trip through the stack and nothing for an opponent to respond to in between. That rules
- * out `ReflexiveTriggerEffect` and leaves the K'un-Lun Warrior shape: a [MayEffect] over a
+ * out `ReflexiveTriggerEffect` and leaves the K'un-Lun Warrior shape: a [Effects.May] over a
  * [ChooseActionEffect] whose two branches each pay their own cost and then run the payoff, so the
  * draw and the pump can only ever follow a cost that was actually paid.
  *
@@ -51,7 +50,7 @@ val RecklessDetective = card("Reckless Detective") {
         trigger = Triggers.Attacks
         val payoff: Effect = Effects.DrawCards(1) then
             Effects.ModifyStats(2, 0, EffectTarget.Self)
-        effect = MayEffect(
+        effect = Effects.May(
             effect = ChooseActionEffect(
                 choices = listOf(
                     EffectChoice(

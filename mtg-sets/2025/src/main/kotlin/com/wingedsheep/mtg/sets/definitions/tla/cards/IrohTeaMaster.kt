@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
@@ -35,8 +33,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - The ETB Food is the plain [Effects.CreateFood] facade (Canyon Crawler pattern).
  *  - The combat ability declares both targets up front (chosen as the triggered ability is put on
  *    the stack): "target opponent" and "target permanent you control". "you may … When you do" is
- *    the documented `MayEffect(IfYouDoEffect(action, then))` idiom — [MayEffect] gates the optional
- *    "you may", and [IfYouDoEffect] with [SuccessCriterion.ControlChanged] gates the payoff on the
+ *    the documented `Effects.May(Effects.IfYouDo(action, then))` idiom — [Effects.May] gates the optional
+ *    "you may", and [Effects.IfYouDo] with [SuccessCriterion.ControlChanged] gates the payoff on the
  *    control actually changing (the same deliberate gating Stiltzkin, Moogle Merchant uses for its
  *    "if they do" rider). The `action` is [GiveControlToTargetPlayerEffect] handing the chosen
  *    permanent to the chosen opponent.
@@ -78,13 +76,13 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
             "target permanent you control",
             TargetPermanent(filter = TargetFilter.Permanent.youControl())
         )
-        effect = MayEffect(
-            IfYouDoEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
                 action = GiveControlToTargetPlayerEffect(
                     permanent = permanent,
                     newController = opponent
                 ),
-                ifYouDo = Effects.Composite(
+                then = Effects.Composite(
                     Effects.CreateToken(
                         power = 1,
                         toughness = 1,

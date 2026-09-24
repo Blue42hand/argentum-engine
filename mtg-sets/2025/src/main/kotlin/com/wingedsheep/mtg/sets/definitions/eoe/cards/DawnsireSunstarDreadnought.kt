@@ -38,9 +38,9 @@ val DawnsireSunstarDreadnought = card("Dawnsire, Sunstar Dreadnought") {
     triggeredAbility {
         trigger = Triggers.YouAttack
         val target = target("up to one target creature or planeswalker", TargetCreatureOrPlaneswalker(optional = true))
-        effect = com.wingedsheep.sdk.scripting.effects.ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 10),
-            effect = Effects.DealDamage(100, target)
+            then = Effects.DealDamage(100, target)
         )
         description = "Whenever you attack, Dawnsire deals 100 damage to up to one target creature or planeswalker."
     }

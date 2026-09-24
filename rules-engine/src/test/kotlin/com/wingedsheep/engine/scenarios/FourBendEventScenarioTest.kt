@@ -28,7 +28,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AlternativePaymentChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -85,13 +84,13 @@ class FourBendEventScenarioTest : FunSpec({
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
         triggeredAbility {
             trigger = Triggers.YouBend()
-            effect = ConditionalEffect(
+            effect = Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmount.TurnTracking(Player.You, TurnTracker.DISTINCT_BENDS),
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(4)
                 ),
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 5, EffectTarget.Self)
+                then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 5, EffectTarget.Self)
             )
         }
     }

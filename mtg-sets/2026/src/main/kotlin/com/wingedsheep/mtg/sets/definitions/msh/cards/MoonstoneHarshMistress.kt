@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
  * one resolution fires it three times and each firing binds *its* card as the triggering entity
  * (CR 400.7e — the trigger can find the object the discarded card became in the graveyard). That
  * makes [CardSource.TriggeringEntity] "that card", feeding the Norin, Swift Survivalist
- * gather → exile → grant pipeline wrapped in a [MayEffect] for the optional "you may exile".
+ * gather → exile → grant pipeline wrapped in a [Effects.May] for the optional "you may exile".
  *
  * The permission is granted only on the exiled card, and playing it still costs its mana. Its
  * expiry is [MayPlayExpiry.UntilEndOfNextTurn] — `UntilControllerStep(CLEANUP,
@@ -51,7 +50,7 @@ val MoonstoneHarshMistress = card("Moonstone, Harsh Mistress") {
 
     triggeredAbility {
         trigger = Triggers.YouDiscard
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 listOf(
                     GatherCardsEffect(

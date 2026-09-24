@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Implementation: a `CountersPlacedEvent` for `Counters.PLUS_ONE_PLUS_ONE` filtered to
  * creatures you control and scoped to `placedBy = Player.You` (the printed "**you** put"),
  * which exposes the placed count via `TRIGGER_COUNTERS_PLACED_AMOUNT`. The "may"
- * is a `MayEffect` wrapping the draw — a bare `optional = true` flag on a no-target
+ * is a `Effects.May` wrapping the draw — a bare `optional = true` flag on a no-target
  * triggered ability is a silent no-op (the engine only honours it on targeted abilities
  * or ones with an `elseEffect`), so the player would never have been prompted.
  *
@@ -49,7 +48,7 @@ val Terrasymbiosis = card("Terrasymbiosis") {
             placedBy = Player.You,
         )
         effectOncePerTurn = true
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.DrawCards(
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_COUNTERS_PLACED_AMOUNT)
             )

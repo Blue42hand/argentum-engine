@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Spellbook Vendor
@@ -32,9 +31,9 @@ val SpellbookVendor = card("Spellbook Vendor") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         val targetCreature = target("target creature you control", Targets.CreatureYouControl)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.CreateRoleToken("Sorcerer Role", targetCreature)
+            then = Effects.CreateRoleToken("Sorcerer Role", targetCreature)
         )
     }
 

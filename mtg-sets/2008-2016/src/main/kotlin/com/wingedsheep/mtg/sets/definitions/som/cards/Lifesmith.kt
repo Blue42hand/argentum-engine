@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Lifesmith — Scars of Mirrodin #124
@@ -17,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  * A cast trigger ([Triggers.youCastSpell] over [GameObjectFilter.Artifact]), so it goes on the
  * stack above the artifact and resolves first — the payment is offered whether or not the artifact
  * ever resolves, and a countered artifact spell still gained you the life. The optional payment is
- * [MayPayManaEffect], the flat mana [com.wingedsheep.sdk.scripting.effects.Gate.MayPay] shape the
+ * [Effects.MayPay], the flat mana [com.wingedsheep.sdk.scripting.effects.Gate.MayPay] shape the
  * engine recognizes for manual mana-source selection at resolution.
  */
 val Lifesmith = card("Lifesmith") {
@@ -30,9 +29,9 @@ val Lifesmith = card("Lifesmith") {
 
     triggeredAbility {
         trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Artifact)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            effect = Effects.GainLife(3)
+            then = Effects.GainLife(3)
         )
     }
 

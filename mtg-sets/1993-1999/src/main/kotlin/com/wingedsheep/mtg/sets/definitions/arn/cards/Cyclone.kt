@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Composition:
  *  - Each upkeep adds a wind counter (passive [Counters.WIND]), then the pay-or-sacrifice is an
- *    `OptionalCostEffect` (Gate.MayPay): pay {G} per wind counter (a colored dynamic mana cost via
+ *    `Effects.MayPay` (Gate.MayPay): pay {G} per wind counter (a colored dynamic mana cost via
  *    `Effects.PayDynamicMana(..., color = GREEN)`) → deal damage; decline → sacrifice.
  *  - Both the cost amount and the damage scale off `DynamicAmounts.countersOnSelf(WIND)`, evaluated
  *    after the counter is added so they see the incremented total (CR 608.2c sequencing).
@@ -54,10 +53,10 @@ val Cyclone = card("Cyclone") {
 
         effect = Effects.Composite(
             Effects.AddCounters(Counters.WIND, 1, EffectTarget.Self),
-            OptionalCostEffect(
+            Effects.MayPay(
                 cost = Effects.PayDynamicMana(windCount, color = Color.GREEN),
-                ifPaid = dealDamageToAll,
-                ifNotPaid = Effects.SacrificeTarget(EffectTarget.Self)
+                then = dealDamageToAll,
+                otherwise = Effects.SacrificeTarget(EffectTarget.Self)
             )
         )
         description = "At the beginning of your upkeep, put a wind counter on this enchantment, then " +

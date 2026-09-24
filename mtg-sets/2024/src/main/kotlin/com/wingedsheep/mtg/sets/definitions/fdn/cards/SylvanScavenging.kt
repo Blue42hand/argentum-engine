@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -47,9 +46,9 @@ val SylvanScavenging = card("Sylvan Scavenging") {
                 "Put a +1/+1 counter on target creature you control"
             ),
             Mode.noTarget(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4)),
-                    effect = Effects.CreateToken(
+                    then = Effects.CreateToken(
                         power = 3,
                         toughness = 3,
                         colors = setOf(Color.GREEN),

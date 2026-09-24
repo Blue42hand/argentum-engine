@@ -1544,7 +1544,7 @@ class ManaSolver(
      *
      * Two wrappers can hide the mana effect from the structural inspection below:
      *  - [CompositeEffect] — the mana effect sits alongside bookkeeping effects.
-     *  - [GatedEffect] from `Effects`/`ConditionalEffect` — a *conditional* mana ability
+     *  - [GatedEffect] from `Effects`/`Effects.If` — a *conditional* mana ability
      *    ("{T}: Add {G}. If you control a creature with power 4 or greater, add {G}{G} instead."
      *    — Raucous Audience) whose branch is chosen at resolution. The battlefield is stable during
      *    a single payment, so we evaluate the [Gate.WhenCondition] against the current state and read

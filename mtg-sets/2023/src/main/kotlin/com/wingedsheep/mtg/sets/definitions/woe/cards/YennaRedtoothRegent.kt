@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -69,11 +68,11 @@ val YennaRedtoothRegent = card("Yenna, Redtooth Regent") {
         effect = Effects.CreateTokenCopyOfTarget(
             target = enchantment,
             removedSupertypes = setOf(Supertype.LEGENDARY),
-        ) then ConditionalEffect(
+        ) then Effects.If(
             condition = Conditions.TargetMatchesFilter(
                 GameObjectFilter.Enchantment.withSubtype(Subtype.AURA)
             ),
-            effect = Effects.Untap(EffectTarget.Self) then Effects.Scry(2),
+            then = Effects.Untap(EffectTarget.Self) then Effects.Scry(2),
         )
         description = "Choose target enchantment you control that doesn't have the same name as " +
             "another permanent you control. Create a token that's a copy of it, except it isn't " +

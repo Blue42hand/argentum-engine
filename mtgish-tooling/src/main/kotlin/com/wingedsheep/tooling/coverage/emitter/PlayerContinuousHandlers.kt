@@ -18,19 +18,19 @@ import kotlinx.serialization.json.JsonObject
  *  duration-scoped trigger/replacement creators + group rule grants. */
 internal val playerContinuousHandlers: Map<String, ActionHandler> = actionHandlers {
 
-    on("MayAction") { node, _, tvar ->  // "you may X" -> MayEffect wrapper
+    on("MayAction") { node, _, tvar ->  // "you may X" -> Effects.May wrapper
         val inner = innerAction(node) ?: return@on null
         val rendered = renderAction(inner, tvar) ?: return@on null
-        call("MayEffect", arg(rendered))
+        call("Effects.May", arg(rendered))
     }
 
     // "you may [X and Y]" — a single optional choice gating a sequence of actions (Gustcloak cycle's
-    // "you may untap it and remove it from combat"). Renders the whole sequence as one MayEffect, so a
+    // "you may untap it and remove it from combat"). Renders the whole sequence as one Effects.May, so a
     // partial render (only one arm) declines via renderEffectList rather than dropping an action.
     on("MayActions") { node, _, tvar ->
         val inner = node["args"].asArr?.filterIsInstance<JsonObject>() ?: return@on null
         val edsl = renderEffectList(inner, tvar) ?: return@on null
-        call("MayEffect", arg(edsl))
+        call("Effects.May", arg(edsl))
     }
 
     on("FlipACoin_OnLose") { _, args, tvar ->

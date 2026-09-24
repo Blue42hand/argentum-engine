@@ -2,12 +2,12 @@ package com.wingedsheep.sdk.scripting
 
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 
 /**
@@ -69,7 +69,7 @@ object Sieges {
                     destination = CardDestination.ToZone(Zone.EXILE),
                     storeMovedAs = DEFEAT_EXILED_COLLECTION,
                 ),
-                MayEffect(
+                Effects.May(
                     CastFromCollectionWithoutPayingCostEffect(
                         from = DEFEAT_EXILED_COLLECTION,
                         castTransformed = true,

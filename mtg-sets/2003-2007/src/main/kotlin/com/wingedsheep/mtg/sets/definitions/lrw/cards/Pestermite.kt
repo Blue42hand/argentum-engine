@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
  * Flash plus the untap half is the card's real line: cast it in your own upkeep to untap a land, or
  * during combat to tap a blocker. The target is chosen when the ETB trigger goes on the stack; the
  * tap-or-untap choice is made on resolution, so an opponent who taps the permanent in response
- * doesn't lock you into the now-useless half — the [GraniteWitness] idiom, a [MayEffect] over a
+ * doesn't lock you into the now-useless half — the [GraniteWitness] idiom, a [Effects.May] over a
  * two-[Mode] [ModalEffect] with `countsAsModalSpell = false` so the choice isn't read as a modal
  * *spell*.
  *
@@ -44,7 +44,7 @@ val Pestermite = card("Pestermite") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val permanent = target("target permanent", Targets.Permanent)
-        effect = MayEffect(
+        effect = Effects.May(
             ModalEffect(
                 modes = listOf(
                     Mode.noTarget(TapUntapEffect(permanent, tap = true), "Tap that permanent"),

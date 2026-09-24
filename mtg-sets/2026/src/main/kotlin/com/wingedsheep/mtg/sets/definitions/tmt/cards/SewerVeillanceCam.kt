@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
@@ -31,8 +30,8 @@ val SewerVeillanceCam = card("Sewer-veillance Cam") {
     keywords(Keyword.FLASH)
 
     // "you may tap or untap target creature" — a 2-mode modal (tap / untap) over the
-    // declared target, made optional with MayEffect (Wingnut's countsAsModalSpell=false idiom).
-    fun tapOrUntapTarget(target: EffectTarget) = MayEffect(
+    // declared target, made optional with Effects.May (Wingnut's countsAsModalSpell=false idiom).
+    fun tapOrUntapTarget(target: EffectTarget) = Effects.May(
         ModalEffect(
             modes = listOf(
                 Mode.noTarget(TapUntapEffect(target, tap = true), "Tap that creature"),

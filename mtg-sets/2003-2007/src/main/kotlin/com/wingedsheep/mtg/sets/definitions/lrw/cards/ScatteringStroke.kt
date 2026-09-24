@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -40,7 +39,7 @@ private const val SCATTERED_MANA_VALUE = "scatteredManaValue"
  *  3. **The payoff fires a phase later**, when the resolution pipeline that holds the stored number
  *     is gone. `CreateDelayedTriggerExecutor` snapshots an
  *     [com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect]'s amount into a literal at
- *     creation time for exactly this reason, and it recurses through the [MayEffect] consent gate
+ *     creation time for exactly this reason, and it recurses through the [Effects.May] consent gate
  *     to reach it — so the number is baked in while the pipeline can still answer.
  *
  * "You may" is a resolution-time consent gate on the delayed trigger, not a choice made now: the
@@ -70,7 +69,7 @@ val ScatteringStroke = card("Scattering Stroke") {
                         step = Step.PRECOMBAT_MAIN,
                         fireOnPlayer = EffectTarget.PlayerRef(Player.You),
                         timing = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
-                        effect = MayEffect(
+                        effect = Effects.May(
                             Effects.AddColorlessMana(DynamicAmount.VariableReference(SCATTERED_MANA_VALUE))
                         )
                     )

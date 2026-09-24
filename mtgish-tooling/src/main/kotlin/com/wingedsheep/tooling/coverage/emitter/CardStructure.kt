@@ -1248,7 +1248,7 @@ private fun castCaptureFlagName(cond: JsonObject): String {
  * `SpellActions { Modal_IfElse(PlayerPassesFilter(You, ControlsA(filter)), <then Targeted>, <else
  * Targeted>) }`. In this corpus that envelope is *always* an "as you cast this spell" capture (Steer
  * Clear / Faerie Fencing / Flame Discharge), so it renders to the engine's cast-time capture
- * (`captureAtCast` + `Conditions.CapturedAtCast`) — NOT a resolution-time `ConditionalEffect` over the
+ * (`captureAtCast` + `Conditions.CapturedAtCast`) — NOT a resolution-time `Effects.If` over the
  * current board, which would resolve the Mount/Faerie/modified test at the wrong time.
  *
  * Renders only the shapes we can express exactly: a `You + ControlsA(filter)` condition, one shared
@@ -1284,10 +1284,10 @@ private fun EmitCtx.castTimeCaptureSpell(card: JsonObject): List<Stmt>? {
     stmts.add(RawLine("        captureAtCast(\"$flag\", $condDsl)"))
     stmts.add(targetLocal(tnode))
     stmts.add(Assign("effect", call(
-        "ConditionalEffect",
+        "Effects.If",
         arg("condition", Lit("Conditions.CapturedAtCast(\"$flag\")")),
-        arg("effect", thenEffect),
-        arg("elseEffect", elseEffect),
+        arg("then", thenEffect),
+        arg("otherwise", elseEffect),
     )))
     return listOf(Sub(Block("spell", stmts)))
 }
@@ -1766,7 +1766,7 @@ private fun EmitCtx.modalTriggerBlock(rule: JsonObject, oncePerTurn: Boolean, tr
  * word (CR 207.2c) with **no IR signal**, so the mechanic is recognised purely from its structural
  * shape: a `WhenAPlayerCastsASpell(You, Instant|Sorcery)` trigger whose sole action is an
  * `IfElse(SpellPassesFilter(ThatSpell, AnAmountOfManaWasSpentToCastIt >= 5), <then>, <else>)`. The
- * builder lowers to exactly the `ConditionalEffect(5+ -> then, otherwise -> else)` gameplay tree this
+ * builder lowers to exactly the `Effects.If(5+ -> then, otherwise -> else)` gameplay tree this
  * recognises, so the emit is gameplay-tree-identical (Deluge Virtuoso's +2/+2 instead of +1/+1).
  *
  * Only the "replaces" tier (`IfElse` with both arms present) maps to `insteadIfFiveOrMore`; the
@@ -1898,7 +1898,7 @@ internal fun EmitCtx.triggerBlock(
     /**
      * Rendered condition to gate the whole effect on, supplying CR 603.4's resolution-time re-check
      * for an ability whose intervening-"if" must hold *again* as it resolves. Wraps the effect in a
-     * `ConditionalEffect`, which is what the hand-authored eminence idiom does.
+     * `Effects.If`, which is what the hand-authored eminence idiom does.
      */
     gateEffectOn: String? = null,
 ): List<Stmt>? {
@@ -1943,7 +1943,7 @@ internal fun EmitCtx.triggerBlock(
     val (tnode, tvar) = spellTargetExpr(targets, actions) ?: return null
 
     // "you may [do X]" on a triggered ability is an OPTIONAL ability (declined at announcement /
-    // by choosing no targets), not a resolution-time MayEffect. Unwrap a lone MayAction so the
+    // by choosing no targets), not a resolution-time Effects.May. Unwrap a lone MayAction so the
     // ability carries `optional = true` and a plain effect — the engine's idiom for "may [target]".
     val mayWrapped = actions.singleOrNull()?.strField("_Action") == "MayAction"
     val mayInner = if (mayWrapped) innerAction(actions.single()) ?: return null else null
@@ -1956,7 +1956,7 @@ internal fun EmitCtx.triggerBlock(
     // A triggered ability that returns its own source from the graveyard (Eerie recursion — Fear of
     // Infinity's "Whenever an enchantment you control enters …, you may return this card from your
     // graveyard to your hand") must function from the graveyard: the hand-authored idiom is
-    // `triggerZone = Zone.GRAVEYARD` plus a resolution-time `MayEffect`. This envelope emits neither
+    // `triggerZone = Zone.GRAVEYARD` plus a resolution-time `Effects.May`. This envelope emits neither
     // (it would wrongly render a battlefield-zone `optional = true` trigger), so decline to SCAFFOLD
     // rather than emit a trigger that never fires from the graveyard.
     if (effectActions.any { jsonContains(it, "_CardInGraveyards", "ThisGraveyardCard") }) {
@@ -2004,7 +2004,7 @@ internal fun EmitCtx.triggerBlock(
         Assign(
             "effect",
             if (gateEffectOn != null) {
-                call("ConditionalEffect", arg("condition", Lit(gateEffectOn)), arg("effect", edsl))
+                call("Effects.If", arg("condition", Lit(gateEffectOn)), arg("then", edsl))
             } else edsl
         )
     )
@@ -2280,7 +2280,7 @@ private fun EmitCtx.liftUnlessAction(actions: List<JsonObject>): Pair<String, Li
  *
  * The IR's once-each-turn tag bakes in BOTH the once-per-turn cap (CR 603.3b) AND the "you may" framing
  * over its `MustCost(...) + If(CostWasPaid)[...]` action body. So the body's forced `MustCost` becomes a
- * *resolution-time* MayEffect: `MayEffect(IfYouDoEffect(action = <cost-as-effect>, ifYouDo = <then>))`,
+ * *resolution-time* Effects.May: `Effects.May(Effects.IfYouDo(action = <cost-as-effect>, ifYouDo = <then>))`,
  * exactly the engine's loot idiom — and the ability carries `oncePerTurn = true`. The trigger spec is
  * recovered by the shared [triggerSpecFor] (so the "another creature you control with power 2 or less"
  * ETB filter round-trips through gameObjectFilterDsl, declining if it can't).
@@ -2312,8 +2312,8 @@ internal fun EmitCtx.triggerMayOnceEachTurnBlock(rule: JsonObject): List<Stmt>? 
     val thenEffect = renderEffectList(thenActions, null) ?: run { reasons.add("TriggerMayOnceEachTurn"); return null }
 
     val effect = call(
-        "MayEffect",
-        arg("effect", call("IfYouDoEffect", arg("action", costAction), arg("ifYouDo", thenEffect))),
+        "Effects.May",
+        arg("effect", call("Effects.IfYouDo", arg("action", costAction), arg("then", thenEffect))),
     )
     return listOf(Sub(Block("triggeredAbility", listOf(
         Assign("trigger", Lit(spec)),
@@ -3814,7 +3814,7 @@ internal fun EmitCtx.fromGraveyardBlock(rule: JsonObject): List<Stmt>? {
  * triggeredAbility {
  *     trigger = Triggers.YouCastSubtype(Subtype.VAMPIRE)
  *     triggerZones = setOf(Zone.BATTLEFIELD, Zone.COMMAND)
- *     effect = ConditionalEffect(
+ *     effect = Effects.If(
  *         condition = Conditions.SourceInZone(Zone.BATTLEFIELD, Zone.COMMAND),
  *         effect = Effects.CreateToken(…))
  * }
@@ -3823,7 +3823,7 @@ internal fun EmitCtx.fromGraveyardBlock(rule: JsonObject): List<Stmt>? {
  * Two halves, because the printed zone clause does two jobs. As a CR 113.6b zone statement it makes
  * the trigger *function* from the command zone — `triggerZones`. As an intervening-"if" (CR 603.4) it
  * is checked again on resolution, which the engine does not do for `triggerCondition`, so it is also
- * rendered as a `ConditionalEffect` gate over the body. Dropping either half would be lossy: without
+ * rendered as a `Effects.If` gate over the body. Dropping either half would be lossy: without
  * the first the ability never fires from the command zone, and without the second a source that left
  * both zones still produces its effect.
  *

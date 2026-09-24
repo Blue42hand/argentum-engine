@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -48,13 +47,13 @@ val BoneyardDesecrator = card("Boneyard Desecrator") {
         )
         effect = Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Any(
                         *Subtype.OUTLAW_TYPES
                             .map { Conditions.SacrificedHadSubtype(it.value) }
                             .toTypedArray()
                     ),
-                    effect = Effects.CreateTreasure(1)
+                    then = Effects.CreateTreasure(1)
                 )
             )
     }

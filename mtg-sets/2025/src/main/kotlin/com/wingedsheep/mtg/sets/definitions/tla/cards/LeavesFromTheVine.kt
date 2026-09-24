@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -56,11 +55,11 @@ val LeavesFromTheVine = card("Leaves from the Vine") {
     }
 
     sagaChapter(3) {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.GraveyardContains(
                 GameObjectFilter.Creature or GameObjectFilter.Any.withSubtype("Lesson")
             ),
-            effect = Effects.DrawCards(1)
+            then = Effects.DrawCards(1)
         )
     }
 

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -51,7 +50,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *  - ETB (front): a mandatory [Effects.Move] `GRAVEYARD → BATTLEFIELD` reanimation of a single
  *    target creature card in your graveyard, restricted to `manaValueAtMost(1)` (the same
  *    graveyard-target idiom as Reya Dawnbringer / Daily Bugle Reporters).
- *  - Attack trigger (back): [Triggers.Attacks] + [MayEffect] wrapping the optional sacrifice of
+ *  - Attack trigger (back): [Triggers.Attacks] + [Effects.May] wrapping the optional sacrifice of
  *    another creature ([Effects.SacrificeTarget] over a `.other()` creature you control), so "If
  *    you do" gates the payoff on actually sacrificing. The sacrificed creature's mana value is read
  *    from last-known information via [EntityReference.Sacrificed] — the same capture Memorial Vault
@@ -139,7 +138,7 @@ private val VenomLethalProtector = card("Venom, Lethal Protector") {
             EntityReference.Sacrificed(0),
             EntityNumericProperty.ManaValue
         )
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.SacrificeTarget(sacrificed) then
                 Effects.DrawCards(x) then
                 Effects.Composite(

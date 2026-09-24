@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.DonorCards
 import com.wingedsheep.sdk.scripting.HasAllActivatedAbilitiesOfCards
 import com.wingedsheep.sdk.scripting.SpendAnyManaTypeForActivatedAbilities
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -38,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    the abilities' source (so `{T}` taps it and self-references bind to it — the printed ruling).
  *  - The `{T}` activated ability exiles a targeted graveyard card linked to the Cauldron, then —
  *    only if that card was a creature card (a reflexive trigger, resolved inline via
- *    [ConditionalEffect]) — chooses a creature you control and puts a +1/+1 counter on it.
+ *    [Effects.If]) — chooses a creature you control and puts a +1/+1 counter on it.
  *
  * Rulings (2023-09-01):
  *  - Grants only *activated* abilities, never keyword (unless activated), triggered, or static ones.
@@ -82,9 +81,9 @@ val AgathasSoulCauldron = card("Agatha's Soul Cauldron") {
             // Reflexive "when a creature card is exiled this way": tested on the exiled card's
             // printed type (last-known via its CardComponent in exile). When true, choose a creature
             // you control at resolution and add the counter.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.SelectTarget(Targets.CreatureYouControl, storeAs = "cauldronCounterTarget"),
                     Effects.AddCounters(
                         Counters.PLUS_ONE_PLUS_ONE,

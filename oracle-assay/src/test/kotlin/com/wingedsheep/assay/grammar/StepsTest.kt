@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 import com.wingedsheep.sdk.model.CardScript
@@ -686,12 +685,12 @@ class StepsTest : StringSpec({
     }
 
     // The causative moves the subject inside "have" and drops the verb's agreement, and the model
-    // gains a `MayEffect` — which is why it is a parameter on the row and not an `alsoSpelled`.
+    // gains a `Effects.May` — which is why it is a parameter on the row and not an `alsoSpelled`.
     "the causative sacrifice prints its own sentence rather than the composed may" {
         fragment("You may have target opponent sacrifice a creature of their choice.") shouldBe
             CardFragment(
                 script = CardScript(
-                    spellEffect = MayEffect(
+                    spellEffect = Effects.May(
                         Effects.Sacrifice(GameObjectFilter.Creature, 1, Targets.bound()),
                     ),
                     targetRequirements = listOf(Targets.opponent()),

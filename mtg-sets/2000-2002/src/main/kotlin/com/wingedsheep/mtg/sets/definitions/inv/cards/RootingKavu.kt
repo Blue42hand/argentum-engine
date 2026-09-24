@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The dies trigger functions from the graveyard (`triggerZone = Zone.GRAVEYARD`) so
  * "exile it" can reference Self. Exiling the card always succeeds once the player
- * chooses to, so the "if you do" shuffle is composed under the same MayEffect.
+ * chooses to, so the "if you do" shuffle is composed under the same Effects.May.
  */
 val RootingKavu = card("Rooting Kavu") {
     manaCost = "{2}{G}{G}"
@@ -39,7 +38,7 @@ val RootingKavu = card("Rooting Kavu") {
     triggeredAbility {
         trigger = Triggers.Dies
         triggerZone = Zone.GRAVEYARD
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.Composite(
                 listOf(
                     Effects.Exile(EffectTarget.Self),

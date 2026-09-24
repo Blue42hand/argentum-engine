@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
@@ -62,7 +61,7 @@ val BlightedBlackthorn = card("Blighted Blackthorn") {
  * The "If you do" draw + life loss is gated on the "blighted" collection actually
  * containing a creature.
  */
-private fun blightedBlackthornEffect(): Effect = MayEffect(
+private fun blightedBlackthornEffect(): Effect = Effects.May(
     effect = Effects.Composite(
         listOf(
             GatherCardsEffect(

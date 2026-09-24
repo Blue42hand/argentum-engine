@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -29,7 +28,7 @@ val MoltenRain = card("Molten Rain") {
         // battlefield with its controller intact, then destroy. The conditional reads the
         // target's current nonbasic status, which matches the past-tense oracle phrasing
         // ("if that land was nonbasic").
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(
                 GameObjectFilter(
                     cardPredicates = listOf(
@@ -38,7 +37,7 @@ val MoltenRain = card("Molten Rain") {
                     )
                 )
             ),
-            effect = Effects.DealDamage(2, EffectTarget.TargetController)
+            then = Effects.DealDamage(2, EffectTarget.TargetController)
         ) then Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
     }
 

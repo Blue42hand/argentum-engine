@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 
 /**
  * Dragon Fangs
@@ -49,7 +48,7 @@ val DragonFangs = card("Dragon Fangs") {
             binding = TriggerBinding.ANY
         )
         triggerZone = Zone.GRAVEYARD
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.ReturnSelfToBattlefieldAttached(),
             descriptionOverride = "Attach Dragon Fangs to this creature?",
             sourceRequiredZone = Zone.GRAVEYARD,

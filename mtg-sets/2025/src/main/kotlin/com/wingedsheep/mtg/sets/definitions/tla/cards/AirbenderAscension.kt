@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -55,9 +54,9 @@ val AirbenderAscension = card("Airbender Ascension") {
 
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 4),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 SelectTargetEffect(
                     requirement = TargetObject(filter = TargetFilter.CreatureYouControl, optional = true),
                     storeAs = "flickered"

@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  * When this creature dies, you may put a -1/-1 counter on target creature.
  *
  * The printed "you may" is the builder's `optional = true`, which lowers into the same
- * `Gate.MayDecide` consent gate a hand-written `MayEffect` would build — the target is still
+ * `Gate.MayDecide` consent gate a hand-written `Effects.May` would build — the target is still
  * chosen as the ability goes on the stack (CR 603.3d), the yes/no is asked at resolution.
  */
 val FesteringMummy = card("Festering Mummy") {

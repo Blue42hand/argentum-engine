@@ -7,8 +7,8 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.dsl.Effects
+
 /**
  * Unified Strike
  * {W}
@@ -24,11 +24,11 @@ val UnifiedStrike = card("Unified Strike") {
 
     spell {
         val t = target("target", Targets.AttackingCreature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetPowerAtMost(
                 DynamicAmounts.creaturesWithSubtype(Subtype("Soldier"))
             ),
-            effect = Effects.Move(t, Zone.EXILE)
+            then = Effects.Move(t, Zone.EXILE)
         )
     }
 

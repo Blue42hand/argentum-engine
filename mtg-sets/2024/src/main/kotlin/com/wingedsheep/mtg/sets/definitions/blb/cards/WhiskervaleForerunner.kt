@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -69,9 +68,9 @@ val WhiskervaleForerunner = card("Whiskervale Forerunner") {
             ),
             // If your turn: choose to put on battlefield or hand
             // If not your turn: put in hand
-            ConditionalEffect(
+            Effects.If(
                 condition = IsYourTurn,
-                effect = Effects.Composite(listOf(
+                then = Effects.Composite(listOf(
                     SelectFromCollectionEffect(
                         from = "kept",
                         selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
@@ -91,7 +90,7 @@ val WhiskervaleForerunner = card("Whiskervale Forerunner") {
                         revealed = true
                     )
                 )),
-                elseEffect = MoveCollectionEffect(
+                otherwise = MoveCollectionEffect(
                     from = "kept",
                     destination = CardDestination.ToZone(Zone.HAND),
                     revealed = true

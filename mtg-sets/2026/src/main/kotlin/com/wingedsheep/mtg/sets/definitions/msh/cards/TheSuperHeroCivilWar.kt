@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -45,7 +44,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    [Filters.Group.creaturesYouControl], so it also pumps the creatures chapter I just stole,
  *    and a creature that arrives later in the turn misses out.
  *  - Chapter III's second target is "up to one", so an omitted target must be a clean no-op: the
- *    [ConditionalEffect] gate checks that a second positional target actually resolved before
+ *    [Effects.If] gate checks that a second positional target actually resolved before
  *    running [Effects.Fight] (whose executor errors on an unresolvable target rather than
  *    shrugging).
  *
@@ -113,9 +112,9 @@ val TheSuperHeroCivilWar = card("The Super Hero Civil War") {
             "up to one other target creature",
             TargetOther(TargetCreature(optional = true)),
         )
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, targetIndex = 1),
-            effect = Effects.Fight(mine, other),
+            then = Effects.Fight(mine, other),
         )
     }
 

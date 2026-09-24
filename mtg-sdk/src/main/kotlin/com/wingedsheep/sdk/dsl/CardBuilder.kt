@@ -14,13 +14,11 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ownsConsentGate
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -932,10 +930,10 @@ class CardBuilder(private val name: String) {
             else -> null
         }
 
-        // Build the script — wrap spell effect in ConditionalEffect if condition is set
+        // Build the script — wrap spell effect in Effects.If if condition is set
         val rawSpellEffect = spellBuilder?.effect
         val spellEffect = if (spellBuilder?.condition != null && rawSpellEffect != null) {
-            ConditionalEffect(spellBuilder!!.condition!!, rawSpellEffect)
+            Effects.If(spellBuilder!!.condition!!, rawSpellEffect)
         } else {
             rawSpellEffect
         }
@@ -1541,7 +1539,7 @@ class TriggeredAbilityBuilder {
      * used to exist beside the gate and the engine read it and built the gate anyway, so the two
      * spellings were one fact and a card could be written either way. The shorthand survives because
      * `optional = true` beside `effect = Effects.Destroy(…)` reads better than nesting the effect,
-     * but it produces exactly one model: `MayEffect(effect, otherwise = elseEffect)`.
+     * but it produces exactly one model: `Effects.May(effect, otherwise = elseEffect)`.
      *
      * Consequences of it being a lowering rather than a flag:
      *
@@ -1657,7 +1655,7 @@ class TriggeredAbilityBuilder {
             // runtime. Removing either copy silently degrades that layer's text rather than
             // failing a build; if you are here to de-duplicate, that is the trap.
             effect = if (optional) {
-                MayEffect(declared, descriptionOverride = description, otherwise = elseEffect)
+                Effects.May(declared, descriptionOverride = description, otherwise = elseEffect)
             } else {
                 declared
             },
@@ -2176,7 +2174,7 @@ class CardFaceBuilder(private val name: String) {
         val parsedTypeLine = TypeLine.parse(typeLine)
         val rawSpellEffect = spellBuilder?.effect
         val spellEffect = if (spellBuilder?.condition != null && rawSpellEffect != null) {
-            ConditionalEffect(spellBuilder!!.condition!!, rawSpellEffect)
+            Effects.If(spellBuilder!!.condition!!, rawSpellEffect)
         } else {
             rawSpellEffect
         }

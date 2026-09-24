@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    it as artifacts come and go mid-combat.
  *  - "Whenever Iron Man attacks, if …" is an intervening-if clause (CR 603.4): checked both when the
  *    trigger would go on the stack and again on resolution, which is exactly what `interveningIf`
- *    models — *not* a `ConditionalEffect` inside the body.
+ *    models — *not* a `Effects.If` inside the body.
  *  - The condition reads the ETB-by-type *event* tracker
  *    ([Conditions.ArtifactEnteredBattlefieldThisTurn], Mechan Shieldmate's precedent), not the
  *    current battlefield population: an artifact that entered and then left (or stopped being an

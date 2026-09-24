@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -37,7 +36,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *    shuffles — matching Unlucky Cabbage Merchant.
  *  - The landfall payoff is an intervening-"if" (CR 603.4): putting the quest counter is mandatory,
  *    and only if the enchantment then has four or more quest counters does the boost happen. The
- *    counter add is sequenced first, then [ConditionalEffect] gates the payoff on the live count
+ *    counter add is sequenced first, then [Effects.If] gates the payoff on the live count
  *    (`SourceCounterCountAtLeast`) so no creature is chosen at all when below the threshold. The
  *    creature is picked at resolution via [SelectTargetEffect] (rather than a reflexive target
  *    requirement) precisely so the choice only happens inside the satisfied gate.
@@ -73,9 +72,9 @@ val EarthbenderAscension = card("Earthbender Ascension") {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.Composite(
             Effects.AddCounters(Counters.QUEST, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 4),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     SelectTargetEffect(
                         requirement = TargetObject(filter = TargetFilter.CreatureYouControl),
                         storeAs = "boostedCreature"

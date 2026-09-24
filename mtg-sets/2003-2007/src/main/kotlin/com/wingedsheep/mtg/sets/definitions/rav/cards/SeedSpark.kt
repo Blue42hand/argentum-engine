@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Seed Spark — Ravnica: City of Guilds #30
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  * *paid*, so any source of {G} — a Forest, a Temple Garden, Birds of Paradise — turns the Saprolings
  * on; it is not a second colour requirement on the spell, which stays mono-white.
  *
- * The rider is a plain `ConditionalEffect` **after** the destruction rather than a branch around it,
+ * The rider is a plain `Effects.If` **after** the destruction rather than a branch around it,
  * because the two halves are independent: the tokens arrive even when the destroy half does nothing
  * (a target that regenerated or is indestructible), and the spell fizzles entirely — tokens included
  * — only when its single target is illegal on resolution (CR 608.2b).
@@ -39,9 +38,9 @@ val SeedSpark = card("Seed Spark") {
         val permanent = target("artifact or enchantment", Targets.ArtifactOrEnchantment)
         effect = Effects.Move(permanent, Zone.GRAVEYARD, byDestruction = true)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ManaSpentToCastIncludes(requiredGreen = 1),
-                    effect = Effects.CreateToken(
+                    then = Effects.CreateToken(
                         power = 1,
                         toughness = 1,
                         colors = setOf(Color.GREEN),

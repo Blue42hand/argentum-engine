@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 
 /**
@@ -31,13 +30,13 @@ val SoldOut = card("Sold Out") {
 
     spell {
         val creature = target("target creature", Targets.Creature)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(
                 GameObjectFilter.Creature.copy(
                     statePredicates = listOf(StatePredicate.WasDealtDamageThisTurn),
                 ),
             ),
-            effect = Effects.CreateClue(),
+            then = Effects.CreateClue(),
         ).then(Effects.Exile(creature))
     }
 

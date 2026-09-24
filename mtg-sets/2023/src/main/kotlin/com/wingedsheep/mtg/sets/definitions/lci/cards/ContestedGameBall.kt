@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GainControlByActivePlayerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -36,11 +35,11 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    member of the attacking team gains control; multiplayer isn't supported yet — see
  *    backlog/multiplayer.md.) The artifact is then untapped so the new controller can use it.
  *  - The activated ability composes [Effects.DrawCards] (1) -> [Effects.AddCounters] (a passive
- *    [Counters.POINT] counter on Self) -> a resolution-time [ConditionalEffect] gated on
+ *    [Counters.POINT] counter on Self) -> a resolution-time [Effects.If] gated on
  *    [Conditions.SourceCounterCountAtLeast]`(point, 5)` that sacrifices the artifact
  *    ([Effects.SacrificeTarget]`(Self)`) and makes a Treasure ([Effects.CreateTreasure]). The
  *    threshold is checked only as the ability resolves (ruling: point counters added another way
- *    don't trigger the sacrifice), which `ConditionalEffect` does. Same "add a counter, then
+ *    don't trigger the sacrifice), which `Effects.If` does. Same "add a counter, then
  *    conditionally do more" shape as Treasure Map / Brass's Tunnel-Grinder.
  */
 val ContestedGameBall = card("Contested Game Ball") {
@@ -66,9 +65,9 @@ val ContestedGameBall = card("Contested Game Ball") {
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Effects.AddCounters(Counters.POINT, 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(Counters.POINT, 5),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.SacrificeTarget(EffectTarget.Self),
                     Effects.CreateTreasure(1),
                 ),

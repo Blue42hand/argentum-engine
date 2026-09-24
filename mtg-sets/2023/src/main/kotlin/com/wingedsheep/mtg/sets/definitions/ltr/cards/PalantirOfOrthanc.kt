@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * the total mana value of those cards.
  *
  * The "target opponent may" is routed to the targeted opponent (not the controller) via
- * [MayEffect]'s `decisionMaker`. On yes → the controller draws a card; on no → the else-branch
+ * [Effects.May]'s `decisionMaker`. On yes → the controller draws a card; on no → the else-branch
  * mills X cards into the "milled" collection and the opponent loses life equal to their total
  * mana value (DynamicAmount.ManaValueSumOfCollection / DynamicAmounts.manaValueSumOf).
  */
@@ -45,7 +44,7 @@ val PalantirOfOrthanc = card("Palantír of Orthanc") {
             listOf(
                 Effects.AddCounters(Counters.INFLUENCE, 1, EffectTarget.Self),
                 Patterns.Library.scry(2),
-                MayEffect(
+                Effects.May(
                     effect = Effects.DrawCards(1, EffectTarget.Controller),
                     descriptionOverride = "Have Palantír of Orthanc's controller draw a card?",
                     decisionMaker = opponent,

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
@@ -49,12 +48,12 @@ val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val opponent = target("opponent", Targets.Opponent)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             // "If THEY lost life this turn" — bound to the chosen target opponent,
             // not any opponent (matters in multiplayer)
             condition = Conditions.PlayerLostLifeThisTurn(Player.ContextPlayer(0)),
             // If they lost life: reveal hand, controller chooses nonland, discard it
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 listOf(
                     RevealHandEffect(opponent),
                     GatherCardsEffect(
@@ -76,7 +75,7 @@ val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
                 )
             ),
             // Otherwise: they discard a card (their choice)
-            elseEffect = Patterns.Hand.discardCards(1, opponent)
+            otherwise = Patterns.Hand.discardCards(1, opponent)
         )
     }
 

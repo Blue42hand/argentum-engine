@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Retrieve the Esper
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  * Flashback {5}{U}
  *
  * The token-create atomic publishes its entity id under [CREATED_TOKENS]; the graveyard-cast rider
- * is a [ConditionalEffect] gated on [Conditions.WasCastFromGraveyard] that addresses that same token
+ * is a [Effects.If] gated on [Conditions.WasCastFromGraveyard] that addresses that same token
  * via [Effects.AddCountersToCollection] (the Incubate composition pattern).
  */
 val RetrieveTheEsper = card("Retrieve the Esper") {
@@ -41,9 +40,9 @@ val RetrieveTheEsper = card("Retrieve the Esper") {
                 artifactToken = true,
                 imageUri = "https://cards.scryfall.io/normal/front/c/2/c2b4e93b-6b27-4dd3-a6dd-a75d6fab14dc.jpg?1748704066",
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
-                effect = Effects.AddCountersToCollection(CREATED_TOKENS, Counters.PLUS_ONE_PLUS_ONE, 2),
+                then = Effects.AddCountersToCollection(CREATED_TOKENS, Counters.PLUS_ONE_PLUS_ONE, 2),
             ),
         )
     }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
@@ -63,9 +62,9 @@ val JinxedChoker = card("Jinxed Choker") {
     activatedAbility {
         cost = Costs.Mana("{3}")
         val addCounter = Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceHasCounter(CounterTypeFilter.Named(Counters.CHARGE)),
-            effect = ChooseActionEffect(
+            then = ChooseActionEffect(
                 choices = listOf(
                     EffectChoice("Put a charge counter on Jinxed Choker", addCounter),
                     EffectChoice(
@@ -74,7 +73,7 @@ val JinxedChoker = card("Jinxed Choker") {
                     ),
                 ),
             ),
-            elseEffect = addCounter,
+            otherwise = addCounter,
         )
         description = "Put a charge counter on this artifact or remove one from it"
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Its effect is an atomic pipeline:
  *   1. [GatherCardsEffect] from the top of the library (count 1) — defaults to a private
  *      controller look ("look at the top card of your library").
- *   2. [MayEffect] wrapping [CastFromCollectionWithoutPayingCostEffect] — the optional
+ *   2. [Effects.May] wrapping [CastFromCollectionWithoutPayingCostEffect] — the optional
  *      "you may cast that card without paying its mana cost", which synthesizes the cast
  *      through the normal stack machinery so any target / X / mode prompts surface.
  */
@@ -59,7 +58,7 @@ val PlanetariumOfWanShiTong = card("Planetarium of Wan Shi Tong") {
                 ),
                 storeAs = "top",
             ),
-            MayEffect(CastFromCollectionWithoutPayingCostEffect(from = "top")),
+            Effects.May(CastFromCollectionWithoutPayingCostEffect(from = "top")),
         )
     }
 

@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The spell-rider shape of bargain (CR 702.166c), like [ArchonsGlory] — except the payoff isn't an
  * extra clause but a *bigger number*, so it's a [DynamicAmount.Conditional] on
- * [Conditions.WasBargained] feeding the dig's count rather than a `ConditionalEffect` wrapping a
+ * [Conditions.WasBargained] feeding the dig's count rather than a `Effects.If` wrapping a
  * second effect. The bargained fact is stamped on the spell as it's cast and read while the spell
  * is still resolving.
  *

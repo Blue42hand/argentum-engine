@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect
 import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -39,7 +38,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * that wipe.
  *
  * Nothing here is once-only: each resolution independently grants another equip {3} and another
- * "+3/+3", so declining is the player's lever — hence the [MayEffect].
+ * "+3/+3", so declining is the player's lever — hence the [Effects.May].
  */
 val TheIrencrag = card("The Irencrag") {
     manaCost = "{2}"
@@ -76,7 +75,7 @@ val TheIrencrag = card("The Irencrag") {
             filter = GameObjectFilter.Creature.legendary().youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = MayEffect(
+        effect = Effects.May(
             BecomeArtifactEffect(
                 target = EffectTarget.Self,
                 cardTypes = setOf("ARTIFACT"),

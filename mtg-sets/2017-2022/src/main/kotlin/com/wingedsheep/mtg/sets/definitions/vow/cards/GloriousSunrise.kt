@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -41,7 +40,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *     overrun pattern).
  *  2. `withTarget` — a [TargetPermanent] land; [GrantActivatedAbilityEffect] grants a `{T}: Add {G}{G}{G}`
  *     activated ability until end of turn (Run Wild's grant pattern, land-typed target).
- *  3. `noTarget` — a [ConditionalEffect] gated on `Conditions.YouControl(Creature.powerAtLeast(3))`;
+ *  3. `noTarget` — a [Effects.If] gated on `Conditions.YouControl(Creature.powerAtLeast(3))`;
  *     draws a card only if the condition holds (no draw otherwise, matching "Draw a card if …").
  *  4. `noTarget` — plain gain 3 life.
  *
@@ -84,9 +83,9 @@ val GloriousSunrise = card("Glorious Sunrise") {
                 description = "Target land gains \"{T}: Add {G}{G}{G}\" until end of turn"
             ),
             Mode.noTarget(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(3)),
-                    effect = Effects.DrawCards(1)
+                    then = Effects.DrawCards(1)
                 ),
                 "Draw a card if you control a creature with power 3 or greater"
             ),

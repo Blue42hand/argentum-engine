@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -27,9 +26,9 @@ val KothTheGeomancer = card("Koth, the Geomancer") {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.Composite(
             Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.EntityMatches(EffectTarget.TriggeringEntity, Filters.MountainCard),
-                effect = Effects.AddMana(Color.RED)
+                then = Effects.AddMana(Color.RED)
             )
         )
         description = "Landfall — Whenever a land you control enters, Koth deals 1 damage to each opponent. If that land is a Mountain, add {R}."

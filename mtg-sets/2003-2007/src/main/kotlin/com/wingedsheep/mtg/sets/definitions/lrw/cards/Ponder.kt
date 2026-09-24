@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 
 /**
@@ -27,7 +26,7 @@ val Ponder = card("Ponder") {
     spell {
         effect = Effects.Composite(
             Patterns.Library.lookAtTopAndReorder(count = 3),
-            MayEffect(ShuffleLibraryEffect()),
+            Effects.May(ShuffleLibraryEffect()),
             DrawCardsEffect(1)
         )
     }

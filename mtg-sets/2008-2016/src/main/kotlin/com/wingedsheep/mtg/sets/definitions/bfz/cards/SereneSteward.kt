@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 
 /**
  * Serene Steward
@@ -27,9 +26,9 @@ val SereneSteward = card("Serene Steward") {
     triggeredAbility {
         trigger = Triggers.YouGainLife
         val creature = target("target creature", Targets.Creature)
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
         )
     }
 

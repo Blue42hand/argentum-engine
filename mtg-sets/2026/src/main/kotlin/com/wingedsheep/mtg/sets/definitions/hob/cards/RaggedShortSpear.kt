@@ -4,15 +4,13 @@
 
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-
 
 /**
  * Ragged Short Spear
@@ -29,7 +27,7 @@ val RaggedShortSpear = card("Ragged Short Spear") {
     oracleText = "When this Equipment enters, you may discard a card. If you do, draw two cards.\nEquipped creature gets +2/+0.\nEquip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)"
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(effect = IfYouDoEffect(action = Patterns.Hand.discardCards(1), ifYouDo = DrawCardsEffect(2)))
+        effect = Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(2)))
     }
     staticAbility {
         ability = ModifyStats(2, 0)

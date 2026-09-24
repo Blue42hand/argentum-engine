@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 
 /**
@@ -15,7 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
  * Whenever this creature attacks, you may pay {1}{W}. If you do, it endures 1.
  * (Put a +1/+1 counter on it or create a 1/1 white Spirit creature token.)
  *
- * The "you may pay {1}{W}" gate is an [OptionalCostEffect] (same shape as
+ * The "you may pay {1}{W}" gate is an [Effects.MayPay] (same shape as
  * Zoraline, Cosmos Caller): if the mana is paid, the Endure 1 effect runs.
  */
 val DescendantOfStorms = card("Descendant of Storms") {
@@ -29,9 +28,9 @@ val DescendantOfStorms = card("Descendant of Storms") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = PayManaCostEffect(ManaCost.parse("{1}{W}")),
-            ifPaid = Effects.Endure(1)
+            then = Effects.Endure(1)
         )
         description = "Whenever this creature attacks, you may pay {1}{W}. If you do, it endures 1."
     }

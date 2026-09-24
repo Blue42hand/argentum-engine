@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,7 +40,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *  - "Up to three target cards from your graveyard" is a [TargetObject] with `count = 3,
  *    optional = true` over an owned-by-you graveyard filter, and [ForEachTargetEffect] moves each
  *    chosen card to its owner's library followed by one [ShuffleLibraryEffect] — the Gaea's Blessing
- *    shape. The "you may" is a separate resolution-time decision ([MayEffect]) because the targets
+ *    shape. The "you may" is a separate resolution-time decision ([Effects.May]) because the targets
  *    were locked in when the trigger went on the stack.
  *  - The exile-instead clause is [RedirectZoneChange] with `selfOnly = true`, carried on the card
  *    entity so it functions in every zone (CR 614.12) — a countered disturb spell is exiled.
@@ -111,7 +110,7 @@ private val GhostlyCastigator = card("Ghostly Castigator") {
             filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD),
             id = "three target cards from your graveyard",
         )
-        effect = MayEffect(
+        effect = Effects.May(
             ForEachTargetEffect(
                 effects = listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY))
             ).then(ShuffleLibraryEffect()),

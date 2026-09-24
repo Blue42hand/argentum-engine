@@ -14,9 +14,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -127,26 +125,26 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
     // card. — modeled as two sibling triggers sharing one body.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = SacrificeEffect(
                 filter = GameObjectFilter.Creature,
                 count = 1,
                 excludeSource = true,
             ),
-            ifPaid = Effects.DrawCards(1),
+            then = Effects.DrawCards(1),
         )
         description = "Whenever Sephiroth enters, you may sacrifice another creature. If you do, " +
             "draw a card."
     }
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = SacrificeEffect(
                 filter = GameObjectFilter.Creature,
                 count = 1,
                 excludeSource = true,
             ),
-            ifPaid = Effects.DrawCards(1),
+            then = Effects.DrawCards(1),
         )
         description = "Whenever Sephiroth attacks, you may sacrifice another creature. If you do, " +
             "draw a card."
@@ -168,9 +166,9 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
             )
         ).then(IncrementAbilityResolutionCountEffect)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(4),
-                    effect = TransformEffect(EffectTarget.Self),
+                    then = TransformEffect(EffectTarget.Self),
                 )
             )
         description = "Whenever another creature dies, target opponent loses 1 life and you gain 1 " +

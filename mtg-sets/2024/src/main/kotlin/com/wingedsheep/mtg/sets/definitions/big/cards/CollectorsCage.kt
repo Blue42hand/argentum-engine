@@ -16,11 +16,9 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.GrantPlayWithoutPayingCostEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -44,9 +42,9 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * (linked to this artifact) → bottom-randomize-the-rest pipeline, the same shape as
  * [com.wingedsheep.mtg.sets.definitions.lrw.cards.MosswortBridge]. Unlike Mosswort Bridge, the
  * play-exiled clause here is *mid-effect*, not an activation gate: the +1/+1 counter happens
- * unconditionally, then a [ConditionalEffect] tests "three or more creatures with different
+ * unconditionally, then a [Effects.If] tests "three or more creatures with different
  * powers" ([DynamicAmounts.distinctValues] over [CardNumericProperty.POWER] ≥ 3, two creatures
- * sharing a power counting once) and, if met, offers a [MayEffect] that grants may-play +
+ * sharing a power counting once) and, if met, offers a [Effects.May] that grants may-play +
  * play-without-paying-cost over the hidden-away card.
  */
 val CollectorsCage = card("Collector's Cage") {
@@ -105,14 +103,14 @@ val CollectorsCage = card("Collector's Cage") {
         effect = Effects.Composite(
             listOf(
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target),
-                ConditionalEffect(
+                Effects.If(
                     condition = Compare(
                         DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature)
                             .distinctValues(CardNumericProperty.POWER),
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(3)
                     ),
-                    effect = MayEffect(
+                    then = Effects.May(
                         Effects.Composite(
                             listOf(
                                 GatherCardsEffect(

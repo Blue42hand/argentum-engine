@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
@@ -38,10 +37,10 @@ val BurningCuriosity = card("Burning Curiosity") {
     additionalCost(Costs.additional.BlightOrPay(blightAmount = 1, alternativeManaCost = ""))
 
     spell {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.BlightWasPaid,
-            effect = exileTopAndMayPlay(3),
-            elseEffect = exileTopAndMayPlay(2)
+            then = exileTopAndMayPlay(3),
+            otherwise = exileTopAndMayPlay(2)
         )
     }
 

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -25,10 +24,10 @@ val TenuredTethermage = card("Tenured Tethermage") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.IfYouDo(
                 action = Effects.Sacrifice(GameObjectFilter.Land, count = 1, target = EffectTarget.Controller),
-                ifYouDo = Effects.CreateHeartwood(count = 2, tapped = true),
+                then = Effects.CreateHeartwood(count = 2, tapped = true),
                 successCriterion = SuccessCriterion.PermanentsSacrificed
             )
         )

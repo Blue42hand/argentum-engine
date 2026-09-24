@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -40,7 +39,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    ANY binding fires for the device itself and every other artifact you control. The optional
  *    target ("up to one") is a [TargetCreature]`(optional = true)`; the effect pumps +1/+0
  *    ([Effects.ModifyStats]) and grants haste ([Effects.GrantKeyword]) until end of turn, then a
- *    [ConditionalEffect] on [Conditions.YouControlAtLeast]`(4, Artifact)` flips the device. The
+ *    [Effects.If] on [Conditions.YouControlAtLeast]`(4, Artifact)` flips the device. The
  *    transform is gated only on the artifact count, so it still happens when no creature is chosen.
  *  - Back's activated ability grants haste and a dynamic +X/+0 where X counts your artifacts
  *    ([DynamicAmount.AggregateBattlefield]), at sorcery speed ([TimingRule.SorcerySpeed]).
@@ -66,9 +65,9 @@ private val DowsingDeviceFront = card("Dowsing Device") {
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, creature),
             Effects.GrantKeyword(Keyword.HASTE, creature),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouControlAtLeast(4, GameObjectFilter.Artifact),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
     }

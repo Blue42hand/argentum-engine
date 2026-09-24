@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Rapier Wit
@@ -16,7 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  * stun counter would become untapped, remove one from it instead.)
  * Draw a card.
  *
- * The stun counter is gated on [IsYourTurn] via [ConditionalEffect] — a synchronous
+ * The stun counter is gated on [IsYourTurn] via [Effects.If] — a synchronous
  * resolution-time test, no pause. Stun is engine-wired (CR 122.1d) through `untapOrConsumeStun`,
  * so `Effects.AddCounters(Counters.STUN, ...)` is all that's needed. `ContextTarget(0)` (the
  * default for the single-target effects) is the tapped creature.
@@ -33,9 +32,9 @@ val RapierWit = card("Rapier Wit") {
         val t = target("target", Targets.Creature)
         effect = Effects.Composite(
             Effects.Tap(t),
-            ConditionalEffect(
+            Effects.If(
                 condition = IsYourTurn,
-                effect = Effects.AddCounters(Counters.STUN, 1, t),
+                then = Effects.AddCounters(Counters.STUN, 1, t),
             ),
             Effects.DrawCards(1),
         )

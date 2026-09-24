@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Ent's Fury
@@ -26,12 +25,12 @@ val EntsFury = card("Ent's Fury") {
     spell {
         val mine = target("creature you control", Targets.CreatureYouControl)
         val theirs = target("creature you don't control", Targets.CreatureOpponentControls)
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(
                 filter = GameObjectFilter.Creature.powerAtLeast(4),
                 targetIndex = 0
             ),
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine)
+            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine)
         )
             .then(Effects.ModifyStats(1, 1, mine))
             .then(Effects.Fight(mine, theirs))

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val ProftConsultingDetective = card("Proft, Consulting Detective") {
@@ -19,9 +18,9 @@ val ProftConsultingDetective = card("Proft, Consulting Detective") {
 
     triggeredAbility {
         trigger = Triggers.WheneverYouScryOrSurveil
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 Effects.DrawCards(1),
             )

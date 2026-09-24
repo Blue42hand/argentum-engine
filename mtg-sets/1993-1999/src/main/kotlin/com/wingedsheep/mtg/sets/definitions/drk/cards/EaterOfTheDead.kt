@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The "if this creature is tapped" clause is a **resolution-time** check, not an activation
  * restriction — the ability can legally be activated (and targeted) while the Eater is untapped, it
- * just does nothing. So it is a `ConditionalEffect` on `SourceIsTapped` rather than a
+ * just does nothing. So it is a `Effects.If` on `SourceIsTapped` rather than a
  * `TimingRule.OnlyIfCondition` or an `ActivationRestriction`, which would wrongly hide the ability
  * from the untapped Eater's controller.
  *
@@ -41,9 +40,9 @@ val EaterOfTheDead = card("Eater of the Dead") {
     activatedAbility {
         cost = Costs.Free
         target = Targets.CreatureCardInGraveyard
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Conditions.SourceIsTapped,
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 Effects.Exile(EffectTarget.ContextTarget(0), fromZone = Zone.GRAVEYARD),
                 Effects.Untap(EffectTarget.Self),
             ),

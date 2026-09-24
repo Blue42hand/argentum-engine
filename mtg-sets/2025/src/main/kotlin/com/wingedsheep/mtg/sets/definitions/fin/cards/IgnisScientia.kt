@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -87,9 +86,9 @@ val IgnisScientia = card("Ignis Scientia") {
                 // is always exiled, so its type (read from the gathered collection, base card type is
                 // zone-independent) determines the Food. Evaluated before the move so the collection's
                 // entity ids are still live.
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CollectionContainsMatch("exiled", GameObjectFilter.Creature),
-                    effect = Effects.CreateFood()
+                    then = Effects.CreateFood()
                 ),
                 // Exile target card from a graveyard.
                 MoveCollectionEffect(

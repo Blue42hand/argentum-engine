@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 /**
@@ -36,7 +35,7 @@ val ElanorGardner = card("Elanor Gardner") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.SacrificedFoodThisTurn
-        effect = MayEffect(
+        effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
                 count = 1,

@@ -28,9 +28,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -121,9 +118,9 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
             trigger = Triggers.EntersBattlefield
             effect = Effects.Composite(
                 Effects.GainLife(1),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.WasEvidenceCollected,
-                    effect = Effects.GainLife(5),
+                    then = Effects.GainLife(5),
                 ),
             )
         }
@@ -187,7 +184,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         toughness = 3
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
-            effect = MayEffect(Effects.CollectEvidence(4))
+            effect = Effects.May(Effects.CollectEvidence(4))
         }
         triggeredAbility {
             trigger = Triggers.WheneverYouCollectEvidence
@@ -203,9 +200,9 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         toughness = 1
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
-            effect = OptionalCostEffect(
+            effect = Effects.MayPay(
                 cost = Effects.CollectEvidence(4),
-                ifPaid = Effects.GainLife(7),
+                then = Effects.GainLife(7),
             )
         }
     }

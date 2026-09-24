@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -48,17 +47,17 @@ val ManaClash = card("Mana Clash") {
             body = Effects.Composite(
                 Effects.FlipCoins(1, storeHeadsAs = "manaClashMine"),
                 Effects.FlipCoins(1, storeHeadsAs = "manaClashTheirs"),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CompareAmounts(
                         myHeads, ComparisonOperator.EQ, DynamicAmount.Fixed(0)
                     ),
-                    effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You)),
+                    then = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You)),
                 ),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.CompareAmounts(
                         theirHeads, ComparisonOperator.EQ, DynamicAmount.Fixed(0)
                     ),
-                    effect = Effects.DealDamage(1, opponent),
+                    then = Effects.DealDamage(1, opponent),
                 ),
             ),
             repeatCondition = RepeatCondition.WhileCondition(

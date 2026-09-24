@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -45,13 +44,13 @@ val StillnessInMotion = card("Stillness in Motion") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Patterns.Library.mill(3).then(
-            ConditionalEffect(
+            Effects.If(
                 condition = Compare(
                     DynamicAmount.Count(Player.You, Zone.LIBRARY),
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(0)
                 ),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     listOf(
                         Effects.Exile(EffectTarget.Self),
                         GatherCardsEffect(

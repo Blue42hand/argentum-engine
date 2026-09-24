@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - X is [ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL] — the mana actually spent on the
  *    *triggering* spell, not its mana value. Cost reductions lower it; an X spell or a kicked
  *    spell raises it, and mana spent from Treasures or rituals counts all the same.
- *  - "You may … If you do" is one [MayEffect] over both halves: accepting draws and then discards,
+ *  - "You may … If you do" is one [Effects.May] over both halves: accepting draws and then discards,
  *    declining does neither. The discard is not a separate optional step — it rides on the same
  *    decision, so a player can't take the cards and skip the cost.
  *  - The enchantment is itself a noncreature spell, but it isn't on the battlefield while it's on
@@ -35,7 +34,7 @@ val UncoverTheMoonLetters = card("Uncover the Moon-Letters") {
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.DrawCards(
                     DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL)

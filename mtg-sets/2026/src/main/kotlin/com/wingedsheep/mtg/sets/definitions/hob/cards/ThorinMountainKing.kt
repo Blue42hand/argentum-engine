@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
@@ -55,7 +54,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *    "dealt damage by a creature" reactions all see the creature) and `EntityReference.IterationEntity`
  *    reads *its* power, at reflexive-resolution time. The collection reaches the reflexive because
  *    the executor carries the action's pipeline onto the reflexive event.
- *  - **The "one or more" guard** is the [ConditionalEffect] wrapping the whole reflexive: both the
+ *  - **The "one or more" guard** is the [Effects.If] wrapping the whole reflexive: both the
  *    Equipment collection and the creature collection must be non-empty. Without it, choosing zero
  *    Equipment (legal — "any number" allows none) or losing the creature target would still fire the
  *    damage half, which the printed trigger condition forbids.
@@ -103,12 +102,12 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
             val creature = exclude(chosen, equipment)
 
             run(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.All(
                         CollectionContainsMatch(equipment.key),
                         CollectionContainsMatch(creature.key)
                     ),
-                    effect = ReflexiveTriggerEffect(
+                    then = ReflexiveTriggerEffect(
                         optional = false,
                         action = ForEachInCollectionEffect(
                             collection = equipment.key,

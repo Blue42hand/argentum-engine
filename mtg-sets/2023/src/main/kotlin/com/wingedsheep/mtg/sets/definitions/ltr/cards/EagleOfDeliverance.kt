@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -39,9 +38,9 @@ val EagleOfDeliverance = card("Eagle of Deliverance") {
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
         )
         effect = Effects.AddCounters(Counters.INDESTRUCTIBLE, 1, creature) then
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetPowerAtMost(DynamicAmount.Fixed(2)),
-                effect = Effects.DrawCards(1)
+                then = Effects.DrawCards(1)
             )
     }
 

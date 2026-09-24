@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -60,12 +59,12 @@ val EgoDrain = card("Ego Drain") {
             )
             // 5. The Faerie rider.
             run(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.YouControl(
                         GameObjectFilter.Creature.withSubtype(Subtype.FAERIE),
                         negate = true
                     ),
-                    effect = Patterns.Hand.exileFromHand(1, EffectTarget.Controller)
+                    then = Patterns.Hand.exileFromHand(1, EffectTarget.Controller)
                 )
             )
         }

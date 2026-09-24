@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -29,9 +28,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The end-step ability is a [Effects.Composite] of three ordered steps:
  *  1. add an invitation counter to itself;
- *  2. a [ConditionalEffect] whose then/else honor "if you attacked with two or more creatures … draw
+ *  2. a [Effects.If] whose then/else honor "if you attacked with two or more creatures … draw
  *     a card. Otherwise, create a 1/1 white Human token" via [Conditions.YouAttackedWithCreaturesThisTurn];
- *  3. a second [ConditionalEffect] gated on [Conditions.SourceCounterCountAtLeast] 3, transforming it
+ *  3. a second [Effects.If] gated on [Conditions.SourceCounterCountAtLeast] 3, transforming it
  *     (Treasure Map's counter-then-transform idiom). The back is a transformed face with no mana
  *     cost, so its color comes from a color indicator (CR 204): `colorIndicator = "W"`.
  */
@@ -49,10 +48,10 @@ private val WeddingAnnouncementFront = card("Wedding Announcement") {
         trigger = Triggers.YourEndStep
         effect = Effects.Composite(
             Effects.AddCounters("invitation", 1, EffectTarget.Self),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.YouAttackedWithCreaturesThisTurn(GameObjectFilter.Creature, atLeast = 2),
-                effect = Effects.DrawCards(1),
-                elseEffect = Effects.CreateToken(
+                then = Effects.DrawCards(1),
+                otherwise = Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.WHITE),
@@ -60,9 +59,9 @@ private val WeddingAnnouncementFront = card("Wedding Announcement") {
                     imageUri = "https://cards.scryfall.io/normal/front/7/d/7d13a93a-a43d-4cf5-8300-8341f3b7f1b1.jpg?1783924701",
                 ),
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast("invitation", 3),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "At the beginning of your end step, put an invitation counter on this " +

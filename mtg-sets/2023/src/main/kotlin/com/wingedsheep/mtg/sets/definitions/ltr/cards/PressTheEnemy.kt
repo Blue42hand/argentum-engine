@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetSpellOrPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *      a spell on the stack is removed from the stack to its owner's hand (it does not resolve,
  *      and this is not a counter), a permanent is bounced normally.
  *   3. Gather instant/sorcery cards in your hand, keep only those with MV ≤ the stored cap.
- *   4. `MayEffect(CastFromCollectionWithoutPayingCost)` — optional free cast; only prompted when
+ *   4. `Effects.May(CastFromCollectionWithoutPayingCost)` — optional free cast; only prompted when
  *      a legal castable card exists, so a too-expensive spell is never offered.
  */
 val PressTheEnemy = card("Press the Enemy") {
@@ -77,7 +76,7 @@ val PressTheEnemy = card("Press the Enemy") {
                 // You may cast one of them without paying its mana cost.
                 ConditionalOnCollectionEffect(
                     collection = "castable",
-                    ifNotEmpty = MayEffect(Effects.CastFromCollectionWithoutPayingCost("castable"))
+                    ifNotEmpty = Effects.May(Effects.CastFromCollectionWithoutPayingCost("castable"))
                 )
             )
         )

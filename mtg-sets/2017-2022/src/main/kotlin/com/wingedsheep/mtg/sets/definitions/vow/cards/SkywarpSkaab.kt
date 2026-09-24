@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -28,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * When this creature enters, you may exile two creature cards from your graveyard. If you do,
  * draw a card.
  *
- * The ETB is the "exile exactly two" pipeline gated by [IfYouDoEffect] (see Aegis Sculptor):
+ * The ETB is the "exile exactly two" pipeline gated by [Effects.IfYouDo] (see Aegis Sculptor):
  * gather creature cards from your graveyard, choose exactly two, move them to exile, and only
  * draw when both were actually exiled ([SuccessCriterion.CollectionNonEmpty] with `min = 2`).
  * With fewer than two creature cards the player can't complete the exile, so no card is drawn.
@@ -47,8 +45,8 @@ val SkywarpSkaab = card("Skywarp Skaab") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayEffect(
-            IfYouDoEffect(
+        effect = Effects.May(
+            Effects.IfYouDo(
                 action = Effects.Composite(
                     listOf(
                         GatherCardsEffect(
@@ -70,7 +68,7 @@ val SkywarpSkaab = card("Skywarp Skaab") {
                         )
                     )
                 ),
-                ifYouDo = Effects.DrawCards(1),
+                then = Effects.DrawCards(1),
                 successCriterion = SuccessCriterion.CollectionNonEmpty("toExile", min = 2)
             )
         )

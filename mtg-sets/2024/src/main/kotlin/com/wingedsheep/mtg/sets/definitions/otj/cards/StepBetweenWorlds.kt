@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * A per-player optional wheel: [ForEachPlayerEffect] over [Player.Each] iterates every player; the
  * body's controller is rebound to the current player, so [Player.You] and `EffectTarget.Controller`
- * resolve to them. Each player's body is wrapped in [MayEffect] with `decisionMaker = Controller`,
+ * resolve to them. Each player's body is wrapped in [Effects.May] with `decisionMaker = Controller`,
  * so every player independently chooses yes/no. A player who says yes gathers their hand + graveyard
  * in one combined pass ([CardSource.FromMultipleZones]) and shuffles them into their library, then
  * draws seven — a player who declines does neither (so "each player who does draws seven cards" is
@@ -51,7 +50,7 @@ val StepBetweenWorlds = card("Step Between Worlds") {
         effect = ForEachPlayerEffect(
             players = Player.Each,
             effects = listOf(
-                MayEffect(
+                Effects.May(
                     decisionMaker = EffectTarget.Controller,
                     effect = Effects.Composite(
                         GatherCardsEffect(

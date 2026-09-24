@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -43,7 +41,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *    it), so its mana value is read directly.
  *  - **Copy-a-card-then-cast** via the [Effects.CopyCardIntoCollection] +
  *    [Effects.CastFromCollectionWithoutPayingCost] pattern (same as Shiko, Paragon of the Way):
- *    exile the target, copy it in exile, then `MayEffect`-wrap the free cast. A declined or
+ *    exile the target, copy it in exile, then `Effects.May`-wrap the free cast. A declined or
  *    uncastable copy is removed by the Rule 707.10a state-based action.
  */
 val SarumanOfManyColors = card("Saruman of Many Colors") {
@@ -98,12 +96,12 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
             action = Patterns.Library.mill(2, EffectTarget.PlayerRef(Player.EachOpponent)),
             optional = false,
             // Gate on "one or more cards milled this way": only exile/copy/cast if a card was milled.
-            reflexiveEffect = ConditionalEffect(
+            reflexiveEffect = Effects.If(
                 condition = Conditions.CollectionContainsMatch("milled"),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     Effects.Move(exiledCard, Zone.EXILE),
                     Effects.CopyCardIntoCollection(exiledCard, storeAs = "copy"),
-                    MayEffect(
+                    Effects.May(
                         Effects.CastFromCollectionWithoutPayingCost("copy"),
                         descriptionOverride = "You may cast the copy without paying its mana cost.",
                     ),

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -39,9 +38,9 @@ val WanderwineFarewell = card("Wanderwine Farewell") {
         target = TargetObject(count = 2, minCount = 1, filter = TargetFilter.NonlandPermanent)
         effect = ForEachTargetEffect(
             listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0)))
-        ) then ConditionalEffect(
+        ) then Effects.If(
             condition = Conditions.ControlCreatureOfType(Subtype.MERFOLK),
-            effect = CreateTokenEffect(
+            then = CreateTokenEffect(
                 count = DynamicAmount.ContextProperty(ContextPropertyKey.TARGET_COUNT),
                 power = 1,
                 toughness = 1,

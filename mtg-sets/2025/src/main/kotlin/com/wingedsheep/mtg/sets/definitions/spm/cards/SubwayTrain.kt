@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 /**
@@ -30,9 +30,9 @@ val SubwayTrain = card("Subway Train") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
-            effect = Patterns.Library.searchLibrary(
+            then = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
                 count = 1,
                 destination = SearchDestination.HAND,

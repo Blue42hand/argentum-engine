@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -29,7 +29,7 @@ val RenewedFaith = card("Renewed Faith") {
 
     triggeredAbility {
         trigger = Triggers.YouCycleThis
-        effect = MayEffect(GainLifeEffect(2))
+        effect = Effects.May(GainLifeEffect(2))
     }
 
     metadata {

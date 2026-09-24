@@ -207,7 +207,7 @@ private fun List<Effect>.asBody(): Effect =
 
 // =============================================================================
 // Lowering facades — the five pre-unification names, kept so card source (and the
-// mtgish emitter's rendered DSL) is unchanged. Same precedent as IfYouDoEffect →
+// mtgish emitter's rendered DSL) is unchanged. Same precedent as Effects.IfYouDo →
 // GatedEffect: only the compiled/serialized representation moved to `ForEach`.
 // =============================================================================
 

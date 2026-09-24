@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   (`widowExiled`, which includes the nonland). The whole walked run is exiled — the lands seen
  *   on the way are exiled too, and a library with no nonland card at all is exiled entirely,
  *   leaving `widowNonland` empty so the may-cast grant below is a no-op.
- * - "You may … If you don't, …" is a [MayEffect] with an `otherwise` branch: taking the counter
+ * - "You may … If you don't, …" is a [Effects.May] with an `otherwise` branch: taking the counter
  *   *is* the decision, so declining (not failing) is what hands over the cast permission. The
  *   grant is Ragavan's [Effects.GrantMayPlayFromExile] — a normal-cost "may cast", so all timing
  *   restrictions and costs still apply — plus `withAnyManaType` for the "mana of any type" rider
@@ -70,7 +69,7 @@ val BlackWidowSuperSpy = card("Black Widow, Super Spy") {
                 from = "widowExiled",
                 destination = CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer),
             ),
-            MayEffect(
+            Effects.May(
                 effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 descriptionOverride = "Put a +1/+1 counter on Black Widow",
                 otherwise = Effects.GrantMayPlayFromExile(

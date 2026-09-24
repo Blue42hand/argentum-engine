@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.startYourEngines
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
  * {2}, Sacrifice this enchantment: It deals 2 damage to each player who doesn't have max speed.
  *
  * "Each player who doesn't have max speed" is the per-player evaluation Momentum Breaker uses:
- * one [ForEachPlayerEffect] over [Player.Each] whose body is a [ConditionalEffect]. Inside the
+ * one [ForEachPlayerEffect] over [Player.Each] whose body is a [Effects.If]. Inside the
  * loop the controller is rebound to the iterated player, so `Not(HasMaxSpeed(Player.You))` asks
  * about *that* player and [EffectTarget.Controller] is that player — which keeps the check right
  * in multiplayer and includes Outpace Oblivion's own controller, exactly as printed.
@@ -62,9 +61,9 @@ val OutpaceOblivion = card("Outpace Oblivion") {
         effect = ForEachPlayerEffect(
             players = Player.Each,
             effects = listOf(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.Not(Conditions.HasMaxSpeed(Player.You)),
-                    effect = Effects.DealDamage(2, EffectTarget.Controller),
+                    then = Effects.DealDamage(2, EffectTarget.Controller),
                 ),
             ),
         )

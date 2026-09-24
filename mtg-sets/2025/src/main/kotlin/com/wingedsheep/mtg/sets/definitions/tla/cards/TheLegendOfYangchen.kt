@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -55,7 +54,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * picks are exiled after all choosing is done. (2-player scope — TLA is a 2-player set; `Chooser.Opponent`
  * routes to the single opponent.)
  *
- * **Chapter II** — a plain [MayEffect] over "target opponent draws 3, then you draw 3": one yes/no gates
+ * **Chapter II** — a plain [Effects.May] over "target opponent draws 3, then you draw 3": one yes/no gates
  * the whole clause (the printed "If you do" — accept and both draw, decline and neither does).
  *
  * **Chapter III** — the standard transforming-Saga final chapter ([Effects.ExileAndReturnTransformed],
@@ -171,7 +170,7 @@ private val TheLegendOfYangchenFront = card("The Legend of Yangchen") {
     // II — You may have target opponent draw three cards. If you do, draw three cards.
     sagaChapter(2) {
         target("target opponent", TargetOpponent())
-        effect = MayEffect(
+        effect = Effects.May(
             Effects.Composite(
                 Effects.DrawCards(3, EffectTarget.ContextTarget(0)),
                 Effects.DrawCards(3)

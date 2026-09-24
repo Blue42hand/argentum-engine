@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -68,9 +67,9 @@ val FabledPassage = card("Fabled Passage") {
                 // Shuffle library
                 ShuffleLibraryEffect(),
                 // Then if you control 4+ lands, untap that land
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.ControlLandsAtLeast(4),
-                    effect = TapUntapCollectionEffect(collectionName = "movedLand", tap = false)
+                    then = TapUntapCollectionEffect(collectionName = "movedLand", tap = false)
                 )
             )
         )

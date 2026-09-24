@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Invasion of Innistrad // Deluge of the Dead — March of the Machine #115 (canonical printing).
@@ -100,9 +99,9 @@ private val DelugeOfTheDead = card("Deluge of the Dead") {
             Effects.Exile(exiled),
             // Reads the exiled card's printed type in exile, so it is true only when the card that
             // left the graveyard was a creature card — the Scavenging Ooze shape.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                effect = Effects.CreateToken(
+                then = Effects.CreateToken(
                     power = 2,
                     toughness = 2,
                     colors = setOf(Color.BLACK),

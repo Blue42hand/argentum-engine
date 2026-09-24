@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
  * Kapow!
@@ -27,7 +26,7 @@ val Kapow = card("Kapow!") {
         val theirCreature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, yourCreature)
             .then(
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.All(
                         Conditions.TargetMatchesFilter(
                             GameObjectFilter.Creature.youControl(), targetIndex = 0
@@ -36,7 +35,7 @@ val Kapow = card("Kapow!") {
                             GameObjectFilter.Creature.opponentControls(), targetIndex = 1
                         )
                     ),
-                    effect = Effects.Fight(yourCreature, theirCreature)
+                    then = Effects.Fight(yourCreature, theirCreature)
                 )
             )
     }

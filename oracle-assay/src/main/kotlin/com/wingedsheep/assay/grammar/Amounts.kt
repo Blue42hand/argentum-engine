@@ -957,7 +957,7 @@ object Amounts {
     ): Phrase<CardScript> {
         fun scriptFor(amount: DynamicAmount, target: com.wingedsheep.sdk.scripting.targets.TargetRequirement) =
             CardScript(
-                spellEffect = com.wingedsheep.sdk.scripting.effects.MayEffect(effect(amount)),
+                spellEffect = com.wingedsheep.sdk.dsl.Effects.May(effect(amount)),
                 targetRequirements = listOf(target),
             )
         return phrase(template, name = name) {

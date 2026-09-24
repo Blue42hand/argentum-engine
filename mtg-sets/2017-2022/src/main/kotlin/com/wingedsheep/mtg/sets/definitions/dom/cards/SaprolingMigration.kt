@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
@@ -25,9 +25,9 @@ val SaprolingMigration = card("Saproling Migration") {
     keywordAbility(KeywordAbility.kicker("{4}"))
 
     spell {
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = WasKicked,
-            effect = CreateTokenEffect(
+            then = CreateTokenEffect(
                 count = 4,
                 power = 1,
                 toughness = 1,
@@ -35,7 +35,7 @@ val SaprolingMigration = card("Saproling Migration") {
                 creatureTypes = setOf("Saproling"),
                 imageUri = "https://cards.scryfall.io/normal/front/5/3/5371de1b-db33-4db4-a518-e35c71aa72b7.jpg?1562702067"
             ),
-            elseEffect = CreateTokenEffect(
+            otherwise = CreateTokenEffect(
                 count = 2,
                 power = 1,
                 toughness = 1,

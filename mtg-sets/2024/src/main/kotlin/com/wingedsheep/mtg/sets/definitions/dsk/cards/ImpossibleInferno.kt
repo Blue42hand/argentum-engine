@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
@@ -37,9 +36,9 @@ val ImpossibleInferno = card("Impossible Inferno") {
         effect = Effects.Composite(
             DealDamageEffect(6, t),
             // Delirium: only exile/grant-play if there are four or more card types in your graveyard.
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.Delirium(),
-                effect = Effects.Composite(
+                then = Effects.Composite(
                     GatherCardsEffect(
                         source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
                         storeAs = "impulseExiled"

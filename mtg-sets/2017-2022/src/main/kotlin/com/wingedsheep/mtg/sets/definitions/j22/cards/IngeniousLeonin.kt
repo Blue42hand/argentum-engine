@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * [com.wingedsheep.sdk.model.Printing] row (see `.../definitions/fdn/cards/IngeniousLeoninReprint.kt`).
  *
  * The activated ability always adds the counter; the first-strike grant is a resolution-time state
- * test ([ConditionalEffect], lowering to `Gate.WhenCondition`) on the chosen target being a Cat —
+ * test ([Effects.If], lowering to `Gate.WhenCondition`) on the chosen target being a Cat —
  * [Conditions.TargetMatchesFilter] reads the same target index the counter landed on.
  */
 val IngeniousLeonin = card("Ingenious Leonin") {
@@ -46,11 +45,11 @@ val IngeniousLeonin = card("Ingenious Leonin") {
         effect = Effects.Composite(
             listOf(
                 Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t),
-                ConditionalEffect(
+                Effects.If(
                     condition = Conditions.TargetMatchesFilter(
                         GameObjectFilter.Creature.withSubtype("Cat"),
                     ),
-                    effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+                    then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
                 ),
             ),
         )

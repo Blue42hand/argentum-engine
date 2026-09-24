@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -37,7 +36,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    onto the permanent, so `Effects.Sacrifice(Creature, count = CastX, target = Each)` makes each
  *    player choose X of their creatures to sacrifice (APNAP order, CR 101.4).
  *
- *  - **Your creature dies** — opt-in [OptionalCostEffect] (Gate.MayPay): *you* may pay 3 life, and
+ *  - **Your creature dies** — opt-in [Effects.MayPay] (Gate.MayPay): *you* may pay 3 life, and
  *    only then is the card returned. Cost and decision default to the ability's controller (you).
  *
  *  - **An opponent's creature dies** — pay-to-prevent, the inverse reading, via [PayOrSufferEffect]
@@ -78,9 +77,9 @@ val MeathookMassacreII = card("Meathook Massacre II") {
     // your control with a finality counter on it.
     triggeredAbility {
         trigger = Triggers.YourCreatureDies
-        effect = OptionalCostEffect(
+        effect = Effects.MayPay(
             cost = PayLifeEffect(3),
-            ifPaid = returnDeadCreatureUnderYourControl(),
+            then = returnDeadCreatureUnderYourControl(),
             descriptionOverride = "You may pay 3 life. If you do, return that card under your control " +
                 "with a finality counter on it."
         )

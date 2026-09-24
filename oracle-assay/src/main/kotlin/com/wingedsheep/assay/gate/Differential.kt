@@ -644,7 +644,7 @@ internal object Folds {
     private const val MODAL_TYPE = "Modal"
 
     // `liftTriggerConsent` used to live here, bridging `TriggeredAbility.optional = true` (106 cards)
-    // and a `MayEffect` around the effect (214 cards) — two SDK spellings of "you may" that the
+    // and a `Effects.May` around the effect (214 cards) — two SDK spellings of "you may" that the
     // engine already lowered one into the other on every game. It is gone because the *SDK* is: the
     // flag was deleted and the gate is the model, so both sides now produce the same value and there
     // is nothing left to fold. That is the outcome a fold entry should be aiming at; the fold list

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -37,13 +36,13 @@ val UnstoppableSlasher = card("Unstoppable Slasher") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = ConditionalEffect(
+        effect = Effects.If(
             condition = Compare(
                 DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT),
                 ComparisonOperator.EQ,
                 DynamicAmount.Fixed(0)
             ),
-            effect = Effects.Composite(listOf(
+            then = Effects.Composite(listOf(
                 Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
                 Effects.AddCounters(Counters.STUN, 2, EffectTarget.Self)
             ))

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The plain spell-rider "instead" shape of teamwork (CR 702.194b) over the Gather → Select → Move
  * pipeline. Only the *selection mode* changes, so the reveal and both moves are shared and the
- * [ConditionalEffect] wraps just the select-and-move half — structurally the same split See the
+ * [Effects.If] wraps just the select-and-move half — structurally the same split See the
  * Unwritten uses for its ferocious "two instead of one".
  *
  * The two modes are the printed wordings, not an approximation of them:
@@ -81,13 +80,13 @@ val EarthsMightiestHeroes = card("Earth's Mightiest Heroes") {
                 storeAs = "revealed",
                 revealed = true,
             ),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.TeamworkWasPaid,
-                effect = selectAndMove(
+                then = selectAndMove(
                     SelectionMode.ChooseAnyNumber,
                     "Choose any number of creature cards to put onto the battlefield",
                 ),
-                elseEffect = selectAndMove(
+                otherwise = selectAndMove(
                     SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
                     "Choose a creature card to put onto the battlefield",
                 ),

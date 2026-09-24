@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *   2. **Copy it** in place ([Effects.CopyCardIntoCollection]) — the copy is a stack-style copy
  *      created in exile and published to the `copy` collection.
  *   3. **You may cast the copy** for free ([Effects.CastFromCollectionWithoutPayingCost] wrapped
- *      in [MayEffect]). The copy is cast through the normal machinery, so it picks targets/X,
+ *      in [Effects.May]). The copy is cast through the normal machinery, so it picks targets/X,
  *      becomes a token if it's a permanent spell, and ceases to exist if it's an instant/sorcery
  *      (Rule 707.10). A copy that's declined or can't be cast is removed by the Rule 707.10a
  *      state-based action, leaving no phantom card in exile.
@@ -62,7 +61,7 @@ val ShikoParagonOfTheWay = card("Shiko, Paragon of the Way") {
         effect = Effects.Composite(
             Effects.Move(exiledCard, Zone.EXILE),
             Effects.CopyCardIntoCollection(exiledCard, storeAs = "copy"),
-            MayEffect(
+            Effects.May(
                 Effects.CastFromCollectionWithoutPayingCost("copy"),
                 descriptionOverride = "You may cast the copy without paying its mana cost.",
             ),

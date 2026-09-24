@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
@@ -63,7 +62,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    [CreateTokenCopyOfTargetEffect.count] takes a [DynamicAmount], so the "if that creature is a
  *    Kraken, Leviathan, Octopus, or Serpent" rider is `DynamicAmount.Conditional` over
  *    [Conditions.TargetMatchesFilter] at target index 0 rather than two branches of a
- *    [ConditionalEffect] — one effect, one token template, two possible counts. The subtype test
+ *    [Effects.If] — one effect, one token template, two possible counts. The subtype test
  *    is a single `withAnySubtype` (an OR), which is what the printed comma list means.
  *  - Per its own ruling the token is *put onto the battlefield* attacking rather than declared as
  *    an attacker, which is exactly what `attacking = true` models — it emits no "attacks" trigger.
@@ -119,12 +118,12 @@ private val RunoStromkirkFront = card("Runo Stromkirk") {
                 selectedLabel = "Reveal",
             ),
             RevealCollectionEffect(from = "runoRevealed", revealToSelf = false),
-            ConditionalEffect(
+            Effects.If(
                 condition = Conditions.CollectionContainsMatch(
                     "runoRevealed",
                     GameObjectFilter.Creature.manaValueAtLeast(6),
                 ),
-                effect = TransformEffect(EffectTarget.Self),
+                then = TransformEffect(EffectTarget.Self),
             ),
         )
         description = "At the beginning of your upkeep, look at the top card of your library. You " +

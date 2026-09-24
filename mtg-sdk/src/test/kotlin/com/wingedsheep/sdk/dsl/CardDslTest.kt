@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
@@ -850,20 +849,20 @@ class CardDslTest : DescribeSpec({
     describe("Optional Cost Effects") {
 
         it("should support may-pay pattern") {
-            val optionalEffect = OptionalCostEffect(
+            val optionalEffect = Effects.MayPay(
                 cost = PayLifeEffect(2),
-                ifPaid = DrawCardsEffect(1),
-                ifNotPaid = null
+                then = DrawCardsEffect(1),
+                otherwise = null
             )
 
             optionalEffect.description shouldBe "You may pay 2 life. If you do, draw a card"
         }
 
         it("should support may-pay-or-else pattern") {
-            val optionalEffect = OptionalCostEffect(
+            val optionalEffect = Effects.MayPay(
                 cost = SacrificeEffect(GameObjectFilter.Creature),
-                ifPaid = DealDamageEffect(3, EffectTarget.ContextTarget(0)),
-                ifNotPaid = LoseLifeEffect(3, EffectTarget.Controller)
+                then = DealDamageEffect(3, EffectTarget.ContextTarget(0)),
+                otherwise = LoseLifeEffect(3, EffectTarget.Controller)
             )
 
             optionalEffect.description shouldBe "You may sacrifice a creature. If you do, deal 3 damage to target. Otherwise, you lose 3 life"

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -48,9 +47,9 @@ val KheruLichLord = card("Kheru Lich Lord") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = MayPayManaEffect(
+        effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{B}"),
-            effect = Effects.Composite(
+            then = Effects.Composite(
                 listOf(
                     // Gather all creature cards from your graveyard
                     GatherCardsEffect(

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LegendRuleDoesNotApplyTo
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -48,7 +47,7 @@ val SpiderVerse = card("Spider-Verse") {
         // the turn. Any instances of the ability already on the stack when you choose to copy a
         // spell will have no effect." Declining leaves the turn's copy unspent.
         effectOncePerTurn = true
-        effect = MayEffect(
+        effect = Effects.May(
             effect = Effects.CopyTargetSpell(
                 target = EffectTarget.TriggeringEntity,
                 addedTokenKeywords = setOf(Keyword.HASTE)

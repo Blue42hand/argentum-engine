@@ -82,7 +82,7 @@ internal class StackTextRenderer(
                     storedCollections = buildBeheldStoredCollections(spellOnStack.beheldCards, cardDef)
                 )
             )
-            // Resolve ConditionalEffect at stack-time: opponents see only the branch that
+            // Resolve Effects.If at stack-time: opponents see only the branch that
             // will fire (e.g., Cinder Strike shows "deals 4 damage" vs "deals 2 damage"
             // depending on whether the optional Blight cost was paid) instead of the full
             // "if X, do Y. Otherwise, do Z." description.
@@ -94,7 +94,7 @@ internal class StackTextRenderer(
     }
 
     /**
-     * Recursively replace [ConditionalEffect]s in [effect] with the branch the spell will
+     * Recursively replace [Effects.If]s in [effect] with the branch the spell will
      * actually take, using [context] to evaluate each condition. Composite branches are
      * resolved one level deep so nested conditions also collapse. Conditions that depend
      * on state not yet captured at cast time fall through to the original effect.

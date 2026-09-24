@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,7 +29,7 @@ val CunningEvasion = card("Cunning Evasion") {
             filter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = MayEffect(Effects.ReturnToHand(EffectTarget.TriggeringEntity))
+        effect = Effects.May(Effects.ReturnToHand(EffectTarget.TriggeringEntity))
         description = "Whenever a creature you control becomes blocked, you may return it to its owner's hand."
     }
 
