@@ -1824,6 +1824,16 @@ class PredicateEvaluator {
                 container.has<com.wingedsheep.engine.state.components.combat.BlockedOrWasBlockedByLegendaryThisTurnComponent>()
             }
 
+            // "…that blocked or were blocked by it this turn" (Gaze of the Gorgon) — the candidate's
+            // own turn-scoped partner record, so it still matches after the referenced creature
+            // has left the battlefield.
+            is StatePredicate.BlockedOrWasBlockedByEntityThisTurn -> {
+                val referenced = resolveEntityReference(state, predicate.reference, context, projected)
+                referenced != null &&
+                    container.get<com.wingedsheep.engine.state.components.combat.CombatPartnersThisTurnComponent>()
+                        ?.partnerIds?.contains(referenced) == true
+            }
+
             // Face-down state
             StatePredicate.IsFaceDown -> container.has<FaceDownComponent>()
             StatePredicate.IsFaceUp -> !container.has<FaceDownComponent>()

@@ -483,6 +483,8 @@ class BeginningPhaseManager(
         StatePredicate.SharesNameWithSpellCastThisTurn -> false
         StatePredicate.PutIntoGraveyardThisTurn -> false
         StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
+        // Combat-partner history is cleared at cleanup, so nothing has blocked anything yet this turn.
+        is StatePredicate.BlockedOrWasBlockedByEntityThisTurn -> false
         // No granter context in untap filtering — granter-relative exclusion is resolution-time only.
         StatePredicate.IsGrantingPermanent -> false
         // Counter history is plain per-entity state, so answer it exactly rather than falling open.

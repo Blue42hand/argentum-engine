@@ -1329,6 +1329,14 @@ data class GameObjectFilter(
         statePredicates = statePredicates + StatePredicate.BlockedOrWasBlockedByLegendaryThisTurn
     )
 
+    /**
+     * Must have blocked, or been blocked by, the creature [reference] names this turn — "all
+     * creatures that blocked or were blocked by it this turn" (Gaze of the Gorgon).
+     */
+    fun blockedOrWasBlockedByThisTurn(reference: com.wingedsheep.sdk.scripting.values.EntityReference) = copy(
+        statePredicates = statePredicates + StatePredicate.BlockedOrWasBlockedByEntityThisTurn(reference)
+    )
+
     /** Must have at least one Equipment attached */
     fun equipped() = copy(
         statePredicates = statePredicates + StatePredicate.IsEquipped

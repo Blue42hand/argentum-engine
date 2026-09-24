@@ -793,6 +793,13 @@ data class CreateDelayedTriggerEffect(
      * The trigger only fires for events sourced from this entity. Context
      * references (e.g. ContextTarget(0)) are baked into a concrete entity id
      * at creation time by CreateDelayedTriggerExecutor.
+     *
+     * For step-based delayed triggers (no [trigger]) there is no event to scope, so the baked
+     * entity instead becomes the fired trigger's *triggering entity* — reachable from the effect
+     * as `EffectTarget.TriggeringEntity` or, inside a filter, `EntityReference.Triggering`. That is
+     * how "at end of combat, destroy all creatures that blocked or were blocked by **it** this
+     * turn" (Gaze of the Gorgon) remembers which creature "it" was. Ignored when [fireOnPlayer]
+     * is set, which already names the triggering player.
      */
     val watchedTarget: EffectTarget? = null,
     /**
