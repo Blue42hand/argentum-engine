@@ -3180,6 +3180,11 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
     a dynamic surveil (the marker only carries a literal), so this expands straight to
     `surveilPipeline(count)` and always emits `SurveiledEvent` (the real gathered size drives the event,
     handling library-smaller-than-X and X = 0). Twin of the dynamic `lookAtTopAndReorder(count)`.
+  - **Remembering the graveyard pile.** `surveil(count, storeGraveyardAs)` expands to the same
+    `surveilPipeline(count, storeGraveyardAs)` (`SurveiledEvent` included) and stores the cards the
+    graveyard move moved under `storeGraveyardAs`, for "if you put a card … into your
+    graveyard this way, …" (Enlightened Confidant: `MoveCollection(from = storeGraveyardAs, ToZone(HAND),
+    filter = Any.manaValueAtMostDynamic(lifeGainedThisTurn()))`).
 - `mill(count)` — top N cards into graveyard.
 - `exileTop(count, target = Controller)` — top N cards of a player's library into exile (Malboro's
   "exiles the top three cards of their library"). Same Gather → Move pipeline as `mill`, destination
