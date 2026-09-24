@@ -168,1049 +168,25 @@ class CastSpellHandler(
         cardRegistry, costCalculator, alternativePaymentHandler, zoneResolver, predicateEvaluator
     )
     private val paymentProcessor = CastPaymentProcessor(manaSolver, costHandler, manaAbilitySideEffectExecutor)
+    private val castCostPayer = CastCostPayer(
+        cardRegistry, costHandler, costCalculator, manaSolver, alternativePaymentHandler, paymentProcessor,
+        castCostTotaller, zoneResolver, castPermissionUtils, conditionEvaluator, predicateEvaluator,
+    )
+    private val castRecords = CastRecords(
+        cardRegistry, zoneResolver, costCalculator, castCostTotaller, stackResolver, predicateEvaluator
+    )
     private val grantedKeywordResolver = com.wingedsheep.engine.mechanics.mana.GrantedKeywordResolver(cardRegistry)
+    private val castTriggers = CastTriggers(predicateEvaluator, grantedKeywordResolver, stackResolver)
+    private val castValidator = CastValidator(
+        cardRegistry, turnManager, costCalculator, alternativePaymentHandler, costHandler, targetValidator,
+        conditionEvaluator, zoneResolver, castPermissionUtils, castCostTotaller, castCostPayer,
+        grantedKeywordResolver, predicateEvaluator,
+    )
     private val costEnumerationUtils = com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils(
         manaSolver, costCalculator, predicateEvaluator, cardRegistry
     )
 
-    override fun validate(state: GameState, action: CastSpell): String? {
-        if (!state.hasPriority(action.playerId)) {
-            return "You don't have priority"
-        }
-
-        val container = state.getEntity(action.cardId)
-            ?: return "Card not found: ${action.cardId}"
-
-        val cardComponent = container.get<CardComponent>()
-            ?: return "Not a card: ${action.cardId}"
-
-        val handZone = ZoneKey(action.playerId, Zone.HAND)
-        val inHand = action.cardId in state.getZone(handZone)
-        val onTopOfLibrary = !inHand && zoneResolver.isOnTopOfLibraryWithPermission(state, action.playerId, action.cardId)
-        val mayPlayFromExile = !inHand && !onTopOfLibrary && zoneResolver.isInExileWithPlayPermission(state, action.playerId, action.cardId)
-        val mayCastFromZone = !inHand && !onTopOfLibrary && !mayPlayFromExile &&
-            zoneResolver.hasMayCastSelfFromZonePermission(state, action.playerId, action.cardId)
-        val mayCastFromGraveyard = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone &&
-            zoneResolver.hasMayPlayPermanentFromGraveyardPermission(state, action.playerId, action.cardId, cardComponent)
-        val hasFlashback = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard &&
-            zoneResolver.hasFlashbackPermission(state, action.playerId, action.cardId)
-        // Harmonize (e.g., Channeled Dragonfire) — cast from graveyard for its harmonize
-        // cost; `hasHarmonizePermission` checks the graveyard zone + Harmonize keyword.
-        val hasHarmonize = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback &&
-            zoneResolver.hasHarmonizePermission(state, action.playerId, action.cardId)
-        // Mayhem (CR 702.187, e.g. Swarm, Being of Bees) — cast from graveyard for its mayhem cost
-        // if you discarded it this turn; `hasMayhemPermission` checks the keyword + the gate.
-        val hasMayhem = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasHarmonize &&
-            action.useAlternativeCost && action.altAllows(AlternativeCostType.MAYHEM) &&
-            zoneResolver.hasMayhemPermission(state, action.playerId, action.cardId)
-        val hasGraveyardCast = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasHarmonize && !hasMayhem &&
-            zoneResolver.hasMayCastFromGraveyardPermission(state, action.playerId, action.cardId, cardComponent)
-        val hasForageFromGraveyard = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasHarmonize && !hasMayhem && !hasGraveyardCast &&
-            zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(state, action.playerId, action.cardId, cardComponent)
-        // Warp from graveyard (e.g., Timeline Culler) — `hasWarpPermission` already
-        // checks both hand and graveyard; this branch covers the graveyard case
-        // when `inHand` is false.
-        val hasWarpFromGraveyard = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasHarmonize && !hasMayhem && !hasGraveyardCast && !hasForageFromGraveyard &&
-            action.useAlternativeCost &&
-            zoneResolver.hasWarpPermission(state, action.playerId, action.cardId)
-        val hasCommanderCast = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasHarmonize && !hasMayhem && !hasGraveyardCast && !hasForageFromGraveyard && !hasWarpFromGraveyard &&
-            zoneResolver.hasCommanderCastPermission(state, action.playerId, action.cardId)
-        // Granted graveyard sneak (Ninja Teen): a creature card in the player's graveyard while they
-        // control an active "creature cards in your graveyard have sneak {cost}" grant.
-        val hasGraveyardSneak = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasHarmonize && !hasMayhem && !hasGraveyardCast && !hasForageFromGraveyard && !hasWarpFromGraveyard && !hasCommanderCast &&
-            action.useAlternativeCost && action.altAllows(AlternativeCostType.SNEAK) &&
-            cardComponent.typeLine.isCreature &&
-            action.cardId in state.getGraveyard(action.playerId) &&
-            SneakWindow.graveyardSneakGrantCost(state, action.playerId, cardRegistry) != null
-        // Disturb (CR 702.146a) — cast transformed from your graveyard for the disturb cost. The
-        // face this cast puts on the stack is the back face, and it drives timing and targeting
-        // below (CR 712.8c), so the permission check hands back the face itself.
-        val disturbFace = if (
-            !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone &&
-            action.useAlternativeCost && action.altAllows(AlternativeCostType.DISTURB)
-        ) {
-            zoneResolver.disturbCastFace(state, action.playerId, action.cardId)
-        } else null
-        if (!inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasHarmonize && !hasMayhem && !hasGraveyardCast && !hasForageFromGraveyard && !hasWarpFromGraveyard && !hasCommanderCast && !hasGraveyardSneak && disturbFace == null) {
-            return "Card is not in your hand"
-        }
-
-        // Modal DFC back face (CR 712.11b) — the hand-side counterpart of disturb. The caster chose
-        // the back face, so the card goes on the stack transformed for that face's own mana cost.
-        // No zone guard is needed beyond the resolver's own (it only looks in hand), and the
-        // in-hand check above has already passed.
-        val modalBackFace = if (
-            action.useAlternativeCost && action.altAllows(AlternativeCostType.MODAL_BACK_FACE)
-        ) {
-            zoneResolver.modalBackCastFace(state, action.playerId, action.cardId)
-        } else null
-
-        // The face this cast puts on the stack when it is cast **transformed** (CR 712.8c / 712.8f)
-        // — it drives timing, targeting, the aura target, colors and subtypes below, which must all
-        // read this face rather than the printed front. Three sources, all meaning "back face up on
-        // the stack": disturb's printed keyword, the modal-DFC face choice above, and a may-play
-        // permission granted with `castTransformed` (CR 310.12b — "exile it, then you may cast it
-        // transformed"). The zone legality of the last was already settled by `mayPlayFromExile` /
-        // `mayCastFromZone` above, so that lookup only answers *which face*.
-        val transformedFace = disturbFace
-            ?: modalBackFace
-            ?: zoneResolver.permissionTransformedCastFace(state, action.playerId, action.cardId)
-
-        // Gift (CR 702.174a): the promise is an additional cost whose "payment" is choosing an
-        // opponent, so the recipient must be an opponent of the caster and the card must actually
-        // have gift.
-        action.giftRecipient?.let { recipient ->
-            val giftCard = cardRegistry.getCard(cardComponent.cardDefinitionId)
-            if (giftCard?.giftKeyword() == null) {
-                return "${cardComponent.name} has no gift cost to promise"
-            }
-            if (recipient !in state.getOpponents(action.playerId)) {
-                return "A gift can only be promised to an opponent"
-            }
-        }
-
-        // Memory Vessel: "they can't play cards from their hand" — hand-scoped, so casts from
-        // exile/graveyard granted by a may-play permission still resolve.
-        if (inHand && state.getEntity(action.playerId)?.has<PlayerCantPlayFromHandComponent>() == true) {
-            return "You can't play cards from your hand"
-        }
-
-        // Avatar's Wrath: "your opponents can't cast spells from anywhere other than their hands."
-        // A per-player, duration-bounded restriction to hand-only casting — any non-hand cast
-        // (flashback/escape from graveyard, foretell/plot/may-play from exile, library top,
-        // command zone) is illegal while the component is present. Ordinary hand casts (inHand)
-        // are untouched.
-        if (!inHand && state.getEntity(action.playerId)?.has<CantCastFromNonHandZonesComponent>() == true) {
-            return "You can't cast spells from anywhere other than your hand right now"
-        }
-
-        // Single cast-legality chokepoint: per-turn spell limit (Yawgmoth's Agenda),
-        // Silence-style can't-cast, Mana Maze color sharing, and PlayersCantCastSpells
-        // (Voice of Victory, …) all resolve to a reason here, or null if the cast is allowed.
-        castPermissionUtils.reasonCannotCast(state, action.playerId, action.cardId)?.let { return it }
-
-        if (hasForageFromGraveyard) {
-            // The spell being cast can't be one of the three cards it exiles to pay for itself, so
-            // it's excluded from the forage exile pool here just as it is at payment time.
-            if (!com.wingedsheep.engine.handlers.costs.ForageCostResolver.canPay(state, action.playerId, excludeCardId = action.cardId)) {
-                return "Cannot forage: need 3 other cards in graveyard or a Food"
-            }
-        }
-
-        val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
-
-        // A may-play permission authorizes exactly one set of characteristics. By default that is
-        // the card's primary face; a prepare-spell copy (Secrets of Strixhaven) or a permission
-        // carrying `castFaceIndex` ("cast it from your graveyard as an Adventure" — Mosswood
-        // Dreadknight, CR 715.3) authorizes an alternative face instead. `faceIndex` is
-        // client-supplied, so reject any face the permission doesn't cover — otherwise a
-        // hand-constructed action could cast the cheap Adventure half of a card that was only
-        // granted its creature half, or vice versa.
-        // Only permissions constrain faces. `mayPlayFromExile` is also true for a linked-exile
-        // static grant (Valgavoth, Maralen), which carries no permission and no face notion — an
-        // empty permission list means the authorization came from elsewhere, so leave it alone.
-        if (mayPlayFromExile) {
-            val permissions =
-                state.activeMayPlayFor(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
-            if (permissions.isNotEmpty()) {
-                val isPrepareCopy = container.has<PreparedSpellCopyComponent>() &&
-                    cardDef?.layout == com.wingedsheep.sdk.model.CardLayout.PREPARE
-                val authorizedFaces: Set<Int?> =
-                    if (isPrepareCopy) setOf(0) else permissions.map { it.castFaceIndex }.toSet()
-                if (action.faceIndex !in authorizedFaces) {
-                    val faceName = action.faceIndex
-                        ?.let { cardDef?.cardFaces?.getOrNull(it)?.name }
-                        ?: cardComponent.name
-                    return "You don't have permission to cast $faceName from there"
-                }
-                // "You may cast red spells from among them" (Chandra, Dressed to Kill −7). The
-                // colour restriction is on the *spell*, so it is checked against the face being
-                // cast — a red MDFC's blue back face is not castable through such a permission
-                // even though the exiled card is red. Authoritative: the enumerator applies the
-                // same rule, but the action is client-supplied.
-                val castColors = action.faceIndex
-                    ?.let { cardDef?.cardFaces?.getOrNull(it)?.manaCost?.colors }
-                    ?: cardDef?.colors
-                    ?: cardComponent.manaCost.colors
-                if (permissions.none { it.castColorRestriction == null || it.castColorRestriction in castColors }) {
-                    val required = permissions.firstNotNullOfOrNull { it.castColorRestriction }
-                    return "You may only cast ${required?.name?.lowercase()} spells from there"
-                }
-            }
-        }
-
-        // Handle face-down casting — morph (CR 702.37a) or disguise (CR 702.168a). Both are
-        // "cast this card face down as a 2/2 for {3}" at sorcery speed; the mode only decides
-        // what the resulting permanent looks like and costs to turn up.
-        if (action.castFaceDown) {
-            val castableFaceDown = cardDef?.keywordAbilities?.any {
-                it is KeywordAbility.Morph || it is KeywordAbility.Disguise
-            } == true
-            if (!castableFaceDown) {
-                return "This card cannot be cast face down (no morph or disguise ability)"
-            }
-
-            if (!turnManager.canPlaySorcerySpeed(state, action.playerId)) {
-                return "You can only cast face-down creatures at sorcery speed"
-            }
-
-            val morphCastCost = costCalculator.calculateFaceDownCost(state, action.playerId)
-            return validatePayment(state, action, morphCastCost)
-        }
-
-        // Check timing — for Adventure / split faces use the face's type line (CR 715 / 709.4);
-        // a disturb cast is timed by the back face it puts on the stack (CR 712.8c).
-        val effectiveTypeLine = action.faceIndex
-            ?.let { cardDef?.cardFaces?.getOrNull(it)?.typeLine }
-            ?: transformedFace?.typeLine
-            ?: cardComponent.typeLine
-        // Sneak (CR 702.190a) grants an instant-speed casting permission during the active
-        // player's declare blockers step — bypassing the normal sorcery-speed timing.
-        val castingForSneak = action.useAlternativeCost &&
-            action.altAllows(AlternativeCostType.SNEAK) &&
-            cardDef != null &&
-            SneakWindow.effectiveSneakCost(state, cardDef, action.cardId, action.playerId, cardRegistry) != null
-        if (!effectiveTypeLine.isInstant) {
-            // Printed flash comes off the same face as the type line above, for the same reason:
-            // CR 712.11c evaluates only the face being cast, so a modal DFC whose *front* has flash
-            // grants none to a sorcery-speed back. `transformedFace` is null for an ordinary cast,
-            // which leaves this reading the card's own keywords. A *granted* flash below is a
-            // property of the card object, not of a face, so it is unaffected.
-            val faceKeywords = transformedFace?.keywords ?: cardDef?.keywords ?: emptySet()
-            val hasFlash = faceKeywords.contains(Keyword.FLASH)
-            val grantedFlash = hasFlash || zoneResolver.hasGrantedFlash(state, action.cardId)
-            // A from-exile may-play permission with an "as though it had flash" rider (Azula,
-            // Cunning Usurper) lets a non-instant exiled card be cast at instant speed (CR 702.8).
-            val mayPlayFlash = state.activeMayPlayFor(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
-                .any { it.asThoughFlash }
-            // A flash-timing kicker unlocks instant-speed casting when paid — whether the
-            // optional cost is mana (Ghitu Fire) or a non-mana cost like Behold (Molten Exhale).
-            val flashTimingKicker = declaredOptionalCosts(action, cardDef).any { it.grantsFlashTiming }
-            if (!grantedFlash && !mayPlayFlash && !flashTimingKicker && !castingForSneak &&
-                !turnManager.canPlaySorcerySpeed(state, action.playerId)
-            ) {
-                return "You can only cast sorcery-speed spells during your main phase with an empty stack"
-            }
-        }
-
-        // Sneak (CR 702.190a): legal only during the active player's declare blockers step,
-        // and the player must return exactly one unblocked attacker they control to its
-        // owner's hand as the non-mana portion of the cost.
-        if (castingForSneak) {
-            if (!SneakWindow.isWindowOpen(state, action.playerId)) {
-                return "You can only cast this for its sneak cost during your declare blockers step while you control an unblocked attacker"
-            }
-            val bounced = action.additionalCostPayment?.bouncedPermanents ?: emptyList()
-            if (bounced.size != 1) {
-                return "Sneak requires returning exactly one unblocked attacker you control to its owner's hand"
-            }
-            if (bounced.first() !in SneakWindow.unblockedAttackers(state, action.playerId)) {
-                return "The chosen creature is not an unblocked attacker you control"
-            }
-        }
-
-        // Web-slinging (CR 702.188a): the player must return exactly one tapped creature they
-        // control to its owner's hand as the non-mana portion of the alternative cost. Timing is
-        // the spell's normal timing (checked above) — web-slinging grants no extra permission.
-        val castingForWebSling = action.useAlternativeCost &&
-            action.altAllows(AlternativeCostType.WEB_SLINGING) &&
-            cardDef != null &&
-            WebSlinging.effectiveWebSlinging(state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator) != null
-        if (castingForWebSling) {
-            val bounced = action.additionalCostPayment?.bouncedPermanents ?: emptyList()
-            if (bounced.size != 1) {
-                return "Web-slinging requires returning exactly one tapped creature you control to its owner's hand"
-            }
-            if (bounced.first() !in WebSlinging.tappedCreaturesYouControl(state, action.playerId)) {
-                return "The chosen creature is not a tapped creature you control"
-            }
-        }
-
-        // Emerge (CR 702.119a/c): the player must sacrifice exactly one creature they control as
-        // the non-mana portion of the alternative cost, chosen as they choose to pay the emerge
-        // cost (CR 601.2b). Timing is the spell's normal timing (checked above) — emerge grants no
-        // extra permission. The chosen creature also fixes the generic reduction, so
-        // computeTotalCastCost prices the cast against exactly this selection.
-        val castingForEmerge = action.useAlternativeCost &&
-            action.altAllows(AlternativeCostType.EMERGE) &&
-            cardDef != null &&
-            EmergeCasts.printedEmerge(cardDef) != null
-        if (castingForEmerge) {
-            val sacrificed = action.additionalCostPayment?.sacrificedPermanents ?: emptyList()
-            if (sacrificed.size != 1) {
-                return "Emerge requires sacrificing exactly one creature you control"
-            }
-            if (sacrificed.first() !in EmergeCasts.sacrificeCandidates(state, action.playerId)) {
-                return "The permanent chosen for emerge is not a creature you control"
-            }
-        }
-
-        // Check cast restrictions
-        if (cardDef != null && cardDef.script.castRestrictions.isNotEmpty()) {
-            val restrictionError = validateCastRestrictions(state, cardDef.script.castRestrictions, action.playerId)
-            if (restrictionError != null) {
-                return restrictionError
-            }
-        }
-
-        // Choose-N modal shape checks (rules 700.2a / 700.2d). Enforced only when the
-        // action arrives with chosenModes populated — the cast-time continuation flow
-        // starts with an empty list which falls through to the pause in execute().
-        if (cardDef != null && action.chosenModes.isNotEmpty()) {
-            val modalEffect = cardDef.script.spellEffect as? ModalEffect
-            if (modalEffect != null) {
-                val modalError = validateChosenModeShape(state, modalEffect, action)
-                if (modalError != null) return modalError
-            }
-        }
-
-        // Validate additional costs (use per-mode costs if the chosen mode overrides them)
-        if (cardDef != null) {
-            val modeAdditionalCosts = resolveAdditionalCostsForMode(cardDef, action)
-            val additionalCostError = validateAdditionalCosts(state, modeAdditionalCosts, action)
-            if (additionalCostError != null) {
-                return additionalCostError
-            }
-        }
-
-        // Validate linked-exile granter's additional cost (e.g. Dawnhand Dissident)
-        val linkedExileGranter = zoneResolver.findLinkedExileGranter(state, action.playerId, action.cardId)
-        val linkedExileAdditionalCost = linkedExileGranter?.additionalCost
-        if (linkedExileAdditionalCost != null) {
-            val linkedCostError = validateAdditionalCosts(state, listOf(linkedExileAdditionalCost), action)
-            if (linkedCostError != null) return linkedCostError
-        }
-
-        // Gwenom: a spell cast from the top of the library under a PlayFromTopWithAlternativeCost
-        // permission pays the grant's additional cost (pay life equal to its mana value).
-        val topOfLibraryAdditionalCost = zoneResolver
-            .topOfLibraryAlternativeGrant(state, action.playerId, action.cardId)?.additionalCost
-        if (topOfLibraryAdditionalCost != null) {
-            val topCostError = validateAdditionalCosts(state, listOf(topOfLibraryAdditionalCost), action)
-            if (topCostError != null) return topCostError
-        }
-
-        // Validate a self-referential MayCastSelfFromZones grant's additional cost (e.g. Alien
-        // Symbiosis: "cast this from your graveyard by discarding a card").
-        val mayCastFromZoneAbility = zoneResolver.findMayCastSelfFromZoneAbility(state, action.playerId, action.cardId)
-        val mayCastFromZoneAdditionalCost = mayCastFromZoneAbility?.additionalCost
-        if (mayCastFromZoneAdditionalCost != null) {
-            val zoneCostError = validateAdditionalCosts(state, listOf(mayCastFromZoneAdditionalCost), action)
-            if (zoneCostError != null) return zoneCostError
-        }
-
-        // Validate runtime additional costs from PlayWithAdditionalCostComponent (e.g., The Infamous Cruelclaw)
-        val runtimeAdditionalCostComponent = state.getEntity(action.cardId)
-            ?.get<PlayWithAdditionalCostComponent>()
-            ?.takeIf { it.controllerId == action.playerId }
-        if (runtimeAdditionalCostComponent != null) {
-            val runtimeCostError = validateAdditionalCosts(state, runtimeAdditionalCostComponent.additionalCosts, action)
-            if (runtimeCostError != null) return runtimeCostError
-        }
-
-        // Validate the declared optional additional cost (kicker/offspring/bargain): the card must
-        // actually have a keyword declaring that slot, so a hand-built action can't claim to have
-        // bargained a kicker spell (or bargained a card with no bargain at all).
-        if (action.declaredCostSlot != null && cardDef != null) {
-            val declared = declaredOptionalCosts(action, cardDef)
-            if (declared.isEmpty()) {
-                val mechanic = when (action.declaredCostSlot) {
-                    ChoiceSlot.BARGAINED -> "bargain"
-                    ChoiceSlot.KICKED -> "kicker"
-                    else -> action.declaredCostSlot.name.lowercase()
-                }
-                return "This card does not have $mechanic"
-            }
-
-            // Validate the non-mana portion (sacrifice a creature for kicker, an artifact /
-            // enchantment / token for bargain, …).
-            val declaredAdditionalCost = declared.firstOrNull { it.additionalCost != null }?.additionalCost
-            if (declaredAdditionalCost != null) {
-                val costError = validateAdditionalCosts(state, listOf(declaredAdditionalCost), action)
-                if (costError != null) return costError
-            }
-        }
-
-        // Validate self-alternative cost's additional costs when using alternative cost
-        if (action.useAlternativeCost && cardDef != null && action.altAllows(AlternativeCostType.SELF_ALTERNATIVE)) {
-            val selfAltCost = cardDef.script.selfAlternativeCost
-            // "…rather than pay this spell's mana cost **if** <condition>" (Blasphemous Edict).
-            // Mirrors the availability gate in CastSpellEnumerator so an authorization can't
-            // outlive the enumeration that offered it.
-            val selfAltCondition = selfAltCost?.condition
-            if (selfAltCondition != null && !conditionEvaluator.evaluate(
-                    state,
-                    selfAltCondition,
-                    EffectContext(sourceId = action.cardId, controllerId = action.playerId)
-                )
-            ) {
-                return "Alternative cost is not available: ${selfAltCondition.description}"
-            }
-            if (selfAltCost != null && selfAltCost.additionalCosts.isNotEmpty()) {
-                val selfAltCostError = validateAdditionalCosts(state, selfAltCost.additionalCosts, action)
-                if (selfAltCostError != null) return selfAltCostError
-            }
-        }
-
-        // Validate a battlefield-granted alternative cost's non-mana half (Conspiracy Unraveler's
-        // "collect evidence 10"). Every `GameAction` field is client-supplied, so the selection the
-        // caster claims to have paid is checked here before anything is exiled.
-        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.GRANTED)) {
-            val grantedAdditional = costCalculator.findAlternativeCastingCosts(state, action.playerId)
-                .firstOrNull()
-                ?.additionalCosts
-                .orEmpty()
-            if (grantedAdditional.isNotEmpty()) {
-                val grantedCostError = validateAdditionalCosts(state, grantedAdditional, action)
-                if (grantedCostError != null) return grantedCostError
-            }
-        }
-
-        // Validate flashback's bundled additional cost (e.g., "Flashback—{1}{R}, Behold three Elementals")
-        if (action.useAlternativeCost && cardDef != null && hasFlashback && action.altAllows(AlternativeCostType.FLASHBACK)) {
-            val flashbackAdditional = cardDef.keywordAbilities
-                .filterIsInstance<KeywordAbility.Flashback>()
-                .firstOrNull()
-                ?.additionalCost
-            if (flashbackAdditional != null) {
-                val flashbackCostError = validateAdditionalCosts(state, listOf(flashbackAdditional), action)
-                if (flashbackCostError != null) return flashbackCostError
-            }
-        }
-
-        // Validate warp's bundled additional cost (e.g., "Warp—{B}, Pay 2 life." on Timeline Culler).
-        // Granted warps ([com.wingedsheep.sdk.scripting.GrantWarpToCardsInHand]) currently carry no
-        // additional cost, but [WarpGrants] is the source of truth either way.
-        if (action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.WARP) &&
-            zoneResolver.hasWarpPermission(state, action.playerId, action.cardId)
-        ) {
-            val warpAdditional = WarpGrants.effectiveWarp(
-                state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
-            )?.additionalCost
-            if (warpAdditional != null) {
-                val warpCostError = validateAdditionalCosts(state, listOf(warpAdditional), action)
-                if (warpCostError != null) return warpCostError
-            }
-        }
-
-        // Validate Conspire optional additional cost (CR 702.78). Two untapped creatures the
-        // caster controls, each sharing a color with the spell. The spell must have Conspire
-        // either printed or granted (e.g., Raiding Schemes: "Each noncreature spell you cast
-        // has conspire").
-        if (action.conspiredCreatures.isNotEmpty()) {
-            if (cardDef == null) return "Conspire requires a card definition"
-            val conspireError = validateConspire(state, action, cardDef)
-            if (conspireError != null) return conspireError
-        }
-
-        // Validate Casualty optional additional cost (CR 702.153). One creature the caster controls
-        // with projected power >= the spell's casualty threshold. The spell must have Casualty
-        // either printed or granted (e.g., Silverquill: "Each instant and sorcery spell you cast
-        // has casualty 1").
-        if (action.casualtyCreature != null) {
-            if (cardDef == null) return "Casualty requires a card definition"
-            val casualtyError = validateCasualty(state, action, cardDef)
-            if (casualtyError != null) return casualtyError
-        }
-
-        // Validate splice (CR 702.47). Each revealed card must be in the caster's hand, carry splice,
-        // splice onto a quality this spell actually has, and appear at most once. Checked before the
-        // cost is computed, because each splice cost is folded into the total cost below (CR 601.2b/f).
-        if (action.splicedCardIds.isNotEmpty()) {
-            val spliceError = validateSplice(state, action, cardDef, cardComponent, transformedFace)
-            if (spliceError != null) return spliceError
-        }
-
-        // Calculate effective cost (free if PlayWithoutPayingCostComponent is present, or if a
-        // MayCastWithoutPayingManaCost battlefield source (e.g. Weftwalking) is the chosen alt).
-        val playForFreeFromComponent = zoneResolver.hasPlayWithoutPayingCost(state, action.playerId, action.cardId)
-        if (action.useWithoutPayingManaCost) {
-            // CR 118.9a — only one alternative cost can apply to a given cast.
-            if (action.useAlternativeCost) {
-                return "Cannot combine 'without paying its mana cost' with another alternative cost"
-            }
-            // Pass the spell's origin zone so a `fromExileOnly` source (Warped Space) validates an
-            // exile cast while staying withheld from hand casts.
-            if (!costCalculator.hasFreeCastPermission(state, action.playerId, cardDef, castCostTotaller.castSourceZone(state, action.cardId))) {
-                return "'Without paying its mana cost' is not available (gate closed or no source on the battlefield)"
-            }
-        }
-        val playForFree = playForFreeFromComponent || action.useWithoutPayingManaCost
-        // The engine, not the client, decides what a convoke/delve/improvise choice is worth: every
-        // chosen permanent or card must be one the payment could actually use, or the cost twins
-        // below would price a payment `execute` then silently declines to apply.
-        // A free cast has no generic to pay, so `execute` ignores tap-for-generic permanents on
-        // one (the `!playForFree` guards below); validation ignores them the same way rather than
-        // rejecting a cast whose taps simply do nothing.
-        val alternativePayment = action.alternativePayment
-            ?.let { if (playForFree) it.copy(tapForGenericPermanents = emptySet()) else it }
-        if (alternativePayment != null && !alternativePayment.isEmpty && cardDef != null) {
-            val waterbendCap = castCostTotaller.spellWaterbendAmount(cardDef, action) + castCostTotaller.fixedAltWaterbendAmount(state, action, playForFree)
-            val tapForGeneric = when {
-                waterbendCap > 0 -> TapForGeneric.WATERBEND
-                grantedKeywordResolver.hasKeyword(state, action.playerId, cardDef, Keyword.IMPROVISE) -> TapForGeneric.IMPROVISE
-                else -> null
-            }
-            alternativePaymentHandler.validateForSpell(
-                state, alternativePayment, action.playerId, cardDef, action.cardId, tapForGeneric
-            )?.let { return it }
-        }
-        val computedCost = castCostTotaller.validationCost(state, action, cardDef, cardComponent, playForFree, hasCommanderCast)
-            ?: return "No alternative casting cost available"
-        val paymentError = validatePayment(state, action, computedCost.cost, computedCost.paymentXValue)
-        if (paymentError != null) {
-            return paymentError
-        }
-
-        // Validate targets (include auraTarget as a target requirement for aura spells)
-        // Use mode-specific targets for modal spells, kickerTargetRequirements when kicked
-        if (cardDef != null) {
-            // Adventure / split face cast (CR 715 / 709) — read targets from the face's script.
-            // A disturb cast reads the back face's script instead (CR 712.8c): the Innistrad
-            // disturb cycle's Aura backs choose what to enchant as the spell is cast.
-            val faceScript = action.faceIndex?.let { cardDef.cardFaces.getOrNull(it)?.script }
-                ?: transformedFace?.script
-            val effectiveScript = faceScript ?: cardDef.script
-            val modalEffect = effectiveScript.spellEffect as? com.wingedsheep.sdk.scripting.effects.ModalEffect
-            // A choose-N modal cast that arrives with modes chosen but targets deferred
-            // (the single-panel client mode selector submits `chosenModes` only) is target-
-            // validated later by the cast-time per-mode target pause in execute(); skip the
-            // top-level target check here so the deferred-targets action isn't rejected.
-            val modalTargetsDeferred = modalEffect != null &&
-                action.chosenModes.isNotEmpty() &&
-                action.targets.isEmpty() &&
-                action.modeTargetsOrdered.isEmpty()
-            val baseTargetReqs = if (modalTargetsDeferred) {
-                emptyList()
-            } else if (action.chosenModes.isNotEmpty() && modalEffect != null) {
-                // Modal spell with mode(s) chosen at cast time — validate against the union of per-mode requirements.
-                action.chosenModes.flatMap { modeIndex ->
-                    modalEffect.modes.getOrNull(modeIndex)?.targetRequirements ?: emptyList()
-                }
-            } else if (action.declaredCostSlot != null && cardDef.script.kickerTargetRequirements.isNotEmpty()) {
-                cardDef.script.kickerTargetRequirements
-            } else if (isCleaveCast(action, cardDef) && cardDef.script.cleaveTargetRequirements.isNotEmpty()) {
-                // Cleave (CR 702.148): removing bracketed text can change the legal target set
-                // (e.g. Fierce Retribution's "target [attacking] creature" → "target creature").
-                cardDef.script.cleaveTargetRequirements
-            } else {
-                effectiveScript.targetRequirements
-            }
-            val targetRequirements = buildList {
-                addAll(baseTargetReqs)
-                (transformedFace ?: cardDef).script.auraTarget?.let { add(it) }
-                // Splice (CR 702.47d): targets for the added text are chosen normally, as part of
-                // casting this spell. They sit after the main spell's own requirements, so the flat
-                // target list splits into the main slice followed by one slice per spliced card.
-                addAll(SpliceCasts.targetRequirementsFor(state, action.splicedCardIds, cardRegistry))
-            }
-            if (targetRequirements.isNotEmpty()) {
-                // Reject casting if spell requires targets but none were provided
-                if (action.targets.isEmpty()) {
-                    val requiredCount = targetRequirements.sumOf { it.effectiveMinCount }
-                    if (requiredCount > 0) {
-                        return "No valid targets available"
-                    }
-                }
-                val targetError = targetValidator.validateTargets(
-                    state,
-                    action.targets,
-                    targetRequirements,
-                    action.playerId,
-                    sourceColors = (transformedFace ?: cardDef).colors,
-                    sourceSubtypes = (transformedFace ?: cardDef).typeLine.subtypes.map { it.value }.toSet(),
-                    sourceId = action.cardId,
-                    xValue = action.xValue,
-                    targetingSourceType = TargetingSourceType.SPELL
-                )
-                if (targetError != null) {
-                    return targetError
-                }
-            }
-        }
-
-        // Validate damage distribution for DividedDamageEffect spells
-        // Use kickerSpellEffect when kicked, cleaveSpellEffect when cleaved, else the printed effect.
-        val spellEffect = if (action.declaredCostSlot != null && cardDef?.script?.kickerSpellEffect != null) {
-            cardDef.script.kickerSpellEffect
-        } else if (cardDef != null && isCleaveCast(action, cardDef) && cardDef.script.cleaveSpellEffect != null) {
-            cardDef.script.cleaveSpellEffect
-        } else {
-            cardDef?.script?.spellEffect
-        }
-        if (spellEffect is DividedDamageEffect && action.targets.size > 1) {
-            val distribution = action.damageDistribution
-            if (distribution == null) {
-                return "Damage distribution required for this spell when targeting multiple creatures"
-            }
-
-            // Check that distribution targets match chosen targets
-            val targetIds = action.targets.map { it.toEntityId() }.toSet()
-            val distributionTargets = distribution.keys
-            if (distributionTargets != targetIds) {
-                return "Damage distribution targets must match chosen targets"
-            }
-
-            // Check that total damage equals the spell's total damage
-            val totalDistributed = distribution.values.sum()
-            if (totalDistributed != spellEffect.totalDamage) {
-                return "Total distributed damage ($totalDistributed) must equal ${spellEffect.totalDamage}"
-            }
-
-            // Check that each target gets at least 1 damage (per MTG rules)
-            val minPerTarget = 1
-            for ((targetId, damage) in distribution) {
-                if (damage < minPerTarget) {
-                    return "Each target must receive at least $minPerTarget damage"
-                }
-            }
-        }
-
-        // Validate that the caster can afford any additional life cost imposed by opponent
-        // permanents via ModifySpellCost + OpponentsCastTargeting + IncreaseLife (e.g. Terror
-        // of the Peaks: "Spells your opponents cast that target this creature cost an
-        // additional 3 life to cast.").
-        if (action.targets.isNotEmpty()) {
-            val additionalLifeCost = costCalculator.calculateAdditionalLifeCost(
-                state, action.playerId, action.targets
-            )
-            if (additionalLifeCost > 0) {
-                val currentLife = state.lifeTotal(action.playerId) // CR 810.9a — team's shared total
-                if (currentLife < additionalLifeCost) {
-                    return "Not enough life to pay additional life cost ($additionalLifeCost life required)"
-                }
-            }
-        }
-
-        return null
-    }
-
-    /**
-     * X value used for *mana payment* of a Harmonize cast (≤ `action.xValue`).
-     *
-     * Harmonize lets the player tap one creature to reduce the cost by generic mana equal
-     * to its power; {X} is generic mana (TDM release notes), but colored pips are never
-     * reduced. [AlternativePaymentHandler] already lowers the printed generic via
-     * `reduceGeneric`; the leftover reduction beyond the printed generic must come off the
-     * mana paid for X. The spell's own X value ([CastSpell.xValue], which drives the
-     * "mana value X or less" search) is unchanged — only the mana paid for X drops.
-     *
-     * Returns `action.xValue` unchanged when this isn't an X-cost Harmonize cast with a
-     * validly-tapped creature, mirroring [AlternativePaymentHandler.applyHarmonize]'s guards
-     * so validation, payment, and the actual tap stay consistent.
-     */
-    /**
-     * Sacrifice a permanent paid as an additional cost of casting, routing the zone move through
-     * the canonical [ZoneTransitionService] (the single source of truth for zone transitions).
-     *
-     * This is the *cost* analogue of [com.wingedsheep.engine.handlers.effects.zones.SacrificeExecutor]
-     * (the *effect* "Sacrifice a creature: …"). Both must go through [ZoneTransitionService.moveToZone]
-     * so the emitted [ZoneChangeEvent] carries the last-known-information snapshot (CR 603.10 /
-     * 608.2h) *and* the full exit cleanup + graveyard-replacement redirect run. Dies/leaves triggers
-     * that read the dying permanent's counters, power/toughness, keywords, or token-ness (e.g.
-     * Explorer's Cache: "Whenever a creature you control with a +1/+1 counter on it dies …") only
-     * fire when that snapshot is present — a hand-built `ZoneChangeEvent(lastKnown = null)` silently
-     * drops them. [ZoneTransitionService.trackPermanentSacrifice] first marks the permanent so the
-     * resulting event is tagged `wasSacrificed = true` (CR 701.21), honoring "if it wasn't
-     * sacrificed" triggers.
-     */
-    private fun sacrificePermanentAsCost(
-        state: GameState,
-        permId: EntityId,
-        sacrificingPlayerId: EntityId,
-        events: MutableList<GameEvent>,
-    ): GameState {
-        val permName = state.getEntity(permId)?.get<CardComponent>()?.name
-        val tracked = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-            .trackPermanentSacrifice(state, listOf(permId), sacrificingPlayerId)
-        events.add(PermanentsSacrificedEvent(sacrificingPlayerId, listOf(permId), listOfNotNull(permName)))
-        val transition = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-            .moveToZone(tracked, permId, Zone.GRAVEYARD)
-        events.addAll(transition.events)
-        return transition.state
-    }
-
-    private fun validatePayment(state: GameState, action: CastSpell, cost: ManaCost, paymentXValue: Int = action.xValue ?: 0): String? {
-        val xValue = paymentXValue
-
-        // Build spell context for conditional mana validation
-        val cardComponent = state.getEntity(action.cardId)?.get<CardComponent>()
-        val spellCtx = if (action.castFaceDown) {
-            // CR 708.2 — a face-down spell has none of the printed card's characteristics, so
-            // conditional mana is judged against the nameless 2/2 creature it actually is.
-            SpellPaymentContext.faceDownCast(isFromHand = isCastFromHand(state, action.cardId))
-        } else if (cardComponent != null) {
-            SpellPaymentContext(
-                isInstantOrSorcery = cardComponent.typeLine.isInstant || cardComponent.typeLine.isSorcery,
-                isKicked = action.declaredCostSlot == ChoiceSlot.KICKED,
-                isCreature = cardComponent.typeLine.isCreature,
-                isLegendary = cardComponent.typeLine.isLegendary,
-                manaValue = cardComponent.manaCost.cmc,
-                hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = paymentSubtypesOf(cardComponent),
-                isFromExile = isCastFromExile(state, action.cardId),
-                isFromHand = isCastFromHand(state, action.cardId),
-                cardTypes = cardComponent.typeLine.cardTypes,
-            )
-        } else null
-
-        // "Mana of any type can be spent" — relax colored requirements when the cast
-        // permission carries that flag (e.g. Taster of Wares, Cruelclaw's Heist).
-        val effectiveCost = if (isCastWithAnyManaType(state, action)) cost.relaxColors() else cost
-
-        // "Spend only [colors] on X" restriction (Soul Burn) — limits which mana can pay X.
-        val cardDef = cardComponent?.let { cardRegistry.getCard(it.cardDefinitionId) }
-        val xManaRestriction = (action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.script }
-            ?: cardDef?.script)?.xManaRestriction ?: emptySet()
-
-        val validationCost = when (val strategy = action.paymentStrategy) {
-            is PaymentStrategy.Explicit -> effectiveCost.withPhyrexianPaidByLife(strategy.phyrexianLifePayments)
-                ?: return "Invalid Phyrexian mana payment"
-            else -> effectiveCost
-        }
-
-        return when (action.paymentStrategy) {
-            is PaymentStrategy.AutoPay -> {
-                if (!manaSolver.canPay(state, action.playerId, validationCost, xValue, spellContext = spellCtx, xManaRestriction = xManaRestriction)) {
-                    "Not enough mana to cast this spell"
-                } else null
-            }
-            is PaymentStrategy.FromPool -> {
-                val poolComponent = state.getEntity(action.playerId)?.get<ManaPoolComponent>()
-                    ?: ManaPoolComponent()
-                val pool = ManaPool(
-                    white = poolComponent.white,
-                    blue = poolComponent.blue,
-                    black = poolComponent.black,
-                    red = poolComponent.red,
-                    green = poolComponent.green,
-                    colorless = poolComponent.colorless,
-                    restrictedMana = poolComponent.restrictedMana
-                )
-                if (!pool.canPay(validationCost, spellCtx)) {
-                    "Insufficient mana in pool to cast this spell"
-                } else null
-            }
-            is PaymentStrategy.Explicit -> {
-                for (sourceId in action.paymentStrategy.manaAbilitiesToActivate) {
-                    val sourceContainer = state.getEntity(sourceId)
-                        ?: return "Mana source not found: $sourceId"
-                    if (sourceContainer.has<TappedComponent>()) {
-                        return "Mana source is already tapped: $sourceId"
-                    }
-                }
-                // Mirror what [CastPaymentProcessor.autoPay] actually does: pay from the
-                // floating pool first, then verify the chosen sources can cover the rest.
-                // Otherwise a player who has already floated mana before clicking cast
-                // gets a false "Selected mana sources cannot pay this spell's cost"
-                // because the validator demands the chosen sources alone cover the full
-                // (post-convoke/delve) cost.
-                val poolComponent = state.getEntity(action.playerId)?.get<ManaPoolComponent>()
-                    ?: ManaPoolComponent()
-                val pool = ManaPool(
-                    white = poolComponent.white,
-                    blue = poolComponent.blue,
-                    black = poolComponent.black,
-                    red = poolComponent.red,
-                    green = poolComponent.green,
-                    colorless = poolComponent.colorless,
-                    restrictedMana = poolComponent.restrictedMana
-                )
-                val partial = pool.payPartial(validationCost, spellCtx)
-                val remainingCost = partial.remainingCost
-                // Floating mana also covers the {X} portion (execution — explicitPay → autoPay —
-                // spends it before tapping anything), so only ask the chosen sources for the X
-                // the pool can't pay. Eligible restricted mana counts via ManaPool.xCoverage.
-                val xSymbolCount = validationCost.xCount.coerceAtLeast(1)
-                val totalXMana = xValue * xSymbolCount
-                val xRemaining = totalXMana -
-                    partial.newPool.xCoverage(totalXMana, xManaRestriction, spellCtx)
-                if (remainingCost.isEmpty() && xRemaining == 0) {
-                    null
-                } else {
-                    val chosen = action.paymentStrategy.manaAbilitiesToActivate.toSet()
-                    val excluded = manaSolver.findAvailableManaSources(state, action.playerId)
-                        .map { it.entityId }
-                        .filter { it !in chosen }
-                        .toSet()
-                    if (manaSolver.solve(state, action.playerId, remainingCost, xRemaining, excludeSources = excluded, spellContext = spellCtx, xManaRestriction = xManaRestriction) == null) {
-                        "Selected mana sources cannot pay this spell's cost"
-                    } else null
-                }
-            }
-        }
-    }
-
-    /**
-     * True if mana of any type may be spent on this spell's mana cost (CR 118.14 / 609.4b). Two
-     * independent sources:
-     *
-     * 1. A [com.wingedsheep.sdk.scripting.SpendAnyManaTypeForSpells] static controlled by the
-     *    caster whose filter matches the card — the blanket "you can spend mana of any type to cast
-     *    [these] spells" (Vizier of the Menagerie). Zone-agnostic, so it is checked first and covers
-     *    hand and top-of-library casts too.
-     * 2. A [com.wingedsheep.engine.state.permissions.MayPlayPermission] carrying the
-     *    `withAnyManaType` rider. That is a *per-card* grant, so the card must currently be in a
-     *    zone a may-play permission can grant casting from — exile (the card's owner's, which may be
-     *    an opponent — e.g. Taster of Wares leaves the exiled card in the revealing player's exile)
-     *    or a graveyard (per-card grants that leave the card in the graveyard — e.g. Tinybones, the
-     *    Pickpocket lets you cast a targeted nonland permanent card from the damaged player's
-     *    graveyard). An active permission must be granted to the casting player with its condition
-     *    gate open, and the `withAnyManaType` flag must be set on at least one of them.
-     */
-    private fun isCastWithAnyManaType(state: GameState, action: CastSpell): Boolean {
-        if (castPermissionUtils.canSpendAnyManaTypeForSpell(state, action.playerId, action.cardId)) {
-            return true
-        }
-        val inGrantableZone = state.turnOrder.any { ownerId ->
-            action.cardId in state.getZone(ZoneKey(ownerId, Zone.EXILE)) ||
-                action.cardId in state.getZone(ZoneKey(ownerId, Zone.GRAVEYARD))
-        }
-        if (!inGrantableZone) return false
-        return state.activeMayPlayFor(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
-            .any { it.withAnyManaType }
-    }
-
-    private fun isCastFromExile(state: GameState, cardId: EntityId): Boolean =
-        state.turnOrder.any { ownerId -> cardId in state.getZone(ZoneKey(ownerId, Zone.EXILE)) }
-
-    private fun isCastFromHand(state: GameState, cardId: EntityId): Boolean =
-        state.turnOrder.any { ownerId -> cardId in state.getZone(ZoneKey(ownerId, Zone.HAND)) }
-
-    private fun validateConspire(
-        state: GameState,
-        action: CastSpell,
-        cardDef: com.wingedsheep.sdk.model.CardDefinition
-    ): String? {
-        if (!grantedKeywordResolver.hasKeyword(state, action.playerId, cardDef, Keyword.CONSPIRE)) {
-            return "This spell does not have conspire"
-        }
-        val chosen = action.conspiredCreatures
-        if (chosen.size != 2) return "Conspire requires tapping exactly two creatures"
-        if (chosen[0] == chosen[1]) return "Conspire requires two distinct creatures"
-        val spellColors = cardDef.colors
-        if (spellColors.isEmpty()) return "Cannot conspire: a colorless spell has no color to share"
-        val projected = state.projectedState
-        val battlefield = state.getBattlefield()
-        for (creatureId in chosen) {
-            if (creatureId !in battlefield) return "Conspire creature is not on the battlefield"
-            val container = state.getEntity(creatureId)
-                ?: return "Conspire creature not found: $creatureId"
-            if (projected.getController(creatureId) != action.playerId) {
-                return "Conspire creature is not controlled by you"
-            }
-            if (!projected.isCreature(creatureId)) return "Conspire requires creatures"
-            if (container.has<TappedComponent>()) return "Conspire creature is already tapped"
-            val sharesColor = spellColors.any { projected.hasColor(creatureId, it) }
-            if (!sharesColor) return "Conspire creature shares no color with this spell"
-        }
-        return null
-    }
-
-    private fun validateCasualty(
-        state: GameState,
-        action: CastSpell,
-        cardDef: com.wingedsheep.sdk.model.CardDefinition
-    ): String? {
-        val threshold = grantedKeywordResolver.casualtyThreshold(state, action.playerId, cardDef)
-            ?: return "This spell does not have casualty"
-        val creatureId = action.casualtyCreature ?: return "Casualty requires a creature to sacrifice"
-        val projected = state.projectedState
-        if (creatureId !in state.getBattlefield()) return "Casualty creature is not on the battlefield"
-        state.getEntity(creatureId) ?: return "Casualty creature not found: $creatureId"
-        if (projected.getController(creatureId) != action.playerId) {
-            return "Casualty creature is not controlled by you"
-        }
-        if (!projected.isCreature(creatureId)) return "Casualty requires a creature"
-        val power = projected.getPower(creatureId) ?: 0
-        if (power < threshold) return "Casualty creature must have power $threshold or greater"
-        return null
-    }
-
-    /**
-     * Validate the splice declarations on this cast (CR 702.47).
-     *
-     * [GameAction] is client-supplied, so every leg of "you may reveal this card from your hand as you
-     * cast a [quality] spell" is re-checked here rather than trusted: the card is still in the caster's
-     * *hand* (it is revealed, never cast — CR 702.47a), it actually has splice, the quality it splices
-     * onto is one this spell has, and no card is spliced onto the same spell twice (CR 702.47b).
-     *
-     * Also enforces CR 702.47b's "you can't choose to use a splice ability if you can't make the
-     * required choices (targets, etc.) for that card's rules text" — a splice card whose text needs a
-     * target has nothing to point at if no legal target exists, so it can't be spliced at all. The
-     * target *validity* check itself runs with the rest of the cast's targets below.
-     */
-    private fun validateSplice(
-        state: GameState,
-        action: CastSpell,
-        cardDef: com.wingedsheep.sdk.model.CardDefinition?,
-        cardComponent: CardComponent,
-        transformedFace: com.wingedsheep.sdk.model.CardDefinition?,
-    ): String? {
-        // The quality is read off the face actually being cast (CR 702.47a checks the spell), so an
-        // adventure / split cast — or a transformed one (disturb, modal DFC back, a `castTransformed`
-        // permission) — is measured by the face on the stack, not the whole card.
-        val castFace = action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it) }
-        val spellSubtypes = when {
-            castFace != null -> castFace.typeLine.subtypes.map { it.value }
-            transformedFace != null -> transformedFace.typeLine.subtypes.map { it.value }
-            cardDef != null -> cardDef.typeLine.subtypes.map { it.value }
-            else -> cardComponent.typeLine.subtypes.map { it.value }
-        }
-
-        if (action.splicedCardIds.size != action.splicedCardIds.distinct().size) {
-            return "Cannot splice the same card onto a spell more than once"
-        }
-
-        val hand = state.getZone(ZoneKey(action.playerId, Zone.HAND))
-        for (splicedId in action.splicedCardIds) {
-            if (splicedId == action.cardId) {
-                return "Cannot splice a spell onto itself"
-            }
-            if (splicedId !in hand) {
-                return "Spliced card is not in your hand"
-            }
-            val splicedDef = SpliceCasts.definitionOf(state, splicedId, cardRegistry)
-                ?: return "Spliced card definition not found"
-            val splice = SpliceCasts.printedSplice(splicedDef)
-                ?: return "${splicedDef.name} does not have splice"
-            if (!SpliceCasts.qualityMatches(splice, spellSubtypes)) {
-                return "${splicedDef.name} can only be spliced onto a ${splice.onto} spell"
-            }
-            // CR 702.47b — the splice is illegal outright when its own text couldn't be given the
-            // targets it demands.
-            val requiredTargets = splicedDef.script.targetRequirements.sumOf { it.effectiveMinCount }
-            if (requiredTargets > 0 && action.targets.size < requiredTargets) {
-                return "${splicedDef.name} needs targets for its spliced text"
-            }
-        }
-        return null
-    }
-
-    private fun validateCastRestrictions(
-        state: GameState,
-        restrictions: List<CastRestriction>,
-        playerId: EntityId
-    ): String? {
-        val context = EffectContext(
-            sourceId = null,
-            controllerId = playerId,
-            targets = emptyList(),
-            xValue = 0
-        )
-
-        for (restriction in restrictions) {
-            val error = validateSingleRestriction(state, restriction, context)
-            if (error != null) return error
-        }
-        return null
-    }
-
-    private fun validateSingleRestriction(
-        state: GameState,
-        restriction: CastRestriction,
-        context: EffectContext
-    ): String? {
-        return when (restriction) {
-            is CastRestriction.OnlyDuringStep -> {
-                if (state.step != restriction.step) {
-                    "Can only be cast during the ${restriction.step.name.lowercase().replace('_', ' ')} step"
-                } else null
-            }
-            is CastRestriction.OnlyDuringPhase -> {
-                if (state.phase != restriction.phase) {
-                    "Can only be cast during the ${restriction.phase.name.lowercase().replace('_', ' ')} phase"
-                } else null
-            }
-            is CastRestriction.OnlyIfCondition -> {
-                if (!conditionEvaluator.evaluate(state, restriction.condition, context)) {
-                    "Casting condition not met"
-                } else null
-            }
-            is CastRestriction.TimingRequirement -> null
-            is CastRestriction.All -> {
-                for (subRestriction in restriction.restrictions) {
-                    val error = validateSingleRestriction(state, subRestriction, context)
-                    if (error != null) return error
-                }
-                null
-            }
-        }
-    }
-
-    /**
-     * Validates the shape of a choose-N modal cast action (rules 700.2a / 700.2d).
-     *
-     * Checks: mode indices are in range, chosen count falls within
-     * `[minChooseCount, chooseCount]`, duplicates only appear when `allowRepeat`, and
-     * `modeTargetsOrdered` (if provided) is aligned 1:1 with `chosenModes`.
-     */
-    private fun validateChosenModeShape(state: GameState, modalEffect: ModalEffect, action: CastSpell): String? {
-        val chosen = action.chosenModes
-        for (idx in chosen) {
-            if (idx < 0 || idx >= modalEffect.modes.size) {
-                return "Invalid mode index: $idx"
-            }
-        }
-        val (effectiveMin, effectiveMax) = effectiveModalChooseCounts(state, modalEffect, action)
-        if (chosen.size < effectiveMin) {
-            return "Too few modes chosen: ${chosen.size} (minimum $effectiveMin)"
-        }
-        if (chosen.size > effectiveMax) {
-            return "Too many modes chosen: ${chosen.size} (maximum $effectiveMax)"
-        }
-        if (!modalEffect.allowRepeat && chosen.distinct().size != chosen.size) {
-            return "Modes cannot be chosen more than once for this spell"
-        }
-        if (action.modeTargetsOrdered.isNotEmpty() && action.modeTargetsOrdered.size != chosen.size) {
-            return "modeTargetsOrdered size (${action.modeTargetsOrdered.size}) must match chosenModes size (${chosen.size})"
-        }
-        return null
-    }
-
-    /**
-     * The effective `[min, max]` range of mode counts this cast may choose.
-     *
-     * Delegates to [ModalChooseCounts], the authority the legal-action enumerator also uses, so an
-     * advertised cast and a validated one can't disagree.
-     */
-    private fun effectiveModalChooseCounts(
-        state: GameState,
-        modalEffect: ModalEffect,
-        action: CastSpell
-    ): Pair<Int, Int> {
-        val range = ModalChooseCounts.forCast(
-            state = state,
-            modalEffect = modalEffect,
-            cardId = action.cardId,
-            controllerId = action.playerId,
-            declaredCostSlot = action.declaredCostSlot,
-            blightPaid = action.additionalCostPayment?.blightTargets?.isNotEmpty() == true,
-            conditionEvaluator = conditionEvaluator
-        )
-        return range.first to range.last
-    }
-
-    /**
-     * The additional costs a modal spell owes for the modes it chose: per-mode overrides where the
-     * chosen modes declare them (rule 700.2h — they stack), card-level costs otherwise, plus the
-     * non-mana escalate cost when the card has one ([EscalateCosts.additionalCostFor]).
-     */
-    private fun resolveAdditionalCostsForMode(
-        cardDef: com.wingedsheep.sdk.model.CardDefinition,
-        action: CastSpell
-    ): List<AdditionalCost> {
-        if (action.chosenModes.isEmpty()) return cardDef.script.additionalCosts
-        val modalEffect = cardDef.script.spellEffect as? ModalEffect ?: return cardDef.script.additionalCosts
-
-        val perModeOverrides = action.chosenModes.mapNotNull { modeIndex ->
-            modalEffect.modes.getOrNull(modeIndex)?.additionalCosts
-        }
-        val base = if (perModeOverrides.isEmpty()) cardDef.script.additionalCosts else perModeOverrides.flatten()
-        val escalate = EscalateCosts.additionalCostFor(modalEffect, action.chosenModes.size)
-        return if (escalate == null) base else base + escalate
-    }
+    override fun validate(state: GameState, action: CastSpell): String? = castValidator.validate(state, action)
 
     /** Each cost the caster owes, reduced to the leg they took (see [SpellCosts.reduceAlternatives]). */
     private fun reduceCostAlternatives(
@@ -1220,732 +196,109 @@ class CastSpellHandler(
         payment: AdditionalCostPayment?,
     ): List<AdditionalCost> = SpellCosts.reduceAlternatives(costs, state, playerId, payment, costHandler)
 
-    /** The first reason the submitted payment can't pay [additionalCosts] (CR 601.2h), or null. */
-    private fun validateAdditionalCosts(
-        state: GameState,
-        additionalCosts: List<AdditionalCost>,
-        action: CastSpell
-    ): String? {
-        val check = SpellCostCheck(state, action, costHandler, predicateEvaluator)
-        return reduceCostAlternatives(additionalCosts, state, action.playerId, action.additionalCostPayment)
-            .firstNotNullOfOrNull { SpellCosts.validate(check, it) }
-    }
-
     /**
-     * Pays [costs] into [ledger]: first the life every life cost takes — fixed by the cast, so it is
-     * paid whether or not the client sent a payment object — then, when a selection was submitted,
-     * each cost from it in order. Returns an error to abort the cast.
+     * Casts the spell, one stage of the casting procedure (CR 601.2) after another:
+     *  1. announce it — which face, which modes, which targets for each mode (601.2a–c);
+     *  2. determine the total cost (601.2f) and the additional costs it owes;
+     *  3. pay (601.2g–h);
+     *  4. record the cast (601.2i) and put it on the stack;
+     *  5. the abilities and riders the cast itself sets off.
+     * Any stage can pause for a player's choice; a pause before payment leaves no side effects, so
+     * the re-entry with the answer merged into the action is safe.
      */
-    private fun payAdditionalCosts(ledger: SpellCostLedger, costs: List<AdditionalCost>): String? {
-        for (cost in costs) {
-            val lifeToPay = SpellCosts.lifeToPay(SpellCostCheck(ledger.state, ledger.action, costHandler, predicateEvaluator), cost)
-            if (lifeToPay == 0) continue
-            val (afterPayment, paymentEvents) =
-                LifePaymentService.pay(ledger.state, ledger.playerId, lifeToPay) ?: continue
-            ledger.state = afterPayment
-            ledger.events.addAll(paymentEvents)
-        }
-        if (ledger.action.additionalCostPayment == null) return null
-        for (cost in costs) {
-            SpellCosts.pay(ledger, cost)?.let { return it }
-        }
-        return null
-    }
-
     override fun execute(state: GameState, action: CastSpell): ExecutionResult {
-        var currentState = state
-        val events = mutableListOf<GameEvent>()
-
         val cardComponent = state.getEntity(action.cardId)?.get<CardComponent>()
             ?: return ExecutionResult.error(state, "Card not found")
-
-        val xValue = action.xValue ?: 0
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
 
-        // Modal DFC back face (CR 712.11b) — resolved pre-cast, while the card is still in hand.
-        // Kept as its own local because the cost branch below charges *this* face's printed mana
-        // cost, which the merged `transformedFace` alone can't distinguish from the other routes.
-        val modalBackFace = if (
-            action.useAlternativeCost && action.altAllows(AlternativeCostType.MODAL_BACK_FACE)
-        ) {
+        // --- 1. Announce (CR 601.2a–c) -----------------------------------------------------------
+
+        // Modal DFC back face (CR 712.11b) — resolved pre-cast, while the card is still in hand. Kept
+        // apart from `transformedFace` because the cast's mana value reads *this* face's printed cost,
+        // which the merged face alone can't distinguish from the other routes.
+        val modalBackFace = if (action.useAlternativeCost && action.altAllows(AlternativeCostType.MODAL_BACK_FACE)) {
             zoneResolver.modalBackCastFace(state, action.playerId, action.cardId)
         } else null
+        val transformedFace = transformedCastFace(state, action, modalBackFace)
 
-        // The face this cast puts on the stack when it is cast **transformed**, resolved against the
-        // pre-cast state while the card is still in its origin zone. Non-null means the back face
-        // supplies the spell's characteristics (CR 712.8c / 712.8f). Three routes, mirroring
-        // validate(): disturb (CR 702.146a) casts transformed from the graveyard for its disturb
-        // cost; the modal-DFC face choice (CR 712.11b) casts the back face from hand for its own
-        // mana cost; and a `castTransformed` may-play permission casts transformed from wherever the
-        // permission covers (CR 310.12b — "exile it, then you may cast it transformed").
-        val transformedFace = (
-            if (action.useAlternativeCost && action.altAllows(AlternativeCostType.DISTURB)) {
-                zoneResolver.disturbCastFace(state, action.playerId, action.cardId)
-            } else null
-        )
-            ?: modalBackFace
-            ?: zoneResolver.permissionTransformedCastFace(state, action.playerId, action.cardId)
+        // Rule 400.7: a card that changed zones is a new object. Drop any stale LinkedExileComponent
+        // carried over from a previous battlefield visit (e.g. Veteran Survivor bounced to hand, then
+        // recast) before additional costs run — a behold-and-exile cost on this same cast will attach
+        // a fresh one afterwards.
+        val announcedState = state.updateEntity(action.cardId) { c -> c.without<LinkedExileComponent>() }
+        pauseForUnannouncedModesOrTargets(announcedState, action, cardDef, cardComponent)?.let { return it }
+        val authorization = castRecords.captureAuthorization(announcedState, action, cardComponent)
 
-        // Rule 400.7: a card that changed zones is a new object. Drop any stale
-        // LinkedExileComponent carried over from a previous battlefield visit (e.g.
-        // Veteran Survivor bounced to hand, then recast) before additional costs run —
-        // a behold-and-exile cost on this same cast will attach a fresh one afterwards.
-        currentState = currentState.updateEntity(action.cardId) { c -> c.without<LinkedExileComponent>() }
+        // --- 2. Determine the total cost (CR 601.2f) ---------------------------------------------
 
-        // Cast-time mode selection for modal spells (CR 601.2b — the controller announces
-        // the mode choice while casting the spell, before it goes on the stack). Must run
-        // before cost payment so cancellation leaves no side effects.
-        //
-        // Applies uniformly to choose-1 and choose-N modal spells. The web client supplies
-        // `chosenModes` up front for choose-1 spells (the local mode picker), so it
-        // bypasses this pause; synthesized free casts (Sunbird's Invocation, Cascade) and
-        // any other server-initiated cast that doesn't pre-supply a mode hits the pause
-        // here. The legacy resolution-time mode picker in
-        // [com.wingedsheep.engine.handlers.effects.composite.ModalEffectExecutor] remains
-        // for modal *triggered* / *activated* abilities (CR 603.3c), which don't go
-        // through the cast pipeline at all.
-        val modalEffect = cardDef?.script?.spellEffect as? ModalEffect
-        if (modalEffect != null && action.chosenModes.isEmpty() && modalEffect.chooseCount >= 1) {
-            return pauseForCastTimeModeSelection(currentState, action, cardComponent, modalEffect)
-        }
-
-        // Per-mode target selection for a modal cast whose modes were chosen up front but
-        // whose targets were deferred to the engine — the single-panel client mode selector
-        // submits `chosenModes` only and lets the server drive on-battlefield targeting. This
-        // runs the same per-mode target flow the sequential mode-selection pause transitions
-        // into, then re-enters execute() with a fully-populated action so cost payment and
-        // stack placement happen exactly once. The choose-1 client path and AI supply flat
-        // `targets`, so they skip this and fall through to deriveModeTargetsFromFlat below.
-        if (modalEffect != null &&
-            action.chosenModes.isNotEmpty() &&
-            action.modeTargetsOrdered.isEmpty() &&
-            action.targets.isEmpty() &&
-            action.chosenModes.any { modalEffect.modes.getOrNull(it)?.targetRequirements?.isNotEmpty() == true }
-        ) {
-            return presentCastModalTargetDecision(
-                state = currentState,
-                cardId = action.cardId,
-                casterId = action.playerId,
-                cardName = cardComponent.name,
-                baseCastAction = action,
-                modes = modalEffect.modes,
-                chosenModeIndices = action.chosenModes,
-                resolvedModeTargets = emptyList(),
-                currentOrdinal = 0
-            )
-        }
-
-        // Capture the linked-exile granter (if any) before the cast removes the card from
-        // exile — once the spell moves to the stack the LinkedExileComponent lookup would
-        // fail, but we still need the entry to enforce once-per-turn marking after a
-        // successful cast.
-        val linkedExileGranterEntry = zoneResolver.findLinkedExileGranterEntry(currentState, action.playerId, action.cardId)
-        val limitedTopLibraryCastSource = if (action.cardId in currentState.getLibrary(action.playerId)) {
-            zoneResolver.findLimitedTopLibraryCastSourceToConsume(currentState, action.playerId, action.cardId)
-        } else null
-
-        // Determine the total cost (CR 601.2f) — the same stage validate() priced the cast with.
         // Free if PlayWithoutPayingCostComponent is present, or if a MayCastWithoutPayingManaCost
-        // battlefield source (e.g. Weftwalking) is the chosen alt; mutual exclusion and the gate
-        // were already enforced in validate(). The card may have left the command zone in `state`
-        // since validate(), but `currentState` still has it there because `castSpell` hasn't run.
-        val playForFreeInExecute = zoneResolver.hasPlayWithoutPayingCost(currentState, action.playerId, action.cardId) ||
+        // battlefield source (e.g. Weftwalking) is the chosen alt; mutual exclusion and the gate were
+        // already enforced in validate(). The card may have left the command zone in `state` since
+        // validate(), but `announcedState` still has it there because `castSpell` hasn't run.
+        val playForFree = zoneResolver.hasPlayWithoutPayingCost(announcedState, action.playerId, action.cardId) ||
             action.useWithoutPayingManaCost
-        var effectiveCost = castCostTotaller.totalCost(
-            currentState, action, cardDef, cardComponent, playForFreeInExecute,
-            castingFromCommandZone = zoneResolver.hasCommanderCastPermission(currentState, action.playerId, action.cardId),
+        val totalCost = castCostTotaller.totalCost(
+            announcedState, action, cardDef, cardComponent, playForFree,
+            castingFromCommandZone = zoneResolver.hasCommanderCastPermission(announcedState, action.playerId, action.cardId),
         )
             // validate() rejects a cast with no available base, so this is only reached by a
             // server-initiated cast that skipped it; pay the printed cost rather than nothing.
             ?: cardComponent.manaCost
 
-        // Collect all additional costs: script costs + kicker additional cost (if kicked)
-        // + self-alternative cost's additional costs (if using alternative cost)
-        // + runtime additional costs from PlayWithAdditionalCostComponent
-        // Per-mode additional costs override card-level costs when present
-        // The non-mana half of the optional cost the caster *declared* (kicker, bargain, teamwork —
-        // `action.declaredCostSlot`), kept aside so the payment loop below can tell it apart from
-        // the card's printed additional costs. Only this one carries the declared mechanic's
-        // identity, which is what names a tap's cause ([TapReason.forChoiceSlot]). Reduced into
-        // `declaredSlotCosts` below before the comparison is made.
-        val declaredSlotAdditionalCost: AdditionalCost? = declaredOptionalCosts(action, cardDef)
-            .firstOrNull { it.additionalCost != null }
-            ?.additionalCost
-
-        val allAdditionalCosts = buildList {
-            if (cardDef != null) addAll(resolveAdditionalCostsForMode(cardDef, action))
-            declaredSlotAdditionalCost?.let { add(it) }
-            if (action.useAlternativeCost && cardDef != null) {
-                // Each bundled additional cost is gated by the chosen alternative-cost type so a
-                // collision (e.g. granted warp on a card also being evoked) doesn't drag in the
-                // unchosen cost's bundled additional cost.
-                val selfAltCost = cardDef.script.selfAlternativeCost
-                if (selfAltCost != null && action.altAllows(AlternativeCostType.SELF_ALTERNATIVE)) addAll(selfAltCost.additionalCosts)
-                // A battlefield-granted alternative cost's non-mana half (Conspiracy Unraveler's
-                // "collect evidence 10"). The mana half was already substituted for the spell's
-                // mana cost above; this is the rest of the same cost, so it is paid by the ordinary
-                // additional-cost loop below — which is also what makes it validate and surface a
-                // picker like every other selection cost.
-                if (action.altAllows(AlternativeCostType.GRANTED)) {
-                    costCalculator.findAlternativeCastingCosts(currentState, action.playerId)
-                        .firstOrNull()?.let { addAll(it.additionalCosts) }
-                }
-                // Flashback's bundled additional cost (e.g., Behold three Elementals)
-                if (action.altAllows(AlternativeCostType.FLASHBACK) &&
-                    zoneResolver.hasFlashbackPermission(currentState, action.playerId, action.cardId)) {
-                    val flashbackAdditional = cardDef.keywordAbilities
-                        .filterIsInstance<KeywordAbility.Flashback>()
-                        .firstOrNull()
-                        ?.additionalCost
-                    if (flashbackAdditional != null) add(flashbackAdditional)
-                }
-                // Warp's bundled additional cost (e.g., "Pay 2 life" on Timeline Culler). Use
-                // [WarpGrants] so granted warps ([GrantWarpToCardsInHand]) participate too —
-                // currently they carry no additional cost, but routing through the same helper
-                // keeps the seam.
-                if (action.altAllows(AlternativeCostType.WARP) &&
-                    zoneResolver.hasWarpPermission(currentState, action.playerId, action.cardId)) {
-                    val warpAdditional = WarpGrants.effectiveWarp(
-                        currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
-                    )?.additionalCost
-                    if (warpAdditional != null) add(warpAdditional)
-                }
-            }
-            // Runtime additional costs from entity component (e.g., The Infamous Cruelclaw)
-            val runtimeCostComp = currentState.getEntity(action.cardId)
-                ?.get<PlayWithAdditionalCostComponent>()
-                ?.takeIf { it.controllerId == action.playerId }
-            if (runtimeCostComp != null) addAll(runtimeCostComp.additionalCosts)
-
-            // Linked-exile granter additional cost (e.g., Dawnhand Dissident's
-            // "remove three counters from among creatures you control")
-            val linkedGranter = zoneResolver.findLinkedExileGranter(currentState, action.playerId, action.cardId)
-            linkedGranter?.additionalCost?.let { add(it) }
-
-            // Self-referential MayCastSelfFromZones grant's additional cost (e.g. Alien
-            // Symbiosis' "by discarding a card")
-            zoneResolver.findMayCastSelfFromZoneAbility(currentState, action.playerId, action.cardId)
-                ?.additionalCost?.let { add(it) }
-
-            // Gwenom: pay-life additional cost for a spell cast from the top of the library.
-            zoneResolver.topOfLibraryAlternativeGrant(currentState, action.playerId, action.cardId)
-                ?.additionalCost?.let { add(it) }
-        }
-
-        val flattenedAllCosts = reduceCostAlternatives(allAdditionalCosts, currentState, action.playerId, action.additionalCostPayment)
-
-        // The declared slot's cost, put through the *same* reduction as the full list, so the
-        // payment loop can recognise it by equality. Reducing both sides is what makes the match
-        // survive an `AdditionalCost.Composite` or `Choice` wrapper: `reduceCostAlternatives`
-        // flattens composites and picks a Choice's leg, so comparing an unreduced wrapper against
-        // the reduced list would never match and would silently drop the tap cause.
-        val declaredSlotCosts: List<AdditionalCost> = reduceCostAlternatives(
-            listOfNotNull(declaredSlotAdditionalCost), currentState, action.playerId, action.additionalCostPayment
+        val owedCosts = reduceCostAlternatives(
+            castCostPayer.owedAdditionalCosts(announcedState, action, cardDef), announcedState, action.playerId, action.additionalCostPayment
+        )
+        // The declared optional cost, put through the *same* reduction as the full list, so payment
+        // can recognise it by equality. Reducing both sides is what makes the match survive an
+        // `AdditionalCost.Composite` or `Choice` wrapper: the reduction flattens composites and picks
+        // a Choice's leg, so an unreduced wrapper would never match and would silently drop the tap
+        // cause.
+        val declaredSlotCosts = reduceCostAlternatives(
+            listOfNotNull(castCostPayer.declaredSlotCost(action, cardDef)), announcedState, action.playerId, action.additionalCostPayment
         )
 
-        // Server-initiated free cast: pay the spell's printed additional costs even though the
-        // mana cost is waived (CR 601.2f / 118.9). A normal client cast arrives with the
-        // selections already in `additionalCostPayment` (validated in validate()); copy-and-cast
-        // pipelines (Roving Actuator, Shiko, Cascade) call execute() directly with no payment, so
-        // we surface the selection here. The pause sits before any cost is paid, so the re-entry
-        // on resume (with the chosen entities merged into the payment) is side-effect free. Returns
-        // null when every selection-requiring cost is already satisfied — the normal path.
-        surfaceUnpaidAdditionalCostSelection(currentState, action, flattenedAllCosts)?.let { return it }
+        // Server-initiated free cast: pay the spell's printed additional costs even though the mana
+        // cost is waived (CR 601.2f / 118.9). A normal client cast arrives with the selections already
+        // in `additionalCostPayment` (validated in validate()); copy-and-cast pipelines (Roving
+        // Actuator, Shiko, Cascade) call execute() directly with no payment, so the selection is
+        // surfaced here. The pause sits before any cost is paid, so the re-entry on resume (with the
+        // chosen entities merged into the payment) is side-effect free.
+        surfaceUnpaidAdditionalCostSelection(announcedState, action, owedCosts)?.let { return it }
 
-        // Pay the additional costs (CR 601.2h), each through its own kind.
+        // --- 3. Pay (CR 601.2g–h) ----------------------------------------------------------------
+
         val ledger = SpellCostLedger(
-            state = currentState,
+            state = announcedState,
             action = action,
             castCardName = cardComponent.name,
             cardDefinitionName = cardDef?.name,
             cardRegistry = cardRegistry,
             declaredSlotCosts = declaredSlotCosts,
-            events = events,
         )
-        payAdditionalCosts(ledger, flattenedAllCosts)?.let { return ExecutionResult.error(ledger.state, it) }
-        currentState = ledger.state
-        val sacrificedSnapshots = ledger.sacrificedSnapshots
-        val exiledCardCount = ledger.exiledCardCount
-        val beheldCards = ledger.beheldCards
-        val discardedAsCostCards = ledger.discardedAsCostCards
-        val exiledAsCostCards = ledger.exiledAsCostCards
-        val exiledAsCostSnapshots = ledger.exiledAsCostSnapshots
-        val chosenEntitySnapshots = ledger.chosenEntitySnapshots
-        val costPipelineCollections = ledger.costPipelineCollections
-
-        // Pay Conspire's optional additional cost: tap the two chosen creatures (CR 702.78).
-        // Validated in validate(); we just apply the tap and emit TappedEvent so "becomes
-        // tapped" self-triggers fire (mirrors the attack-declare TappedEvent fix).
-        if (action.conspiredCreatures.isNotEmpty()) {
-            for (creatureId in action.conspiredCreatures) {
-                val (tappedState, tapEvent) = tap(currentState, creatureId)
-                currentState = tappedState
-                tapEvent?.let(events::add)
-            }
+        val paid = when (val outcome = castCostPayer.pay(ledger, cardComponent, cardDef, totalCost, owedCosts, playForFree)) {
+            is CastPaymentOutcome.Failed -> return ExecutionResult.error(ledger.state, outcome.reason)
+            is CastPaymentOutcome.Paid -> outcome.payment
         }
 
-        // Pay Casualty's optional additional cost: sacrifice the chosen creature (CR 702.153).
-        // Validated in validate(); routes through the shared cost-sacrifice helper so the LKI
-        // snapshot (CR 608.2h / 113.7a) and the leave-the-battlefield events are emitted for
-        // dies/leaves triggers and the "cards leave your graveyard" family. The pre-sacrifice
-        // EntitySnapshot is also captured into sacrificedSnapshots for the spell's own effect
-        // context (copy-token P/T, etc.).
-        action.casualtyCreature?.let { permId ->
-            val projectedBeforeSacrifice = currentState.projectedState
-            sacrificedSnapshots.addAll(captureEntitySnapshots(listOf(permId), projectedBeforeSacrifice))
-            if (currentState.getEntity(permId) != null) {
-                currentState = sacrificePermanentAsCost(currentState, permId, action.playerId, events)
-            }
+        val targeting = spellTargeting(state, action, cardDef, transformedFace)
+
+        // A creature type chosen as the spell is cast (e.g., Aphetto Dredging).
+        cardDef?.script?.castTimeCreatureTypeChoice?.let { castTimeChoice ->
+            pauseForCreatureTypeChoice(
+                ledger.state, action, castTimeChoice, ledger.sacrificedSnapshots, targeting.requirements, ledger.events
+            )?.let { return it }
         }
 
-        // The X charged as mana (see CastCostTotaller.paymentXValue); action.xValue — the effect's
-        // X — is untouched.
-        val paymentXValue = castCostTotaller.paymentXValue(currentState, action, cardDef, effectiveCost)
+        val returned = castCostPayer.returnForAlternativeCost(ledger, cardDef)
 
-        // Apply alternative payment (Delve/Convoke/Harmonize)
-        if (action.alternativePayment != null && !action.alternativePayment.isEmpty && cardDef != null) {
-            val altPaymentResult = alternativePaymentHandler.apply(
-                currentState,
-                effectiveCost,
-                action.alternativePayment,
-                action.playerId,
-                cardDef,
-                action.cardId
-            )
-            effectiveCost = altPaymentResult.reducedCost
-            currentState = altPaymentResult.newState
-            events.addAll(altPaymentResult.events)
-        }
+        // --- 4. Record the cast (CR 601.2i) and put it on the stack ------------------------------
 
-        // Apply waterbend (Avatar): tap the chosen artifacts/creatures, each paying {1} of the
-        // waterbend generic, bounded by the waterbend amount. Sums the spell-level `waterbend {N}`
-        // additional cost and Hama's fixed-alternative waterbend cost (only one is ever non-zero).
-        // > 0 exactly when a waterbend cost is actually being paid on this cast (an optional
-        // "you may waterbend" that was declined yields 0).
-        val waterbendPaidAmount = (if (cardDef != null) castCostTotaller.spellWaterbendAmount(cardDef, action) else 0) +
-            castCostTotaller.fixedAltWaterbendAmount(currentState, action, playForFreeInExecute)
-        if (waterbendPaidAmount > 0 &&
-            action.alternativePayment != null &&
-            action.alternativePayment.tapForGenericPermanents.isNotEmpty()
-        ) {
-            val waterbendResult = alternativePaymentHandler.applyWaterbendForSpell(
-                currentState, effectiveCost, action.alternativePayment, action.playerId, waterbendPaidAmount
-            )
-            effectiveCost = waterbendResult.reducedCost
-            currentState = waterbendResult.newState
-            events.addAll(waterbendResult.events)
-        }
-        // Apply improvise (CR 702.126a): tap the chosen artifacts, each paying {1} of the generic in
-        // the spell's total cost. Unlike waterbend there is no separate amount to cap at — improvise
-        // is not a cost of its own (CR 702.126b) — so it runs only when no waterbend cost claimed the
-        // taps, and the handler re-checks the keyword before tapping anything.
-        if (waterbendPaidAmount == 0 && !playForFreeInExecute && cardDef != null &&
-            action.alternativePayment != null &&
-            action.alternativePayment.tapForGenericPermanents.isNotEmpty()
-        ) {
-            val improviseResult = alternativePaymentHandler.applyImproviseForSpell(
-                currentState, effectiveCost, action.alternativePayment, action.playerId, cardDef
-            )
-            effectiveCost = improviseResult.reducedCost
-            currentState = improviseResult.newState
-            events.addAll(improviseResult.events)
-        }
-
-        // CR 701.67c: paying a spell's waterbend cost (however paid — taps above and/or plain mana)
-        // fires "whenever you waterbend". A later payment failure rolls the cast (and this event)
-        // back, so emitting here is safe.
-        if (waterbendPaidAmount > 0) {
-            val (bendState, bendEvent) = BendEvents.record(currentState, action.playerId, BendType.WATER)
-            currentState = bendState
-            events.add(bendEvent)
-        }
-
-        // Build spell context for conditional mana restrictions. A face-down cast (CR 708.2) is a
-        // nameless 2/2 creature spell regardless of what the card says, so it gets its own context
-        // rather than the printed card's — see `validatePayment`.
-        val spellContext = if (action.castFaceDown) {
-            SpellPaymentContext.faceDownCast(isFromHand = isCastFromHand(currentState, action.cardId))
-        } else SpellPaymentContext(
-            isInstantOrSorcery = cardComponent.typeLine.isInstant || cardComponent.typeLine.isSorcery,
-            isKicked = action.declaredCostSlot == ChoiceSlot.KICKED,
-            isCreature = cardComponent.typeLine.isCreature,
-            isLegendary = cardComponent.typeLine.isLegendary,
-            manaValue = cardComponent.manaCost.cmc,
-            hasXInCost = cardComponent.manaCost.hasX,
-            subtypes = paymentSubtypesOf(cardComponent),
-            isFromExile = isCastFromExile(currentState, action.cardId),
-            isFromHand = isCastFromHand(currentState, action.cardId),
-            cardTypes = cardComponent.typeLine.cardTypes,
+        val (afterMarks, marks) = castRecords.markAlternativeCost(ledger.state, action, cardDef)
+        val (afterRecord, stormCount) = castRecords.recordSpellCast(
+            afterMarks, action, cardDef, cardComponent, transformedFace, modalBackFace, marks.wasWarped, paid.payment
         )
-
-        // "Mana of any type can be spent" — relax colored requirements for cast-from-exile
-        // permissions that carry the flag (Taster of Wares, Cruelclaw's Heist).
-        if (isCastWithAnyManaType(currentState, action)) {
-            effectiveCost = effectiveCost.relaxColors()
-        }
-
-        // "Spend only [colors] on X" restriction (Soul Burn). Use the cast face's script for
-        // split/adventure cards, otherwise the card's own script.
-        val xManaRestriction = (action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.script }
-            ?: cardDef?.script)?.xManaRestriction ?: emptySet()
-
-        // Handle mana payment via dedicated processor
-        val paymentResult = paymentProcessor.processPayment(currentState, action, effectiveCost, cardComponent.name, paymentXValue, spellContext, xManaRestriction)
-        if (paymentResult.error != null) {
-            return ExecutionResult.error(currentState, paymentResult.error)
-        }
-        currentState = paymentResult.state
-        events.addAll(paymentResult.events)
-
-        // Emerge (CR 702.119a/c): the chosen creature is sacrificed *as the total cost is paid*
-        // (CR 601.2h), which is why this sits after the mana payment rather than in the additional-
-        // cost block above — mana abilities are activated first (CR 601.2f–g), so the creature can
-        // legally be tapped for mana toward its own emerge cost before it dies. Its mana value was
-        // already taken off the generic portion of `effectiveCost` while it was on the battlefield.
-        // The snapshot feeds "as it last existed on the battlefield" reads (CR 608.2h) exactly like
-        // a scripted sacrifice cost does.
-        if (action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE) &&
-            cardDef != null && EmergeCasts.printedEmerge(cardDef) != null
-        ) {
-            val emergeSacrifice = action.additionalCostPayment?.sacrificedPermanents?.firstOrNull()
-            if (emergeSacrifice != null && currentState.getEntity(emergeSacrifice) != null) {
-                // The [GameState] overload: besides last-known P/T it freezes the creature's *name*,
-                // which is what lets the stack card and the game log say which body paid for this
-                // cast once it is gone (a sacrificed token leaves no entity to read a name off).
-                sacrificedSnapshots.addAll(
-                    captureEntitySnapshots(listOf(emergeSacrifice), currentState)
-                )
-                currentState = sacrificePermanentAsCost(currentState, emergeSacrifice, action.playerId, events)
-            }
-        }
-
-        // Track total mana spent on spells this turn (for Expend triggers)
-        val manaSpentThisCast = paymentResult.events
-            .filterIsInstance<ManaSpentEvent>()
-            .sumOf { it.total }
-        if (manaSpentThisCast > 0) {
-            currentState = currentState.updateEntity(action.playerId) { container ->
-                val existing = container.get<ManaSpentOnSpellsThisTurnComponent>()
-                    ?: ManaSpentOnSpellsThisTurnComponent()
-                container.with(existing.copy(totalSpent = existing.totalSpent + manaSpentThisCast))
-            }
-        }
-
-        // Pay forage additional cost when casting a creature from graveyard via
-        // MayCastCreaturesFromGraveyardWithForageComponent (e.g., Osteomancer Adept). The spell
-        // being cast is excluded from the exile pool — it has left the graveyard for the stack and
-        // can't be one of the three cards it exiles to pay for itself. The player's mode + card/Food
-        // choice (when supplied via additionalCostPayment) is honored; otherwise a legal mode is
-        // auto-paid. See [com.wingedsheep.engine.handlers.costs.ForageCostResolver].
-        val isForageCast = zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
-            currentState, action.playerId, action.cardId, cardComponent
-        ) && action.cardId in currentState.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD))
-        if (isForageCast) {
-            when (val forageResult = com.wingedsheep.engine.handlers.costs.ForageCostResolver.pay(
-                currentState, action.playerId,
-                exileChoices = action.additionalCostPayment?.exiledCards ?: emptyList(),
-                sacrificeChoices = action.additionalCostPayment?.sacrificedPermanents ?: emptyList(),
-                excludeCardId = action.cardId,
-            )) {
-                is com.wingedsheep.engine.handlers.costs.ForageCostResolver.Result.Success -> {
-                    currentState = forageResult.state
-                    events.addAll(forageResult.events)
-                }
-                is com.wingedsheep.engine.handlers.costs.ForageCostResolver.Result.Failure ->
-                    return ExecutionResult.error(currentState, forageResult.reason)
-            }
-        }
-
-        // Pay additional life cost (e.g., Festival of Embers graveyard casting)
-        if (action.graveyardLifeCost > 0) {
-            val currentLife = currentState.lifeTotal(action.playerId) // CR 810.9a — team's shared total
-            val newLife = currentLife - action.graveyardLifeCost
-            currentState = currentState.withLifeTotal(action.playerId, newLife)
-            events.add(LifeChangedEvent(action.playerId, currentLife, newLife, LifeChangeReason.LIFE_LOSS))
-            currentState = com.wingedsheep.engine.handlers.effects.DamageUtils.markLifeLostThisTurn(
-                currentState, action.playerId, action.graveyardLifeCost
-            )
-        }
-
-        // Pay any additional life cost from opponent permanents' ModifySpellCost abilities
-        // (e.g. Terror of the Peaks: "Spells your opponents cast that target this creature
-        // cost an additional 3 life to cast.").
-        if (action.targets.isNotEmpty()) {
-            val additionalLifeCost = costCalculator.calculateAdditionalLifeCost(
-                currentState, action.playerId, action.targets
-            )
-            if (additionalLifeCost > 0) {
-                LifePaymentService.pay(currentState, action.playerId, additionalLifeCost)
-                    ?.let { (afterPayment, paymentEvents) ->
-                        currentState = afterPayment
-                        events.addAll(paymentEvents)
-                    }
-            }
-        }
-
-        // Compute target requirements for resolution-time re-validation (Rule 608.2b).
-        // For modal spells with cast-time mode picks, union the per-mode requirements so resolution can
-        // re-check every targeted slot. Per-mode breakdown is persisted on SpellOnStackComponent.modeTargetRequirements.
-        val modalEffectForTargets = cardDef?.script?.spellEffect as? com.wingedsheep.sdk.scripting.effects.ModalEffect
-        val perModeTargetRequirements: Map<Int, List<TargetRequirement>> =
-            if (modalEffectForTargets != null && action.chosenModes.isNotEmpty()) {
-                action.chosenModes.distinct().associateWith { idx ->
-                    modalEffectForTargets.modes.getOrNull(idx)?.targetRequirements ?: emptyList()
-                }
-            } else emptyMap()
-
-        val spellTargetRequirements = if (cardDef != null) {
-            // Adventure / split face cast (CR 715 / 709) — read targets from the face's script;
-            // a disturb cast reads the back face's (CR 712.8c). Mirrors validate().
-            val faceScriptForTargets = action.faceIndex?.let { cardDef.cardFaces.getOrNull(it)?.script }
-                ?: transformedFace?.script
-            val baseTargetReqs = if (action.chosenModes.isNotEmpty() && modalEffectForTargets != null) {
-                // Modal spell with modes chosen at cast time — union per-mode requirements
-                action.chosenModes.flatMap { idx ->
-                    modalEffectForTargets.modes.getOrNull(idx)?.targetRequirements ?: emptyList()
-                }
-            } else if (action.declaredCostSlot != null && cardDef.script.kickerTargetRequirements.isNotEmpty()) {
-                cardDef.script.kickerTargetRequirements
-            } else if (isCleaveCast(action, cardDef) && cardDef.script.cleaveTargetRequirements.isNotEmpty()) {
-                cardDef.script.cleaveTargetRequirements
-            } else {
-                (faceScriptForTargets ?: cardDef.script).targetRequirements
-            }
-            buildList {
-                addAll(baseTargetReqs)
-                (transformedFace ?: cardDef).script.auraTarget?.let { add(it) }
-                // Splice (CR 702.47d): the spliced text's own requirements, appended in splice order.
-                // They must be here and not only in validate(): this list becomes the spell's
-                // TargetsComponent, which drives resolution-time 608.2b re-validation and the tail that
-                // StackResolver slices off to hand each spliced card its own targets.
-                addAll(SpliceCasts.targetRequirementsFor(state, action.splicedCardIds, cardRegistry))
-            }
-        } else {
-            emptyList()
-        }
-
-        // Check if spell requires a creature type choice during casting (e.g., Aphetto Dredging)
-        val castTimeChoice = cardDef?.script?.castTimeCreatureTypeChoice
-        if (castTimeChoice != null) {
-            val pauseResult = pauseForCreatureTypeChoice(
-                currentState, action, castTimeChoice, sacrificedSnapshots, spellTargetRequirements, events
-            )
-            if (pauseResult != null) return pauseResult
-        }
-
-        // Sneak (CR 702.190a): pay the "return an unblocked creature you control to its owner's
-        // hand" portion of the cost. The {cost} mana was paid by the standard payment pipeline
-        // above. Capture the defender the returned creature was attacking first, so a resolving
-        // permanent spell can enter attacking the same player/planeswalker (CR 702.190b).
-        // Printed Sneak, or a granted graveyard sneak (Ninja Teen). The card may already be on the
-        // stack here, so detect the grant via the player's battlefield (zone-independent) rather
-        // than the card's current zone.
-        val wasSneaked = action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.SNEAK) &&
-            (cardDef.keywordAbilities.any { it.ninjutsuStyleCost != null } ||
-                SneakWindow.graveyardSneakGrantCost(currentState, action.playerId, cardRegistry) != null)
-        var sneakAttackDefenderId: EntityId? = null
-        if (wasSneaked) {
-            val bounceId = action.additionalCostPayment?.bouncedPermanents?.firstOrNull()
-            if (bounceId != null) {
-                sneakAttackDefenderId = currentState.getEntity(bounceId)
-                    ?.get<com.wingedsheep.engine.state.components.combat.AttackingComponent>()
-                    ?.defenderId
-                val bounceResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
-                    currentState, bounceId, Zone.HAND
-                )
-                currentState = bounceResult.state
-                events.addAll(bounceResult.events)
-            }
-        }
-
-        // Web-slinging (CR 702.188a): pay the alternative cost's non-mana portion by returning one
-        // tapped creature you control to its owner's hand. Capture that creature's mana value first
-        // (CR 118.9c — its own mana value, needed by Scarlet Spider, Ben Reilly) before it leaves.
-        val wasWebSlung = action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.WEB_SLINGING) &&
-            WebSlinging.effectiveWebSlinging(currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator) != null
-        var webSlungReturnedManaValue = 0
-        if (wasWebSlung) {
-            val bounceId = action.additionalCostPayment?.bouncedPermanents?.firstOrNull()
-            if (bounceId != null) {
-                webSlungReturnedManaValue = currentState.getEntity(bounceId)
-                    ?.get<CardComponent>()
-                    ?.manaValue ?: 0
-                val bounceResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
-                    currentState, bounceId, Zone.HAND
-                )
-                currentState = bounceResult.state
-                events.addAll(bounceResult.events)
-            }
-        }
-
-        // Determine if this spell is being cast using mayhem (CR 702.187). Gated by the chosen
-        // alternative-cost type + the card actually having mayhem + the "you discarded this card
-        // this turn" record (zone-independent, so it holds even after the card moves to the stack).
-        // Drives Sandman's Quicksand's "if this spell's mayhem cost was paid" rider.
-        val wasMayhem = action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.MAYHEM) &&
-            MayhemGrants.effectiveMayhem(currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator) != null &&
-            currentState.getEntity(action.playerId)
-                ?.get<com.wingedsheep.engine.state.components.player.CardsDiscardedThisTurnComponent>()
-                ?.cardIds?.contains(action.cardId) == true
-        if (wasMayhem) {
-            // The card is leaving the graveyard to become a spell (CR 400.7 — a new object). Drop
-            // its "discarded this turn" gate mark now (casting bypasses ZoneTransitionService.moveToZone,
-            // so §8c won't fire) so it can't be Mayhem-cast again each time it resolves back.
-            currentState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                .untrackDiscardedCard(currentState, action.cardId)
-        }
-
-        // Determine if this spell is being cast using warp. Gated by the chosen alternative-cost
-        // type so that when warp collides with another alternative cost (e.g. a granted warp on a
-        // card being evoked) only the chosen one drives its post-resolution behavior. With no
-        // choice recorded, falls back to the legacy "card has warp" heuristic.
-        val wasWarped = action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.WARP) &&
-            WarpGrants.effectiveWarp(
-                currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
-            ) != null
-
-        // Determine if this spell is being cast using dash (CR 702.109). Printed-only for now —
-        // no granted-dash resolver exists yet, mirroring evoke/impending/cleave's shape below
-        // rather than warp's Grants-lookup (which exists because Warp can also be granted to
-        // cards in hand by a battlefield static ability).
-        val wasDashed = action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.DASH) &&
-            cardDef.keywordAbilities.any { it is KeywordAbility.Dash }
-
-        // Determine if this spell is being cast using evoke
-        val wasEvoked = action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.EVOKE) &&
-            cardDef.keywordAbilities.any { it is KeywordAbility.Evoke }
-
-        // Determine if this spell is being cast using impending
-        val wasImpending = action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.IMPENDING) &&
-            cardDef.keywordAbilities.any { it is KeywordAbility.Impending }
-
-        // Determine if this spell is being cast using cleave (CR 702.148). When true, the spell
-        // resolves with its brackets-removed effect/target variant (cleaveSpellEffect /
-        // cleaveTargetRequirements) instead of its printed one.
-        val wasCleaved = action.useAlternativeCost && cardDef != null &&
-            action.altAllows(AlternativeCostType.CLEAVE) &&
-            cardDef.keywordAbilities.any { it is KeywordAbility.Cleave }
-
-        // Extract per-color mana spent from payment events (for mana-spent-gated triggers)
-        val manaSpentEvent = paymentResult.events.filterIsInstance<ManaSpentEvent>().firstOrNull()
-
-        // Capture storm count before incrementing (spells cast before this one)
-        val stormCount = currentState.spellsCastThisTurn
-
-        // Increment spell count for this turn (global and per-player)
-        val playerCount = currentState.playerSpellsCastThisTurn[action.playerId] ?: 0
-        currentState = currentState.copy(
-            spellsCastThisTurn = stormCount + 1,
-            playerSpellsCastThisTurn = currentState.playerSpellsCastThisTurn +
-                (action.playerId to playerCount + 1),
-            spellWarpedThisTurn = currentState.spellWarpedThisTurn || wasWarped
-        )
-
-        // Track spell records cast this turn (for conditional evasion like Relic Runner, and "first of type" triggers)
-        run {
-            val record = com.wingedsheep.engine.state.CastSpellRecord(
-                // A transformed cast is on the stack back face up, so "a Spirit spell was cast" and
-                // colour/type history read the back face (CR 712.8c / 712.8f). Mana value splits by
-                // route: a disturb cast keeps the front face's (CR 712.8c), which is what
-                // `cardComponent` still holds here, while CR 712.8f gives a modal double-faced spell
-                // "only the characteristics of the face that's up" with no such exception — so a
-                // back-face cast reports that face's own mana value. Mirrors `StackResolver`'s
-                // `spellManaValue`, which stamps the same number onto the SpellCastEvent.
-                typeLine = transformedFace?.typeLine ?: cardComponent.typeLine,
-                manaValue = modalBackFace?.manaCost?.cmc ?: cardComponent.manaValue,
-                colors = transformedFace?.colors ?: cardComponent.colors,
-                isFaceDown = action.castFaceDown,
-                spentManaSubtypes = paymentResult.spentManaProvenance.spentSubtypes,
-                // The cast card moves to the stack keeping its entity id, so this matches the
-                // resolving spell's EffectContext.sourceId (used by SpellsCastThisTurn excludeSelf).
-                sourceEntityId = action.cardId,
-                // Origin zone of the cast (HAND for a normal cast; GRAVEYARD/EXILE/COMMAND for
-                // flashback/forage, plot/foretell, commander, …). The card is still in its origin
-                // zone here — stackResolver.castSpell (below) moves it — so this resolves the same
-                // way castSpell stamps SpellOnStackComponent.castFromZone. Powers "you haven't cast
-                // a spell from your hand this turn" (Prairie Dog cycle).
-                castFromZone = stackResolver.findCastFromZone(currentState, action.cardId, action.playerId),
-                // Face-down casts hide the card's identity; a face-up cast records the name so
-                // name predicates ("the first Otter spell other than Alania") can match history.
-                name = if (action.castFaceDown) null else (
-                    action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.name }
-                        ?: transformedFace?.name ?: cardComponent.name
-                ),
-            )
-            val existing = currentState.spellsCastThisTurnByPlayer[action.playerId] ?: emptyList()
-            currentState = currentState.copy(
-                spellsCastThisTurnByPlayer = currentState.spellsCastThisTurnByPlayer +
-                    (action.playerId to existing + record),
-                // "the spell most recently cast this turn" — read by Mana Maze's cast restriction.
-                lastCastSpellColors = record.colors
-            )
-        }
-
-        // Check if casting from graveyard via MayPlayPermanentsFromGraveyard (Muldrotha)
-        val castingFromGraveyardViaMuldrotha = action.cardId in currentState.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD)) &&
-            zoneResolver.hasMayPlayPermanentFromGraveyardPermission(currentState, action.playerId, action.cardId, cardComponent)
-
-        // Derive per-mode target groups from the flat target list when the action arrived
-        // with chosenModes but no modeTargetsOrdered (current web-client cast-time UI for
-        // choose-1 modal spells). Slice action.targets in mode order using each mode's
-        // total target slot count so modal resolution can read per-mode targets.
-        val effectiveModeTargetsOrdered = if (
-            action.modeTargetsOrdered.isEmpty() &&
-            action.chosenModes.isNotEmpty() &&
-            modalEffectForTargets != null &&
-            action.targets.isNotEmpty()
-        ) {
-            deriveModeTargetsFromFlat(modalEffectForTargets, action.chosenModes, action.targets)
-        } else {
-            action.modeTargetsOrdered
-        }
-
-        // Evaluate "as you cast this spell" condition captures (CR 601.2i). The spell has finished
-        // being cast (costs paid) but isn't on the stack yet; freezing the answers now lets the
-        // resolving effect read the cast-time board even if it has since changed (Steer Clear's
-        // "if you controlled a Mount as you cast this spell"). The caster is the controller; the
-        // captured names are carried onto SpellOnStackComponent.castTimeFlags.
-        val castTimeScript = action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.script } ?: cardDef?.script
-        val castTimeCaptures = castTimeScript?.castTimeCaptures.orEmpty()
-        val castTimeFlags: Set<String> = if (castTimeCaptures.isEmpty()) {
-            emptySet()
-        } else {
-            val captureContext = EffectContext(
-                sourceId = action.cardId,
-                controllerId = action.playerId,
-                targets = emptyList(),
-                xValue = 0
-            )
-            castTimeCaptures
-                .filter { conditionEvaluator.evaluate(currentState, it.condition, captureContext) }
-                .map { it.flag }
-                .toSet()
-        }
-
-        // Pay-X-life additional cost (AdditionalCost.PayXLife): record the declared X (non-null,
-        // including 0) only when the spell actually carries this cost, so it's coalesced into the
-        // resolution X value. Other spells leave this null and keep xValue purely from {X}.
-        val payXLifeAmount: Int? =
-            if (castTimeScript?.additionalCosts?.any { it is AdditionalCost.PayXLife } == true) {
-                action.additionalCostPayment?.payXLifeAmount ?: 0
-            } else null
-
-        // Cast the spell
-        // The Tomb of Aclazotz: capture the authorizing MayCastFromGraveyard grant now, while the
-        // card is still in the graveyard (the input `state`), so its cast-this-way entry rider
-        // (finality counter + Vampire) can be frozen onto the stack spell after it's cast (below).
-        // Null unless casting from a graveyard under a rider-bearing grant.
-        val graveyardCastRiderGrant =
-            zoneResolver.findMayCastFromGraveyardGrant(
-                state, action.playerId, action.cardId, cardComponent, action.graveyardCastRider
-            )
+        var currentState = afterRecord
+        val castingFromGraveyardViaMuldrotha = castRecords.isCastViaMuldrotha(currentState, action, cardComponent)
 
         // Splice (CR 702.47a): reveal each spliced card from hand. The reveal is public — it is how
         // opponents learn what text the spell gained — but the caster picked the cards, so it doesn't
@@ -1956,7 +309,7 @@ class CastSpellHandler(
             currentState.getEntity(splicedId)?.get<CardComponent>()?.name
         }
         if (splicedCardNames.isNotEmpty()) {
-            events.add(
+            ledger.events.add(
                 CardsRevealedEvent(
                     revealingPlayerId = action.playerId,
                     cardIds = action.splicedCardIds,
@@ -1969,18 +322,204 @@ class CastSpellHandler(
             )
         }
 
-        val castResult = stackResolver.castSpell(
-            currentState,
+        val castResult = putSpellOnStack(
+            currentState, state, action, cardDef, transformedFace, ledger, paid, targeting, returned, marks, splicedCardNames
+        )
+        if (castResult.outcome !is Outcome.Done) {
+            return castResult
+        }
+        currentState = castResult.newState
+
+        // --- 5. What the cast sets off -----------------------------------------------------------
+
+        currentState = castRecords.applyCastThisWayRiders(currentState, action, cardComponent, authorization, paid.isForageCast)
+        val spell = CastSpellOnStack(action, cardDef, cardComponent, targeting.requirements)
+        val (afterManaRiders, riderTriggers) = castTriggers.applyManaRiders(currentState, spell, paid.payment.consumedRiders)
+        currentState = castRecords.consumeCastPermissions(
+            afterManaRiders, state, action, cardDef, cardComponent, authorization, castingFromGraveyardViaMuldrotha
+        )
+        val copyTriggers = castTriggers.copyTriggers(currentState, spell, stormCount)
+        val afterRiders = castTriggers.consumeNextSpellRiders(currentState, spell, ledger.events + castResult.events)
+        if (afterRiders.outcome !is Outcome.Done) return afterRiders
+        currentState = afterRiders.newState
+
+        // Storm, conspire, casualty and rider triggers are known here rather than detected from an
+        // event. They join the waiting queue ahead of the triggers the settle boundary detects from
+        // the cast events (including additional-cost events like a sacrifice). Within a player's own
+        // triggers that order is kept, so Storm goes on the stack just above the spell that caused it
+        // (CR 702.40a), and APNAP order puts non-active players' triggers above.
+        val synthesizedTriggers = riderTriggers + copyTriggers
+        if (synthesizedTriggers.isNotEmpty()) {
+            currentState = currentState.copy(pendingTriggers = currentState.pendingTriggers + synthesizedTriggers)
+        }
+        return ExecutionResult.success(currentState.withPriority(action.playerId), afterRiders.events)
+    }
+
+    /**
+     * The face this cast puts on the stack when it is cast **transformed**, resolved against the
+     * pre-cast state while the card is still in its origin zone. Non-null means the back face
+     * supplies the spell's characteristics (CR 712.8c / 712.8f). Three routes, mirroring validate():
+     * disturb (CR 702.146a) casts transformed from the graveyard for its disturb cost; the modal-DFC
+     * face choice (CR 712.11b) casts the back face from hand for its own mana cost; and a
+     * `castTransformed` may-play permission casts transformed from wherever the permission covers
+     * (CR 310.12b — "exile it, then you may cast it transformed").
+     */
+    private fun transformedCastFace(state: GameState, action: CastSpell, modalBackFace: com.wingedsheep.sdk.model.CardDefinition?): com.wingedsheep.sdk.model.CardDefinition? =
+        (if (action.useAlternativeCost && action.altAllows(AlternativeCostType.DISTURB)) {
+            zoneResolver.disturbCastFace(state, action.playerId, action.cardId)
+        } else null)
+            ?: modalBackFace
+            ?: zoneResolver.permissionTransformedCastFace(state, action.playerId, action.cardId)
+
+    /**
+     * The mode and target announcements (CR 601.2b–c) the action arrived without, asked for before
+     * anything is paid so cancelling leaves no side effects.
+     *
+     * - Modes: applies uniformly to choose-1 and choose-N modal spells. The web client supplies
+     *   `chosenModes` up front for choose-1 spells (the local mode picker), so it bypasses this pause;
+     *   synthesized free casts (Sunbird's Invocation, Cascade) and any other server-initiated cast
+     *   that doesn't pre-supply a mode hits it. The resolution-time mode picker in
+     *   [com.wingedsheep.engine.handlers.effects.composite.ModalEffectExecutor] remains for modal
+     *   *triggered* / *activated* abilities (CR 603.3c), which don't go through the cast pipeline.
+     * - Per-mode targets: a modal cast whose modes were chosen up front but whose targets were
+     *   deferred to the engine — the single-panel client mode selector submits `chosenModes` only and
+     *   lets the server drive on-battlefield targeting. This runs the same per-mode target flow the
+     *   sequential mode-selection pause transitions into, then re-enters execute() with a
+     *   fully-populated action so cost payment and stack placement happen exactly once. The choose-1
+     *   client path and AI supply flat `targets`, so they skip this and fall through to
+     *   deriveModeTargetsFromFlat.
+     */
+    private fun pauseForUnannouncedModesOrTargets(
+        state: GameState,
+        action: CastSpell,
+        cardDef: com.wingedsheep.sdk.model.CardDefinition?,
+        cardComponent: CardComponent,
+    ): ExecutionResult? {
+        val modalEffect = cardDef?.script?.spellEffect as? ModalEffect ?: return null
+        if (action.chosenModes.isEmpty() && modalEffect.chooseCount >= 1) {
+            return pauseForCastTimeModeSelection(state, action, cardComponent, modalEffect)
+        }
+        if (action.chosenModes.isNotEmpty() &&
+            action.modeTargetsOrdered.isEmpty() &&
+            action.targets.isEmpty() &&
+            action.chosenModes.any { modalEffect.modes.getOrNull(it)?.targetRequirements?.isNotEmpty() == true }
+        ) {
+            return presentCastModalTargetDecision(
+                state = state,
+                cardId = action.cardId,
+                casterId = action.playerId,
+                cardName = cardComponent.name,
+                baseCastAction = action,
+                modes = modalEffect.modes,
+                chosenModeIndices = action.chosenModes,
+                resolvedModeTargets = emptyList(),
+                currentOrdinal = 0
+            )
+        }
+        return null
+    }
+
+    /** What the spell targets, for resolution-time re-validation (CR 608.2b). */
+    private class SpellTargeting(
+        /** The spell's own requirements, then the aura target, then each spliced card's. */
+        val requirements: List<TargetRequirement>,
+        /** For a modal spell with modes chosen at cast time, each chosen mode's own requirements. */
+        val perMode: Map<Int, List<TargetRequirement>>,
+        val modalEffect: ModalEffect?,
+    )
+
+    private fun spellTargeting(
+        state: GameState,
+        action: CastSpell,
+        cardDef: com.wingedsheep.sdk.model.CardDefinition?,
+        transformedFace: com.wingedsheep.sdk.model.CardDefinition?,
+    ): SpellTargeting {
+        val modalEffect = cardDef?.script?.spellEffect as? ModalEffect
+        val perMode: Map<Int, List<TargetRequirement>> =
+            if (modalEffect != null && action.chosenModes.isNotEmpty()) {
+                action.chosenModes.distinct().associateWith { idx ->
+                    modalEffect.modes.getOrNull(idx)?.targetRequirements ?: emptyList()
+                }
+            } else emptyMap()
+
+        if (cardDef == null) return SpellTargeting(emptyList(), perMode, modalEffect)
+        // Adventure / split face cast (CR 715 / 709) — read targets from the face's script; a
+        // disturb cast reads the back face's (CR 712.8c). Mirrors validate().
+        val faceScriptForTargets = action.faceIndex?.let { cardDef.cardFaces.getOrNull(it)?.script }
+            ?: transformedFace?.script
+        val baseTargetReqs = if (action.chosenModes.isNotEmpty() && modalEffect != null) {
+            // Modal spell with modes chosen at cast time — the union of the per-mode requirements,
+            // so resolution can re-check every targeted slot.
+            action.chosenModes.flatMap { idx -> modalEffect.modes.getOrNull(idx)?.targetRequirements ?: emptyList() }
+        } else if (action.declaredCostSlot != null && cardDef.script.kickerTargetRequirements.isNotEmpty()) {
+            cardDef.script.kickerTargetRequirements
+        } else if (isCleaveCast(action, cardDef) && cardDef.script.cleaveTargetRequirements.isNotEmpty()) {
+            cardDef.script.cleaveTargetRequirements
+        } else {
+            (faceScriptForTargets ?: cardDef.script).targetRequirements
+        }
+        val requirements = buildList {
+            addAll(baseTargetReqs)
+            (transformedFace ?: cardDef).script.auraTarget?.let { add(it) }
+            // Splice (CR 702.47d): the spliced text's own requirements, appended in splice order.
+            // They must be here and not only in validate(): this list becomes the spell's
+            // TargetsComponent, which drives resolution-time 608.2b re-validation and the tail that
+            // StackResolver slices off to hand each spliced card its own targets.
+            addAll(SpliceCasts.targetRequirementsFor(state, action.splicedCardIds, cardRegistry))
+        }
+        return SpellTargeting(requirements, perMode, modalEffect)
+    }
+
+    /** Puts the paid-for spell on the stack with everything its resolution will read. */
+    private fun putSpellOnStack(
+        state: GameState,
+        originState: GameState,
+        action: CastSpell,
+        cardDef: com.wingedsheep.sdk.model.CardDefinition?,
+        transformedFace: com.wingedsheep.sdk.model.CardDefinition?,
+        ledger: SpellCostLedger,
+        paid: CastPayment,
+        targeting: SpellTargeting,
+        returned: ReturnedForAlternativeCost,
+        marks: AlternativeCostMarks,
+        splicedCardNames: List<String>,
+    ): ExecutionResult {
+        // Derive per-mode target groups from the flat target list when the action arrived with
+        // chosenModes but no modeTargetsOrdered (current web-client cast-time UI for choose-1 modal
+        // spells). Slice action.targets in mode order using each mode's total target slot count so
+        // modal resolution can read per-mode targets.
+        val modalEffect = targeting.modalEffect
+        val effectiveModeTargetsOrdered = if (
+            action.modeTargetsOrdered.isEmpty() && action.chosenModes.isNotEmpty() &&
+            modalEffect != null && action.targets.isNotEmpty()
+        ) {
+            deriveModeTargetsFromFlat(modalEffect, action.chosenModes, action.targets)
+        } else {
+            action.modeTargetsOrdered
+        }
+
+        // Pay-X-life additional cost (AdditionalCost.PayXLife): record the declared X (non-null,
+        // including 0) only when the spell actually carries this cost, so it's coalesced into the
+        // resolution X value. Other spells leave this null and keep xValue purely from {X}.
+        val castTimeScript = action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.script } ?: cardDef?.script
+        val payXLifeAmount: Int? =
+            if (castTimeScript?.additionalCosts?.any { it is AdditionalCost.PayXLife } == true) {
+                action.additionalCostPayment?.payXLifeAmount ?: 0
+            } else null
+
+        val manaSpentEvent = paid.manaSpentEvent
+        return stackResolver.castSpell(
+            state,
             action.cardId,
             action.playerId,
             action.targets,
             action.xValue,
-            sacrificedSnapshots,
+            ledger.sacrificedSnapshots,
             castFaceDown = action.castFaceDown,
             castTransformed = transformedFace != null,
             damageDistribution = action.damageDistribution,
-            targetRequirements = spellTargetRequirements,
-            exiledCardCount = exiledCardCount,
+            targetRequirements = targeting.requirements,
+            exiledCardCount = ledger.exiledCardCount,
             additionalCostBlightAmount = action.additionalCostPayment?.blightAmount ?: 0,
             additionalCostPayXLifeAmount = payXLifeAmount,
             declaredCostSlot = action.declaredCostSlot,
@@ -1991,468 +530,59 @@ class CastSpellHandler(
             // Gift (CR 702.174a): the promised opponent, elected as part of casting. Only honored
             // for a card that actually has gift — validate() rejects the flag otherwise.
             giftRecipient = action.giftRecipient?.takeIf { cardDef?.giftKeyword() != null },
-            wasWarped = wasWarped,
-            wasDashed = wasDashed,
-            wasEvoked = wasEvoked,
-            wasImpending = wasImpending,
-            wasCleaved = wasCleaved,
-            wasSneaked = wasSneaked,
-            sneakAttackDefenderId = sneakAttackDefenderId,
-            wasWebSlung = wasWebSlung,
-            webSlungReturnedManaValue = webSlungReturnedManaValue,
-            wasMayhem = wasMayhem,
+            wasWarped = marks.wasWarped,
+            wasDashed = marks.wasDashed,
+            wasEvoked = marks.wasEvoked,
+            wasImpending = marks.wasImpending,
+            wasCleaved = marks.wasCleaved,
+            wasSneaked = returned.wasSneaked,
+            sneakAttackDefenderId = returned.sneakAttackDefenderId,
+            wasWebSlung = returned.wasWebSlung,
+            webSlungReturnedManaValue = returned.webSlungReturnedManaValue,
+            wasMayhem = marks.wasMayhem,
             chosenModes = action.chosenModes,
             modeTargetsOrdered = effectiveModeTargetsOrdered,
-            modeTargetRequirements = perModeTargetRequirements,
+            modeTargetRequirements = targeting.perMode,
             modeDamageDistribution = action.modeDamageDistribution,
             // Splice (CR 702.47a): the *text* the spell gained, recorded by card name. The cards
             // themselves stay in hand — nothing about splicing moves them.
             splicedCardNames = splicedCardNames,
-            totalManaSpent = manaSpentThisCast,
-            beheldCards = beheldCards,
-            discardedAsCostCards = discardedAsCostCards,
-            exiledAsCostCards = exiledAsCostCards,
-            exiledAsCostSnapshots = exiledAsCostSnapshots,
-            chosenEntitySnapshots = chosenEntitySnapshots,
+            totalManaSpent = paid.manaSpent,
+            beheldCards = ledger.beheldCards,
+            discardedAsCostCards = ledger.discardedAsCostCards,
+            exiledAsCostCards = ledger.exiledAsCostCards,
+            exiledAsCostSnapshots = ledger.exiledAsCostSnapshots,
+            chosenEntitySnapshots = ledger.chosenEntitySnapshots,
             manaSpentWhite = manaSpentEvent?.white ?: 0,
             manaSpentBlue = manaSpentEvent?.blue ?: 0,
             manaSpentBlack = manaSpentEvent?.black ?: 0,
             manaSpentRed = manaSpentEvent?.red ?: 0,
             manaSpentGreen = manaSpentEvent?.green ?: 0,
             manaSpentColorless = manaSpentEvent?.colorless ?: 0,
-            manaSpentOnXByColor = paymentResult.xManaSpentByColor,
+            manaSpentOnXByColor = paid.payment.xManaSpentByColor,
             faceIndex = action.faceIndex,
-            spentManaProvenance = paymentResult.spentManaProvenance,
-            castTimeFlags = castTimeFlags,
+            spentManaProvenance = paid.payment.spentManaProvenance,
+            castTimeFlags = castTimeFlags(state, action, castTimeScript),
             // Every enumerated alternative-cost offer names its mechanic explicitly, so this is the
             // declared choice rather than a guess. Descriptive only — the rules consequences of each
             // mechanic ride the `was*` flags above.
             alternativeCost = action.alternativeCostType?.takeIf { action.useAlternativeCost },
-            castOriginState = state
+            castOriginState = originState
         )
+    }
 
-        if (castResult.outcome !is Outcome.Done) {
-            return castResult
-        }
-
-        var currentCastState = castResult.newState
-        var allEvents = events + castResult.events
-
-        // Freeze a graveyard-cast entry rider onto the stack spell now; StackResolver reads it back
-        // and applies it when the permanent resolves onto the battlefield. Two sources feed it:
-        //  - The Tomb of Aclazotz: a rider-bearing MayCastFromGraveyard grant (finality counter +
-        //    added subtype), from the specific grant that authorized this cast.
-        //  - Osteomancer Adept's forage permission: "that creature enters with a finality counter on
-        //    it" (finality only, no added subtype) — reusing the same entry-rider plumbing.
-        //  - Intrepid Paleontologist: a rider-bearing GrantMayCastFromLinkedExile ("If you cast a
-        //    spell this way, that creature enters with a finality counter on it") — same plumbing,
-        //    but the authorizing grant is the linked-exile cast permission captured pre-cast.
-        val riderCounter: CounterType? = when {
-            graveyardCastRiderGrant?.hasEntryRider == true -> graveyardCastRiderGrant.entersWithCounter
-            isForageCast -> CounterType.FINALITY
-            linkedExileGranterEntry?.ability?.entersWithCounter != null ->
-                linkedExileGranterEntry.ability.entersWithCounter
-            else -> null
-        }
-        val riderSubtype: String? =
-            graveyardCastRiderGrant?.takeIf { it.hasEntryRider }?.addedSubtypeOnEntry
-        if (riderCounter != null || riderSubtype != null) {
-            currentCastState = currentCastState.updateEntity(action.cardId) { c ->
-                c.with(
-                    com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent(
-                        entersWithCounter = riderCounter,
-                        addedSubtype = riderSubtype
-                    )
-                )
-            }
-        }
-
-        // Bilbo, Thief in the Night: the instant/sorcery half of the same cast-this-way rider family
-        // — "if an instant or sorcery spell cast this way would be put into your graveyard, exile it
-        // instead". Scoped to the *specific* grant that authorized this cast, so a simultaneous
-        // graveyard-cast permission from another source is unaffected. `onlyIfResolved = false`
-        // because the replacement catches the countered/fizzled spell too (printed ruling: an
-        // Adventure spell that fails to resolve is still exiled by this effect).
-        if (graveyardCastRiderGrant?.exileInsteadOfGraveyard == true &&
-            cardComponent.typeLine.let { it.isInstant || it.isSorcery }
-        ) {
-            currentCastState = currentCastState.updateEntity(action.cardId) { c ->
-                c.with(
-                    com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent(
-                        onlyIfResolved = false
-                    )
-                )
-            }
-        }
-
-        // Apply any spell riders carried by the mana that paid for this spell.
-        // Some riders mutate the spell directly (e.g., Cavern's MakesSpellUncounterable
-        // stamps a component) while others queue a triggered ability above the spell
-        // (e.g., Path of Ancestry's conditional scry).
-        val riderPendingTriggers = mutableListOf<PendingTrigger>()
-        for (rider in paymentResult.consumedRiders) {
-            val (newState, riderTriggers) = applyManaSpellRider(
-                currentCastState, action, cardComponent, rider
-            )
-            currentCastState = newState
-            riderPendingTriggers.addAll(riderTriggers)
-        }
-
-        // Record Muldrotha graveyard cast permission usage
-        if (castingFromGraveyardViaMuldrotha) {
-            val typeName = zoneResolver.choosePermanentTypeForGraveyardPermission(currentCastState, action.playerId, cardComponent)
-            if (typeName != null) {
-                currentCastState = zoneResolver.recordGraveyardPlayPermissionUsage(currentCastState, action.playerId, typeName)
-            }
-        }
-
-        // Record once-per-turn linked-exile permission usage (e.g., Maralen, Fae Ascendant).
-        // Captured against the pre-cast state since the card has now left exile and the granter
-        // would no longer be located via its LinkedExileComponent.
-        if (linkedExileGranterEntry?.ability?.oncePerTurn == true) {
-            currentCastState = currentCastState.updateEntity(linkedExileGranterEntry.granterId) { c ->
-                c.with(com.wingedsheep.engine.state.components.battlefield.MayCastFromLinkedExileUsedThisTurnComponent)
-            }
-        }
-
-        // The permission belongs to its granting permanent, not to the player. Mark the source
-        // captured before the card left the library; a source that leaves and returns is a new
-        // object with a fresh allowance, and an unlimited matching source consumes nothing.
-        if (limitedTopLibraryCastSource != null) {
-            currentCastState = currentCastState.updateEntity(limitedTopLibraryCastSource) { c ->
-                val tracker = c.get<com.wingedsheep.engine.state.components.battlefield.CastFromTopOfLibraryUsesThisTurnComponent>()
-                c.with(
-                    com.wingedsheep.engine.state.components.battlefield.CastFromTopOfLibraryUsesThisTurnComponent(
-                        uses = (tracker?.uses ?: 0) + 1
-                    )
-                )
-            }
-        }
-
-        // Record once-per-turn free-cast permission usage (e.g., Zaffai and the Tempests). Only a
-        // `MayCastWithoutPayingManaCost(oncePerTurn = true)` source consumes a use, and only when
-        // no unlimited free-cast source could have paid instead.
-        if (action.useWithoutPayingManaCost) {
-            // Use the pre-cast `state` to recover the spell's origin zone — by now the card has
-            // left it for the stack — so a `fromExileOnly` source (Warped Space) is only consumed
-            // for an actual exile cast.
-            val castFromZone = castCostTotaller.castSourceZone(state, action.cardId)
-            val onceSource = costCalculator.oncePerTurnFreeCastSourceToConsume(currentCastState, action.playerId, cardDef, castFromZone)
-            if (onceSource != null) {
-                currentCastState = currentCastState.updateEntity(onceSource) { c ->
-                    c.with(com.wingedsheep.engine.state.components.battlefield.MayCastWithoutPayingCostUsedThisTurnComponent)
-                }
-            }
-        }
-
-        // Record once-per-turn graveyard-cast permission usage (Gisa and Geralf). The card has
-        // already left the graveyard for the stack, so the grant lookup runs against the pre-cast
-        // `state`; a use is only burned when no unlimited grant could have authorized the cast.
-        if (castCostTotaller.castSourceZone(state, action.cardId) == Zone.GRAVEYARD) {
-            val graveyardOnceSource =
-                zoneResolver.oncePerTurnGraveyardCastSourceToConsume(state, action.playerId, action.cardId)
-            if (graveyardOnceSource != null) {
-                currentCastState = currentCastState.updateEntity(graveyardOnceSource) { c ->
-                    c.with(com.wingedsheep.engine.state.components.battlefield.MayCastFromGraveyardUsedThisTurnComponent)
-                }
-            }
-        }
-
-        // Handle Storm keyword: build one PendingTrigger per instance of Storm.
-        // Per CR 702.40b each instance of Storm triggers separately. Sources of Storm:
-        //   1. The card's printed keyword (Keyword.STORM in keywords) — counts once.
-        //   2. Each matching grant in GrantedSpellKeywordsComponent (e.g., Ral's storm emblem) —
-        //      counts once per matching grant.
-        // Per CR 702.40a Storm triggers whenever the spell is cast; it copies zero times when
-        // no other spells have been cast this turn. The executor is a no-op at copyCount == 0
-        // but the trigger must still land on the stack so "whenever an ability triggers /
-        // is put onto the stack" effects see it.
-        val stormGrantCount = run {
-            // Source 2a: GrantedSpellKeywordsComponent — emblem-style player grants (Ral, Crackling Wit).
-            val playerContainer = currentCastState.getEntity(action.playerId)
-            val grants = playerContainer?.get<GrantedSpellKeywordsComponent>()?.grants ?: emptyList()
-            val evalContext = PredicateContext(controllerId = action.playerId)
-            val componentGrants = grants.count { grant ->
-                grant.keyword == Keyword.STORM &&
-                    predicateEvaluator.matches(currentCastState, currentCastState.projectedState, action.cardId, grant.spellFilter, evalContext)
-            }
-            // Source 2b: GrantKeywordToOwnSpells static abilities on battlefield permanents the
-            // caster controls (Prismari, the Inspiration). Each matching permanent is a separate
-            // instance of storm (CR 702.40b), so count them all rather than short-circuiting.
-            val staticGrants = if (cardDef != null) {
-                grantedKeywordResolver.countGrants(currentCastState, action.playerId, cardDef, Keyword.STORM)
-            } else 0
-            componentGrants + staticGrants
-        }
-        val printedStormCount = if (cardDef != null && cardDef.hasKeyword(Keyword.STORM)) 1 else 0
-        val stormInstanceCount = printedStormCount + stormGrantCount
-        val stormPendingTriggers: List<PendingTrigger> =
-            if (!action.castFaceDown && cardDef != null && stormInstanceCount > 0) {
-                val spellEffect = cardDef.script.spellEffect
-                if (spellEffect != null) {
-                    List(stormInstanceCount) {
-                        val stormEffect = StormCopyEffect(
-                            copyCount = stormCount,
-                            spellEffect = spellEffect,
-                            spellTargetRequirements = spellTargetRequirements,
-                            spellName = cardComponent.name
-                        )
-                        val ability = TriggeredAbility(
-                            id = AbilityId.generate(),
-                            trigger = SdkGameEvent.SpellCastEvent(player = Player.You),
-                            binding = TriggerBinding.SELF,
-                            effect = stormEffect,
-                            activeZones = setOf(Zone.STACK),
-                            descriptionOverride = "Storm — copy ${cardComponent.name} $stormCount time(s)"
-                        )
-                        PendingTrigger(
-                            ability = ability,
-                            sourceId = action.cardId,
-                            objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(captured = true,
-                                origin = currentCastState.objectRef(action.cardId), source = currentCastState.objectRef(action.cardId), triggering = currentCastState.objectRef(action.cardId)),
-                            sourceName = cardComponent.name,
-                            controllerId = action.playerId,
-                            triggerContext = TriggerContext(
-                                triggeringEntityId = action.cardId,
-                                triggeringPlayerId = action.playerId
-                            )
-                        )
-                    }
-                } else emptyList()
-            } else emptyList()
-
-        // Handle Conspire (CR 702.78): when the optional additional cost was paid, a reflexive
-        // trigger goes on the stack above the spell: "When you do, copy it and you may choose
-        // new targets for the copy." Reuses StormCopyEffect with copyCount=1 so the existing
-        // retargeting, modal-copy, and SpellOnStackComponent-clone plumbing applies unchanged.
-        val conspirePendingTriggers: List<PendingTrigger> =
-            if (!action.castFaceDown && cardDef != null && action.conspiredCreatures.isNotEmpty()) {
-                val spellEffect = cardDef.script.spellEffect
-                if (spellEffect != null) {
-                    val copyEffect = StormCopyEffect(
-                        copyCount = 1,
-                        spellEffect = spellEffect,
-                        spellTargetRequirements = spellTargetRequirements,
-                        spellName = cardComponent.name
-                    )
-                    val ability = TriggeredAbility(
-                        id = AbilityId.generate(),
-                        trigger = SdkGameEvent.SpellCastEvent(player = Player.You),
-                        binding = TriggerBinding.SELF,
-                        effect = copyEffect,
-                        activeZones = setOf(Zone.STACK),
-                        descriptionOverride = "Conspire — copy ${cardComponent.name}"
-                    )
-                    listOf(
-                        PendingTrigger(
-                            ability = ability,
-                            sourceId = action.cardId,
-                            objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(captured = true,
-                                origin = currentCastState.objectRef(action.cardId), source = currentCastState.objectRef(action.cardId), triggering = currentCastState.objectRef(action.cardId)),
-                            sourceName = cardComponent.name,
-                            controllerId = action.playerId,
-                            triggerContext = TriggerContext(
-                                triggeringEntityId = action.cardId,
-                                triggeringPlayerId = action.playerId
-                            )
-                        )
-                    )
-                } else emptyList()
-            } else emptyList()
-
-        // Handle Casualty (CR 702.153): when the optional additional cost (sacrifice a creature
-        // with power N or greater) was paid, a reflexive trigger goes on the stack above the spell:
-        // "When you do, copy it and you may choose new targets for the copy." Identical copy shape
-        // to Conspire — reuses StormCopyEffect with copyCount=1.
-        val casualtyPendingTriggers: List<PendingTrigger> =
-            if (!action.castFaceDown && cardDef != null && action.casualtyCreature != null) {
-                val spellEffect = cardDef.script.spellEffect
-                if (spellEffect != null) {
-                    val copyEffect = StormCopyEffect(
-                        copyCount = 1,
-                        spellEffect = spellEffect,
-                        spellTargetRequirements = spellTargetRequirements,
-                        spellName = cardComponent.name
-                    )
-                    val ability = TriggeredAbility(
-                        id = AbilityId.generate(),
-                        trigger = SdkGameEvent.SpellCastEvent(player = Player.You),
-                        binding = TriggerBinding.SELF,
-                        effect = copyEffect,
-                        activeZones = setOf(Zone.STACK),
-                        descriptionOverride = "Casualty — copy ${cardComponent.name}"
-                    )
-                    listOf(
-                        PendingTrigger(
-                            ability = ability,
-                            sourceId = action.cardId,
-                            objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(captured = true,
-                                origin = currentCastState.objectRef(action.cardId), source = currentCastState.objectRef(action.cardId), triggering = currentCastState.objectRef(action.cardId)),
-                            sourceName = cardComponent.name,
-                            controllerId = action.playerId,
-                            triggerContext = TriggerContext(
-                                triggeringEntityId = action.cardId,
-                                triggeringPlayerId = action.playerId
-                            )
-                        )
-                    )
-                } else emptyList()
-            } else emptyList()
-
-        // Handle pending spell copies (e.g., Howl of the Horde). Each pending entry carries its own
-        // spellFilter (instant or sorcery by default, but e.g. "creature" is expressible), matched
-        // against the spell just cast. Face-down spells have no characteristics, so they never match.
-        if (!action.castFaceDown) {
-            val matchingCopies = currentCastState.pendingSpellCopies.filter { pending ->
-                if (pending.controllerId != action.playerId) return@filter false
-                // The context carries the *rider's own* source, so a filter that reads a
-                // characteristic off the permanent that created the rider resolves against it at
-                // cast time — Loki Laufeyson's "with mana value less than or equal to Loki's
-                // power" is `manaValueAtMostDynamic(sourcePower())`, and the delayed trigger's
-                // condition is checked as the spell is cast, not when the rider was created.
-                // If the source has since left the battlefield, `lastKnownSourceSnapshot` carries
-                // what it last was there (stamped at departure by ZoneTransitionService), so the
-                // cap reads its last-known power rather than its printed one — CR 608.2h. Null
-                // while the source is still in play, which is the common case.
-                val copyEvalContext = PredicateContext(
-                    controllerId = action.playerId,
-                    sourceId = pending.sourceId,
-                    lastKnownSourceSnapshot = pending.lastKnownSourceSnapshot
-                )
-                predicateEvaluator.matches(
-                    currentCastState, currentCastState.projectedState, action.cardId, pending.spellFilter, copyEvalContext
-                )
-            }
-            if (matchingCopies.isNotEmpty()) {
-                val totalCopies = matchingCopies.sumOf { it.copies }
-                // Remove consumed pending copies (keep persistent ones like The Mirari Conjecture Ch. III,
-                // and any non-matching entries waiting for a different spell type).
-                val remainingPending = currentCastState.pendingSpellCopies.filter { pending ->
-                    pending.persistent || pending !in matchingCopies
-                }
-                currentCastState = currentCastState.copy(pendingSpellCopies = remainingPending)
-
-                // Create copies using Storm copy infrastructure
-                val spellEffect = cardDef?.script?.spellEffect
-                if (spellEffect != null && totalCopies > 0) {
-                    val copyEffect = StormCopyEffect(
-                        copyCount = totalCopies,
-                        spellEffect = spellEffect,
-                        spellTargetRequirements = spellTargetRequirements,
-                        spellName = cardComponent.name
-                    )
-                    // sourceId must point to the spell being copied (action.cardId), not the
-                    // originating permanent (e.g., Howl of the Horde). StormCopyEffectExecutor
-                    // uses sourceId to clone the SpellOnStackComponent via putSpellCopy (Phase 1
-                    // of spell-copies-as-spells); the originating permanent may be in the
-                    // graveyard by the time the trigger resolves.
-                    val copyAbility = TriggeredAbilityOnStackComponent(
-                        sourceId = action.cardId,
-            objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(captured = true, origin = currentCastState.objectRef(action.cardId), source = currentCastState.objectRef(action.cardId)),
-                        sourceName = cardComponent.name,
-                        controllerId = action.playerId,
-                        effect = copyEffect,
-                        description = "Copy ${cardComponent.name} $totalCopies time(s)"
-                    )
-                    val copyResult = stackResolver.putTriggeredAbility(currentCastState, copyAbility)
-                    if (copyResult.outcome !is Outcome.Done) return copyResult
-                    currentCastState = copyResult.newState
-                    allEvents = allEvents + copyResult.events
-                }
-            }
-        }
-
-        // Handle pending "next spell can't be countered" riders (e.g., Mistrise Village). Each entry
-        // carries its own spellFilter (any spell by default) matched against the spell just cast. The
-        // first matching cast stamps the spell uncounterable and consumes every matching entry; later
-        // spells aren't protected. Unlike the copy rider above, face-down spells aren't excluded — a
-        // face-down spell is still "the next spell you cast", and the default Any filter matches it.
-        run {
-            val matchingRiders = currentCastState.pendingUncounterableSpells.filter { pending ->
-                if (pending.controllerId != action.playerId) return@filter false
-                // Same source-relative filter contract as the copy rider above: the entry's own
-                // sourceId goes into the context so `EntityReference.Source` resolves to the
-                // permanent that created the rider rather than to nothing.
-                val uncounterableEvalContext = PredicateContext(
-                    controllerId = action.playerId,
-                    sourceId = pending.sourceId
-                )
-                predicateEvaluator.matches(
-                    currentCastState, currentCastState.projectedState, action.cardId, pending.spellFilter, uncounterableEvalContext
-                )
-            }
-            if (matchingRiders.isNotEmpty()) {
-                val remainingRiders = currentCastState.pendingUncounterableSpells.filter { it !in matchingRiders }
-                currentCastState = currentCastState
-                    .copy(pendingUncounterableSpells = remainingRiders)
-                    .updateEntity(action.cardId) { c -> c.with(CantBeCounteredComponent) }
-            }
-        }
-
-        // Consume any matching "next spell has affinity for X" riders (Don & Raph). The cost
-        // reduction was already applied by the cost calculator while these riders were present;
-        // here we just remove the riders that matched the spell just cast, so only the *next*
-        // matching spell is affected.
-        run {
-            val matchingAffinityRiders = currentCastState.pendingNextSpellAffinities.filter { pending ->
-                if (pending.controllerId != action.playerId) return@filter false
-                // Source-relative filters, as above.
-                val affinityEvalContext = PredicateContext(
-                    controllerId = action.playerId,
-                    sourceId = pending.sourceId
-                )
-                predicateEvaluator.matches(
-                    currentCastState, currentCastState.projectedState, action.cardId, pending.spellFilter, affinityEvalContext
-                )
-            }
-            if (matchingAffinityRiders.isNotEmpty()) {
-                currentCastState = currentCastState.copy(
-                    pendingNextSpellAffinities = currentCastState.pendingNextSpellAffinities.filter { it !in matchingAffinityRiders }
-                )
-            }
-        }
-
-        // Consume any matching "the next matching spell you cast this turn can be cast without
-        // paying its mana cost" riders (World War Hulk I). The permission was already offered by
-        // CostCalculator.hasFreeCastPermission while the rider was present; removing it here means
-        // only *the next* matching spell benefits. Deliberately not gated on
-        // `action.useWithoutPayingManaCost`: the printed text names a spell ("the next red or green
-        // creature spell you cast this turn"), so a matching spell cast for full price is that
-        // spell and spends the rider — the same contract as the affinity rider above.
-        run {
-            val matchingFreeCastRiders = currentCastState.pendingFreeCastSpells.filter { pending ->
-                if (pending.controllerId != action.playerId) return@filter false
-                // Source-relative filters, as above.
-                val freeCastEvalContext = PredicateContext(
-                    controllerId = action.playerId,
-                    sourceId = pending.sourceId
-                )
-                predicateEvaluator.matches(
-                    currentCastState, currentCastState.projectedState, action.cardId, pending.spellFilter, freeCastEvalContext
-                )
-            }
-            if (matchingFreeCastRiders.isNotEmpty()) {
-                currentCastState = currentCastState.copy(
-                    pendingFreeCastSpells = currentCastState.pendingFreeCastSpells.filter { it !in matchingFreeCastRiders }
-                )
-            }
-        }
-
-        // Storm, conspire, casualty and rider triggers are known here rather than detected from an
-        // event. They join the waiting queue ahead of the triggers the settle boundary detects from
-        // the cast events (including additional-cost events like a sacrifice). Within a player's
-        // own triggers that order is kept, so Storm goes on the stack just above the spell that
-        // caused it (CR 702.40a), and APNAP order puts non-active players' triggers above.
-        val synthesizedTriggers = riderPendingTriggers + conspirePendingTriggers + casualtyPendingTriggers + stormPendingTriggers
-        if (synthesizedTriggers.isNotEmpty()) {
-            currentCastState = currentCastState.copy(
-                pendingTriggers = currentCastState.pendingTriggers + synthesizedTriggers
-            )
-        }
-        return ExecutionResult.success(
-            currentCastState.withPriority(action.playerId),
-            allEvents
-        )
+    /**
+     * Evaluates the "as you cast this spell" condition captures (CR 601.2i). The spell has finished
+     * being cast (costs paid) but isn't on the stack yet; freezing the answers now lets the resolving
+     * effect read the cast-time board even if it has since changed (Steer Clear's "if you controlled
+     * a Mount as you cast this spell"). The caster is the controller; the captured names are carried
+     * onto SpellOnStackComponent.castTimeFlags.
+     */
+    private fun castTimeFlags(state: GameState, action: CastSpell, castTimeScript: com.wingedsheep.sdk.model.CardScript?): Set<String> {
+        val captures = castTimeScript?.castTimeCaptures.orEmpty()
+        if (captures.isEmpty()) return emptySet()
+        val captureContext = EffectContext(sourceId = action.cardId, controllerId = action.playerId, targets = emptyList(), xValue = 0)
+        return captures.filter { conditionEvaluator.evaluate(state, it.condition, captureContext) }.map { it.flag }.toSet()
     }
 
     /**
@@ -2546,7 +676,7 @@ class CastSpellHandler(
     ): ExecutionResult {
         // Apply chooseAllIfBlightPaid: if the player paid blight, force choosing all
         // modes; otherwise the regular [minChooseCount, chooseCount] range applies.
-        val (effectiveMin, effectiveMax) = effectiveModalChooseCounts(currentState, modalEffect, action)
+        val (effectiveMin, effectiveMax) = castValidator.effectiveModalChooseCounts(currentState, modalEffect, action)
         val effectiveModalEffect = if (effectiveMin == modalEffect.minChooseCount &&
             effectiveMax == modalEffect.chooseCount) {
             modalEffect
@@ -2647,7 +777,7 @@ class CastSpellHandler(
         for (extra in extraCosts) {
             cost = cost + ManaCost.parse(extra)
         }
-        return validatePayment(state, action, cost, computed.paymentXValue) == null
+        return castCostPayer.validateManaPayment(state, action, cost, computed.paymentXValue) == null
     }
 
     /**
@@ -3072,182 +1202,6 @@ class CastSpellHandler(
             cursor += slotCount
         }
         return result
-    }
-
-    /**
-     * Apply a single [com.wingedsheep.sdk.scripting.effects.ManaSpellRider] to a
-     * spell on the stack. Each rider variant maps to either a state mutation on
-     * the spell card (e.g. stamping a component) or a [PendingTrigger] that is
-     * queued onto the stack above the spell (for riders whose effect needs the
-     * stack — typically because it requires a player decision like scry).
-     */
-    private fun applyManaSpellRider(
-        state: GameState,
-        action: CastSpell,
-        cardComponent: CardComponent,
-        rider: com.wingedsheep.sdk.scripting.effects.ManaSpellRider
-    ): Pair<GameState, List<PendingTrigger>> = when (rider) {
-        is com.wingedsheep.sdk.scripting.effects.ManaSpellRider.MakesSpellUncounterable ->
-            state.updateEntity(action.cardId) { c -> c.with(CantBeCounteredComponent) } to emptyList()
-
-        is com.wingedsheep.sdk.scripting.effects.ManaSpellRider.ScryOnSharedTypeWithCommander ->
-            buildScryOnSharedTypeWithCommanderTrigger(state, action, cardComponent, rider.amount)
-
-        is com.wingedsheep.sdk.scripting.effects.ManaSpellRider.CopySpellWhenSpent ->
-            buildCopySpellRiderTrigger(state, action, cardComponent, rider.spellFilter)
-
-        is com.wingedsheep.sdk.scripting.effects.ManaSpellRider.GrantsKeywordWhenSpent ->
-            applyKeywordGrantRider(state, action, rider.keyword, rider.spellFilter) to emptyList()
-    }
-
-    /**
-     * Carnelian Orb of Dragonkind's rider: if the cast spell matches [spellFilter], float an
-     * end-of-turn grant of [keyword] keyed to the spell. Otherwise no-op (the mana paid for
-     * something else).
-     *
-     * Unlike the copy / scry riders this queues nothing onto the stack — "it gains haste until end
-     * of turn" is a continuous effect the printed card applies without a triggered ability. The
-     * grant is keyed to the spell's entity id, which a permanent spell keeps as it resolves onto the
-     * battlefield (see [com.wingedsheep.engine.mechanics.stack.StackResolver.resolvePermanentSpell]),
-     * so the keyword is live the instant the permanent exists — exactly what haste needs.
-     *
-     * The spell is matched with [PredicateEvaluator] against its stack characteristics, at payment
-     * time rather than at resolution. That's what the printed rulings require: mana spent on a
-     * non-Dragon spell that *becomes* a Dragon later in the turn grants nothing.
-     *
-     * The floating effect's source is the spell itself, not the mana's producer — the producer may
-     * already have left the battlefield, and the source is only read for the effect's display name.
-     */
-    private fun applyKeywordGrantRider(
-        state: GameState,
-        action: CastSpell,
-        keyword: String,
-        spellFilter: com.wingedsheep.sdk.scripting.GameObjectFilter,
-    ): GameState {
-        val matches = predicateEvaluator.matches(
-            state,
-            state.projectedState,
-            action.cardId,
-            spellFilter,
-            PredicateContext(controllerId = action.playerId)
-        )
-        if (!matches) return state
-
-        return state.addFloatingEffect(
-            layer = Layer.ABILITY,
-            modification = SerializableModification.GrantKeyword(keyword),
-            affectedEntities = setOf(action.cardId),
-            duration = Duration.EndOfTurn,
-            context = EffectContext(sourceId = action.cardId, controllerId = action.playerId)
-        )
-    }
-
-    /**
-     * Pyromancer's Goggles' rider: if the cast spell matches [spellFilter], queue a copy trigger
-     * above the spell. Otherwise no-op (the {R} was spent on something else).
-     *
-     * The trigger resolves *before* the spell it copies, which is the printed behavior — the copy
-     * is put onto the stack above the original and resolves first (CR 707.10). The copy's controller
-     * may choose new targets, handled by [CopyTargetSpellEffect]'s own retarget pause.
-     *
-     * The spell is matched with [PredicateEvaluator] against its stack characteristics — projected
-     * *battlefield* state doesn't apply to an object on the stack, but the evaluator still reads
-     * color/type off the spell's [CardComponent], which is what "a red instant or sorcery spell"
-     * needs. Matching happens now, at payment time, not at trigger resolution.
-     */
-    private fun buildCopySpellRiderTrigger(
-        state: GameState,
-        action: CastSpell,
-        cardComponent: CardComponent,
-        spellFilter: com.wingedsheep.sdk.scripting.GameObjectFilter,
-    ): Pair<GameState, List<PendingTrigger>> {
-        val matches = predicateEvaluator.matches(
-            state,
-            state.projectedState,
-            action.cardId,
-            spellFilter,
-            PredicateContext(controllerId = action.playerId)
-        )
-        if (!matches) return state to emptyList()
-
-        val copyAbility = TriggeredAbility(
-            id = AbilityId.generate(),
-            trigger = SdkGameEvent.SpellCastEvent(player = Player.You),
-            binding = TriggerBinding.SELF,
-            effect = com.wingedsheep.sdk.scripting.effects.CopyTargetSpellEffect(
-                target = com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity
-            ),
-            activeZones = setOf(Zone.STACK),
-            descriptionOverride = "Copy ${cardComponent.name}. You may choose new targets for the copy."
-        )
-        val pending = PendingTrigger(
-            ability = copyAbility,
-            sourceId = action.cardId,
-            objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(captured = true,
-                origin = state.objectRef(action.cardId), source = state.objectRef(action.cardId), triggering = state.objectRef(action.cardId)),
-            sourceName = cardComponent.name,
-            controllerId = action.playerId,
-            triggerContext = TriggerContext(
-                triggeringEntityId = action.cardId,
-                triggeringPlayerId = action.playerId
-            )
-        )
-        return state to listOf(pending)
-    }
-
-    /**
-     * Path of Ancestry's rider: if the cast spell is a creature spell that shares
-     * a creature type with any of the controller's commanders, queue a scry trigger
-     * above the spell. Otherwise no-op.
-     *
-     * Subtypes are read from base [CardComponent] for both the spell (it's on the
-     * stack, not the battlefield, so projected battlefield state doesn't apply) and
-     * for each commander (looked up via [com.wingedsheep.engine.state.components.identity.CommanderRegistryComponent]
-     * and the [CardRegistry]). This matches the printed Scryfall ruling that the
-     * commander's creature types are checked at the moment the mana is spent.
-     */
-    private fun buildScryOnSharedTypeWithCommanderTrigger(
-        state: GameState,
-        action: CastSpell,
-        cardComponent: CardComponent,
-        amount: Int,
-    ): Pair<GameState, List<PendingTrigger>> {
-        if (!cardComponent.typeLine.isCreature) return state to emptyList()
-        val spellSubtypes = cardComponent.typeLine.subtypes.mapTo(mutableSetOf()) { it.value.lowercase() }
-        if (spellSubtypes.isEmpty()) return state to emptyList()
-
-        val registry = state.getEntity(action.playerId)
-            ?.get<com.wingedsheep.engine.state.components.identity.CommanderRegistryComponent>()
-            ?: return state to emptyList()
-        val sharesType = registry.commanderIds.any { commanderId ->
-            val commanderCard = state.getEntity(commanderId)?.get<CardComponent>() ?: return@any false
-            val commanderTypes = commanderCard.typeLine.subtypes
-                .mapTo(mutableSetOf()) { it.value.lowercase() }
-            commanderTypes.any { it in spellSubtypes }
-        }
-        if (!sharesType) return state to emptyList()
-
-        val scryAbility = TriggeredAbility(
-            id = AbilityId.generate(),
-            trigger = SdkGameEvent.SpellCastEvent(player = Player.You),
-            binding = TriggerBinding.SELF,
-            effect = com.wingedsheep.sdk.dsl.Patterns.Library.scry(amount),
-            activeZones = setOf(Zone.STACK),
-            descriptionOverride = "Scry $amount"
-        )
-        val pending = PendingTrigger(
-            ability = scryAbility,
-            sourceId = action.cardId,
-                            objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(captured = true,
-                                origin = state.objectRef(action.cardId), source = state.objectRef(action.cardId), triggering = state.objectRef(action.cardId)),
-            sourceName = cardComponent.name,
-            controllerId = action.playerId,
-            triggerContext = TriggerContext(
-                triggeringEntityId = action.cardId,
-                triggeringPlayerId = action.playerId
-            )
-        )
-        return state to listOf(pending)
     }
 
     companion object {
