@@ -2081,7 +2081,7 @@ object DamageUtils {
      * [damageDoublersAffectingPlayer] documents.
      *
      * Driven off the maintained [AttachmentsComponent] reverse index rather than a battlefield scan:
-     * this runs from `ClientStateTransformer.buildCardActiveEffects` for *every* card on *every*
+     * this runs from `CardActiveEffectsProjector.project` for *every* card on *every*
      * state push, so scanning would make the view path quadratic in battlefield size. The un-attached
      * case — overwhelmingly the common one — costs a single component lookup.
      *

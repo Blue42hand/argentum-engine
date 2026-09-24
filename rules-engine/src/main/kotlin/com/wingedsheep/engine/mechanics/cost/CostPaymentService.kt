@@ -541,7 +541,7 @@ class CostPaymentService(private val services: EngineServices) {
             // Cub's "Whenever you tap a creature for mana, add an additional {G}") and mana auras
             // is not in `manaProduced`, so credit it here — otherwise the cost comes up short even
             // though the solver counted the bonus toward affordability. Mirrors the activate-ability
-            // auto-tap path (ActivateAbilityHandler.autoTapForManaCost).
+            // auto-tap path (ActivationAutoTapper.autoTapForManaCost).
             for (source in solution.sources) {
                 if (source.bonusManaPerTap > 0 && source.bonusManaColor != null) {
                     combined = combined.add(source.bonusManaColor, source.bonusManaPerTap)
