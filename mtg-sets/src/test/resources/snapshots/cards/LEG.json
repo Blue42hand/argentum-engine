@@ -266,6 +266,7 @@
                 },
                 "effect": {
                     "type": "PreventDamageShield",
+                    "recipientGroupIncludesController": true,
                     "sourceFilter": {
                         "type": "FromGroup",
                         "filter": {
