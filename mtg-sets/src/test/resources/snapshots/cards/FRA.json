@@ -16070,6 +16070,90 @@
     ]
 }
 
+// Variable Chaser
+{
+    "name": "Variable Chaser",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "Flying, prowess\nThis creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING",
+        "PROWESS",
+        "PREPARED"
+    ],
+    "metadata": {
+        "collectorNumber": "47",
+        "rarity": "RARE",
+        "artist": "Kai Carpenter",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/3/e3afedb1-bf9d-4e31-9700-433514cc29b1.jpg?1789470807",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Arc of Fortune",
+            "manaCost": "{2}{U}",
+            "typeLine": "Sorcery",
+            "oracleText": "Each player may discard their hand and draw seven cards.",
+            "script": {
+                "spellEffect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "GatherCards",
+                                            "source": {
+                                                "type": "FromZone",
+                                                "zone": "Hand"
+                                            },
+                                            "storeAs": "discardedHand"
+                                        },
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "discardedHand",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Graveyard"
+                                            },
+                                            "moveType": "Discard"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "DrawCards",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 7
+                                    }
+                                }
+                            ]
+                        },
+                        "decisionMaker": "Controller"
+                    }
+                }
+            }
+        }
+    ]
+}
+
 // Vigorbloom Annex
 {
     "name": "Vigorbloom Annex",
