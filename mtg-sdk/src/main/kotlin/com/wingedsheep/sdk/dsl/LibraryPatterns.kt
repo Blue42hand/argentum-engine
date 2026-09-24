@@ -40,6 +40,9 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 object LibraryPatterns {
 
+    /** The cards the most recent [mill] put into the graveyard, as a typed handle. */
+    val milled: CollectionSlot = CollectionSlot("milled")
+
     fun lookAtTopAndKeep(
         count: Int,
         keepCount: Int,

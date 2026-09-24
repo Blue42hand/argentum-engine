@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CopyCardIntoCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CopyCollectionIntoCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachCapturedControllerEffect
@@ -95,6 +96,17 @@ value class ChosenSlot(val key: String)
 @JvmInline
 value class SubtypeGroupsSlot(val key: String)
 
+/** Handle to a named entry in `EffectContext.storedStringLists` (e.g. every player's chosen creature type). */
+@JvmInline
+value class StringListSlot(val key: String)
+
+/** Match objects with a subtype in the list stored in [slot]. */
+fun GameObjectFilter.withSubtypeInStoredList(slot: StringListSlot): GameObjectFilter = withSubtypeInStoredList(slot.key)
+
+/** Match objects with no subtype in the list stored in [slot] ("…that aren't of a type chosen this way"). */
+fun GameObjectFilter.withoutSubtypeInStoredList(slot: StringListSlot): GameObjectFilter =
+    withoutSubtypeInStoredList(slot.key)
+
 /** Match cards whose name equals the name captured in [slot] (cross-namespace handle overload). */
 fun GameObjectFilter.namedFromVariable(slot: ChosenSlot): GameObjectFilter = namedFromVariable(slot.key)
 
@@ -107,6 +119,12 @@ fun GroupFilter.withChosenSubtype(slot: ChosenSlot): GroupFilter = copy(chosenSu
 
 /** Match objects with the subtype chosen into [slot] (e.g. by [PipelineBuilder.chooseOption]). */
 fun GameObjectFilter.withSubtypeFromVariable(slot: ChosenSlot): GameObjectFilter = withSubtypeFromVariable(slot.key)
+
+/** Match objects *without* the subtype chosen into [slot] ("creatures that aren't of the chosen type"). */
+fun GameObjectFilter.withoutSubtypeFromVariable(slot: ChosenSlot): GameObjectFilter =
+    withCardPredicate(com.wingedsheep.sdk.scripting.predicates.CardPredicate.Not(
+        com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtypeFromVariable(slot.key)
+    ))
 
 /** Match objects sharing a subtype with every group in [slot] ([PipelineBuilder.gatherSubtypes]). */
 fun GameObjectFilter.withSubtypeInEachStoredGroup(slot: SubtypeGroupsSlot): GameObjectFilter =
@@ -583,6 +601,18 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         name = name, remainderName = null, withRemainder = false
     ).selected
 
+    /** Like [chooseRandom], also keeping the cards not picked as a remainder slot. */
+    fun chooseRandomSplit(
+        count: Int,
+        from: CollectionSlot,
+        filter: GameObjectFilter = GameObjectFilter.Any
+    ): SelectionSlots = select(
+        SelectionMode.Random(DynamicAmount.Fixed(count)), from, Chooser.Controller, filter, prompt = null,
+        selectedLabel = null, remainderLabel = null, useTargetingUI = false, showAllCards = false,
+        restrictions = emptyList(), alwaysPrompt = false, matchChosenCreatureType = false,
+        name = null, remainderName = null, withRemainder = true
+    )
+
     /** Engine picks [count] cards at random — no player choice. */
     fun chooseRandom(
         count: Int,
@@ -769,6 +799,13 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             prompt = prompt,
             excludedOptions = excludedOptions
         )
+        return slot
+    }
+
+    /** Each player chooses a creature type; the choices are stored as a list ([EachPlayerChoosesCreatureTypeEffect]). */
+    fun eachPlayerChoosesCreatureType(name: String? = null): StringListSlot {
+        val slot = StringListSlot(slotKey("chosenTypes", nextIndex(), name))
+        steps += EachPlayerChoosesCreatureTypeEffect(storeAs = slot.key)
         return slot
     }
 
@@ -1067,6 +1104,30 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             countVariable = count.key,
             effects = PipelineBuilder(shared).apply { block(count) }.steps.toList()
         )
+    }
+
+    /**
+     * Run [block] once per player matching [players] (the iterated player is `Player.You` inside,
+     * with a fresh collection scope per iteration) and return, for each collection handle [block]
+     * returns, the union of that collection across every iteration
+     * ([com.wingedsheep.sdk.scripting.effects.ForEachPlayerCollectingEffect]) — "each player
+     * chooses …; then destroy everything nobody chose".
+     */
+    fun forEachPlayerCollecting(
+        players: Player,
+        block: PipelineBuilder.() -> List<CollectionSlot>
+    ): List<CollectionSlot> {
+        nextIndex()
+        val inner = PipelineBuilder(shared)
+        val collected = inner.block()
+        require(inner.steps.isNotEmpty()) { "forEachPlayerCollecting { } must add at least one step" }
+        val aggregates = collected.map { CollectionSlot(slotKey("collected", nextIndex(), null)) }
+        steps += com.wingedsheep.sdk.scripting.effects.ForEachPlayerCollectingEffect(
+            players = players,
+            effects = inner.steps.toList(),
+            collectCollections = collected.zip(aggregates).associate { (each, all) -> each.key to all.key }
+        )
+        return aggregates
     }
 
     // =========================================================================

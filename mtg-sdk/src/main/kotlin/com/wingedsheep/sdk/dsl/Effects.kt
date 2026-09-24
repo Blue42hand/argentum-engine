@@ -2172,6 +2172,10 @@ object Effects {
     fun AddSubtype(subtype: String, target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         AddSubtypeEffect(subtype, target, duration)
 
+    /** [target] gains the subtype chosen into [fromChosen] (pipeline form — Navigator's Compass). */
+    fun AddSubtype(target: EffectTarget, fromChosen: ChosenSlot, duration: Duration = Duration.EndOfTurn): Effect =
+        AddSubtypeEffect("", target, duration, fromChosen.key)
+
     /**
      * Set a target land's basic land subtype, replacing all existing land subtypes (Rule 305.7).
      * "Target land becomes an Island until end of turn." Pass [fromChosenValueKey] to read the
@@ -5133,6 +5137,16 @@ object Effects {
         guesser = guesser,
         promptNameVariable = promptNameVariable,
     )
+
+    /** [PlayerGuessesCondition] whose prompt names the card chosen into [promptName] (Liar's Pendulum). */
+    fun PlayerGuessesCondition(
+        condition: com.wingedsheep.sdk.scripting.conditions.Condition,
+        prompt: String,
+        promptName: ChosenSlot,
+        storeGuessedRightAs: String = "guessedRight",
+        guesser: com.wingedsheep.sdk.scripting.effects.Chooser =
+            com.wingedsheep.sdk.scripting.effects.Chooser.Opponent,
+    ): Effect = PlayerGuessesCondition(condition, prompt, storeGuessedRightAs, guesser, promptName.key)
 
     /**
      * Let a creature attack this turn as though it didn't have defender (Krotiq Nestguard).

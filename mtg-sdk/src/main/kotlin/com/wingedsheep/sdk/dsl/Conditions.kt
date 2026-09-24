@@ -2366,6 +2366,14 @@ object Conditions {
     fun CollectionSharesCardType(collection: String): ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.CollectionSharesCardType(collection)
 
+    /** [CollectionContainsMatch] over a pipeline handle (a pattern's output, e.g. `Patterns.Library.milled`). */
+    fun CollectionContainsMatch(collection: CollectionSlot, filter: GameObjectFilter = GameObjectFilter.Any): ConditionInterface =
+        CollectionContainsMatch(collection.key, filter)
+
+    /** [CollectionSharesCardType] over a pipeline handle. */
+    fun CollectionSharesCardType(collection: CollectionSlot): ConditionInterface =
+        CollectionSharesCardType(collection.key)
+
     // =========================================================================
     // Composite Conditions
     // =========================================================================

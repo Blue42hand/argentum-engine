@@ -41,6 +41,19 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 object HandPatterns {
 
+    // Fixed output collections of the patterns below, as typed handles — a card that reads what
+    // a pattern put somewhere ("draw a card for each card discarded this way") uses these rather
+    // than spelling the pattern's key.
+
+    /** The cards [discardCards] / [discardAnyNumber] (default `storeAs`) discarded. */
+    val discarded: CollectionSlot = CollectionSlot("discarded")
+
+    /** The hand [discardHand] discarded. */
+    val discardedHand: CollectionSlot = CollectionSlot("discardedHand")
+
+    /** The card(s) [putFromHand] chose to put onto the battlefield. */
+    val putFromHandCards: CollectionSlot = CollectionSlot("putting")
+
     fun eachOpponentDiscards(count: Int, controllerDrawsPerDiscard: Int = 0): Effect {
         if (controllerDrawsPerDiscard > 0) {
             val drawCount: DynamicAmount = if (controllerDrawsPerDiscard == 1) {
