@@ -38,7 +38,7 @@ class CostPaymentContinuationResumer(
     private val services: EngineServices
 ) : ContinuationResumerModule {
 
-    private val paymentService = CostPaymentService(services)
+    private val paymentService get() = services.costPaymentService
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(CostPaymentContinuation::class, ::resume),
@@ -157,7 +157,7 @@ class CostPaymentContinuationResumer(
                     phase = DecisionPhase.RESOLUTION
                 ),
                 canDecline = true,
-                cardRegistry = services.cardRegistry
+                manaSolver = services.manaSolver
             ) },
             answer = { decision -> CostPaymentManaSelectionContinuation(
                 inner = continuation,

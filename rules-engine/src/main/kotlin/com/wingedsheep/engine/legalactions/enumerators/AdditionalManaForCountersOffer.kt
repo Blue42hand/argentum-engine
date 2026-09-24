@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.legalactions.EnumerationContext
 import com.wingedsheep.engine.legalactions.LegalAction
@@ -20,7 +21,7 @@ import com.wingedsheep.sdk.scripting.AdditionalManaForEntryCounters
  */
 internal object AdditionalManaForCountersOffer {
 
-    fun annotate(context: EnumerationContext, actions: List<LegalAction>): List<LegalAction> {
+    fun annotate(context: EnumerationContext, actions: List<LegalAction>, predicateEvaluator: PredicateEvaluator): List<LegalAction> {
         val state = context.state
         val playerId = context.playerId
         // Cheap gate: nothing to do unless the player controls a permanent printing the static.
@@ -37,7 +38,7 @@ internal object AdditionalManaForCountersOffer {
         return actions.map { legal ->
             val cast = legal.action as? CastSpell ?: return@map legal
             if (cast.castFaceDown) return@map legal
-            AdditionalManaForCounters.applicableGrant(state, playerId, cast.cardId, context.cardRegistry)
+            AdditionalManaForCounters.applicableGrant(state, playerId, cast.cardId, context.cardRegistry, predicateEvaluator = predicateEvaluator)
                 ?: return@map legal
             val baseCost = legal.manaCostString?.let { runCatching { ManaCost.parse(it).cmc }.getOrNull() } ?: 0
             legal.copy(maxAdditionalManaForCounters = (availableMana - baseCost).coerceAtLeast(0))

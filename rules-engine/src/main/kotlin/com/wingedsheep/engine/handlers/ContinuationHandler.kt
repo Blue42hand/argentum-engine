@@ -16,7 +16,6 @@ import com.wingedsheep.engine.state.GameState
 class ContinuationHandler(
     private val services: EngineServices
 ) {
-
     private val effectRunner = EffectContinuationRunner(services.effectExecutorRegistry)
 
     private val registry = ContinuationResumerRegistry().apply {
@@ -44,7 +43,7 @@ class ContinuationHandler(
         registerModule(CollectEvidenceContinuationResumer(services.zones))
         registerModule(CostPaymentContinuationResumer(services))
         registerModule(ManaPaymentContinuationResumer(services))
-        registerModule(LibraryAndZoneContinuationResumer(services))
+        registerModule(LibraryAndZoneContinuationResumer(services, targetFinder = services.targetFinder))
         registerModule(GuessContinuationResumer(services))
         registerModule(ModalAndCloneContinuationResumer(services))
         registerModule(RoomDoorContinuationResumer(services))

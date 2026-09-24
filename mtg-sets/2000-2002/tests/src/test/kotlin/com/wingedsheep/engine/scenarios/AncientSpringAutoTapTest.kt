@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -65,7 +66,7 @@ class AncientSpringAutoTapTest : FunSpec({
 
         driver.putPermanentOnBattlefield(activePlayer, "Ancient Spring")
 
-        val solver = ManaSolver(driver.cardRegistry)
+        val solver = ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         // {W}{B} is payable — that's exactly what the sacrifice ability makes.
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{W}{B}")) shouldBe true
         // A lone {U} is payable via the sacrifice-free ability.
@@ -82,7 +83,7 @@ class AncientSpringAutoTapTest : FunSpec({
 
         driver.putPermanentOnBattlefield(activePlayer, "Ancient Spring")
 
-        val solver = ManaSolver(driver.cardRegistry)
+        val solver = ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         // Best case is sacrificing for {W}{B}; the {U} ability shares the same {T} cost.
         solver.getAvailableManaCount(driver.state, activePlayer) shouldBe 2
     }

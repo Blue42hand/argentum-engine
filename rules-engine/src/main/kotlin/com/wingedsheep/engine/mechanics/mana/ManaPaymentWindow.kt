@@ -11,7 +11,6 @@ import com.wingedsheep.engine.core.ReopenManaPaymentDecisionContinuation
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.model.EntityId
 
@@ -72,9 +71,9 @@ object ManaPaymentWindow {
         prompt: String,
         context: com.wingedsheep.engine.core.DecisionContext,
         canDecline: Boolean,
-        cardRegistry: CardRegistry
+        manaSolver: ManaSolver
     ): SelectManaSourcesDecision {
-        val solver = ManaSolver(cardRegistry)
+        val solver = manaSolver
         val options = solver.findAvailableManaSources(state, playerId)
             .filter { it.tapPermanentsSubCost == null }
             .map { source ->
@@ -138,7 +137,7 @@ object ManaPaymentWindow {
         var produced = ManaPool()
 
         if (response.autoPay) {
-            val solution = ManaSolver(services.cardRegistry).solve(current, playerId, remaining)
+            val solution = services.manaSolver.solve(current, playerId, remaining)
                 ?: return FloatResult(state, emptyList(), paid = false)
             val (afterTaps, tapEvents) = services.manaAbilitySideEffectExecutor
                 .tapSourcesWithSideEffects(current, solution, playerId)
@@ -262,11 +261,11 @@ object ManaPaymentWindow {
     fun resumeIfPending(
         state: GameState,
         events: List<GameEvent>,
-        cardRegistry: CardRegistry
+        manaSolver: ManaSolver
     ): ExecutionResult? {
         val frame = state.peekContinuation() as? ReopenManaPaymentDecisionContinuation ?: return null
         val (_, popped) = state.popContinuation()
-        return reopen(popped, frame.suspension, events, cardRegistry)
+        return reopen(popped, frame.suspension, events, manaSolver)
     }
 
     /** Restores the same suspension, with its question refreshed against the current board. */
@@ -274,10 +273,10 @@ object ManaPaymentWindow {
         state: GameState,
         suspension: Suspension,
         events: List<GameEvent>,
-        cardRegistry: CardRegistry
+        manaSolver: ManaSolver
     ): ExecutionResult {
         val decision = suspension.question as SelectManaSourcesDecision
-        val refreshed = refresh(state, decision, cardRegistry)
+        val refreshed = refresh(state, decision, manaSolver)
         return ExecutionResult.propagatePause(
             state.restoreSuspension(suspension.copy(question = refreshed)), events
         )
@@ -295,9 +294,9 @@ object ManaPaymentWindow {
     fun refresh(
         state: GameState,
         decision: SelectManaSourcesDecision,
-        cardRegistry: CardRegistry
+        manaSolver: ManaSolver
     ): SelectManaSourcesDecision {
-        val solver = ManaSolver(cardRegistry)
+        val solver = manaSolver
         val stillAvailable = solver.findAvailableManaSources(state, decision.playerId)
             .map { source ->
                 ManaSourceOption(

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.ForEachContinuation
 import com.wingedsheep.engine.core.ForEachItem
@@ -48,7 +49,8 @@ import com.wingedsheep.engine.core.Outcome
  * - ColorsOf: `chosenColor` set — the same channel `ChooseColorThen` feeds.
  */
 class ForEachExecutor(
-    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
+    private val predicateEvaluator: PredicateEvaluator
 ) : EffectExecutor<ForEachEffect> {
 
     override val effectType: KClass<ForEachEffect> = ForEachEffect::class
@@ -299,7 +301,7 @@ class ForEachExecutor(
                 else -> null
             }
         } else null
-        val matched = BattlefieldFilterUtils.findMatchingOnBattlefield(state, filter.baseFilter, context, excludeSelfId)
+        val matched = BattlefieldFilterUtils.findMatchingOnBattlefield(state, filter.baseFilter, context, excludeSelfId, predicateEvaluator = predicateEvaluator)
             .filter { excludeTargetId == null || it != excludeTargetId }
 
         // Additionally filter by chosen subtype if specified

@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.effects.zones
 
+import com.wingedsheep.engine.handlers.TargetFinder
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.LibraryShuffledEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.handlers.EffectContext
@@ -30,13 +32,14 @@ import com.wingedsheep.engine.core.Outcome
 class MoveToZoneEffectExecutorTest : FunSpec({
 
     val cardRegistry = com.wingedsheep.engine.registry.CardRegistry()
-    val zones = ZoneTransitionService(cardRegistry)
+    val zones = ZoneTransitionService(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
     // None of the cases below use a card definition carrying an OnEnterRun, so the
     // entering-permanent recursion must never fire; throwing makes that explicit.
     val executor = MoveToZoneEffectExecutor(
         zones,
         cardRegistry,
-        effectExecutor = { _, _, _ -> error("no OnEnterRun expected in this test") }
+        effectExecutor = { _, _, _ -> error("no OnEnterRun expected in this test") },
+        targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null))
     )
 
     val playerId = EntityId.generate()

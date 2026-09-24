@@ -17,7 +17,9 @@ import kotlin.reflect.KClass
  * Executor for AddCountersToCollectionEffect.
  * Adds counters to each entity in a named collection.
  */
-class AddCountersToCollectionExecutor : EffectExecutor<AddCountersToCollectionEffect> {
+class AddCountersToCollectionExecutor(
+    private val amountEvaluator: DynamicAmountEvaluator
+) : EffectExecutor<AddCountersToCollectionEffect> {
 
     override val effectType: KClass<AddCountersToCollectionEffect> = AddCountersToCollectionEffect::class
 
@@ -34,7 +36,7 @@ class AddCountersToCollectionExecutor : EffectExecutor<AddCountersToCollectionEf
         val counterType = effect.counterType
 
         // A dynamic [amount] overrides the static [count] — evaluated once at resolution.
-        val baseCount = effect.amount?.let { DynamicAmountEvaluator().evaluate(state, it, context) }
+        val baseCount = effect.amount?.let { amountEvaluator.evaluate(state, it, context) }
             ?: effect.count
         if (baseCount <= 0) return EffectResult.success(state)
 
@@ -46,7 +48,8 @@ class AddCountersToCollectionExecutor : EffectExecutor<AddCountersToCollectionEf
 
             val current = currentState.getEntity(entityId)?.get<CountersComponent>() ?: CountersComponent()
             val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                currentState, entityId, counterType, baseCount, placerId = context.controllerId
+                currentState, entityId, counterType, baseCount, placerId = context.controllerId,
+                predicateEvaluator = amountEvaluator.predicates
             )
 
             val firstThisTurn = DamageUtils.isFirstCounterThisTurn(currentState, entityId)

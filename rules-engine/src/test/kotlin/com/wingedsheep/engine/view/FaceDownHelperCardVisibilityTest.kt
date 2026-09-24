@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.view
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.handlers.effects.FaceDownTurnUp
@@ -63,7 +64,7 @@ class FaceDownHelperCardVisibilityTest : FunSpec({
     }
 
     fun transformer(d: GameTestDriver): ClientStateTransformer =
-        ClientStateTransformer(cardRegistry = d.cardRegistry)
+        ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     /** Cast [cardName] face down for {3} and leave the spell on the stack. */
     fun GameTestDriver.castFaceDown(playerId: EntityId, cardName: String): EntityId {

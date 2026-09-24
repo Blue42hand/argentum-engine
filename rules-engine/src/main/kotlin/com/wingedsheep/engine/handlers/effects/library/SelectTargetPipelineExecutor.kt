@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
  * can satisfy.
  */
 class SelectTargetPipelineExecutor(
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<SelectTargetEffect> {
 
     override val effectType: KClass<SelectTargetEffect> = SelectTargetEffect::class

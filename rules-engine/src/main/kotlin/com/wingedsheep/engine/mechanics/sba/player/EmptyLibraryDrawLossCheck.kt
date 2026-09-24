@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.sba.player
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEndReason
 import com.wingedsheep.engine.core.GameEvent
@@ -20,7 +21,9 @@ import com.wingedsheep.engine.state.components.player.PlayerLostComponent
  * marker is consumed on every check — an attempt excused by a "can't lose the game" grant
  * (Platinum Angel) is spent, not carried to the next check after the grant goes away.
  */
-class EmptyLibraryDrawLossCheck : StateBasedActionCheck {
+class EmptyLibraryDrawLossCheck(
+    private val predicateEvaluator: PredicateEvaluator
+) : StateBasedActionCheck {
     override val name = "704.5b Empty Library Draw Loss"
     override val order = SbaOrder.EMPTY_LIBRARY_DRAW_LOSS
 
@@ -40,7 +43,7 @@ class EmptyLibraryDrawLossCheck : StateBasedActionCheck {
 
             newState = newState.updateEntity(playerId) { it.without<AttemptedDrawFromEmptyLibraryComponent>() }
             if (container.has<PlayerLostComponent>()) continue
-            if (playerCantLoseGame(state, playerId)) continue
+            if (playerCantLoseGame(state, playerId, predicateEvaluator = predicateEvaluator)) continue
 
             newState = newState.updateEntity(playerId) { c ->
                 c.with(PlayerLostComponent(LossReason.EMPTY_LIBRARY))

@@ -26,11 +26,11 @@ import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 
 class LibraryAndZoneContinuationResumer(
-    private val services: com.wingedsheep.engine.core.EngineServices
+    private val services: com.wingedsheep.engine.core.EngineServices,
+    private val targetFinder: TargetFinder
 ) : ContinuationResumerModule {
 
-    private val castSpellHandler: CastSpellHandler by lazy { CastSpellHandler.create(services) }
-    private val targetFinder = TargetFinder()
+    private val castSpellHandler: CastSpellHandler get() = services.castSpellHandler
     private val effectRunner: EffectContinuationRunner by lazy {
         EffectContinuationRunner(services.effectExecutorRegistry)
     }
@@ -625,7 +625,7 @@ class LibraryAndZoneContinuationResumer(
             return ExecutionResult.error(state, "Expected card selection response for ChooseOnePerCategory")
         }
 
-        val result = ChooseOnePerCategoryExecutor().collectPicks(
+        val result = ChooseOnePerCategoryExecutor(predicateEvaluator = services.predicateEvaluator).collectPicks(
             state = state,
             effect = continuation.effect,
             storedCollections = continuation.storedCollections,

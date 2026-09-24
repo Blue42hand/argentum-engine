@@ -21,11 +21,12 @@ import kotlin.reflect.KClass
  * effect's [GameObjectFilter], narrowed by its collection-relative [CollectionFilter] when it has
  * one. A purely automatic filter with no player choice.
  */
-class FilterCollectionExecutor : EffectExecutor<FilterCollectionEffect> {
+class FilterCollectionExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<FilterCollectionEffect> {
+    private val amountEvaluator = predicateEvaluator.amounts
 
     override val effectType: KClass<FilterCollectionEffect> = FilterCollectionEffect::class
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     override fun execute(
         state: GameState,

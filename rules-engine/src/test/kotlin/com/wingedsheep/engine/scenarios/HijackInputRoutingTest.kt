@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
@@ -43,7 +44,7 @@ class HijackInputRoutingTest : FunSpec({
     }
 
     fun transformer(d: GameTestDriver): ClientStateTransformer =
-        ClientStateTransformer(cardRegistry = d.cardRegistry)
+        ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     test("controller-driven cast: action tagged with V succeeds during ACTIVE hijack and resources come from V") {
         val d = driver()

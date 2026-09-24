@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -23,7 +24,7 @@ import io.kotest.matchers.shouldNotBe
 
 class GatherCardsFromLinkedExileTest : FunSpec({
 
-    val executor = GatherCardsExecutor()
+    val executor = GatherCardsExecutor(predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     val playerId = EntityId.generate()
     val opponentId = EntityId.generate()

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.mechanics.layers.ActiveFloatingEffect
@@ -30,7 +31,7 @@ import io.kotest.matchers.shouldNotBe
 
 class FilterCollectionMatchesFilterTest : FunSpec({
 
-    val executor = FilterCollectionExecutor()
+    val executor = FilterCollectionExecutor(predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     val playerId = EntityId.generate()
     val opponentId = EntityId.generate()

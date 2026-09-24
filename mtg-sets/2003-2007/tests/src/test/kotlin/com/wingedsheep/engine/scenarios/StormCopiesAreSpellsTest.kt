@@ -52,7 +52,7 @@ class StormCopiesAreSpellsTest : FunSpec({
         }
 
         // Target enumeration for "target spell" must include the copy.
-        val enumerator = TargetEnumerationUtils(PredicateEvaluator())
+        val enumerator = TargetEnumerationUtils(PredicateEvaluator(cardRegistry = null))
         val targetable = enumerator.findValidSpellTargets(
             driver.state,
             opponent,

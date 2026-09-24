@@ -20,14 +20,13 @@ import com.wingedsheep.sdk.scripting.AdditionalManaForEntryCounters
  */
 object AdditionalManaForCounters {
 
-    private val predicateEvaluator = PredicateEvaluator()
-
     /** The grant that applies to [cardId] cast by [casterId], or null when none does. */
     fun applicableGrant(
         state: GameState,
         casterId: EntityId,
         cardId: EntityId,
         cardRegistry: CardRegistry,
+        predicateEvaluator: PredicateEvaluator
     ): AdditionalManaForEntryCounters? {
         val projected = state.projectedState
         for (permanentId in projected.getBattlefieldControlledBy(casterId)) {

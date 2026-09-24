@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.view
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.SaddleMount
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -51,7 +52,7 @@ class SaddledCardVisibilityTest : FunSpec({
     }
 
     fun GameTestDriver.viewOf(viewer: EntityId, id: EntityId) =
-        ClientStateTransformer(cardRegistry).transform(state, viewer).cards[id].shouldNotBeNull()
+        ClientStateTransformer(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(state, viewer).cards[id].shouldNotBeNull()
 
     test("an unsaddled Mount exposes its Saddle N and reads as not saddled") {
         val d = driver()

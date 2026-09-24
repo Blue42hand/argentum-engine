@@ -141,7 +141,7 @@ class BattleCombatRulesScenarioTest : ScenarioTestBase() {
                 val game = siegeBoard(extraPlayer = listOf("Ghostly Prison", "Grizzly Bears"))
                 val attackers = mapOf(game.findPermanent("Grizzly Bears")!! to game.findPermanent("Test Rampart")!!)
                 withClue("the Siege's controller is not the player being attacked") {
-                    CombatTaxes.attackTax(game.state, cardRegistry, attackers, game.state.projectedState) shouldBe 0
+                    CombatTaxes.attackTax(game.state, cardRegistry, attackers, game.state.projectedState, predicateEvaluator = services.predicateEvaluator) shouldBe 0
                 }
             }
 
@@ -151,10 +151,10 @@ class BattleCombatRulesScenarioTest : ScenarioTestBase() {
                 val onBattle = mapOf(bears to game.findPermanent("Test Rampart")!!)
                 val onPlayer = mapOf(bears to game.player2Id)
                 withClue("'creatures can't attack you' — a battle is not 'you'") {
-                    CombatTaxes.attackTax(game.state, cardRegistry, onBattle, game.state.projectedState) shouldBe 0
+                    CombatTaxes.attackTax(game.state, cardRegistry, onBattle, game.state.projectedState, predicateEvaluator = services.predicateEvaluator) shouldBe 0
                 }
                 withClue("attacking the protector themself pays {2}") {
-                    CombatTaxes.attackTax(game.state, cardRegistry, onPlayer, game.state.projectedState) shouldBe 2
+                    CombatTaxes.attackTax(game.state, cardRegistry, onPlayer, game.state.projectedState, predicateEvaluator = services.predicateEvaluator) shouldBe 2
                 }
             }
 
@@ -165,7 +165,7 @@ class BattleCombatRulesScenarioTest : ScenarioTestBase() {
                 )
                 val attackers = mapOf(game.findPermanent("Grizzly Bears")!! to game.findPermanent("Ajani Goldmane")!!)
                 withClue("Archangel of Tithes' {1} applies to a planeswalker; Ghostly Prison's {2} does not") {
-                    CombatTaxes.attackTax(game.state, cardRegistry, attackers, game.state.projectedState) shouldBe 1
+                    CombatTaxes.attackTax(game.state, cardRegistry, attackers, game.state.projectedState, predicateEvaluator = services.predicateEvaluator) shouldBe 1
                 }
             }
         }

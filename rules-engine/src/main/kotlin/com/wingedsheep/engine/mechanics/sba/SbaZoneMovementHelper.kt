@@ -73,7 +73,8 @@ object SbaZoneMovementHelper {
         // off the pass-start snapshot so a shield dying in the same SBA batch still applies.
         val redirectResult = ZoneMovementUtils.checkZoneChangeRedirect(
             state, entityId, Zone.BATTLEFIELD, Zone.GRAVEYARD,
-            battlefieldSourceState = passStartState
+            battlefieldSourceState = passStartState,
+            predicateEvaluator = zones.predicateEvaluator
         )
         val destinationZone = if (exileInstead) Zone.EXILE else redirectResult.destinationZone
 

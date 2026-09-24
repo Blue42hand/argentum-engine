@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.permanent.counters
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.CountersRemovedEvent
 import com.wingedsheep.engine.core.EffectResult
@@ -26,7 +27,9 @@ import kotlin.reflect.KClass
  * effects (e.g., Hardened Scales). No-op when source/destination is missing or the destination
  * can't receive counters.
  */
-class MoveCountersEachKindMissingExecutor : EffectExecutor<MoveCountersEachKindMissingEffect> {
+class MoveCountersEachKindMissingExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<MoveCountersEachKindMissingEffect> {
 
     override val effectType: KClass<MoveCountersEachKindMissingEffect> =
         MoveCountersEachKindMissingEffect::class
@@ -73,7 +76,8 @@ class MoveCountersEachKindMissingExecutor : EffectExecutor<MoveCountersEachKindM
 
             // Add one of this kind to the destination (honoring placement replacements).
             val modified = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                newState, destinationId, counterType, 1, placerId = context.controllerId
+                newState, destinationId, counterType, 1, placerId = context.controllerId,
+                predicateEvaluator = predicateEvaluator
             )
             if (modified <= 0) continue
             val curDest = newState.getEntity(destinationId)?.get<CountersComponent>() ?: CountersComponent()

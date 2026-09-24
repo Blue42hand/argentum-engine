@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.multiplayer
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.mechanics.sba.permanent.CommanderZoneChoiceCheck
@@ -157,7 +158,7 @@ class CommanderPodTest : FunSpec({
     // =========================================================================
 
     /** The pod's state after the SBA has run once, so the loss checks read the same shape. */
-    fun GameState.afterCommanderDamageCheck(): GameState = CommanderDamageLossCheck().check(this).newState
+    fun GameState.afterCommanderDamageCheck(): GameState = CommanderDamageLossCheck(predicateEvaluator = PredicateEvaluator(cardRegistry = null)).check(this).newState
 
     test("one commander's damage does not pool across the defenders it hit") {
         val (driver, players) = podOfFour()

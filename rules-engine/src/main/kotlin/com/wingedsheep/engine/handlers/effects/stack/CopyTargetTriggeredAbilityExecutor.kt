@@ -4,9 +4,7 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-import com.wingedsheep.engine.mechanics.stack.StackResolver
-import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.mechanics.stack.StackPlacement
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.TargetsComponent
@@ -28,9 +26,7 @@ import kotlin.reflect.KClass
  * that created it."
  */
 class CopyTargetTriggeredAbilityExecutor(
-    private val zones: ZoneTransitionService,
-    private val cardRegistry: CardRegistry,
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<CopyTargetTriggeredAbilityEffect> {
 
     override val effectType: KClass<CopyTargetTriggeredAbilityEffect> =
@@ -56,8 +52,7 @@ class CopyTargetTriggeredAbilityExecutor(
         // No targets — clone directly and push
         if (targetRequirements.isEmpty()) {
             val copy = cloneAbility(sourceAbility, context.controllerId)
-            val stackResolver = StackResolver(zones, cardRegistry = cardRegistry)
-            return EffectResult.from(stackResolver.putTriggeredAbility(state, copy))
+            return EffectResult.from(StackPlacement.putTriggeredAbility(state, copy))
         }
 
         // Targets exist — prompt the copy controller to choose new targets.

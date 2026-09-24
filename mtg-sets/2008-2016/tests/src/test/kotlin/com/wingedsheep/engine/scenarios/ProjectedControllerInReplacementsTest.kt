@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
 import com.wingedsheep.engine.mechanics.layers.StateProjector
@@ -127,7 +128,8 @@ class ProjectedControllerInReplacementsTest : FunSpec({
             targetId = theirCreature,
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
-            placerId = activePlayer
+            placerId = activePlayer,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         )
         modified shouldBe 2
     }
@@ -155,7 +157,8 @@ class ProjectedControllerInReplacementsTest : FunSpec({
             state = driver.state,
             targetId = theirCreature,
             amount = 3,
-            sourceId = null
+            sourceId = null,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         )
         amplified shouldBe 6
     }
@@ -183,7 +186,8 @@ class ProjectedControllerInReplacementsTest : FunSpec({
             state = driver.state,
             targetId = theirCreature,
             amount = 3,
-            sourceId = null
+            sourceId = null,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         )
         amplified shouldBe 4
     }

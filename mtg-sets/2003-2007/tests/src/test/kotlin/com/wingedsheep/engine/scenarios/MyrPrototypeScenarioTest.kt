@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.mechanics.combat.CombatTaxes
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -54,6 +55,7 @@ class MyrPrototypeScenarioTest : FunSpec({
             cardRegistry,
             attackers.associateWith { defender },
             state.projectedState,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         )
 
     test("a Prototype with no counters attacks for free") {
@@ -123,7 +125,7 @@ class MyrPrototypeScenarioTest : FunSpec({
         d.withCounters(myr, 2)
 
         withClue("'can't attack or block' is one sentence and one price") {
-            CombatTaxes.blockTax(d.state, d.cardRegistry, setOf(myr), d.state.projectedState) shouldBe 2
+            CombatTaxes.blockTax(d.state, d.cardRegistry, setOf(myr), d.state.projectedState, predicateEvaluator = PredicateEvaluator(cardRegistry = null)) shouldBe 2
         }
     }
 

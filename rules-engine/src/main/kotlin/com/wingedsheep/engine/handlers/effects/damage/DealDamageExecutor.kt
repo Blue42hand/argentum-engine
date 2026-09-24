@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
  */
 class DealDamageExecutor(
     private val zones: ZoneTransitionService,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<DealDamageEffect> {
 
     override val effectType: KClass<DealDamageEffect> = DealDamageEffect::class

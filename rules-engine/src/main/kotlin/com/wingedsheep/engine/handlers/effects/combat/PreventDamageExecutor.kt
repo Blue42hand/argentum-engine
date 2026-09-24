@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.combat
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.DeflectDamageSourceChoiceContinuation
@@ -9,7 +10,6 @@ import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
@@ -41,10 +41,9 @@ import kotlin.reflect.KClass
 class PreventDamageExecutor(
     private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<PreventDamageEffect> {
+    private val predicateEvaluator = amountEvaluator.predicates
 
     override val effectType: KClass<PreventDamageEffect> = PreventDamageEffect::class
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     override fun execute(
         state: GameState,

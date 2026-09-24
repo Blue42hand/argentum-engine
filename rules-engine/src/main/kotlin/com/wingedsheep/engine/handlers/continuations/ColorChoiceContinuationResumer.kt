@@ -14,7 +14,7 @@ class ColorChoiceContinuationResumer(
 ) : ContinuationResumerModule {
 
     private val tappedForManaBonusResolver =
-        com.wingedsheep.engine.handlers.effects.mana.TappedForManaBonusResolver(services.cardRegistry)
+        com.wingedsheep.engine.handlers.effects.mana.TappedForManaBonusResolver(services.cardRegistry, dynamicAmountEvaluator = services.dynamicAmountEvaluator)
 
     /** Shared with `ActivateAbilityHandler` so a paused mana ability finishes the same way. */
     private val manaPipeline = ManaAbilityResolutionPipeline(
@@ -22,6 +22,7 @@ class ColorChoiceContinuationResumer(
         conditionEvaluator = services.conditionEvaluator,
         effectExecutorRegistry = services.effectExecutorRegistry,
         predicateEvaluator = services.predicateEvaluator,
+        dynamicAmountEvaluator = services.dynamicAmountEvaluator
     )
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(

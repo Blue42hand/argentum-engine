@@ -35,7 +35,7 @@ import kotlin.reflect.KClass
  */
 class BeholdEffectExecutor(
     private val effectExecutor: (GameState, com.wingedsheep.sdk.scripting.effects.Effect, EffectContext) -> EffectResult,
-    private val predicateEvaluator: PredicateEvaluator = PredicateEvaluator(),
+    private val predicateEvaluator: PredicateEvaluator
 ) : EffectExecutor<BeholdEffect> {
 
     override val effectType: KClass<BeholdEffect> = BeholdEffect::class

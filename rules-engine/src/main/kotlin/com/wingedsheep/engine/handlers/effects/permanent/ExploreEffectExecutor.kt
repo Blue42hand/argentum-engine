@@ -40,8 +40,8 @@ import kotlin.reflect.KClass
  * registry [recurse] runner, reusing the composite executor's pause-sequencing (a Scry prefix
  * finishes its top/bottom decision before the explore runs).
  *
- * @param recurse registry entry point for delegating the Composite (nullable-free; wired via
- *   `PermanentExecutors.initializeRecursion`).
+ * @param recurse registry entry point for delegating the Composite (handed to [PermanentExecutors]
+ *   by the registry at construction).
  */
 class ExploreEffectExecutor(
     private val zones: ZoneTransitionService,
@@ -65,7 +65,8 @@ class ExploreEffectExecutor(
         // Composite ahead of the guarded explore so a pausing prefix (Scry) sequences correctly.
         if (!effect.replacementsApplied) {
             val prefixEffects = KeywordActionReplacements.collectPrefixes(
-                state, exploringCreatureId, ReplaceableKeywordAction.EXPLORE
+                state, exploringCreatureId, ReplaceableKeywordAction.EXPLORE,
+                predicateEvaluator = zones.predicateEvaluator
             )
             if (prefixEffects.isNotEmpty()) {
                 val composite = CompositeEffect(
@@ -183,7 +184,8 @@ class ExploreEffectExecutor(
         }
         val current = state.getEntity(creatureId)?.get<CountersComponent>() ?: CountersComponent()
         val count = ReplacementEffectUtils.applyCounterPlacementModifiers(
-            state, creatureId, CounterType.PLUS_ONE_PLUS_ONE, 1, placerId = context.controllerId
+            state, creatureId, CounterType.PLUS_ONE_PLUS_ONE, 1, placerId = context.controllerId,
+            predicateEvaluator = zones.predicateEvaluator
         )
         val updated = state.updateEntity(creatureId) {
             it.with(current.withAdded(CounterType.PLUS_ONE_PLUS_ONE, count))

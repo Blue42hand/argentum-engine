@@ -7,7 +7,6 @@ import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaAddedEvent
 import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -46,10 +45,9 @@ internal class ActivatedManaAbilityResolver(
     private val cardRegistry: CardRegistry,
     conditionEvaluator: ConditionEvaluator,
     private val effectExecutorRegistry: EffectExecutorRegistry,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
-    private val predicateEvaluator = PredicateEvaluator()
-
+    private val dynamicAmountEvaluator = predicateEvaluator.amounts
     /**
      * Everything that happens after a mana ability's effect resolves. Shared with
      * [com.wingedsheep.engine.handlers.continuations.ColorChoiceContinuationResumer], which

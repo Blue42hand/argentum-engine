@@ -77,10 +77,23 @@ class PredicateEvaluator(
     /**
      * Printed definitions, for the few predicates that read a candidate's script rather than its
      * components (an Aura's enchant restriction for [CardPredicate.CouldEnchant]). Those predicates
-     * fail closed on an evaluator built without one.
+     * fail closed on an evaluator built without one — which only the pure-data layers that have no
+     * engine to ask (the layer projection behind [GameState.projectedState]) should build. Everything
+     * in the engine graph shares [com.wingedsheep.engine.core.EngineServices.predicateEvaluator].
      */
-    private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry? = null
+    private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry?
 ) {
+
+    /**
+     * The condition evaluator over this predicate evaluator. Predicates, conditions and dynamic
+     * amounts call one another — a condition compares amounts, an amount counts what a filter
+     * matches, a filter can cap on an amount — so the three are built as one unit, here, and all
+     * see this evaluator's card registry.
+     */
+    val conditions: ConditionEvaluator = ConditionEvaluator(this)
+
+    /** The dynamic-amount evaluator of [conditions]. */
+    val amounts: DynamicAmountEvaluator get() = conditions.amounts
 
     /**
      * Evaluate a GameObjectFilter against an entity using projected state.
@@ -1477,7 +1490,7 @@ class PredicateEvaluator(
         context: PredicateContext?,
     ): Int? {
         context ?: return null
-        return DynamicAmountEvaluator().evaluate(state, amount, context.toEffectContext())
+        return amounts.evaluate(state, amount, context.toEffectContext())
     }
 
     /**

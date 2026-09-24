@@ -5,7 +5,6 @@ import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.costs.ChoiceCostResolver
 import com.wingedsheep.engine.handlers.costs.ForageCostResolver
 import com.wingedsheep.engine.handlers.effects.DamageUtils
@@ -371,16 +370,14 @@ internal object BlightVariableCostKind : SpellCostKind<AdditionalCost.BlightVari
  * [AdditionalCost.ExileFromStorage] or the resolving effect.
  */
 internal object BeholdCostKind : SpellCostKind<AdditionalCost.Behold> {
-    private val evaluator = PredicateEvaluator()
-
     override fun canPay(state: GameState, payerId: EntityId, cost: AdditionalCost.Behold, costHandler: CostHandler): Boolean {
         val projected = state.projectedState
         val predicateContext = PredicateContext(controllerId = payerId)
         val hasBattlefieldMatch = projected.getBattlefieldControlledBy(payerId).any { permId ->
-            evaluator.matches(state, projected, permId, cost.filter, predicateContext)
+            costHandler.predicateEvaluator.matches(state, projected, permId, cost.filter, predicateContext)
         }
         val hasHandMatch = state.getHand(payerId).any { cardId ->
-            evaluator.matches(state, state.projectedState, cardId, cost.filter, predicateContext)
+            costHandler.predicateEvaluator.matches(state, state.projectedState, cardId, cost.filter, predicateContext)
         }
         return hasBattlefieldMatch || hasHandMatch
     }

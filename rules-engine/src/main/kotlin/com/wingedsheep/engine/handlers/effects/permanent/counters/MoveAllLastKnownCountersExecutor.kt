@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.permanent.counters
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.EffectContext
@@ -22,7 +23,9 @@ import kotlin.reflect.KClass
  *
  * Per the Bloomburrow ruling: this moves *all* counter types, not just +1/+1.
  */
-class MoveAllLastKnownCountersExecutor : EffectExecutor<MoveAllLastKnownCountersEffect> {
+class MoveAllLastKnownCountersExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<MoveAllLastKnownCountersEffect> {
 
     override val effectType: KClass<MoveAllLastKnownCountersEffect> =
         MoveAllLastKnownCountersEffect::class
@@ -60,7 +63,8 @@ class MoveAllLastKnownCountersExecutor : EffectExecutor<MoveAllLastKnownCounters
             if (count <= 0) continue
 
             val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                newState, targetId, counterType, count, placerId = context.controllerId
+                newState, targetId, counterType, count, placerId = context.controllerId,
+                predicateEvaluator = predicateEvaluator
             )
             if (modifiedCount <= 0) continue
 

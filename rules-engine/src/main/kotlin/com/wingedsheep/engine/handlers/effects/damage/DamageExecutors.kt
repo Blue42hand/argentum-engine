@@ -11,13 +11,13 @@ import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
  */
 class DamageExecutors(
     private val zones: ZoneTransitionService,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val amountEvaluator: DynamicAmountEvaluator,
     private val decisionHandler: DecisionHandler = DecisionHandler()
 ) : ExecutorModule {
     override fun executors(): List<EffectExecutor<*>> = listOf(
         DealDamageExecutor(zones, amountEvaluator),
         DealDamagePerEntityInZoneExecutor(zones),
-        DividedDamageExecutor(zones, decisionHandler),
+        DividedDamageExecutor(zones, decisionHandler, amountEvaluator = amountEvaluator),
         FightEffectExecutor(zones),
         AmplifyNoncombatDamageThisTurnExecutor(amountEvaluator),
         DoubleDamageToPlayerExecutor(),

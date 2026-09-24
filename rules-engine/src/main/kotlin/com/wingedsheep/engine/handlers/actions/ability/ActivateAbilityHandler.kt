@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
+import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.ExecutionResult
@@ -84,11 +85,12 @@ class ActivateAbilityHandler(
     private val castPermissionUtils: CastPermissionUtils,
     private val legality: LegalityKernel,
     private val manaAbilitySideEffectExecutor: ManaAbilitySideEffectExecutor,
+    private val targetFinder: TargetFinder
 ) : ActionHandler<ActivateAbility> {
     override val actionType: KClass<ActivateAbility> = ActivateAbility::class
 
     private val abilityResolver = ActivatedAbilityResolver(cardRegistry, castPermissionUtils)
-    private val costTotaller = ActivationCostTotaller(castPermissionUtils)
+    private val costTotaller = ActivationCostTotaller(castPermissionUtils, amountEvaluator = conditionEvaluator.amounts)
     private val validator = ActivationValidator(
         cardRegistry = cardRegistry,
         turnManager = turnManager,
@@ -100,12 +102,13 @@ class ActivateAbilityHandler(
         abilityResolver = abilityResolver,
         costTotaller = costTotaller,
         legality = legality,
+        predicateEvaluator = conditionEvaluator.predicates
     )
-    private val choicePauses = ActivationChoicePauses(costHandler, manaSolver)
+    private val choicePauses = ActivationChoicePauses(costHandler, manaSolver, targetFinder = targetFinder)
     private val autoTapper = ActivationAutoTapper(manaSolver, manaAbilitySideEffectExecutor)
-    private val costPayer = ActivationCostPayer(costHandler, manaSolver, alternativePaymentHandler, autoTapper)
+    private val costPayer = ActivationCostPayer(costHandler, manaSolver, alternativePaymentHandler, autoTapper, predicateEvaluator = conditionEvaluator.predicates)
     private val manaAbilityResolver =
-        ActivatedManaAbilityResolver(cardRegistry, conditionEvaluator, effectExecutorRegistry)
+        ActivatedManaAbilityResolver(cardRegistry, conditionEvaluator, effectExecutorRegistry, predicateEvaluator = conditionEvaluator.predicates)
 
     override fun validate(state: GameState, action: ActivateAbility): String? =
         validator.validate(state, action)
@@ -147,7 +150,7 @@ class ActivateAbilityHandler(
         if (result.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(restored, result.events)
         }
-        return ManaPaymentWindow.resumeIfPending(restored, result.events, cardRegistry)
+        return ManaPaymentWindow.resumeIfPending(restored, result.events, manaSolver)
             ?: ExecutionResult.success(restored, result.events)
     }
     private fun executeActivation(state: GameState, action: ActivateAbility): ExecutionResult {
@@ -581,7 +584,8 @@ class ActivateAbilityHandler(
                 services.conditionEvaluator,
                 services.castPermissionUtils,
                 services.legalityKernel,
-                services.manaAbilitySideEffectExecutor
+                services.manaAbilitySideEffectExecutor,
+                services.targetFinder
             )
         }
     }

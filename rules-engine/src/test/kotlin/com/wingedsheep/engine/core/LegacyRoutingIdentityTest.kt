@@ -1,13 +1,8 @@
 package com.wingedsheep.engine.core
 
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.EffectHandler
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.combat.AttackingComponent
-import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.ScenarioTestBase
-import com.wingedsheep.sdk.core.Phase
-import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.GameRng
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
@@ -37,7 +32,7 @@ class LegacyRoutingIdentityTest : ScenarioTestBase() {
     init {
         test("a legacy pending UUID decision resumes before allocating the first new routing handle") {
             val game = scenario().withPlayers().build()
-            val paused = EffectHandler(zones, cardRegistry = cardRegistry).execute(
+            val paused = services.effectExecutorRegistry.execute(
                 game.state,
                 Effects.May(Effects.May(Effects.GainLife(2))),
                 EffectContext(sourceId = null, controllerId = game.player1Id)

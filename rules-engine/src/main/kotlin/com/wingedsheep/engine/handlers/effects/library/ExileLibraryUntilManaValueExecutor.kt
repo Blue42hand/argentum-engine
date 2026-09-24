@@ -3,7 +3,6 @@ package com.wingedsheep.engine.handlers.effects.library
 import com.wingedsheep.engine.core.CardsRevealedEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
@@ -29,10 +28,9 @@ import com.wingedsheep.engine.core.Outcome
  * pipeline so downstream grants operate under the spell's original controller.
  */
 class ExileLibraryUntilManaValueExecutor(private val zones: ZoneTransitionService) : EffectExecutor<ExileLibraryUntilManaValueEffect> {
+    private val amountEvaluator = zones.predicateEvaluator.amounts
 
     override val effectType: KClass<ExileLibraryUntilManaValueEffect> = ExileLibraryUntilManaValueEffect::class
-
-    private val amountEvaluator = DynamicAmountEvaluator()
 
     override fun execute(
         state: GameState,

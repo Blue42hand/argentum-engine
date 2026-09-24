@@ -1,6 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.CastSpellRecord
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
@@ -181,7 +181,7 @@ class SpellsCastThisTurnAmountTest : FunSpec({
 
         val you = driver.player1
         val opp = driver.player2
-        val evaluator = DynamicAmountEvaluator()
+        val evaluator = PredicateEvaluator(cardRegistry = null).amounts
 
         val instant = TypeLine.parse("Instant")
         val creature = TypeLine.parse("Creature")
@@ -216,7 +216,7 @@ class SpellsCastThisTurnAmountTest : FunSpec({
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
 
         val you = driver.player1
-        val evaluator = DynamicAmountEvaluator()
+        val evaluator = PredicateEvaluator(cardRegistry = null).amounts
 
         val instant = TypeLine.parse("Instant")
         val state = driver.state.copy(

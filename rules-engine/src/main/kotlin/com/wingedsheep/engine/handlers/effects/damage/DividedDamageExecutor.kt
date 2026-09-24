@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.damage
 
+import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.DecisionPhase
@@ -32,8 +33,7 @@ import com.wingedsheep.engine.core.Outcome
 class DividedDamageExecutor(
     private val zones: ZoneTransitionService,
     private val decisionHandler: DecisionHandler,
-    private val amountEvaluator: com.wingedsheep.engine.handlers.DynamicAmountEvaluator =
-        com.wingedsheep.engine.handlers.DynamicAmountEvaluator()
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<DividedDamageEffect> {
 
     override val effectType: KClass<DividedDamageEffect> = DividedDamageEffect::class

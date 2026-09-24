@@ -56,11 +56,10 @@ class PlayLandHandler(
                                  com.wingedsheep.sdk.scripting.effects.Effect,
                                  com.wingedsheep.engine.handlers.EffectContext) ->
         com.wingedsheep.engine.core.EffectResult,
-    private val legality: LegalityKernel,
+    private val legality: LegalityKernel
 ) : ActionHandler<PlayLand> {
+    private val predicateEvaluator = conditionEvaluator.predicates
     override val actionType: KClass<PlayLand> = PlayLand::class
-
-    private val predicateEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator()
 
     override fun validate(state: GameState, action: PlayLand): String? =
         validate(state, action, duringResolution = false)
@@ -304,7 +303,7 @@ class PlayLandHandler(
         // below (permission-forced, shock-land "pay or tapped", conditional tapped duals). The
         // land is on the battlefield with its controller set, so the filter resolves correctly.
         val landEntersUntapped = com.wingedsheep.engine.handlers.effects.EnterUntappedReplacements
-            .entersUntapped(newState, action.cardId, action.playerId)
+            .entersUntapped(newState, action.cardId, action.playerId, predicateEvaluator = predicateEvaluator)
 
         // A may-play permission with landEntersTapped=true forces the played land
         // tapped regardless of the card's own ETB script — Lightstall Inquisitor's
@@ -386,9 +385,9 @@ class PlayLandHandler(
         // every exit so counter-placement triggers still see them.
         val entersWithEvents: List<com.wingedsheep.engine.core.GameEvent> = if (cardDef != null) {
             val (afterOwn, ownEvents) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                .applyFromDefinition(newState, action.cardId, cardDef, action.playerId)
+                .applyFromDefinition(newState, action.cardId, cardDef, action.playerId, predicateEvaluator = predicateEvaluator)
             val (afterGlobal, globalEvents) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                .applyGlobal(afterOwn, action.cardId, action.playerId, cardRegistry)
+                .applyGlobal(afterOwn, action.cardId, action.playerId, cardRegistry, predicateEvaluator = predicateEvaluator)
             newState = afterGlobal
             ownEvents + globalEvents
         } else emptyList()
@@ -457,7 +456,7 @@ class PlayLandHandler(
                 .firstOrNull()
             if (entersAsCopy != null &&
                 com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
-                    .entersAsCopyCandidates(newState, action.cardId, action.playerId, entersAsCopy)
+                    .entersAsCopyCandidates(newState, action.cardId, action.playerId, entersAsCopy, predicateEvaluator = predicateEvaluator)
                     .isNotEmpty()
             ) {
                 // Use up a land drop before pausing. The entry ZoneChangeEvent is emitted by the
@@ -482,6 +481,7 @@ class PlayLandHandler(
                         entryOldObject = state.objectRef(action.cardId),
                         entryNewObject = enteredObject,
                         carryEvents = listOfNotNull(riderPlayEvent, landPlayedEvent),
+                        predicateEvaluator = predicateEvaluator
                     )
                 if (result != null) return result
             }
@@ -551,7 +551,7 @@ class PlayLandHandler(
                             sourceId = action.cardId,
                             controllerId = action.playerId,
                         )
-                        !ConditionEvaluator().evaluate(newState, entersTapped.unlessCondition!!, context)
+                        !conditionEvaluator.evaluate(newState, entersTapped.unlessCondition!!, context)
                     } else {
                         true
                     }
@@ -571,7 +571,7 @@ class PlayLandHandler(
         // is a no-op).
         if (!landEntersUntapped &&
             com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
-                .entersTapped(newState, action.cardId, action.playerId)
+                .entersTapped(newState, action.cardId, action.playerId, predicateEvaluator = predicateEvaluator)
         ) {
             newState = newState.updateEntity(action.cardId) { c -> c.with(TappedComponent) }
         }
@@ -835,7 +835,7 @@ class PlayLandHandler(
                 services.cardRegistry,
                 services.conditionEvaluator,
                 services.effectExecutorRegistry::execute,
-                services.legalityKernel,
+                services.legalityKernel
             )
         }
     }

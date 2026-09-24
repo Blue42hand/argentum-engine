@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
@@ -210,7 +211,7 @@ class ElvishGuidanceTest : FunSpec({
         driver.castSpell(activePlayer, guidance, listOf(forest))
         driver.bothPass()
 
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         // {2}{G} costs 3 mana total (1G + 2 generic) - payable: tap Forest for 1G (base) + 2G (bonus)
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{2}{G}")) shouldBe true
@@ -243,7 +244,7 @@ class ElvishGuidanceTest : FunSpec({
         driver.castSpell(activePlayer, guidance, listOf(forest1))
         driver.bothPass()
 
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         // {2}{G} costs 3 mana - enchanted Forest produces 3G, so only 1 source needed
         val solution = solver.solve(driver.state, activePlayer, ManaCost.parse("{2}{G}"))
@@ -364,7 +365,7 @@ class ElvishGuidanceTest : FunSpec({
         driver.castSpell(activePlayer, guidance, listOf(forest))
         driver.bothPass()
 
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         // 1 Forest with 2 bonus = 3 total mana available
         solver.getAvailableManaCount(driver.state, activePlayer) shouldBe 3

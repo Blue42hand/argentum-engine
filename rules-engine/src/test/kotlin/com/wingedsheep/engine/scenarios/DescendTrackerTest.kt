@@ -1,6 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
-import com.wingedsheep.engine.handlers.ConditionEvaluator
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.ComponentContainer
@@ -71,7 +71,7 @@ class DescendTrackerTest : FunSpec({
             targets = emptyList(),
             xValue = 0
         )
-        return ConditionEvaluator().evaluate(state, Conditions.YouDescendedThisTurn(atLeast), context)
+        return PredicateEvaluator(cardRegistry = null).conditions.evaluate(state, Conditions.YouDescendedThisTurn(atLeast), context)
     }
 
     fun GameTestDriver.move(entityId: EntityId, destination: Zone) {

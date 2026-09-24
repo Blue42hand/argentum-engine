@@ -41,8 +41,8 @@ import kotlin.reflect.KClass
  */
 class AddManaOfChoiceExecutor(
     private val cardRegistry: CardRegistry,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
-    private val decisionHandler: DecisionHandler = DecisionHandler(),
+    private val amountEvaluator: DynamicAmountEvaluator,
+    private val decisionHandler: DecisionHandler = DecisionHandler()
 ) : EffectExecutor<AddManaOfChoiceEffect> {
 
     override val effectType: KClass<AddManaOfChoiceEffect> = AddManaOfChoiceEffect::class
@@ -59,6 +59,7 @@ class AddManaOfChoiceExecutor(
             sourceId = context.sourceId,
             controllerId = context.controllerId,
             cardRegistry = cardRegistry,
+            predicateEvaluator = amountEvaluator.predicates
         )
         if (availableColors.isEmpty()) return EffectResult.success(state)
 

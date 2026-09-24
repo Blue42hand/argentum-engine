@@ -48,7 +48,7 @@ class SacrificeExecutor(
         // this never fires — but a per-player iteration ("each player sacrifices a permanent")
         // rebinds controllerId to each iterated player while effectControllerId stays the caster,
         // and that is exactly the case Sigarda stops.
-        if (SacrificeImmunity.appliesTo(state, controllerId, context.effectControllerId ?: controllerId)) {
+        if (SacrificeImmunity.appliesTo(state, controllerId, context.effectControllerId ?: controllerId, predicateEvaluator = zones.predicateEvaluator)) {
             return EffectResult.success(state)
         }
 
@@ -94,7 +94,8 @@ class SacrificeExecutor(
         sourceId: EntityId? = null
     ): List<EntityId> {
         val matches = BattlefieldFilterUtils.findMatchingOnBattlefield(
-            state, effect.filter.youControl(), PredicateContext(controllerId = controllerId)
+            state, effect.filter.youControl(), PredicateContext(controllerId = controllerId),
+            predicateEvaluator = zones.predicateEvaluator
         )
         return if (effect.excludeSource && sourceId != null) {
             matches.filter { it != sourceId }

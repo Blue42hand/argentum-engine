@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.TargetsResponse
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
@@ -50,7 +51,7 @@ class ClementTheWorrywortScenarioTest : FunSpec({
         register(PortalSet.cards)
         register(PortalSet.basicLands)
     }
-    val manaSolver = ManaSolver(cardRegistry)
+    val manaSolver = ManaSolver(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     fun createGameWithClement(): Triple<GameState, EntityId, EntityId> {
         val player1 = EntityId.generate()

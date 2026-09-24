@@ -74,7 +74,7 @@ class FirstTimeTappedThisTurnScenarioTest : ScenarioTestBase() {
      * same path a card's filter would take.
      */
     private fun TestGame.matchesFilter(entityId: EntityId, filter: GameObjectFilter): Boolean =
-        PredicateEvaluator().matches(
+        services.predicateEvaluator.matches(
             state,
             state.projectedState,
             entityId,

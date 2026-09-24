@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.multiplayer
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.MayAbilityContinuation
 import com.wingedsheep.engine.core.ActionProcessor
@@ -66,7 +67,7 @@ class LeaveTheGameTest : FunSpec({
     )
 
     fun registry(): CardRegistry = CardRegistry().also { it.register(bear) }
-    val zones = ZoneTransitionService(registry())
+    val zones = ZoneTransitionService(registry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     fun initGame(playerCount: Int): Pair<GameState, List<EntityId>> {
         val deck = Deck(cards = List(40) { "Leave Test Bear" })

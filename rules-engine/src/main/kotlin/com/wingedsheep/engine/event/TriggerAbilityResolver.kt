@@ -4,7 +4,6 @@ import com.wingedsheep.engine.mechanics.SoulbondPairing
 import com.wingedsheep.engine.mechanics.battle.Battles
 import com.wingedsheep.engine.mechanics.durations.GrantDurationGate
 import com.wingedsheep.engine.registry.CardRegistry
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -43,10 +42,10 @@ import com.wingedsheep.sdk.scripting.predicates.evaluateWith
  */
 class TriggerAbilityResolver(
     private val cardRegistry: CardRegistry,
-    private val abilityRegistry: AbilityRegistry
+    private val abilityRegistry: AbilityRegistry,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-    private val predicateEvaluator = PredicateEvaluator()
-
+    private val conditionEvaluator = predicateEvaluator.conditions
     /**
      * Get triggered abilities for a card, checking both the AbilityRegistry
      * and falling back to the CardRegistry for card definitions.
@@ -58,7 +57,7 @@ class TriggerAbilityResolver(
         entityId: EntityId,
         cardDefinitionId: String,
         state: GameState,
-        statics: BattlefieldStaticsIndex = BattlefieldStaticsIndex.build(state, cardRegistry),
+        statics: BattlefieldStaticsIndex = BattlefieldStaticsIndex.build(state, cardRegistry, predicateEvaluator = predicateEvaluator),
     ): List<TriggeredAbility> {
         // First check the AbilityRegistry (for manually registered abilities)
         val registryAbilities = abilityRegistry.getTriggeredAbilities(entityId, cardDefinitionId)
@@ -278,7 +277,7 @@ class TriggerAbilityResolver(
         cardDefinitionId: String,
         state: GameState,
         grantProviders: List<TriggerIndex.GrantProviderEntry>,
-        statics: BattlefieldStaticsIndex = BattlefieldStaticsIndex.build(state, cardRegistry),
+        statics: BattlefieldStaticsIndex = BattlefieldStaticsIndex.build(state, cardRegistry, predicateEvaluator = predicateEvaluator),
     ): List<TriggeredAbility> {
         // If the entity has lost all abilities (e.g., Deep Freeze), suppress its own triggered abilities
         val hasLostAbilities = state.projectedState.hasLostAllAbilities(entityId)
@@ -528,7 +527,7 @@ class TriggerAbilityResolver(
                             sourceId = permanentId,
                             controllerId = controllerId,
                         )
-                        if (ConditionEvaluator().evaluate(state, ability.condition, context)) {
+                        if (conditionEvaluator.evaluate(state, ability.condition, context)) {
                             result.add(grant.ability)
                         }
                     }
@@ -574,7 +573,7 @@ class TriggerAbilityResolver(
                     if (grant.filter.scope !is Scope.Self) continue
                     val controllerId = state.projectedState.getController(entityId) ?: continue
                     val context = EffectContext(sourceId = entityId, controllerId = controllerId)
-                    if (ConditionEvaluator().evaluate(state, ability.condition, context)) {
+                    if (conditionEvaluator.evaluate(state, ability.condition, context)) {
                         result.add(grant.ability)
                     }
                 }
@@ -620,7 +619,7 @@ class TriggerAbilityResolver(
         entityId: EntityId,
         cardDefinitionId: String,
         state: GameState,
-        statics: BattlefieldStaticsIndex = BattlefieldStaticsIndex.build(state, cardRegistry)
+        statics: BattlefieldStaticsIndex = BattlefieldStaticsIndex.build(state, cardRegistry, predicateEvaluator = predicateEvaluator)
     ): List<TriggeredAbility> {
         val result = mutableListOf<TriggeredAbility>()
 
@@ -716,7 +715,7 @@ class TriggerAbilityResolver(
                             sourceId = permanentId,
                             controllerId = controllerId,
                         )
-                        if (ConditionEvaluator().evaluate(state, ability.condition, context)) conditionalWard else continue
+                        if (conditionEvaluator.evaluate(state, ability.condition, context)) conditionalWard else continue
                     }
                     else -> continue
                 }

@@ -14,36 +14,22 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 /**
  * Module providing all drawing-related effect executors.
  *
- * Uses deferred initialization for DrawCardsExecutor so it can access
- * the parent registry's execute function (needed for pipeline execution
- * of draw replacement effects like Words of Wind).
+ * DrawCardsExecutor runs draw-replacement pipelines (Words of Wind) through the parent
+ * registry's execute function, which the registry hands in at construction.
  */
 class DrawingExecutors(
+    /** The registry's re-entrant entry point, for the executors that run sub-effects. */
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
     private val zones: ZoneTransitionService,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val amountEvaluator: DynamicAmountEvaluator,
     private val decisionHandler: DecisionHandler = DecisionHandler(),
-    private val targetFinder: TargetFinder = TargetFinder(),
+    private val targetFinder: TargetFinder,
     private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
-    private val replacementProcessor: com.wingedsheep.engine.replacement.ReplacementEffectProcessor =
-        com.wingedsheep.engine.replacement.ReplacementEffectProcessor()
+    private val replacementProcessor: com.wingedsheep.engine.replacement.ReplacementEffectProcessor
 ) : ExecutorModule {
-    private var effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)? = null
+    private val drawCardsExecutor = DrawCardsExecutor(amountEvaluator, cardRegistry, effectExecutor, replacementProcessor)
 
-    private val drawCardsExecutor by lazy {
-        DrawCardsExecutor(amountEvaluator, cardRegistry, effectExecutor, replacementProcessor)
-    }
-
-    private val eachPlayerReturnsPermanentToHandExecutor by lazy {
-        EachPlayerReturnsPermanentToHandExecutor(effectExecutor)
-    }
-
-    /**
-     * Initialize the module with the parent registry's execute function.
-     * Must be called before executors() is accessed for the first time.
-     */
-    fun initialize(executor: (GameState, Effect, EffectContext) -> EffectResult) {
-        this.effectExecutor = executor
-    }
+    private val eachPlayerReturnsPermanentToHandExecutor = EachPlayerReturnsPermanentToHandExecutor(effectExecutor)
 
     override fun executors(): List<EffectExecutor<*>> = listOf(
         drawCardsExecutor,

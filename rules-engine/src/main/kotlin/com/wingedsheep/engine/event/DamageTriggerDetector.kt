@@ -21,10 +21,10 @@ import com.wingedsheep.sdk.scripting.events.Recipient
  */
 class DamageTriggerDetector(
     private val abilityResolver: TriggerAbilityResolver,
-    private val matcher: TriggerMatcher
+    private val matcher: TriggerMatcher,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
 
-    private val predicateEvaluator = PredicateEvaluator()
 
     companion object {
         /**

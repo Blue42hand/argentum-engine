@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.sba
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.core.Suspension
 import com.wingedsheep.engine.core.BattleProtectorChoiceContinuation
@@ -39,7 +40,7 @@ import com.wingedsheep.engine.core.Outcome
  * The two-player behaviour and the surrounding combat rules live in `BattleCardTypeScenarioTest`.
  */
 class BattleProtectorCheckTest : FunSpec({
-    val zones = ZoneTransitionService(CardRegistry())
+    val zones = ZoneTransitionService(CardRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     val p1 = EntityId.of("player-1")
     val p2 = EntityId.of("player-2")

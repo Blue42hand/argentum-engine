@@ -51,10 +51,10 @@ class PlotCardHandler(
     private val cardRegistry: CardRegistry,
     private val manaSolver: ManaSolver,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
+    private val predicateEvaluator: PredicateEvaluator
 ) : ActionHandler<PlotCard> {
     override val actionType: KClass<PlotCard> = PlotCard::class
 
-    private val predicateEvaluator = PredicateEvaluator()
     private val plotCostReducer =
         com.wingedsheep.engine.mechanics.mana.PlotCostReducer(cardRegistry)
 
@@ -273,6 +273,7 @@ class PlotCardHandler(
                 services.cardRegistry,
                 services.manaSolver,
                 services.manaAbilitySideEffectExecutor,
+                predicateEvaluator = services.predicateEvaluator
             )
         }
     }

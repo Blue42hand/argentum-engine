@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.GraveyardCastRiderSelection
@@ -57,7 +58,9 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
  * - Intrinsic zone cast (MayCastSelfFromZones, e.g. Squee)
  * - Graveyard permanents (MayPlayPermanentsFromGraveyard, e.g. Muldrotha)
  */
-class CastFromZoneEnumerator : ActionEnumerator {
+class CastFromZoneEnumerator(
+    private val predicateEvaluator: PredicateEvaluator
+) : ActionEnumerator {
 
     override fun enumerate(context: EnumerationContext): List<LegalAction> {
         val result = mutableListOf<LegalAction>()
@@ -2547,9 +2550,9 @@ class CastFromZoneEnumerator : ActionEnumerator {
                         is CostAtom.VariablePermanents -> {
                             val projected = state.projectedState
                             val candidates = com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
-                                .candidates(state, playerId, atom)
+                                .candidates(state, playerId, atom, predicateEvaluator = predicateEvaluator)
                             canPayKickerAdditionalCost = com.wingedsheep.engine.mechanics.cost
-                                .VariablePermanentsCost.canPay(state, playerId, atom)
+                                .VariablePermanentsCost.canPay(state, playerId, atom, predicateEvaluator = predicateEvaluator)
                             kickerCostInfo = AdditionalCostData(
                                 description = atom.description.replaceFirstChar { it.uppercase() },
                                 costType = "TapForTotalPower",

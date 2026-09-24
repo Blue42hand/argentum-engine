@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.TargetFinder
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.DependentTargetSelection
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.support.GameTestDriver
@@ -48,8 +50,8 @@ class DependentTargetSelectionTest : FunSpec({
         )
         val context = PredicateContext(controllerId = d.player1)
         DependentTargetSelection.isRequired(requirements) shouldBe true
-        DependentTargetSelection.legalNext(d.state, requirements, emptyList(), context) shouldBe listOf(green)
-        DependentTargetSelection.legalNext(d.state, requirements, listOf(green), context) shouldBe listOf(partner)
+        DependentTargetSelection.legalNext(d.state, requirements, emptyList(), context, targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null))) shouldBe listOf(green)
+        DependentTargetSelection.legalNext(d.state, requirements, listOf(green), context, targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null))) shouldBe listOf(partner)
     }
 
     test("lookahead checks all remaining slots rather than only the next slot") {
@@ -63,8 +65,8 @@ class DependentTargetSelectionTest : FunSpec({
             TargetCreature(filter = TargetFilter.CreatureYouControl.powerLessThanEntity(EffectTarget.ContextTarget(1))),
         )
         val context = PredicateContext(controllerId = d.player1)
-        DependentTargetSelection.legalNext(d.state, requirements, emptyList(), context) shouldBe listOf(large)
-        DependentTargetSelection.legalNext(d.state, requirements, listOf(large), context) shouldBe listOf(middle)
-        DependentTargetSelection.legalNext(d.state, requirements, listOf(large, middle), context) shouldBe listOf(small)
+        DependentTargetSelection.legalNext(d.state, requirements, emptyList(), context, targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null))) shouldBe listOf(large)
+        DependentTargetSelection.legalNext(d.state, requirements, listOf(large), context, targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null))) shouldBe listOf(middle)
+        DependentTargetSelection.legalNext(d.state, requirements, listOf(large, middle), context, targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null))) shouldBe listOf(small)
     }
 })

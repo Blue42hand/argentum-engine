@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.legalactions.ActionEnumerator
 import com.wingedsheep.engine.legalactions.AdditionalCostData
@@ -34,7 +35,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  * non-battlefield `activateFromZone` generically (owner + zone-membership check), so no handler
  * change is needed.
  */
-class ZoneActivatedAbilityEnumerator(private val zone: Zone) : ActionEnumerator {
+class ZoneActivatedAbilityEnumerator(private val zone: Zone, private val predicateEvaluator: PredicateEvaluator) : ActionEnumerator {
 
     override fun enumerate(context: EnumerationContext): List<LegalAction> {
         val result = mutableListOf<LegalAction>()
@@ -93,7 +94,8 @@ class ZoneActivatedAbilityEnumerator(private val zone: Zone) : ActionEnumerator 
                 val effectiveCost = AbilityCostReduction.apply(
                     context.castPermissionUtils
                         .applyDefinedXValue(ability.cost, ability, state, entityId, playerId),
-                    ability, state, entityId, playerId, context.targetUtils
+                    ability, state, entityId, playerId, context.targetUtils,
+                    predicateEvaluator = predicateEvaluator
                 )
                 val displayDescription = AbilityCostReduction.describe(ability, effectiveCost)
 

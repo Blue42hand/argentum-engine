@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.core.ActivateAbility
@@ -258,7 +259,7 @@ class ShimmerwildsGrowthTest : FunSpec({
         val decision = driver.pendingDecision as ChooseColorDecision
         driver.submitDecision(activePlayer, ColorChosenResponse(decision.id, Color.BLUE))
 
-        val view = ClientStateTransformer(cardRegistry = driver.cardRegistry)
+        val view = ClientStateTransformer(cardRegistry = driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(driver.state, viewingPlayerId = activePlayer)
 
         // The land carries the chosen color so the client can render a pip on it.

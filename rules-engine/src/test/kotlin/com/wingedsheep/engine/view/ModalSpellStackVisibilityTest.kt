@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.view
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -49,7 +50,7 @@ class ModalSpellStackVisibilityTest : FunSpec({
     }
 
     fun transformer(d: GameTestDriver): ClientStateTransformer =
-        ClientStateTransformer(cardRegistry = d.cardRegistry)
+        ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     fun nameOf(d: GameTestDriver, id: EntityId): String? =
         d.state.getEntity(id)?.get<CardComponent>()?.name

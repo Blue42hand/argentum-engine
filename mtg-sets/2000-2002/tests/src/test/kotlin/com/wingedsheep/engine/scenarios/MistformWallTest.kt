@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.OptionChosenResponse
-import com.wingedsheep.engine.core.TurnManager
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -14,7 +13,6 @@ import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureTypeEffect
@@ -219,9 +217,7 @@ class MistformWallTest : FunSpec({
         projected.getSubtypes(wall) shouldBe setOf("Goblin")
     }
 
-    val turnManager = com.wingedsheep.engine.registry.CardRegistry().let {
-        TurnManager(com.wingedsheep.engine.handlers.effects.ZoneTransitionService(it), cardRegistry = it)
-    }
+    val turnManager = com.wingedsheep.engine.core.EngineServices(com.wingedsheep.engine.registry.CardRegistry()).turnManager
 
     test("not a valid attacker while still a Wall (has defender)") {
         val driver = createDriver()

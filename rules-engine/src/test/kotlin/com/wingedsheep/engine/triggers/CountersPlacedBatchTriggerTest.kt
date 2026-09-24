@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.triggers
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.event.TriggerDetector
 import com.wingedsheep.engine.support.GameTestDriver
@@ -150,7 +151,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
 
     /** The pending triggers whose ability is the batched (or per-permanent) counter observer. */
     fun countersTriggersOf(driver: GameTestDriver, events: List<CountersAddedEvent>, sourceId: EntityId) =
-        TriggerDetector(driver.cardRegistry)
+        TriggerDetector(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null), conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
             .detectTriggers(driver.state, events)
             .filter { it.ability.trigger is EventPattern.CountersPlacedEvent && it.sourceId == sourceId }
 

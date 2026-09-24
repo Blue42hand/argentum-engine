@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.core
 
+import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.drawing.DrawCardsExecutor
@@ -33,13 +34,14 @@ class DrawPhaseManager(
     private val cardRegistry: CardRegistry,
     @Suppress("unused") private val decisionHandler: DecisionHandler,
     effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)?,
-    replacementProcessor: ReplacementEffectProcessor = ReplacementEffectProcessor()
+    replacementProcessor: ReplacementEffectProcessor,
+    private val amountEvaluator: DynamicAmountEvaluator
 ) {
-
     private val drawExecutor = DrawCardsExecutor(
         cardRegistry = cardRegistry,
         effectExecutor = effectExecutor,
-        replacementProcessor = replacementProcessor
+        replacementProcessor = replacementProcessor,
+        amountEvaluator = amountEvaluator
     )
 
     /**

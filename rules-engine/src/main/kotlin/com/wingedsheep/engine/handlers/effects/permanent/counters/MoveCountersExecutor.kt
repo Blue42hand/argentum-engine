@@ -28,7 +28,9 @@ import kotlin.reflect.KClass
  * No-op when source/destination is missing, they're the same permanent, the amount resolves to
  * <= 0, or the source has none of [counterType].
  */
-class MoveCountersExecutor : EffectExecutor<MoveCountersEffect> {
+class MoveCountersExecutor(
+    private val amountEvaluator: DynamicAmountEvaluator
+) : EffectExecutor<MoveCountersEffect> {
 
     override val effectType: KClass<MoveCountersEffect> = MoveCountersEffect::class
 
@@ -45,7 +47,7 @@ class MoveCountersExecutor : EffectExecutor<MoveCountersEffect> {
 
         val counterType = effect.counterType
 
-        val requested = DynamicAmountEvaluator().evaluate(state, effect.amount, context)
+        val requested = amountEvaluator.evaluate(state, effect.amount, context)
         if (requested <= 0) return EffectResult.success(state, emptyList())
 
         val sourceCounters = state.getEntity(sourceId)?.get<CountersComponent>() ?: CountersComponent()
@@ -64,7 +66,8 @@ class MoveCountersExecutor : EffectExecutor<MoveCountersEffect> {
 
         // Adding to the destination honors counter-placement replacement effects (Hardened Scales).
         val placedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-            afterRemoval, destinationId, counterType, moveCount, placerId = context.controllerId
+            afterRemoval, destinationId, counterType, moveCount, placerId = context.controllerId,
+            predicateEvaluator = amountEvaluator.predicates
         )
         val destCounters = afterRemoval.getEntity(destinationId)?.get<CountersComponent>() ?: CountersComponent()
         val firstThisTurn = DamageUtils.isFirstCounterThisTurn(afterRemoval, destinationId)

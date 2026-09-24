@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
  * continuation resumer that carries it on after each answer.
  */
 class RemoveAnyNumberOfCountersExecutor(
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<RemoveAnyNumberOfCountersEffect> {
 
     override val effectType: KClass<RemoveAnyNumberOfCountersEffect> = RemoveAnyNumberOfCountersEffect::class

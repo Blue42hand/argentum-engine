@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.ChooseColorDecision
 import com.wingedsheep.engine.core.ColorChosenResponse
@@ -142,7 +143,7 @@ private fun GameTestDriver.drainDecisionsChoosingRed(player: EntityId) {
 
 /** The client-facing legal-action payload for casting [cardId], or null when not offered. */
 private fun GameTestDriver.legalActionInfoFor(playerId: EntityId, cardId: EntityId) =
-    LegalActionEnricher(ManaSolver(cardRegistry), cardRegistry)
+    LegalActionEnricher(ManaSolver(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)), cardRegistry)
         .enrich(
             LegalActionEnumerator.create(cardRegistry).enumerate(state, playerId, EnumerationMode.FULL),
             state,

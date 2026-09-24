@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ColorChosenResponse
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
@@ -96,7 +97,7 @@ class BadgermoleCubTest : FunSpec({
         // Mana sources must be activatable — summoning-sick creatures without haste are skipped.
         driver.removeSummoningSickness(elf)
 
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         // 1 from Elf + 1 bonus from Cub = 2 green available
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{G}{G}")) shouldBe true
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{G}{G}{G}")) shouldBe false

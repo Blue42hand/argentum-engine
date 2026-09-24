@@ -1,8 +1,8 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.mechanics.SneakWindow
@@ -150,7 +150,7 @@ class SneakTest : FunSpec({
             ?.get<CastChoicesComponent>()
             ?.chosen
             ?.containsKey(ChoiceSlot.SNEAK) shouldBe true
-        ConditionEvaluator().evaluate(
+        PredicateEvaluator(cardRegistry = null).conditions.evaluate(
             driver.state,
             SneakCostWasPaid,
             EffectContext(sourceId = ninjaPerm, controllerId = attacker)
@@ -253,7 +253,7 @@ class SneakTest : FunSpec({
         ninjaPerm.shouldNotBeNull()
         driver.state.getEntity(ninjaPerm)?.has<TappedComponent>() shouldBe false
         driver.state.getEntity(ninjaPerm)?.get<AttackingComponent>() shouldBe null
-        ConditionEvaluator().evaluate(
+        PredicateEvaluator(cardRegistry = null).conditions.evaluate(
             driver.state,
             SneakCostWasPaid,
             EffectContext(sourceId = ninjaPerm, controllerId = attacker)

@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.*
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.effects.EntersWithReplacements
@@ -26,8 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 class ModalAndCloneContinuationResumer(
     private val services: com.wingedsheep.engine.core.EngineServices
 ) : ContinuationResumerModule {
-
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val dynamicAmountEvaluator = services.dynamicAmountEvaluator
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(ModalContinuation::class, ::resumeModal),
@@ -298,7 +296,8 @@ class ModalAndCloneContinuationResumer(
         val count = dynamicAmountEvaluator.evaluate(state, amount, context)
         val entityName = state.getEntity(entityId)?.get<CardComponent>()?.name ?: ""
         return EntersWithReplacements.placeEntryCounters(
-            state, entityId, CounterType.PLUS_ONE_PLUS_ONE, count, controllerId, entityName
+            state, entityId, CounterType.PLUS_ONE_PLUS_ONE, count, controllerId, entityName,
+            predicateEvaluator = services.predicateEvaluator
         )
     }
 
@@ -612,7 +611,7 @@ class ModalAndCloneContinuationResumer(
             if (modeId != null) {
                 val nm = newState.getEntity(spellId)?.get<CardComponent>()?.name ?: "Unknown"
                 val (rs, re) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                    .applyGrantedRiotBranch(newState, spellId, controllerId, modeId, nm)
+                    .applyGrantedRiotBranch(newState, spellId, controllerId, modeId, nm, predicateEvaluator = services.predicateEvaluator)
                 newState = rs
                 syntheticRiotEvents.addAll(re)
             }
@@ -800,7 +799,7 @@ class ModalAndCloneContinuationResumer(
             if (modeId != null) {
                 val nm = newState.getEntity(entityId)?.get<CardComponent>()?.name ?: "Unknown"
                 val (rs, re) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                    .applyGrantedRiotBranch(newState, entityId, continuation.controllerId, modeId, nm)
+                    .applyGrantedRiotBranch(newState, entityId, continuation.controllerId, modeId, nm, predicateEvaluator = services.predicateEvaluator)
                 newState = rs
                 syntheticRiotEvents.addAll(re)
             }
@@ -1119,6 +1118,7 @@ class ModalAndCloneContinuationResumer(
                 counterCount,
                 continuation.controllerId,
                 newState.getEntity(continuation.spellId)?.get<CardComponent>()?.name ?: "",
+                predicateEvaluator = services.predicateEvaluator
             )
             newState = counterState
             events.addAll(counterEvents)
@@ -1288,6 +1288,7 @@ class ModalAndCloneContinuationResumer(
                 services.cardRegistry
             ),
             devourCounters = response.selectedCards.size * continuation.multiplier,
+            predicateEvaluator = services.predicateEvaluator
         ).toExecutionResult()
 
         // The mint can pause again (a devour creature that also has an as-enters choice); carry the
@@ -1374,7 +1375,8 @@ class ModalAndCloneContinuationResumer(
         val staticAbilityHandler = com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry)
         val result = com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfChosenPermanentExecutor.createTokenCopy(
             state, chosenId, continuation.controllerId,
-            staticAbilityHandler, services.cardRegistry
+            staticAbilityHandler, services.cardRegistry,
+            predicateEvaluator = services.predicateEvaluator
         ).toExecutionResult()
         if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, result.events.toList())
@@ -1406,6 +1408,8 @@ class ModalAndCloneContinuationResumer(
         val executor = com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfTargetExecutor(
             staticAbilityHandler = com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry),
             cardRegistry = services.cardRegistry,
+            amountEvaluator = dynamicAmountEvaluator,
+            targetFinder = services.targetFinder
         )
         val created = executor.createTokens(
             state = state,
@@ -1443,6 +1447,7 @@ class ModalAndCloneContinuationResumer(
             controllerId = continuation.controllerId,
             remaining = remaining,
             cardRegistry = services.cardRegistry,
+            targetFinder = services.targetFinder
         )
         val events = created.events.toList() + next.events.toList()
         if (next.pendingDecision == null) return checkForMore(next.state, events)

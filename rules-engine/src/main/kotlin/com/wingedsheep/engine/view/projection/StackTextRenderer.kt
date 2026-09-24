@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.view.projection
 
 import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.effects.composite.asConditional
@@ -37,7 +36,7 @@ import com.wingedsheep.sdk.scripting.targets.resolveSelfNoun
  */
 internal class StackTextRenderer(
     private val conditionEvaluator: ConditionEvaluator,
-    private val visibility: Visibility,
+    private val visibility: Visibility
 ) {
 
     /**
@@ -62,7 +61,7 @@ internal class StackTextRenderer(
         }
 
         return try {
-            val evaluator = DynamicAmountEvaluator()
+            val evaluator = conditionEvaluator.amounts
             val chosenTargets = state.getEntity(spellEntityId)
                 ?.get<TargetsComponent>()
                 ?.targets
@@ -161,7 +160,7 @@ internal class StackTextRenderer(
         chosenModes: List<Int>,
         context: EffectContext
     ): List<String> {
-        val evaluator = DynamicAmountEvaluator()
+        val evaluator = conditionEvaluator.amounts
         return chosenModes.map { modeIndex ->
             val mode = modal.modes.getOrNull(modeIndex) ?: return@map "Unknown mode"
             try {
@@ -309,7 +308,7 @@ internal class StackTextRenderer(
 
     private fun runtimeAbilityText(state: GameState, effect: Effect, context: EffectContext): String? {
         return try {
-            val evaluator = DynamicAmountEvaluator()
+            val evaluator = conditionEvaluator.amounts
             val text = effect.runtimeDescription { amount -> evaluator.evaluateForDisplay(state, amount, context) }
             // Only return if it differs from static description (i.e., dynamic amounts were resolved)
             if (text != effect.description) text else null

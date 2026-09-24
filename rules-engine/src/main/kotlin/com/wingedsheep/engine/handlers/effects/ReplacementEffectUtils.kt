@@ -19,8 +19,6 @@ import com.wingedsheep.sdk.scripting.events.Recipient
  */
 object ReplacementEffectUtils {
 
-    private val predicateEvaluator = PredicateEvaluator()
-
     /**
      * Check if extra turns are prevented by any PreventExtraTurns replacement effect
      * on the battlefield (e.g., Ugin's Nexus).
@@ -57,7 +55,8 @@ object ReplacementEffectUtils {
         targetId: EntityId,
         counterType: CounterType,
         count: Int,
-        placerId: EntityId? = null
+        placerId: EntityId? = null,
+        predicateEvaluator: PredicateEvaluator
     ): Int {
         if (count <= 0) return count
 
@@ -88,7 +87,8 @@ object ReplacementEffectUtils {
 
                 // Check recipient filter
                 val recipientMatches = matchesRecipient(
-                    counterEvent.recipient, state, targetId, entityId, sourceControllerId
+                    counterEvent.recipient, state, targetId, entityId, sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!recipientMatches) continue
 
@@ -110,7 +110,8 @@ object ReplacementEffectUtils {
             // No battlefield source entity — pass the controller as the "source entity" so
             // Recipient.Self can't spuriously match, and the controller as controllerId.
             val recipientMatches = matchesRecipient(
-                modifier.recipient, state, targetId, modifier.controllerId, modifier.controllerId
+                modifier.recipient, state, targetId, modifier.controllerId, modifier.controllerId,
+                predicateEvaluator = predicateEvaluator
             )
             if (!recipientMatches) continue
             modifiedCount += modifier.modifier
@@ -129,7 +130,8 @@ object ReplacementEffectUtils {
         state: GameState,
         targetId: EntityId,
         sourceEntityId: EntityId,
-        sourceControllerId: EntityId
+        sourceControllerId: EntityId,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean = predicateEvaluator.matchesRecipient(
         state, state.projectedState, targetId, recipient,
         PredicateContext(controllerId = sourceControllerId, sourceId = sourceEntityId),

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.legalactions.ActionEnumerator
@@ -55,7 +56,9 @@ import com.wingedsheep.engine.mechanics.mana.spellPaymentContextFor
  * self-alternative costs, convoke, delve, X costs, modal spells,
  * targeting, auto-select player targets, and kicker.
  */
-class CastSpellEnumerator : ActionEnumerator {
+class CastSpellEnumerator(
+    private val predicateEvaluator: PredicateEvaluator
+) : ActionEnumerator {
 
     companion object {
         /**
@@ -2005,11 +2008,11 @@ class CastSpellEnumerator : ActionEnumerator {
                         // `additionalCostPayment.variableCostPermanents`.
                         is CostAtom.VariablePermanents -> {
                             val projected = state.projectedState
-                            val candidates = VariablePermanentsCost.candidates(state, playerId, atom)
+                            val candidates = VariablePermanentsCost.candidates(state, playerId, atom, predicateEvaluator = predicateEvaluator)
                             // The cost info is published even when the threshold is out of
                             // reach, so the greyed-out variant still tells the player what
                             // teamwork would ask for; affordability is the separate flag.
-                            canPayKickerAdditionalCost = VariablePermanentsCost.canPay(state, playerId, atom)
+                            canPayKickerAdditionalCost = VariablePermanentsCost.canPay(state, playerId, atom, predicateEvaluator = predicateEvaluator)
                             kickerCostInfo = AdditionalCostData(
                                 description = atom.description.replaceFirstChar { it.uppercase() },
                                 costType = "TapForTotalPower",
@@ -2425,7 +2428,7 @@ class CastSpellEnumerator : ActionEnumerator {
             val known = com.wingedsheep.engine.handlers.costs.CostAtomAmounts
                 .evaluate(state, collectEvidenceCost.amount)
             val candidates = com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
-                .candidates(state, payerId, excludeCardId = castCardId)
+                .candidates(state, payerId, excludeCardId = castCardId, predicateEvaluator = predicateEvaluator)
             return com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
                 .costInfo(candidates, known)
                 ?.let { info ->

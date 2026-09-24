@@ -39,8 +39,10 @@ private val CARD_TYPE_NAMES: Set<String> = CardType.entries.mapTo(mutableSetOf()
  *
  * Uses PredicateEvaluator to match unified filters against game state.
  */
-class TargetValidator {
-    private val predicateEvaluator = PredicateEvaluator()
+class TargetValidator(
+    private val predicateEvaluator: PredicateEvaluator
+) {
+    private val amountEvaluator: DynamicAmountEvaluator = predicateEvaluator.amounts
 
     /**
      * Validate all targets for a spell/ability against their requirements.
@@ -99,7 +101,7 @@ class TargetValidator {
                             controllerId = casterId,
                             xValue = xValue
                         )
-                        DynamicAmountEvaluator().evaluate(state, dyn, context).coerceAtLeast(0)
+                        amountEvaluator.evaluate(state, dyn, context).coerceAtLeast(0)
                     } catch (_: Exception) {
                         unboundedFallback
                     }
@@ -239,7 +241,7 @@ class TargetValidator {
             val totalManaCap = (requirement as? TargetObject)?.totalManaValueAtMost
             if (totalManaCap != null && targetsForReq.isNotEmpty()) {
                 val cap = try {
-                    DynamicAmountEvaluator().evaluate(
+                    amountEvaluator.evaluate(
                         state,
                         totalManaCap,
                         EffectContext(sourceId = sourceId, controllerId = casterId, xValue = xValue)
@@ -350,7 +352,7 @@ class TargetValidator {
         // Check player-level protection, e.g. The One Ring's "protection from everything" (Rule 702.16).
         // A protected player can't be the target of a source matching one of its protection scopes.
         if (target is ChosenTarget.Player &&
-            PlayerProtectionRules.isProtectedFromSource(state, target.playerId, sourceId, casterId)
+            PlayerProtectionRules.isProtectedFromSource(state, target.playerId, sourceId, casterId, predicateEvaluator = predicateEvaluator)
         ) {
             return "Target player has protection from this source"
         }
@@ -505,7 +507,7 @@ class TargetValidator {
             return "$cardName has shroud"
         }
         if (projected.hasKeyword(entityId, Keyword.HEXPROOF) && entityController != casterId &&
-            !HexproofSuppression.isSuppressedForCaster(state, projected, entityId, casterId)
+            !HexproofSuppression.isSuppressedForCaster(state, projected, entityId, casterId, predicateEvaluator = predicateEvaluator)
         ) {
             val cardName = state.getEntity(entityId)?.get<CardComponent>()?.name ?: "target"
             return "$cardName has hexproof"
@@ -564,7 +566,7 @@ class TargetValidator {
         if (entityController == casterId) return null
 
         val projected = state.projectedState
-        val hexproofSuppressed = HexproofSuppression.isSuppressedForCaster(state, projected, entityId, casterId)
+        val hexproofSuppressed = HexproofSuppression.isSuppressedForCaster(state, projected, entityId, casterId, predicateEvaluator = predicateEvaluator)
         if (!hexproofSuppressed) {
             for (color in sourceColors) {
                 if (projected.hasKeyword(entityId, "HEXPROOF_FROM_${color.name}")) {
@@ -613,7 +615,7 @@ class TargetValidator {
         if (entityController == casterId) return null
 
         val projected = state.projectedState
-        if (HexproofSuppression.isSuppressedForCaster(state, projected, entityId, casterId)) return null
+        if (HexproofSuppression.isSuppressedForCaster(state, projected, entityId, casterId, predicateEvaluator = predicateEvaluator)) return null
 
         for (cardType in SourceTypeTargeting.sourceCardTypes(state, sourceId)) {
             if (projected.hasKeyword(entityId, "HEXPROOF_FROM_CARDTYPE_${cardType.uppercase()}")) {
@@ -745,7 +747,7 @@ class TargetValidator {
         }
         // CR 608.2b: a target illegal at resolution is removed. Re-checking the restriction
         // here covers both cast-time validation and the resolution-time re-validation.
-        if (!PlayerTargetRestriction.isSatisfied(state, requirement.restriction, target.playerId, casterId, sourceId)) {
+        if (!PlayerTargetRestriction.isSatisfied(state, requirement.restriction, target.playerId, casterId, sourceId, predicateEvaluator = predicateEvaluator)) {
             return "Target player does not match: ${requirement.description}"
         }
         return null
@@ -773,7 +775,7 @@ class TargetValidator {
         if (playerHasHexproof(state, target.playerId)) {
             return "Target player has hexproof"
         }
-        if (!PlayerTargetRestriction.isSatisfied(state, requirement.restriction, target.playerId, casterId, sourceId)) {
+        if (!PlayerTargetRestriction.isSatisfied(state, requirement.restriction, target.playerId, casterId, sourceId, predicateEvaluator = predicateEvaluator)) {
             return "Target player does not match: ${requirement.description}"
         }
         return null
@@ -1113,10 +1115,10 @@ class TargetValidator {
      * or Gilded Light's "You gain shroud until end of turn").
      */
     private fun playerHasShroud(state: GameState, playerId: EntityId): Boolean =
-        ControllerShroud.appliesTo(state, playerId)
+        ControllerShroud.appliesTo(state, playerId, predicateEvaluator = predicateEvaluator)
 
     private fun playerHasHexproof(state: GameState, playerId: EntityId): Boolean =
-        ControllerHexproof.appliesTo(state, playerId)
+        ControllerHexproof.appliesTo(state, playerId, predicateEvaluator = predicateEvaluator)
 
     private fun playerHasHexproofAgainst(state: GameState, playerId: EntityId, casterId: EntityId): Boolean {
         return playerId != casterId && playerHasHexproof(state, playerId)

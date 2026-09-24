@@ -101,7 +101,7 @@ class EnumerationContext(
             // legal-action list that offers a land drop the handler will refuse is worse than
             // either check alone.
             !com.wingedsheep.engine.legalactions.utils.LandDropUtils
-                .playerCantPlayLands(state, playerId, cardRegistry)
+                .playerCantPlayLands(state, playerId, cardRegistry, conditionEvaluator = conditionEvaluator)
     }
 
     // Whether any battlefield permanent carries a *filtered* land-play lock at all — a cheap guard
@@ -126,7 +126,7 @@ class EnumerationContext(
     fun cantPlayLand(cardId: EntityId): Boolean =
         filteredLandLockPresent &&
             com.wingedsheep.engine.legalactions.utils.LandDropUtils
-                .playerCantPlayLands(state, playerId, cardRegistry, landCardId = cardId)
+                .playerCantPlayLands(state, playerId, cardRegistry, landCardId = cardId, conditionEvaluator = conditionEvaluator)
 
     // Cast restrictions — blanket, spell-independent locks (a Silence-style CantCastSpellsComponent
     // or a RestrictSpellsCastPerTurn per-turn limit). Cached once per enumeration pass.

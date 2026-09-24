@@ -4,7 +4,6 @@ import com.wingedsheep.engine.core.engineSerializersModule
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.ObjectReferenceEnvironment
 import com.wingedsheep.engine.handlers.PipelineState
-import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.support.GameTestDriver
@@ -50,7 +49,7 @@ class DelayedIterationObjectIdentityTest : FunSpec({
                 val destination = if (sacrifice) Zone.GRAVEYARD else Zone.HAND
                 val cleanup = if (sacrifice) Effects.SacrificeTarget(EffectTarget.IterationEntity)
                     else Effects.ReturnToHand(EffectTarget.IterationEntity)
-                val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
+                val result = d.services.effectExecutorRegistry.execute(d.state,
                     ForEachInCollectionEffect("cleanup", CreateDelayedTriggerEffect(step = Step.END, effect = cleanup)),
                     EffectContext(sourceId = source, controllerId = d.player1,
                         objectReferences = ObjectReferenceEnvironment(captured = true,

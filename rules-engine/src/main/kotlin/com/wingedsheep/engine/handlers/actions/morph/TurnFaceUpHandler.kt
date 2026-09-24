@@ -469,7 +469,7 @@ class TurnFaceUpHandler(
                 services.costCalculator,
                 services.effectExecutorRegistry,
                 services.manaAbilitySideEffectExecutor,
-                CostPaymentService(services)
+                services.costPaymentService
             )
         }
     }

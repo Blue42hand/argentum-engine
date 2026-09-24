@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.mechanics.layers.StateProjector
@@ -128,7 +129,7 @@ class LavaleaperTest : FunSpec({
         driver.putCreatureOnBattlefield(activePlayer, "Lavaleaper")
         driver.putPermanentOnBattlefield(activePlayer, "Mountain")
 
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         // 1 Mountain + bonus = 2R total
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{R}{R}")) shouldBe true
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{R}{R}{R}")) shouldBe false

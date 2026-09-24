@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
@@ -102,7 +103,7 @@ class SteelswarmOperatorTest : FunSpec({
 
         // Steelswarm is the only source. Both abilities restrict to artifact contexts;
         // a non-artifact creature spell should report unaffordable.
-        val solver = ManaSolver(driver.cardRegistry)
+        val solver = ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val cost = ManaCost.parse("{U}")
         val creatureSpellContext = SpellPaymentContext(
             isCreature = true,
@@ -175,7 +176,7 @@ class SteelswarmOperatorTest : FunSpec({
 
         driver.putPermanentOnBattlefield(caster, "Steelswarm Operator")
 
-        val solver = ManaSolver(driver.cardRegistry)
+        val solver = ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val cost = ManaCost.parse("{U}")
         val abilityContext = SpellPaymentContext(
             isAbilityActivation = true,

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.engine.mechanics.layers.imageOverrideFor
 import com.wingedsheep.engine.support.GameTestDriver
@@ -104,7 +105,7 @@ class FractalizeScenarioTest : FunSpec({
         driver.state.imageOverrideFor(courser) shouldBe fractalArt
 
         // It surfaces on the client DTO as the rendered image (overriding the creature's own art).
-        val transformer = ClientStateTransformer(cardRegistry = driver.cardRegistry)
+        val transformer = ClientStateTransformer(cardRegistry = driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         transformer.transform(driver.state, viewingPlayerId = p).cards[courser]?.imageUri shouldBe fractalArt
 
         // Advancing into the next turn runs this turn's cleanup, which removes the EndOfTurn

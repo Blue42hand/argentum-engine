@@ -27,8 +27,13 @@ import com.wingedsheep.sdk.scripting.targets.*
 /**
  * Removes a spell or ability from the stack without resolving it: countering (CR 701.6) — to the
  * graveyard, to hand, or to exile — and exiling a spell outright, which is not a counter.
+ *
+ * One instance per engine ([com.wingedsheep.engine.core.EngineServices.spellCounterer]), shared by
+ * the [StackResolver] façade and the counter / exile-a-spell executors. It needs nothing from the
+ * resolution machinery, which is what lets an executor counter a spell without reaching for a
+ * whole [StackResolver] — and the effect handler that comes with it.
  */
-internal class SpellCounterer(
+class SpellCounterer(
     private val cardRegistry: CardRegistry,
     private val predicateEvaluator: PredicateEvaluator
 ) {
@@ -100,7 +105,7 @@ internal class SpellCounterer(
             com.wingedsheep.engine.handlers.effects.ZoneChangeRedirectResult(riderOnCounter.zone)
         } else {
             com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                .checkZoneChangeRedirect(state, spellId, Zone.STACK, Zone.GRAVEYARD)
+                .checkZoneChangeRedirect(state, spellId, Zone.STACK, Zone.GRAVEYARD, predicateEvaluator = predicateEvaluator)
         }
         val destZone = counterRedirect.destinationZone
         val destZoneKey = ZoneKey(ownerId, destZone)

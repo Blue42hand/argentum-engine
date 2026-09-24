@@ -51,7 +51,7 @@ import kotlin.reflect.KClass
  * Supports both fixed and dynamic counts via [DynamicAmountEvaluator].
  */
 class CreateTokenExecutor(
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val amountEvaluator: DynamicAmountEvaluator,
     private val staticAbilityHandler: StaticAbilityHandler? = null,
     private val cardRegistry: CardRegistry? = null,
     private val tokenArtRegistry: TokenArtRegistry? = null
@@ -138,7 +138,8 @@ class CreateTokenExecutor(
         // Apply token-count replacements (Doubling Season / Exalted Sunborn,
         // and per-N modifiers) before downstream replacements get a look.
         val requestedCount = if (substituted) baseCount else TokenCreationReplacementHelper.applyCountReplacements(
-            state, tokenControllerId, baseCount
+            state, tokenControllerId, baseCount,
+            predicateEvaluator = amountEvaluator.predicates
         )
         if (requestedCount <= 0) return EffectResult.success(state)
 
@@ -149,7 +150,8 @@ class CreateTokenExecutor(
 
         // Check for token creation replacement effects (e.g., Mirrormind Crown)
         val replacementResult = TokenCreationReplacementHelper.checkReplacement(
-            state, effect, context, count, tokenControllerId, cardRegistry, staticAbilityHandler
+            state, effect, context, count, tokenControllerId, cardRegistry, staticAbilityHandler,
+            predicateEvaluator = amountEvaluator.predicates
         )
         if (replacementResult != null) return replacementResult
 
@@ -197,7 +199,7 @@ class CreateTokenExecutor(
                 colors = effectiveColors,
                 ownerId = tokenControllerId
             )
-            TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective)
+            TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective, predicateEvaluator = amountEvaluator.predicates)
                 ?.let { return createSubstituteTokens(state, it, context, count, tokenControllerId) }
         }
 
@@ -318,6 +320,7 @@ class CreateTokenExecutor(
             newState = EnterTappedReplacements.applyCreatedTokenEntryTap(
                 newState, tokenId, tokenControllerId,
                 definedTapped = effect.tapped, attacking = effect.attacking,
+                predicateEvaluator = amountEvaluator.predicates
             )
         }
 
@@ -326,7 +329,8 @@ class CreateTokenExecutor(
         val counterEvents = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
         for (tokenId in createdTokens) {
             val (nextState, events) = EntersWithReplacements.applyGlobal(
-                newState, tokenId, tokenControllerId, cardRegistry
+                newState, tokenId, tokenControllerId, cardRegistry,
+                predicateEvaluator = amountEvaluator.predicates
             )
             newState = nextState
             counterEvents.addAll(events)
@@ -482,7 +486,7 @@ class CreateTokenExecutor(
         val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokens, effect.tapped,
-                cardRegistry, staticAbilityHandler
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates
             )
         newState = afterAdditional
 

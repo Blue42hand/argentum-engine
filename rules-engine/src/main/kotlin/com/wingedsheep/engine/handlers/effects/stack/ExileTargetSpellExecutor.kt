@@ -3,10 +3,8 @@ package com.wingedsheep.engine.handlers.effects.stack
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.bend.BendEvents
-import com.wingedsheep.engine.mechanics.stack.StackResolver
-import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.mechanics.stack.SpellCounterer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.core.BendType
@@ -18,7 +16,7 @@ import com.wingedsheep.engine.core.Outcome
 /**
  * Executor for [ExileTargetSpellEffect] (CR 718, "exile target spell" — Aven Interrupter).
  *
- * Resolves the chosen spell target and delegates to [StackResolver.exileSpell], which removes
+ * Resolves the chosen spell target and delegates to [SpellCounterer.exileSpell], which removes
  * it from the stack and puts the card into its owner's exile. This is **not** a counter: the
  * spell is exiled even if it can't be countered, and no "spell was countered" trigger fires —
  * but it still fails to resolve because it left the stack. When [ExileTargetSpellEffect.makePlotted]
@@ -30,8 +28,7 @@ import com.wingedsheep.engine.core.Outcome
  * silently rather than erroring.
  */
 class ExileTargetSpellExecutor(
-    private val zones: ZoneTransitionService,
-    private val cardRegistry: CardRegistry
+    private val counterer: SpellCounterer
 ) : EffectExecutor<ExileTargetSpellEffect> {
 
     override val effectType: KClass<ExileTargetSpellEffect> = ExileTargetSpellEffect::class
@@ -47,9 +44,8 @@ class ExileTargetSpellExecutor(
         } ?: return EffectResult.success(state)
         if (spellId !in state.stack) return EffectResult.success(state)
 
-        val resolver = StackResolver(zones, cardRegistry = cardRegistry)
         val exiled = EffectResult.from(
-            resolver.exileSpell(
+            counterer.exileSpell(
                 state,
                 spellId,
                 makePlotted = effect.makePlotted,

@@ -11,7 +11,6 @@ import com.wingedsheep.engine.mechanics.ModalDfcCasts
 import com.wingedsheep.engine.mechanics.WarpGrants
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
@@ -50,9 +49,9 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 class CastZoneResolver(
     private val cardRegistry: CardRegistry,
     private val conditionEvaluator: ConditionEvaluator,
-    private val legality: LegalityKernel,
+    private val legality: LegalityKernel
 ) {
-    private val predicateEvaluator = PredicateEvaluator()
+    private val predicateEvaluator = conditionEvaluator.predicates
 
     /**
      * Check if a card is on top of the player's library and the player controls

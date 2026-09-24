@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -110,7 +111,7 @@ class PossessedGoatScenarioTest : FunSpec({
         val possessedArt = "/images/custom/possessed-goat.jpeg"
 
         fun displayedArt() =
-            ClientStateTransformer(driver.cardRegistry)
+            ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
                 .transform(driver.state, viewingPlayerId = player)
                 .cards[goat]
                 ?.imageUri

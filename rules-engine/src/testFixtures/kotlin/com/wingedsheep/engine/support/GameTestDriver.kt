@@ -56,7 +56,8 @@ import com.wingedsheep.sdk.model.EntityId
  */
 class GameTestDriver {
     val cardRegistry: CardRegistry = CardRegistry()
-    private val services = com.wingedsheep.engine.core.EngineServices(cardRegistry)
+    /** This driver's engine graph — reach for its services instead of constructing new ones. */
+    val services = com.wingedsheep.engine.core.EngineServices(cardRegistry)
     private val processor: ActionProcessor = ActionProcessor(services)
 
     /** The engine's zone service — for tests that move a card the way an effect would. */

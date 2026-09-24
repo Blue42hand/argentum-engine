@@ -94,7 +94,7 @@ class SacrificeAndPayContinuationResumer(
 
         // If there are remaining players (from "each opponent" effects), process them
         if (continuation.remainingPlayers.isNotEmpty() && continuation.filter != null) {
-            val executor = ForceSacrificeExecutor(services.zones)
+            val executor = ForceSacrificeExecutor(services.zones, dynamicAmountEvaluator = services.dynamicAmountEvaluator)
             val result = executor.processPlayers(
                 newState, continuation.remainingPlayers, continuation.filter,
                 continuation.count, continuation.sourceId
@@ -481,7 +481,8 @@ class SacrificeAndPayContinuationResumer(
             if (!newState.projectedState.canReceiveCounters(permanentId)) continue
             val counters = container.get<CountersComponent>() ?: CountersComponent()
             val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                newState, permanentId, counterType, continuation.requiredCounters, placerId = placerId
+                newState, permanentId, counterType, continuation.requiredCounters, placerId = placerId,
+                predicateEvaluator = services.predicateEvaluator
             )
             val firstThisTurn = DamageUtils.isFirstCounterThisTurn(newState, permanentId)
             newState = newState.updateEntity(permanentId) { c ->
@@ -552,7 +553,7 @@ class SacrificeAndPayContinuationResumer(
         }
 
         val playerId = continuation.playerId
-        val count = MillAmountModifier.apply(state, playerId, continuation.requiredCount)
+        val count = MillAmountModifier.apply(state, playerId, continuation.requiredCount, predicateEvaluator = services.predicateEvaluator)
         val milled = state.getZone(ZoneKey(playerId, Zone.LIBRARY)).take(count)
         val result = services.zones.moveToZoneBatch(state, milled, Zone.GRAVEYARD)
 
@@ -627,7 +628,7 @@ class SacrificeAndPayContinuationResumer(
                     phase = DecisionPhase.RESOLUTION
                 ),
                 canDecline = true,
-                cardRegistry = services.cardRegistry
+                manaSolver = services.manaSolver
             ) },
             answer = { decision -> PayOrSufferManaSelectionContinuation(
                 inner = continuation,
@@ -904,7 +905,8 @@ class SacrificeAndPayContinuationResumer(
             state,
             cost.filter.youControl(),
             PredicateContext(controllerId = playerId),
-            excludeSelfId = if (cost.excludeSelf) sourceId else null
+            excludeSelfId = if (cost.excludeSelf) sourceId else null,
+            predicateEvaluator = services.predicateEvaluator
         )
 
     /**

@@ -2,7 +2,7 @@ package com.wingedsheep.engine.mechanics.stack
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.EffectHandler
+import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
@@ -24,11 +24,12 @@ import com.wingedsheep.sdk.scripting.targets.*
  */
 internal class PermanentSpellResolver(
     private val cardRegistry: CardRegistry,
-    private val effectHandler: EffectHandler,
+    private val effects: EffectExecutorRegistry,
     private val predicateEvaluator: PredicateEvaluator,
     private val permanentEntry: PermanentEntry,
     private val entersWithChoicePrompt: EntersWithChoicePrompt
 ) {
+    private val amountEvaluator = predicateEvaluator.amounts
     /**
      * Resolve a permanent spell - put it on the battlefield.
      * May pause for player input (e.g., Clone choosing a creature to copy).
@@ -268,7 +269,7 @@ internal class PermanentSpellResolver(
                     state, state.projectedState, cardId, exileCountersEffect.filter, predicateContext
                 )
             }
-            val maxCards = com.wingedsheep.engine.handlers.DynamicAmountEvaluator().evaluate(
+            val maxCards = amountEvaluator.evaluate(
                 state,
                 exileCountersEffect.maxCards,
                 EffectContext(
@@ -324,7 +325,7 @@ internal class PermanentSpellResolver(
             .filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithDevour>().firstOrNull()
         if (devourEffect != null) {
             val candidates = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
-                .devourSacrificeCandidates(state, controllerId, devourEffect, enteringId = spellId)
+                .devourSacrificeCandidates(state, controllerId, devourEffect, enteringId = spellId, predicateEvaluator = predicateEvaluator)
 
             if (candidates.isNotEmpty()) {
                 val devourLabel = devourEffect.description.substringBefore(" (")
@@ -428,7 +429,7 @@ internal class PermanentSpellResolver(
             val onEnterResult = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
                 .runOnEnterRunEffect(
                     enteredState, spellId, controllerId, cardRegistry,
-                    { s, e, ctx -> effectHandler.execute(s, e, ctx) },
+                    effects::execute,
                     xValue = spellComponent.xValue,
                 )
             if (onEnterResult != null) {

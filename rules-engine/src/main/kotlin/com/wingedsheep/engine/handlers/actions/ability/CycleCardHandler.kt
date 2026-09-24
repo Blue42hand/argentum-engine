@@ -46,9 +46,10 @@ class CycleCardHandler(
     private val manaSolver: ManaSolver,
     private val manaAbilitySideEffectExecutor: ManaAbilitySideEffectExecutor,
     private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)?,
-    private val replacementProcessor: ReplacementEffectProcessor = ReplacementEffectProcessor(),
+    private val replacementProcessor: ReplacementEffectProcessor,
     private val castPermissionUtils: com.wingedsheep.engine.legalactions.utils.CastPermissionUtils? = null
 ) : ActionHandler<CycleCard> {
+    private val amountEvaluator = zones.predicateEvaluator.amounts
     override val actionType: KClass<CycleCard> = CycleCard::class
 
     override fun validate(state: GameState, action: CycleCard): String? {
@@ -270,7 +271,8 @@ class CycleCardHandler(
         val drawExecutor = DrawCardsExecutor(
             cardRegistry = cardRegistry,
             effectExecutor = effectExecutor,
-            replacementProcessor = replacementProcessor
+            replacementProcessor = replacementProcessor,
+            amountEvaluator = amountEvaluator
         )
         val drawResult = drawExecutor.executeDraws(currentState, action.playerId, 1)
         if (drawResult.outcome is Outcome.Paused) {

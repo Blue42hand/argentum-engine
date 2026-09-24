@@ -450,7 +450,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
             val game = build("Hill Giant")
             val bear = game.findPermanent("Grizzly Bears")!!
             val context = EffectContext(sourceId = bear, controllerId = game.player1Id)
-            val executor = SetBaseStatsExecutor()
+            val executor = SetBaseStatsExecutor(amountEvaluator = services.dynamicAmountEvaluator)
 
             withClue("snapshot mode still accepts it — it is evaluated here, against a real context") {
                 val snapshot = Effects.SetBasePower(

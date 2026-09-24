@@ -5,9 +5,7 @@ import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-import com.wingedsheep.engine.mechanics.stack.StackResolver
-import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.mechanics.stack.StackPlacement
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CantBeCopiedComponent
@@ -42,16 +40,14 @@ import kotlin.reflect.KClass
  * copies at all.
  */
 class CopyTargetSpellOrAbilityExecutor(
-    private val zones: ZoneTransitionService,
-    private val cardRegistry: CardRegistry,
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val dynamicAmountEvaluator: DynamicAmountEvaluator,
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<CopyTargetSpellOrAbilityEffect> {
 
     override val effectType: KClass<CopyTargetSpellOrAbilityEffect> =
         CopyTargetSpellOrAbilityEffect::class
 
-    private val spellExecutor = CopyTargetSpellExecutor(zones, cardRegistry, targetFinder)
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val spellExecutor = CopyTargetSpellExecutor(dynamicAmountEvaluator, targetFinder)
 
     override fun execute(
         state: GameState,
@@ -79,7 +75,6 @@ class CopyTargetSpellOrAbilityExecutor(
                 EffectResult.from(
                     driveAbilityCopies(
                         state = state,
-                        stackResolver = StackResolver(zones, cardRegistry = cardRegistry),
                         targetFinder = targetFinder,
                         abilityEntityId = targetId,
                         controllerId = context.controllerId,
@@ -117,7 +112,6 @@ class CopyTargetSpellOrAbilityExecutor(
          */
         fun driveAbilityCopies(
             state: GameState,
-            stackResolver: StackResolver,
             targetFinder: TargetFinder,
             abilityEntityId: EntityId,
             controllerId: EntityId,
@@ -139,7 +133,7 @@ class CopyTargetSpellOrAbilityExecutor(
                 // No targets — clone and push directly (CR: any ability may be copied, not just
                 // targeted ones).
                 if (targetRequirements.isEmpty()) {
-                    val push = cloneAndPush(currentState, stackResolver, abilityEntityId, controllerId)
+                    val push = cloneAndPush(currentState, abilityEntityId, controllerId)
                     if (push.outcome !is Outcome.Done) return push
                     currentState = push.newState
                     allEvents.addAll(push.events)
@@ -160,7 +154,7 @@ class CopyTargetSpellOrAbilityExecutor(
                 if (legalTargetsMap.any { (_, targets) -> targets.isEmpty() }) {
                     val inherited = container.get<TargetsComponent>()?.targets ?: emptyList()
                     val push = cloneAndPush(
-                        currentState, stackResolver, abilityEntityId, controllerId,
+                        currentState, abilityEntityId, controllerId,
                         inherited, targetRequirements
                     )
                     if (push.outcome !is Outcome.Done) return push
@@ -211,7 +205,6 @@ class CopyTargetSpellOrAbilityExecutor(
          */
         fun cloneAndPush(
             state: GameState,
-            stackResolver: StackResolver,
             abilityEntityId: EntityId,
             controllerId: EntityId,
             targets: List<ChosenTarget> = emptyList(),
@@ -222,7 +215,7 @@ class CopyTargetSpellOrAbilityExecutor(
 
             container.get<TriggeredAbilityOnStackComponent>()?.let { triggered ->
                 val copy = CopyTargetTriggeredAbilityExecutor.cloneAbility(triggered, controllerId)
-                return stackResolver.putTriggeredAbility(state, copy, targets, targetRequirements)
+                return StackPlacement.putTriggeredAbility(state, copy, targets, targetRequirements)
             }
 
             val activated = container.get<ActivatedAbilityOnStackComponent>()
@@ -231,7 +224,7 @@ class CopyTargetSpellOrAbilityExecutor(
             // isn't "activated", so suppress the AbilityActivatedEvent (it would re-fire "whenever
             // you activate an ability" triggers off the copy).
             val copy = activated.copy(controllerId = controllerId)
-            return stackResolver.putActivatedAbility(
+            return StackPlacement.putActivatedAbility(
                 state, copy, targets, targetRequirements, emitActivationEvent = false
             )
         }

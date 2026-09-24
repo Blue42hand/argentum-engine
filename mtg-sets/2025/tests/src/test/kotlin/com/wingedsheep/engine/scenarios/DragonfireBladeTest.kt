@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.mechanics.targeting.TargetValidator
@@ -128,7 +129,7 @@ class DragonfireBladeTest : FunSpec({
         ).outcome shouldBe Outcome.Done
         driver.bothPass()
 
-        val validator = TargetValidator()
+        val validator = TargetValidator(PredicateEvaluator(cardRegistry = null))
         val target = listOf<ChosenTarget>(ChosenTarget.Permanent(beast))
         val req = listOf(TargetCreature())
 
@@ -157,7 +158,7 @@ class DragonfireBladeTest : FunSpec({
         ).shouldBeNull()
 
         // The client DTO surfaces the quality so the FE can render the hexproof-from-monocolored chip.
-        val view = ClientStateTransformer(cardRegistry = driver.cardRegistry).transform(driver.state, viewingPlayerId = opponent)
+        val view = ClientStateTransformer(cardRegistry = driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(driver.state, viewingPlayerId = opponent)
         view.cards[beast]?.hexproofFromMonocolored shouldBe true
     }
 })

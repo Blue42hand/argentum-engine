@@ -1,5 +1,4 @@
 package com.wingedsheep.engine.handlers.effects.library
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.handlers.EffectContext
@@ -22,7 +21,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import com.wingedsheep.engine.core.Outcome
 
 class ReturnLinkedExilePipelineTest : FunSpec({
@@ -61,11 +59,8 @@ class ReturnLinkedExilePipelineTest : FunSpec({
     )
 
     fun createRegistry(): EffectExecutorRegistry {
-        val cardRegistry = com.wingedsheep.engine.registry.CardRegistry()
-        val zones = ZoneTransitionService(cardRegistry)
-        val registry = EffectExecutorRegistry(zones, cardRegistry = cardRegistry)
-        registry.registerModule(LibraryExecutors(zones, cardRegistry))
-        return registry
+        return com.wingedsheep.engine.core.EngineServices(com.wingedsheep.engine.registry.CardRegistry())
+            .effectExecutorRegistry
     }
 
     test("returnLinkedExile moves cards from exile to controller's battlefield") {

@@ -1,6 +1,5 @@
 package com.wingedsheep.engine.mechanics.combat.rules
 
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -35,14 +34,13 @@ import com.wingedsheep.sdk.scripting.filters.unified.Scope
  * badge), so what the player SEES stays in sync with what the rules let them DO.
  */
 object DefenderBypass {
-    private val conditionEvaluator = ConditionEvaluator()
-    private val predicateEvaluator = PredicateEvaluator()
 
     fun isActive(
         state: GameState,
         entityId: EntityId,
         controllerId: EntityId,
-        cardRegistry: CardRegistry
+        cardRegistry: CardRegistry,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean {
         val container = state.getEntity(entityId) ?: return false
 
@@ -57,18 +55,19 @@ object DefenderBypass {
             val selfBypass = cardDef.staticAbilities
                 .filterIsInstance<CanAttackDespiteDefender>()
                 .filter { it.filter.scope is Scope.Self }
-                .any { conditionHolds(state, it, effectContext) }
+                .any { conditionHolds(state, it, effectContext, predicateEvaluator = predicateEvaluator) }
             if (selfBypass) return true
         }
 
-        return battlefieldBypass(state, entityId, cardRegistry)
+        return battlefieldBypass(state, entityId, cardRegistry, predicateEvaluator = predicateEvaluator)
     }
 
     /** A battlefield-scoped grant on any permanent (possibly the creature itself) covers [entityId]. */
     private fun battlefieldBypass(
         state: GameState,
         entityId: EntityId,
-        cardRegistry: CardRegistry
+        cardRegistry: CardRegistry,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean {
         val projected = state.projectedState
         for (permanentId in state.getBattlefield()) {
@@ -85,7 +84,7 @@ object DefenderBypass {
             for (grant in grants) {
                 if (grant.filter.excludeSelf && permanentId == entityId) continue
                 if (!predicateEvaluator.matches(state, projected, entityId, grant.filter.baseFilter, predicateContext)) continue
-                if (conditionHolds(state, grant, effectContext)) return true
+                if (conditionHolds(state, grant, effectContext, predicateEvaluator = predicateEvaluator)) return true
             }
         }
         return false
@@ -94,6 +93,7 @@ object DefenderBypass {
     private fun conditionHolds(
         state: GameState,
         ability: CanAttackDespiteDefender,
-        context: EffectContext
-    ): Boolean = ability.condition?.let { conditionEvaluator.evaluate(state, it, context) } ?: true
+        context: EffectContext,
+        predicateEvaluator: PredicateEvaluator
+    ): Boolean = ability.condition?.let { predicateEvaluator.conditions.evaluate(state, it, context) } ?: true
 }

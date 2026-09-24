@@ -2,7 +2,6 @@ package com.wingedsheep.engine.view.projection
 
 import com.wingedsheep.engine.core.MaximumHandSize
 import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.*
@@ -27,7 +26,7 @@ internal class PlayerProjector(
 ) {
     // Reused (with conditionEvaluator + cardRegistry) to surface each player's effective maximum
     // hand size via the shared com.wingedsheep.engine.core.MaximumHandSize source of truth.
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator(conditionEvaluator)
+    private val dynamicAmountEvaluator = conditionEvaluator.amounts
 
     fun project(state: GameState, playerId: EntityId): ClientPlayer {
         val container = state.getEntity(playerId)

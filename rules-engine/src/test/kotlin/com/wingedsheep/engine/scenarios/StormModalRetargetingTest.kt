@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.Suspension
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.StormCopyModalTargetContinuation
@@ -39,7 +40,7 @@ import com.wingedsheep.engine.core.Outcome
  * per-mode targets.
  */
 class StormModalRetargetingTest : FunSpec({
-    val zones = ZoneTransitionService(CardRegistry())
+    val zones = ZoneTransitionService(CardRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     fun buildState(
         p1: EntityId,
@@ -91,11 +92,7 @@ class StormModalRetargetingTest : FunSpec({
             )
         )
 
-        val executor = StormCopyEffectExecutor(
-            zones,
-            cardRegistry = CardRegistry(),
-            targetFinder = TargetFinder()
-        )
+        val executor = StormCopyEffectExecutor(targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null)))
         val result = executor.execute(
             buildState(p1, p2, spellEntity, source),
             StormCopyEffect(
@@ -133,11 +130,7 @@ class StormModalRetargetingTest : FunSpec({
             modeTargetRequirements = mapOf(0 to emptyList(), 1 to emptyList())
         )
 
-        val executor = StormCopyEffectExecutor(
-            zones,
-            cardRegistry = CardRegistry(),
-            targetFinder = TargetFinder()
-        )
+        val executor = StormCopyEffectExecutor(targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null)))
         val result = executor.execute(
             buildState(p1, p2, spellEntity, source),
             StormCopyEffect(

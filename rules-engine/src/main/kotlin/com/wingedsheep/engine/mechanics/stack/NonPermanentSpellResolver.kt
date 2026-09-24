@@ -2,7 +2,7 @@ package com.wingedsheep.engine.mechanics.stack
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.EffectHandler
+import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
@@ -39,16 +39,15 @@ import com.wingedsheep.sdk.scripting.targets.*
 internal class NonPermanentSpellResolver(
     private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
-    private val effectHandler: EffectHandler,
-    private val predicateEvaluator: PredicateEvaluator
+    private val effects: EffectExecutorRegistry,
+    private val predicateEvaluator: PredicateEvaluator,
+    private val spliceTargetValidator: TargetValidator
 ) {
     /**
      * Re-validates a spliced card's own targets as the spell resolves (CR 608.2b via 702.47d): the
      * spliced text is skipped when its targets have become illegal, exactly as a modal spell's
      * pre-chosen mode is.
      */
-    private val spliceTargetValidator = TargetValidator()
-
     /**
      * The spliced text of [spellComponent]'s spell as a drain queue (CR 702.47b) — one entry per
      * spliced card, in the caster's chosen order, each carrying its own target slice and requirements.
@@ -286,7 +285,7 @@ internal class NonPermanentSpellResolver(
             )
         } else newState
 
-        var effectResult = effectHandler.execute(stateForMainEffect, spellEffect, context)
+        var effectResult = effects.execute(stateForMainEffect, spellEffect, context)
 
         // Main spell done and nothing paused — pop the pre-pushed frame and run the spliced text
         // inline, so the whole resolution stays one ExecutionResult.
@@ -303,7 +302,7 @@ internal class NonPermanentSpellResolver(
                     triggeringEntityId = null,
                     objectReferences = context.objectReferences.authorize(effectResult.events)
                 ),
-                effectExecutor = { s, e, c -> effectHandler.execute(s, e, c) },
+                effectExecutor = effects::execute,
                 targetValidator = spliceTargetValidator,
                 accumulatedEvents = effectResult.events
             )
@@ -367,7 +366,8 @@ internal class NonPermanentSpellResolver(
         // Apply RedirectZoneChange replacement effects (e.g., Festival of Embers
         // exiles cards that would go to your graveyard from anywhere).
         val redirect = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.checkZoneChangeRedirect(
-            newState, spellId, Zone.STACK, intendedDestination
+            newState, spellId, Zone.STACK, intendedDestination,
+            predicateEvaluator = predicateEvaluator
         )
         val destinationZone = redirect.destinationZone
         val destZoneKey = ZoneKey(ownerId, destinationZone)

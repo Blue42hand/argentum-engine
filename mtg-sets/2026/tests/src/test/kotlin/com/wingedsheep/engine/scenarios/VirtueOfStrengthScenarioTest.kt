@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
@@ -130,7 +131,7 @@ class VirtueOfStrengthScenarioTest : FunSpec({
 
         driver.state.getEntity(player)?.get<ManaPoolComponent>()!!.green shouldBe 1
 
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         solver.canPay(driver.state, player, ManaCost.parse("{G}{G}")) shouldBe false
     }
 
@@ -162,7 +163,7 @@ class VirtueOfStrengthScenarioTest : FunSpec({
         driver.putPermanentOnBattlefield(player, "Virtue of Strength")
         driver.putPermanentOnBattlefield(player, "Forest")
 
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         solver.canPay(driver.state, player, ManaCost.parse("{G}{G}{G}")) shouldBe true
         solver.canPay(driver.state, player, ManaCost.parse("{G}{G}{G}{G}")) shouldBe false
     }

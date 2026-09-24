@@ -13,8 +13,6 @@ import com.wingedsheep.engine.core.LoyaltyChangedEvent
 import com.wingedsheep.engine.core.PermanentsSacrificedEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
-import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.engine.handlers.PredicateContext
@@ -125,10 +123,6 @@ data class ActiveDamageDoubler(
  */
 object DamageUtils {
 
-    private val predicateEvaluator = PredicateEvaluator()
-    private val conditionEvaluator = ConditionEvaluator()
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
-
     /**
      * Controller of a battlefield permanent that hosts a replacement effect, honoring
      * control-changing effects (CR 613.1b, Layer 2). The "you" / "an opponent" filters on
@@ -194,7 +188,7 @@ object DamageUtils {
 
         // Check for global "damage can't be prevented" effects (Sunspine Lynx, Leyline of Punishment)
         @Suppress("NAME_SHADOWING")
-        val cantBePrevented = cantBePrevented || isDamagePreventionDisabled(state, targetId, sourceId)
+        val cantBePrevented = cantBePrevented || isDamagePreventionDisabled(state, targetId, sourceId, predicateEvaluator = zones.predicateEvaluator)
 
         // Check for damage redirection (Glarecaster, Zealous Inquisitor). Whippoorwill's clause
         // shuts this half off too — "…or dealt instead to another permanent or player" — so a
@@ -223,7 +217,7 @@ object DamageUtils {
         // per damage event (CR 616.1), tracked via [appliedRedirects] to avoid redirect loops.
         if (!cantBePrevented && sourceId != null) {
             val (staticRedirectTo, staticRedirectSource) =
-                findStaticDamageRedirect(state, targetId, amount, sourceId, isCombatDamage, appliedRedirects)
+                findStaticDamageRedirect(state, targetId, amount, sourceId, isCombatDamage, appliedRedirects, predicateEvaluator = zones.predicateEvaluator)
             if (staticRedirectTo != null && staticRedirectSource != null) {
                 return dealDamageToTarget(
                     zones, state, staticRedirectTo, amount, sourceId, cantBePrevented, isCombatDamage,
@@ -273,7 +267,7 @@ object DamageUtils {
             // Player-level protection, e.g. The One Ring's "protection from everything" (Rule 702.16).
             // Damage from a source matching one of the player's protection scopes is prevented.
             if (com.wingedsheep.engine.mechanics.targeting.PlayerProtectionRules
-                    .isProtectedFromSource(state, targetId, sourceId, casterId = null)
+                    .isProtectedFromSource(state, targetId, sourceId, casterId = null, predicateEvaluator = zones.predicateEvaluator)
             ) {
                 return EffectResult.success(state)
             }
@@ -282,7 +276,7 @@ object DamageUtils {
         // Apply damage amplification (e.g., Gratuitous Violence - DoubleDamage). The combat flag has
         // to ride along: a doubler scoped to one damage type (The Rollercrusher Ride — noncombat
         // only) reads it to decide whether it applies.
-        var effectiveAmount = applyStaticDamageAmplification(zones.cardRegistry, state, targetId, amount, sourceId, isCombatDamage)
+        var effectiveAmount = applyStaticDamageAmplification(zones.cardRegistry, state, targetId, amount, sourceId, isCombatDamage, predicateEvaluator = zones.predicateEvaluator)
         var newState = state
 
         // Check for damage-to-counters replacement (Force Bubble)
@@ -359,12 +353,12 @@ object DamageUtils {
                 }
 
                 // Check for "prevent all damage from chosen source" shields (Samite Ministration)
-                val preventFromSourceResult = checkPreventFromSourceShield(newState, targetId, effectiveAmount, sourceId)
+                val preventFromSourceResult = checkPreventFromSourceShield(newState, targetId, effectiveAmount, sourceId, predicateEvaluator = zones.predicateEvaluator)
                 if (preventFromSourceResult != null) return preventFromSourceResult
 
                 // "Prevent all damage that would be dealt by creatures this turn" (Ethereal Haze),
                 // and the life-gaining form (Chant of Vitu-Ghazi) — gains exactly this instance.
-                val preventFromGroupResult = checkPreventFromGroupShield(newState, effectiveAmount, sourceId, isCombatDamage)
+                val preventFromGroupResult = checkPreventFromGroupShield(newState, effectiveAmount, sourceId, isCombatDamage, predicateEvaluator = zones.predicateEvaluator)
                 if (preventFromGroupResult != null) {
                     return EffectResult.success(
                         preventFromGroupResult.state,
@@ -373,7 +367,7 @@ object DamageUtils {
                 }
             }
 
-            val (shieldState, reducedAmount) = applyDamagePreventionShields(newState, targetId, effectiveAmount, sourceId = sourceId)
+            val (shieldState, reducedAmount) = applyDamagePreventionShields(newState, targetId, effectiveAmount, sourceId = sourceId, predicateEvaluator = zones.predicateEvaluator)
             newState = shieldState
             effectiveAmount = reducedAmount
         }
@@ -399,8 +393,8 @@ object DamageUtils {
             // CR 810.9 (Two-Headed Giant): damage happens to the player individually but the
             // result applies to the team's shared life total, so read/write through the resolver.
             val currentLife = newState.lifeTotal(targetId)
-            var lifeLossAmount = applyStaticLifeLossModification(newState, targetId, effectiveAmount)
-            lifeLossAmount = applyLifeLossFloors(newState, targetId, currentLife, lifeLossAmount)
+            var lifeLossAmount = applyStaticLifeLossModification(newState, targetId, effectiveAmount, predicateEvaluator = zones.predicateEvaluator)
+            lifeLossAmount = applyLifeLossFloors(newState, targetId, currentLife, lifeLossAmount, predicateEvaluator = zones.predicateEvaluator)
             val newLife = currentLife - lifeLossAmount
             newState = newState.withLifeTotal(targetId, newLife)
             newState = trackDamageReceivedByPlayer(newState, targetId, effectiveAmount, sourceId)
@@ -447,7 +441,7 @@ object DamageUtils {
             // damage on the creature. It deliberately sits outside the wither branch: wither only
             // changes the form of the damage (CR 702.80a), the damage is still dealt, so the heal
             // still fires.
-            newState = applyHealOtherDamage(newState, targetId, effectiveAmount, sourceId, isCombatDamage)
+            newState = applyHealOtherDamage(newState, targetId, effectiveAmount, sourceId, isCombatDamage, predicateEvaluator = zones.predicateEvaluator)
 
             // It's a creature - mark damage (or place -1/-1 counters if source has wither)
             val hasWither = sourceId != null && (
@@ -612,7 +606,7 @@ object DamageUtils {
                     // A spell source carries no ControllerComponent; its controller is the caster.
                     ?: newState.getEntity(sourceId)?.get<SpellOnStackComponent>()?.casterId
                 if (controllerId != null) {
-                    val (gainedState, gainEvent) = gainLife(newState, controllerId, effectiveAmount)
+                    val (gainedState, gainEvent) = gainLife(newState, controllerId, effectiveAmount, predicateEvaluator = zones.predicateEvaluator)
                     newState = gainedState
                     if (gainEvent != null) events.add(gainEvent)
                 }
@@ -762,13 +756,14 @@ object DamageUtils {
         amount: Int,
         reason: LifeChangeReason,
         applyLifeLossModification: Boolean = false,
+        predicateEvaluator: PredicateEvaluator
     ): Pair<GameState, LifeChangedEvent?> {
         // Presence guard stays per-player (every player carries a LifeTotalComponent); the value,
         // however, is the team's shared total (CR 810.9a) — read/write via the resolver.
         if (state.getEntity(playerId)?.get<LifeTotalComponent>() == null) return state to null
         val currentLife = state.lifeTotal(playerId)
         val lossAmount = if (applyLifeLossModification) {
-            applyStaticLifeLossModification(state, playerId, amount)
+            applyStaticLifeLossModification(state, playerId, amount, predicateEvaluator = predicateEvaluator)
         } else {
             amount
         }
@@ -860,10 +855,11 @@ object DamageUtils {
         playerId: EntityId,
         amount: Int,
         applyLifeGainModification: Boolean = true,
+        predicateEvaluator: PredicateEvaluator
     ): Pair<GameState, LifeChangedEvent?> {
         if (isLifeGainPrevented(state, playerId)) return state to null
         val gainAmount = if (applyLifeGainModification) {
-            LifeGainModifiers.apply(state, playerId, amount)
+            LifeGainModifiers.apply(state, playerId, amount, predicateEvaluator = predicateEvaluator)
         } else {
             amount
         }
@@ -1286,7 +1282,8 @@ object DamageUtils {
     fun isDamagePreventionDisabled(
         state: GameState,
         recipientId: EntityId? = null,
-        sourceId: EntityId? = null
+        sourceId: EntityId? = null,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean {
         // Turn-scoped "Damage can't be prevented this turn" (Fear, Fire, Foes!).
         if (state.damageCantBePreventedThisTurn) return true
@@ -1317,6 +1314,7 @@ object DamageUtils {
                 if (!damageSourceMatches(
                         state, projected, pattern.source, sourceId,
                         hostId = entityId, hostControllerId = hostControllerId, recipientId = recipient,
+                        predicateEvaluator = predicateEvaluator
                     )
                 ) {
                     continue
@@ -1324,6 +1322,7 @@ object DamageUtils {
                 if (!damageRecipientMatches(
                         state, projected, pattern.recipient, recipient,
                         hostId = entityId, hostControllerId = hostControllerId,
+                        predicateEvaluator = predicateEvaluator
                     )
                 ) {
                     continue
@@ -1350,9 +1349,10 @@ object DamageUtils {
         state: GameState,
         targetId: EntityId,
         sourceId: EntityId?,
-        isCombatDamage: Boolean
+        isCombatDamage: Boolean,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean {
-        val evaluator = PredicateEvaluator()
+        val evaluator = predicateEvaluator
         return state.floatingEffects.any { fe ->
             val mod = fe.effect.modification
             if (mod !is SerializableModification.PreventAllDamageToGroup) return@any false
@@ -1386,12 +1386,13 @@ object DamageUtils {
         targetId: EntityId,
         amount: Int,
         isCombatDamage: Boolean = false,
-        sourceId: EntityId? = null
+        sourceId: EntityId? = null,
+        predicateEvaluator: PredicateEvaluator
     ): Pair<GameState, Int> {
         // CR 615.12 — when damage can't be prevented, prevention shields aren't reduced and prevent
         // nothing. When any battlefield "damage can't be prevented" (Spider-Punk) or the "this turn"
         // one-shot (Fear, Fire, Foes!) is active, no shield applies and the damage passes through in full.
-        if (isDamagePreventionDisabled(state, targetId, sourceId)) return state to amount
+        if (isDamagePreventionDisabled(state, targetId, sourceId, predicateEvaluator = predicateEvaluator)) return state to amount
 
         var remainingDamage = amount
         val updatedEffects = state.floatingEffects.toMutableList()
@@ -1406,7 +1407,7 @@ object DamageUtils {
             return state to 0
         }
 
-        if (isPreventedByRecipientGroupShield(state, targetId, sourceId, isCombatDamage)) {
+        if (isPreventedByRecipientGroupShield(state, targetId, sourceId, isCombatDamage, predicateEvaluator = predicateEvaluator)) {
             return state to 0
         }
 
@@ -1437,7 +1438,7 @@ object DamageUtils {
         // projected state now, with the shield's controller as "you"; the whole instance is
         // prevented and the shield is spent.
         if (remainingDamage > 0 && sourceId != null) {
-            val sourceEvaluator = PredicateEvaluator()
+            val sourceEvaluator = predicateEvaluator
             for (i in updatedEffects.indices) {
                 if (remainingDamage <= 0) break
                 if (i in toRemove) continue
@@ -1490,7 +1491,7 @@ object DamageUtils {
         var newState = state.copy(floatingEffects = updatedEffects)
 
         // Apply static damage reduction from permanents with ReplacementEffectSourceComponent
-        return applyStaticDamageReduction(newState, targetId, remainingDamage, isCombatDamage, sourceId)
+        return applyStaticDamageReduction(newState, targetId, remainingDamage, isCombatDamage, sourceId, predicateEvaluator = predicateEvaluator)
     }
 
     /**
@@ -1605,7 +1606,8 @@ object DamageUtils {
         amount: Int,
         sourceId: EntityId,
         isCombatDamage: Boolean,
-        appliedRedirects: Set<EntityId>
+        appliedRedirects: Set<EntityId>,
+        predicateEvaluator: PredicateEvaluator
     ): Pair<EntityId?, EntityId?> {
         val projected = state.projectedState
 
@@ -1632,12 +1634,14 @@ object DamageUtils {
                 val sourceMatches = damageSourceMatches(
                     state, projected, damageEvent.source, sourceId,
                     hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
                 val recipientMatches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, targetId,
                     hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!recipientMatches) continue
 
@@ -1649,7 +1653,7 @@ object DamageUtils {
                         sourceId = entityId,
                         controllerId = sourceControllerId,
                     )
-                    if (!conditionEvaluator.evaluate(state, gateCondition, gateContext)) continue
+                    if (!predicateEvaluator.conditions.evaluate(state, gateCondition, gateContext)) continue
                 }
 
                 val redirectTo = resolveRedirectTarget(state, effect.redirectTo, sourceId, entityId, targetId)
@@ -1781,7 +1785,8 @@ object DamageUtils {
         state: GameState,
         targetId: EntityId,
         damageAmount: Int,
-        sourceId: EntityId
+        sourceId: EntityId,
+        predicateEvaluator: PredicateEvaluator
     ): EffectResult? {
         val shield = state.floatingEffects.firstOrNull { effect ->
             val mod = effect.effect.modification
@@ -1806,7 +1811,7 @@ object DamageUtils {
 
         // Life gain goes to the affected player (the protected "you"). The amount is the fixed
         // prevented damage, so the ModifyLifeGain pipeline must not touch it.
-        val (newState, event) = gainLife(state, targetId, damageAmount, applyLifeGainModification = false)
+        val (newState, event) = gainLife(state, targetId, damageAmount, applyLifeGainModification = false, predicateEvaluator = predicateEvaluator)
         return EffectResult.success(newState, listOfNotNull(event))
     }
 
@@ -1821,10 +1826,11 @@ object DamageUtils {
     fun groupPreventionShieldController(
         state: GameState,
         sourceId: EntityId?,
-        isCombatDamage: Boolean
+        isCombatDamage: Boolean,
+        predicateEvaluator: PredicateEvaluator
     ): Pair<EntityId, Boolean>? {
         if (sourceId == null) return null
-        val evaluator = PredicateEvaluator()
+        val evaluator = predicateEvaluator
         for (fe in state.floatingEffects) {
             val mod = fe.effect.modification as? SerializableModification.PreventAllDamageFromGroup ?: continue
             if (mod.combatOnly && !isCombatDamage) continue
@@ -1851,12 +1857,13 @@ object DamageUtils {
         state: GameState,
         damageAmount: Int,
         sourceId: EntityId?,
-        isCombatDamage: Boolean
+        isCombatDamage: Boolean,
+        predicateEvaluator: PredicateEvaluator
     ): EffectResult? {
-        val (controllerId, gainsLife) = groupPreventionShieldController(state, sourceId, isCombatDamage)
+        val (controllerId, gainsLife) = groupPreventionShieldController(state, sourceId, isCombatDamage, predicateEvaluator = predicateEvaluator)
             ?: return null
         if (!gainsLife || damageAmount <= 0) return EffectResult.success(state)
-        val (newState, event) = gainLife(state, controllerId, damageAmount)
+        val (newState, event) = gainLife(state, controllerId, damageAmount, predicateEvaluator = predicateEvaluator)
         return EffectResult.success(newState, listOfNotNull(event))
     }
 
@@ -1882,6 +1889,7 @@ object DamageUtils {
         hostId: EntityId,
         hostControllerId: EntityId,
         recipientId: EntityId,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean = filter == GameObjectFilter.Any || (
         sourceId != null && predicateEvaluator.matches(
             state, projected, sourceId, filter,
@@ -1909,6 +1917,7 @@ object DamageUtils {
         targetId: EntityId,
         hostId: EntityId,
         hostControllerId: EntityId,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean = predicateEvaluator.matchesRecipient(
         state, projected, targetId, recipient,
         // sourceId is the permanent that owns the replacement (a Camel, an Aura), so
@@ -1950,7 +1959,7 @@ object DamageUtils {
      * sitting unequipped on the battlefield warns *both* players that damage dealt to them is
      * doubled, which is false in both directions.
      */
-    fun damageDoublersAffectingPlayer(state: GameState, playerId: EntityId): List<ActiveDamageDoubler> {
+    fun damageDoublersAffectingPlayer(state: GameState, playerId: EntityId, predicateEvaluator: PredicateEvaluator): List<ActiveDamageDoubler> {
         val projected = state.projectedState
         val doublers = mutableListOf<ActiveDamageDoubler>()
 
@@ -1968,12 +1977,13 @@ object DamageUtils {
                 // Gated doublers (The Rollercrusher Ride's delirium) only warn while the gate holds.
                 if (effect.restrictions.isNotEmpty()) {
                     val context = EffectContext(sourceId = entityId, controllerId = hostControllerId)
-                    if (effect.restrictions.any { !conditionEvaluator.evaluate(state, it, context) }) continue
+                    if (effect.restrictions.any { !predicateEvaluator.conditions.evaluate(state, it, context) }) continue
                 }
 
                 val matches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, playerId,
                     hostId = entityId, hostControllerId = hostControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!matches) continue
 
@@ -2009,7 +2019,7 @@ object DamageUtils {
      * with `GameObjectFilter.Any.attachedToBySource()` yet, so the Aura half is generality carried by the shared
      * matcher rather than behaviour under test.
      */
-    fun damageDoublersAffectingSource(state: GameState, sourceId: EntityId): List<ActiveDamageDoubler> {
+    fun damageDoublersAffectingSource(state: GameState, sourceId: EntityId, predicateEvaluator: PredicateEvaluator): List<ActiveDamageDoubler> {
         val attachedIds = state.getEntity(sourceId)?.get<AttachmentsComponent>()?.attachedIds.orEmpty()
         if (attachedIds.isEmpty()) return emptyList()
 
@@ -2032,7 +2042,7 @@ object DamageUtils {
                 // Gated doublers only badge while the gate holds — same rule as the player badge.
                 if (effect.restrictions.isNotEmpty()) {
                     val context = EffectContext(sourceId = entityId, controllerId = hostControllerId)
-                    if (effect.restrictions.any { !conditionEvaluator.evaluate(state, it, context) }) continue
+                    if (effect.restrictions.any { !predicateEvaluator.conditions.evaluate(state, it, context) }) continue
                 }
 
                 doublers.add(
@@ -2071,7 +2081,8 @@ object DamageUtils {
         targetId: EntityId,
         amount: Int,
         isCombatDamage: Boolean = false,
-        sourceId: EntityId? = null
+        sourceId: EntityId? = null,
+        predicateEvaluator: PredicateEvaluator
     ): Pair<GameState, Int> {
         if (amount <= 0) return state to 0
 
@@ -2111,13 +2122,14 @@ object DamageUtils {
                         sourceId = entityId,
                         controllerId = sourceControllerId,
                     )
-                    if (effect.restrictions.any { !conditionEvaluator.evaluate(state, it, context) }) continue
+                    if (effect.restrictions.any { !predicateEvaluator.conditions.evaluate(state, it, context) }) continue
                 }
 
                 // Check if the damage source matches the source filter
                 val sourceMatches = damageSourceMatches(
                     state, projected, damageEvent.source, sourceId,
                     hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
@@ -2125,6 +2137,7 @@ object DamageUtils {
                 val recipientMatches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, targetId,
                     hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
 
                 if (recipientMatches) {
@@ -2169,7 +2182,8 @@ object DamageUtils {
         targetId: EntityId,
         amount: Int,
         sourceId: EntityId?,
-        isCombatDamage: Boolean = false
+        isCombatDamage: Boolean = false,
+        predicateEvaluator: PredicateEvaluator
     ): Int {
         if (amount <= 0) return 0
 
@@ -2203,13 +2217,14 @@ object DamageUtils {
                         sourceId = entityId,
                         controllerId = sourceControllerId,
                     )
-                    if (effect.restrictions.any { !conditionEvaluator.evaluate(state, it, context) }) continue
+                    if (effect.restrictions.any { !predicateEvaluator.conditions.evaluate(state, it, context) }) continue
                 }
 
                 // Check if the damage source matches the source filter
                 val sourceMatches = damageSourceMatches(
                     state, projected, damageEvent.source, sourceId,
                     hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
@@ -2217,6 +2232,7 @@ object DamageUtils {
                 val recipientMatches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, targetId,
                     hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!recipientMatches) continue
 
@@ -2254,18 +2270,20 @@ object DamageUtils {
                         sourceId = entityId,
                         controllerId = sourceControllerId,
                     )
-                    if (effect.restrictions.any { !conditionEvaluator.evaluate(state, it, context) }) continue
+                    if (effect.restrictions.any { !predicateEvaluator.conditions.evaluate(state, it, context) }) continue
                 }
 
                 val sourceMatches = damageSourceMatches(
                     state, projected, damageEvent.source, sourceId,
                     hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
                 val recipientMatches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, targetId,
                     hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!recipientMatches) continue
 
@@ -2319,13 +2337,14 @@ object DamageUtils {
                         sourceId = entityId,
                         controllerId = sourceControllerId,
                     )
-                    if (effect.restrictions.any { !conditionEvaluator.evaluate(state, it, context) }) continue
+                    if (effect.restrictions.any { !predicateEvaluator.conditions.evaluate(state, it, context) }) continue
                 }
 
                 // Check if the damage source matches the source filter
                 val sourceMatches = damageSourceMatches(
                     state, projected, damageEvent.source, sourceId,
                     hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
@@ -2333,6 +2352,7 @@ object DamageUtils {
                 val recipientMatches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, targetId,
                     hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!recipientMatches) continue
 
@@ -2340,7 +2360,7 @@ object DamageUtils {
                 // permanent — e.g. Fated Firepower's fire-counter count) when present, else the
                 // flat modifier (Valley Flamecaller).
                 amplifiedAmount += effect.dynamicModifier?.let { dyn ->
-                    dynamicAmountEvaluator.evaluate(
+                    predicateEvaluator.amounts.evaluate(
                         state,
                         dyn,
                         EffectContext(sourceId = entityId, controllerId = sourceControllerId),
@@ -2440,12 +2460,14 @@ object DamageUtils {
                 val sourceMatches = damageSourceMatches(
                     state, projected, damageEvent.source, sourceId,
                     hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
                 val recipientMatches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, targetId,
                     hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!recipientMatches) continue
 
@@ -2466,7 +2488,7 @@ object DamageUtils {
                 if (amplifiedAmount <= 0) continue
 
                 val floor = effect.dynamicMinimum?.let { dyn ->
-                    dynamicAmountEvaluator.evaluate(
+                    predicateEvaluator.amounts.evaluate(
                         state, dyn,
                         EffectContext(sourceId = entityId, controllerId = sourceControllerId),
                         projected
@@ -2488,12 +2510,14 @@ object DamageUtils {
                 val sourceMatches = damageSourceMatches(
                     state, projected, damageEvent.source, sourceId,
                     hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
                 val recipientMatches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, targetId,
                     hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 if (!recipientMatches) continue
 
@@ -2520,12 +2544,13 @@ object DamageUtils {
     fun applyStaticLifeLossModification(
         state: GameState,
         losingPlayerId: EntityId,
-        amount: Int
+        amount: Int,
+        predicateEvaluator: PredicateEvaluator
     ): Int {
         if (amount <= 0) return 0
 
         var modifiedAmount = amount
-        forEachLifeLossReplacement<ModifyLifeLoss>(state, losingPlayerId, { it.restrictions }) { effect ->
+        forEachLifeLossReplacement<ModifyLifeLoss>(state, losingPlayerId, predicateEvaluator, { it.restrictions }) { effect ->
             modifiedAmount = (modifiedAmount * effect.multiplier) + effect.modifier
             if (modifiedAmount < 0) modifiedAmount = 0
         }
@@ -2547,12 +2572,13 @@ object DamageUtils {
         state: GameState,
         losingPlayerId: EntityId,
         currentLife: Int,
-        amount: Int
+        amount: Int,
+        predicateEvaluator: PredicateEvaluator
     ): Int {
         if (amount <= 0) return amount
 
         var modifiedAmount = amount
-        forEachLifeLossReplacement<LifeLossFloor>(state, losingPlayerId, { it.restrictions }) { effect ->
+        forEachLifeLossReplacement<LifeLossFloor>(state, losingPlayerId, predicateEvaluator, { it.restrictions }) { effect ->
             val maxLossAllowed = (currentLife - effect.floor).coerceAtLeast(0)
             if (modifiedAmount > maxLossAllowed) modifiedAmount = maxLossAllowed
         }
@@ -2571,6 +2597,7 @@ object DamageUtils {
     private inline fun <reified T : ReplacementEffect> forEachLifeLossReplacement(
         state: GameState,
         losingPlayerId: EntityId,
+        predicateEvaluator: PredicateEvaluator,
         restrictionsOf: (T) -> List<Condition>,
         action: (T) -> Unit
     ) {
@@ -2600,7 +2627,7 @@ object DamageUtils {
                         sourceId = entityId,
                         controllerId = sourceControllerId,
                     )
-                    if (restrictions.any { !conditionEvaluator.evaluate(state, it, context) }) continue
+                    if (restrictions.any { !predicateEvaluator.conditions.evaluate(state, it, context) }) continue
                 }
 
                 action(effect)
@@ -2649,7 +2676,8 @@ object DamageUtils {
         targetId: EntityId,
         amount: Int,
         sourceId: EntityId?,
-        isCombatDamage: Boolean
+        isCombatDamage: Boolean,
+        predicateEvaluator: PredicateEvaluator
     ): GameState {
         if (amount <= 0) return state
         // Fast path: nothing marked, nothing to heal — skip the battlefield scan. Not a correctness
@@ -2676,11 +2704,13 @@ object DamageUtils {
                 if (!damageEvent.amount.matches(amount)) continue
 
                 if (!damageRecipientMatches(
-                        state, projected, damageEvent.recipient, targetId, entityId, hostControllerId
+                        state, projected, damageEvent.recipient, targetId, entityId, hostControllerId,
+                        predicateEvaluator = predicateEvaluator
                     )
                 ) continue
                 if (!damageSourceMatches(
-                        state, projected, damageEvent.source, sourceId, entityId, hostControllerId, targetId
+                        state, projected, damageEvent.source, sourceId, entityId, hostControllerId, targetId,
+                        predicateEvaluator = predicateEvaluator
                     )
                 ) continue
 
@@ -2754,6 +2784,7 @@ object DamageUtils {
                     hostId = entityId,
                     hostControllerId = sourceControllerId,
                     recipientId = targetId,
+                    predicateEvaluator = zones.predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
@@ -2768,6 +2799,7 @@ object DamageUtils {
                     targetId = targetId,
                     hostId = entityId,
                     hostControllerId = sourceControllerId,
+                    predicateEvaluator = zones.predicateEvaluator
                 )
                 if (!recipientMatches) continue
 
@@ -2827,7 +2859,7 @@ object DamageUtils {
                 // and the top cards are snapshotted before moving so a shrinking library isn't
                 // re-read.
                 if (effect.damagedPlayerMills && targetId in state.turnOrder) {
-                    val millCount = MillAmountModifier.apply(newState, targetId, amount)
+                    val millCount = MillAmountModifier.apply(newState, targetId, amount, predicateEvaluator = zones.predicateEvaluator)
                     for (cardId in newState.getLibrary(targetId).take(millCount)) {
                         val result = zones.moveToZone(newState, cardId, Zone.GRAVEYARD)
                         newState = result.state
@@ -2880,12 +2912,14 @@ object DamageUtils {
                 val sourceMatches = damageSourceMatches(
                     state, projected, damageEvent.source, sourceId,
                     hostId = entityId, hostControllerId = sourceControllerId, recipientId = targetId,
+                    predicateEvaluator = zones.predicateEvaluator
                 )
                 if (!sourceMatches) continue
 
                 val recipientMatches = damageRecipientMatches(
                     state, projected, damageEvent.recipient, targetId,
                     hostId = entityId, hostControllerId = sourceControllerId,
+                    predicateEvaluator = zones.predicateEvaluator
                 )
                 if (!recipientMatches) continue
 

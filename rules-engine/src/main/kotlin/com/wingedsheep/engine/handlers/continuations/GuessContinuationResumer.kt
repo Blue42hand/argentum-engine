@@ -14,7 +14,6 @@ import com.wingedsheep.engine.core.GuessConditionContinuation
 import com.wingedsheep.engine.core.GuessTopCardKindContinuation
 import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.core.YesNoResponse
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.effects.library.LibraryRevealUtils
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
@@ -38,6 +37,7 @@ import com.wingedsheep.engine.core.Outcome
 class GuessContinuationResumer(
     private val services: EngineServices
 ) : ContinuationResumerModule {
+    private val conditionEvaluator = services.conditionEvaluator
 
     private val effectRunner: EffectContinuationRunner by lazy {
         EffectContinuationRunner(services.effectExecutorRegistry)
@@ -72,7 +72,7 @@ class GuessContinuationResumer(
             return ExecutionResult.error(state, "Expected yes/no response for condition guess")
         }
 
-        val truth = ConditionEvaluator().evaluate(
+        val truth = conditionEvaluator.evaluate(
             state,
             continuation.condition,
             continuation.effectContext

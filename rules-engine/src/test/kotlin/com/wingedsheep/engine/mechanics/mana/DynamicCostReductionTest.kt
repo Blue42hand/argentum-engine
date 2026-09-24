@@ -178,7 +178,7 @@ class DynamicCostReductionTest : ScenarioTestBase() {
     }
 
     private fun costOfPricedSpell(game: TestGame, playerNumber: Int) =
-        CostCalculator(cardRegistry).calculateEffectiveCost(
+        CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator).calculateEffectiveCost(
             game.state,
             cardRegistry.requireCard("Test Priced Spell"),
             if (playerNumber == 1) game.player1Id else game.player2Id,
@@ -375,7 +375,7 @@ class DynamicCostReductionTest : ScenarioTestBase() {
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                val cost = CostCalculator(cardRegistry).calculateEffectiveCost(
+                val cost = CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator).calculateEffectiveCost(
                     game.state,
                     cardRegistry.requireCard("Test Self Discounter"),
                     game.player1Id,

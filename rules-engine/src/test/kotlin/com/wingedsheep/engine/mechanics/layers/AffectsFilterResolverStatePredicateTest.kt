@@ -54,7 +54,7 @@ import io.kotest.matchers.shouldBe
  */
 class AffectsFilterResolverStatePredicateTest : FunSpec({
 
-    val resolver = AffectsFilterResolver()
+    val resolver = AffectsFilterResolver(PredicateEvaluator(cardRegistry = null))
     val playerA = EntityId.generate()
     val playerB = EntityId.generate()
 
@@ -229,7 +229,7 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
     fun assertCombatStatus(state: GameState, attacker: EntityId, blocked: Boolean, unblocked: Boolean) {
         for ((predicate, expected) in listOf(StatePredicate.IsBlocked to blocked, StatePredicate.IsUnblocked to unblocked)) {
             withClue("$predicate in ${state.step}") {
-                PredicateEvaluator().matchesStatePredicate(state, attacker, predicate) shouldBe expected
+                PredicateEvaluator(cardRegistry = null).matchesStatePredicate(state, attacker, predicate) shouldBe expected
                 (attacker in resolver.resolveAffectedEntities(state, attacker, filterWith(predicate))) shouldBe expected
             }
         }
@@ -283,7 +283,7 @@ class AffectsFilterResolverStatePredicateTest : FunSpec({
         )).copy(phase = Phase.COMBAT, step = Step.DECLARE_BLOCKERS, turnOrder = listOf(playerA, playerB))
             .updateEntity(playerB) { it.with(BlockersDeclaredThisCombatComponent) }
         val projected = ProjectedState(state, mapOf(planeswalker to ProjectedValues(controllerId = playerB)))
-        PredicateEvaluator().matchesStatePredicate(state, attacker, StatePredicate.IsUnblocked, projected = projected) shouldBe true
+        PredicateEvaluator(cardRegistry = null).matchesStatePredicate(state, attacker, StatePredicate.IsUnblocked, projected = projected) shouldBe true
         val intermediate = mapOf(planeswalker to MutableProjectedValues().apply { controllerId = playerB })
         resolver.resolveAffectedEntities(state, attacker, filterWith(StatePredicate.IsUnblocked), intermediate) shouldContain attacker
     }

@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.mechanics.layers
 
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
+import com.wingedsheep.engine.handlers.ConditionEvaluator
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CantBeBlockedWhilePropertyAtMostComponent
@@ -64,18 +65,24 @@ private val KEYWORD_COUNTER_MAP = mapOf(
     CounterType.MENACE to Keyword.MENACE.name
 )
 
-class StateProjector(
-    // Inject an empty projection as the supplier — reaching for [GameState.projectedState]
-    // here would re-enter our own lazy initializer. Mid-layer callers thread their
-    // intermediate snapshot through the `projectedState` parameter explicitly; the empty
-    // supplier is the safety net for paths that don't carry one (predicate matching falls
-    // back to base CardComponent for missing entries).
-    private val dynamicAmountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(
+class StateProjector {
+    /**
+     * Projection's own evaluators, built as one unit (see [PredicateEvaluator.conditions]).
+     *
+     * Registry-free, because [GameState.projectedState] builds a projector from the state alone,
+     * with no engine to ask. Non-reentrant: their default projection is empty, since reaching for
+     * [GameState.projectedState] here would re-enter our own lazy initializer. Mid-layer callers
+     * thread their intermediate snapshot through the `projectedState` parameter explicitly; the
+     * empty supplier is the safety net for paths that don't carry one (predicate matching falls
+     * back to base CardComponent for missing entries).
+     */
+    private val conditionEvaluator = ConditionEvaluator(
+        PredicateEvaluator(cardRegistry = null),
         defaultProjection = { ProjectedState(it, emptyMap()) }
     )
-) {
-    private val filterResolver = AffectsFilterResolver()
-    private val effectApplicator = EffectApplicator(dynamicAmountEvaluator)
+    private val dynamicAmountEvaluator = conditionEvaluator.amounts
+    private val filterResolver = AffectsFilterResolver(conditionEvaluator.predicates)
+    private val effectApplicator = EffectApplicator(conditionEvaluator)
     private val effectSorter = EffectSorter()
 
     /**

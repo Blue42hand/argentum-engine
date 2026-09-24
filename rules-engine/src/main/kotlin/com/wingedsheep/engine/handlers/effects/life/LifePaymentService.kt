@@ -52,7 +52,7 @@ object LifePaymentService {
 
         exileFromLibraryInstead(zones, state, payerId, amount)?.let { return it }
 
-        val (newState, event) = DamageUtils.loseLife(state, payerId, amount, LifeChangeReason.PAYMENT)
+        val (newState, event) = DamageUtils.loseLife(state, payerId, amount, LifeChangeReason.PAYMENT, predicateEvaluator = zones.predicateEvaluator)
         return newState to listOfNotNull(event)
     }
 

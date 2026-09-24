@@ -19,7 +19,7 @@ class PermanentSbaModule(
         PlaneswalkerLoyaltyCheck(zones),
         BattleDefenseCheck(zones),
         BattleProtectorCheck(zones),
-        LegendRuleCheck(decisionHandler, cardRegistry),
+        LegendRuleCheck(decisionHandler, cardRegistry, predicateEvaluator = zones.predicateEvaluator),
         CounterAnnihilationCheck(),
         UnattachedAurasCheck(zones, cardRegistry),
         SoulbondPairingCheck(),

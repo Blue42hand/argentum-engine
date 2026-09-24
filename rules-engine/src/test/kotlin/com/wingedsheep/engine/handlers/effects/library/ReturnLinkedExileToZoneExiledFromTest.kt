@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
@@ -43,7 +44,7 @@ import com.wingedsheep.engine.core.Outcome
  * regression there — them accidentally honouring the origin zone — shows up here.
  */
 class ReturnLinkedExileToZoneExiledFromTest : FunSpec({
-    val zones = ZoneTransitionService(CardRegistry())
+    val zones = ZoneTransitionService(CardRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     val ownerId = EntityId.generate()
     val casterId = EntityId.generate()
@@ -92,11 +93,8 @@ class ReturnLinkedExileToZoneExiledFromTest : FunSpec({
     fun context() = EffectContext(sourceId = sourceId, controllerId = casterId)
 
     fun registry(): EffectExecutorRegistry {
-        val cardRegistry = com.wingedsheep.engine.registry.CardRegistry()
-        val zones = ZoneTransitionService(cardRegistry)
-        val reg = EffectExecutorRegistry(zones, cardRegistry = cardRegistry)
-        reg.registerModule(LibraryExecutors(zones, cardRegistry))
-        return reg
+        return com.wingedsheep.engine.core.EngineServices(com.wingedsheep.engine.registry.CardRegistry())
+            .effectExecutorRegistry
     }
 
     // -------------------------------------------------------------------------------------------

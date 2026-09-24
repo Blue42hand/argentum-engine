@@ -36,7 +36,7 @@ class JevGameplayTest : ScenarioTestBase() {
                     validations++
                     actionProcessor.process(game.state, (response as ActionResponse.SubmitAction).action).result.error
                 }, maskedStateProvider = { stateTransformer.transform(game.state, game.player1Id) })
-            val debugView = ClientStateTransformer(cardRegistry, debugMode = true).transform(game.state, game.player1Id)
+            val debugView = ClientStateTransformer(cardRegistry, debugMode = true, predicateEvaluator = services.predicateEvaluator).transform(game.state, game.player1Id)
             check(debugView.cards.values.any { it.name == "Counterspell" })
             val result = controller.chooseAction(debugView, game.getLegalActions(1), null,
                 recentGameLog = listOf("Opponent drew Counterspell"))

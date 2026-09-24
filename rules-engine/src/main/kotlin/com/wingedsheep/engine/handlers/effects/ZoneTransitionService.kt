@@ -1,12 +1,12 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CardExiledWithMadnessEvent
 import com.wingedsheep.engine.core.CardsDiscardedEvent
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.ZoneTransitionCause
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
@@ -163,8 +163,14 @@ data class ZoneTransitionOutcome(
 class ZoneTransitionService(
     /** The definitions this engine plays with; read by the battlefield-entry setup. */
     val cardRegistry: CardRegistry,
+    /**
+     * The engine's evaluator ([com.wingedsheep.engine.core.EngineServices.predicateEvaluator]).
+     * Carried here, beside the registry, for the replacement and entry checks a zone move runs —
+     * and for the zone, replacement and damage helpers that are handed this service.
+     */
+    val predicateEvaluator: PredicateEvaluator,
     /** Per-set token art, so a zone-change rider's token shows its minting set's art. */
-    tokenArtRegistry: TokenArtRegistry? = null,
+    tokenArtRegistry: TokenArtRegistry? = null
 ) {
 
     /**
@@ -183,11 +189,12 @@ class ZoneTransitionService(
     internal val riderTokenExecutor = CreateTokenExecutor(
         staticAbilityHandler = staticAbilityHandler,
         cardRegistry = cardRegistry,
-        tokenArtRegistry = tokenArtRegistry
+        tokenArtRegistry = tokenArtRegistry,
+        amountEvaluator = predicateEvaluator.amounts
     )
 
     /** Evaluates the `unless` clause of an entering card's own [EntersTapped]. */
-    private val conditionEvaluator = ConditionEvaluator()
+    private val conditionEvaluator = predicateEvaluator.conditions
 
     /**
      * Move one entity between zones with full cleanup + setup.
@@ -307,7 +314,7 @@ class ZoneTransitionService(
 
         // 3. Check zone change redirect (unless skipped)
         val redirectResult = if (!options.skipZoneChangeRedirect) {
-            ZoneMovementUtils.checkZoneChangeRedirect(state, entityId, fromZone, destinationZone)
+            ZoneMovementUtils.checkZoneChangeRedirect(state, entityId, fromZone, destinationZone, predicateEvaluator = predicateEvaluator)
         } else {
             ZoneChangeRedirectResult(destinationZone)
         }
@@ -696,7 +703,8 @@ class ZoneTransitionService(
                 // face-down permanent is a nameless 2/2 creature with no printed loyalty or
                 // defense (CR 708.2a).
                 val (entryCounterState, entryCounterEvents) = ZoneMovementUtils.applyIntrinsicEntryCountersIfNeeded(
-                    newState, entityId, destControllerId, cardRegistry
+                    newState, entityId, destControllerId, cardRegistry,
+                    predicateEvaluator = predicateEvaluator
                 )
                 newState = entryCounterState
                 events.addAll(entryCounterEvents)
@@ -1026,7 +1034,8 @@ class ZoneTransitionService(
         // ZoneChangeEvent so the exile is already history by the time the trigger is built.
         if (!options.skipZoneChangeRedirect && actualDestZone == Zone.EXILE) {
             val madnessCost = ZoneMovementUtils.madnessDiscardExile(
-                state, entityId, container, fromZone, destinationZone
+                state, entityId, container, fromZone, destinationZone,
+                predicateEvaluator = predicateEvaluator
             )
             if (madnessCost != null) {
                 newState = newState.updateEntity(entityId) { c ->
@@ -1304,7 +1313,8 @@ class ZoneTransitionService(
         val entersUntapped = EnterUntappedReplacements.entersUntapped(
             withDayboundEntry,
             entityId,
-            controllerId
+            controllerId,
+            predicateEvaluator = predicateEvaluator
         )
         // The entering card's OWN printed "this permanent enters tapped" clause. The cast path
         // (StackResolver) and the land-play path (PlayLandHandler) read it themselves because
@@ -1327,7 +1337,7 @@ class ZoneTransitionService(
             !options.tapped && !entersUntapped &&
                 (
                     selfEntersTapped ||
-                        EnterTappedReplacements.entersTapped(withDayboundEntry, entityId, controllerId)
+                        EnterTappedReplacements.entersTapped(withDayboundEntry, entityId, controllerId, predicateEvaluator = predicateEvaluator)
                     ) ->
                 withDayboundEntry.updateEntity(entityId) { it.with(TappedComponent) }
             else -> withDayboundEntry

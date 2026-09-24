@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.legalactions.EnumerationMode
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
@@ -85,7 +86,7 @@ class ThornvaultForagerTest : FunSpec({
             driver.state.updateEntity(forager) { it.without<SummoningSicknessComponent>() }
         )
 
-        val solver = ManaSolver(driver.cardRegistry)
+        val solver = ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val source = solver.findAvailableManaSources(driver.state, active)
             .find { it.entityId == forager }
 
@@ -115,7 +116,7 @@ class ThornvaultForagerTest : FunSpec({
         )
         repeat(3) { driver.putCardInGraveyard(active, "Forest") }
 
-        val solver = ManaSolver(driver.cardRegistry)
+        val solver = ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val source = solver.findAvailableManaSources(driver.state, active)
             .find { it.entityId == forager }
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
@@ -219,7 +220,7 @@ class AutoTapPainAndBonusReproTest : FunSpec({
 
         // The earthbended Forest is the ONLY green source. Tapping it (a creature now) should
         // yield {G} + Badgermole Cub's bonus {G} — the autotapper must count both.
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         solver.canPay(driver.state, you, ManaCost.parse("{G}{G}")) shouldBe true
 
         val spell = driver.putCardInHand(you, "Green Green Test Spell")

@@ -27,8 +27,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.Scope
  */
 internal object CombatDamageUtils {
 
-    private val predicateEvaluator = PredicateEvaluator()
-
     /** Which side of combat a damage source is on, for [combatDamageChooser]. */
     enum class CombatSide { ATTACKER, BLOCKER }
 
@@ -118,6 +116,7 @@ internal object CombatDamageUtils {
         projected: ProjectedState,
         creatureId: EntityId,
         cardRegistry: CardRegistry?,
+        predicateEvaluator: PredicateEvaluator
     ): Int {
         // "It assigns no combat damage this turn" (Farrel's Zealot and its Fallen Empires kin).
         // Checked before anything else and ahead of the cardRegistry short-circuit: the creature
@@ -130,7 +129,7 @@ internal object CombatDamageUtils {
 
         // The toughness > power gate compares the creature's real (possibly negative) power.
         val toughness = projected.getToughness(creatureId) ?: 0
-        return if (assignsDamageAsToughness(state, projected, creatureId, cardRegistry, power, toughness)) {
+        return if (assignsDamageAsToughness(state, projected, creatureId, cardRegistry, power, toughness, predicateEvaluator = predicateEvaluator)) {
             toughness.coerceAtLeast(0)
         } else {
             powerForAssignment(projected, creatureId, power)
@@ -157,6 +156,7 @@ internal object CombatDamageUtils {
         cardRegistry: CardRegistry,
         power: Int,
         toughness: Int,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean {
         // Floating / granted flag (e.g., Bill the Pony's "Until end of turn, target creature you
         // control assigns combat damage equal to its toughness rather than its power"). Granted via
@@ -201,7 +201,7 @@ internal object CombatDamageUtils {
             val granted = grantsByEntity[permanentId]?.map { it.ability }.orEmpty()
             val abilities = if (granted.isEmpty()) printed else printed + granted
             if (abilities.isEmpty()) continue
-            if (matchesBattlefield(state, projected, permanentId, creatureId, abilities, power, toughness)) return true
+            if (matchesBattlefield(state, projected, permanentId, creatureId, abilities, power, toughness, predicateEvaluator = predicateEvaluator)) return true
         }
 
         return false
@@ -215,6 +215,7 @@ internal object CombatDamageUtils {
         abilities: List<StaticAbility>,
         power: Int,
         toughness: Int,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean {
         val sourceController = projected.getController(sourceId) ?: return false
         val predicateContext = PredicateContext(controllerId = sourceController, sourceId = sourceId)

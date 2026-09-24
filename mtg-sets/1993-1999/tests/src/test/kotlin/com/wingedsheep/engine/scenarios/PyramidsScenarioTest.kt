@@ -38,7 +38,7 @@ import io.kotest.matchers.shouldNotBe
  */
 class PyramidsScenarioTest : FunSpec({
 
-    val evaluator = PredicateEvaluator()
+    val evaluator = PredicateEvaluator(cardRegistry = null)
 
     fun createDriver(): GameTestDriver {
         val driver = GameTestDriver()

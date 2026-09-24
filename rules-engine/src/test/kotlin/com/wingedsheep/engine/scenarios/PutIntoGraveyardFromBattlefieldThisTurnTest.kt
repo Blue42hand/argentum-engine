@@ -43,7 +43,7 @@ class PutIntoGraveyardFromBattlefieldThisTurnTest : FunSpec({
     }
 
     fun GameTestDriver.matches(entityId: EntityId): Boolean {
-        val evaluator = PredicateEvaluator()
+        val evaluator = PredicateEvaluator(cardRegistry = null)
         return evaluator.matchesStatePredicate(
             state = state,
             entityId = entityId,

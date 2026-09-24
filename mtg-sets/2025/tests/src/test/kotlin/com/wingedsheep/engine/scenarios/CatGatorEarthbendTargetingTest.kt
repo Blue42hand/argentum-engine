@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -27,7 +28,7 @@ import com.wingedsheep.engine.core.Outcome
  */
 class CatGatorEarthbendTargetingTest : FunSpec({
 
-    val targetFinder = TargetFinder()
+    val targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null))
 
     fun createDriver(): GameTestDriver {
         val driver = GameTestDriver()

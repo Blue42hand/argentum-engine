@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CrewVehicle
 import com.wingedsheep.engine.core.DeclareAttackers
 import com.wingedsheep.engine.support.GameTestDriver
@@ -44,7 +45,7 @@ class TheBelligerentScenarioTest : FunSpec({
     }
 
     fun transformer(d: GameTestDriver): ClientStateTransformer =
-        ClientStateTransformer(cardRegistry = d.cardRegistry)
+        ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     test("cannot play the top card of library before The Belligerent attacks") {
         val driver = createDriver()

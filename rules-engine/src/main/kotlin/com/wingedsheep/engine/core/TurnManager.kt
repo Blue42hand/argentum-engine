@@ -38,7 +38,7 @@ import com.wingedsheep.engine.state.components.player.SkippedTurnPartsComponent
 import com.wingedsheep.engine.state.components.player.SkipNextTurnComponent
 import com.wingedsheep.engine.state.components.player.EndTheTurnRequestedComponent
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
-import com.wingedsheep.engine.mechanics.stack.StackResolver
+import com.wingedsheep.engine.mechanics.stack.SpellCounterer
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -47,7 +47,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.HijackScope
 import com.wingedsheep.engine.mechanics.combat.CombatDefenders
-import com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.replacement.ReplacementEffectProcessor
 import com.wingedsheep.sdk.scripting.Duration
@@ -70,19 +69,16 @@ import com.wingedsheep.sdk.scripting.Duration
 class TurnManager(
     private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
-    private val combatManager: CombatManager = CombatManager(
-        zones,
-        cardRegistry,
-        ManaAbilitySideEffectExecutor.noOp(zones)
-    ),
-    private val sbaChecker: StateBasedActionChecker = StateBasedActionChecker(zones, cardRegistry = cardRegistry),
-    private val decisionHandler: DecisionHandler = DecisionHandler(),
-    private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)? = null,
-    replacementProcessor: ReplacementEffectProcessor = ReplacementEffectProcessor()
+    private val combatManager: CombatManager,
+    private val sbaChecker: StateBasedActionChecker,
+    private val spellCounterer: SpellCounterer,
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
+    replacementProcessor: ReplacementEffectProcessor,
+    private val decisionHandler: DecisionHandler = DecisionHandler()
 ) {
 
-    val cleanupPhaseManager = CleanupPhaseManager(cardRegistry, decisionHandler)
-    val drawPhaseManager = DrawPhaseManager(cardRegistry, decisionHandler, effectExecutor, replacementProcessor)
+    val cleanupPhaseManager = CleanupPhaseManager(cardRegistry, decisionHandler, conditionEvaluator = zones.predicateEvaluator.conditions)
+    val drawPhaseManager = DrawPhaseManager(cardRegistry, decisionHandler, effectExecutor, replacementProcessor, amountEvaluator = zones.predicateEvaluator.amounts)
     val beginningPhaseManager = BeginningPhaseManager(cardRegistry, decisionHandler, cleanupPhaseManager)
 
     // ── Delegate methods for external callers ──
@@ -762,7 +758,7 @@ class TurnManager(
                         // "You can't lose the game" (Platinum Angel — CR 104.3, and team-wide in
                         // 2HG per CR 810.8a) stops this loss like every other: the delayed
                         // trigger resolves and does nothing, so the marker is still consumed.
-                        if (com.wingedsheep.engine.mechanics.sba.player.playerCantLoseGame(newState, member)) {
+                        if (com.wingedsheep.engine.mechanics.sba.player.playerCantLoseGame(newState, member, predicateEvaluator = zones.predicateEvaluator)) {
                             newState = newState.updateEntity(member) { it.without<LoseAtEndStepComponent>() }
                             continue
                         }
@@ -1013,15 +1009,14 @@ class TurnManager(
 
         // CR 724.1b: exile every remaining spell and ability on the stack. Snapshot the ids first
         // because exiling mutates the stack.
-        val resolver = StackResolver(zones, cardRegistry = cardRegistry)
         for (entityId in newState.stack.toList()) {
             if (entityId !in newState.stack) continue
             val onStack = newState.getEntity(entityId) ?: continue
             val result = if (onStack.has<SpellOnStackComponent>()) {
-                resolver.exileSpell(newState, entityId, makePlotted = false)
+                spellCounterer.exileSpell(newState, entityId, makePlotted = false)
             } else {
                 // Triggered / activated abilities on the stack simply cease to exist.
-                resolver.counterAbility(newState, entityId)
+                spellCounterer.counterAbility(newState, entityId)
             }
             if (result.outcome is Outcome.Done) {
                 newState = result.newState

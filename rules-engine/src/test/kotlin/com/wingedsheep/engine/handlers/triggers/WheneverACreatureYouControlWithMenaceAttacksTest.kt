@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.triggers
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.AttackersDeclaredEvent
 import com.wingedsheep.engine.event.TriggerDetector
 import com.wingedsheep.engine.support.GameTestDriver
@@ -69,7 +70,7 @@ class WheneverACreatureYouControlWithMenaceAttacksTest : FunSpec({
         return driver
     }
 
-    fun detectorFor(driver: GameTestDriver): TriggerDetector = TriggerDetector(driver.cardRegistry)
+    fun detectorFor(driver: GameTestDriver): TriggerDetector = TriggerDetector(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null), conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
 
     context("per-creature filtered attack trigger fires once per qualifying attacker") {
 

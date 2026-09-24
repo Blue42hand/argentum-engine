@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.DrawFailedEvent
 import com.wingedsheep.engine.core.GameEndReason
 import com.wingedsheep.engine.core.GameEndedEvent
@@ -314,7 +315,7 @@ class EmptyLibraryLossTest : FunSpec({
         driver.state.getLibrary(player1).size shouldBe 0
 
         // Use TurnManager.drawCards directly (this is what performDrawStep calls)
-        val turnManager = com.wingedsheep.engine.core.TurnManager(driver.zones, cardRegistry = com.wingedsheep.engine.registry.CardRegistry())
+        val turnManager = driver.services.turnManager
         val result = turnManager.drawCards(driver.state, player1, 1)
 
         // The draw succeeds and only records the attempt (CR 121.4) — the player hasn't lost yet
@@ -324,7 +325,7 @@ class EmptyLibraryLossTest : FunSpec({
         result.newState.getEntity(player1)?.get<PlayerLostComponent>() shouldBe null
 
         // The state-based action (CR 704.5b) applies the loss and consumes the marker
-        val afterSba = com.wingedsheep.engine.mechanics.sba.player.EmptyLibraryDrawLossCheck()
+        val afterSba = com.wingedsheep.engine.mechanics.sba.player.EmptyLibraryDrawLossCheck(predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .check(result.newState).newState
         val lostComponent = afterSba.getEntity(player1)?.get<PlayerLostComponent>()
         lostComponent shouldNotBe null

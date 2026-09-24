@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.view
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.mechanics.layers.StateProjector
@@ -87,7 +88,7 @@ class GrantedSupertypeVisibilityTest : FunSpec({
     }
 
     fun view(driver: GameTestDriver, playerId: EntityId) =
-        ClientStateTransformer(cardRegistry = driver.cardRegistry)
+        ClientStateTransformer(cardRegistry = driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(driver.state, viewingPlayerId = playerId)
 
     test("a creature granted LEGENDARY renders 'Legendary' in the client type line") {

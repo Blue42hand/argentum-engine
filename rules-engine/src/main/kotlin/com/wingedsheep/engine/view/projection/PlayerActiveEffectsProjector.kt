@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.view.projection
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.mechanics.citysblessing.CitysBlessingService
 import com.wingedsheep.engine.mechanics.enduringstory.EnduringStoryService
@@ -27,7 +28,9 @@ import com.wingedsheep.sdk.scripting.events.DamageType
  * Each family is its own function; [project] concatenates them in a fixed order, which is the order
  * the client lists the badges in.
  */
-internal class PlayerActiveEffectsProjector {
+internal class PlayerActiveEffectsProjector(
+    private val predicateEvaluator: PredicateEvaluator
+) {
 
     /** Every badge on [playerId], in display order. */
     fun project(
@@ -237,7 +240,7 @@ internal class PlayerActiveEffectsProjector {
         val effects = mutableListOf<ClientPlayerEffect>()
         // Twinflame Tyrant, Gratuitous Violence. One badge per replacement: each applies once
         // (CR 616.1), so two Tyrants show two badges and quadruple the damage.
-        for (doubler in DamageUtils.damageDoublersAffectingPlayer(state, playerId)) {
+        for (doubler in DamageUtils.damageDoublersAffectingPlayer(state, playerId, predicateEvaluator = predicateEvaluator)) {
             val scope = when (doubler.damageType) {
                 is DamageType.Combat -> "Combat damage"
                 is DamageType.NonCombat -> "Noncombat damage"
@@ -363,7 +366,7 @@ internal class PlayerActiveEffectsProjector {
         // Shroud, from a resolution-time effect (Gilded Light) or from a permanent that grants it
         // (True Believer). [ControllerShroud] unions the two and re-evaluates any "as long as …"
         // gate the grant sits behind, so the badge tracks the gate instead of freezing on entry.
-        if (ControllerShroud.appliesTo(state, playerId)) {
+        if (ControllerShroud.appliesTo(state, playerId, predicateEvaluator = predicateEvaluator)) {
             effects.add(
                 ClientPlayerEffect(
                     effectId = "player_shroud",
@@ -426,7 +429,7 @@ internal class PlayerActiveEffectsProjector {
         // (Shalai, Voice of Plenty). Same union-and-re-evaluate as shroud above; this used to be
         // two blocks, the second scanning the battlefield on the *base* controller so a stolen
         // Shalai badged the wrong player.
-        if (ControllerHexproof.appliesTo(state, playerId)) {
+        if (ControllerHexproof.appliesTo(state, playerId, predicateEvaluator = predicateEvaluator)) {
             effects.add(
                 ClientPlayerEffect(
                     effectId = "player_hexproof",

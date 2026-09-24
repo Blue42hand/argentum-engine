@@ -1,7 +1,7 @@
 package com.wingedsheep.engine.mechanics.stack
 
 import com.wingedsheep.engine.core.*
-import com.wingedsheep.engine.handlers.EffectHandler
+import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
@@ -31,32 +31,38 @@ import com.wingedsheep.sdk.scripting.targets.*
  * - [AbilityResolver] — resolving a triggered or activated ability
  * - [ResolutionTargetValidator] — the CR 608.2b target re-check both resolvers share
  * - [SpellCounterer] — countering and exiling stack objects
+ *
+ * Built once, by [com.wingedsheep.engine.core.EngineServices]. [StackPlacement] and
+ * [SpellCounterer] need nothing from the resolution machinery, so an executor that only copies,
+ * counters or exiles a stack object uses them directly rather than constructing one of these.
  */
 class StackResolver(
     private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
-    private val effectHandler: EffectHandler = EffectHandler(zones, cardRegistry = cardRegistry),
-    private val staticAbilityHandler: StaticAbilityHandler = StaticAbilityHandler(cardRegistry),
-    private val predicateEvaluator: PredicateEvaluator = PredicateEvaluator()
+    private val effects: EffectExecutorRegistry,
+    private val spellCounterer: SpellCounterer,
+    private val predicateEvaluator: PredicateEvaluator,
+    /** The cast-time target validator, which re-validates a spliced card's own targets (CR 702.47d). */
+    private val spliceTargetValidator: com.wingedsheep.engine.mechanics.targeting.TargetValidator,
+    private val staticAbilityHandler: StaticAbilityHandler = StaticAbilityHandler(cardRegistry)
 ) {
     private val spellCaster = SpellCaster(
-        cardRegistry, staticAbilityHandler, EventPresentationFactory(Visibility(cardRegistry))
+        cardRegistry, staticAbilityHandler, EventPresentationFactory(Visibility(cardRegistry, conditionEvaluator = predicateEvaluator.conditions))
     )
     private val targetValidator = ResolutionTargetValidator(predicateEvaluator)
     private val entersWithChoicePrompt = EntersWithChoicePrompt(cardRegistry)
-    private val permanentEntry = PermanentEntry(cardRegistry, staticAbilityHandler)
-    private val nonPermanentSpellResolver = NonPermanentSpellResolver(zones, cardRegistry, effectHandler, predicateEvaluator)
+    private val permanentEntry = PermanentEntry(cardRegistry, staticAbilityHandler, conditionEvaluator = predicateEvaluator.conditions)
+    private val nonPermanentSpellResolver = NonPermanentSpellResolver(zones, cardRegistry, effects, predicateEvaluator, spliceTargetValidator)
     private val spellResolver = SpellResolver(
         cardRegistry = cardRegistry,
         predicateEvaluator = predicateEvaluator,
         targetValidator = targetValidator,
         permanentSpellResolver = PermanentSpellResolver(
-            cardRegistry, effectHandler, predicateEvaluator, permanentEntry, entersWithChoicePrompt
+            cardRegistry, effects, predicateEvaluator, permanentEntry, entersWithChoicePrompt
         ),
         nonPermanentSpellResolver = nonPermanentSpellResolver
     )
-    private val abilityResolver = AbilityResolver(effectHandler, targetValidator)
-    private val spellCounterer = SpellCounterer(cardRegistry, predicateEvaluator)
+    private val abilityResolver = AbilityResolver(effects, targetValidator, conditionEvaluator = predicateEvaluator.conditions)
 
     // =========================================================================
     // Putting objects on the stack

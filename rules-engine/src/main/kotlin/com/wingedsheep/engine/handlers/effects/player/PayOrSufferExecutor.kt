@@ -4,7 +4,6 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
@@ -45,14 +44,15 @@ class PayOrSufferExecutor(
     private val zones: ZoneTransitionService,
     private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
     private val decisionHandler: DecisionHandler = DecisionHandler(),
-    private val executeEffect: ((GameState, Effect, EffectContext) -> EffectResult)? = null
+    private val executeEffect: ((GameState, Effect, EffectContext) -> EffectResult)? = null,
+    /** The engine's cost-payment service; a provider, since it is built from the whole engine graph. */
+    private val costPaymentService: () -> CostPaymentService
 ) : EffectExecutor<PayOrSufferEffect> {
+    private val predicateEvaluator = zones.predicateEvaluator
+    private val dynamicAmountEvaluator = predicateEvaluator.amounts
 
     override val effectType: KClass<PayOrSufferEffect> = PayOrSufferEffect::class
 
-    private val predicateEvaluator = PredicateEvaluator()
-    private val dynamicAmountEvaluator = com.wingedsheep.engine.handlers.DynamicAmountEvaluator()
-    private val costPaymentService by lazy { CostPaymentService(EngineServices(cardRegistry)) }
 
     override fun execute(
         state: GameState,
@@ -610,7 +610,8 @@ class PayOrSufferExecutor(
             BattlefieldFilterUtils.findMatchingOnBattlefield(
                 state, cost.filter,
                 PredicateContext(controllerId = playerId, sourceId = sourceId),
-                excludeSelfId = sourceId
+                excludeSelfId = sourceId,
+                predicateEvaluator = predicateEvaluator
             )
         }
 
@@ -812,7 +813,7 @@ class PayOrSufferExecutor(
         controllerId: EntityId
     ): EffectResult {
         // Check if the player can pay the mana cost
-        val manaSolver = ManaSolver(cardRegistry)
+        val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
         if (!manaSolver.canPay(state, controllerId, cost.cost)) {
             return executeSufferEffect(state, effect.suffer, context)
         }
@@ -936,7 +937,7 @@ class PayOrSufferExecutor(
         sourceName: String,
         controllerId: EntityId
     ): EffectResult {
-        val payment = costPaymentService.pay(
+        val payment = costPaymentService().pay(
             state = state,
             payerId = controllerId,
             cost = PayCost.Atom(cost),
@@ -975,7 +976,7 @@ class PayOrSufferExecutor(
                 // Null only when the source entity/CardComponent is missing; an empty mana cost
                 // (lands, tokens) is {0} and always payable — see the execute branch above.
                 val ownCost = state.getEntity(sourceId)?.get<CardComponent>()?.manaCost
-                ownCost != null && ManaSolver(cardRegistry).canPay(state, playerId, ownCost)
+                ownCost != null && ManaSolver(cardRegistry, predicateEvaluator).canPay(state, playerId, ownCost)
             }
             // Offered rather than filtered out: the amount can only be evaluated in the
             // resolving context, and handlePayLifeCost re-checks affordability for real before
@@ -994,7 +995,7 @@ class PayOrSufferExecutor(
                     val life = state.lifeTotal(playerId) // CR 810.9a — team's shared total
                     life > atom.amount
                 }
-                is CostAtom.Mana -> ManaSolver(cardRegistry).canPay(state, playerId, atom.cost)
+                is CostAtom.Mana -> ManaSolver(cardRegistry, predicateEvaluator).canPay(state, playerId, atom.cost)
                 is CostAtom.ExileFrom -> findValidCardsInZone(state, playerId, atom.filter, atom.zone, sourceId).size >= atom.count
                 is CostAtom.TapPermanents -> findValidUntappedPermanentsOnBattlefield(
                     state, playerId, atom.filter, selfExclusion(atom.excludeSelf, sourceId), sourceId
@@ -1028,7 +1029,8 @@ class PayOrSufferExecutor(
                     val candidates = if (atom.self) listOf(sourceId)
                     else BattlefieldFilterUtils.findMatchingOnBattlefield(
                         state, atom.filter.youControl(),
-                        PredicateContext(controllerId = playerId, sourceId = sourceId)
+                        PredicateContext(controllerId = playerId, sourceId = sourceId),
+                        predicateEvaluator = predicateEvaluator
                     )
                     val counterType = atom.counterType
                     val required = (atom.count as? com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed)?.amount ?: 0
@@ -1073,7 +1075,8 @@ class PayOrSufferExecutor(
     ): List<EntityId> {
         if (zone == Zone.BATTLEFIELD) {
             return BattlefieldFilterUtils.findMatchingOnBattlefield(
-                state, filter.youControl(), PredicateContext(controllerId = playerId, sourceId = sourceId)
+                state, filter.youControl(), PredicateContext(controllerId = playerId, sourceId = sourceId),
+                predicateEvaluator = predicateEvaluator
             )
         }
         val zoneKey = ZoneKey(playerId, zone)
@@ -1126,7 +1129,8 @@ class PayOrSufferExecutor(
         return BattlefieldFilterUtils.findMatchingOnBattlefield(
             state, filter.youControl(),
             PredicateContext(controllerId = playerId, sourceId = sourceId),
-            excludeSelfId = excludeSelfId
+            excludeSelfId = excludeSelfId,
+            predicateEvaluator = predicateEvaluator
         )
     }
 
@@ -1145,7 +1149,8 @@ class PayOrSufferExecutor(
         return BattlefieldFilterUtils.findMatchingOnBattlefield(
             state, filter.youControl().untapped(),
             PredicateContext(controllerId = playerId, sourceId = sourceId),
-            excludeSelfId = excludeSelfId
+            excludeSelfId = excludeSelfId,
+            predicateEvaluator = predicateEvaluator
         )
     }
 
@@ -1296,7 +1301,6 @@ class PayOrSufferExecutor(
     }
 
     companion object {
-        private val predicateEvaluatorStatic = PredicateEvaluator()
 
         /**
          * Execute the random discard after player confirmed.
@@ -1315,7 +1319,7 @@ class PayOrSufferExecutor(
 
             // Filter valid cards
             val validCards = hand.filter { cardId ->
-                predicateEvaluatorStatic.matches(state, state.projectedState, cardId, filter, context)
+                zones.predicateEvaluator.matches(state, state.projectedState, cardId, filter, context)
             }
 
             if (validCards.isEmpty()) {

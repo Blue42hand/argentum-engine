@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.drawing
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CardRevealedFromDrawEvent
 import com.wingedsheep.engine.core.DrawFailedEvent
 import com.wingedsheep.engine.core.GameEvent
@@ -33,10 +34,9 @@ import com.wingedsheep.sdk.scripting.RevealFirstDrawEachTurn
  * draw ([com.wingedsheep.engine.core.DrawPhaseManager]) call into.
  */
 class DrawCardPrimitive(
-    private val cardRegistry: CardRegistry
+    private val cardRegistry: CardRegistry,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-    private val predicateEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator()
-
     /**
      * Result of a single [drawOne] call.
      *
@@ -51,7 +51,7 @@ class DrawCardPrimitive(
         val events: List<GameEvent>,
         val drawnCardId: EntityId?,
         val failed: Boolean
-    )
+)
 
     /**
      * Draw one card from the top of [playerId]'s library into their hand.

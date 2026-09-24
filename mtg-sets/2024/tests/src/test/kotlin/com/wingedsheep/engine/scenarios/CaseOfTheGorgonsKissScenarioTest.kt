@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.SolvedComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -88,7 +89,7 @@ class CaseOfTheGorgonsKissScenarioTest : FunSpec({
 
     /** The "to solve" progress badge the controller's client renders on [id], e.g. "2/3". */
     fun GameTestDriver.solveProgress(id: EntityId): String? =
-        ClientStateTransformer(cardRegistry)
+        ClientStateTransformer(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(state, player1)
             .cards.getValue(id)
             .activeEffects

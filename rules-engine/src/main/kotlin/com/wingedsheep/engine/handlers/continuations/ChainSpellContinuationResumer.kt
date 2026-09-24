@@ -72,7 +72,7 @@ class ChainSpellContinuationResumer(
         // Present cost payment based on PayCost type
         return when (val atom = (copyCost as? PayCost.Atom)?.atom) {
             is CostAtom.Sacrifice -> {
-                val candidates = ChainCopyExecutor.findMatchingPermanents(state, controllerId, atom.filter)
+                val candidates = ChainCopyExecutor.findMatchingPermanents(state, controllerId, atom.filter, predicateEvaluator = services.predicateEvaluator)
                 if (candidates.size < atom.count) {
                     return checkForMore(state, emptyList())
                 }
@@ -247,7 +247,7 @@ class ChainSpellContinuationResumer(
         checkForMore: CheckForMore
     ): ExecutionResult {
         // Check cost prerequisites
-        if (!ChainCopyExecutor.canPayCopyCost(state, recipientPlayerId, effect.copyCost)) {
+        if (!ChainCopyExecutor.canPayCopyCost(state, recipientPlayerId, effect.copyCost, predicateEvaluator = services.predicateEvaluator)) {
             return checkForMore(state, events)
         }
 

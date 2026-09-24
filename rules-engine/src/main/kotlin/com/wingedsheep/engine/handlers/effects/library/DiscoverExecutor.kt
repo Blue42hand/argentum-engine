@@ -7,7 +7,6 @@ import com.wingedsheep.engine.core.DiscoverMayCastContinuation
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
 import com.wingedsheep.engine.handlers.DecisionHandler
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
@@ -50,14 +49,13 @@ import com.wingedsheep.engine.core.Outcome
  */
 class DiscoverExecutor(
     private val zones: ZoneTransitionService,
-    /** Runs a [DiscoverEffect.thenEffect] through the registry (the late-bound recursion entry). */
+    /** Runs a [DiscoverEffect.thenEffect] through the registry. */
     private val runEffect: (GameState, Effect, EffectContext) -> EffectResult,
     private val decisionHandler: DecisionHandler = DecisionHandler()
 ) : EffectExecutor<DiscoverEffect> {
+    private val amountEvaluator = zones.predicateEvaluator.amounts
 
     override val effectType: KClass<DiscoverEffect> = DiscoverEffect::class
-
-    private val amountEvaluator = DynamicAmountEvaluator()
 
     override fun execute(
         state: GameState,

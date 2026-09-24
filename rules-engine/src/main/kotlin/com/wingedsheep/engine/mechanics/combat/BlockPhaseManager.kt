@@ -24,7 +24,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
@@ -58,10 +57,9 @@ internal class BlockPhaseManager(
     private val cardRegistry: CardRegistry,
     private val blockEvasionRules: List<BlockEvasionRule>,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-    private val conditionEvaluator = ConditionEvaluator()
-    private val predicateEvaluator = PredicateEvaluator()
-
+    private val conditionEvaluator = predicateEvaluator.conditions
     /**
      * Validate and declare blockers.
      *
@@ -135,7 +133,7 @@ internal class BlockPhaseManager(
         // player to confirm — same reasoning as attack taxes: don't tap their mana
         // without consent.
         val projected = state.projectedState
-        val totalBlockTax = CombatTaxes.blockTax(state, cardRegistry, blockers.keys, projected)
+        val totalBlockTax = CombatTaxes.blockTax(state, cardRegistry, blockers.keys, projected, predicateEvaluator = predicateEvaluator)
         if (totalBlockTax > 0) {
             return pauseForBlockTaxConfirmation(state, blockingPlayer, blockers, totalBlockTax)
         }
@@ -1132,7 +1130,7 @@ internal class BlockPhaseManager(
         val manaCost = com.wingedsheep.sdk.core.ManaCost(
             List(totalTax) { com.wingedsheep.sdk.core.ManaSymbol.generic(1) }
         )
-        val manaSolver = com.wingedsheep.engine.mechanics.mana.ManaSolver(cardRegistry)
+        val manaSolver = com.wingedsheep.engine.mechanics.mana.ManaSolver(cardRegistry, predicateEvaluator)
         val sources = manaSolver.findAvailableManaSources(state, blockingPlayer)
         val sourceOptions = sources.map { source ->
             com.wingedsheep.engine.core.ManaSourceOption(

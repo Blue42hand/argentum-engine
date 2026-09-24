@@ -6,11 +6,9 @@ import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
-import com.wingedsheep.engine.mechanics.stack.StackResolver
+import com.wingedsheep.engine.mechanics.stack.SpellCounterer
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
@@ -33,16 +31,15 @@ import kotlin.reflect.KClass
  * [CounterDestination], and [CounterCondition].
  */
 class CounterEffectExecutor(
-    private val zones: ZoneTransitionService,
     private val amountEvaluator: DynamicAmountEvaluator,
-    private val cardRegistry: CardRegistry
+    private val cardRegistry: CardRegistry,
+    private val counterer: SpellCounterer
 ) : EffectExecutor<CounterEffect> {
+    private val predicateEvaluator = amountEvaluator.predicates
 
     override val effectType: KClass<CounterEffect> = CounterEffect::class
 
     private val decisionHandler = DecisionHandler()
-    private val predicateEvaluator = PredicateEvaluator()
-
     override fun execute(
         state: GameState,
         effect: CounterEffect,
@@ -94,7 +91,6 @@ class CounterEffectExecutor(
         entityId: EntityId,
         context: EffectContext
     ): EffectResult {
-        val resolver = StackResolver(zones, cardRegistry = cardRegistry)
         // For SpellOrAbility, dispatch by what's actually on the stack at this entity:
         // a spell carries SpellOnStackComponent; activated/triggered abilities do not.
         val effectiveTarget = when (effect.target) {
@@ -104,13 +100,13 @@ class CounterEffectExecutor(
             else -> effect.target
         }
         return EffectResult.from(when (effectiveTarget) {
-            CounterTarget.Ability -> resolver.counterAbility(state, entityId)
+            CounterTarget.Ability -> counterer.counterAbility(state, entityId)
             CounterTarget.Spell -> when (val dest = effect.counterDestination) {
-                CounterDestination.Graveyard -> resolver.counterSpell(state, entityId, context.controllerId)
-                is CounterDestination.Exile -> resolver.counterSpellToExile(
+                CounterDestination.Graveyard -> counterer.counterSpell(state, entityId, context.controllerId)
+                is CounterDestination.Exile -> counterer.counterSpellToExile(
                     state, entityId, dest.grantFreeCast, context.controllerId
                 )
-                CounterDestination.Hand -> resolver.counterSpellToHand(state, entityId, context.controllerId)
+                CounterDestination.Hand -> counterer.counterSpellToHand(state, entityId, context.controllerId)
             }
             CounterTarget.SpellOrAbility -> error("unreachable — resolved above")
         })
@@ -127,7 +123,7 @@ class CounterEffectExecutor(
         val payingPlayerId = getSpellCasterId(state, spellEntityId)
             ?: return EffectResult.error(state, "Spell not found on stack")
 
-        val manaSolver = ManaSolver(cardRegistry)
+        val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
         if (!manaSolver.canPay(state, payingPlayerId, cost)) {
             return performCounter(state, effect, spellEntityId, context)
         }
@@ -155,7 +151,7 @@ class CounterEffectExecutor(
 
         val manaCost = ManaCost(listOf(ManaSymbol.Generic(totalGenericCost)))
 
-        val manaSolver = ManaSolver(cardRegistry)
+        val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
         if (!manaSolver.canPay(state, payingPlayerId, manaCost)) {
             return performCounter(state, effect, spellEntityId, context)
         }

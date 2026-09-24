@@ -1,11 +1,11 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.ObjectReferenceEnvironment
-import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.TokenComponent
@@ -97,7 +97,7 @@ class SourceZoneIdentityTest : FunSpec({
                 Effects.Exile(EffectTarget.Self),
                 GatedEffect(Gate.MayDecide("Continue?"), Effects.ReturnToHand(EffectTarget.Self)),
             )
-            val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state, effect, context)
+            val result = d.services.effectExecutorRegistry.execute(d.state, effect, context)
             result.error shouldBe null
             d.replaceState(result.state)
             d.pendingDecision.shouldBeInstanceOf<YesNoDecision>()
@@ -152,10 +152,10 @@ class SourceZoneIdentityTest : FunSpec({
         val current = context.withCurrentObjectReferences(d.state)
         current.resolveTarget(EffectTarget.TriggeringEntity, d.state) shouldBe null
         current.resolveTarget(EffectTarget.ControllerOfTriggeringEntity, d.state) shouldBe d.player1
-        com.wingedsheep.engine.handlers.DynamicAmountEvaluator().evaluate(d.state, DynamicAmounts.triggeringPower(), current) shouldBe 7
+        PredicateEvaluator(cardRegistry = null).amounts.evaluate(d.state, DynamicAmounts.triggeringPower(), current) shouldBe 7
         for (cardSource in listOf(com.wingedsheep.sdk.scripting.effects.CardSource.Self,
             com.wingedsheep.sdk.scripting.effects.CardSource.TriggeringEntity)) {
-            val gathered = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
+            val gathered = d.services.effectExecutorRegistry.execute(d.state,
                 com.wingedsheep.sdk.scripting.effects.GatherCardsEffect(cardSource, "stale"),
                 current.copy(sourceId = source, objectReferences = current.objectReferences.copy(source = ref)))
             gathered.updatedCollections?.get("stale") shouldBe emptyList()
@@ -218,11 +218,11 @@ class SourceZoneIdentityTest : FunSpec({
         val source = d.putCreatureOnBattlefield(d.player1, observer.name)
         val other = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
         val origin = d.state.objectRef(source)
-        val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
+        val result = d.services.effectExecutorRegistry.execute(d.state,
             Effects.DestroyAll(com.wingedsheep.sdk.dsl.Filters.Creature),
             EffectContext(sourceId = null, controllerId = d.player1))
         result.error shouldBe null
-        val triggers = com.wingedsheep.engine.event.TriggerDetector(d.cardRegistry)
+        val triggers = com.wingedsheep.engine.event.TriggerDetector(d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null), conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
             .detectTriggers(result.state, result.events)
         val observed = triggers.single { it.sourceId == source && it.triggerContext.triggeringEntityId == other }
         observed.objectReferences.origin shouldBe origin
@@ -248,7 +248,7 @@ class SourceZoneIdentityTest : FunSpec({
                 "life-bid" -> com.wingedsheep.sdk.scripting.effects.OpenLifeBidEffect(onWin = bounce)
                 else -> GatedEffect(Gate.MayDecide("Return?"), bounce)
             }
-            val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state, effect, context)
+            val result = d.services.effectExecutorRegistry.execute(d.state, effect, context)
             result.error shouldBe null
             d.replaceState(result.state)
             move(d, source, Zone.BATTLEFIELD, Zone.EXILE)
@@ -283,7 +283,7 @@ class SourceZoneIdentityTest : FunSpec({
         val d = driver()
         val source = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
         val ref = d.state.objectRef(source)!!
-        val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
+        val result = d.services.effectExecutorRegistry.execute(d.state,
             Effects.ChooseNumberForSource(minValue = 0, maxValue = 7),
             EffectContext(sourceId = source, controllerId = d.player1,
                 objectReferences = ObjectReferenceEnvironment(captured = true, origin = ref, source = ref)))
@@ -300,7 +300,7 @@ class SourceZoneIdentityTest : FunSpec({
         val d = driver()
         val source = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
         val ref = d.state.objectRef(source)!!
-        val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
+        val result = d.services.effectExecutorRegistry.execute(d.state,
             Effects.Composite(
                 com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect(
                     cost = Costs.pay.Sacrifice(com.wingedsheep.sdk.dsl.Filters.Creature),
@@ -329,7 +329,7 @@ class SourceZoneIdentityTest : FunSpec({
         d.registerCards(listOf(dredger))
         val source = d.putCreatureOnBattlefield(d.player1, dredger.name)
         move(d, source, Zone.BATTLEFIELD, Zone.GRAVEYARD)
-        val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
+        val result = d.services.effectExecutorRegistry.execute(d.state,
             Effects.DrawCards(1), EffectContext(sourceId = null, controllerId = d.player1))
         result.error shouldBe null
         d.replaceState(result.state)
@@ -347,7 +347,7 @@ class SourceZoneIdentityTest : FunSpec({
             val d = driver()
             val source = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
             val original = d.state.objectRef(source)!!
-            val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
+            val result = d.services.effectExecutorRegistry.execute(d.state,
                 com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect(
                     step = Step.END, effect = Effects.ReturnToHand(EffectTarget.Self)),
                 EffectContext(sourceId = source, controllerId = d.player1,

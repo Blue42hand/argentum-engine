@@ -48,7 +48,7 @@ import com.wingedsheep.engine.core.Outcome
 class MoveToZoneEffectExecutor(
     private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
-    private val targetFinder: TargetFinder = TargetFinder(),
+    private val targetFinder: TargetFinder,
     private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
 ) : EffectExecutor<MoveToZoneEffect> {
 
@@ -114,7 +114,7 @@ class MoveToZoneEffectExecutor(
         // *playing* a land is stopped earlier by PlayersCantPlayLands, and a land can't be cast.
         if (effect.destination == Zone.BATTLEFIELD &&
             cardComponent.typeLine.isLand &&
-            LandEntryLocks.landsCantEnter(state, cardRegistry)
+            LandEntryLocks.landsCantEnter(state, cardRegistry, predicateEvaluator = zones.predicateEvaluator)
         ) {
             return EffectResult.success(state)
         }
@@ -137,7 +137,8 @@ class MoveToZoneEffectExecutor(
         val actualDestZone = transitionResult.actualDestination
         if (actualDestZone == Zone.BATTLEFIELD && effect.faceDown == null) {
             val (counterState, counterEvents) = EntersWithReplacements.applyOnEntry(
-                resultState, targetId, controllerId, cardRegistry
+                resultState, targetId, controllerId, cardRegistry,
+                predicateEvaluator = zones.predicateEvaluator
             )
             resultState = counterState
             extraEvents.addAll(counterEvents)

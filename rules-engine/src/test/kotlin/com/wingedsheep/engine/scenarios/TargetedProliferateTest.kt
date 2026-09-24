@@ -3,7 +3,6 @@ package com.wingedsheep.engine.scenarios
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.SpellFizzledEvent
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
@@ -138,7 +137,7 @@ class TargetedProliferateTest : ScenarioTestBase() {
         keywords(Keyword.HEXPROOF)
     }
 
-    private val predicateEvaluator = PredicateEvaluator()
+    private val predicateEvaluator = services.predicateEvaluator
 
     private fun counters(game: TestGame, id: EntityId, type: CounterType): Int =
         game.state.getEntity(id)?.get<CountersComponent>()?.getCount(type) ?: 0

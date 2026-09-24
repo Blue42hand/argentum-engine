@@ -20,13 +20,13 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CounterDestination
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.composite.asOptionalManaPayment
 import com.wingedsheep.engine.handlers.effects.composite.payManaCostFromPool
 
 class ManaPaymentContinuationResumer(
     private val services: com.wingedsheep.engine.core.EngineServices
 ) : ContinuationResumerModule {
+    private val predicateEvaluator = services.predicateEvaluator
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(CounterUnlessPaysContinuation::class, ::resumeCounterUnlessPays),
@@ -80,7 +80,8 @@ class ManaPaymentContinuationResumer(
         }
 
         val paid = payManaCostFromPool(
-            state, continuation.playerId, continuation.cost * times, services.cardRegistry
+            state, continuation.playerId, continuation.cost * times, services.cardRegistry,
+            predicateEvaluator = predicateEvaluator
         )
         if (paid.error != null) return paid.toExecutionResult()
 
@@ -138,7 +139,7 @@ class ManaPaymentContinuationResumer(
             }
 
             // Need to tap sources — show mana source selection UI
-            val manaSolver = ManaSolver(services.cardRegistry)
+            val manaSolver = services.manaSolver
             val sources = manaSolver.findAvailableManaSources(state, playerId)
             val sourceOptions = sources.map { source ->
                 ManaSourceOption(
@@ -284,7 +285,6 @@ class ManaPaymentContinuationResumer(
         val eligibleCount = if (continuation.filter == null) {
             state.getHand(continuation.payingPlayerId).size
         } else {
-            val predicateEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator()
             val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
                 controllerId = continuation.payingPlayerId
             )
@@ -357,7 +357,8 @@ class ManaPaymentContinuationResumer(
         // Re-validate the selection against projected state — only permanents the paying
         // player controls that still match the ward fodder filter count toward payment.
         val valid = BattlefieldFilterUtils.findMatchingOnBattlefield(
-            state, continuation.filter.youControl(), PredicateContext(controllerId = continuation.payingPlayerId)
+            state, continuation.filter.youControl(), PredicateContext(controllerId = continuation.payingPlayerId),
+            predicateEvaluator = predicateEvaluator
         ).toSet()
         val selectedPermanents = response.selectedCards.filter { it in valid }
 
@@ -422,7 +423,8 @@ class ManaPaymentContinuationResumer(
         // Declined, or the graveyard shifted under the selection between prompt and response →
         // counter. `isLegalSelection` re-reads the graveyard, so a card that left it no longer pays.
         val legal = CollectEvidenceResolver.isLegalSelection(
-            state, continuation.payingPlayerId, continuation.amount, response.selectedCards
+            state, continuation.payingPlayerId, continuation.amount, response.selectedCards,
+            predicateEvaluator = predicateEvaluator
         )
         if (!legal) {
             val counterResult = if (continuation.exileOnCounter) {
@@ -672,7 +674,7 @@ class ManaPaymentContinuationResumer(
 
         if (!remainingCost.isEmpty()) {
             if (response.autoPay) {
-                val manaSolver = ManaSolver(services.cardRegistry)
+                val manaSolver = services.manaSolver
                 val solution = manaSolver.solve(currentState, playerId, remainingCost)
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
@@ -807,6 +809,7 @@ class ManaPaymentContinuationResumer(
             .chargeWardCost(
                 state = state,
                 zones = services.zones,
+                counterer = services.spellCounterer,
                 cost = remainingWardParts.first(),
                 remainingParts = remainingWardParts.drop(1),
                 spellEntityId = spellEntityId,
@@ -952,7 +955,7 @@ class ManaPaymentContinuationResumer(
         }
 
         // Need to tap sources — show mana source selection UI
-        val manaSolver = ManaSolver(services.cardRegistry)
+        val manaSolver = services.manaSolver
         val sources = manaSolver.findAvailableManaSources(state, playerId)
         val sourceOptions = sources.map { source ->
             ManaSourceOption(
@@ -1068,7 +1071,7 @@ class ManaPaymentContinuationResumer(
 
         if (!remainingCost.isEmpty()) {
             if (response.autoPay) {
-                val manaSolver = ManaSolver(services.cardRegistry)
+                val manaSolver = services.manaSolver
                 val solution = manaSolver.solve(currentState, playerId, remainingCost)
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
@@ -1142,7 +1145,7 @@ class ManaPaymentContinuationResumer(
 
         // Player chose to pay — show mana source selection
         val playerId = continuation.trigger.controllerId
-        val manaSolver = ManaSolver(services.cardRegistry)
+        val manaSolver = services.manaSolver
 
         // Find available sources for the UI
         val sources = manaSolver.findAvailableManaSources(state, playerId)
@@ -1242,7 +1245,7 @@ class ManaPaymentContinuationResumer(
         val events = mutableListOf<GameEvent>()
 
         if (!remainingCost.isEmpty()) {
-            val manaSolver = ManaSolver(services.cardRegistry)
+            val manaSolver = services.manaSolver
             val solution = manaSolver.solve(currentState, playerId, remainingCost)
                 ?: return ExecutionResult.error(state, "Cannot pay mana cost")
 
@@ -1334,7 +1337,7 @@ class ManaPaymentContinuationResumer(
         if (!remainingCost.isEmpty()) {
             if (response.autoPay) {
                 // Auto-tap: use ManaSolver
-                val manaSolver = ManaSolver(services.cardRegistry)
+                val manaSolver = services.manaSolver
                 val solution = manaSolver.solve(currentState, playerId, remainingCost)
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
@@ -1494,7 +1497,7 @@ class ManaPaymentContinuationResumer(
         playerId: EntityId,
         sourceId: EntityId
     ): com.wingedsheep.engine.mechanics.mana.TapPermanentsSubCost? {
-        val manaSolver = ManaSolver(services.cardRegistry)
+        val manaSolver = services.manaSolver
         return manaSolver.findAvailableManaSources(state, playerId)
             .firstOrNull { it.entityId == sourceId }
             ?.tapPermanentsSubCost
@@ -1531,7 +1534,6 @@ class ManaPaymentContinuationResumer(
             ?: return ExecutionResult.error(state, "Selected mana source is no longer available")
 
         val projected = state.projectedState
-        val predicateEvaluator = PredicateEvaluator()
         val predicateContext = PredicateContext(controllerId = payingPlayerId)
         val options = projected.getBattlefieldControlledBy(payingPlayerId)
             .filter { candidate ->
@@ -1609,7 +1611,6 @@ class ManaPaymentContinuationResumer(
 
         // Validate each chosen permanent still matches the filter and is untapped.
         val projected = state.projectedState
-        val predicateEvaluator = PredicateEvaluator()
         val predicateContext = PredicateContext(controllerId = continuation.payingPlayerId)
         for (chosen in response.selectedCards) {
             if (chosen == headSourceId) {

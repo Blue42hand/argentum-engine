@@ -49,11 +49,11 @@ import kotlin.reflect.KClass
  *
  * Used for Astral Slide-style exile-until-end-step patterns.
  */
-class CreateDelayedTriggerExecutor : EffectExecutor<CreateDelayedTriggerEffect> {
+class CreateDelayedTriggerExecutor(
+    private val dynamicAmountEvaluator: DynamicAmountEvaluator
+) : EffectExecutor<CreateDelayedTriggerEffect> {
 
     override val effectType: KClass<CreateDelayedTriggerEffect> = CreateDelayedTriggerEffect::class
-
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
 
     override fun execute(
         state: GameState,

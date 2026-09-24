@@ -171,7 +171,7 @@ class ConvergeMechanicTest : FunSpec({
         driver.castSpell(p, spell).outcome shouldBe Outcome.Done
         driver.bothPass() // creature resolves; CastRecordComponent stamped (2 colors)
 
-        val predicateEvaluator = PredicateEvaluator()
+        val predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         val filter = GameObjectFilter.NonlandPermanent
             .opponentControls()
             .manaValueAtMostColorsSpent(EffectTarget.Self)
@@ -195,7 +195,7 @@ class ConvergeMechanicTest : FunSpec({
         driver.castSpell(p, spell).outcome shouldBe Outcome.Done
         driver.bothPass()
 
-        val predicateEvaluator = PredicateEvaluator()
+        val predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         val filter = GameObjectFilter.NonlandPermanent
             .opponentControls()
             .manaValueAtMostColorsSpent(EffectTarget.Self)

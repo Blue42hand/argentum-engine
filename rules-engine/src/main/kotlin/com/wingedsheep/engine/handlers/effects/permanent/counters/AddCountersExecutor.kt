@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.permanent.counters
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.EffectContext
@@ -17,7 +18,9 @@ import kotlin.reflect.KClass
  * Executor for AddCountersEffect.
  * "Put X +1/+1 counters on target creature"
  */
-class AddCountersExecutor : EffectExecutor<AddCountersEffect> {
+class AddCountersExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<AddCountersEffect> {
 
     override val effectType: KClass<AddCountersEffect> = AddCountersEffect::class
 
@@ -45,7 +48,8 @@ class AddCountersExecutor : EffectExecutor<AddCountersEffect> {
 
         // Apply counter placement replacement effects (e.g., Hardened Scales)
         val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-            state, targetId, counterType, effect.count, placerId = context.controllerId
+            state, targetId, counterType, effect.count, placerId = context.controllerId,
+            predicateEvaluator = predicateEvaluator
         )
 
         val firstThisTurn = DamageUtils.isFirstCounterThisTurn(state, targetId)

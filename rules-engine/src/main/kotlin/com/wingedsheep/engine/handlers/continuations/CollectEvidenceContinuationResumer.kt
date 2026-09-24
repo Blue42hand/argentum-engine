@@ -83,7 +83,7 @@ class CollectEvidenceContinuationResumer(private val zones: ZoneTransitionServic
             return ExecutionResult.error(state, "Expected number response for collect evidence X")
         }
 
-        val candidates = CollectEvidenceResolver.candidates(state, continuation.playerId)
+        val candidates = CollectEvidenceResolver.candidates(state, continuation.playerId, predicateEvaluator = zones.predicateEvaluator)
         val chosen = response.number.coerceIn(0, candidates.totalManaValue)
 
         if (chosen == 0 || candidates.totalManaValue == chosen) {

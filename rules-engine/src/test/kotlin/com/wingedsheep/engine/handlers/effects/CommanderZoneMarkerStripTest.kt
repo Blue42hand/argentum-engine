@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -26,7 +27,7 @@ import io.kotest.matchers.shouldBe
  * so the next entry into a non-command zone produces a fresh prompt.
  */
 class CommanderZoneMarkerStripTest : FunSpec({
-    val zones = ZoneTransitionService(CardRegistry())
+    val zones = ZoneTransitionService(CardRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     val ownerId = EntityId.generate()
     val cmdrId = EntityId.generate()

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
  */
 internal class ActivationCostTotaller(
     private val castPermissionUtils: CastPermissionUtils,
+    private val amountEvaluator: DynamicAmountEvaluator
 ) {
 
     /**
@@ -107,7 +108,7 @@ internal class ActivationCostTotaller(
             controllerId = controllerId,
             targets = targets
         )
-        val amount = DynamicAmountEvaluator().evaluate(state, reduction, reductionContext)
+        val amount = amountEvaluator.evaluate(state, reduction, reductionContext)
         if (amount <= 0) return cost
         return cost.reduceGenericMana(amount)
     }

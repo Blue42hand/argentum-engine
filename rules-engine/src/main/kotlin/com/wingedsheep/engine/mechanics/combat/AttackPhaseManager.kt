@@ -48,10 +48,9 @@ internal class AttackPhaseManager(
     private val attackRestrictionRules: List<AttackRestrictionRule>,
     private val attackDefenderRules: List<AttackDefenderRule>,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-
-    private val predicateEvaluator = PredicateEvaluator()
-    private val conditionEvaluator = com.wingedsheep.engine.handlers.ConditionEvaluator()
+    private val conditionEvaluator = predicateEvaluator.conditions
 
     /**
      * Validate and declare attackers.
@@ -299,7 +298,7 @@ internal class AttackPhaseManager(
         val manaCost = com.wingedsheep.sdk.core.ManaCost(
             List(totalTax) { com.wingedsheep.sdk.core.ManaSymbol.generic(1) }
         )
-        val manaSolver = com.wingedsheep.engine.mechanics.mana.ManaSolver(cardRegistry)
+        val manaSolver = com.wingedsheep.engine.mechanics.mana.ManaSolver(cardRegistry, predicateEvaluator)
         val sources = manaSolver.findAvailableManaSources(state, attackingPlayer)
         val sourceOptions = sources.map { source ->
             com.wingedsheep.engine.core.ManaSourceOption(
@@ -366,7 +365,8 @@ internal class AttackPhaseManager(
     ): ExecutionResult {
         val (payingAttacker, requirement) = costs.first()
         val eligible = AttackSacrificeCosts.eligiblePermanents(
-            state, attackingPlayer, payingAttacker, requirement
+            state, attackingPlayer, payingAttacker, requirement,
+            predicateEvaluator = predicateEvaluator
         )
         val attackerName = state.getEntity(payingAttacker)?.get<CardComponent>()?.name ?: "your attacker"
         val continuation = com.wingedsheep.engine.core.AttackSacrificeSelectionContinuation(
@@ -419,7 +419,8 @@ internal class AttackPhaseManager(
                 state, attackingPlayer, attackers, state.projectedState, carryEvents, bands
             )
         val eligible = AttackSacrificeCosts.eligiblePermanents(
-            state, attackingPlayer, payingAttacker, requirement
+            state, attackingPlayer, payingAttacker, requirement,
+            predicateEvaluator = predicateEvaluator
         )
         val attackerName = state.getEntity(payingAttacker)?.get<CardComponent>()?.name ?: "your attacker"
         val continuation = com.wingedsheep.engine.core.AttackSacrificeSelectionContinuation(
@@ -897,5 +898,5 @@ internal class AttackPhaseManager(
         state: GameState,
         attackers: Map<EntityId, EntityId>,
         projected: ProjectedState
-    ): Int = CombatTaxes.attackTax(state, cardRegistry, attackers, projected)
+    ): Int = CombatTaxes.attackTax(state, cardRegistry, attackers, projected, predicateEvaluator = predicateEvaluator)
 }

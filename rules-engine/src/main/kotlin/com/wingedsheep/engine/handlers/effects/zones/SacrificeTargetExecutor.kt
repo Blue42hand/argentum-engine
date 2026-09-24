@@ -77,7 +77,7 @@ class SacrificeTargetExecutor(private val zones: ZoneTransitionService) : Effect
         // opponent's spell or ability. Killing Wave is the shape this guards: its per-creature
         // "sacrifice it unless you pay" runs under a ForEachPlayer that rebinds the resolution
         // controller to the creature's controller, so the caster is read off effectControllerId.
-        if (SacrificeImmunity.appliesTo(state, controllerId, context.effectControllerId ?: context.controllerId)) {
+        if (SacrificeImmunity.appliesTo(state, controllerId, context.effectControllerId ?: context.controllerId, predicateEvaluator = zones.predicateEvaluator)) {
             return EffectResult.success(state)
         }
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.mechanics.layers.ActiveFloatingEffect
 import com.wingedsheep.engine.mechanics.layers.FloatingEffectData
@@ -31,7 +32,7 @@ import com.wingedsheep.engine.core.Outcome
 
 class GatherCardsBattlefieldMatchingTest : FunSpec({
 
-    val executor = GatherCardsExecutor()
+    val executor = GatherCardsExecutor(predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     val playerId = EntityId.generate()
     val opponentId = EntityId.generate()

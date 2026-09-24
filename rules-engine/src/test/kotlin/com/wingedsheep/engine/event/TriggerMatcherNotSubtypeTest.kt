@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.event
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -67,7 +68,7 @@ class TriggerMatcherNotSubtypeTest : FunSpec({
     }
 
     fun detectorFor(driver: GameTestDriver): TriggerDetector =
-        TriggerDetector(driver.cardRegistry)
+        TriggerDetector(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null), conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
 
     test("non-Zombie creature dying fires the non-Zombie death trigger") {
         val driver = createDriver()

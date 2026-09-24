@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.stack
 
+import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.event.DelayedTriggeredAbility
 import com.wingedsheep.engine.handlers.EffectContext
@@ -45,7 +46,8 @@ import com.wingedsheep.sdk.scripting.targets.*
  */
 internal class PermanentEntry(
     private val cardRegistry: CardRegistry,
-    private val staticAbilityHandler: StaticAbilityHandler
+    private val staticAbilityHandler: StaticAbilityHandler,
+    private val conditionEvaluator: ConditionEvaluator
 ) {
     /**
      * Complete the permanent entry to the battlefield (shared between normal resolution and clone continuation).
@@ -554,7 +556,7 @@ internal class PermanentEntry(
                         sourceId = spellId,
                         controllerId = controllerId,
                     )
-                    !com.wingedsheep.engine.handlers.ConditionEvaluator().evaluate(
+                    !conditionEvaluator.evaluate(
                         newState, entersTapped.unlessCondition!!, context
                     )
                 } else {
@@ -617,7 +619,8 @@ internal class PermanentEntry(
             val (boughtState, boughtEvents) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements.placeEntryCounters(
                 newState, spellId,
                 boughtCounters.counterType, boughtCounters.count,
-                controllerId, cardComponent?.name ?: ""
+                controllerId, cardComponent?.name ?: "",
+                predicateEvaluator = conditionEvaluator.predicates
             )
             newState = boughtState
             counterEvents.addAll(boughtEvents)
@@ -641,7 +644,8 @@ internal class PermanentEntry(
         if (intrinsicEntryCounters != null) {
             val (entryCounterState, entryCounterEvents) = EntersWithReplacements.placeEntryCounters(
                 newState, spellId, intrinsicEntryCounters.first, intrinsicEntryCounters.second,
-                controllerId, cardComponent?.name ?: ""
+                controllerId, cardComponent?.name ?: "",
+                predicateEvaluator = conditionEvaluator.predicates
             )
             newState = entryCounterState
             counterEvents.addAll(entryCounterEvents)
@@ -720,10 +724,10 @@ internal class PermanentEntry(
         if (cardDef != null && !spellComponent.castFaceDown && !spellComponent.wasSneaked) {
             val alreadyTapped = newState.getEntity(spellId)?.has<TappedComponent>() == true
             val entersUntapped = com.wingedsheep.engine.handlers.effects.EnterUntappedReplacements
-                .entersUntapped(newState, spellId, controllerId)
+                .entersUntapped(newState, spellId, controllerId, predicateEvaluator = conditionEvaluator.predicates)
             if (!alreadyTapped && !entersUntapped &&
                 com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
-                    .entersTapped(newState, spellId, controllerId)
+                    .entersTapped(newState, spellId, controllerId, predicateEvaluator = conditionEvaluator.predicates)
             ) {
                 newState = newState.updateEntity(spellId) { c -> c.with(TappedComponent) }
             }
@@ -921,13 +925,15 @@ internal class PermanentEntry(
         val events = mutableListOf<GameEvent>()
 
         val (ownState, ownEvents) = EntersWithReplacements.applyFromDefinition(
-            newState, entityId, cardDef, controllerId, xValue, totalManaSpent
+            newState, entityId, cardDef, controllerId, xValue, totalManaSpent,
+            predicateEvaluator = conditionEvaluator.predicates
         )
         newState = ownState
         events.addAll(ownEvents)
 
         val (globalState, globalEvents) = EntersWithReplacements.applyGlobal(
-            newState, entityId, controllerId, cardRegistry
+            newState, entityId, controllerId, cardRegistry,
+            predicateEvaluator = conditionEvaluator.predicates
         )
         newState = globalState
         events.addAll(globalEvents)

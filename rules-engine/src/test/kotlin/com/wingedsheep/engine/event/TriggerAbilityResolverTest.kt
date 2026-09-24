@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.event
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CardEntityFactory
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
@@ -40,7 +41,7 @@ class TriggerAbilityResolverTest : FunSpec({
             script = CardScript(staticAbilities = listOf(grant)))
         val registry = CardRegistry().apply { register(listOf(target, provider)) }
         val abilities = AbilityRegistry().apply { register(target.name, base) }
-        val resolver = TriggerAbilityResolver(registry, abilities)
+        val resolver = TriggerAbilityResolver(registry, abilities, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val zone = ZoneKey(owner, Zone.BATTLEFIELD)
         val ungranted = GameState(
             entities = mapOf(targetId to CardEntityFactory.create(target, owner)),
@@ -49,7 +50,7 @@ class TriggerAbilityResolverTest : FunSpec({
         (resolver.getTriggeredAbilities(targetId, target.name, ungranted) === base) shouldBe true
         (resolver.getTriggeredAbilitiesWithProviders(targetId, target.name, ungranted, emptyList()) === base) shouldBe true
 
-        val fallback = TriggerAbilityResolver(registry, AbilityRegistry())
+        val fallback = TriggerAbilityResolver(registry, AbilityRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         (fallback.getTriggeredAbilities(targetId, target.name, ungranted) === base) shouldBe true
         (fallback.getTriggeredAbilitiesWithProviders(targetId, target.name, ungranted, emptyList()) === base) shouldBe true
 

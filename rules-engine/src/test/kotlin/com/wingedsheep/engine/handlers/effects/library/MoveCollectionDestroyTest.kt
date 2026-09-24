@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
@@ -35,7 +36,7 @@ import com.wingedsheep.engine.core.Outcome
 class MoveCollectionDestroyTest : FunSpec({
 
     val cardRegistry = com.wingedsheep.engine.registry.CardRegistry()
-    val zones = ZoneTransitionService(cardRegistry)
+    val zones = ZoneTransitionService(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
     val executor = MoveCollectionExecutor(zones, cardRegistry)
 
     val playerId = EntityId.generate()

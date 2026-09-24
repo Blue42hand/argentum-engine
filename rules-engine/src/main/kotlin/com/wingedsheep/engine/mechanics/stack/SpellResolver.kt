@@ -178,7 +178,7 @@ internal class SpellResolver(
             )
         } else {
             com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                .checkZoneChangeRedirect(state, spellId, Zone.STACK, Zone.GRAVEYARD)
+                .checkZoneChangeRedirect(state, spellId, Zone.STACK, Zone.GRAVEYARD, predicateEvaluator = predicateEvaluator)
         }
         val destZone = fizzleRedirect.destinationZone
         val destZoneKey = ZoneKey(ownerId, destZone)

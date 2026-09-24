@@ -38,9 +38,9 @@ class CoreAutoResumerModule(
         autoResumer(ForEachContinuation::class, canResume = {
             it.remainingItems.isNotEmpty() || it.effect.collectCollections.isNotEmpty()
         }) { state, continuation, events, checkForMore ->
-            val forEachExecutor = com.wingedsheep.engine.handlers.effects.composite.ForEachExecutor { s, e, c ->
-                services.effectExecutorRegistry.execute(s, e, c)
-            }
+            val forEachExecutor = com.wingedsheep.engine.handlers.effects.composite.ForEachExecutor(
+                services.effectExecutorRegistry::execute, services.predicateEvaluator
+            )
             val result = forEachExecutor.processItems(
                 state,
                 continuation.effect,
@@ -64,19 +64,14 @@ class CoreAutoResumerModule(
                 // of one that already went through it, so don't re-announce.
                 val announce = !continuation.announcementApplied
                 if (continuation.isDrawStep) {
-                    val turnManager = com.wingedsheep.engine.core.TurnManager(
-                        services.zones,
-                        cardRegistry = services.cardRegistry,
-                        effectExecutor = services.effectExecutorRegistry::execute,
-                        replacementProcessor = services.replacementEffectProcessor
-                    )
-                    val drawResult = turnManager.drawCards(nextDrawState, continuation.drawingPlayerId, continuation.remainingDraws, announce)
+                    val drawResult = services.turnManager.drawCards(nextDrawState, continuation.drawingPlayerId, continuation.remainingDraws, announce)
                     mergeAndContinue(drawResult, events, checkForMore)
                 } else {
                     val drawExecutor = com.wingedsheep.engine.handlers.effects.drawing.DrawCardsExecutor(
                         cardRegistry = services.cardRegistry,
                         effectExecutor = services.effectExecutorRegistry::execute,
-                        replacementProcessor = services.replacementEffectProcessor
+                        replacementProcessor = services.replacementEffectProcessor,
+                        amountEvaluator = services.dynamicAmountEvaluator
                     )
                     val drawResult = drawExecutor.executeDraws(
                         nextDrawState, continuation.drawingPlayerId, continuation.remainingDraws, announce = announce
@@ -96,7 +91,8 @@ class CoreAutoResumerModule(
             val drawExecutor = com.wingedsheep.engine.handlers.effects.drawing.DrawCardsExecutor(
                 cardRegistry = services.cardRegistry,
                 effectExecutor = services.effectExecutorRegistry::execute,
-                replacementProcessor = services.replacementEffectProcessor
+                replacementProcessor = services.replacementEffectProcessor,
+                amountEvaluator = services.dynamicAmountEvaluator
             )
             val drawResult = drawExecutor.executeDraws(state, continuation.playerId, 1).toExecutionResult()
             mergeAndContinue(drawResult, events, checkForMore)
@@ -170,7 +166,8 @@ class CoreAutoResumerModule(
                 priorEvents = events,
                 bodyOutputs = com.wingedsheep.engine.handlers.effects.composite.RepeatWhileExecutor.Companion.BodyOutputs(
                     collections = continuation.bodyCollections
-                )
+                ),
+                conditionEvaluator = services.conditionEvaluator
             )
             mergeAndContinue(result.toExecutionResult(), events = emptyList(), checkForMore)
         },
@@ -253,6 +250,8 @@ class CoreAutoResumerModule(
                     com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfTargetExecutor(
                         staticAbilityHandler = staticAbilityHandler,
                         cardRegistry = services.cardRegistry,
+                        amountEvaluator = services.dynamicAmountEvaluator,
+                        targetFinder = services.targetFinder
                     ).createTokens(
                         state, e, continuation.context, continuation.controllerId,
                         continuation.remaining, auraHostId = null,
@@ -260,6 +259,7 @@ class CoreAutoResumerModule(
                 is com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfSourceEffect ->
                     com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfSourceExecutor(
                         services.cardRegistry, staticAbilityHandler,
+                        predicateEvaluator = services.predicateEvaluator
                     ).createTokens(
                         state, e, continuation.context, continuation.controllerId, continuation.remaining,
                     )
@@ -274,7 +274,7 @@ class CoreAutoResumerModule(
         // menu and the auto-pay suggestion covers only what the new floating mana doesn't).
         autoResumer(ReopenManaPaymentDecisionContinuation::class) { state, continuation, events, _ ->
             com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow.reopen(
-                state, continuation.suspension, events, services.cardRegistry
+                state, continuation.suspension, events, services.manaSolver
             )
         },
 
