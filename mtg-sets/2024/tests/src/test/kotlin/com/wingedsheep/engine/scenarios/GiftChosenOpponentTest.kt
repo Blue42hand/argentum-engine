@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.GameConfig
@@ -7,8 +8,6 @@ import com.wingedsheep.engine.core.GameInitializer
 import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.ObjectReferenceEnvironment
-import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -113,7 +112,7 @@ class GiftChosenOpponentTest : FunSpec({
             .addToZone(ZoneKey(players[0], Zone.BATTLEFIELD), sourceId)
 
         // Executing the choose-opponent effect pauses with one option per opponent.
-        val registry2 = EffectExecutorRegistry(ZoneTransitionService(registry), cardRegistry = registry)
+        val registry2 = EngineServices(registry).effectExecutorRegistry
         val sourceRef = withSource.objectRef(sourceId)!!
         val context = EffectContext(sourceId = sourceId, controllerId = players[0],
             objectReferences = ObjectReferenceEnvironment(captured = true,

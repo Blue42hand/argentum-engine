@@ -91,11 +91,7 @@ class StormModalRetargetingTest : FunSpec({
             )
         )
 
-        val executor = StormCopyEffectExecutor(
-            zones,
-            cardRegistry = CardRegistry(),
-            targetFinder = TargetFinder()
-        )
+        val executor = StormCopyEffectExecutor(targetFinder = TargetFinder())
         val result = executor.execute(
             buildState(p1, p2, spellEntity, source),
             StormCopyEffect(
@@ -133,11 +129,7 @@ class StormModalRetargetingTest : FunSpec({
             modeTargetRequirements = mapOf(0 to emptyList(), 1 to emptyList())
         )
 
-        val executor = StormCopyEffectExecutor(
-            zones,
-            cardRegistry = CardRegistry(),
-            targetFinder = TargetFinder()
-        )
+        val executor = StormCopyEffectExecutor(targetFinder = TargetFinder())
         val result = executor.execute(
             buildState(p1, p2, spellEntity, source),
             StormCopyEffect(

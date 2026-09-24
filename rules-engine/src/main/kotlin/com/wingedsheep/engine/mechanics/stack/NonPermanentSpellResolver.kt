@@ -2,7 +2,7 @@ package com.wingedsheep.engine.mechanics.stack
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.EffectHandler
+import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
@@ -39,7 +39,7 @@ import com.wingedsheep.sdk.scripting.targets.*
 internal class NonPermanentSpellResolver(
     private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
-    private val effectHandler: EffectHandler,
+    private val effects: EffectExecutorRegistry,
     private val predicateEvaluator: PredicateEvaluator
 ) {
     /**
@@ -286,7 +286,7 @@ internal class NonPermanentSpellResolver(
             )
         } else newState
 
-        var effectResult = effectHandler.execute(stateForMainEffect, spellEffect, context)
+        var effectResult = effects.execute(stateForMainEffect, spellEffect, context)
 
         // Main spell done and nothing paused — pop the pre-pushed frame and run the spliced text
         // inline, so the whole resolution stays one ExecutionResult.
@@ -303,7 +303,7 @@ internal class NonPermanentSpellResolver(
                     triggeringEntityId = null,
                     objectReferences = context.objectReferences.authorize(effectResult.events)
                 ),
-                effectExecutor = { s, e, c -> effectHandler.execute(s, e, c) },
+                effectExecutor = effects::execute,
                 targetValidator = spliceTargetValidator,
                 accumulatedEvents = effectResult.events
             )

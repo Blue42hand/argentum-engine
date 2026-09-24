@@ -2,7 +2,7 @@ package com.wingedsheep.engine.mechanics.stack
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.EffectHandler
+import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.effects.library.ChooseCreatureTypePipelineExecutor
@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.*
  * for a triggered ability, the target re-check (CR 608.2b), then its effect.
  */
 internal class AbilityResolver(
-    private val effectHandler: EffectHandler,
+    private val effects: EffectExecutorRegistry,
     private val targetValidator: ResolutionTargetValidator
 ) {
     /** Evaluates a triggered ability's intervening-"if" as it resolves (CR 603.4). */
@@ -245,7 +245,7 @@ internal class AbilityResolver(
         context: EffectContext,
         resolvedEvents: List<GameEvent>
     ): ExecutionResult {
-        val effectResult = effectHandler.execute(state, effect, context)
+        val effectResult = effects.execute(state, effect, context)
 
         // If effect is paused awaiting a decision, return paused state
         // The ability entity stays removed (it's off the stack), but the decision must resolve

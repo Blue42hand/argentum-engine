@@ -75,11 +75,7 @@ class StormCopyInheritsAllDecisionsTest : FunSpec({
     }
 
     fun runStorm(state: GameState, spellEntity: EntityId, p1: EntityId) =
-        StormCopyEffectExecutor(
-            zones,
-            cardRegistry = CardRegistry(),
-            targetFinder = TargetFinder()
-        ).execute(
+        StormCopyEffectExecutor(targetFinder = TargetFinder()).execute(
             state,
             StormCopyEffect(
                 copyCount = 1,

@@ -152,7 +152,6 @@ class MiscContinuationResumer(
         val push = com.wingedsheep.engine.handlers.effects.stack.CopyTargetSpellOrAbilityExecutor
             .cloneAndPush(
                 state = state,
-                stackResolver = services.stackResolver,
                 abilityEntityId = continuation.abilityEntityId,
                 controllerId = continuation.controllerId,
                 targets = selectedTargets,
@@ -164,7 +163,6 @@ class MiscContinuationResumer(
         val driveResult = com.wingedsheep.engine.handlers.effects.stack.CopyTargetSpellOrAbilityExecutor
             .driveAbilityCopies(
                 state = push.newState,
-                stackResolver = services.stackResolver,
                 targetFinder = services.targetFinder,
                 abilityEntityId = continuation.abilityEntityId,
                 controllerId = continuation.controllerId,
@@ -565,7 +563,6 @@ class MiscContinuationResumer(
         val result = com.wingedsheep.engine.handlers.effects.stack.CopyEachTargetSpellExecutor
             .driveCopyEachSpell(
                 state = mutated,
-                stackResolver = services.stackResolver,
                 targetFinder = services.targetFinder,
                 controllerId = continuation.controllerId,
                 remainingSpellIds = continuation.remainingSpellIds.drop(1),
@@ -718,7 +715,6 @@ class MiscContinuationResumer(
 
         val result = com.wingedsheep.engine.handlers.effects.stack.StormCopyEffectExecutor.driveStormModalCopies(
             state = state,
-            stackResolver = services.stackResolver,
             targetFinder = services.targetFinder,
             sourceId = continuation.sourceId,
             controllerId = continuation.controllerId,

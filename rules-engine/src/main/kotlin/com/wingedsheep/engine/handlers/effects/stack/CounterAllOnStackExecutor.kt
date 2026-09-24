@@ -4,9 +4,7 @@ import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-import com.wingedsheep.engine.mechanics.stack.StackResolver
-import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.mechanics.stack.SpellCounterer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
@@ -29,8 +27,7 @@ import kotlin.reflect.KClass
  * using `"${storeCountAs}_count"`.
  */
 class CounterAllOnStackExecutor(
-    private val zones: ZoneTransitionService,
-    private val cardRegistry: CardRegistry
+    private val counterer: SpellCounterer
 ) : EffectExecutor<CounterAllOnStackEffect> {
 
     override val effectType: KClass<CounterAllOnStackEffect> = CounterAllOnStackEffect::class
@@ -53,7 +50,6 @@ class CounterAllOnStackExecutor(
             return maybeStoreCount(EffectResult.success(state), effect, emptyList())
         }
 
-        val resolver = StackResolver(zones, cardRegistry = cardRegistry)
         var currentState = state
         val allEvents = mutableListOf<GameEvent>()
         val countered = mutableListOf<EntityId>()
@@ -64,8 +60,8 @@ class CounterAllOnStackExecutor(
             if (!currentState.stack.contains(entityId)) continue
 
             val result = when (kind) {
-                StackEntityKind.Spell -> EffectResult.from(resolver.counterSpell(currentState, entityId, context.controllerId))
-                StackEntityKind.Ability -> EffectResult.from(resolver.counterAbility(currentState, entityId))
+                StackEntityKind.Spell -> EffectResult.from(counterer.counterSpell(currentState, entityId, context.controllerId))
+                StackEntityKind.Ability -> EffectResult.from(counterer.counterAbility(currentState, entityId))
             }
 
             if (result.error != null) {

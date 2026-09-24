@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
 import com.wingedsheep.engine.core.EffectResult
-import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.actions.spell.CastSpellHandler
@@ -12,54 +11,24 @@ import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.scripting.effects.Effect
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Module providing all library-related effect executors.
- *
- * [CastFromCollectionWithoutPayingCostExecutor] needs a [CastSpellHandler], which depends on
- * the full [EngineServices] graph. Because this module is registered while that graph is
- * still being built, the handler is wired in after construction via [initialize]; the
- * executor reads it through an [AtomicReference] holder, so it stays null until the
- * services finish constructing.
  */
 class LibraryExecutors(
+    /** The registry's re-entrant entry point, for the scry/surveil/clash/discover macros' pipelines. */
+    private val recursion: (GameState, Effect, EffectContext) -> EffectResult,
     private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
-    private val targetFinder: TargetFinder? = null,
-) : ExecutorModule {
-
-    private val castSpellHandlerRef = AtomicReference<CastSpellHandler?>(null)
-    private val playLandHandlerRef = AtomicReference<PlayLandHandler?>(null)
-
     /**
-     * The registry's recursive effect executor, used by the scry/surveil macro executors to run
-     * their expanded pipelines. Late-bound via [initializeRecursion] because the recursion entry
-     * point doesn't exist until the registry is wiring its deferred (recursive) modules. Read
-     * through the ref at execution time (like [castSpellHandlerRef]) so constructing this module
-     * before initialization — as some unit tests do — never trips over an uninitialized property;
-     * only an actual scry/surveil with no recursion wired errors.
+     * The engine's cast and land-play pipelines, for the "cast / play it without paying its mana
+     * cost" executors. Providers, read when an executor runs: the pipelines are built from the whole
+     * engine graph — this module's registry included — so they can't exist yet when it is built.
      */
-    private val recursionRef =
-        AtomicReference<((GameState, Effect, EffectContext) -> EffectResult)?>(null)
-
-    private val recursion: (GameState, Effect, EffectContext) -> EffectResult =
-        { state, effect, context ->
-            val executor = recursionRef.get()
-                ?: error("LibraryExecutors.initializeRecursion(...) was not called before the scry/surveil macro ran")
-            executor(state, effect, context)
-        }
-
-    /** Late-bind the cast machinery once [EngineServices] is fully constructed. */
-    fun initialize(services: EngineServices) {
-        castSpellHandlerRef.set(CastSpellHandler.create(services))
-        playLandHandlerRef.set(PlayLandHandler.create(services))
-    }
-
-    /** Late-bind the registry's recursive executor so the scry/surveil macros can delegate. */
-    fun initializeRecursion(executor: (GameState, Effect, EffectContext) -> EffectResult) {
-        recursionRef.set(executor)
-    }
+    private val castSpellHandler: () -> CastSpellHandler,
+    private val playLandHandler: () -> PlayLandHandler,
+    private val targetFinder: TargetFinder = TargetFinder(),
+) : ExecutorModule {
 
     override fun executors(): List<EffectExecutor<*>> = listOf(
         ScryExecutor(recursion),
@@ -80,24 +49,15 @@ class LibraryExecutors(
         CascadeExecutor(zones),
         DiscoverExecutor(zones, recursion),
         CastFromCollectionWithoutPayingCostExecutor(
-            castSpellHandlerProvider = {
-                castSpellHandlerRef.get()
-                    ?: error("LibraryExecutors.initialize(services) was not called before the executor ran")
-            },
+            castSpellHandlerProvider = castSpellHandler,
             cardRegistry = cardRegistry,
-            targetFinder = targetFinder ?: TargetFinder(),
+            targetFinder = targetFinder,
         ),
         PlayFromCollectionWithoutPayingCostExecutor(
-            castSpellHandlerProvider = {
-                castSpellHandlerRef.get()
-                    ?: error("LibraryExecutors.initialize(services) was not called before the executor ran")
-            },
-            playLandHandlerProvider = {
-                playLandHandlerRef.get()
-                    ?: error("LibraryExecutors.initialize(services) was not called before the executor ran")
-            },
+            castSpellHandlerProvider = castSpellHandler,
+            playLandHandlerProvider = playLandHandler,
             cardRegistry = cardRegistry,
-            targetFinder = targetFinder ?: TargetFinder(),
+            targetFinder = targetFinder,
         ),
         CastAnyNumberFromCollectionWithoutPayingCostExecutor(),
         GatherSubtypesExecutor(),
@@ -111,7 +71,7 @@ class LibraryExecutors(
         GrantSuspendExecutor(),
         SelectFromCollectionExecutor(cardRegistry = cardRegistry),
         ChoosePileExecutor(),
-        SelectTargetPipelineExecutor(targetFinder = targetFinder ?: TargetFinder()),
+        SelectTargetPipelineExecutor(targetFinder = targetFinder),
         MoveCollectionExecutor(zones, cardRegistry = cardRegistry, targetFinder = targetFinder),
         FilterCollectionExecutor(),
         ChooseOnePerCategoryExecutor(),

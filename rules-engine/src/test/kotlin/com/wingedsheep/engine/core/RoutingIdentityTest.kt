@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.core
 
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.EffectHandler
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
@@ -71,7 +70,7 @@ class RoutingIdentityTest : ScenarioTestBase() {
 
         test("a current-format opaque UUID decision resumes before allocating the first routing handle") {
             val game = scenario().withPlayers().build()
-            val paused = EffectHandler(zones, cardRegistry = cardRegistry).execute(
+            val paused = services.effectExecutorRegistry.execute(
                 game.state,
                 MayEffect(MayEffect(Effects.GainLife(2))),
                 EffectContext(sourceId = null, controllerId = game.player1Id)
@@ -113,7 +112,7 @@ class RoutingIdentityTest : ScenarioTestBase() {
         test("real consecutive decisions replay with recorded responses and reject a stale response") {
             val game = scenario().withPlayers().build()
             val initial = game.state
-            val handler = EffectHandler(zones, cardRegistry = cardRegistry)
+            val handler = services.effectExecutorRegistry
             val effect = CompositeEffect(listOf(
                 MayEffect(Effects.GainLife(1)),
                 MayEffect(Effects.GainLife(2))
@@ -170,7 +169,7 @@ class RoutingIdentityTest : ScenarioTestBase() {
                 effect = Effects.GainLife(1),
                 watchedTarget = EffectTarget.ContextTarget(0)
             )
-            val handler = EffectHandler(zones, cardRegistry = cardRegistry)
+            val handler = services.effectExecutorRegistry
             val effect = CompositeEffect(listOf(delayed, delayed))
             val created = handler.execute(game.state, effect, context)
             val replay = handler.execute(game.state, effect, context)

@@ -6,10 +6,11 @@ import com.wingedsheep.engine.event.TriggerProcessor
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.ContinuationHandler
 import com.wingedsheep.engine.handlers.CostHandler
-import com.wingedsheep.engine.handlers.EffectHandler
 import com.wingedsheep.engine.handlers.MulliganHandler
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.TargetFinder
+import com.wingedsheep.engine.handlers.actions.land.PlayLandHandler
+import com.wingedsheep.engine.handlers.actions.spell.CastSpellHandler
 import com.wingedsheep.engine.replacement.ReplacementEffectProcessor
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
@@ -21,7 +22,9 @@ import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.mechanics.mana.GrantedKeywordResolver
 import com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.mechanics.stack.SpellCounterer
 import com.wingedsheep.engine.mechanics.stack.StackResolver
+import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.mechanics.targeting.TargetValidator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.registry.PrintingRegistry
@@ -65,11 +68,29 @@ class EngineServices(
      * makes it safe for it to stop being so.
      */
     val replacementEffectProcessor = ReplacementEffectProcessor()
+    val conditionEvaluator = ConditionEvaluator()
+    val predicateEvaluator = PredicateEvaluator(cardRegistry)
+
+    /**
+     * Counters and exiles stack objects. Shared by [stackResolver] and the counter / exile-a-spell
+     * executors, which need nothing else of the stack machinery.
+     */
+    val spellCounterer = SpellCounterer(cardRegistry, predicateEvaluator)
+
+    /**
+     * The one effect-executor registry. The cast and land-play pipelines it needs (to cast a card
+     * "without paying its mana cost") are built from this whole graph, so it receives them as
+     * providers of [castSpellHandler] and [playLandHandler], which are only read once an effect
+     * executes.
+     */
     val effectExecutorRegistry = EffectExecutorRegistry(
         zones,
         cardRegistry = cardRegistry,
         tokenArtRegistry = tokenArtRegistry,
-        replacementProcessor = replacementEffectProcessor
+        replacementProcessor = replacementEffectProcessor,
+        spellCounterer = spellCounterer,
+        castSpellHandler = { castSpellHandler },
+        playLandHandler = { playLandHandler }
     )
     val manaAbilitySideEffectExecutor = ManaAbilitySideEffectExecutor(
         zones,
@@ -81,8 +102,10 @@ class EngineServices(
     val stateTriggerPoller = com.wingedsheep.engine.event.StateTriggerPoller(cardRegistry)
     val stackResolver = StackResolver(
         zones,
-        effectHandler = EffectHandler(zones, cardRegistry = cardRegistry, registry = effectExecutorRegistry),
-        cardRegistry = cardRegistry
+        cardRegistry = cardRegistry,
+        effects = effectExecutorRegistry,
+        spellCounterer = spellCounterer,
+        predicateEvaluator = predicateEvaluator
     )
     val triggerProcessor = TriggerProcessor(cardRegistry = cardRegistry, stackResolver = stackResolver)
     val manaSolver = ManaSolver(cardRegistry)
@@ -91,10 +114,8 @@ class EngineServices(
     val alternativePaymentHandler = AlternativePaymentHandler(grantedKeywordResolver)
     val costHandler = CostHandler(zones)
     val mulliganHandler = MulliganHandler(cardRegistry)
-    val conditionEvaluator = ConditionEvaluator()
     val targetValidator = TargetValidator()
     val targetFinder = TargetFinder()
-    val predicateEvaluator = PredicateEvaluator(cardRegistry)
     val castPermissionUtils = CastPermissionUtils(cardRegistry, predicateEvaluator, conditionEvaluator)
     val legalityKernel = LegalityKernel(cardRegistry, conditionEvaluator)
     val sbaChecker = StateBasedActionChecker(zones, cardRegistry = cardRegistry)
@@ -103,8 +124,12 @@ class EngineServices(
         cardRegistry = cardRegistry,
         combatManager = combatManager,
         sbaChecker = sbaChecker,
+        spellCounterer = spellCounterer,
         effectExecutor = effectExecutorRegistry::execute,
         replacementProcessor = replacementEffectProcessor
+    )
+    val legalActionEnumerator = LegalActionEnumerator(
+        cardRegistry, manaSolver, costCalculator, predicateEvaluator, conditionEvaluator, turnManager
     )
     val continuationHandler = ContinuationHandler(this)
     val settler = Settler(
@@ -112,11 +137,7 @@ class EngineServices(
         effectExecutor = effectExecutorRegistry::execute
     )
 
-    init {
-        // Late wiring: every service in the graph is now constructed, so it's safe to
-        // hand `this` to executors that need to synthesize a `CastSpell` action through
-        // the full cast pipeline (currently only
-        // [com.wingedsheep.engine.handlers.effects.library.CastFromCollectionWithoutPayingCostExecutor]).
-        effectExecutorRegistry.libraryExecutors.initialize(this)
-    }
+    /** The cast pipeline (CR 601.2). Built last: it draws on nearly every service above. */
+    val castSpellHandler: CastSpellHandler = CastSpellHandler.create(this)
+    val playLandHandler: PlayLandHandler = PlayLandHandler.create(this)
 }

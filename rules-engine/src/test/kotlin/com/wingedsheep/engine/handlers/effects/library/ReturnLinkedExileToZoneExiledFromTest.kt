@@ -92,11 +92,8 @@ class ReturnLinkedExileToZoneExiledFromTest : FunSpec({
     fun context() = EffectContext(sourceId = sourceId, controllerId = casterId)
 
     fun registry(): EffectExecutorRegistry {
-        val cardRegistry = com.wingedsheep.engine.registry.CardRegistry()
-        val zones = ZoneTransitionService(cardRegistry)
-        val reg = EffectExecutorRegistry(zones, cardRegistry = cardRegistry)
-        reg.registerModule(LibraryExecutors(zones, cardRegistry))
-        return reg
+        return com.wingedsheep.engine.core.EngineServices(com.wingedsheep.engine.registry.CardRegistry())
+            .effectExecutorRegistry
     }
 
     // -------------------------------------------------------------------------------------------

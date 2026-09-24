@@ -2,7 +2,7 @@ package com.wingedsheep.engine.mechanics.stack
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.EffectHandler
+import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.*
  */
 internal class PermanentSpellResolver(
     private val cardRegistry: CardRegistry,
-    private val effectHandler: EffectHandler,
+    private val effects: EffectExecutorRegistry,
     private val predicateEvaluator: PredicateEvaluator,
     private val permanentEntry: PermanentEntry,
     private val entersWithChoicePrompt: EntersWithChoicePrompt
@@ -427,7 +427,7 @@ internal class PermanentSpellResolver(
             val onEnterResult = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
                 .runOnEnterRunEffect(
                     enteredState, spellId, controllerId, cardRegistry,
-                    { s, e, ctx -> effectHandler.execute(s, e, ctx) },
+                    effects::execute,
                     xValue = spellComponent.xValue,
                 )
             if (onEnterResult != null) {

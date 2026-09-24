@@ -29,7 +29,7 @@ class LibraryAndZoneContinuationResumer(
     private val services: com.wingedsheep.engine.core.EngineServices
 ) : ContinuationResumerModule {
 
-    private val castSpellHandler: CastSpellHandler by lazy { CastSpellHandler.create(services) }
+    private val castSpellHandler: CastSpellHandler get() = services.castSpellHandler
     private val targetFinder = TargetFinder()
     private val effectRunner: EffectContinuationRunner by lazy {
         EffectContinuationRunner(services.effectExecutorRegistry)

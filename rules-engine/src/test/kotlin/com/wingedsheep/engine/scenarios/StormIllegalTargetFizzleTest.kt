@@ -89,11 +89,7 @@ class StormIllegalTargetFizzleTest : FunSpec({
             targetRequirements = listOf(requirement)
         )
 
-        val executor = StormCopyEffectExecutor(
-            zones,
-            cardRegistry = CardRegistry(),
-            targetFinder = TargetFinder()
-        )
+        val executor = StormCopyEffectExecutor(targetFinder = TargetFinder())
         val result = executor.execute(
             buildState(p1, p2, spellEntity, source, sourceTargets),
             StormCopyEffect(
@@ -131,11 +127,7 @@ class StormIllegalTargetFizzleTest : FunSpec({
             targetRequirements = listOf(requirement)
         )
 
-        val executor = StormCopyEffectExecutor(
-            zones,
-            cardRegistry = CardRegistry(),
-            targetFinder = TargetFinder()
-        )
+        val executor = StormCopyEffectExecutor(targetFinder = TargetFinder())
         val result = executor.execute(
             buildState(p1, p2, spellEntity, source, sourceTargets),
             StormCopyEffect(

@@ -4,6 +4,7 @@ import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.ExecutorModule
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+import com.wingedsheep.engine.mechanics.stack.SpellCounterer
 import com.wingedsheep.engine.registry.CardRegistry
 
 /**
@@ -12,22 +13,23 @@ import com.wingedsheep.engine.registry.CardRegistry
 class StackExecutors(
     private val zones: ZoneTransitionService,
     private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
-    private val cardRegistry: CardRegistry
+    private val cardRegistry: CardRegistry,
+    private val counterer: SpellCounterer
 ) : ExecutorModule {
     override fun executors(): List<EffectExecutor<*>> = listOf(
-        CounterEffectExecutor(zones, amountEvaluator, cardRegistry),
-        ExileTargetSpellExecutor(zones, cardRegistry),
-        ExileSpellsOnStackExecutor(zones, cardRegistry),
-        CounterAllOnStackExecutor(zones, cardRegistry),
-        WardCounterEffectExecutor(zones, cardRegistry),
+        CounterEffectExecutor(amountEvaluator, cardRegistry, counterer),
+        ExileTargetSpellExecutor(counterer),
+        ExileSpellsOnStackExecutor(counterer),
+        CounterAllOnStackExecutor(counterer),
+        WardCounterEffectExecutor(zones, cardRegistry, counterer),
         ChangeSpellTargetExecutor(),
         ChangeTargetExecutor(),
-        StormCopyEffectExecutor(zones, cardRegistry),
-        CopyTargetSpellExecutor(zones, cardRegistry),
-        CopyEachTargetSpellExecutor(zones, cardRegistry),
-        CopySpellForEachOtherPossibleTargetExecutor(zones, cardRegistry),
-        CopyTargetTriggeredAbilityExecutor(zones, cardRegistry),
-        CopyTargetSpellOrAbilityExecutor(zones, cardRegistry),
+        StormCopyEffectExecutor(),
+        CopyTargetSpellExecutor(),
+        CopyEachTargetSpellExecutor(),
+        CopySpellForEachOtherPossibleTargetExecutor(),
+        CopyTargetTriggeredAbilityExecutor(),
+        CopyTargetSpellOrAbilityExecutor(),
         CopyNextSpellCastExecutor(),
         CopyEachSpellCastExecutor(),
         MakeNextSpellUncounterableExecutor(),

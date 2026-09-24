@@ -64,13 +64,7 @@ class CoreAutoResumerModule(
                 // of one that already went through it, so don't re-announce.
                 val announce = !continuation.announcementApplied
                 if (continuation.isDrawStep) {
-                    val turnManager = com.wingedsheep.engine.core.TurnManager(
-                        services.zones,
-                        cardRegistry = services.cardRegistry,
-                        effectExecutor = services.effectExecutorRegistry::execute,
-                        replacementProcessor = services.replacementEffectProcessor
-                    )
-                    val drawResult = turnManager.drawCards(nextDrawState, continuation.drawingPlayerId, continuation.remainingDraws, announce)
+                    val drawResult = services.turnManager.drawCards(nextDrawState, continuation.drawingPlayerId, continuation.remainingDraws, announce)
                     mergeAndContinue(drawResult, events, checkForMore)
                 } else {
                     val drawExecutor = com.wingedsheep.engine.handlers.effects.drawing.DrawCardsExecutor(

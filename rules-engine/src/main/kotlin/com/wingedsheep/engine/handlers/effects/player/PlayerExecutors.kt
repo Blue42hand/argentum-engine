@@ -13,31 +13,19 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 /**
  * Module providing all player-related effect executors.
  *
- * Uses deferred initialization to inject the parent registry's execute function
- * into PayOrSufferExecutor, which needs it for executing arbitrary suffer effects.
+ * PayOrSufferExecutor runs arbitrary suffer effects through the parent registry's execute
+ * function, which the registry hands in at construction.
  */
 class PlayerExecutors(
+    /** The registry's re-entrant entry point, for the executors that run sub-effects. */
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
     private val zones: ZoneTransitionService,
     private val decisionHandler: DecisionHandler = DecisionHandler(),
     private val cardRegistry: CardRegistry
 ) : ExecutorModule {
-    private lateinit var effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
+    private val payOrSufferExecutor = PayOrSufferExecutor(zones, cardRegistry = cardRegistry, executeEffect = effectExecutor)
 
-    private val payOrSufferExecutor by lazy {
-        PayOrSufferExecutor(zones, cardRegistry = cardRegistry, executeEffect = effectExecutor)
-    }
-
-    private val openLifeBidExecutor by lazy {
-        OpenLifeBidExecutor(executeEffect = effectExecutor)
-    }
-
-    /**
-     * Initialize the module with the parent registry's execute function.
-     * Must be called before executors() is accessed.
-     */
-    fun initialize(executor: (GameState, Effect, EffectContext) -> EffectResult) {
-        this.effectExecutor = executor
-    }
+    private val openLifeBidExecutor = OpenLifeBidExecutor(executeEffect = effectExecutor)
 
     override fun executors(): List<EffectExecutor<*>> = listOf(
         AmassExecutor(effectExecutor),

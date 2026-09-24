@@ -807,6 +807,7 @@ class ManaPaymentContinuationResumer(
             .chargeWardCost(
                 state = state,
                 zones = services.zones,
+                counterer = services.spellCounterer,
                 cost = remainingWardParts.first(),
                 remainingParts = remainingWardParts.drop(1),
                 spellEntityId = spellEntityId,

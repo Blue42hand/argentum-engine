@@ -1,9 +1,9 @@
 package com.wingedsheep.engine.legalactions
 
+import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.TurnManager
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.PredicateEvaluator
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.legalactions.enumerators.*
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
@@ -116,33 +116,12 @@ class LegalActionEnumerator(
 
     companion object {
         /**
-         * Create a LegalActionEnumerator with the same dependencies as LegalActionsCalculator.
+         * A standalone enumerator for a caller that holds only a [CardRegistry], backed by an engine
+         * graph of its own. A caller that already has an [EngineServices] uses its
+         * [EngineServices.legalActionEnumerator] instead, so the enumerator shares that engine's
+         * turn manager and evaluators.
          */
-        fun create(
-            cardRegistry: CardRegistry,
-            manaSolver: ManaSolver = ManaSolver(cardRegistry),
-            costCalculator: CostCalculator = CostCalculator(cardRegistry),
-            predicateEvaluator: PredicateEvaluator = PredicateEvaluator(),
-            conditionEvaluator: ConditionEvaluator = ConditionEvaluator(),
-            zones: ZoneTransitionService = ZoneTransitionService(cardRegistry),
-            turnManager: TurnManager = TurnManager(
-                zones,
-                combatManager = com.wingedsheep.engine.mechanics.combat.CombatManager(
-                    zones,
-                    cardRegistry,
-                    com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor.noOp(zones)
-                ),
-                cardRegistry = cardRegistry
-            )
-        ): LegalActionEnumerator {
-            return LegalActionEnumerator(
-                cardRegistry = cardRegistry,
-                manaSolver = manaSolver,
-                costCalculator = costCalculator,
-                predicateEvaluator = predicateEvaluator,
-                conditionEvaluator = conditionEvaluator,
-                turnManager = turnManager
-            )
-        }
+        fun create(cardRegistry: CardRegistry): LegalActionEnumerator =
+            EngineServices(cardRegistry).legalActionEnumerator
     }
 }
