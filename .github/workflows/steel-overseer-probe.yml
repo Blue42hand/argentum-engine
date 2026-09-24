@@ -103,6 +103,21 @@ jobs:
         run: |
           (python3 scripts/check-card-printing.py "Steel Overseer" 2>&1 | tee steel-overseer-printing-gate.txt) || true
 
+      - name: Print evidence to log
+        shell: bash
+        run: |
+          for f in \
+            steel-overseer-assay-parse.txt \
+            steel-overseer-assay-explain.txt \
+            steel-overseer-fidelity.txt \
+            steel-overseer-m11.json \
+            steel-overseer-printings.json \
+            steel-overseer-rulings.json \
+            steel-overseer-printing-gate.txt; do
+            echo "===== ${f} ====="
+            cat "$f"
+          done
+
       - name: Upload Steel Overseer evidence
         uses: actions/upload-artifact@v4
         with:
