@@ -99,18 +99,15 @@ class EmrakulTheExigentDoomScenarioTest : ScenarioTestBase() {
             val (land, forests) = game.activateFromHand()
             game.resolveStack()
 
-            // Float {C}{C} from the granted ability (the auto-payer only sees a permanent's printed and
-            // statically granted mana abilities), then eight plain Forests pay the rest of the {10}.
-            val grant = game.grantsOn(land).single()
-            val tapForTwo = game.execute(ActivateAbility(game.player1Id, land, grant.ability.id))
-            withClue("tap the land for {C}{C}: ${tapForTwo.error}") { tapForTwo.error shouldBe null }
-            withClue("with {C}{C} floating and eight untapped Forests, the exiled Emrakul is castable") {
+            // Nine untapped lands: eight plain Forests + the granted land's {C}{C} = exactly the {10}.
+            // Auto-pay has to tap the granted land for {C}{C} (not {G}) to get there.
+            withClue("nine untapped lands, one of them making {C}{C}: Emrakul is castable from exile") {
                 game.getLegalActions(1).any {
                     (it.action as? CastSpell)?.cardId == emrakul && it.isAffordable
                 } shouldBe true
             }
             val cast = game.execute(CastSpell(game.player1Id, emrakul))
-            withClue("cast Emrakul from exile for {10}: ${cast.error}") { cast.error shouldBe null }
+            withClue("auto-pay Emrakul from exile for {10}: ${cast.error}") { cast.error shouldBe null }
 
             withClue("the grant ends the moment the card is cast from exile") {
                 game.grantsOn(land).size shouldBe 0
@@ -126,6 +123,29 @@ class EmrakulTheExigentDoomScenarioTest : ScenarioTestBase() {
                 forests.none { game.state.getEntity(it)?.has<TappedComponent>() == true } shouldBe true
             }
             game.grantsOn(land).size shouldBe 0
+        }
+
+        test("tapping the granted land by hand for {C}{C} also pays for the cast") {
+            val game = scenario()
+                .withPlayers("Player1", "Player2")
+                .withCardInHand(1, name)
+                .withLandsOnBattlefield(1, "Forest", 12)
+                .withActivePlayer(1)
+                .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                .build()
+
+            val emrakul = game.findCardsInHand(1, name).first()
+            val (land, _) = game.activateFromHand()
+            game.resolveStack()
+
+            val grant = game.grantsOn(land).single()
+            val tapForTwo = game.execute(ActivateAbility(game.player1Id, land, grant.ability.id))
+            withClue("tap the land for {C}{C}: ${tapForTwo.error}") { tapForTwo.error shouldBe null }
+            val cast = game.execute(CastSpell(game.player1Id, emrakul))
+            withClue("cast Emrakul with {C}{C} floating: ${cast.error}") { cast.error shouldBe null }
+            game.grantsOn(land).size shouldBe 0
+            game.resolveStack()
+            game.isOnBattlefield(name) shouldBe true
         }
     }
 }
