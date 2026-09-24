@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards
 **Release Date:** October 7, 2005
-**Implemented:** 279 / 291
+**Implemented:** 291 / 291
 | Section    | Total | Done |
 |------------|-------|------|
 | White      | 37    | 33   |
