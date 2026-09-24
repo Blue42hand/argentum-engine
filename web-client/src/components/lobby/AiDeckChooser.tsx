@@ -25,6 +25,8 @@ import type { AiDeckSpec, AiDeckSpecView } from '@/types'
 import { DeckPicker } from '../ui/DeckPicker'
 import { DeckPickerModal } from '../ui/DeckPickerModal'
 import { SetSelector, rollRandomSet } from '../ui/SetSelector'
+import { AiControllerSettings } from './AiControllerSettings'
+import { fromQuickGameLobby, fromTournamentLobby } from './lobbyViewModel'
 import styles from '../ui/GameUI.module.css'
 
 export type AiDeckSource = 'auto' | 'sets' | 'deck'
@@ -266,12 +268,19 @@ export function QuickAiDeckModal({
   onClose: () => void
 }) {
   const setQuickGameAiDeck = useGameStore((s) => s.setQuickGameAiDeck)
+  const quickLobby = useGameStore((s) => s.quickGameLobbyState)
+  const aiEnabled = useGameStore((s) => s.aiEnabled)
+  const controllerView = quickLobby
+    ? fromQuickGameLobby(quickLobby, { deckValid: true, deckTab: undefined, aiEnabled })
+    : null
+
   return (
     <DeckPickerModal
       title={`${playerName}’s deck`}
-      subtitle="Choose what this seat brings to the game."
+      subtitle="Choose this seat's controller and what it brings to the game."
       onClose={onClose}
     >
+      {controllerView && <AiControllerSettings view={controllerView} />}
       <AiDeckChooser
         aiDeck={aiDeck}
         format={format}
@@ -306,6 +315,12 @@ export function LobbyAiDeckModal({
   onClose: () => void
 }) {
   const setLobbyAiDeck = useGameStore((s) => s.setLobbyAiDeck)
+  const lobbyState = useGameStore((s) => s.lobbyState)
+  const aiEnabled = useGameStore((s) => s.aiEnabled)
+  const viewerPlayerId = useGameStore((s) => s.playerId)
+  const controllerView = lobbyState
+    ? fromTournamentLobby(lobbyState, { aiEnabled, playerId: viewerPlayerId })
+    : null
   const onSpecChange = useCallback(
     (spec: AiDeckSpec) => setLobbyAiDeck(playerId, spec),
     [setLobbyAiDeck, playerId],
@@ -313,9 +328,10 @@ export function LobbyAiDeckModal({
   return (
     <DeckPickerModal
       title={`${playerName}’s deck`}
-      subtitle="Each AI seat is chosen separately, so they need not all play the same thing."
+      subtitle="Choose this seat's controller and deck independently from the other AI seats."
       onClose={onClose}
     >
+      {controllerView && <AiControllerSettings view={controllerView} seatId={playerId} />}
       <AiDeckChooser
         aiDeck={aiDeck}
         format={format}
