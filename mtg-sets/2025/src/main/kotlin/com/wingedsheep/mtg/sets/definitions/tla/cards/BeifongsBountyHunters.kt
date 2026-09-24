@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -50,7 +49,7 @@ val BeifongsBountyHunters = card("Beifong's Bounty Hunters") {
         )
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         effect = Effects.Earthbend(
-            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
+            DynamicAmounts.triggeringPower(),
             land,
         )
         description = "Whenever a nonland creature you control dies, earthbend X, where X is that creature's power."

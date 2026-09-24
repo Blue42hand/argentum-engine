@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Uncover the Moon-Letters — The Hobbit #57
@@ -37,7 +36,7 @@ val UncoverTheMoonLetters = card("Uncover the Moon-Letters") {
         effect = Effects.May(
             Effects.Composite(
                 Effects.DrawCards(
-                    DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL)
+                    DynamicAmounts.manaSpentOnTriggeringSpell()
                 ),
                 Patterns.Hand.discardCards(2)
             ),

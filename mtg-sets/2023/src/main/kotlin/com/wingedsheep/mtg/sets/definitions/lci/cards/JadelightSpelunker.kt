@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Jadelight Spelunker — {X}{G}
@@ -34,7 +34,7 @@ val JadelightSpelunker = card("Jadelight Spelunker") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Repeat(
-            amount = DynamicAmount.XValue,
+            amount = DynamicAmounts.xValue(),
             body = Effects.Explore(EffectTarget.Self)
         )
     }

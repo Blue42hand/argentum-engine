@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Strongbox Raider
@@ -35,7 +34,7 @@ val StrongboxRaider = card("Strongbox Raider") {
         trigger = Triggers.EntersBattlefield
         interveningIf = Conditions.YouAttackedThisTurn
         effect = Effects.Pipeline {
-            val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
+            val exiled = gather(CardSource.TopOfLibrary(2))
             exile(exiled)
             val chosen = chooseExactly(
                 1,

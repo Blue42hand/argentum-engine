@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -16,7 +17,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Friendly Neighborhood
@@ -61,8 +61,8 @@ val FriendlyNeighborhood = card("Friendly Neighborhood") {
                 id = AbilityId.generate(),
                 cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap),
                 effect = Effects.ModifyStats(
-                    power = DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
-                    toughness = DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
+                    power = DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
+                    toughness = DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
                     target = EffectTarget.ContextTarget(0)
                 ),
                 targetRequirements = listOf(TargetCreature()),

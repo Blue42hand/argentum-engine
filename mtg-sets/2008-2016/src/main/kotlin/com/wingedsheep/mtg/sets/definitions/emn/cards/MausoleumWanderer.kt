@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.emn.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Mausoleum Wanderer
@@ -57,7 +56,7 @@ val MausoleumWanderer = card("Mausoleum Wanderer") {
         val instantOrSorcerySpell = target("target instant or sorcery spell", Targets.InstantOrSorcerySpell)
         cost = Costs.SacrificeSelf
         effect = Effects.CounterUnlessDynamicPays(
-            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
+            DynamicAmounts.sourcePower()
         )
         description = "Counter target instant or sorcery spell unless its controller pays {X}, " +
             "where X is this creature's power."

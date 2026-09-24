@@ -1,10 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Death Wind
@@ -23,7 +24,7 @@ val DeathWind = card("Death Wind") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        val negX = DynamicAmount.Multiply(DynamicAmount.XValue, -1)
+        val negX = -DynamicAmounts.xValue()
         effect = Effects.ModifyStats(negX, negX, creature)
     }
 

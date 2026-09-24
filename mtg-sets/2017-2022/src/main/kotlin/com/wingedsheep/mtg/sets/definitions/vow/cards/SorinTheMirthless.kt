@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sorin the Mirthless — Innistrad: Crimson Vow #131
@@ -55,7 +54,7 @@ val SorinTheMirthless = card("Sorin the Mirthless") {
     //     If you do, you lose life equal to its mana value.
     loyaltyAbility(+1) {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val looked = gather(CardSource.TopOfLibrary(1))
             val (kept, rest) = chooseUpToSplit(
                 1,
                 from = looked,

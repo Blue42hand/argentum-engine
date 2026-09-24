@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.PreventLifeGain
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sunspine Lynx
@@ -40,10 +40,10 @@ val SunspineLynx = card("Sunspine Lynx") {
         effect = Effects.ForEachPlayer(
             players = Player.Each,
             effect = Effects.DealDamage(
-                amount = DynamicAmount.Count(
-                    player = Player.You,
-                    zone = Zone.BATTLEFIELD,
-                    filter = GameObjectFilter(
+                amount = DynamicAmounts.count(
+                    Player.You,
+                    Zone.BATTLEFIELD,
+                    GameObjectFilter(
                         cardPredicates = listOf(
                             CardPredicate.IsLand,
                             CardPredicate.Not(CardPredicate.IsBasicLand)

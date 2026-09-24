@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Homarid
@@ -63,7 +62,7 @@ val Homarid = card("Homarid") {
         condition = Conditions.CompareAmounts(
             DynamicAmounts.countersOnSelf(CounterType.TIDE),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(1),
+            1,
         )
         ability = ModifyStats(-1, -1, GroupFilter.source())
     }
@@ -72,7 +71,7 @@ val Homarid = card("Homarid") {
         condition = Conditions.CompareAmounts(
             DynamicAmounts.countersOnSelf(CounterType.TIDE),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(3),
+            3,
         )
         ability = ModifyStats(1, 1, GroupFilter.source())
     }

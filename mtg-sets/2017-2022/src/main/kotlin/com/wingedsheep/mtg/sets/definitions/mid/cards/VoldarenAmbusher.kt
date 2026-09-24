@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mid.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Voldaren Ambusher
@@ -39,7 +39,7 @@ val VoldarenAmbusher = card("Voldaren Ambusher") {
             TargetCreatureOrPlaneswalker(optional = true)
         )
         effect = Effects.DealDamage(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Vampire")),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Vampire")).count(),
             t
         )
     }

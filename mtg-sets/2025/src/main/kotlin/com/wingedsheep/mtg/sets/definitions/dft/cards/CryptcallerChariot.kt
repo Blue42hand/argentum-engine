@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Cryptcaller Chariot — Aetherdrift #80
@@ -43,7 +42,7 @@ val CryptcallerChariot = card("Cryptcaller Chariot") {
     triggeredAbility {
         trigger = Triggers.YouDiscardOneOrMore
         effect = Effects.CreateToken(
-            count = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCARD_COUNT),
+            count = DynamicAmounts.triggerDiscardCount(),
             power = 2,
             toughness = 2,
             colors = setOf(Color.BLACK),

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Howlpack Piper // Wildsong Howler (Innistrad: Crimson Vow)
@@ -45,7 +44,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 
 private val WILDSONG_HOWLER_DIG = Patterns.Library.lookAtTopRevealMatchingToHand(
-    count = DynamicAmount.Fixed(6),
+    count = 6,
     filter = GameObjectFilter.Creature,
     prompt = "You may reveal a creature card to put into your hand",
 )

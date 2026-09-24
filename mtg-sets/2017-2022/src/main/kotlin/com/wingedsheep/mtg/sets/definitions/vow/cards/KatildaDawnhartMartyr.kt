@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.disturb
@@ -46,10 +47,10 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 
 /** The number of permanents you control that are Spirits and/or enchantments. */
-private val spiritsAndEnchantmentsYouControl: DynamicAmount = DynamicAmount.AggregateBattlefield(
+private val spiritsAndEnchantmentsYouControl: DynamicAmount = DynamicAmounts.battlefield(
     Player.You,
     GameObjectFilter.Permanent.withSubtype(Subtype.SPIRIT) or GameObjectFilter.Enchantment,
-)
+).count()
 
 private const val PROTECTION_FROM_VAMPIRES = "PROTECTION_FROM_SUBTYPE_VAMPIRE"
 

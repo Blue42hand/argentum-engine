@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Marina Vendrell — Duskmourn: House of Horror #221
@@ -46,7 +45,7 @@ val MarinaVendrell = card("Marina Vendrell") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Patterns.Library.revealTopPutAllMatchingToHand(
-            count = DynamicAmount.Fixed(7),
+            count = 7,
             filter = GameObjectFilter.Enchantment,
         )
         description = "When Marina Vendrell enters, reveal the top seven cards of your library. Put " +

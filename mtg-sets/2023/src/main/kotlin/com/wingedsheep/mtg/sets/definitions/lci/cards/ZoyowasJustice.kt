@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -46,7 +45,7 @@ val ZoyowasJustice = card("Zoyowa's Justice") {
             listOf(
                 Effects.ShuffleIntoLibrary(permanent),
                 Effects.Discover(
-                    DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue)
+                    DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0))
                 )
             )
         )

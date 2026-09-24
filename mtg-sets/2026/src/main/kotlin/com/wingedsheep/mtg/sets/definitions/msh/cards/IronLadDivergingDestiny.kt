@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Iron Lad, Diverging Destiny — Marvel Super Heroes #59
@@ -47,7 +46,7 @@ val IronLadDivergingDestiny = card("Iron Lad, Diverging Destiny") {
     activatedAbility {
         cost = Costs.Tap
         effect = Effects.Pipeline {
-            val ironLadRevealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)), revealed = true)
+            val ironLadRevealed = gather(CardSource.TopOfLibrary(1), revealed = true)
             run(Effects.If(
                 condition = whenMatches(ironLadRevealed, GameObjectFilter.Artifact),
                 then = Effects.DrawCards(1),

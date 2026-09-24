@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Choco, Seeker of Paradise
@@ -57,10 +57,10 @@ val ChocoSeekerOfParadise = card("Choco, Seeker of Paradise") {
             // Look at that many cards from the top of your library.
             val looked = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.AggregateBattlefield(
+                    count = DynamicAmounts.battlefield(
                         Player.You,
                         GameObjectFilter.Creature.withSubtype(Subtype.BIRD).attacking()
-                    ),
+                    ).count(),
                     player = Player.You
                 )
             )

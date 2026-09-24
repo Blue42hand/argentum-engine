@@ -4,8 +4,8 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tifa's Limit Break
@@ -48,8 +48,8 @@ val TifasLimitBreak = card("Tifa's Limit Break") {
             tier("Final Heaven", "{6}{G}", "Triple target creature's power and toughness until end of turn.") {
                 val creature = target("target creature", Targets.Creature)
                 effect = Effects.ModifyStats(
-                    power = DynamicAmount.Multiply(DynamicAmounts.targetPower(0), 2),
-                    toughness = DynamicAmount.Multiply(DynamicAmounts.targetToughness(0), 2),
+                    power = DynamicAmounts.targetPower(0) * 2,
+                    toughness = DynamicAmounts.targetToughness(0) * 2,
                     target = creature
                 )
             }

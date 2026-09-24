@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -15,7 +16,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bumi, King of Three Trials
@@ -62,7 +62,7 @@ val BumiKingOfThreeTrials = card("Bumi, King of Three Trials") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseUpToDynamic(
-            dynamicMax = DynamicAmount.Count(
+            dynamicMax = DynamicAmounts.count(
                 Player.You,
                 Zone.GRAVEYARD,
                 GameObjectFilter.Any.withSubtype(Subtype.LESSON)

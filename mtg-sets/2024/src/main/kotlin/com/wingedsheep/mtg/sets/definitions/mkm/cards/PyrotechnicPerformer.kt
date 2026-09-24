@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Pyrotechnic Performer — Murders at Karlov Manor #140
@@ -56,10 +55,7 @@ val PyrotechnicPerformer = card("Pyrotechnic Performer") {
     triggeredAbility {
         trigger = Triggers.CreatureTurnedFaceUp(player = Player.You)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.EntityProperty(
-                EffectTarget.TriggeringEntity,
-                EntityNumericProperty.Power
-            ),
+            amount = DynamicAmounts.triggeringPower(),
             target = EffectTarget.PlayerRef(Player.EachOpponent),
             damageSource = EffectTarget.TriggeringEntity
         )

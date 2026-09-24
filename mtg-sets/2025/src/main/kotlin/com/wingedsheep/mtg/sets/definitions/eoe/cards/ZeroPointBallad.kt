@@ -1,16 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Zero Point Ballad
@@ -35,12 +35,12 @@ val ZeroPointBallad = card("Zero Point Ballad") {
                     storeDestroyedAs = it
                 )
             }
-            run(Effects.LoseLife(DynamicAmount.XValue, EffectTarget.Controller))
+            run(Effects.LoseLife(DynamicAmounts.xValue(), EffectTarget.Controller))
             run(Effects.If(
-                condition = Compare(
-                    DynamicAmount.XValue,
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.xValue(),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(6)
+                    6
                 ),
                 then = Effects.Pipeline {
                     val reanimated = chooseExactly(

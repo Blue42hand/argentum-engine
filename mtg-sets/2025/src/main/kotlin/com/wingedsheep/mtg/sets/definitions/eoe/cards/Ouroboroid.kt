@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Ouroboroid
@@ -31,7 +30,7 @@ val Ouroboroid = card("Ouroboroid") {
         // increase X for the remaining creatures mid-loop.
         effect = Effects.Pipeline {
             val ouroboroidPower = storeNumber(
-                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
+                DynamicAmounts.sourcePower()
             )
             run(Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,

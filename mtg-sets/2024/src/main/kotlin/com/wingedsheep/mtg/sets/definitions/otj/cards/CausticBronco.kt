@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Caustic Bronco
@@ -48,7 +47,7 @@ val CausticBronco = card("Caustic Bronco") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You))
+            val revealed = gather(CardSource.TopOfLibrary(1, Player.You))
             toHand(revealed, revealed = true)
             run(Effects.If(
                 condition = Conditions.SourceIsSaddled,

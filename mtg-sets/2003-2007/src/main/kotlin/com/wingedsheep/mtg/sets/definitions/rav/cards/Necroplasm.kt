@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Necroplasm
@@ -56,10 +55,7 @@ val Necroplasm = card("Necroplasm") {
         trigger = Triggers.YourEndStep
         effect = Effects.DestroyAll(
             GameObjectFilter.Creature.manaValueEqualsDynamic(
-                DynamicAmount.EntityProperty(
-                    EffectTarget.Self,
-                    EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
-                )
+                DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE)
             )
         )
         description = "At the beginning of your end step, destroy each creature with mana value " +

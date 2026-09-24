@@ -1,15 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sinuous Benthisaur
@@ -54,21 +55,21 @@ val SinuousBenthisaur = card("Sinuous Benthisaur") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
 
-        val cavesControlled = DynamicAmount.Count(
-            player = Player.You,
-            zone = Zone.BATTLEFIELD,
-            filter = GameObjectFilter.Land.withSubtype("Cave"),
+        val cavesControlled = DynamicAmounts.count(
+            Player.You,
+            Zone.BATTLEFIELD,
+            GameObjectFilter.Land.withSubtype("Cave"),
         )
-        val cavesInGraveyard = DynamicAmount.Count(
-            player = Player.You,
-            zone = Zone.GRAVEYARD,
-            filter = GameObjectFilter.Any.withSubtype("Cave"),
+        val cavesInGraveyard = DynamicAmounts.count(
+            Player.You,
+            Zone.GRAVEYARD,
+            GameObjectFilter.Any.withSubtype("Cave"),
         )
 
         effect = Effects.Pipeline {
             val looked = gather(
                 CardSource.TopOfLibrary(
-                    DynamicAmount.Add(cavesControlled, cavesInGraveyard)
+                    cavesControlled + cavesInGraveyard
                 )
             )
             val (kept, rest) = chooseExactlySplit(

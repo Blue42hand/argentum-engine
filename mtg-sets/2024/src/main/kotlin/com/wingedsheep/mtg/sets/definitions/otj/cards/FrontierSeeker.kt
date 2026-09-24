@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Frontier Seeker
@@ -37,7 +36,7 @@ val FrontierSeeker = card("Frontier Seeker") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val looked = gather(CardSource.TopOfLibrary(5))
             val (kept, rest) = chooseUpToSplit(
                 1,
                 from = looked,

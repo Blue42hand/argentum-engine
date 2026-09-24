@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gila Courser
@@ -34,7 +33,7 @@ val GilaCourser = card("Gila Courser") {
         trigger = Triggers.Attacks
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Effects.Pipeline {
-            val exiledCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)
             run(Effects.GrantMayPlayFromExile(exiledCard, MayPlayExpiry.UntilEndOfNextTurn))
         }

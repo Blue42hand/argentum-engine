@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Costume Closet (Marvel's Spider-Man, #5)
@@ -64,7 +64,7 @@ val CostumeCloset = card("Costume Closet") {
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.MoveCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            amount = DynamicAmount.Fixed(1),
+            amount = DynamicAmounts.fixed(1),
             source = EffectTarget.Self,
             destination = creature
         )

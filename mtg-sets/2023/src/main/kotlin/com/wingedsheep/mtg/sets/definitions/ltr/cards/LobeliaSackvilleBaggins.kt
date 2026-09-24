@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -64,10 +63,7 @@ val LobeliaSackvilleBaggins = card("Lobelia Sackville-Baggins") {
             destination = Zone.EXILE,
             fromZone = Zone.GRAVEYARD
         ).then(
-            Effects.CreateTreasure(DynamicAmount.EntityProperty(
-                    entity = EffectTarget.ContextTarget(0),
-                    numericProperty = EntityNumericProperty.Power
-                ))
+            Effects.CreateTreasure(DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)))
         )
     }
 

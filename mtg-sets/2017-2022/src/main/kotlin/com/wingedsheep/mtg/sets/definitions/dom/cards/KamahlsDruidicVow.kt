@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -46,11 +46,11 @@ val KamahlsDruidicVow = card("Kamahl's Druidic Vow") {
         castOnlyIf(Conditions.ControlLegendaryCreatureOrPlaneswalker)
         effect = Effects.Pipeline {
             // Look at the top X cards
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.XValue))
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue()))
             // Filter to cards with mana value X or less
             val (mvOk, mvTooHigh) = filterSplit(
                 looked,
-                GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.XValue)
+                GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmounts.xValue())
             )
             // Player selects any number of land and/or legendary permanent cards
             val (chosen, unchosen) = chooseAnyNumberSplit(

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.CastSpellTypesFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -35,7 +34,7 @@ val PrecognitionField = card("Precognition Field") {
     activatedAbility {
         cost = Costs.Mana("{3}")
         effect = Effects.Pipeline {
-            val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val exiled = gather(CardSource.TopOfLibrary(1))
             exile(exiled)
         }
     }

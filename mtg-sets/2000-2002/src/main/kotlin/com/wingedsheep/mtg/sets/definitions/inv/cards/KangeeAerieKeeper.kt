@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kangee, Aerie Keeper
@@ -47,7 +46,7 @@ val KangeeAerieKeeper = card("Kangee, Aerie Keeper") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         interveningIf = WasKicked
-        effect = Effects.AddDynamicCounters(CounterType.FEATHER, DynamicAmount.XValue, EffectTarget.Self)
+        effect = Effects.AddDynamicCounters(CounterType.FEATHER, DynamicAmounts.xValue(), EffectTarget.Self)
     }
 
     staticAbility {

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Voltaic Visionary // Volt-Charged Berserker (Innistrad: Crimson Vow #183)
@@ -64,7 +63,7 @@ private val VoltaicVisionaryFront = card("Voltaic Visionary") {
                 EffectTarget.PlayerRef(Player.You),
                 damageSource = EffectTarget.Self
             ))
-            val voltaicExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val voltaicExiled = gather(CardSource.TopOfLibrary(1))
             exile(voltaicExiled)
             run(Effects.GrantMayPlayFromExile(
                 from = voltaicExiled,

@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.TriggeredAbility
@@ -30,7 +30,7 @@ val FalseCure = card("False Cure") {
                 trigger = Triggers.AnyPlayerGainsLife.event,
                 binding = Triggers.AnyPlayerGainsLife.binding,
                 effect = Effects.LoseLife(
-                    amount = DynamicAmount.Multiply(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED), 2),
+                    amount = DynamicAmounts.triggerLifeGained() * 2,
                     target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
                 )
             )

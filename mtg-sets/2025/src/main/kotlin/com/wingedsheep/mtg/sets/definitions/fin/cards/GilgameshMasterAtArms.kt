@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gilgamesh, Master-at-Arms
@@ -105,7 +104,7 @@ val GilgameshMasterAtArms = card("Gilgamesh, Master-at-Arms") {
 }
 
 private fun lookAtTopSixPutEquipment(): Effect = Effects.Pipeline {
-    val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(6)))
+    val looked = gather(CardSource.TopOfLibrary(6))
     val (equipment, rest) = chooseAnyNumberSplit(
         from = looked,
         filter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT),

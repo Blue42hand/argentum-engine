@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.ice.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Iceberg
@@ -35,7 +35,7 @@ val Iceberg = card("Iceberg") {
     replacementEffect(
         EntersWithDynamicCounters(
             counterType = CounterType.ICE,
-            count = DynamicAmount.XValue
+            count = DynamicAmounts.xValue()
         )
     )
 

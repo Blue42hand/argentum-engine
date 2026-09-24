@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -17,7 +18,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Rise of Sozin // Fire Lord Sozin (TLA #117)
@@ -96,7 +96,7 @@ private val FireLordSozin = card("Fire Lord Sozin") {
                             GameObjectFilter.Creature.ownedByTriggeringPlayer(),
                             zone = Zone.GRAVEYARD
                         ),
-                        totalManaValueAtMost = DynamicAmount.XValue
+                        totalManaValueAtMost = DynamicAmounts.xValue()
                     )
                 ),
                 // Put the chosen cards onto the battlefield under your control (owner stays the

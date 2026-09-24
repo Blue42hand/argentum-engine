@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.events.DamagePredicate
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Imodane, the Pyrohammer (WOE #137)
@@ -42,7 +41,7 @@ val ImodaneThePyrohammer = card("Imodane, the Pyrohammer") {
             requires = setOf(DamagePredicate.SourceSoleTargetIsRecipient),
         )
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.PlayerRef(Player.EachOpponent),
         )
     }

@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Duskwatch Recruiter // Krallenhorde Howler (Shadows over Innistrad — the card's earliest
@@ -57,7 +56,7 @@ private val DuskwatchRecruiterFront = card("Duskwatch Recruiter") {
     activatedAbility {
         cost = Costs.Mana("{2}{G}")
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(3),
+            count = 3,
             filter = GameObjectFilter.Creature,
             prompt = "You may reveal a creature card and put it into your hand",
             restOrder = CardOrder.ControllerChooses,
@@ -70,7 +69,7 @@ private val DuskwatchRecruiterFront = card("Duskwatch Recruiter") {
     triggeredAbility {
         trigger = Triggers.EachUpkeep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, DynamicAmount.Fixed(0)
+            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, 0
         )
         effect = Effects.Transform(EffectTarget.Self)
     }
@@ -104,7 +103,7 @@ private val KrallenhordeHowler = card("Krallenhorde Howler") {
     triggeredAbility {
         trigger = Triggers.EachUpkeep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, DynamicAmount.Fixed(2)
+            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, 2
         )
         effect = Effects.Transform(EffectTarget.Self)
     }

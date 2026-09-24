@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 val EtaliPrimalStorm = card("Etali, Primal Storm") {
@@ -22,7 +21,7 @@ val EtaliPrimalStorm = card("Etali, Primal Storm") {
         effect = Effects.Pipeline {
             val exiledCards = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     player = Player.Each
                 )
             )

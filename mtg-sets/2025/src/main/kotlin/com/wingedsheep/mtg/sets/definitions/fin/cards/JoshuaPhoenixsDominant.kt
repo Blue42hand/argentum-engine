@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -16,7 +17,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Joshua, Phoenix's Dominant // Phoenix, Warden of Fire — Final Fantasy #229
@@ -81,7 +81,7 @@ private val PhoenixWardenOfFire = card("Phoenix, Warden of Fire") {
             TargetObject(
                 unlimited = true,
                 filter = TargetFilter.CreatureInYourGraveyard,
-                totalManaValueAtMost = DynamicAmount.Fixed(6),
+                totalManaValueAtMost = DynamicAmounts.fixed(6),
             )
         )
         effect = Effects.Pipeline {

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Gruff Triplets
@@ -64,10 +63,7 @@ val GruffTriplets = card("Gruff Triplets") {
             filter = GroupFilter(GameObjectFilter.Creature.youControl().named("Gruff Triplets")),
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                amount = DynamicAmount.EntityProperty(
-                    entity = EffectTarget.Self,
-                    numericProperty = EntityNumericProperty.Power,
-                ),
+                amount = DynamicAmounts.sourcePower(),
                 target = EffectTarget.IterationEntity,
             ),
         )

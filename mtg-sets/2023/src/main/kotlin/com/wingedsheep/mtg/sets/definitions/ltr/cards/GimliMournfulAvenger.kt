@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -20,8 +20,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Gimli, Mournful Avenger
@@ -46,10 +44,10 @@ val GimliMournfulAvenger = card("Gimli, Mournful Avenger") {
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.INDESTRUCTIBLE, GroupFilter.source()),
-            condition = Compare(
-                left = DynamicAmount.TurnTracking(Player.You, TurnTracker.CREATURES_DIED),
+            condition = Conditions.CompareAmounts(
+                left = DynamicAmounts.creaturesDiedThisTurn(Player.You),
                 operator = ComparisonOperator.GTE,
-                right = DynamicAmount.Fixed(2)
+                right = 2
             )
         )
     }

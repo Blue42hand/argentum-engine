@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Prohibit
@@ -33,11 +33,11 @@ val Prohibit = card("Prohibit") {
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.If(
-                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmount.Fixed(4)),
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(4)),
                 then = Effects.CounterSpell()
             ),
             otherwise = Effects.If(
-                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmount.Fixed(2)),
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2)),
                 then = Effects.CounterSpell()
             )
         )

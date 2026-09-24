@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gonti, Night Minister
@@ -87,7 +86,7 @@ val GontiNightMinister = card("Gonti, Night Minister") {
         effect = Effects.Pipeline {
             val stolenCard = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     player = Player.TriggeringPlayer,
                 ),
                 lookAudience = LookAudience.None

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -68,7 +68,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
     // +1: Exile the top card of your library. If it's red, you may cast it this turn.
     loyaltyAbility(+1) {
         effect = Effects.Pipeline {
-            val chandraExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val chandraExiled = gather(CardSource.TopOfLibrary(1))
             exile(chandraExiled)
             // "If it's red" is a property of the exiled *card*, so it gates the grant itself.
             val chandraExiledRed = filter(chandraExiled, GameObjectFilter.Any.withColor(Color.RED))
@@ -80,7 +80,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
     // −7: Exile the top five, cast red spells among them this turn, and get the damage emblem.
     loyaltyAbility(-7) {
         effect = Effects.Pipeline {
-            val chandraExiledFive = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val chandraExiledFive = gather(CardSource.TopOfLibrary(5))
             exile(chandraExiledFive)
             // "red spells" — checked against the spell as it is cast, not the exiled card.
             run(Effects.GrantMayPlayFromExile(
@@ -95,10 +95,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
                     ).event,
                     binding = TriggerBinding.ANY,
                     effect = Effects.DealDamage(
-                        DynamicAmount.EntityProperty(
-                            EffectTarget.TriggeringEntity,
-                            EntityNumericProperty.ManaSpent
-                        ),
+                        DynamicAmounts.propertyOf(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaSpent),
                         EffectTarget.ContextTarget(0)
                     ),
                     targetRequirement = Targets.Any,

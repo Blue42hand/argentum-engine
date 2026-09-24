@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Lluwen, Exchange Student // Pest Friend — Secrets of Strixhaven #199
@@ -57,7 +56,7 @@ val LluwenExchangeStudent = card("Lluwen, Exchange Student") {
             "attacks, you gain 1 life.\""
         spell {
             effect = Effects.CreateToken(
-                count = DynamicAmount.Fixed(1),
+                count = 1,
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.BLACK, Color.GREEN),

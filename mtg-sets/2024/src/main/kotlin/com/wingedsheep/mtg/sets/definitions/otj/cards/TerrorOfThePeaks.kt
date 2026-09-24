@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val TerrorOfThePeaks = card("Terror of the Peaks") {
@@ -35,7 +34,7 @@ val TerrorOfThePeaks = card("Terror of the Peaks") {
         trigger = Triggers.OtherCreatureEnters
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(
-            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
+            DynamicAmounts.triggeringPower(),
             anyTarget
         )
     }

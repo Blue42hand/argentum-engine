@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.dmu.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Uurg, Spawn of Turg
@@ -27,10 +27,10 @@ val UurgSpawnOfTurg = card("Uurg, Spawn of Turg") {
 
     // Characteristic-defining ability (CR 604.3) — functions in every zone.
     dynamicPower(
-        DynamicAmount.Count(
-            player = Player.You,
-            zone = Zone.GRAVEYARD,
-            filter = GameObjectFilter.Land
+        DynamicAmounts.count(
+            Player.You,
+            Zone.GRAVEYARD,
+            GameObjectFilter.Land
         )
     )
     toughness = 5

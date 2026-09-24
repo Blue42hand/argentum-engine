@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -25,7 +24,7 @@ val AnimalMagnetism = card("Animal Magnetism") {
 
     spell {
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(5), revealed = true)
             val (chosen, rest) = chooseExactlySplit(
                 1,
                 from = revealed,

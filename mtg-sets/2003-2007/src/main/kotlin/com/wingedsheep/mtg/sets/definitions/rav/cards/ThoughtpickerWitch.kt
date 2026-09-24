@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Thoughtpicker Witch — Ravnica: City of Guilds #109
@@ -41,7 +40,7 @@ val ThoughtpickerWitch = card("Thoughtpicker Witch") {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Sacrifice(GameObjectFilter.Creature))
         target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
-            val peeked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2), Player.ContextPlayer(0)))
+            val peeked = gather(CardSource.TopOfLibrary(2, Player.ContextPlayer(0)))
             val (toExile, toTop) = chooseExactlySplit(
                 1,
                 from = peeked,

@@ -7,12 +7,12 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Slime Against Humanity — Murders at Karlov Manor #177
@@ -39,13 +39,8 @@ val SlimeAgainstHumanity = card("Slime Against Humanity") {
             GameObjectFilter.Any.withSubtype("Ooze") or
                 GameObjectFilter.Any.named("Slime Against Humanity")
             ).faceUp()
-        val counterCount = DynamicAmount.Add(
-            DynamicAmount.Fixed(2),
-            DynamicAmount.Add(
-                DynamicAmounts.zone(Player.You, Zone.EXILE, matchingSlimes).count(),
-                DynamicAmounts.zone(Player.You, Zone.GRAVEYARD, matchingSlimes).count(),
-            ),
-        )
+        val counterCount = 2 + (DynamicAmounts.zone(Player.You, Zone.EXILE, matchingSlimes).count() +
+            DynamicAmounts.zone(Player.You, Zone.GRAVEYARD, matchingSlimes).count())
 
         effect = Effects.CreateToken(
             power = 0,

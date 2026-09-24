@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Planetarium of Wan Shi Tong
@@ -51,7 +50,7 @@ val PlanetariumOfWanShiTong = card("Planetarium of Wan Shi Tong") {
         effect = Effects.Pipeline {
             val top = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     player = Player.You,
                 )
             )

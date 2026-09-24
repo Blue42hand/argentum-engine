@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Consume Spirit — Mirrodin #60
@@ -40,7 +40,7 @@ val ConsumeSpirit = card("Consume Spirit") {
         xManaRestriction = setOf(Color.BLACK)
         effect = Effects.Composite(
             Effects.DealXDamage(anyTarget),
-            Effects.GainLife(DynamicAmount.XValue)
+            Effects.GainLife(DynamicAmounts.xValue())
         )
     }
 

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Meathook Massacre II
@@ -65,7 +65,7 @@ val MeathookMassacreII = card("Meathook Massacre II") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Sacrifice(
             filter = GameObjectFilter.Creature,
-            count = DynamicAmount.CastX,
+            count = DynamicAmounts.castX(),
             target = EffectTarget.PlayerRef(Player.Each)
         )
     }

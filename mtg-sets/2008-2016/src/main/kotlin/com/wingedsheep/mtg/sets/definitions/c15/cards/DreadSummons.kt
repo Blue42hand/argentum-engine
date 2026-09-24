@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.c15.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dread Summons
@@ -31,7 +31,7 @@ val DreadSummons = card("Dread Summons") {
 
     spell {
         effect = Effects.Pipeline {
-            val milled = mill(DynamicAmount.XValue, Player.Each)
+            val milled = mill(DynamicAmounts.xValue(), Player.Each)
             val milledCreatures = selectAll(from = milled, filter = GameObjectFilter.Creature)
             run(Effects.ForEachInCollection(
                 milledCreatures,

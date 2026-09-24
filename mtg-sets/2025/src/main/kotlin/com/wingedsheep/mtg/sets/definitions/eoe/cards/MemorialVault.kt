@@ -1,14 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,13 +30,7 @@ val MemorialVault = card("Memorial Vault") {
         effect = Effects.Pipeline {
             val exiledCards = gather(
                 CardSource.TopOfLibrary(
-                    DynamicAmount.Add(
-                        DynamicAmount.Fixed(1),
-                        DynamicAmount.EntityProperty(
-                            EffectTarget.SacrificedAsCost(),
-                            EntityNumericProperty.ManaValue
-                        )
-                    )
+                    1 + DynamicAmounts.manaValueOf(EffectTarget.SacrificedAsCost())
                 )
             )
             exile(exiledCards)

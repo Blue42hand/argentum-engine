@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -33,7 +32,7 @@ val LeeringOnlooker = card("Leering Onlooker") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}{B}"), Costs.ExileSelf)
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(2),
+            count = 2,
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK),

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Perforating Artist
@@ -58,7 +57,7 @@ val PerforatingArtist = card("Perforating Artist") {
                         )
                     ),
                     suffer = Effects.LoseLife(
-                        amount = DynamicAmount.Fixed(3),
+                        amount = 3,
                         target = EffectTarget.Controller
                     ),
                     player = EffectTarget.Controller

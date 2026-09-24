@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Coalhauler Swine
@@ -31,7 +30,7 @@ val CoalhaulerSwine = card("Coalhauler Swine") {
     triggeredAbility {
         trigger = Triggers.TakesDamage
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.PlayerRef(Player.Each),
         )
         description = "Whenever this creature is dealt damage, it deals that much damage to each player."

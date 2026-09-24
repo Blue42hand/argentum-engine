@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Riddles in the Dark
@@ -29,7 +28,7 @@ val RiddlesInTheDark = card("Riddles in the Dark") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+            val looked = gather(CardSource.TopOfLibrary(4))
             ifNotEmpty(looked) {
                 val piles = chooseAnyNumberSplit(
                     from = looked,

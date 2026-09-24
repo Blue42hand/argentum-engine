@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -17,8 +18,6 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Avatar Aang // Aang, Master of Elements — {R}{G}{W}{U} Legendary Creature — Human Avatar Ally 4/4
@@ -115,9 +114,9 @@ private val AvatarAangFront = card("Avatar Aang") {
                 Effects.DrawCards(1),
                 Effects.If(
                     condition = Conditions.CompareAmounts(
-                        DynamicAmount.TurnTracking(Player.You, TurnTracker.DISTINCT_BENDS),
+                        DynamicAmounts.distinctBendsThisTurn(Player.You),
                         ComparisonOperator.GTE,
-                        DynamicAmount.Fixed(4)
+                        4
                     ),
                     then = Effects.Transform(EffectTarget.Self)
                 )

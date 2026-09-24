@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kastral, the Windcrested
@@ -87,7 +86,7 @@ val KastralTheWindcrested = card("Kastral, the Windcrested") {
             ),
             // Mode 3: Draw a card
             Mode.noTarget(
-                Effects.DrawCards(count = DynamicAmount.Fixed(1), target = EffectTarget.Controller),
+                Effects.DrawCards(count = 1, target = EffectTarget.Controller),
                 "Draw a card"
             )
         )

@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.xln.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -38,7 +37,7 @@ val GishathSunsAvatar = card("Gishath, Sun's Avatar") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+        val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.Pipeline {
             val gishathRevealed = gather(
                 CardSource.TopOfLibrary(count = damageDealt, player = Player.You),

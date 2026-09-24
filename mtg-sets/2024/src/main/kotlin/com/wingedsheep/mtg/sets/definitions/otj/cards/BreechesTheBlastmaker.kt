@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Breeches, the Blastmaker
@@ -58,10 +57,7 @@ val BreechesTheBlastmaker = card("Breeches, the Blastmaker") {
             then = Effects.FlipCoin(
                 wonEffect = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),
                 lostEffect = Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(
-                        EffectTarget.TriggeringEntity,
-                        EntityNumericProperty.ManaValue
-                    ),
+                    amount = DynamicAmounts.triggeringManaValue(),
                     target = damageTarget
                 )
             )

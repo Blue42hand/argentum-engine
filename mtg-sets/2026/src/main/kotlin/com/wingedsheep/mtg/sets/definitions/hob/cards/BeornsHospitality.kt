@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Beorn's Hospitality
@@ -58,8 +57,8 @@ val BeornsHospitality = card("Beorn's Hospitality") {
         cost = Costs.Mana("{5}{G}{G}")
         effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
-            power = DynamicAmount.Fixed(0),
-            toughness = DynamicAmount.Fixed(0),
+            power = DynamicAmounts.fixed(0),
+            toughness = DynamicAmounts.fixed(0),
             creatureTypes = setOf("Bear"),
             duration = Duration.Permanent,
             dynamicPower = DynamicAmounts.landsYouControl(),

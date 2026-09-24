@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Nim Shambler — Mirrodin #72
@@ -42,7 +41,7 @@ val NimShambler = card("Nim Shambler") {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Virtue of Courage // Embereth Blaze
@@ -54,7 +53,7 @@ val VirtueOfCourage = card("Virtue of Courage") {
         )
         effect = Effects.May(
             effect = Patterns.Exile.impulse(
-                DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+                DynamicAmounts.triggerDamageAmount()
             ),
             // Becomes the yes/no prompt text — the pipeline's auto-description would read as
             // gather/move/grant plumbing.

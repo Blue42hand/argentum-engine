@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Goblin Maskmaker — Murders at Karlov Manor #130
@@ -31,7 +31,7 @@ val GoblinMaskmaker = card("Goblin Maskmaker") {
         trigger = Triggers.Attacks
         effect = Effects.ReduceSpellCostsThisTurn(
             spellFilter = GameObjectFilter.Any.faceDown(),
-            amount = DynamicAmount.Fixed(1),
+            amount = DynamicAmounts.fixed(1),
         )
         description = "Whenever this creature attacks, face-down spells you cast this turn cost " +
             "{1} less to cast."

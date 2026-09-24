@@ -1,17 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.atq.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Transmute Artifact
@@ -63,7 +63,7 @@ val TransmuteArtifact = card("Transmute Artifact") {
                     )
                     val found = chooseUpTo(1, from = searchable, prompt = "Search your library for an artifact card")
                     run(Effects.If(
-                        condition = Compare(
+                        condition = Conditions.CompareAmounts(
                                 left = DynamicAmounts.manaValueOf(found),
                                 operator = ComparisonOperator.LTE,
                                 right = DynamicAmounts.manaValueOf(sacrificed)
@@ -72,10 +72,7 @@ val TransmuteArtifact = card("Transmute Artifact") {
                         // found MV > sacrificed MV → you may pay {X} = the difference.
                         otherwise = Effects.MayPay(
                             cost = Effects.PayDynamicMana(
-                                    DynamicAmount.Subtract(
-                                        DynamicAmounts.manaValueOf(found),
-                                        DynamicAmounts.manaValueOf(sacrificed)
-                                    )
+                                    DynamicAmounts.manaValueOf(found) - DynamicAmounts.manaValueOf(sacrificed)
                                 ),
                             then = Effects.Pipeline { move(found, CardDestination.ToZone(Zone.BATTLEFIELD)) },
                             otherwise = Effects.Pipeline { toGraveyard(found) }

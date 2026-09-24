@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Zell Dincht — Final Fantasy #170
@@ -47,8 +47,8 @@ val ZellDincht = card("Zell Dincht") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land),
-            toughnessBonus = DynamicAmount.Fixed(0),
+            powerBonus = DynamicAmounts.landsYouControl(),
+            toughnessBonus = DynamicAmounts.fixed(0),
         )
     }
 

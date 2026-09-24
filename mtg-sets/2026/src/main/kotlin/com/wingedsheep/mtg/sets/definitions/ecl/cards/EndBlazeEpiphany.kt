@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,7 +31,7 @@ val EndBlazeEpiphany = card("End-Blaze Epiphany") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.Composite(
             listOf(
-                Effects.DealDamage(DynamicAmount.XValue, creature),
+                Effects.DealDamage(DynamicAmounts.xValue(), creature),
                 Effects.CreateDelayedTrigger(
                     trigger = Triggers.Dies,
                     watchedTarget = creature,
@@ -40,10 +39,7 @@ val EndBlazeEpiphany = card("End-Blaze Epiphany") {
                     effect = Effects.Pipeline {
                         val exiled = gather(
                             CardSource.TopOfLibrary(
-                                count = DynamicAmount.EntityProperty(
-                                    entity = EffectTarget.TriggeringEntity,
-                                    numericProperty = EntityNumericProperty.Power
-                                )
+                                count = DynamicAmounts.triggeringPower()
                             )
                         )
                         exile(exiled)

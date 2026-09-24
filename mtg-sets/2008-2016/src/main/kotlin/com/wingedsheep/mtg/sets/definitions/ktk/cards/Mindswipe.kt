@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Mindswipe
@@ -27,8 +27,8 @@ val Mindswipe = card("Mindswipe") {
 
     spell {
         val spell = target("target spell", Targets.Spell)
-        effect = Effects.CounterUnlessDynamicPays(DynamicAmount.XValue)
-            .then(Effects.DealDamage(DynamicAmount.XValue, EffectTarget.TargetController))
+        effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.xValue())
+            .then(Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.TargetController))
     }
 
     metadata {

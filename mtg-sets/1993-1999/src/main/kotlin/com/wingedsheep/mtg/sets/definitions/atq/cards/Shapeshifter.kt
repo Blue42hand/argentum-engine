@@ -1,15 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.atq.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Shapeshifter
@@ -59,11 +60,8 @@ val Shapeshifter = card("Shapeshifter") {
     // CDA: power = last chosen number, toughness = 7 − it.
     staticAbility {
         ability = SetBasePowerToughnessDynamicStatic(
-            power = DynamicAmount.CastChoice(ChoiceSlot.CHOSEN_NUMBER),
-            toughness = DynamicAmount.Subtract(
-                DynamicAmount.Fixed(7),
-                DynamicAmount.CastChoice(ChoiceSlot.CHOSEN_NUMBER)
-            ),
+            power = DynamicAmounts.castChoice(ChoiceSlot.CHOSEN_NUMBER),
+            toughness = 7 - DynamicAmounts.castChoice(ChoiceSlot.CHOSEN_NUMBER),
             filter = GroupFilter.source()
         )
     }

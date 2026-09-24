@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Reviving Vapors
@@ -33,7 +32,7 @@ val RevivingVapors = card("Reviving Vapors") {
     spell {
         effect = Effects.Pipeline {
             // 1. Reveal the top three cards of your library.
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3), Player.You), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(3, Player.You), revealed = true)
             // 2. Put one of them into your hand (rest become the remainder).
             val (chosen, rest) = chooseExactlySplit(
                 1,

@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,14 +11,10 @@ import com.wingedsheep.sdk.dsl.solvedTriggeredAbility
 import com.wingedsheep.sdk.dsl.toSolve
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Case of the Trampled Garden — Murders at Karlov Manor #156
@@ -64,15 +61,13 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
     }
 
     toSolve(
-        Compare(
-            DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature,
-                aggregation = Aggregation.SUM,
-                property = CardNumericProperty.POWER
-            ),
+        Conditions.CompareAmounts(
+            DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature
+            ).sumPower(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(8)
+            8
         )
     )
 

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -44,7 +44,7 @@ val BatColony = card("Bat Colony") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.CreateToken(
-            count = DynamicAmount.ManaSpentFromSubtype(Subtype.CAVE),
+            count = DynamicAmounts.manaSpentFromSubtype(Subtype.CAVE),
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK),

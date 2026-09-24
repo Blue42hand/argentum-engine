@@ -1,15 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Goose Mother
@@ -52,16 +53,12 @@ val TheGooseMother = card("The Goose Mother") {
 
     keywords(Keyword.FLYING)
 
-    replacementEffect(EntersWithDynamicCounters(count = DynamicAmount.CastX))
+    replacementEffect(EntersWithDynamicCounters(count = DynamicAmounts.castX()))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.CreateFood(
-            DynamicAmount.Divide(
-                numerator = DynamicAmount.CastX,
-                denominator = DynamicAmount.Fixed(2),
-                roundUp = true,
-            )
+            DynamicAmounts.castX() divRoundedUp 2
         )
         description = "When The Goose Mother enters, create half X Food tokens, rounded up."
     }

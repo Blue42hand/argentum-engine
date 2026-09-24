@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Redcap Gutter-Dweller
@@ -49,7 +49,7 @@ val RedcapGutterDweller = card("Redcap Gutter-Dweller") {
     // When this creature enters, create two 1/1 black Rat tokens with "This token can't block."
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = woeRatToken(count = DynamicAmount.Fixed(2))
+        effect = woeRatToken(count = DynamicAmounts.fixed(2))
     }
 
     // At the beginning of your upkeep, you may sacrifice another creature. If you do,

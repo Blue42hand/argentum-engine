@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Swallowed by Leviathan
@@ -40,7 +40,7 @@ val SwallowedByLeviathan = card("Swallowed by Leviathan") {
         effect = Effects.Composite(
             Effects.Surveil(2),
             Effects.CounterUnlessDynamicPays(
-                amount = DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Any),
+                amount = DynamicAmounts.cardsInYourGraveyard(),
             ),
         )
     }

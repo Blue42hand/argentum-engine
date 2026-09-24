@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Pain for All
@@ -46,7 +44,7 @@ val PainForAll = card("Pain for All") {
     triggeredAbility {
         trigger = Triggers.takesDamage(binding = TriggerBinding.ATTACHED)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.PlayerRef(Player.EachOpponent),
             damageSource = EffectTarget.EnchantedCreature
         )

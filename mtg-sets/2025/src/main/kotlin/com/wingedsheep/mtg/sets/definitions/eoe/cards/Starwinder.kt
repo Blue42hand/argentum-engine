@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Starwinder
@@ -38,7 +37,7 @@ val Starwinder = card("Starwinder") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.May(
-            Effects.DrawCards(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
+            Effects.DrawCards(DynamicAmounts.triggerDamageAmount())
         )
         description = "Whenever a creature you control deals combat damage to a player, you may draw that many cards."
     }

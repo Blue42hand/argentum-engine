@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Jade Seedstones // Jadeheart Attendant (CR 702.167, The Lost Caverns of Ixalan)
@@ -82,7 +82,7 @@ private val JadeheartAttendant = card("Jadeheart Attendant") {
     // ETB: gain life equal to the mana value of the (exactly one) card exiled to craft it.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.GainLife(DynamicAmount.CraftedMaterialsTotalManaValue)
+        effect = Effects.GainLife(DynamicAmounts.craftedMaterialsTotalManaValue())
     }
 
     metadata {

@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Irradiate — Mirrodin #67
@@ -32,10 +32,7 @@ val Irradiate = card("Irradiate") {
 
     spell {
         val t = target("target", Targets.Creature)
-        val negArtifacts = DynamicAmount.Multiply(
-            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
-            -1
-        )
+        val negArtifacts = -DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
         effect = Effects.ModifyStats(negArtifacts, negArtifacts, t)
     }
 

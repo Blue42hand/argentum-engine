@@ -1,19 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Quag Feast
@@ -44,13 +43,10 @@ val QuagFeast = card("Quag Feast") {
         )
         effect = Patterns.Library.mill(2).then(
             Effects.If(
-                condition = Compare(
-                    left = DynamicAmount.EntityProperty(
-                        EffectTarget.ContextTarget(0),
-                        EntityNumericProperty.ManaValue,
-                    ),
+                condition = Conditions.CompareAmounts(
+                    left = DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
                     operator = ComparisonOperator.LTE,
-                    right = DynamicAmount.Count(Player.You, Zone.GRAVEYARD),
+                    right = DynamicAmounts.cardsInYourGraveyard(),
                 ),
                 then = Effects.Destroy(EffectTarget.ContextTarget(0)),
             ),

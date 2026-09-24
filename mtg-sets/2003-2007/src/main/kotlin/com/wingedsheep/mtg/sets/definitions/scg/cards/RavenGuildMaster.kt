@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 val RavenGuildMaster = card("Raven Guild Master") {
@@ -19,7 +18,7 @@ val RavenGuildMaster = card("Raven Guild Master") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.Pipeline {
-            val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(10), Player.TriggeringPlayer))
+            val exiled = gather(CardSource.TopOfLibrary(10, Player.TriggeringPlayer))
             exile(exiled, Player.TriggeringPlayer)
         }
     }

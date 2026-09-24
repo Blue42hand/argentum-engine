@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Restless Anchorage — LCI #280
@@ -58,8 +57,8 @@ val RestlessAnchorage = card("Restless Anchorage") {
         cost = Costs.Mana("{1}{W}{U}")
         effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
-            power = DynamicAmount.Fixed(2),
-            toughness = DynamicAmount.Fixed(3),
+            power = 2,
+            toughness = 3,
             keywords = setOf(Keyword.FLYING),
             creatureTypes = setOf("Bird"),
             colors = setOf(Color.WHITE.name, Color.BLUE.name),

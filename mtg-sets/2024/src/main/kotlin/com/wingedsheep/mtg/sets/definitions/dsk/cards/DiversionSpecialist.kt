@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -34,7 +33,7 @@ val DiversionSpecialist = card("Diversion Specialist") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeAnother(GameObjectFilter.CreatureOrEnchantment))
         effect = Effects.Pipeline {
-            val impulseExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val impulseExiled = gather(CardSource.TopOfLibrary(1))
             exile(impulseExiled)
             run(Effects.GrantMayPlayFromExile(impulseExiled, MayPlayExpiry.EndOfTurn))
         }

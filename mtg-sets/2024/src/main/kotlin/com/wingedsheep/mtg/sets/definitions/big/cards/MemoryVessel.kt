@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Memory Vessel
@@ -47,7 +46,7 @@ val MemoryVessel = card("Memory Vessel") {
         effect = Effects.ForEachPlayer(
             Player.ActivePlayerFirst,
             Effects.Pipeline {
-                val memoryVesselExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(7), Player.You))
+                val memoryVesselExiled = gather(CardSource.TopOfLibrary(7, Player.You))
                 exile(memoryVesselExiled)
                 run(Effects.GrantMayPlayFromExile(
                     from = memoryVesselExiled,

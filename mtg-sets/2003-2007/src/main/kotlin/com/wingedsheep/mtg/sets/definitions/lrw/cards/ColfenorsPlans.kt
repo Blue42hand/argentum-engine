@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.SkipDrawStep
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Colfenor's Plans
@@ -61,7 +60,7 @@ val ColfenorsPlans = card("Colfenor's Plans") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val colfenorsPlansExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(7)))
+            val colfenorsPlansExiled = gather(CardSource.TopOfLibrary(7))
             move(
                 colfenorsPlansExiled,
                 CardDestination.ToZone(Zone.EXILE),

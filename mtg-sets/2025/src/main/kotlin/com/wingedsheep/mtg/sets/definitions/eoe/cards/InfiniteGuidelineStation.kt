@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
 
@@ -44,7 +44,7 @@ val InfiniteGuidelineStation = card("Infinite Guideline Station") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.CreateToken(
-            count = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Multicolored),
+            count = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Multicolored).count(),
             name = "Robot",
             power = 2,
             toughness = 2,
@@ -75,7 +75,7 @@ val InfiniteGuidelineStation = card("Infinite Guideline Station") {
     // Whenever this attacks, draw a card for each multicolored permanent you control.
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = Effects.DrawCards(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Multicolored))
+        effect = Effects.DrawCards(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Multicolored).count())
         description = "Whenever Infinite Guideline Station attacks, draw a card for each multicolored permanent you control."
     }
 

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Oath of the Grey Host
@@ -42,7 +41,7 @@ val OathOfTheGreyHost = card("Oath of the Grey Host") {
 
     sagaChapter(3) {
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(3),
+            count = 3,
             power = 1,
             toughness = 1,
             colors = setOf(Color.WHITE),

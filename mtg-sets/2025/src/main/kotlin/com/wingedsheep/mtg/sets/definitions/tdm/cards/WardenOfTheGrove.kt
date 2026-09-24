@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Warden of the Grove — Tarkir: Dragonstorm #166
@@ -57,10 +56,7 @@ val WardenOfTheGrove = card("Warden of the Grove") {
             binding = TriggerBinding.OTHER
         )
         effect = Effects.Endure(
-            amount = DynamicAmount.EntityProperty(
-                EffectTarget.Self,
-                EntityNumericProperty.CounterCount(null)
-            ),
+            amount = DynamicAmounts.countersOnSelf(null),
             target = EffectTarget.TriggeringEntity
         )
         description = "Whenever another nontoken creature you control enters, it endures X, " +

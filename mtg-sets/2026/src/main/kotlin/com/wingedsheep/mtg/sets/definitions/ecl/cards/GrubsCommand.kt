@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Grub's Command
@@ -61,7 +60,7 @@ val GrubsCommand = card("Grub's Command") {
             mode("Target player mills five cards, then puts each Goblin card milled this way into their hand") {
                 target("target player", TargetPlayer())
                 effect = Effects.Pipeline {
-                    val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5), Player.ContextPlayer(0)))
+                    val milled = gather(CardSource.TopOfLibrary(5, Player.ContextPlayer(0)))
                     toGraveyard(milled, Player.ContextPlayer(0))
                     val milledGoblins = selectAll(from = milled, filter = GameObjectFilter.Any.withSubtype("Goblin"))
                     toHand(milledGoblins, Player.ContextPlayer(0))

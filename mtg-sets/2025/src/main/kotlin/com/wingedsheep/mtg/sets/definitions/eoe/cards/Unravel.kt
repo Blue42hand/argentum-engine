@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 
 /**
@@ -28,7 +28,7 @@ val Unravel = card("Unravel") {
     spell {
         val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
-            condition = Compare(
+            condition = Conditions.CompareAmounts(
                 left = DynamicAmounts.targetManaSpent(),
                 operator = ComparisonOperator.LT,
                 right = DynamicAmounts.targetManaValue()

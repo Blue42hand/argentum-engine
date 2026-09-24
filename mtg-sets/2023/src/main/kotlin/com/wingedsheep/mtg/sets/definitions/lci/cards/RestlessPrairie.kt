@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Restless Prairie
@@ -51,8 +50,8 @@ val RestlessPrairie = card("Restless Prairie") {
         cost = Costs.Mana("{2}{G}{W}")
         effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
-            power = DynamicAmount.Fixed(3),
-            toughness = DynamicAmount.Fixed(3),
+            power = 3,
+            toughness = 3,
             creatureTypes = setOf("Llama"),
             colors = setOf(Color.GREEN.name, Color.WHITE.name),
             duration = Duration.EndOfTurn,

@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ashiok, Wicked Manipulator
@@ -88,7 +87,7 @@ val AshiokWickedManipulator = card("Ashiok, Wicked Manipulator") {
     //     turn, if a card was put into exile this turn, put a +1/+1 counter on this token."
     loyaltyAbility(-2) {
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(2),
+            count = 2,
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK),

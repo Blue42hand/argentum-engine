@@ -3,15 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Hulkling, Burgeoning Bruiser — Marvel Super Heroes #173
@@ -48,15 +46,15 @@ val HulklingBurgeoningBruiser = card("Hulkling, Burgeoning Bruiser") {
     triggeredAbility {
         trigger = Triggers.OtherCreatureEnters
         interveningIf = Conditions.Any(
-            Compare(
-                DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
+            Conditions.CompareAmounts(
+                DynamicAmounts.triggeringPower(),
                 ComparisonOperator.GT,
-                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
+                DynamicAmounts.sourcePower()
             ),
-            Compare(
-                DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Toughness),
+            Conditions.CompareAmounts(
+                DynamicAmounts.triggeringToughness(),
                 ComparisonOperator.GT,
-                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Toughness)
+                DynamicAmounts.sourceToughness()
             )
         )
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

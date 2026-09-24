@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Faerie Slumber Party
@@ -72,10 +72,7 @@ val FaerieSlumberParty = card("Faerie Slumber Party") {
 
             run(
                 woeFaerieToken(
-                    count = DynamicAmount.Multiply(
-                        DynamicAmounts.distinctEntitiesIn(controllers),
-                        2,
-                    )
+                    count = DynamicAmounts.distinctEntitiesIn(controllers) * 2
                 )
             )
         }

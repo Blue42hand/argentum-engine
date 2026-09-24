@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fear of Death
@@ -43,8 +43,8 @@ val FearOfDeath = card("Fear of Death") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
-            powerBonus = DynamicAmount.Multiply(DynamicAmounts.cardsInYourGraveyard(), -1),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            powerBonus = -DynamicAmounts.cardsInYourGraveyard(),
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

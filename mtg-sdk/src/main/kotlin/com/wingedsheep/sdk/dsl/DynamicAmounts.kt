@@ -33,6 +33,183 @@ import com.wingedsheep.sdk.scripting.values.TurnTracker
 object DynamicAmounts {
 
     // =========================================================================
+    // Constants, X, and the number of cards in a zone
+    // =========================================================================
+
+    /**
+     * A constant. Most facades that take an amount also take an `Int` directly — `DrawCards(2)`,
+     * `CardSource.TopOfLibrary(3)`, `x + 1` — so this is for the slots that only take a
+     * [DynamicAmount] (a stat bonus beside a dynamic one, a `Conditional` branch beside a dynamic one).
+     */
+    fun fixed(amount: Int): DynamicAmount = DynamicAmount.Fixed(amount)
+
+    /** X — the value chosen for X as this spell was cast or this ability was activated. */
+    fun xValue(): DynamicAmount = DynamicAmount.XValue
+
+    /**
+     * The X paid when this permanent was cast, read after it has resolved — "enters with X +1/+1
+     * counters", "when this enters, … X" ([DynamicAmount.CastX]).
+     */
+    fun castX(): DynamicAmount = DynamicAmount.CastX
+
+    /** A number the source locked in as it was cast (a chosen number, a blight amount, …). */
+    fun castChoice(slot: com.wingedsheep.sdk.scripting.ChoiceSlot): DynamicAmount = DynamicAmount.CastChoice(slot)
+
+    /**
+     * A number an earlier effect of this resolution stored under [name] (a fight's excess damage,
+     * a clash's mana values, a guess). Inside `Effects.Pipeline { }` read the step's `NumberSlot`
+     * instead.
+     */
+    fun storedNumber(name: String): DynamicAmount = DynamicAmount.VariableReference(name)
+
+    /** The number of cards [player] has in [zone] matching [filter]. */
+    fun count(player: Player, zone: Zone, filter: GameObjectFilter = GameObjectFilter.Any): DynamicAmount =
+        DynamicAmount.Count(player, zone, filter)
+
+    // =========================================================================
+    // Arithmetic — see DynamicAmountOperators.kt for `+ - * /` and unary minus
+    // =========================================================================
+
+    /** [ifTrue] when [condition] holds as the amount is read, otherwise [ifFalse]. */
+    fun conditional(
+        condition: com.wingedsheep.sdk.scripting.conditions.Condition,
+        ifTrue: DynamicAmount,
+        ifFalse: DynamicAmount
+    ): DynamicAmount = DynamicAmount.Conditional(condition, ifTrue, ifFalse)
+
+    /** [conditional] between two constants ("two if …, otherwise one"). */
+    fun conditional(
+        condition: com.wingedsheep.sdk.scripting.conditions.Condition,
+        ifTrue: Int,
+        ifFalse: Int
+    ): DynamicAmount = conditional(condition, fixed(ifTrue), fixed(ifFalse))
+
+    /** The greater of [a] and [b]. */
+    fun max(a: DynamicAmount, b: DynamicAmount): DynamicAmount = DynamicAmount.Max(a, b)
+
+    /** The lesser of [a] and [b]. */
+    fun min(a: DynamicAmount, b: DynamicAmount): DynamicAmount = DynamicAmount.Min(a, b)
+
+    /** [amount], or 0 when it would be negative — for differences that can't go below zero. */
+    fun nonNegative(amount: DynamicAmount): DynamicAmount = DynamicAmount.IfPositive(amount)
+
+    /** [base] raised to the [exponent] ("2^X" — Mathemagics). */
+    fun pow(base: Int, exponent: DynamicAmount): DynamicAmount = DynamicAmount.Power(base, exponent)
+
+    // =========================================================================
+    // Life, players, and mana
+    // =========================================================================
+
+    /** [player]'s life total. */
+    fun lifeTotal(player: Player): DynamicAmount = DynamicAmount.LifeTotal(player)
+
+    /** Your life total. */
+    fun yourLifeTotal(): DynamicAmount = DynamicAmount.YourLifeTotal
+
+    /** The number of players in [scope] ("the number of opponents you have"). */
+    fun playerCount(scope: Player = Player.EachOpponent): DynamicAmount = DynamicAmount.PlayerCount(scope)
+
+    /** The number of players in [scope] for whom [condition] holds. */
+    fun countPlayersWith(scope: Player, condition: com.wingedsheep.sdk.scripting.conditions.Condition): DynamicAmount =
+        DynamicAmount.CountPlayersWith(scope, condition)
+
+    /** The greatest value of [inner] (evaluated as each of [players]) — "the most life among players". */
+    fun greatestAmongPlayers(inner: DynamicAmount, players: Player = Player.Each): DynamicAmount =
+        DynamicAmount.GreatestAmongPlayers(players, inner)
+
+    /** The total mana spent to cast this spell. */
+    fun totalManaSpent(): DynamicAmount = DynamicAmount.TotalManaSpent
+
+    /** The amount of [color] mana spent on X. */
+    fun manaSpentOnX(color: Color): DynamicAmount = DynamicAmount.ManaSpentOnX(color)
+
+    /** The amount of mana produced by a [subtype] source (a Cave) spent to cast this. */
+    fun manaSpentFromSubtype(subtype: Subtype): DynamicAmount = DynamicAmount.ManaSpentFromSubtype(subtype)
+
+    /** The amount of unspent mana in [player]'s pool. */
+    fun unspentMana(player: Player): DynamicAmount = DynamicAmount.UnspentMana(player)
+
+    /** The greatest number of creatures [player] controls that share a creature type. */
+    fun largestSharedCreatureTypeCount(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.LargestSharedCreatureTypeCount(player)
+
+    /** Craft's exiled materials: their total power / total mana value / number of colors. */
+    fun craftedMaterialsTotalPower(): DynamicAmount = DynamicAmount.CraftedMaterialsTotalPower
+    fun craftedMaterialsTotalManaValue(): DynamicAmount = DynamicAmount.CraftedMaterialsTotalManaValue
+    fun craftedMaterialsColorCount(): DynamicAmount = DynamicAmount.CraftedMaterialsColorCount
+
+    // =========================================================================
+    // Numbers the triggering event or the resolution carries
+    // =========================================================================
+    //
+    // Each reads one [ContextPropertyKey] off the effect context; the key's own description is the
+    // printed phrase ("the damage dealt", "the life gained", …).
+
+    /** The damage dealt by the triggering event ("that much damage"). */
+    fun triggerDamageAmount(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+
+    /** The excess damage (beyond lethal) the triggering event dealt. */
+    fun triggerExcessDamageAmount(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT)
+
+    /** The toughness of the creature the triggering damage was dealt to. */
+    fun triggerRecipientToughness(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS)
+
+    /** The life gained by the triggering event. */
+    fun triggerLifeGained(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED)
+
+    /** The life lost by the triggering event. */
+    fun triggerLifeLost(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST)
+
+    /** The number of cards discarded by the triggering event. */
+    fun triggerDiscardCount(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCARD_COUNT)
+
+    /** The number the triggering scry looked at. */
+    fun triggerScryCount(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_SCRY_COUNT)
+
+    /** The number of counters the triggering event put on ("that many"). */
+    fun triggerCountersPlaced(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_COUNTERS_PLACED_AMOUNT)
+
+    /** The number of counters the triggering event removed. */
+    fun triggerCountersRemoved(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_COUNTERS_REMOVED_AMOUNT)
+
+    /** The discover value of the triggering discover. */
+    fun triggerDiscoverValue(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCOVER_VALUE)
+
+    /** The mana value of the triggering spell. */
+    fun triggeringSpellManaValue(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGERING_SPELL_MANA_VALUE)
+
+    /** The amount of mana spent to cast the triggering spell. */
+    fun manaSpentOnTriggeringSpell(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL)
+
+    /** The number of times a mode was chosen for the triggering spell. */
+    fun modesChosenOnTriggeringSpell(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.MODES_CHOSEN_ON_TRIGGERING_SPELL)
+
+    /** The number of +1/+1 counters the source had when it left the battlefield. */
+    fun lastKnownPlusOneCounters(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT)
+
+    /** The number of counters (of any kind) the source had when it left the battlefield. */
+    fun lastKnownCounterCount(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT)
+
+    /** The number of cards exiled with the source (its linked exile). */
+    fun linkedExileCardCount(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.LINKED_EXILE_CARD_COUNT)
+
+    /** The number of card types among the cards exiled with the source. */
+    fun linkedExileDistinctCardTypeCount(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.LINKED_EXILE_DISTINCT_CARD_TYPE_COUNT)
+
+    /** The number of targets this spell or ability has. */
+    fun targetCount(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TARGET_COUNT)
+
+    // =========================================================================
     // Fluent battlefield query builder
     // =========================================================================
 
@@ -46,27 +223,46 @@ object DynamicAmounts {
      * DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).sumPower()
      * ```
      */
-    fun battlefield(player: Player, filter: GameObjectFilter = GameObjectFilter.Any) =
-        BattlefieldQuery(player, filter)
+    fun battlefield(player: Player, filter: GameObjectFilter = GameObjectFilter.Any, excludeSelf: Boolean = false) =
+        BattlefieldQuery(player, filter, excludeSelf)
 
-    class BattlefieldQuery(private val player: Player, private val filter: GameObjectFilter) {
-        fun count(): DynamicAmount =
-            DynamicAmount.AggregateBattlefield(player, filter)
+    /**
+     * An aggregate over the battlefield permanents [player] controls that match [filter] —
+     * [excludeSelf] leaves the source out ("the number of *other* creatures you control").
+     */
+    class BattlefieldQuery(
+        private val player: Player,
+        private val filter: GameObjectFilter,
+        private val excludeSelf: Boolean = false
+    ) {
+        private fun aggregate(aggregation: Aggregation, property: CardNumericProperty? = null): DynamicAmount =
+            DynamicAmount.AggregateBattlefield(player, filter, aggregation, property, excludeSelf)
 
-        fun maxManaValue(): DynamicAmount =
-            DynamicAmount.AggregateBattlefield(player, filter, Aggregation.MAX, CardNumericProperty.MANA_VALUE)
+        fun count(): DynamicAmount = aggregate(Aggregation.COUNT)
 
-        fun maxPower(): DynamicAmount =
-            DynamicAmount.AggregateBattlefield(player, filter, Aggregation.MAX, CardNumericProperty.POWER)
+        fun maxManaValue(): DynamicAmount = aggregate(Aggregation.MAX, CardNumericProperty.MANA_VALUE)
 
-        fun maxToughness(): DynamicAmount =
-            DynamicAmount.AggregateBattlefield(player, filter, Aggregation.MAX, CardNumericProperty.TOUGHNESS)
+        fun maxPower(): DynamicAmount = aggregate(Aggregation.MAX, CardNumericProperty.POWER)
 
-        fun minToughness(): DynamicAmount =
-            DynamicAmount.AggregateBattlefield(player, filter, Aggregation.MIN, CardNumericProperty.TOUGHNESS)
+        fun maxToughness(): DynamicAmount = aggregate(Aggregation.MAX, CardNumericProperty.TOUGHNESS)
 
-        fun sumPower(): DynamicAmount =
-            DynamicAmount.AggregateBattlefield(player, filter, Aggregation.SUM, CardNumericProperty.POWER)
+        fun minToughness(): DynamicAmount = aggregate(Aggregation.MIN, CardNumericProperty.TOUGHNESS)
+
+        fun sumPower(): DynamicAmount = aggregate(Aggregation.SUM, CardNumericProperty.POWER)
+
+        fun sumToughness(): DynamicAmount = aggregate(Aggregation.SUM, CardNumericProperty.TOUGHNESS)
+
+        fun sumManaValue(): DynamicAmount = aggregate(Aggregation.SUM, CardNumericProperty.MANA_VALUE)
+
+        /** The number of colors among the matched permanents. */
+        fun distinctColors(): DynamicAmount = aggregate(Aggregation.DISTINCT_COLORS)
+
+        /** The number of card types among the matched permanents. */
+        fun distinctTypes(): DynamicAmount = aggregate(Aggregation.DISTINCT_TYPES)
+
+        /** The total number of [counterType] counters on the matched permanents. */
+        fun totalCounters(counterType: CounterType): DynamicAmount =
+            DynamicAmount.AggregateBattlefield(player, filter, Aggregation.SUM, excludeSelf = excludeSelf, counterType = counterType)
 
         /**
          * The number of distinct values of [property] (power / toughness / mana value) among the
@@ -75,15 +271,14 @@ object DynamicAmounts {
          * value count once.
          */
         fun distinctValues(property: CardNumericProperty): DynamicAmount =
-            DynamicAmount.AggregateBattlefield(player, filter, Aggregation.DISTINCT_VALUES, property)
+            aggregate(Aggregation.DISTINCT_VALUES, property)
 
         /**
          * The number of differently named matched permanents — e.g. `distinctNames()` over
          * `GameObjectFilter.Land` for "the number of differently named lands you control"
          * (Emil, Vastlands Roamer). Two permanents sharing a name count once.
          */
-        fun distinctNames(): DynamicAmount =
-            DynamicAmount.AggregateBattlefield(player, filter, Aggregation.DISTINCT_NAMES)
+        fun distinctNames(): DynamicAmount = aggregate(Aggregation.DISTINCT_NAMES)
     }
 
     // =========================================================================
@@ -116,6 +311,10 @@ object DynamicAmounts {
 
         fun sumManaValue(): DynamicAmount =
             DynamicAmount.AggregateZone(player, zone, filter, Aggregation.SUM, CardNumericProperty.MANA_VALUE)
+
+        /** The number of card types among the matched cards ("card types among cards in your graveyard"). */
+        fun distinctTypes(): DynamicAmount =
+            DynamicAmount.AggregateZone(player, zone, filter, Aggregation.DISTINCT_TYPES)
     }
 
     // =========================================================================
@@ -472,6 +671,22 @@ object DynamicAmounts {
     fun creaturesDiedThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.CREATURES_DIED)
 
+    /** The number of cards [player] has drawn this turn. */
+    fun cardsDrawnThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.CARDS_DRAWN)
+
+    /** The damage [player] has been dealt this turn. */
+    fun damageReceivedThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.DAMAGE_RECEIVED)
+
+    /** The number of creatures that left the battlefield under [player]'s control this turn. */
+    fun creaturesLeftBattlefieldThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.CREATURES_LEFT_BATTLEFIELD)
+
+    /** The number of different bending kinds [player] has performed this turn (Avatar). */
+    fun distinctBendsThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.DISTINCT_BENDS)
+
     /**
      * Artifacts put into a graveyard from the battlefield this turn. Defaults to [Player.Each] —
      * the **game-wide** count, which is the only reading printed so far ("the number of artifacts
@@ -598,10 +813,11 @@ object DynamicAmounts {
         filter: GameObjectFilter = GameObjectFilter.Any,
         excludeSelf: Boolean = false,
         fromZone: Zone? = null,
-        beforeTriggeringSpell: Boolean = false
+        beforeTriggeringSpell: Boolean = false,
+        countDistinctCardTypes: Boolean = false
     ): DynamicAmount =
         DynamicAmount.SpellsCastThisTurn(
-            player, filter, excludeSelf, fromZone, beforeTriggeringSpell = beforeTriggeringSpell
+            player, filter, excludeSelf, fromZone, countDistinctCardTypes, beforeTriggeringSpell
         )
 
     /** The total number of spells cast during the immediately preceding turn. */
@@ -634,6 +850,23 @@ object DynamicAmounts {
     // =========================================================================
     // Entity property shortcuts (composable entity + property)
     // =========================================================================
+
+    /** [property] of [entity] — the general form behind [powerOf], [manaValueOf], [countersOn], …. */
+    fun propertyOf(entity: EffectTarget.SingleEntity, property: EntityNumericProperty): DynamicAmount =
+        DynamicAmount.EntityProperty(entity, property)
+
+    /** [entity]'s power (a target handle, `EffectTarget.TriggeringEntity`, `IterationEntity`, …). */
+    fun powerOf(entity: EffectTarget.SingleEntity): DynamicAmount = propertyOf(entity, EntityNumericProperty.Power)
+
+    /** [entity]'s toughness. */
+    fun toughnessOf(entity: EffectTarget.SingleEntity): DynamicAmount = propertyOf(entity, EntityNumericProperty.Toughness)
+
+    /** [entity]'s mana value. */
+    fun manaValueOf(entity: EffectTarget.SingleEntity): DynamicAmount = propertyOf(entity, EntityNumericProperty.ManaValue)
+
+    /** The number of [type] counters on [entity] (`null` = counters of any kind). */
+    fun countersOn(entity: EffectTarget.SingleEntity, type: CounterType?): DynamicAmount =
+        propertyOf(entity, EntityNumericProperty.CounterCount(type))
 
     fun sourcePower(): DynamicAmount =
         DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
@@ -802,4 +1035,7 @@ object DynamicAmounts {
 
     /** The mana value of the (first) card in [collection]. */
     fun manaValueOf(collection: CollectionSlot): DynamicAmount = DynamicAmount.StoredCardManaValue(collection.key)
+
+    /** The mana value of the (first) card an effect outside a pipeline stored under [collectionName]. */
+    fun manaValueOf(collectionName: String): DynamicAmount = DynamicAmount.StoredCardManaValue(collectionName)
 }

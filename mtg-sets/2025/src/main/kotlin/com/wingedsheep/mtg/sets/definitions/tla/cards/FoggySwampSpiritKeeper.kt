@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
 import com.wingedsheep.sdk.scripting.CantBeBlockedExceptBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Foggy Swamp Spirit Keeper
@@ -35,7 +34,7 @@ val FoggySwampSpiritKeeper = card("Foggy Swamp Spirit Keeper") {
     triggeredAbility {
         trigger = Triggers.NthCardDrawn(2)
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(1),
+            count = 1,
             power = 1,
             toughness = 1,
             colors = emptySet(),

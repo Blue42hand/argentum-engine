@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kellan, the Kid
@@ -59,7 +58,7 @@ val KellanTheKid = card("Kellan, the Kid") {
                 val kellanEligible = filter(
                     kellanCandidates,
                     GameObjectFilter.Any.manaValueAtMostDynamic(
-                        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGERING_SPELL_MANA_VALUE),
+                        DynamicAmounts.triggeringSpellManaValue(),
                     )
                 )
                 val kellanChosen = chooseUpTo(

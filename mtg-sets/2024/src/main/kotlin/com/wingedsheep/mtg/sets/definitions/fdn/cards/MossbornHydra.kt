@@ -2,14 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Mossborn Hydra
@@ -41,10 +40,7 @@ val MossbornHydra = card("Mossborn Hydra") {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            amount = DynamicAmount.EntityProperty(
-                EffectTarget.Self,
-                EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
-            ),
+            amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
             target = EffectTarget.Self
         )
     }

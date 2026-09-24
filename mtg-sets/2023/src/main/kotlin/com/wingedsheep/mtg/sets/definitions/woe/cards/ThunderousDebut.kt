@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Thunderous Debut
@@ -51,7 +50,7 @@ val ThunderousDebut = card("Thunderous Debut") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(20)))
+            val looked = gather(CardSource.TopOfLibrary(20))
             val chosen = chooseUpTo(
                 2,
                 from = looked,

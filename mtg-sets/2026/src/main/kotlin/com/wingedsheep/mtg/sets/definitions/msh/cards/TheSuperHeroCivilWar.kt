@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
@@ -15,7 +16,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Super Hero Civil War — Marvel Super Heroes #231
@@ -81,7 +81,7 @@ val TheSuperHeroCivilWar = card("The Super Hero Civil War") {
                 count = 2,
                 optional = true,
                 filter = TargetFilter.Creature,
-                totalManaValueAtMost = DynamicAmount.Fixed(6),
+                totalManaValueAtMost = DynamicAmounts.fixed(6),
             )
         )
         effect = Effects.ForEachTarget(

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Parker Luck
@@ -44,9 +43,9 @@ val ParkerLuck = card("Parker Luck") {
         target("players", TargetPlayer(count = 2))
         effect = Effects.Pipeline {
             // Both target players reveal the top card of their library.
-            val revealedA = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.ContextPlayer(0)))
+            val revealedA = gather(CardSource.TopOfLibrary(1, Player.ContextPlayer(0)))
             reveal(revealedA)
-            val revealedB = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.ContextPlayer(1)))
+            val revealedB = gather(CardSource.TopOfLibrary(1, Player.ContextPlayer(1)))
             reveal(revealedB)
             // Each loses life equal to the mana value of the OTHER player's revealed card.
             run(Effects.LoseLife(

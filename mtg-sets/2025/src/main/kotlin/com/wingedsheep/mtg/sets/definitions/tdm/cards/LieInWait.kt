@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Lie in Wait — Tarkir: Dragonstorm #203
@@ -35,10 +34,7 @@ val LieInWait = card("Lie in Wait") {
             listOf(
                 Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
                 Effects.DealDamage(
-                    DynamicAmount.EntityProperty(
-                        entity = EffectTarget.ContextTarget(0),
-                        numericProperty = EntityNumericProperty.Power
-                    ),
+                    DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
                     EffectTarget.ContextTarget(1),
                     damageSource = EffectTarget.Self
                 )

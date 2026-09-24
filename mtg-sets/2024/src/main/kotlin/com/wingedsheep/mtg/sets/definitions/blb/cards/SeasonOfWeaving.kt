@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.BudgetMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -37,7 +36,7 @@ val SeasonOfWeaving = card("Season of Weaving") {
                 BudgetMode(
                     cost = 1,
                     effect = Effects.DrawCards(
-                        count = DynamicAmount.Fixed(1),
+                        count = 1,
                         target = EffectTarget.Controller
                     ),
                     description = "Draw a card"

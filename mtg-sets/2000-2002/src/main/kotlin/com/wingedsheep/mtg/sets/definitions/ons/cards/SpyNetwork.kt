@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.scripting.*
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownLookScope
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -30,7 +29,7 @@ val SpyNetwork = card("Spy Network") {
         effect = Effects.LookAtHand(t)
             .then(
                 Effects.Pipeline {
-                    val targetTop = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.ContextPlayer(0)))
+                    val targetTop = gather(CardSource.TopOfLibrary(1, Player.ContextPlayer(0)))
                     toLibraryTop(targetTop, Player.ContextPlayer(0))
                 }
             )

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Baron Bertram Graywater
@@ -43,7 +42,7 @@ val BaronBertramGraywater = card("Baron Bertram Graywater") {
         trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Token)
         oncePerTurn = true
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(1),
+            count = 1,
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK),

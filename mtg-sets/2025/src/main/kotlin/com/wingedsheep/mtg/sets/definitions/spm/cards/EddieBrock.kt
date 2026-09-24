@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -19,8 +20,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Eddie Brock // Venom, Lethal Protector — Marvel's Spider-Man #55 (mythic)
@@ -128,10 +127,7 @@ private val VenomLethalProtector = card("Venom, Lethal Protector") {
             )
         )
         // X = the sacrificed creature's mana value (last-known info via EffectTarget.SacrificedAsCost).
-        val x = DynamicAmount.EntityProperty(
-            EffectTarget.SacrificedAsCost(0),
-            EntityNumericProperty.ManaValue
-        )
+        val x = DynamicAmounts.manaValueOf(EffectTarget.SacrificedAsCost(0))
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificed) then
                 Effects.DrawCards(x) then

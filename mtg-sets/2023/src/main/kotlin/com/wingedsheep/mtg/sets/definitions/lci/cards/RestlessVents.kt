@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Restless Vents — LCI #284
@@ -62,8 +61,8 @@ val RestlessVents = card("Restless Vents") {
         cost = Costs.Mana("{1}{B}{R}")
         effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
-            power = DynamicAmount.Fixed(2),
-            toughness = DynamicAmount.Fixed(3),
+            power = 2,
+            toughness = 3,
             keywords = setOf(Keyword.MENACE),
             creatureTypes = setOf("Insect"),
             colors = setOf(Color.BLACK.name, Color.RED.name),

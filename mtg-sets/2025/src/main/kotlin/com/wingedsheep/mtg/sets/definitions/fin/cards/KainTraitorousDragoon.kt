@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kain, Traitorous Dragoon
@@ -54,7 +53,7 @@ val KainTraitorousDragoon = card("Kain, Traitorous Dragoon") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+        val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.IfYouDo(
             action = Effects.GiveControl(
                 permanent = EffectTarget.Self,

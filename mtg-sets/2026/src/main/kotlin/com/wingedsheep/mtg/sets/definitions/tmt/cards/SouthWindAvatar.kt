@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,9 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * South Wind Avatar
@@ -47,7 +45,7 @@ val SouthWindAvatar = card("South Wind Avatar") {
             binding = TriggerBinding.OTHER
         )
         effect = Effects.GainLife(
-            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Toughness)
+            DynamicAmounts.triggeringToughness()
         )
         description = "Whenever another creature you control dies, you gain life equal to its toughness."
     }

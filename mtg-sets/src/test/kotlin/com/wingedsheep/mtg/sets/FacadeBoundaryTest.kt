@@ -33,6 +33,10 @@ class FacadeBoundaryTest : FunSpec({
         Regex("""((?<![\w.])|\bscripting\.effects\.)[A-Z]\w*Effect\s*\(""") to "the Effects.* facade for that effect",
         Regex("""(?<![\w.])(GatedEffect\s*\(|Gate\.[A-Z])""") to
             "Effects.If / May / MayPay / MayPayX / IfYouDo",
+        // Amounts go through DynamicAmounts (and the `+ - * /` operators); most facades that take an
+        // amount also take an Int, so a constant needs no wrapper at all.
+        Regex("""\bDynamicAmount\.[A-Z]""") to "DynamicAmounts.* (or an Int / an operator)",
+        Regex("""(?<![\w.])Compare\s*\(""") to "Conditions.CompareAmounts(...)",
     )
 
     /**

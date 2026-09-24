@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Intrude on the Mind
@@ -36,7 +35,7 @@ val IntrudeOnTheMind = card("Intrude on the Mind") {
     spell {
         effect = Effects.Pipeline {
             val revealed = gather(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(5)),
+                source = CardSource.TopOfLibrary(5),
                 revealed = true
             )
             val separated = chooseAnyNumberSplit(

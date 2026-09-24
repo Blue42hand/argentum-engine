@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Lightning, Security Sergeant — Final Fantasy #560
@@ -45,7 +44,7 @@ val LightningSecuritySergeant = card("Lightning, Security Sergeant") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.Pipeline {
-            val exiledCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)
             run(Effects.GrantMayPlayFromExile(
                 from = exiledCard,

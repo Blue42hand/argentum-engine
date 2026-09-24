@@ -6,13 +6,13 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Specter of Mortality
@@ -80,8 +80,8 @@ val SpecterOfMortality = card("Specter of Mortality") {
                 val exiledCount = exiled.count
                 run(
                     Patterns.Group.modifyStatsForAll(
-                        power = DynamicAmount.Multiply(exiledCount, -1),
-                        toughness = DynamicAmount.Multiply(exiledCount, -1),
+                        power = -exiledCount,
+                        toughness = -exiledCount,
                         filter = GroupFilter(GameObjectFilter.Creature, excludeSelf = true)
                     )
                 )

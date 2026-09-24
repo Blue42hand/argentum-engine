@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Matzalantli, the Great Door // The Core — The Lost Caverns of Ixalan #256
@@ -88,7 +88,7 @@ private val TheCore = card("The Core") {
     activatedAbility {
         cost = Costs.Tap
         effect = Effects.AddAnyColorMana(
-            DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent)
+            DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent)
         )
         manaAbility = true
         timing = TimingRule.ManaAbility

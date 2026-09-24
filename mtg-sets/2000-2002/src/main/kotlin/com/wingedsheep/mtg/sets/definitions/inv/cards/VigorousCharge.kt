@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Vigorous Charge
@@ -43,7 +42,7 @@ val VigorousCharge = card("Vigorous Charge") {
                             trigger = Triggers.dealsDamage(damageType = DamageType.Combat).event,
                             binding = Triggers.dealsDamage(damageType = DamageType.Combat).binding,
                             effect = Effects.GainLife(
-                                DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+                                DynamicAmounts.triggerDamageAmount()
                             ),
                             descriptionOverride = "Whenever this creature deals combat damage, you gain life equal to that damage."
                         ),

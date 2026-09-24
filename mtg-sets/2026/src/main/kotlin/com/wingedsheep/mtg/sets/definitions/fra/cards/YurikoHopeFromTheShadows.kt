@@ -6,11 +6,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Yuriko, Hope from the Shadows — X is counted as the mode resolves (CR 608.2h) and then locked in
@@ -35,8 +35,8 @@ val YurikoHopeFromTheShadows = card("Yuriko, Hope from the Shadows") {
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
                 Effects.ModifyStats(
-                    power = DynamicAmount.Multiply(DynamicAmounts.cardsInYourGraveyard(), -1),
-                    toughness = DynamicAmount.Fixed(0),
+                    power = -DynamicAmounts.cardsInYourGraveyard(),
+                    toughness = DynamicAmounts.fixed(0),
                     target = EffectTarget.ContextTarget(0),
                 ),
                 Targets.Creature,

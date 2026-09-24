@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -37,7 +37,7 @@ val KarnScionOfUrza = card("Karn, Scion of Urza") {
     // +1: Reveal top 2, opponent chooses 1 for hand, other exiled with silver counter
     loyaltyAbility(+1) {
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(2), revealed = true)
             val (chosen, rest) = chooseExactlySplit(1, from = revealed, chooser = Chooser.Opponent)
             toHand(chosen)
             move(rest, CardDestination.ToZone(Zone.EXILE), addCounterType = CounterType.SILVER)
@@ -70,14 +70,14 @@ val KarnScionOfUrza = card("Karn, Scion of Urza") {
             staticAbilities = listOf(
                 GrantDynamicStats(
                     filter = GroupFilter.source(),
-                    powerBonus = DynamicAmount.AggregateBattlefield(
+                    powerBonus = DynamicAmounts.battlefield(
                         Player.You,
                         GameObjectFilter.Artifact
-                    ),
-                    toughnessBonus = DynamicAmount.AggregateBattlefield(
+                    ).count(),
+                    toughnessBonus = DynamicAmounts.battlefield(
                         Player.You,
                         GameObjectFilter.Artifact
-                    )
+                    ).count()
                 )
             ),
             imageUri = "https://cards.scryfall.io/normal/front/c/5/c5eafa38-5333-4ef2-9661-08074c580a32.jpg?1562702317"

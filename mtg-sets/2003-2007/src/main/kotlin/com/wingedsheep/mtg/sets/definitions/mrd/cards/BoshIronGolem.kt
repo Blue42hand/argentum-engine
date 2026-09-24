@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -47,10 +46,7 @@ val BoshIronGolem = card("Bosh, Iron Golem") {
         cost = Costs.Composite(Costs.Mana("{3}{R}"), Costs.Sacrifice(GameObjectFilter.Artifact))
         val t = target("any target", Targets.Any)
         effect = Effects.DealDamage(
-            DynamicAmount.EntityProperty(
-                EffectTarget.SacrificedAsCost(0),
-                EntityNumericProperty.ManaValue
-            ),
+            DynamicAmounts.manaValueOf(EffectTarget.SacrificedAsCost(0)),
             t
         )
         description = "{3}{R}, Sacrifice an artifact: Bosh deals damage equal to the sacrificed " +

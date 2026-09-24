@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gisa, the Hellraiser
@@ -82,7 +81,7 @@ val GisaTheHellraiser = card("Gisa, the Hellraiser") {
         trigger = Triggers.YouCommitCrime
         oncePerTurn = true
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(2),
+            count = 2,
             power = 2,
             toughness = 2,
             colors = setOf(Color.BLUE, Color.BLACK),

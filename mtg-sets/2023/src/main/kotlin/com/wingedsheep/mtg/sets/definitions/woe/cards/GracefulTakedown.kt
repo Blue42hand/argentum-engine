@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Graceful Takedown
@@ -71,10 +70,7 @@ val GracefulTakedown = card("Graceful Takedown") {
                 Effects.ForEachInCollection(
                     collection = dealers,
                     effect = Effects.DealDamage(
-                        amount = DynamicAmount.EntityProperty(
-                            EffectTarget.IterationEntity,
-                            EntityNumericProperty.Power
-                        ),
+                        amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
                         target = victim,
                         damageSource = EffectTarget.IterationEntity
                     )

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Honored Dreyleader
@@ -46,7 +46,7 @@ val HonoredDreyleader = card("Honored Dreyleader") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.AggregateBattlefield(Player.You, squirrelOrFoodFilter, excludeSelf = true),
+            DynamicAmounts.battlefield(Player.You, squirrelOrFoodFilter, excludeSelf = true).count(),
             EffectTarget.Self
         )
     }

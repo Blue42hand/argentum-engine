@@ -1,20 +1,19 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 
 /**
@@ -75,12 +74,12 @@ private val CecilDarkKnightFrontFace = card("Cecil, Dark Knight") {
     triggeredAbility {
         trigger = Triggers.DealsDamage
         effect = Effects.Composite(listOf(
-            Effects.LoseLife(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT), EffectTarget.Controller),
+            Effects.LoseLife(DynamicAmounts.triggerDamageAmount(), EffectTarget.Controller),
             Effects.If(
-                condition = Compare(
-                    DynamicAmount.LifeTotal(Player.You),
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.lifeTotal(Player.You),
                     ComparisonOperator.LTE,
-                    DynamicAmount.Divide(DynamicAmounts.startingLifeTotal(Player.You), DynamicAmount.Fixed(2), roundUp = false)
+                    DynamicAmounts.startingLifeTotal(Player.You) / 2
                 ),
                 then = Effects.Composite(listOf(
                     Effects.Untap(EffectTarget.Self),

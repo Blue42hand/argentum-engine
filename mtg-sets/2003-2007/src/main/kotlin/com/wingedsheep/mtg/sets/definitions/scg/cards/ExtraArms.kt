@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Extra Arms
@@ -28,7 +27,7 @@ val ExtraArms = card("Extra Arms") {
         trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
         val any = target("any target", Targets.Any)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Fixed(2),
+            amount = 2,
             target = any,
             damageSource = EffectTarget.EnchantedCreature
         )

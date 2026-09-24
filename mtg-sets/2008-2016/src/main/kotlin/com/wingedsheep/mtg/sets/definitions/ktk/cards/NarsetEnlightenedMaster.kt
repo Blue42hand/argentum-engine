@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -33,7 +32,7 @@ val NarsetEnlightenedMaster = card("Narset, Enlightened Master") {
         trigger = Triggers.Attacks
         effect = Effects.Pipeline {
             // Exile the top 4 cards of your library
-            val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+            val exiledCards = gather(CardSource.TopOfLibrary(4))
             exile(exiledCards)
             // Filter to noncreature, nonland cards
             val castable = filter(exiledCards, GameObjectFilter.Noncreature and GameObjectFilter.Nonland)

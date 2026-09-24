@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,11 +34,11 @@ val SpryAndMighty = card("Spry and Mighty") {
 
         // X = |power(c1) - power(c2)| = max(p1 - p2, p2 - p1). Frozen into a stored number
         // so the first ModifyStats doesn't skew the second's reading of projected power.
-        val p1 = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power)
-        val p2 = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(1), EntityNumericProperty.Power)
-        val diff = DynamicAmount.Max(
-            DynamicAmount.Subtract(p1, p2),
-            DynamicAmount.Subtract(p2, p1)
+        val p1 = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0))
+        val p2 = DynamicAmounts.powerOf(EffectTarget.ContextTarget(1))
+        val diff = DynamicAmounts.max(
+            p1 - p2,
+            p2 - p1
         )
         effect = Effects.Pipeline(
             descriptionOverride = "You draw {0} cards and the chosen creatures get +{0}/+{0} " +

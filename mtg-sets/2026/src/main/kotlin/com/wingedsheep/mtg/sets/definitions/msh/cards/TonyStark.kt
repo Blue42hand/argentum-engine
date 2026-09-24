@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tony Stark // The Invincible Iron Man — Marvel Super Heroes #80 (mythic)
@@ -68,7 +67,7 @@ private val TonyStarkFront = card("Tony Stark") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(4),
+            count = 4,
             filter = GameObjectFilter.Artifact,
             prompt = "You may reveal an artifact card and put it into your hand",
             restOrder = CardOrder.Random,

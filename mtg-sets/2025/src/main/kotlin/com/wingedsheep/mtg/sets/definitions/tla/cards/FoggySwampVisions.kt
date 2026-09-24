@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Foggy Swamp Visions
@@ -43,7 +43,7 @@ val FoggySwampVisions = card("Foggy Swamp Visions") {
         val target = target("target", TargetObject(
             optional = true,
             filter = TargetFilter.CreatureInGraveyard,
-            dynamicMaxCount = DynamicAmount.XValue,
+            dynamicMaxCount = DynamicAmounts.xValue(),
         ))
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.ChosenTargets)

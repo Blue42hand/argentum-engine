@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sindbad
@@ -32,7 +31,7 @@ val Sindbad = card("Sindbad") {
             // branch honest: if the draw is replaced (dredge-style) or the library is
             // empty, the peeked card never reaches the hand and nothing is revealed
             // or discarded.
-            val toDraw = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val toDraw = gather(CardSource.TopOfLibrary(1))
             run(Effects.DrawCards(1))
             val drawn = filter(toDraw, GameObjectFilter.Any.currentlyIn(Zone.HAND))
             reveal(drawn, revealToSelf = false)

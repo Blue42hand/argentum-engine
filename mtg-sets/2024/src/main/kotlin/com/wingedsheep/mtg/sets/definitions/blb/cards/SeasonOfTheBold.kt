@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Season of the Bold {3}{R}{R}
@@ -50,7 +49,7 @@ val SeasonOfTheBold = card("Season of the Bold") {
                 BudgetMode(
                     cost = 2,
                     effect = Effects.Pipeline {
-                        val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
+                        val exiledCards = gather(CardSource.TopOfLibrary(2))
                         exile(exiledCards)
                         run(Effects.GrantMayPlayFromExile(exiledCards, MayPlayExpiry.UntilEndOfNextTurn))
                     },
@@ -65,7 +64,7 @@ val SeasonOfTheBold = card("Season of the Bold") {
                             trigger = SpellCastEvent(player = Player.You),
                             binding = TriggerBinding.ANY,
                             effect = Effects.DealDamage(
-                                amount = DynamicAmount.Fixed(2),
+                                amount = 2,
                                 target = EffectTarget.ContextTarget(0)
                             ),
                             targetRequirement = TargetCreature(optional = true)

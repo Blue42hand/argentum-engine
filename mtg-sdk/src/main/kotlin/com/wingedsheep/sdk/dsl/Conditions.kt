@@ -150,6 +150,10 @@ object Conditions {
         right: DynamicAmount,
     ): ConditionInterface = Compare(left, operator, right)
 
+    /** [CompareAmounts] against a constant ("if you have seven or more cards in your graveyard"). */
+    fun CompareAmounts(left: DynamicAmount, operator: ComparisonOperator, right: Int): ConditionInterface =
+        Compare(left, operator, DynamicAmount.Fixed(right))
+
     /**
      * If [amount] is a prime number (2, 3, 5, 7, …). 0 and 1 are not prime.
      *

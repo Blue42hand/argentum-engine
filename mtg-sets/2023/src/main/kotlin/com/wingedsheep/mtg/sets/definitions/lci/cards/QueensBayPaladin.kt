@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.TriggeredAbilityBuilder
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Queen's Bay Paladin
@@ -82,7 +81,7 @@ private fun TriggeredAbilityBuilder.returnVampireRider() {
         Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
         Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = returned),
         Effects.LoseLife(
-            DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue),
+            DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
             EffectTarget.Controller,
         ),
     )

@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Windbrisk Heights
@@ -55,7 +54,7 @@ val WindbriskHeights = card("Windbrisk Heights") {
         effect = Effects.Pipeline {
             val hideawayTop = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(4),
+                    count = 4,
                     player = Player.You
                 )
             )

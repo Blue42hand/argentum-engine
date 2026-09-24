@@ -4,13 +4,13 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Colossus of the Blood Age — Secrets of Strixhaven #181
@@ -59,10 +59,7 @@ val ColossusOfTheBloodAge = card("Colossus of the Blood Age") {
             )
             run(
                 Effects.DrawCards(
-                    DynamicAmount.Add(
-                        discarded.count,
-                        DynamicAmount.Fixed(1)
-                    ),
+                    discarded.count + 1,
                     EffectTarget.Controller
                 )
             )

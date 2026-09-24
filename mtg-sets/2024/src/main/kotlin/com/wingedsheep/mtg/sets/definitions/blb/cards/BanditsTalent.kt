@@ -1,17 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bandit's Talent
@@ -51,13 +51,13 @@ val BanditsTalent = card("Bandit's Talent") {
     classLevel(2, "{B}") {
         triggeredAbility {
             trigger = Triggers.EachOpponentUpkeep
-            interveningIf = Compare(
-                left = DynamicAmount.Count(Player.TriggeringPlayer, Zone.HAND),
+            interveningIf = Conditions.CompareAmounts(
+                left = DynamicAmounts.count(Player.TriggeringPlayer, Zone.HAND),
                 operator = ComparisonOperator.LTE,
-                right = DynamicAmount.Fixed(1)
+                right = 1
             )
             effect = Effects.LoseLife(
-                amount = DynamicAmount.Fixed(2),
+                amount = 2,
                 target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
             )
         }
@@ -69,12 +69,12 @@ val BanditsTalent = card("Bandit's Talent") {
         triggeredAbility {
             trigger = Triggers.YourDrawStep
             effect = Effects.DrawCards(
-                count = DynamicAmount.CountPlayersWith(
+                count = DynamicAmounts.countPlayersWith(
                     scope = Player.EachOpponent,
-                    condition = Compare(
-                        left = DynamicAmount.Count(Player.You, Zone.HAND),
+                    condition = Conditions.CompareAmounts(
+                        left = DynamicAmounts.cardsInYourHand(),
                         operator = ComparisonOperator.LTE,
-                        right = DynamicAmount.Fixed(1)
+                        right = 1
                     )
                 )
             )

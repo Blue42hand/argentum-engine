@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,10 +35,7 @@ val LacerateFlesh = card("Lacerate Flesh") {
         effect = Effects.Composite(
             Effects.DealDamage(4, creature),
             Effects.CreateBlood(
-                count = DynamicAmount.EntityProperty(
-                    EffectTarget.ContextTarget(0),
-                    EntityNumericProperty.ExcessMarkedDamage
-                )
+                count = DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage)
             )
         )
     }

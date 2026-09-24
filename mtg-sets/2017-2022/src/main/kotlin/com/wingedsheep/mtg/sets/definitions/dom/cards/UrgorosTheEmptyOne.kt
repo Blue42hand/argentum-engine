@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -39,7 +38,7 @@ val UrgorosTheEmptyOne = card("Urgoros, the Empty One") {
                 val discarded = chooseRandom(1, from = hand)
                 discard(discarded, Player.TriggeringPlayer)
             } orElse {
-                run(Effects.DrawCards(count = DynamicAmount.Fixed(1)))
+                run(Effects.DrawCards(count = 1))
             }
         }
     }

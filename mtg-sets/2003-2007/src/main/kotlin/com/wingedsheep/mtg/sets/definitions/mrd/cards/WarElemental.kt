@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,9 +13,6 @@ import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * War Elemental — Mirrodin #112
@@ -40,9 +38,9 @@ val WarElemental = card("War Elemental") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                DynamicAmount.TurnTracking(Player.EachOpponent, TurnTracker.DAMAGE_RECEIVED),
+                DynamicAmounts.damageReceivedThisTurn(Player.EachOpponent),
                 ComparisonOperator.LT,
-                DynamicAmount.Fixed(1),
+                1,
             ),
             then = Effects.SacrificeTarget(EffectTarget.Self),
         )
@@ -56,7 +54,7 @@ val WarElemental = card("War Elemental") {
         )
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.Self,
         )
     }

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -71,7 +70,7 @@ val GlamdringFoeHammer = card("Glamdring, Foe-hammer") {
         spell {
             effect = Effects.Pipeline {
                 // Mill six cards.
-                val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(6), Player.You, isMill = true))
+                val milled = gather(CardSource.TopOfLibrary(6, Player.You, isMill = true))
                 toGraveyard(milled)
                 // Then put all instant and sorcery cards from among them into your hand.
                 val spells = filter(milled, GameObjectFilter.InstantOrSorcery)

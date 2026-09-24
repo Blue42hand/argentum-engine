@@ -2,18 +2,17 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttackUnless
 import com.wingedsheep.sdk.scripting.CantBlockUnless
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Technodrome
@@ -36,10 +35,10 @@ val Technodrome = card("Technodrome") {
 
     // "can't attack or block unless its power is 6 or greater" — compares the source's
     // own (projected) power to 6.
-    val powerAtLeastSix = Compare(
-        DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
+    val powerAtLeastSix = Conditions.CompareAmounts(
+        DynamicAmounts.sourcePower(),
         ComparisonOperator.GTE,
-        DynamicAmount.Fixed(6)
+        6
     )
     staticAbility {
         ability = CantAttackUnless(condition = powerAtLeastSix)

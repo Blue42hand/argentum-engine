@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bonny Pall, Clearcutter {3}{G}{U}{U}
@@ -52,7 +51,7 @@ val BonnyPallClearcutter = card("Bonny Pall, Clearcutter") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(1),
+            count = 1,
             power = 0,
             toughness = 0,
             colors = setOf(Color.BLUE),

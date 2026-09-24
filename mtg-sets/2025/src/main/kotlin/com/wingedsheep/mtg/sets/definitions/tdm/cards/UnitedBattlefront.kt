@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -33,7 +32,7 @@ val UnitedBattlefront = card("United Battlefront") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(7)))
+            val looked = gather(CardSource.TopOfLibrary(7))
             // "Look at the top seven cards" is information the player is owed even when
             // nothing among them can be kept — show all seven, with the ineligible ones
             // greyed out, instead of silently skipping the prompt.

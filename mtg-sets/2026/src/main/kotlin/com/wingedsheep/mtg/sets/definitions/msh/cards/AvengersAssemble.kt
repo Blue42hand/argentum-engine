@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Avengers Assemble! — Marvel Super Heroes #6 (mythic)
@@ -71,7 +70,7 @@ val AvengersAssemble = card("Avengers Assemble!") {
             Conditions.CompareAmounts(
                 DynamicAmounts.subtypeEnteredUnderControlThisTurn(Subtype.HERO),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(1),
+                1,
             ),
         )
         effect = Effects.DrawCards(1)

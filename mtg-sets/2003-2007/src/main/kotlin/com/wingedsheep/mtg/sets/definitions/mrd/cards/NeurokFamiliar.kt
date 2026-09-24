@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Neurok Familiar — Mirrodin #43
@@ -37,7 +36,7 @@ val NeurokFamiliar = card("Neurok Familiar") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(1), revealed = true)
             val (artifact, nonArtifact) = selectAllSplit(from = revealed, filter = GameObjectFilter.Artifact)
             toHand(artifact)
             toGraveyard(nonArtifact)

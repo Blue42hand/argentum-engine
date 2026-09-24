@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.eld.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wildborn Preserver
@@ -57,7 +57,7 @@ val WildbornPreserver = card("Wildborn Preserver") {
                 optional = false,
                 reflexiveEffect = Effects.AddDynamicCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                    amount = DynamicAmount.XValue,
+                    amount = DynamicAmounts.xValue(),
                     target = EffectTarget.Self,
                 ),
                 descriptionOverride = "put X +1/+1 counters on this creature",

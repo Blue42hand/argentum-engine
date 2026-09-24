@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -30,7 +29,7 @@ val SeeTheUnwritten = card("See the Unwritten") {
         val ferocious = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4))
 
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(8)), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(8), revealed = true)
 
             fun selectAndMove(count: Int) = Effects.Pipeline {
                 val (selected, rest) = chooseUpToSplit(

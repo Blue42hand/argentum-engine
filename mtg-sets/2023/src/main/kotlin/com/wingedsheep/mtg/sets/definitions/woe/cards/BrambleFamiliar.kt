@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bramble Familiar // Fetch Quest
@@ -78,7 +77,7 @@ val BrambleFamiliar = card("Bramble Familiar") {
             effect = Effects.Pipeline {
                 val fetchMilled = gather(
                     CardSource.TopOfLibrary(
-                        count = DynamicAmount.Fixed(7),
+                        count = 7,
                         player = Player.You,
                         isMill = true,
                     )

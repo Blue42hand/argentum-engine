@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 private val KruinOutlawFront = card("Kruin Outlaw") {
     manaCost = "{1}{R}{R}"
@@ -28,7 +27,7 @@ private val KruinOutlawFront = card("Kruin Outlaw") {
     triggeredAbility {
         trigger = Triggers.EachUpkeep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, DynamicAmount.Fixed(0)
+            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, 0
         )
         effect = Effects.Transform(EffectTarget.Self)
     }
@@ -66,7 +65,7 @@ private val TerrorOfKruinPass = card("Terror of Kruin Pass") {
     triggeredAbility {
         trigger = Triggers.EachUpkeep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, DynamicAmount.Fixed(2)
+            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, 2
         )
         effect = Effects.Transform(EffectTarget.Self)
     }

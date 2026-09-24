@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.m21.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wildwood Scourge
@@ -39,7 +39,7 @@ val WildwoodScourge = card("Wildwood Scourge") {
     replacementEffect(
         EntersWithDynamicCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            count = DynamicAmount.XValue
+            count = DynamicAmounts.xValue()
         )
     )
 

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Jadzi, Steward of Fate // Oracle's Gift — Secrets of Strixhaven #55
@@ -62,7 +62,7 @@ val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
             "counters on each Fractal you control."
         spell {
             effect = Effects.CreateToken(
-                count = DynamicAmount.XValue,
+                count = DynamicAmounts.xValue(),
                 power = 0,
                 toughness = 0,
                 colors = setOf(Color.GREEN, Color.BLUE),
@@ -73,7 +73,7 @@ val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
                     GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.FRACTAL)).youControl(),
                     Effects.AddDynamicCounters(
                         counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                        amount = DynamicAmount.XValue,
+                        amount = DynamicAmounts.xValue(),
                         target = EffectTarget.IterationEntity,
                     ),
                 ),

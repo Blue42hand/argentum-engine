@@ -3,17 +3,16 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Malcolm, Alluring Scoundrel {1}{U}
@@ -60,10 +59,10 @@ val MalcolmAlluringScoundrel = card("Malcolm, Alluring Scoundrel") {
             // the discarded card for free. The card stays in the graveyard per oracle
             // text — we just grant the permission on the graveyard card.
             run(Effects.If(
-                condition = Compare(
+                condition = Conditions.CompareAmounts(
                     DynamicAmounts.countersOnSelf(CounterType.CHORUS),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(4)
+                    4
                 ),
                 then = Effects.GrantFreeCastTargetFromExile(
                     target = discarded.asTarget

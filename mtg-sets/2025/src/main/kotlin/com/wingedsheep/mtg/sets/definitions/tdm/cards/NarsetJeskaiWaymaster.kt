@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Narset, Jeskai Waymaster — Tarkir: Dragonstorm #209
@@ -38,7 +38,7 @@ val NarsetJeskaiWaymaster = card("Narset, Jeskai Waymaster") {
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Patterns.Hand.discardHand(EffectTarget.Controller),
-                then = Effects.DrawCards(DynamicAmount.SpellsCastThisTurn(Player.You)),
+                then = Effects.DrawCards(DynamicAmounts.spellsCastThisTurn(Player.You)),
                 // Discarding your hand always succeeds, even with zero cards in it (official
                 // ruling 2025-04-04) — Auto's "graveyard grew" probe would skip the empty-hand draw.
                 successCriterion = SuccessCriterion.Always

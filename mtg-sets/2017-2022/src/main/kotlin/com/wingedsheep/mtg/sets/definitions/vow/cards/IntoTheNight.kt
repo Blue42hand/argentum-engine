@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Into the Night (Innistrad: Crimson Vow) — {3}{R} Sorcery
@@ -28,7 +28,7 @@ val IntoTheNight: CardDefinition = card("Into the Night") {
         effect = Effects.Pipeline {
             run(Effects.BecomeNight)
             val discarded = runStoringCollection { Patterns.Hand.discardAnyNumber(storeAs = it) }
-            run(Effects.DrawCards(DynamicAmount.Add(discarded.count, DynamicAmount.Fixed(1))))
+            run(Effects.DrawCards(discarded.count + 1))
         }
     }
 

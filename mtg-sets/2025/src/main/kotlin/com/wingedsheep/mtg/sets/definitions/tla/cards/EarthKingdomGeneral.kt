@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Earth Kingdom General
@@ -75,7 +74,7 @@ val EarthKingdomGeneral = card("Earth Kingdom General") {
         // unconditionally instead of offering the choice.
         effect = Effects.May(
             Effects.GainLife(
-                DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_COUNTERS_PLACED_AMOUNT)
+                DynamicAmounts.triggerCountersPlaced()
             )
         )
         description = "Whenever you put one or more +1/+1 counters on a creature, you may gain " +

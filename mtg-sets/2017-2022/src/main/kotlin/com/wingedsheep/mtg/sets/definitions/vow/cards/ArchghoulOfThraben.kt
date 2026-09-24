@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Archghoul of Thraben
@@ -58,7 +57,7 @@ val ArchghoulOfThraben = card("Archghoul of Thraben") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val looked = gather(CardSource.TopOfLibrary(1))
             val (toHandCards, notTaken) = chooseUpToSplit(
                 1,
                 from = looked,

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Steal the Show
@@ -66,7 +66,7 @@ val StealTheShow = card("Steal the Show") {
             mode("Steal the Show deals damage equal to the number of instant and sorcery cards in your graveyard to target creature or planeswalker") {
                 val tgt = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
                 effect = Effects.DealDamage(
-                    DynamicAmount.Count(
+                    DynamicAmounts.count(
                         Player.You,
                         Zone.GRAVEYARD,
                         GameObjectFilter.InstantOrSorcery

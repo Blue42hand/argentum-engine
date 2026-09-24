@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -7,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Giantfall
@@ -29,7 +28,7 @@ val Giantfall = card("Giantfall") {
         effect = ModalEffect.chooseOne(
             Mode(
                 effect = Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
+                    amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
                     target = EffectTarget.ContextTarget(1),
                     damageSource = EffectTarget.ContextTarget(0)
                 ),

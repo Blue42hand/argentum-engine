@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Extraordinary Journey
@@ -51,7 +51,7 @@ val ExtraordinaryJourney = card("Extraordinary Journey") {
         val permanent = target("target permanent", TargetPermanent(
             optional = true,
             filter = TargetFilter.Creature,
-            dynamicMaxCount = DynamicAmount.CastX
+            dynamicMaxCount = DynamicAmounts.castX()
         ))
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {

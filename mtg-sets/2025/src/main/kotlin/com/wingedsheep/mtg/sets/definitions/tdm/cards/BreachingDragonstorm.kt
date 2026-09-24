@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Breaching Dragonstorm — Tarkir: Dragonstorm #101
@@ -50,7 +50,7 @@ val BreachingDragonstorm = card("Breaching Dragonstorm") {
             val (nonland, allRevealed) = gatherUntilMatch(GameObjectFilter.Nonland)
             exile(allRevealed)
             // Only mana value ≤ 8 may be cast for free.
-            val castable = filter(nonland, GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.Fixed(8)))
+            val castable = filter(nonland, GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmounts.fixed(8)))
             // You may cast it without paying its mana cost — only prompted when there is a
             // mana-value-≤-8 nonland to cast (no empty "may cast" when MV > 8).
             ifNotEmpty(castable) {

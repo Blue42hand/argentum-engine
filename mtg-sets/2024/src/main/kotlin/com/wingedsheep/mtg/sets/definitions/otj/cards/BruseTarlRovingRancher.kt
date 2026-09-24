@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bruse Tarl, Roving Rancher
@@ -40,7 +39,7 @@ private const val OX_TOKEN_IMAGE =
     "https://cards.scryfall.io/normal/front/c/e/cee3ecef-4566-4164-af39-89cb0bbbffeb.jpg?1712316060"
 
 private val bruseTarlBody = Effects.Pipeline {
-    val exiledCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+    val exiledCard = gather(CardSource.TopOfLibrary(1))
     exile(exiledCard)
     // Split the exiled card into land vs. non-land.
     val (landCards, nonLandCards) = filterSplit(exiledCard, GameObjectFilter.Land)

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bristlebane Outrider
@@ -41,8 +41,8 @@ val BristlebaneOutrider = card("Bristlebane Outrider") {
         ability = ConditionalStaticAbility(
             ability = GrantDynamicStats(
                 filter = GroupFilter.source(),
-                powerBonus = DynamicAmount.Fixed(2),
-                toughnessBonus = DynamicAmount.Fixed(0)
+                powerBonus = DynamicAmounts.fixed(2),
+                toughnessBonus = DynamicAmounts.fixed(0)
             ),
             condition = Exists(
                 player = Player.You,

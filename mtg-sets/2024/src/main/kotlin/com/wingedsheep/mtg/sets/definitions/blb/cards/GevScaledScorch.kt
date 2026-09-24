@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Gev, Scaled Scorch
@@ -44,7 +43,7 @@ val GevScaledScorch = card("Gev, Scaled Scorch") {
     // Other creatures you control enter with +1/+1 counters
     replacementEffect(
         EntersWithDynamicCounters(
-            count = DynamicAmount.TurnTracking(Player.You, TurnTracker.OPPONENTS_WHO_LOST_LIFE),
+            count = DynamicAmounts.opponentsWhoLostLifeThisTurn(),
             otherOnly = true,
             appliesTo = EventPattern.ZoneChangeEvent(
                 filter = GameObjectFilter.Creature.youControl(),

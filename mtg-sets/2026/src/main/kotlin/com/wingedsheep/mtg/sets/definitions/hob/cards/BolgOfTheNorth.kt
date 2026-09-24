@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -61,7 +61,7 @@ val BolgOfTheNorth = card("Bolg of the North") {
                 val toSacrifice = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl.other()))
                 // Named: the reflexive trigger below reads it once this pipeline has finished.
                 storeNumber(
-                    DynamicAmount.EntityProperty(toSacrifice.asTarget, EntityNumericProperty.Power),
+                    DynamicAmounts.powerOf(toSacrifice.asTarget),
                     name = "bolgSacrificedPower"
                 )
                 run(Effects.SacrificeTarget(toSacrifice.asTarget))
@@ -69,16 +69,13 @@ val BolgOfTheNorth = card("Bolg of the North") {
             optional = true,
             reflexiveEffect = Effects.Composite(
                 Effects.DealDamage(
-                    DynamicAmount.VariableReference("bolgSacrificedPower"),
+                    DynamicAmounts.storedNumber("bolgSacrificedPower"),
                     EffectTarget.ContextTarget(0),
                 ),
                 Effects.If(
                     condition = Conditions.IfTargetTookExcessDamage(),
                     then = Effects.Amass(
-                        DynamicAmount.EntityProperty(
-                            EffectTarget.ContextTarget(0),
-                            EntityNumericProperty.ExcessMarkedDamage,
-                        ),
+                        DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage),
                         "Goblin",
                     ),
                 ),

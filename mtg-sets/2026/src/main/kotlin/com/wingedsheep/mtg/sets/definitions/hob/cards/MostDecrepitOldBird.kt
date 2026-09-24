@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Most Decrepit Old Bird // Speak Secrets
@@ -62,7 +61,7 @@ val MostDecrepitOldBird = card("Most Decrepit Old Bird") {
         spell {
             effect = Effects.Pipeline {
                 // Mill four cards.
-                val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4), Player.You, isMill = true))
+                val milled = gather(CardSource.TopOfLibrary(4, Player.You, isMill = true))
                 toGraveyard(milled)
                 // Then put an instant or sorcery card from among them into your hand.
                 val toHandCards = chooseExactly(

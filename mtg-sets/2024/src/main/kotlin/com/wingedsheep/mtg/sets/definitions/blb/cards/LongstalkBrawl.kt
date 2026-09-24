@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Longstalk Brawl
@@ -45,7 +44,7 @@ val LongstalkBrawl = card("Longstalk Brawl") {
             // Mode 2: Gift a tapped Fish — token + counter + fight
             Mode(
                 effect = Effects.CreateToken(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.BLUE),

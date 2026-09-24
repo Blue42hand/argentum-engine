@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.blc.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Rolling Hamsphere
@@ -37,10 +37,10 @@ val RollingHamsphere = card("Rolling Hamsphere") {
         "then it deals X damage to any target, where X is the number of Hamsters you control.\n" +
         "Crew 3"
 
-    val hamsterCount = DynamicAmount.AggregateBattlefield(
-        player = Player.You,
-        filter = GameObjectFilter.Creature.withSubtype("Hamster")
-    )
+    val hamsterCount = DynamicAmounts.battlefield(
+        Player.You,
+        GameObjectFilter.Creature.withSubtype("Hamster")
+    ).count()
 
     // This Vehicle gets +1/+1 for each Hamster you control.
     staticAbility {

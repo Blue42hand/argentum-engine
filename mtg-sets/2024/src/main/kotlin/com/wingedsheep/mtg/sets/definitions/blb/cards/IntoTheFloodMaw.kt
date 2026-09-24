@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Into the Flood Maw
@@ -42,7 +41,7 @@ val IntoTheFloodMaw = card("Into the Flood Maw") {
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, then return target nonland permanent to hand
             Mode.withTarget(
                 Effects.CreateToken(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.BLUE),

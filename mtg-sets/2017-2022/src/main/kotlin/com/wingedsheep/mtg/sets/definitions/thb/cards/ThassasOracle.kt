@@ -2,16 +2,16 @@ package com.wingedsheep.mtg.sets.definitions.thb.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Thassa's Oracle
@@ -52,7 +52,7 @@ val ThassasOracle = card("Thassa's Oracle") {
             Effects.Pipeline {
                 val looked = gather(
                     CardSource.TopOfLibrary(
-                        count = DynamicAmount.DevotionTo(listOf(Color.BLUE)),
+                        count = DynamicAmounts.devotionTo(Color.BLUE),
                         player = Player.You
                     )
                 )
@@ -67,10 +67,10 @@ val ThassasOracle = card("Thassa's Oracle") {
                 toLibraryBottom(split.remainder, order = CardOrder.Random)
             },
             Effects.If(
-                condition = Compare(
-                    DynamicAmount.DevotionTo(listOf(Color.BLUE)),
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.devotionTo(Color.BLUE),
                     ComparisonOperator.GTE,
-                    DynamicAmount.AggregateZone(Player.You, Zone.LIBRARY)
+                    DynamicAmounts.zone(Player.You, Zone.LIBRARY).count()
                 ),
                 then = Effects.WinGame(
                     message = "Thassa's Oracle: devotion to blue was at least the number of cards " +

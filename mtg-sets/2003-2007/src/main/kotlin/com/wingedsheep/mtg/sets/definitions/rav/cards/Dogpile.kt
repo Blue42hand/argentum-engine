@@ -4,13 +4,13 @@
 
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -27,7 +27,7 @@ val Dogpile = card("Dogpile") {
     spell {
         val t = target("target", AnyTarget())
         effect = Effects.DealDamage(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.attacking()),
+            DynamicAmounts.attackingCreaturesYouControl(),
             t
         )
     }

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.CounterType
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * High Sentinels of Arashin
@@ -36,16 +36,16 @@ val HighSentinelsOfArashin = card("High Sentinels of Arashin") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE),
+            powerBonus = DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE),
                 excludeSelf = true
-            ),
-            toughnessBonus = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE),
+            ).count(),
+            toughnessBonus = DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE),
                 excludeSelf = true
-            )
+            ).count()
         )
     }
 

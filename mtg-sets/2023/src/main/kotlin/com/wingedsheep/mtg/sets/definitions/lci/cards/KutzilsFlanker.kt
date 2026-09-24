@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Kutzil's Flanker
@@ -48,7 +47,7 @@ val KutzilsFlanker = card("Kutzil's Flanker") {
             Mode.noTarget(
                 Effects.AddDynamicCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
-                    DynamicAmount.TurnTracking(Player.You, TurnTracker.CREATURES_LEFT_BATTLEFIELD),
+                    DynamicAmounts.creaturesLeftBattlefieldThisTurn(Player.You),
                     EffectTarget.Self
                 ),
                 "Put a +1/+1 counter on this creature for each creature that left the battlefield " +

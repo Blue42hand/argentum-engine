@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mbs.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Black Sun's Zenith — Mirrodin Besieged #39 (canonical / earliest real printing, 2011)
@@ -31,7 +31,7 @@ val BlackSunsZenith = card("Black Sun's Zenith") {
             filter = GroupFilter.AllCreatures,
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.MINUS_ONE_MINUS_ONE,
-                amount = DynamicAmount.XValue,
+                amount = DynamicAmounts.xValue(),
                 target = EffectTarget.IterationEntity,
             ),
         )

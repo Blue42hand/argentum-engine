@@ -2,16 +2,17 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.SetMaximumHandSize
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Doctor Octopus, Master Planner
@@ -48,7 +49,7 @@ val DoctorOctopusMasterPlanner = card("Doctor Octopus, Master Planner") {
 
     // Your maximum hand size is eight.
     staticAbility {
-        ability = SetMaximumHandSize(player = Player.You, amount = DynamicAmount.Fixed(8))
+        ability = SetMaximumHandSize(player = Player.You, amount = DynamicAmounts.fixed(8))
     }
 
     // At the beginning of your end step, if you have fewer than eight cards in hand,
@@ -57,10 +58,7 @@ val DoctorOctopusMasterPlanner = card("Doctor Octopus, Master Planner") {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.CardsInHandAtMost(7)
         effect = Effects.DrawCards(
-            DynamicAmount.Subtract(
-                DynamicAmount.Fixed(8),
-                DynamicAmount.Count(Player.You, Zone.HAND),
-            )
+            8 - DynamicAmounts.cardsInYourHand()
         )
     }
 

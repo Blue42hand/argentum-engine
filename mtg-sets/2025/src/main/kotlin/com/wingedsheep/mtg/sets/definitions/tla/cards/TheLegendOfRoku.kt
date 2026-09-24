@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.firebending
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Legend of Roku // Avatar Roku
@@ -63,7 +62,7 @@ private val AvatarRoku = card("Avatar Roku") {
     activatedAbility {
         cost = Costs.Mana("{8}")
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(1),
+            count = 1,
             power = 4,
             toughness = 4,
             colors = setOf(Color.RED),

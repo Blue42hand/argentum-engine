@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Warren Warleader
@@ -53,7 +52,7 @@ val WarrenWarleader = card("Warren Warleader") {
             // Create a 1/1 white Rabbit creature token that's tapped and attacking
             Mode.noTarget(
                 Effects.CreateToken(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.WHITE),

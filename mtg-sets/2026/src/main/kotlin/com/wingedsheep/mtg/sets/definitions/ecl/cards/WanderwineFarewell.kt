@@ -4,14 +4,13 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wanderwine Farewell
@@ -39,7 +38,7 @@ val WanderwineFarewell = card("Wanderwine Farewell") {
         ) then Effects.If(
             condition = Conditions.ControlCreatureOfType(Subtype.MERFOLK),
             then = Effects.CreateToken(
-                count = DynamicAmount.ContextProperty(ContextPropertyKey.TARGET_COUNT),
+                count = DynamicAmounts.targetCount(),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.WHITE, Color.BLUE),

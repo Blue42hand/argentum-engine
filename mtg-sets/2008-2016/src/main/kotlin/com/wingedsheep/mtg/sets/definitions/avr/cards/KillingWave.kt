@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Killing Wave
@@ -42,7 +42,7 @@ val KillingWave = card("Killing Wave") {
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
                     effect = Effects.MayPay(
-                        cost = Effects.PayDynamicLife(DynamicAmount.XValue),
+                        cost = Effects.PayDynamicLife(DynamicAmounts.xValue()),
                         then = Effects.Composite(emptyList()),
                         otherwise = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                         // The gate labels its own "yes" button with the computed cost ("Pay 2

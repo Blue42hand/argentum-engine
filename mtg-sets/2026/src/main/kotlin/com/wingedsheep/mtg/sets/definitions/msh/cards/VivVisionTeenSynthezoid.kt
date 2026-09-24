@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Viv Vision, Teen Synthezoid — Marvel Super Heroes #256 (uncommon)
@@ -52,7 +51,7 @@ val VivVisionTeenSynthezoid = card("Viv Vision, Teen Synthezoid") {
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.sourcePower(),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(4)
+                4
             ),
             then = Effects.DrawCards(1)
         )

@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Earthshaker Dreadmaw — {4}{G}{G}
@@ -30,12 +29,11 @@ val EarthshakerDreadmaw = card("Earthshaker Dreadmaw") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.DrawCards(
-            DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature.withSubtype("Dinosaur"),
-                aggregation = Aggregation.COUNT,
+            DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature.withSubtype("Dinosaur"),
                 excludeSelf = true,
-            )
+            ).count()
         )
     }
 

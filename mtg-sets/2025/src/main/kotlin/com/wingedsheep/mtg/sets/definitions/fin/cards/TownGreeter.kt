@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val TownGreeter = card("Town Greeter") {
     manaCost = "{1}{G}"
@@ -21,7 +20,7 @@ val TownGreeter = card("Town Greeter") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+            val milled = gather(CardSource.TopOfLibrary(4))
             toGraveyard(milled)
             val selected = chooseUpTo(
                 1,

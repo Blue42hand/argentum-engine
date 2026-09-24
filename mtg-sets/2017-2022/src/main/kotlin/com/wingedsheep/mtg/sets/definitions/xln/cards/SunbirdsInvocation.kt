@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.xln.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -57,10 +56,7 @@ val SunbirdsInvocation = card("Sunbird's Invocation") {
         trigger = Triggers.youCastSpell(
             requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
         )
-        val triggeringSpellManaValue = DynamicAmount.EntityProperty(
-            EffectTarget.TriggeringEntity,
-            EntityNumericProperty.ManaValue,
-        )
+        val triggeringSpellManaValue = DynamicAmounts.triggeringManaValue()
         effect = Effects.Pipeline {
             val revealed = gather(
                 CardSource.TopOfLibrary(

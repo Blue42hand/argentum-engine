@@ -2,7 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,13 +13,11 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Shelldock Isle
@@ -74,7 +74,7 @@ val ShelldockIsle = card("Shelldock Isle") {
         effect = Effects.Pipeline {
             val hideawayTop = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(4),
+                    count = 4,
                     player = Player.You
                 )
             )
@@ -106,21 +106,18 @@ val ShelldockIsle = card("Shelldock Isle") {
         }
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
-                Compare(
-                    DynamicAmount.GreatestAmongPlayers(
-                        players = Player.Each,
-                        inner = DynamicAmount.Conditional(
-                            condition = Compare(
-                                DynamicAmount.AggregateZone(Player.You, Zone.LIBRARY),
+                Conditions.CompareAmounts(
+                    DynamicAmounts.greatestAmongPlayers(DynamicAmounts.conditional(
+                            condition = Conditions.CompareAmounts(
+                                DynamicAmounts.zone(Player.You, Zone.LIBRARY).count(),
                                 ComparisonOperator.LTE,
-                                DynamicAmount.Fixed(20)
+                                20
                             ),
-                            ifTrue = DynamicAmount.Fixed(1),
-                            ifFalse = DynamicAmount.Fixed(0)
-                        )
-                    ),
+                            ifTrue = 1,
+                            ifFalse = 0
+                        ), players = Player.Each),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(1)
+                    1
                 )
             )
         )

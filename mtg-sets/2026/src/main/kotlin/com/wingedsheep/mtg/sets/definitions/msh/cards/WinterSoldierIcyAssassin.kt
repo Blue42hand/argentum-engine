@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
@@ -16,7 +17,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Winter Soldier, Icy Assassin — Marvel Super Heroes #239 (rare)
@@ -65,8 +65,8 @@ val WinterSoldierIcyAssassin = card("Winter Soldier, Icy Assassin") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.Multiply(DynamicAmounts.equipmentAttachedToSelf(), 2),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            powerBonus = DynamicAmounts.equipmentAttachedToSelf() * 2,
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -28,7 +27,7 @@ val HornOfTheMark = card("Horn of the Mark") {
     triggeredAbility {
         trigger = TriggerSpec(YouAttackEvent(minAttackers = 2), TriggerBinding.ANY)
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val looked = gather(CardSource.TopOfLibrary(5))
             val (kept, rest) = chooseUpToSplit(
                 1,
                 from = looked,

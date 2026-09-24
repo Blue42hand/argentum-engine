@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
@@ -16,8 +17,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Terminal Velocity {4}{R}{R}
@@ -51,10 +50,7 @@ val TerminalVelocity = card("Terminal Velocity") {
             effect = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures,
                 effect = Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(
-                        entity = EffectTarget.Self,
-                        numericProperty = EntityNumericProperty.ManaValue,
-                    ),
+                    amount = DynamicAmounts.sourceManaValue(),
                     target = EffectTarget.IterationEntity,
                 ),
             ),

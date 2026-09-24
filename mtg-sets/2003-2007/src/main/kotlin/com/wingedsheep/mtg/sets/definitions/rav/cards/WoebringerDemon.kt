@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Woebringer Demon
@@ -53,9 +53,9 @@ val WoebringerDemon = card("Woebringer Demon") {
             ),
             Effects.If(
                 condition = Conditions.CompareAmounts(
-                        DynamicAmount.PermanentsSacrificedThisWay,
+                        DynamicAmounts.permanentsSacrificedThisWay(),
                         ComparisonOperator.EQ,
-                        DynamicAmount.Fixed(0)
+                        0
                     ),
                 then = Effects.SacrificeTarget(EffectTarget.Self)
             )

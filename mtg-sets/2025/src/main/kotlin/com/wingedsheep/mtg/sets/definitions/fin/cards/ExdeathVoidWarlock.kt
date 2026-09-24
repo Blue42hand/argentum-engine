@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Exdeath, Void Warlock // Neo Exdeath, Dimension's End — Final Fantasy #220
@@ -39,7 +39,7 @@ private val NeoExdeathDimensionsEnd = card("Neo Exdeath, Dimension's End") {
     typeLine = "Legendary Creature — Spirit Avatar"
     oracleText = "Trample\nNeo Exdeath's power is equal to the number of permanent cards in your graveyard."
     dynamicPower(
-        DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),
+        DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),
     )
     toughness = 3
 
@@ -74,9 +74,9 @@ private val ExdeathVoidWarlockFrontFace = card("Exdeath, Void Warlock") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),
+            DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(6),
+            6,
         )
         effect = Effects.Transform(EffectTarget.Self)
     }

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.ModifyLifeGain
 import com.wingedsheep.sdk.scripting.ReplaceDrawWith
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 
 /**
@@ -52,7 +51,7 @@ val PhialOfGaladriel = card("Phial of Galadriel") {
         cost = Costs.Tap
         effect = Effects.AddManaOfChoice(
             colorSet = ManaColorSet.AnyColor,
-            amount = DynamicAmount.Fixed(1),
+            amount = 1,
         )
         manaAbility = true
         timing = TimingRule.ManaAbility

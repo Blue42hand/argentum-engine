@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -35,7 +35,7 @@ val LluwenImperfectNaturalist = card("Lluwen, Imperfect Naturalist") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+            val milled = gather(CardSource.TopOfLibrary(4))
             toGraveyard(milled)
             val kept = chooseUpTo(
                 1,
@@ -57,7 +57,7 @@ val LluwenImperfectNaturalist = card("Lluwen, Imperfect Naturalist") {
             Costs.Discard(GameObjectFilter.Land)
         )
         effect = Effects.CreateToken(
-            count = DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Land),
+            count = DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Land),
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK, Color.GREEN),

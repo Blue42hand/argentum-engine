@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,12 +12,10 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Call the Spirit Dragons
@@ -73,10 +72,10 @@ val CallTheSpiritDragons = card("Call the Spirit Dragons") {
 
             // If five different Dragons received a +1/+1 counter this way, you win the game.
             run(Effects.If(
-                condition = Compare(
+                condition = Conditions.CompareAmounts(
                     DynamicAmounts.distinctEntitiesIn(chosenDragons),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(5)
+                    5
                 ),
                 then = Effects.WinGame(message = "Five spirit Dragons answered the call.")
             ))

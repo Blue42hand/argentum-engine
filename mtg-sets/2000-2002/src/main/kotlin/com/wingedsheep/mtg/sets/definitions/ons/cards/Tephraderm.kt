@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -28,7 +27,7 @@ val Tephraderm = card("Tephraderm") {
     triggeredAbility {
         trigger = Triggers.takesDamage(source = GameObjectFilter.Creature)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.TriggeringEntity
         )
     }
@@ -39,7 +38,7 @@ val Tephraderm = card("Tephraderm") {
         // resolving and left the stack — so "a spell" is read off the card's type, not its zone.
         trigger = Triggers.takesDamage(source = GameObjectFilter.InstantOrSorcery)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.ControllerOfTriggeringEntity
         )
     }

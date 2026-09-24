@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -27,7 +26,7 @@ val CruelFate = card("Cruel Fate") {
     spell {
         val t = target("target", TargetOpponent())
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5), Player.TargetOpponent))
+            val looked = gather(CardSource.TopOfLibrary(5, Player.TargetOpponent))
             val (toGraveyardCards, toTop) = chooseExactlySplit(
                 1,
                 from = looked,

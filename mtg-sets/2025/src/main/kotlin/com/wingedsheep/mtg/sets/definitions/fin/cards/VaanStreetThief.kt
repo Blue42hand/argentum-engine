@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Vaan, Street Thief
@@ -59,7 +58,7 @@ val VaanStreetThief = card("Vaan, Street Thief") {
             TriggerBinding.ANY
         )
         effect = Effects.Pipeline {
-            val vaanLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player = Player.TriggeringPlayer))
+            val vaanLooked = gather(CardSource.TopOfLibrary(1, player = Player.TriggeringPlayer))
             val vaanExiled = moveTracked(vaanLooked, CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer))
             run(Effects.May(
                 effect = Effects.CastFromCollection(from = vaanExiled),

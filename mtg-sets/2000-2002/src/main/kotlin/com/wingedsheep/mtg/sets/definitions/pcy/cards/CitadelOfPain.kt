@@ -4,6 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.pcy.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -28,7 +28,7 @@ val CitadelOfPain = card("Citadel of Pain") {
     triggeredAbility {
         trigger = Triggers.EachEndStep
         effect = Effects.DealDamage(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land),
+            DynamicAmounts.landsYouControl(),
             EffectTarget.PlayerRef(Player.TriggeringPlayer)
         )
     }

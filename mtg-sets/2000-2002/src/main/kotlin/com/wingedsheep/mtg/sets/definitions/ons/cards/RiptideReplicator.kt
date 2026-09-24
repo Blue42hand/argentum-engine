@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
@@ -30,7 +29,7 @@ val RiptideReplicator = card("Riptide Replicator") {
     replacementEffect(EntersWithChoice(ChoiceType.CREATURE_TYPE))
     replacementEffect(EntersWithDynamicCounters(
         counterType = CounterType.CHARGE,
-        count = DynamicAmount.XValue
+        count = DynamicAmounts.xValue()
     ))
 
     activatedAbility {

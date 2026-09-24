@@ -1,15 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Rush of Dread {1}{B}{B}
@@ -45,14 +46,10 @@ val RushOfDread = card("Rush of Dread") {
                 Mode(
                     effect = Effects.Sacrifice(
                         filter = GameObjectFilter.Creature,
-                        count = DynamicAmount.Divide(
-                            numerator = DynamicAmount.AggregateBattlefield(
-                                Player.ContextPlayer(0),
-                                GameObjectFilter.Creature
-                            ),
-                            denominator = DynamicAmount.Fixed(2),
-                            roundUp = true
-                        ),
+                        count = DynamicAmounts.battlefield(
+                            Player.ContextPlayer(0),
+                            GameObjectFilter.Creature
+                        ).count() divRoundedUp 2,
                         target = EffectTarget.ContextTarget(0)
                     ),
                     targetRequirements = listOf(Targets.Opponent),
@@ -62,14 +59,10 @@ val RushOfDread = card("Rush of Dread") {
                 ),
                 Mode(
                     effect = Effects.Discard(
-                        count = DynamicAmount.Divide(
-                            numerator = DynamicAmount.AggregateZone(
-                                Player.ContextPlayer(0),
-                                Zone.HAND
-                            ),
-                            denominator = DynamicAmount.Fixed(2),
-                            roundUp = true
-                        ),
+                        count = DynamicAmounts.zone(
+                            Player.ContextPlayer(0),
+                            Zone.HAND
+                        ).count() divRoundedUp 2,
                         target = EffectTarget.ContextTarget(0)
                     ),
                     targetRequirements = listOf(Targets.Opponent),
@@ -78,11 +71,7 @@ val RushOfDread = card("Rush of Dread") {
                 ),
                 Mode(
                     effect = Effects.LoseLife(
-                        amount = DynamicAmount.Divide(
-                            numerator = DynamicAmount.LifeTotal(Player.ContextPlayer(0)),
-                            denominator = DynamicAmount.Fixed(2),
-                            roundUp = true
-                        ),
+                        amount = DynamicAmounts.lifeTotal(Player.ContextPlayer(0)) divRoundedUp 2,
                         target = EffectTarget.ContextTarget(0)
                     ),
                     targetRequirements = listOf(Targets.Opponent),

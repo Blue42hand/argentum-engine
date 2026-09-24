@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Blazing Bomb
@@ -49,9 +47,9 @@ val BlazingBomb = card("Blazing Bomb") {
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
+            DynamicAmounts.manaSpentOnTriggeringSpell(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(4),
+            4,
         )
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }

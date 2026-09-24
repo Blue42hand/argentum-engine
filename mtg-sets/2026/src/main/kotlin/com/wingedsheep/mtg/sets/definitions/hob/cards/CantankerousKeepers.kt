@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Cantankerous Keepers
@@ -40,7 +39,7 @@ val CantankerousKeepers = card("Cantankerous Keepers") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
             // Mill four cards.
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4), Player.You, isMill = true))
+            val milled = gather(CardSource.TopOfLibrary(4, Player.You, isMill = true))
             toGraveyard(milled)
             // Then put all Elf cards from among them into your hand.
             val elves = filter(milled, GameObjectFilter.Any.withSubtype(Subtype.ELF))

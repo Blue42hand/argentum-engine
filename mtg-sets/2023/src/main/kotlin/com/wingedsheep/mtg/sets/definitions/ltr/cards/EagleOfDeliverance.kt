@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Eagle of Deliverance
@@ -39,7 +39,7 @@ val EagleOfDeliverance = card("Eagle of Deliverance") {
         )
         effect = Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, creature) then
             Effects.If(
-                condition = Conditions.TargetPowerAtMost(DynamicAmount.Fixed(2)),
+                condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(2)),
                 then = Effects.DrawCards(1)
             )
     }

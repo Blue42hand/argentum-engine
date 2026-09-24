@@ -8,12 +8,11 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 private val revivalCounters = CounterType.REVIVAL
 
@@ -61,10 +60,10 @@ val NineLivesFamiliar = card("Nine-Lives Familiar") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        interveningIf = Compare(
+        interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.lastKnownSourceCounters(revivalCounters),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(1)
+            1
         )
         effect = Effects.CreateDelayedTrigger(
             step = Step.END,
@@ -72,10 +71,7 @@ val NineLivesFamiliar = card("Nine-Lives Familiar") {
                 Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
                 Effects.AddDynamicCounters(
                     counterType = CounterType.REVIVAL,
-                    amount = DynamicAmount.Subtract(
-                        DynamicAmounts.lastKnownSourceCounters(revivalCounters),
-                        DynamicAmount.Fixed(1)
-                    ),
+                    amount = DynamicAmounts.lastKnownSourceCounters(revivalCounters) - 1,
                     target = EffectTarget.Self
                 )
             )

@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Momentum Breaker
@@ -70,7 +70,7 @@ val MomentumBreaker = card("Momentum Breaker") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf)
-        effect = Effects.GainLife(DynamicAmount.Speed(Player.You))
+        effect = Effects.GainLife(DynamicAmounts.speed(Player.You))
         description = "{2}, Sacrifice this enchantment: You gain life equal to your speed."
     }
 

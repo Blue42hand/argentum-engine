@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Repulsive Mutation
@@ -30,7 +29,7 @@ val RepulsiveMutation = card("Repulsive Mutation") {
         val creature = target("creature you control", Targets.CreatureYouControl)
         target("up to one target spell", TargetSpell(optional = true))
         effect = Effects.Composite(
-            Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmount.XValue, creature),
+            Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), creature),
             Effects.CounterUnlessDynamicPays(
                 DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower()
             ),

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Millennium Calendar
@@ -53,9 +53,7 @@ val TheMillenniumCalendar = card("The Millennium Calendar") {
         trigger = Triggers.OneOrMoreBecomeUntapped(GameObjectFilter.Permanent.youControl())
         effect = Effects.AddDynamicCounters(
             CounterType.TIME,
-            DynamicAmount.DistinctEntitiesInCollections(
-                listOf(IterationSpace.TRIGGER_CAPTURED_COLLECTION)
-            ),
+            DynamicAmounts.distinctEntitiesIn(IterationSpace.TRIGGER_CAPTURED_COLLECTION),
             EffectTarget.Self
         )
     }

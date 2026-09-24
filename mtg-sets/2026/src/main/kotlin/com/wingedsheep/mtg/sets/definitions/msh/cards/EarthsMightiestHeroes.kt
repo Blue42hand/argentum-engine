@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Earth's Mightiest Heroes — Marvel Super Heroes #165
@@ -49,7 +48,7 @@ val EarthsMightiestHeroes = card("Earth's Mightiest Heroes") {
 
     spell {
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(8)), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(8), revealed = true)
             fun putCreatures(anyNumber: Boolean, prompt: String) = Effects.Pipeline {
                 val (selected, rest) = if (anyNumber) {
                     chooseAnyNumberSplit(

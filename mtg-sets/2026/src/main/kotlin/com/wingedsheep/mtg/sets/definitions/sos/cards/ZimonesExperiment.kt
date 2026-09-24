@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Zimone's Experiment
@@ -42,7 +41,7 @@ val ZimonesExperiment = card("Zimone's Experiment") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val looked = gather(CardSource.TopOfLibrary(5))
             val (kept, rest) = chooseUpToSplit(
                 count = 2,
                 from = looked,

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -47,7 +46,7 @@ val GatheringStone = card("Gathering Stone") {
     }
 
     val lookAtTopEffect = Effects.Pipeline {
-        val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+        val looked = gather(CardSource.TopOfLibrary(1))
         val (matchingCard, nonMatchingCard) = filterSplit(looked, GameObjectFilter.Any.withChosenSubtype())
         // Matching card: may reveal and put in hand
         val (toHandCards, matchKept) = chooseUpToSplit(

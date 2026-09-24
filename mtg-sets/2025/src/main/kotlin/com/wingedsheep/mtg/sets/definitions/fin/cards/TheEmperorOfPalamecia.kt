@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -13,13 +14,10 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 
 /**
@@ -57,7 +55,7 @@ private val TheLordMasterOfHell = card("The Lord Master of Hell") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Count(
+            amount = DynamicAmounts.count(
                 Player.You,
                 Zone.GRAVEYARD,
                 GameObjectFilter.Noncreature and GameObjectFilter.Nonland,
@@ -107,10 +105,10 @@ private val TheEmperorOfPalameciaFront = card("The Emperor of Palamecia") {
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
         effect = Effects.If(
-            condition = Compare(
-                DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
+            condition = Conditions.CompareAmounts(
+                DynamicAmounts.manaSpentOnTriggeringSpell(),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(4),
+                4,
             ),
             then = Effects.Composite(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),

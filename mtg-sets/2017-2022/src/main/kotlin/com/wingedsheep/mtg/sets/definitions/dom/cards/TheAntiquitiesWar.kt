@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -32,7 +31,7 @@ val TheAntiquitiesWar = card("The Antiquities War") {
         "III — Artifacts you control become artifact creatures with base power and toughness 5/5 until end of turn."
 
     val lookForArtifact = Effects.Pipeline {
-        val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+        val looked = gather(CardSource.TopOfLibrary(5))
         val (kept, rest) = chooseUpToSplit(
             1,
             from = looked,
@@ -57,8 +56,8 @@ val TheAntiquitiesWar = card("The Antiquities War") {
             filter = GroupFilter(GameObjectFilter.Artifact.youControl()),
             effect = Effects.BecomeCreature(
                 target = EffectTarget.IterationEntity,
-                power = DynamicAmount.Fixed(5),
-                toughness = DynamicAmount.Fixed(5),
+                power = 5,
+                toughness = 5,
                 duration = Duration.EndOfTurn
             )
         )

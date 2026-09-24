@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Caller of the Claw
@@ -32,7 +31,7 @@ val CallerOfTheClaw = card("Caller of the Claw") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.CreateToken(
-            count = DynamicAmount.TurnTracking(Player.You, TurnTracker.NONTOKEN_CREATURES_DIED),
+            count = DynamicAmounts.nonTokenCreaturesDiedThisTurn(Player.You),
             power = 2,
             toughness = 2,
             colors = setOf(Color.GREEN),

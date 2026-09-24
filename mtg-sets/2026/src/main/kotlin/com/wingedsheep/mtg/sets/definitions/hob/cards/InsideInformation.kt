@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Inside Information
@@ -32,7 +32,7 @@ val InsideInformation = card("Inside Information") {
     spell {
         target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
-            val insideInformationExiled = gather(CardSource.TopOfLibrary(DynamicAmount.XValue, Player.TargetOpponent))
+            val insideInformationExiled = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue(), Player.TargetOpponent))
             exile(insideInformationExiled, Player.TargetOpponent)
             run(Effects.GrantMayPlayFromExile(insideInformationExiled))
             run(Effects.GrantPlayWithoutPayingCost(insideInformationExiled))

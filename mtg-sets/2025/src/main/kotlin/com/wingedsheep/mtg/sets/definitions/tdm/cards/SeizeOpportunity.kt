@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Seize Opportunity
@@ -33,7 +32,7 @@ val SeizeOpportunity = card("Seize Opportunity") {
             // Exile top two and play until end of next turn.
             Mode.noTarget(
                 effect = Effects.Pipeline {
-                    val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
+                    val exiledCards = gather(CardSource.TopOfLibrary(2))
                     exile(exiledCards)
                     run(Effects.GrantMayPlayFromExile(exiledCards, MayPlayExpiry.UntilEndOfNextTurn))
                 },

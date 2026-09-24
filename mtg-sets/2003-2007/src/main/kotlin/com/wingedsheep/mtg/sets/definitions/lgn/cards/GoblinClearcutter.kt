@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Goblin Clearcutter
@@ -32,8 +31,8 @@ val GoblinClearcutter = card("Goblin Clearcutter") {
                 Costs.Sacrifice(GameObjectFilter.Land.withSubtype("Forest"))
             )
         )
-        effect = Effects.AddDynamicMana(
-            amount = DynamicAmount.Fixed(3),
+        effect = Effects.AddManaInAnyCombination(
+            amount = 3,
             allowedColors = setOf(Color.RED, Color.GREEN)
         )
         manaAbility = true

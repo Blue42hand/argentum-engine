@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.LookAudience
@@ -50,7 +49,7 @@ val SauronsRansom = card("Sauron's Ransom") {
         effect = Effects.Pipeline {
             // 1. The chosen opponent looks at the top four cards. LookAudience.None keeps
             //    them hidden from you; the opponent sees them only via their split below.
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)), lookAudience = LookAudience.None)
+            val looked = gather(CardSource.TopOfLibrary(4), lookAudience = LookAudience.None)
             // 2. The chosen opponent separates them: the cards they select become the
             //    face-up pile, the rest the face-down pile.
             val (faceUp, faceDown) = chooseAnyNumberSplit(

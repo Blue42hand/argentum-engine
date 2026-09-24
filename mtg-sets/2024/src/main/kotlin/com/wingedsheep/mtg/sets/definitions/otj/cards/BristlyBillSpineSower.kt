@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Bristly Bill, Spine Sower
@@ -43,10 +42,7 @@ val BristlyBillSpineSower = card("Bristly Bill, Spine Sower") {
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                amount = DynamicAmount.EntityProperty(
-                    EffectTarget.IterationEntity,
-                    EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
-                ),
+                amount = DynamicAmounts.countersOn(EffectTarget.IterationEntity, CounterType.PLUS_ONE_PLUS_ONE),
                 target = EffectTarget.IterationEntity
             )
         )

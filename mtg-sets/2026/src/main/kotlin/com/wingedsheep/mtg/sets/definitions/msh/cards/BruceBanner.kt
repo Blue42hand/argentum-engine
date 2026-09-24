@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bruce Banner // The Incredible Hulk — Marvel Super Heroes #49 (mythic)
@@ -68,7 +68,7 @@ private val BruceBannerFront = card("Bruce Banner") {
     // {X}{X}, {T}: Draw X cards. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}{X}"), Costs.Tap)
-        effect = Effects.DrawCards(DynamicAmount.XValue)
+        effect = Effects.DrawCards(DynamicAmounts.xValue())
         timing = TimingRule.SorcerySpeed
         description = "{X}{X}, {T}: Draw X cards. Activate only as a sorcery."
     }

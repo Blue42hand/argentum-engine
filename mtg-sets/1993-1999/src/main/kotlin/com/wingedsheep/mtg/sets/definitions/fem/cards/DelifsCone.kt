@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Delif's Cone
@@ -48,10 +47,7 @@ val DelifsCone = card("Delif's Cone") {
             effect = Effects.May(
                 Effects.Composite(
                     Effects.GainLife(
-                        DynamicAmount.EntityProperty(
-                            EffectTarget.TriggeringEntity,
-                            EntityNumericProperty.Power
-                        )
+                        DynamicAmounts.triggeringPower()
                     ),
                     Effects.GrantKeyword(
                         AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player.OwnerOf
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Chaos Warp
@@ -33,7 +32,7 @@ val ChaosWarp = card("Chaos Warp") {
             run(Effects.ShuffleIntoLibrary(permanent))
             val revealed = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     player = OwnerOf("target permanent")
                 ),
                 revealed = true

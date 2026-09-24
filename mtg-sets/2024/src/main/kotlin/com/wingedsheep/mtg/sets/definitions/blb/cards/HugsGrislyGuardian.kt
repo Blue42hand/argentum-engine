@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.GrantAdditionalLandDrop
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -43,7 +43,7 @@ val HugsGrislyGuardian = card("Hugs, Grisly Guardian") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmount.XValue))
+            val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue()))
             exile(exiledCards)
             run(Effects.GrantMayPlayFromExile(from = exiledCards, expiry = MayPlayExpiry.UntilEndOfNextTurn))
         }

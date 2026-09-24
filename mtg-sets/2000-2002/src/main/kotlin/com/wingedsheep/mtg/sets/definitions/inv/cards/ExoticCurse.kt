@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Exotic Curse
@@ -25,7 +25,7 @@ val ExoticCurse = card("Exotic Curse") {
     auraTarget = Targets.Creature
 
     staticAbility {
-        val negDomain = DynamicAmount.Multiply(DynamicAmounts.domain(), -1)
+        val negDomain = -DynamicAmounts.domain()
         ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
             powerBonus = negDomain,

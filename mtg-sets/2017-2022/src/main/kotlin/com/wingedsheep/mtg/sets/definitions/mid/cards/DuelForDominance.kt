@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.mid.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -9,9 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Duel for Dominance
@@ -41,14 +40,12 @@ val DuelForDominance = card("Duel for Dominance") {
 
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                left = DynamicAmount.AggregateBattlefield(
-                    player = Player.You,
-                    filter = GameObjectFilter.Creature,
-                    aggregation = Aggregation.DISTINCT_VALUES,
-                    property = CardNumericProperty.POWER,
-                ),
+                left = DynamicAmounts.battlefield(
+                    Player.You,
+                    GameObjectFilter.Creature,
+                ).distinctValues(CardNumericProperty.POWER),
                 operator = ComparisonOperator.GTE,
-                right = DynamicAmount.Fixed(3),
+                right = 3,
             ),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine),
         ).then(Effects.Fight(mine, theirs))

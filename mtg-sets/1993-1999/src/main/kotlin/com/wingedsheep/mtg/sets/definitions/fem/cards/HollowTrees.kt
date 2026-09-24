@@ -5,13 +5,13 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Hollow Trees
@@ -52,7 +52,7 @@ val HollowTrees = card("Hollow Trees") {
             Costs.RemoveXCounters(counterType = CounterType.STORAGE, self = true),
         )
         manaAbility = true
-        effect = Effects.AddMana(Color.GREEN, DynamicAmount.XValue)
+        effect = Effects.AddMana(Color.GREEN, DynamicAmounts.xValue())
         description = "{T}, Remove any number of storage counters from this land: Add {G} for each storage counter removed this way."
     }
 

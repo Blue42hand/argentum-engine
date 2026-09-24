@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Greenhouse // Rickety Gazebo (DSK 181) — split-layout Room (CR 709.5).
@@ -69,7 +68,7 @@ val GreenhouseRicketyGazebo = card("Greenhouse // Rickety Gazebo") {
             trigger = Triggers.OnDoorUnlocked
             effect = Effects.Pipeline {
                 // Mill four: gather the top four, move them to the graveyard.
-                val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+                val milled = gather(CardSource.TopOfLibrary(4))
                 toGraveyard(milled)
                 // Return up to two permanent cards from among the milled cards to your hand.
                 val selected = chooseUpTo(

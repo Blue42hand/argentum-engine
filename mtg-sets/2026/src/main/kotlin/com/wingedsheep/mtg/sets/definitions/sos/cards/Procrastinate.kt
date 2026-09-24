@@ -1,11 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Procrastinate
@@ -31,7 +32,7 @@ val Procrastinate = card("Procrastinate") {
             .then(
                 Effects.AddDynamicCounters(
                     CounterType.STUN,
-                    DynamicAmount.Multiply(DynamicAmount.XValue, 2),
+                    DynamicAmounts.xValue() * 2,
                     creature
                 )
             )

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Skulking Killer — Innistrad: Crimson Vow #130
@@ -42,12 +42,12 @@ val SkulkingKiller = card("Skulking Killer") {
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                DynamicAmount.AggregateBattlefield(
+                DynamicAmounts.battlefield(
                     Player.ControllerOf("target creature an opponent controls"),
                     GameObjectFilter.Creature
-                ),
+                ).count(),
                 ComparisonOperator.EQ,
-                DynamicAmount.Fixed(1)
+                1
             ),
             then = Effects.ModifyStats(-2, -2, creature)
         )

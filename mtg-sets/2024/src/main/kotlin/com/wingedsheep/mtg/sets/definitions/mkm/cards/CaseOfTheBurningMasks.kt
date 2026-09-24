@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Case of the Burning Masks — Murders at Karlov Manor #113
@@ -58,7 +57,7 @@ val CaseOfTheBurningMasks = card("Case of the Burning Masks") {
     solvedActivatedAbility {
         cost = Costs.SacrificeSelf
         effect = Effects.Pipeline {
-            val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+            val exiled = gather(CardSource.TopOfLibrary(3))
             exile(exiled)
             val chosen = chooseExactly(
                 count = 1,

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kylox, Visionary Inventor — Murders at Karlov Manor #214
@@ -61,7 +61,7 @@ val KyloxVisionaryInventor = card("Kylox, Visionary Inventor") {
             run(Effects.SacrificeAnyNumber(GameObjectFilter.Creature, excludeSource = true))
             val exiled = gather(
                 CardSource.TopOfLibrary(
-                    DynamicAmount.TotalPowerSacrificedThisWay,
+                    DynamicAmounts.totalPowerSacrificedThisWay(),
                     player = Player.You
                 )
             )

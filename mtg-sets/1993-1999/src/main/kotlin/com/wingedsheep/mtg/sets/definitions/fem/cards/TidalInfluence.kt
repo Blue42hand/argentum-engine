@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tidal Influence
@@ -75,7 +74,7 @@ val TidalInfluence = card("Tidal Influence") {
         condition = Conditions.CompareAmounts(
             DynamicAmounts.countersOnSelf(CounterType.TIDE),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(1),
+            1,
         )
         ability = ModifyStats(-2, 0, GroupFilter(GameObjectFilter.Creature.withColor(Color.BLUE)))
     }
@@ -84,7 +83,7 @@ val TidalInfluence = card("Tidal Influence") {
         condition = Conditions.CompareAmounts(
             DynamicAmounts.countersOnSelf(CounterType.TIDE),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(3),
+            3,
         )
         ability = ModifyStats(2, 0, GroupFilter(GameObjectFilter.Creature.withColor(Color.BLUE)))
     }

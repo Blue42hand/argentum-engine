@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bring Low
@@ -24,10 +24,10 @@ val BringLow = card("Bring Low") {
     spell {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Conditional(
+            amount = DynamicAmounts.conditional(
                 condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE),
-                ifTrue = DynamicAmount.Fixed(5),
-                ifFalse = DynamicAmount.Fixed(3)
+                ifTrue = 5,
+                ifFalse = 3
             ),
             target = creature
         )

@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.ths.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Decorated Griffin
@@ -33,7 +33,7 @@ val DecoratedGriffin = card("Decorated Griffin") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{W}")
-        effect = Effects.PreventDamage(amount = DynamicAmount.Fixed(1), combatOnly = true)
+        effect = Effects.PreventDamage(amount = DynamicAmounts.fixed(1), combatOnly = true)
     }
 
     metadata {

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.increment
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Berta, Wise Extrapolator
@@ -65,7 +65,7 @@ val BertaWiseExtrapolator = card("Berta, Wise Extrapolator") {
             ),
             Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                amount = DynamicAmount.XValue,
+                amount = DynamicAmounts.xValue(),
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
             ),
         )

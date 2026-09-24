@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -7,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -43,10 +43,7 @@ val MarchOfTheMachines = card("March of the Machines") {
         "equal to its mana value. (Equipment that's a creature can't equip a creature.)"
 
     val noncreatureArtifacts = GroupFilter(GameObjectFilter.Artifact.notCreature())
-    val manaValue: DynamicAmount = DynamicAmount.EntityProperty(
-        entity = EffectTarget.AffectedEntity,
-        numericProperty = EntityNumericProperty.ManaValue
-    )
+    val manaValue: DynamicAmount = DynamicAmounts.manaValueOf(EffectTarget.AffectedEntity)
 
     staticAbility { ability = GrantCardType(cardType = "CREATURE", filter = noncreatureArtifacts) }
     staticAbility {

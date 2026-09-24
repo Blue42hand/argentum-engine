@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Eerie Gravestone
@@ -45,7 +44,7 @@ val EerieGravestone = card("Eerie Gravestone") {
         cost = Costs.Composite(Costs.Mana("{1}{B}"), Costs.SacrificeSelf)
         effect = Effects.Pipeline {
             // Mill four: gather top 4, move to graveyard.
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4), isMill = true))
+            val milled = gather(CardSource.TopOfLibrary(4, isMill = true))
             toGraveyard(milled)
             // You may put a creature card from among them into your hand.
             val selected = chooseUpTo(

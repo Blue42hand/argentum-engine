@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Tifa Lockhart
@@ -30,8 +29,8 @@ val TifaLockhart = card("Tifa Lockhart") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.ModifyStats(
-            power = DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
-            toughness = DynamicAmount.Fixed(0),
+            power = DynamicAmounts.sourcePower(),
+            toughness = DynamicAmounts.fixed(0),
             target = EffectTarget.Self
         )
         description = "Whenever a land you control enters, double Tifa Lockhart's power until end of turn."

@@ -1,21 +1,19 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Desert Were-Worm — The Hobbit #92
@@ -53,28 +51,23 @@ val DesertWereWorm = card("Desert Were-Worm") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.Multiply(
-                DynamicAmounts.battlefield(
-                    Player.You,
-                    GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN)
-                ).count(),
-                2
-            ),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            powerBonus = DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN)
+            ).count() * 2,
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 
     triggeredAbility {
         trigger = Triggers.YouAttack
-        triggerRestriction = Compare(
-            left = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature.attacking(),
-                aggregation = Aggregation.SUM,
-                property = CardNumericProperty.POWER
-            ),
+        triggerRestriction = Conditions.CompareAmounts(
+            left = DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature.attacking()
+            ).sumPower(),
             operator = ComparisonOperator.GTE,
-            right = DynamicAmount.Fixed(12)
+            right = 12
         )
         oncePerTurn = true
         effect = Effects.Composite(

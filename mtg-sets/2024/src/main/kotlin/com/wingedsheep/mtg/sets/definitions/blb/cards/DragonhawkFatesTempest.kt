@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -39,10 +39,10 @@ val DragonhawkFatesTempest = card("Dragonhawk, Fate's Tempest") {
     val impulseDrawEffect: Effect = Effects.Pipeline {
         val exiledCards = gather(
             CardSource.TopOfLibrary(
-                DynamicAmount.AggregateBattlefield(
+                DynamicAmounts.battlefield(
                     Player.You,
                     GameObjectFilter.Creature.powerAtLeast(4)
-                )
+                ).count()
             )
         )
         exile(exiledCards)

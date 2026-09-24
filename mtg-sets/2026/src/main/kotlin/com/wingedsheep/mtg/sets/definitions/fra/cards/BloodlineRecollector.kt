@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bloodline Recollector // Ancestral Craving — Reality Fracture #49
@@ -44,7 +43,7 @@ val BloodlineRecollector = card("Bloodline Recollector") {
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.creaturesDiedThisTurn(Player.Each),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(3),
+            3,
         )
         effect = Effects.BecomePrepared(EffectTarget.Self)
         description = "At the beginning of each end step, if three or more creatures died this " +

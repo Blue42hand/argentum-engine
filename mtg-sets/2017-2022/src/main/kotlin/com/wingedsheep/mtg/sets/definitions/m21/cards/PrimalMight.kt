@@ -4,12 +4,12 @@
 
 package com.wingedsheep.mtg.sets.definitions.m21.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -30,7 +30,7 @@ val PrimalMight = card("Primal Might") {
             TargetCreature(filter = TargetFilter.CreatureOpponentControls, optional = true),
         )
         effect = Effects.Composite(
-            Effects.ModifyStats(DynamicAmount.XValue, DynamicAmount.XValue, t1),
+            Effects.ModifyStats(DynamicAmounts.xValue(), DynamicAmounts.xValue(), t1),
             Effects.Fight(t1, t2)
         )
     }

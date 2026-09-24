@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Psychic Allergy
@@ -53,7 +53,7 @@ val PsychicAllergy = card("Psychic Allergy") {
             // projection), where `AggregateZone` looks up `ZoneKey(player, BATTLEFIELD)` — keyed by
             // **owner** — against an empty projection. That would miscount a stolen permanent on
             // both halves at once, and read printed colours rather than projected ones.
-            DynamicAmount.Count(
+            DynamicAmounts.count(
                 Player.TriggeringPlayer,
                 Zone.BATTLEFIELD,
                 GameObjectFilter.Permanent.sharingChosenColorWithSource().nontoken(),

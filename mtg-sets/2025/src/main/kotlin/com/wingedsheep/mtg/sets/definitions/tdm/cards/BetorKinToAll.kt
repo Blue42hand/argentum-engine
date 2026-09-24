@@ -1,20 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Betor, Kin to All — Tarkir: Dragonstorm #172
@@ -80,13 +78,11 @@ val BetorKinToAll = card("Betor, Kin to All") {
 }
 
 /** "Creatures you control have total toughness [threshold] or greater." */
-private fun totalToughnessAtLeast(threshold: Int): Condition = Compare(
-    DynamicAmount.AggregateBattlefield(
-        player = Player.You,
-        filter = GameObjectFilter.Creature,
-        aggregation = Aggregation.SUM,
-        property = CardNumericProperty.TOUGHNESS
-    ),
+private fun totalToughnessAtLeast(threshold: Int): Condition = Conditions.CompareAmounts(
+    DynamicAmounts.battlefield(
+        Player.You,
+        GameObjectFilter.Creature
+    ).sumToughness(),
     ComparisonOperator.GTE,
-    DynamicAmount.Fixed(threshold)
+    threshold
 )

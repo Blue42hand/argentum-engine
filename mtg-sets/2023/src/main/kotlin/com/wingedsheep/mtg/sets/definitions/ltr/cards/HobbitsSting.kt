@@ -1,14 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Hobbit's Sting
@@ -27,10 +28,8 @@ val HobbitsSting = card("Hobbit's Sting") {
     spell {
         target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
-            DynamicAmount.Add(
-                DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
-                DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Any.withSubtype("Food"))
-            ),
+            DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature) +
+                DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Any.withSubtype("Food")),
             EffectTarget.ContextTarget(0)
         )
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * History of Benalia
@@ -53,8 +52,8 @@ val HistoryOfBenalia = card("History of Benalia") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Knight").youControl()),
             effect = Effects.ModifyStats(
-                DynamicAmount.Fixed(2),
-                DynamicAmount.Fixed(1),
+                2,
+                1,
                 EffectTarget.IterationEntity
             )
         )

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Raphael, Most Attitude
@@ -36,7 +35,7 @@ val RaphaelMostAttitude = card("Raphael, Most Attitude") {
         trigger = Triggers.OtherCreatureEnters
         effect = Effects.May(
             Effects.Pipeline {
-                val raphaelTop = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+                val raphaelTop = gather(CardSource.TopOfLibrary(1))
                 exile(raphaelTop, linkToSource = true)
             }
         )

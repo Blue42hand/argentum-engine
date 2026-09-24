@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Consuming Ashes
@@ -31,7 +31,7 @@ val ConsumingAshes = card("Consuming Ashes") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.Exile(creature).then(
             Effects.If(
-                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmount.Fixed(3)),
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3)),
                 then = Patterns.Library.surveil(2)
             )
         )

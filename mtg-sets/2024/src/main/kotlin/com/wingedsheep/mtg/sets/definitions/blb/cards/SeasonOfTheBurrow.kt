@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.BudgetMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Season of the Burrow
@@ -56,7 +55,7 @@ val SeasonOfTheBurrow = card("Season of the Burrow") {
                             TargetObject(filter = TargetFilter.NonlandPermanent, id = "target nonland permanent to exile")
                         )
                         run(Effects.Exile(exileTarget.asTarget))
-                        run(Effects.DrawCards(count = DynamicAmount.Fixed(1), target = exileTarget.controllerOf()))
+                        run(Effects.DrawCards(count = 1, target = exileTarget.controllerOf()))
                     },
                     description = "Exile target nonland permanent. Its controller draws a card"
                 ),

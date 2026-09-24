@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Nick Fury, Agent of S.H.I.E.L.D. — Marvel Super Heroes #25 (rare)
@@ -69,7 +68,7 @@ val NickFuryAgentOfShield = card("Nick Fury, Agent of S.H.I.E.L.D.") {
             run(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self))
             // "Look at", not "reveal" — stated rather than left to the default, because it is a
             // printed distinction on this card.
-            val furyLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(7)), revealed = false)
+            val furyLooked = gather(CardSource.TopOfLibrary(7), revealed = false)
             val (furyToBattlefield, furyToBottom) = chooseUpToSplit(
                 1,
                 from = furyLooked,

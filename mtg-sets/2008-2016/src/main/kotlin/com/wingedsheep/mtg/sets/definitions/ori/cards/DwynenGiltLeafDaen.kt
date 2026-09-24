@@ -6,6 +6,7 @@ package com.wingedsheep.mtg.sets.definitions.ori.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -44,7 +44,7 @@ val DwynenGiltLeafDaen = card("Dwynen, Gilt-Leaf Daen") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.GainLife(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Elf"))
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Elf")).count()
         )
     }
     metadata {

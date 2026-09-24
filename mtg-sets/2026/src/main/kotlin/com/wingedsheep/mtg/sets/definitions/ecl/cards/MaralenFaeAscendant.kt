@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -59,7 +58,7 @@ val MaralenFaeAscendant = card("Maralen, Fae Ascendant") {
         )
         val opponent = target("opponent", TargetOpponent())
         effect = Effects.Pipeline {
-            val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2), Player.ContextPlayer(0)))
+            val exiled = gather(CardSource.TopOfLibrary(2, Player.ContextPlayer(0)))
             exile(exiled, linkToSource = true)
         }
     }
@@ -70,11 +69,10 @@ val MaralenFaeAscendant = card("Maralen, Fae Ascendant") {
             withoutPayingManaCost = true,
             oncePerTurn = true,
             exiledThisTurnOnly = true,
-            maxManaValue = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = elfOrFaerieYouControl,
-                aggregation = Aggregation.COUNT
-            )
+            maxManaValue = DynamicAmounts.battlefield(
+                Player.You,
+                elfOrFaerieYouControl
+            ).count()
         )
     }
 

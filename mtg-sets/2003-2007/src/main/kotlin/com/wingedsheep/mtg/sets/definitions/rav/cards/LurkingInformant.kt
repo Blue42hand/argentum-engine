@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Lurking Informant — Ravnica: City of Guilds #249
@@ -42,7 +41,7 @@ val LurkingInformant = card("Lurking Informant") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         target("target player", Targets.Player)
         effect = Effects.Pipeline {
-            val peeked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.ContextPlayer(0)))
+            val peeked = gather(CardSource.TopOfLibrary(1, Player.ContextPlayer(0)))
             val (toGraveyardCards, toTop) = chooseUpToSplit(
                 1,
                 from = peeked,

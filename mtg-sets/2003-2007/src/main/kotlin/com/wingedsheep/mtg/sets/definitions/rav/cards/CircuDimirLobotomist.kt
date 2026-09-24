@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Circu, Dimir Lobotomist — Ravnica: City of Guilds #196
@@ -102,6 +101,6 @@ val CircuDimirLobotomist = card("Circu, Dimir Lobotomist") {
  * the move is a no-op, which is the card's own behaviour.
  */
 private fun exileTopOfTargetPlayersLibrary() = Effects.Pipeline {
-    val top = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.TargetPlayer))
+    val top = gather(CardSource.TopOfLibrary(1, Player.TargetPlayer))
     exile(top, linkToSource = true)
 }

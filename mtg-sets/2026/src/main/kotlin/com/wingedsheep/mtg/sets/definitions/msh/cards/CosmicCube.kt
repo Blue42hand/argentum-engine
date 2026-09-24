@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,9 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Cosmic Cube — Marvel Super Heroes #245 (mythic)
@@ -59,16 +57,14 @@ val CosmicCube = card("Cosmic Cube") {
 
     triggeredAbility {
         trigger = Triggers.YouAttack
-        val greatestAttackingPower = DynamicAmount.AggregateBattlefield(
-            player = Player.You,
-            filter = GameObjectFilter.Creature.attacking(),
-            aggregation = Aggregation.MAX,
-            property = CardNumericProperty.POWER
-        )
+        val greatestAttackingPower = DynamicAmounts.battlefield(
+            Player.You,
+            GameObjectFilter.Creature.attacking()
+        ).maxPower()
         effect = Effects.Pipeline {
             val cosmicCubeLooked = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(6),
+                    count = 6,
                     player = Player.You
                 )
             )

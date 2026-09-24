@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 private val VillagersOfEstwaldFront = card("Villagers of Estwald") {
     manaCost = "{2}{G}"
@@ -22,7 +21,7 @@ private val VillagersOfEstwaldFront = card("Villagers of Estwald") {
     triggeredAbility {
         trigger = Triggers.EachUpkeep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, DynamicAmount.Fixed(0)
+            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, 0
         )
         effect = Effects.Transform(EffectTarget.Self)
     }
@@ -48,7 +47,7 @@ private val HowlpackOfEstwald = card("Howlpack of Estwald") {
     triggeredAbility {
         trigger = Triggers.EachUpkeep
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, DynamicAmount.Fixed(2)
+            DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, 2
         )
         effect = Effects.Transform(EffectTarget.Self)
     }

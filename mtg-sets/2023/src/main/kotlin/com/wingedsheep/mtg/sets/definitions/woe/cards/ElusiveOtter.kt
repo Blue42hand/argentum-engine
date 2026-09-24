@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlockedByCreaturesWithLessPower
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Elusive Otter // Grove's Bounty
@@ -55,10 +55,10 @@ val ElusiveOtter = card("Elusive Otter") {
                 TargetObject(
                     filter = TargetFilter.CreatureYouControl,
                     unlimited = true,
-                    dynamicMaxCount = DynamicAmount.XValue,
+                    dynamicMaxCount = DynamicAmounts.xValue(),
                 ),
             )
-            effect = Effects.DistributeCountersAmongTargets(DynamicAmount.XValue)
+            effect = Effects.DistributeCountersAmongTargets(DynamicAmounts.xValue())
         }
     }
 

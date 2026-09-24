@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Samut, the Driving Force — Aetherdrift #222
@@ -60,7 +59,7 @@ val SamutTheDrivingForce = card("Samut, the Driving Force") {
         ability = GrantDynamicStats(
             filter = GroupFilter.OtherCreaturesYouControl,
             powerBonus = DynamicAmounts.speed(Player.You),
-            toughnessBonus = DynamicAmount.Fixed(0),
+            toughnessBonus = DynamicAmounts.fixed(0),
         )
     }
 

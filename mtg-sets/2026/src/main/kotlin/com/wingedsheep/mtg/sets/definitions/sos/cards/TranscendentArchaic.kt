@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -53,9 +52,9 @@ val TranscendentArchaic = card("Transcendent Archaic") {
                 .then(
                     Effects.If(
                         condition = Conditions.CompareAmounts(
-                            DynamicAmount.DistinctColorsManaSpent,
+                            DynamicAmounts.colorsOfManaSpent(),
                             ComparisonOperator.GTE,
-                            DynamicAmount.Fixed(1),
+                            1,
                         ),
                         then = Effects.Discard(2),
                     ),

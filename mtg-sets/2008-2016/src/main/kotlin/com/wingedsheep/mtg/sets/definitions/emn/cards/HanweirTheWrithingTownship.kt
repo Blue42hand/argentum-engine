@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Hanweir, the Writhing Township
@@ -37,7 +36,7 @@ val HanweirTheWrithingTownship = card("Hanweir, the Writhing Township") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(2),
+            count = 2,
             power = 3,
             toughness = 2,
             colors = emptySet(),

@@ -1,17 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Haphazard Bombardment
@@ -53,14 +52,13 @@ val HaphazardBombardment = card("Haphazard Bombardment") {
     // End step: If 2+ opponent permanents have aim counters, destroy one at random
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        interveningIf = Compare(
-            left = DynamicAmount.AggregateBattlefield(
-                player = Player.EachOpponent,
-                filter = GameObjectFilter.Any.withCounter(CounterType.AIM),
-                aggregation = Aggregation.COUNT
-            ),
+        interveningIf = Conditions.CompareAmounts(
+            left = DynamicAmounts.battlefield(
+                Player.EachOpponent,
+                GameObjectFilter.Any.withCounter(CounterType.AIM)
+            ).count(),
             operator = ComparisonOperator.GTE,
-            right = DynamicAmount.Fixed(2)
+            right = 2
         )
         effect = Effects.Pipeline {
             val aimPermanents = gather(

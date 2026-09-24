@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 private val gate = GameObjectFilter.Land.withSubtype(Subtype.GATE.value)
 
@@ -68,7 +67,7 @@ val MazesEnd = card("Maze's End") {
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(Player.You, gate).distinctNames(),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(10)
+                    10
                 ),
                 then = Effects.WinGame()
             )

@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Boneclub Berserker
@@ -26,11 +26,8 @@ val BoneclubBerserker = card("Boneclub Berserker") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.Multiply(
-                amount = DynamicAmounts.otherCreaturesWithSubtypeYouControl(Subtype.GOBLIN),
-                multiplier = 2
-            ),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            powerBonus = DynamicAmounts.otherCreaturesWithSubtypeYouControl(Subtype.GOBLIN) * 2,
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

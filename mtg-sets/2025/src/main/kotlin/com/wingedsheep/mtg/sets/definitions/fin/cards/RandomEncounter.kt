@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Random Encounter
@@ -51,7 +50,7 @@ val RandomEncounter = card("Random Encounter") {
     spell {
         effect = Effects.Pipeline {
             run(Effects.ShuffleLibrary())
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+            val milled = gather(CardSource.TopOfLibrary(4))
             toGraveyard(milled)
             val reanimated = moveTracked(
                 milled,

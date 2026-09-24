@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -28,8 +27,8 @@ val SylvanAwakening = card("Sylvan Awakening") {
             filter = GroupFilter(GameObjectFilter.Land.youControl()),
             effect = Effects.BecomeCreature(
                 target = EffectTarget.IterationEntity,
-                power = DynamicAmount.Fixed(2),
-                toughness = DynamicAmount.Fixed(2),
+                power = 2,
+                toughness = 2,
                 keywords = setOf(Keyword.REACH, Keyword.INDESTRUCTIBLE, Keyword.HASTE),
                 creatureTypes = setOf("Elemental"),
                 duration = Duration.UntilYourNextTurn

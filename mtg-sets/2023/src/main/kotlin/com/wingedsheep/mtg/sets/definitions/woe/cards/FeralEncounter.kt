@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Feral Encounter
@@ -58,7 +57,7 @@ val FeralEncounter = card("Feral Encounter") {
 
     spell {
         effect = Effects.Pipeline {
-            val feralLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val feralLooked = gather(CardSource.TopOfLibrary(5))
             val (feralExiled, feralRest) = chooseUpToSplit(
                 1,
                 from = feralLooked,

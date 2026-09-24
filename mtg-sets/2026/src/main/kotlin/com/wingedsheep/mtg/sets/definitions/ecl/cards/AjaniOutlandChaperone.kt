@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ajani, Outland Chaperone
@@ -56,7 +56,7 @@ val AjaniOutlandChaperone = card("Ajani, Outland Chaperone") {
     // them onto the battlefield. Then shuffle.
     loyaltyAbility(-8) {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.YourLifeTotal))
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmounts.yourLifeTotal()))
             val (toBattlefield, rest) = chooseAnyNumberSplit(
                 from = looked,
                 filter = GameObjectFilter.NonlandPermanent.manaValueAtMost(3),

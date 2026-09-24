@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.dsl.Patterns
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Simulacrum Synthesizer
@@ -49,14 +49,14 @@ val SimulacrumSynthesizer = card("Simulacrum Synthesizer") {
             staticAbilities = listOf(
                 GrantDynamicStats(
                     filter = GroupFilter.source(),
-                    powerBonus = DynamicAmount.AggregateBattlefield(
+                    powerBonus = DynamicAmounts.battlefield(
                         Player.You,
                         GameObjectFilter.Artifact
-                    ),
-                    toughnessBonus = DynamicAmount.AggregateBattlefield(
+                    ).count(),
+                    toughnessBonus = DynamicAmounts.battlefield(
                         Player.You,
                         GameObjectFilter.Artifact
-                    )
+                    ).count()
                 )
             ),
             imageUri = "https://cards.scryfall.io/normal/front/3/8/3877d2d1-61f2-4295-b0fc-827965eaaefc.jpg?1712317494"

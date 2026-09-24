@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Rith, the Awakener
@@ -41,10 +41,10 @@ val RithTheAwakener = card("Rith, the Awakener") {
             cost = ManaCost.parse("{2}{G}"),
             then = Effects.ChooseColorThen(
                 then = Effects.CreateToken(
-                    count = DynamicAmount.AggregateBattlefield(
-                        player = Player.Each,
-                        filter = GameObjectFilter.Permanent.withChosenColor()
-                    ),
+                    count = DynamicAmounts.battlefield(
+                        Player.Each,
+                        GameObjectFilter.Permanent.withChosenColor()
+                    ).count(),
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.GREEN),

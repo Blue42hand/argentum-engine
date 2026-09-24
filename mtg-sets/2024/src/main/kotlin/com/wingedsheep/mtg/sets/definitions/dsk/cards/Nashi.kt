@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,8 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Nashi, Searcher in the Dark
@@ -47,7 +46,7 @@ val Nashi = card("Nashi, Searcher in the Dark") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+        val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.Pipeline {
             // You mill that many cards.
             val milled = gather(CardSource.TopOfLibrary(count = damageDealt, player = Player.You))

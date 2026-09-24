@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Alania, Divergent Storm
@@ -42,7 +41,7 @@ val AlaniaDivergentStorm = card("Alania, Divergent Storm") {
         )
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.ReflexiveTrigger(
-            action = Effects.DrawCards(DynamicAmount.Fixed(1), opponent),
+            action = Effects.DrawCards(1, opponent),
             optional = true,
             reflexiveEffect = Effects.CopyTargetSpell(EffectTarget.TriggeringEntity)
         )

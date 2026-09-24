@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Michelangelo's Technique
@@ -33,7 +32,7 @@ val MichelangelosTechnique = card("Michelangelo's Technique") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(8), player = Player.You))
+            val looked = gather(CardSource.TopOfLibrary(count = 8, player = Player.You))
             val (toBattlefield, toBottom) = chooseUpToSplit(
                 2,
                 from = looked,

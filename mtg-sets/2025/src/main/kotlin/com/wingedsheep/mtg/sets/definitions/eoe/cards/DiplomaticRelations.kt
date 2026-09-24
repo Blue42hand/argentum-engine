@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,7 +31,7 @@ val DiplomaticRelations = card("Diplomatic Relations") {
             listOf(
                 Effects.ModifyStats(1, 0, myCreature),
                 Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
+                    amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
                     target = theirCreature,
                     damageSource = myCreature
                 )

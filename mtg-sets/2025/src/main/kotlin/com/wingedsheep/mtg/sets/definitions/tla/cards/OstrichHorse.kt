@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ostrich-Horse
@@ -42,7 +41,7 @@ val OstrichHorse = card("Ostrich-Horse") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3), Player.You))
+            val milled = gather(CardSource.TopOfLibrary(3, Player.You))
             toGraveyard(milled)
             val lands = filter(milled, GameObjectFilter.Land)
             val chosen = chooseUpTo(1, from = lands)

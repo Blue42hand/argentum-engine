@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.mbs.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Blue Sun's Zenith — Mirrodin Besieged #20 (canonical / earliest real printing, 2011)
@@ -25,7 +25,7 @@ val BlueSunsZenith = card("Blue Sun's Zenith") {
 
     spell {
         target("target player", Targets.Player)
-        effect = Effects.DrawCards(DynamicAmount.XValue, EffectTarget.ContextTarget(0))
+        effect = Effects.DrawCards(DynamicAmounts.xValue(), EffectTarget.ContextTarget(0))
         selfShuffleIntoLibrary()
     }
 

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sidequest: Catch a Fish // Cooking Campsite — Final Fantasy #31
@@ -89,7 +88,7 @@ private val SidequestCatchAFishFront = card("Sidequest: Catch a Fish") {
         trigger = Triggers.YourUpkeep
         effect = Effects.Pipeline {
             // Look at the top card of your library.
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player = Player.You))
+            val looked = gather(CardSource.TopOfLibrary(1, player = Player.You))
             // If it's an artifact or creature card, you may reveal it and put it into your hand.
             val kept = chooseUpTo(
                 count = 1,

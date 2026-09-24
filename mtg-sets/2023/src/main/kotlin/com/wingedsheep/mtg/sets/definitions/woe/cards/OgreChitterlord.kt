@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /** Rats you control — the count gate and the pump target of [OgreChitterlord] read the same set. */
 private val ratsYouControl = GameObjectFilter.Creature.withSubtype("Rat").youControl()
@@ -29,7 +29,7 @@ private val ratsYouControl = GameObjectFilter.Creature.withSubtype("Rat").youCon
  * triggered abilities (the [Triggers.EntersBattlefield] / [Triggers.Attacks] pair used for every
  * "enters or attacks" card).
  */
-private fun ratSwarmAndRally(): Effect = woeRatToken(DynamicAmount.Fixed(2)).then(
+private fun ratSwarmAndRally(): Effect = woeRatToken(DynamicAmounts.fixed(2)).then(
     Effects.If(
         condition = Conditions.YouControlAtLeast(5, ratsYouControl),
         then = Patterns.Group.modifyStatsForAll(

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Connecting the Dots — Murders at Karlov Manor #118
@@ -52,7 +51,7 @@ val ConnectingTheDots = card("Connecting the Dots") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.Pipeline {
-            val clue = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(1), player = Player.You))
+            val clue = gather(CardSource.TopOfLibrary(count = 1, player = Player.You))
             exile(clue, faceDown = FaceDownMode.HIDDEN, linkToSource = true)
         }
         description = "Whenever a creature you control attacks, exile the top card of your " +

@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
@@ -15,7 +16,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Myojin of Night's Reach
@@ -62,7 +62,7 @@ val MyojinOfNightsReach = card("Myojin of Night's Reach") {
             Player.EachOpponent,
             listOf(
                 Patterns.Hand.discardCards(
-                    DynamicAmount.Count(Player.You, Zone.HAND),
+                    DynamicAmounts.cardsInYourHand(),
                     EffectTarget.Controller,
                 )
             ),

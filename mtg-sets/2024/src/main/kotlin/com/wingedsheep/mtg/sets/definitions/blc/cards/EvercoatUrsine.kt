@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -88,7 +87,7 @@ val EvercoatUrsine = card("Evercoat Ursine") {
  * order. Each trigger resolves its own pipeline, so the two instances never share state.
  */
 private fun hideawayThree(): Effect = Effects.Pipeline {
-    val top = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(3), player = Player.You))
+    val top = gather(CardSource.TopOfLibrary(count = 3, player = Player.You))
     val (picked, rest) = chooseExactlySplit(
         1,
         from = top,

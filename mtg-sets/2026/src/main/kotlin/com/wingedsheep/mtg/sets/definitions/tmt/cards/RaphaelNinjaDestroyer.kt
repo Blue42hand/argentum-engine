@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.MustBeBlocked
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Raphael, Ninja Destroyer
@@ -39,7 +38,7 @@ val RaphaelNinjaDestroyer = card("Raphael, Ninja Destroyer") {
         trigger = Triggers.TakesDamage
         effect = Effects.AddMana(
             Color.RED,
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+            DynamicAmounts.triggerDamageAmount()
         )
         description = "Enrage — Whenever Raphael is dealt damage, add that much {R}. Until end of turn, you don't lose this mana as steps and phases end."
     }

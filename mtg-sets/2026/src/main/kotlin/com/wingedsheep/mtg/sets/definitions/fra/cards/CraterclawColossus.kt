@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 val CraterclawColossus = card("Craterclaw Colossus") {
@@ -34,7 +33,7 @@ val CraterclawColossus = card("Craterclaw Colossus") {
             run(Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
                 Effects.Composite(
-                    Effects.ModifyStats(artifactCount.amount, DynamicAmount.Fixed(0), EffectTarget.IterationEntity),
+                    Effects.ModifyStats(artifactCount.amount, DynamicAmounts.fixed(0), EffectTarget.IterationEntity),
                     Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
                 )
             ))

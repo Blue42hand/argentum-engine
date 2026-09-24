@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /** Blossoming Tortoise — Wilds of Eldraine #163. */
 val BlossomingTortoise = card("Blossoming Tortoise") {
@@ -29,7 +29,7 @@ val BlossomingTortoise = card("Blossoming Tortoise") {
     toughness = 3
 
     val millAndReturnLand: Effect = Effects.Pipeline {
-        val tortoiseMilled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3), Player.You))
+        val tortoiseMilled = gather(CardSource.TopOfLibrary(3, Player.You))
         toGraveyard(tortoiseMilled)
         val tortoiseLands = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Land))
         val tortoiseLandToReturn = chooseExactly(
@@ -67,7 +67,7 @@ val BlossomingTortoise = card("Blossoming Tortoise") {
     staticAbility {
         ability = ReduceActivatedAbilityCost(
             filter = GroupFilter(GameObjectFilter.Land.youControl()),
-            amount = DynamicAmount.Fixed(1),
+            amount = DynamicAmounts.fixed(1),
         )
     }
 

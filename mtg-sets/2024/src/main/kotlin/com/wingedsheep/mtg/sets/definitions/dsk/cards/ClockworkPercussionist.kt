@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Clockwork Percussionist
@@ -34,7 +33,7 @@ val ClockworkPercussionist = card("Clockwork Percussionist") {
     triggeredAbility {
         trigger = Triggers.Dies
         effect = Effects.Pipeline {
-            val impulseExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val impulseExiled = gather(CardSource.TopOfLibrary(1))
             exile(impulseExiled)
             run(Effects.GrantMayPlayFromExile(impulseExiled, MayPlayExpiry.UntilEndOfNextTurn))
         }

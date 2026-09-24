@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.one.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.CollectionSlot
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Ovika, Enigma Goliath
@@ -56,10 +55,7 @@ val OvikaEnigmaGoliath = card("Ovika, Enigma Goliath") {
         trigger = Triggers.YouCastNoncreature
         effect = Effects.Composite(listOf(
             Effects.CreateToken(
-                count = DynamicAmount.EntityProperty(
-                    EffectTarget.TriggeringEntity,
-                    EntityNumericProperty.ManaValue,
-                ),
+                count = DynamicAmounts.triggeringManaValue(),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),

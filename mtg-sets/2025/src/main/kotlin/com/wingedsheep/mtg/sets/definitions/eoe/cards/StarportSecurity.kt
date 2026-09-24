@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Starport Security
@@ -36,14 +36,14 @@ val StarportSecurity = card("Starport Security") {
             TargetCreature(filter = TargetFilter.OtherCreature)
         )
         effect = Effects.Tap(creature)
-        genericCostReduction = DynamicAmount.Conditional(
+        genericCostReduction = DynamicAmounts.conditional(
             condition = Exists(
                 player = Player.You,
                 zone = Zone.BATTLEFIELD,
                 filter = GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)
             ),
-            ifTrue = DynamicAmount.Fixed(2),
-            ifFalse = DynamicAmount.Fixed(0)
+            ifTrue = 2,
+            ifFalse = 0
         )
         description = "{3}{W}, {T}: Tap another target creature. This ability costs {2} less to activate if you control a creature with a +1/+1 counter on it."
     }

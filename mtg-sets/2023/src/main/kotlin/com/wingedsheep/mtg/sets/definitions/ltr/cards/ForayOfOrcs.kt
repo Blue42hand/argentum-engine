@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Foray of Orcs
@@ -34,10 +33,7 @@ val ForayOfOrcs = card("Foray of Orcs") {
             action = Effects.Amass(2, "Orc"),
             optional = false,
             reflexiveEffect = Effects.DealDamage(
-                amount = DynamicAmount.EntityProperty(
-                    EffectTarget.AmassedArmy,
-                    EntityNumericProperty.Power
-                ),
+                amount = DynamicAmounts.powerOf(EffectTarget.AmassedArmy),
                 target = EffectTarget.ContextTarget(0)
             ),
             reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)

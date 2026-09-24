@@ -5,12 +5,12 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -30,7 +30,7 @@ val Pterafractyl = card("Pterafractyl") {
     power = 1
     toughness = 0
     keywords(Keyword.FLYING)
-    replacementEffect(EntersWithDynamicCounters(count = DynamicAmount.XValue))
+    replacementEffect(EntersWithDynamicCounters(count = DynamicAmounts.xValue()))
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.GainLife(2)

@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.gtc.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Consuming Aberration
@@ -34,7 +34,7 @@ val ConsumingAberration = card("Consuming Aberration") {
         "Whenever you cast a spell, each opponent reveals cards from the top of their library until they reveal a land card, then puts those cards into their graveyard."
 
     dynamicStats(
-        DynamicAmount.Count(Player.EachOpponent, Zone.GRAVEYARD, GameObjectFilter.Any)
+        DynamicAmounts.count(Player.EachOpponent, Zone.GRAVEYARD)
     )
 
     triggeredAbility {

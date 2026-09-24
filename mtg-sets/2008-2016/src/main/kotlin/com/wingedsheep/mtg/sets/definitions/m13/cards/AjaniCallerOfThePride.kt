@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.m13.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ajani, Caller of the Pride - {1}{W}{W}
@@ -56,7 +56,7 @@ val AjaniCallerOfThePride = card("Ajani, Caller of the Pride") {
     // −8: Create X 2/2 white Cat creature tokens, where X is your life total.
     loyaltyAbility(-8) {
         effect = Effects.CreateToken(
-            count = DynamicAmount.YourLifeTotal,
+            count = DynamicAmounts.yourLifeTotal(),
             power = 2,
             toughness = 2,
             colors = setOf(Color.WHITE),

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyDamageAmount
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fated Firepower
@@ -48,7 +47,7 @@ val FatedFirepower = card("Fated Firepower") {
     replacementEffect(
         EntersWithDynamicCounters(
             counterType = CounterType.FIRE,
-            count = DynamicAmount.XValue
+            count = DynamicAmounts.xValue()
         )
     )
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,13 +11,11 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Clive's Hideaway
@@ -51,7 +50,7 @@ val ClivesHideaway = card("Clive's Hideaway") {
         effect = Effects.Pipeline {
             val hideawayTop = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(4),
+                    count = 4,
                     player = Player.You
                 )
             )
@@ -83,10 +82,10 @@ val ClivesHideaway = card("Clive's Hideaway") {
         }
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
-                Compare(
+                Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.legendary()).count(),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(4)
+                    4
                 )
             )
         )

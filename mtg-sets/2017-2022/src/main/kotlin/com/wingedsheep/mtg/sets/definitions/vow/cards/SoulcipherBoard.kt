@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -15,13 +16,11 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Soulcipher Board // Cipherbound Spirit (Innistrad: Crimson Vow)
@@ -103,10 +102,10 @@ private val SoulcipherBoardFront = card("Soulcipher Board") {
         effect = Effects.Composite(
             Effects.RemoveCounters(CounterType.OMEN, 1, EffectTarget.Self),
             Effects.If(
-                condition = Compare(
+                condition = Conditions.CompareAmounts(
                     DynamicAmounts.countersOnSelf(CounterType.OMEN),
                     ComparisonOperator.EQ,
-                    DynamicAmount.Fixed(0),
+                    0,
                 ),
                 then = Effects.Transform(EffectTarget.Self),
             ),

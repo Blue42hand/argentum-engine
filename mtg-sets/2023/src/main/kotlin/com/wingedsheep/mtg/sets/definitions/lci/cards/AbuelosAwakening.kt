@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Abuelo's Awakening
@@ -71,7 +71,7 @@ val AbuelosAwakening = card("Abuelo's Awakening") {
                 )
             )
             .then(Effects.AddSubtype("Spirit", target = t, duration = Duration.Permanent))
-            .then(Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmount.XValue, t))
+            .then(Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), t))
     }
 
     metadata {

@@ -2,14 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scrounging Skyray — Aetherdrift #60
@@ -45,7 +44,7 @@ val ScroungingSkyray = card("Scrounging Skyray") {
         trigger = Triggers.YouDiscardOneOrMore
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCARD_COUNT),
+            DynamicAmounts.triggerDiscardCount(),
             EffectTarget.Self,
         )
         description = "Whenever you discard one or more cards, put that many +1/+1 counters on " +

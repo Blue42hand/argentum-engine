@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Vision Quest — Marvel Super Heroes #237 (rare)
@@ -62,7 +62,7 @@ val VisionQuest = card("Vision Quest") {
                     zones = listOf(Zone.LIBRARY, Zone.GRAVEYARD),
                     player = Player.You,
                     filter = GameObjectFilter.ArtifactCreature
-                        .manaValueAtMostDynamic(DynamicAmount.XValue)
+                        .manaValueAtMostDynamic(DynamicAmounts.xValue())
                 )
             )
             val visionQuestFound = chooseUpTo(
@@ -75,13 +75,13 @@ val VisionQuest = card("Vision Quest") {
             run(Effects.AddCountersToCollection(
                 collection = visionQuestCreature,
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                amount = DynamicAmount.XValue
+                amount = DynamicAmounts.xValue()
             ))
             run(Effects.If(
                 condition = Conditions.CompareAmounts(
-                    DynamicAmount.XValue,
+                    DynamicAmounts.xValue(),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(4)
+                    4
                 ),
                 then = Effects.GrantKeyword(
                     Keyword.HASTE,

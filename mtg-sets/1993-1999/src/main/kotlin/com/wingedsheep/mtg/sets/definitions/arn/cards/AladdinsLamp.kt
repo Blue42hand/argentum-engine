@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.arn.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Aladdin's Lamp
@@ -44,8 +44,8 @@ val AladdinsLamp = card("Aladdin's Lamp") {
         effect = Effects.ReplaceNextDraw(
             Effects.Composite(
                 Patterns.Library.lookAtTopAndKeep(
-                    count = DynamicAmount.XValue,
-                    keepCount = DynamicAmount.Fixed(1),
+                    count = DynamicAmounts.xValue(),
+                    keepCount = DynamicAmounts.fixed(1),
                     keepDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top),
                     restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
                     restOrder = CardOrder.Random,

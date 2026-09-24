@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Tracker
@@ -43,12 +42,12 @@ val Tracker = card("Tracker") {
         val prey = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.DealDamage(
-                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
+                DynamicAmounts.sourcePower(),
                 prey,
                 damageSource = EffectTarget.Self,
             ),
             Effects.DealDamage(
-                DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
+                DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
                 EffectTarget.Self,
                 damageSource = prey,
             ),

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Mouth of Sauron
@@ -42,10 +42,10 @@ val TheMouthOfSauron = card("The Mouth of Sauron") {
         effect = Effects.Composite(
             Patterns.Library.mill(3, EffectTarget.ContextTarget(0)),
             Effects.Amass(
-                DynamicAmount.Count(
-                    player = Player.ContextPlayer(0),
-                    zone = Zone.GRAVEYARD,
-                    filter = GameObjectFilter.InstantOrSorcery
+                DynamicAmounts.count(
+                    Player.ContextPlayer(0),
+                    Zone.GRAVEYARD,
+                    GameObjectFilter.InstantOrSorcery
                 ),
                 "Orc"
             )

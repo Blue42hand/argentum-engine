@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Costs
 
@@ -54,7 +53,7 @@ val BurningCuriosity = card("Burning Curiosity") {
 }
 
 private fun exileTopAndMayPlay(count: Int): Effect = Effects.Pipeline {
-    val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(count)))
+    val exiled = gather(CardSource.TopOfLibrary(count))
     exile(exiled)
     run(Effects.GrantMayPlayFromExile(
         from = exiled,

@@ -2,14 +2,16 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Outlaw Stitcher
@@ -45,14 +47,11 @@ val OutlawStitcher = card("Outlaw Stitcher") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         // 2 counters per spell cast this turn other than the first: 2 * max(spellsCast - 1, 0).
-        val otherThanFirst = DynamicAmount.Max(
-            DynamicAmount.Subtract(
-                DynamicAmount.SpellsCastThisTurn(),
-                DynamicAmount.Fixed(1)
-            ),
-            DynamicAmount.Fixed(0)
+        val otherThanFirst = DynamicAmounts.max(
+            DynamicAmounts.spellsCastThisTurn() - 1,
+            DynamicAmounts.fixed(0)
         )
-        val counterAmount = DynamicAmount.Multiply(otherThanFirst, 2)
+        val counterAmount = otherThanFirst * 2
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 2,

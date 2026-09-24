@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Drawn from Dreams
@@ -27,7 +26,7 @@ val DrawnFromDreams = card("Drawn from Dreams") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(7)))
+            val looked = gather(CardSource.TopOfLibrary(7))
             val (kept, rest) = chooseExactlySplit(
                 2,
                 from = looked,

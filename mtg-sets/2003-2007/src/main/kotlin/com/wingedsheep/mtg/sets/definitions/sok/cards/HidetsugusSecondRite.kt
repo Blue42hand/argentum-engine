@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.sok.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Hidetsugu's Second Rite
@@ -34,9 +34,9 @@ val HidetsugusSecondRite = card("Hidetsugu's Second Rite") {
         val targetPlayer = target("target player", Targets.Player)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                DynamicAmount.LifeTotal(Player.ContextPlayer(0)),
+                DynamicAmounts.lifeTotal(Player.ContextPlayer(0)),
                 ComparisonOperator.EQ,
-                DynamicAmount.Fixed(10),
+                10,
             ),
             then = Effects.DealDamage(10, targetPlayer),
         )

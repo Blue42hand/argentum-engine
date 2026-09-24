@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Mycotyrant
@@ -50,10 +49,10 @@ val TheMycotyrant = card("The Mycotyrant") {
 
     keywords(Keyword.TRAMPLE)
     dynamicStats(
-        DynamicAmount.AggregateBattlefield(
+        DynamicAmounts.battlefield(
             Player.You,
             GameObjectFilter.Creature.withAnySubtype("Fungus", "Saproling")
-        )
+        ).count()
     )
 
     triggeredAbility {

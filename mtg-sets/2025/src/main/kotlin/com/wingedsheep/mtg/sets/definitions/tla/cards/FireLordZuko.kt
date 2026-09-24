@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -15,8 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Fire Lord Zuko
@@ -56,7 +55,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
         trigger = Triggers.Attacks
         effect = Effects.AddMana(
             Color.RED,
-            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
+            DynamicAmounts.sourcePower(),
             expiry = ManaExpiry.END_OF_COMBAT,
         )
         description = "Firebending X, where X is Fire Lord Zuko's power. Whenever this creature " +

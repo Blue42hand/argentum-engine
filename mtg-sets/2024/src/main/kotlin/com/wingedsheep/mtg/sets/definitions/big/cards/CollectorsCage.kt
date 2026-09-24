@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,14 +11,12 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Collector's Cage
@@ -56,7 +55,7 @@ val CollectorsCage = card("Collector's Cage") {
         effect = Effects.Pipeline {
             val hideawayTop = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(5),
+                    count = 5,
                     player = Player.You
                 )
             )
@@ -81,11 +80,11 @@ val CollectorsCage = card("Collector's Cage") {
             listOf(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target),
                 Effects.If(
-                    condition = Compare(
+                    condition = Conditions.CompareAmounts(
                         DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature)
                             .distinctValues(CardNumericProperty.POWER),
                         ComparisonOperator.GTE,
-                        DynamicAmount.Fixed(3)
+                        3
                     ),
                     then = Effects.May(
                         Effects.Pipeline {

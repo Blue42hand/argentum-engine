@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Crusading Knight
@@ -33,15 +33,15 @@ val CrusadingKnight = card("Crusading Knight") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.Count(
-                player = Player.EachOpponent,
-                zone = Zone.BATTLEFIELD,
-                filter = GameObjectFilter.Land.withSubtype("Swamp")
+            powerBonus = DynamicAmounts.count(
+                Player.EachOpponent,
+                Zone.BATTLEFIELD,
+                GameObjectFilter.Land.withSubtype("Swamp")
             ),
-            toughnessBonus = DynamicAmount.Count(
-                player = Player.EachOpponent,
-                zone = Zone.BATTLEFIELD,
-                filter = GameObjectFilter.Land.withSubtype("Swamp")
+            toughnessBonus = DynamicAmounts.count(
+                Player.EachOpponent,
+                Zone.BATTLEFIELD,
+                GameObjectFilter.Land.withSubtype("Swamp")
             )
         )
     }

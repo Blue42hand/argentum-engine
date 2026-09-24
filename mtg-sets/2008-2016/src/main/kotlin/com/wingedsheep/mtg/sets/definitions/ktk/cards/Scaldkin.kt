@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scaldkin
@@ -34,7 +33,7 @@ val Scaldkin = card("Scaldkin") {
         )
         val t = target("any target", AnyTarget())
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Fixed(2),
+            amount = 2,
             target = t
         )
     }

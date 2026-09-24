@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.convergeEntersWithCounters
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Magmablood Archaic
@@ -48,7 +47,7 @@ val MagmabloodArchaic = card("Magmablood Archaic") {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Patterns.Group.modifyStatsForAll(
             power = DynamicAmounts.colorsSpentOnTriggeringSpell(),
-            toughness = DynamicAmount.Fixed(0),
+            toughness = DynamicAmounts.fixed(0),
             filter = Filters.Group.creaturesYouControl,
         )
         description = "Whenever you cast an instant or sorcery spell, creatures you control get " +

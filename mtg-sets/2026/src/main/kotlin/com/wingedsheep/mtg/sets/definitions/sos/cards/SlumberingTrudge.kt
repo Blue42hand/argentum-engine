@@ -2,12 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Slumbering Trudge — Secrets of Strixhaven #160
@@ -38,15 +39,15 @@ val SlumberingTrudge = card("Slumbering Trudge") {
     replacementEffect(
         EntersWithDynamicCounters(
             counterType = CounterType.STUN,
-            count = DynamicAmount.Subtract(DynamicAmount.Fixed(3), DynamicAmount.CastX),
+            count = 3 - DynamicAmounts.castX(),
         )
     )
     replacementEffect(
         EntersTapped(
             unlessCondition = Conditions.CompareAmounts(
-                DynamicAmount.CastX,
+                DynamicAmounts.castX(),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(3),
+                3,
             )
         )
     )

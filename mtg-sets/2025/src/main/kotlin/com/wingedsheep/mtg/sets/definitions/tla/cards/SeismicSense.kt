@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Seismic Sense — {G} Sorcery — Lesson
@@ -33,7 +33,7 @@ val SeismicSense = card("Seismic Sense") {
         effect = Effects.Pipeline {
             val looked = gather(
                 CardSource.TopOfLibrary(
-                    DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Land)
+                    DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Land)
                 )
             )
             val (kept, rest) = chooseUpToSplit(

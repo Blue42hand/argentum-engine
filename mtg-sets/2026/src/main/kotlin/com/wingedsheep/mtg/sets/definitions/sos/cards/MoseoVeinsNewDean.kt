@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Moseo, Vein's New Dean — Secrets of Strixhaven #91
@@ -82,7 +81,7 @@ val MoseoVeinsNewDean = card("Moseo, Vein's New Dean") {
                 filter = TargetFilter(
                     GameObjectFilter.Creature.ownedByYou()
                         .manaValueAtMostDynamic(
-                            DynamicAmount.TurnTracking(Player.You, TurnTracker.LIFE_GAINED)
+                            DynamicAmounts.lifeGainedThisTurn(Player.You)
                         ),
                     zone = Zone.GRAVEYARD,
                 ),

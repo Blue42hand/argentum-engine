@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -41,7 +40,7 @@ val MoriaMarauder = card("Moria Marauder") {
             binding = TriggerBinding.ANY,
         )
         effect = Effects.Pipeline {
-            val exiledCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)
             run(Effects.GrantMayPlayFromExile(exiledCard))
         }

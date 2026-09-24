@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Summon: Brynhildr
@@ -62,7 +61,7 @@ val SummonBrynhildr = card("Summon: Brynhildr") {
     // on this Saga (modeled as your turns while you control it).
     sagaChapter(1) {
         effect = Effects.Pipeline {
-            val chainedCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val chainedCard = gather(CardSource.TopOfLibrary(1))
             exile(chainedCard)
             run(Effects.GrantMayPlayFromExile(
                 from = chainedCard,

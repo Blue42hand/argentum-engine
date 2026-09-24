@@ -4,8 +4,10 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
@@ -19,8 +21,6 @@ import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -66,10 +66,7 @@ val ClementTheWorrywort = card("Clement, the Worrywort") {
             TargetObject(
                 optional = true,
                 filter = TargetFilter.CreatureYouControl.manaValueAtMostDynamic(
-                    DynamicAmount.Subtract(
-                        DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue),
-                        DynamicAmount.Fixed(1)
-                    )
+                    DynamicAmounts.triggeringManaValue() - 1
                 )
             )
         )
@@ -82,8 +79,8 @@ val ClementTheWorrywort = card("Clement, the Worrywort") {
             ability = ActivatedAbility(
                 id = AbilityId.generate(),
                 cost = Costs.Tap,
-                effect = Effects.AddDynamicMana(
-                    amount = DynamicAmount.Fixed(1),
+                effect = Effects.AddManaInAnyCombination(
+                    amount = 1,
                     allowedColors = setOf(Color.GREEN, Color.BLUE),
                     restriction = ManaRestriction.CreatureSpellsOnly
                 ),

@@ -4,11 +4,11 @@
 
 package com.wingedsheep.mtg.sets.definitions.mir.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -24,7 +24,7 @@ val VolcanicGeyser = card("Volcanic Geyser") {
     oracleText = "Volcanic Geyser deals X damage to any target."
     spell {
         val t = target("target", AnyTarget())
-        effect = Effects.DealDamage(DynamicAmount.XValue, t)
+        effect = Effects.DealDamage(DynamicAmounts.xValue(), t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

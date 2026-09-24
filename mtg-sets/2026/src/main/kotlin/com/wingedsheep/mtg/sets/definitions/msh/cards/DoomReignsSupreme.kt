@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Doom Reigns Supreme — Marvel Super Heroes #96
@@ -95,7 +94,7 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
             optional = false,
             reflexiveEffect = Effects.Pipeline {
                 // Target opponent exiles the top five cards of their library.
-                val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5), Player.TargetOpponent))
+                val exiled = gather(CardSource.TopOfLibrary(5, Player.TargetOpponent))
                 exile(exiled, Player.TargetOpponent)
                 val castable = filter(exiled, GameObjectFilter.Nonland)
                 run(Effects.CastUpToNFromCollectionWithoutPayingCost(castable, maxCasts = 2))

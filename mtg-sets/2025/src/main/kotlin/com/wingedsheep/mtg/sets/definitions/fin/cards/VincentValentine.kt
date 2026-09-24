@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Vincent Valentine // Galian Beast
@@ -83,7 +82,7 @@ private val VincentValentineFront = card("Vincent Valentine") {
         )
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
+            DynamicAmounts.triggeringPower(),
             EffectTarget.Self
         )
     }

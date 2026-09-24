@@ -2,8 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
@@ -13,7 +15,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Food Fight
@@ -36,13 +37,10 @@ val FoodFight = card("Food Fight") {
                 id = AbilityId.generate(),
                 cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf),
                 effect = Effects.DealDamage(
-                    DynamicAmount.Add(
-                        DynamicAmount.Fixed(1),
-                        DynamicAmount.Count(
-                            Player.You,
-                            Zone.BATTLEFIELD,
-                            GameObjectFilter.Any.named("Food Fight")
-                        )
+                    1 + DynamicAmounts.count(
+                        Player.You,
+                        Zone.BATTLEFIELD,
+                        GameObjectFilter.Any.named("Food Fight")
                     ),
                     EffectTarget.ContextTarget(0),
                     damageSource = EffectTarget.Self

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -14,8 +15,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Thorin, Mountain-king
@@ -114,10 +113,7 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
                         reflexiveEffect = Effects.ForEachInCollection(
                             collection = creature,
                             effect = Effects.DealDamage(
-                                amount = DynamicAmount.EntityProperty(
-                                    EffectTarget.IterationEntity,
-                                    EntityNumericProperty.Power
-                                ),
+                                amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
                                 target = EffectTarget.ContextTarget(0),
                                 damageSource = EffectTarget.IterationEntity
                             )

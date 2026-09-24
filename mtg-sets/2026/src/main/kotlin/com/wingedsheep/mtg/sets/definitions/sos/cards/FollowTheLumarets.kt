@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Follow the Lumarets — Secrets of Strixhaven #148
@@ -35,13 +35,13 @@ val FollowTheLumarets = card("Follow the Lumarets") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+            val looked = gather(CardSource.TopOfLibrary(4))
             // Infusion: up to two creature/land cards if you gained life this turn, else up to one.
             val (kept, rest) = chooseUpToSplit(
-                DynamicAmount.Conditional(
+                DynamicAmounts.conditional(
                         condition = Conditions.YouGainedLifeThisTurn,
-                        ifTrue = DynamicAmount.Fixed(2),
-                        ifFalse = DynamicAmount.Fixed(1)
+                        ifTrue = 2,
+                        ifFalse = 1
                     ),
                 from = looked,
                 filter = GameObjectFilter.CreatureOrLand,

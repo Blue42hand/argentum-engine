@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Crystal Shard — Mirrodin #159 (canonical printing)
@@ -63,7 +63,7 @@ val CrystalShard = card("Crystal Shard") {
 
 private fun bounceUnlessControllerPays(creature: EffectTarget) = Effects.MayPay(
     cost = Effects.PayDynamicMana(
-            amount = DynamicAmount.Fixed(1),
+            amount = DynamicAmounts.fixed(1),
             payer = Player.ControllerOf("target creature")
         ),
     decisionMaker = EffectTarget.TargetController,

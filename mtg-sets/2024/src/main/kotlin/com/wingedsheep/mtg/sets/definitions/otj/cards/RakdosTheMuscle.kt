@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
@@ -15,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Rakdos, the Muscle
@@ -44,7 +44,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *   ([ActivationRestriction.OncePerTurn]). Activating it also satisfies the sacrifice trigger above.
  */
 private val rakdosManaValueX: DynamicAmount =
-    DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue)
+    DynamicAmounts.triggeringManaValue()
 
 val RakdosTheMuscle = card("Rakdos, the Muscle") {
     manaCost = "{2}{B}{B}{R}"

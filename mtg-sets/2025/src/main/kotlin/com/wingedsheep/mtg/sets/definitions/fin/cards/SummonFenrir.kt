@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
@@ -80,7 +79,7 @@ val SummonFenrir = card("Summon: Fenrir") {
         effect = Effects.If(
             condition = Conditions.All(
                 Conditions.ControlCreature,
-                Compare(
+                Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower(),
                     ComparisonOperator.GTE,
                     DynamicAmounts.battlefield(Player.Each, GameObjectFilter.Creature).maxPower(),

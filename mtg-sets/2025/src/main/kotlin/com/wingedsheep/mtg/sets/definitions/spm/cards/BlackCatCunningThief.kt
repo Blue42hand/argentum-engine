@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Black Cat, Cunning Thief
@@ -56,7 +55,7 @@ val BlackCatCunningThief = card("Black Cat, Cunning Thief") {
         effect = Effects.Pipeline {
             val topNine = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(9),
+                    count = 9,
                     player = Player.ContextPlayer(0),
                 )
             )

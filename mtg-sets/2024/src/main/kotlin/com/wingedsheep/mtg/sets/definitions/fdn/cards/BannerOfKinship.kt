@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Banner of Kinship
@@ -44,10 +43,10 @@ val BannerOfKinship = card("Banner of Kinship") {
     replacementEffect(
         EntersWithDynamicCounters(
             counterType = CounterType.FELLOWSHIP,
-            count = DynamicAmount.AggregateBattlefield(
+            count = DynamicAmounts.battlefield(
                 Player.You,
                 GameObjectFilter.Creature.withChosenSubtype()
-            )
+            ).count()
         )
     )
 

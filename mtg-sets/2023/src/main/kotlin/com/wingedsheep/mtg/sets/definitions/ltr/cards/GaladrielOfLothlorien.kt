@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
@@ -50,7 +49,7 @@ val GaladrielOfLothlorien = card("Galadriel of Lothlórien") {
         trigger = Triggers.WheneverYouScry
         effect = Effects.May(
             Effects.Pipeline {
-                val revealedTop = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You))
+                val revealedTop = gather(CardSource.TopOfLibrary(1, Player.You))
                 reveal(revealedTop)
                 move(
                     revealedTop,

@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Karn, Gilded Guardian — the count is read on resolution from projected colors, excluding Karn
@@ -29,12 +28,11 @@ val KarnGildedGuardian = card("Karn, Gilded Guardian") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.DrawCards(
-            DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Artifact,
-                aggregation = Aggregation.DISTINCT_COLORS,
+            DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Artifact,
                 excludeSelf = true,
-            )
+            ).distinctColors()
         )
         description = "When Karn enters, draw a card for each color among other artifacts you control."
     }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Rhino's Rampage — {R/G}
@@ -64,7 +63,7 @@ val RhinosRampage = card("Rhino's Rampage") {
                 condition = Conditions.CompareAmounts(
                     excess.amount,
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(1),
+                    1,
                 ),
                 then = Effects.May(
                     effect = Effects.Pipeline {

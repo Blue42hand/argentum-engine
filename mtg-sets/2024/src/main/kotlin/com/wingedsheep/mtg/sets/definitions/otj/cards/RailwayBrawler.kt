@@ -2,14 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Railway Brawler
@@ -49,7 +48,7 @@ val RailwayBrawler = card("Railway Brawler") {
         trigger = Triggers.OtherCreatureEnters
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            amount = DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
+            amount = DynamicAmounts.triggeringPower(),
             target = EffectTarget.TriggeringEntity
         )
         description = "Whenever another creature you control enters, put X +1/+1 counters on it, " +

@@ -1,10 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -12,8 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Farrel's Mantle
@@ -48,13 +48,7 @@ val FarrelsMantle = card("Farrel's Mantle") {
         effect = Effects.May(
             Effects.Composite(
                 Effects.DealDamage(
-                    DynamicAmount.Add(
-                        DynamicAmount.EntityProperty(
-                            EffectTarget.EnchantedCreature,
-                            EntityNumericProperty.Power
-                        ),
-                        DynamicAmount.Fixed(2)
-                    ),
+                    DynamicAmounts.enchantedCreaturePower() + 2,
                     t,
                     damageSource = EffectTarget.EnchantedPermanent,
                 ),

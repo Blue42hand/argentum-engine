@@ -1,15 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.jobSelect
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantSubtype
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Machinist's Arsenal
@@ -39,22 +40,16 @@ val MachinistsArsenal = card("Machinist's Arsenal") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = Filters.EquippedCreature,
-            powerBonus = DynamicAmount.Multiply(
-                DynamicAmount.Count(
-                    player = Player.You,
-                    zone = Zone.BATTLEFIELD,
-                    filter = GameObjectFilter.Artifact
-                ),
-                2
-            ),
-            toughnessBonus = DynamicAmount.Multiply(
-                DynamicAmount.Count(
-                    player = Player.You,
-                    zone = Zone.BATTLEFIELD,
-                    filter = GameObjectFilter.Artifact
-                ),
-                2
-            )
+            powerBonus = DynamicAmounts.count(
+                Player.You,
+                Zone.BATTLEFIELD,
+                GameObjectFilter.Artifact
+            ) * 2,
+            toughnessBonus = DynamicAmounts.count(
+                Player.You,
+                Zone.BATTLEFIELD,
+                GameObjectFilter.Artifact
+            ) * 2
         )
     }
     staticAbility {

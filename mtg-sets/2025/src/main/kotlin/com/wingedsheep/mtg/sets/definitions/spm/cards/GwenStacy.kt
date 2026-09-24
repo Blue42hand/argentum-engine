@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gwen Stacy // Ghost-Spider — Marvel's Spider-Man #78 (mythic)
@@ -81,7 +80,7 @@ private val GwenStacyFront = card("Gwen Stacy") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val gwenExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val gwenExiled = gather(CardSource.TopOfLibrary(1))
             exile(gwenExiled)
             run(Effects.GrantMayPlayFromExile(
                 from = gwenExiled,

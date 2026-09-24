@@ -1,14 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Polliwallop
@@ -32,10 +32,7 @@ val Polliwallop = card("Polliwallop") {
         val myCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Multiply(
-                DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
-                2
-            ),
+            amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)) * 2,
             target = theirCreature,
             damageSource = myCreature
         )

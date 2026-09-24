@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Psychic Drain — Ravnica: City of Guilds #220
@@ -29,8 +29,8 @@ val PsychicDrain = card("Psychic Drain") {
     spell {
         val player = target("target player", Targets.Player)
         effect = Effects.Composite(
-            Patterns.Library.mill(DynamicAmount.XValue, player),
-            Effects.GainLife(DynamicAmount.XValue)
+            Patterns.Library.mill(DynamicAmounts.xValue(), player),
+            Effects.GainLife(DynamicAmounts.xValue())
         )
     }
 

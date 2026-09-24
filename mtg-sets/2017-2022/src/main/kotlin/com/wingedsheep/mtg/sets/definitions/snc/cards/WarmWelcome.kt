@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Warm Welcome
@@ -27,7 +26,7 @@ val WarmWelcome = card("Warm Welcome") {
     spell {
         effect = Effects.Composite(
             Patterns.Library.lookAtTopRevealMatchingToHand(
-                count = DynamicAmount.Fixed(5),
+                count = 5,
                 filter = GameObjectFilter.Creature,
                 prompt = "You may reveal a creature card from among them and put it into your hand"
             ),

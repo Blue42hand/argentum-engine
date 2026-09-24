@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kavu Scout
@@ -26,7 +25,7 @@ val KavuScout = card("Kavu Scout") {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
             powerBonus = DynamicAmounts.domain(),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

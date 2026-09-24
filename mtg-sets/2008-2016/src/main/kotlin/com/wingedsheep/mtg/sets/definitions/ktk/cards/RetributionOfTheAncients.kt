@@ -2,12 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Retribution of the Ancients
@@ -28,7 +29,7 @@ val RetributionOfTheAncients = card("Retribution of the Ancients") {
                 filter = GameObjectFilter.Creature
             ))
         val creature = target("creature", Targets.Creature)
-        val negX = DynamicAmount.Multiply(DynamicAmount.XValue, -1)
+        val negX = -DynamicAmounts.xValue()
         effect = Effects.ModifyStats(negX, negX, creature)
     }
 

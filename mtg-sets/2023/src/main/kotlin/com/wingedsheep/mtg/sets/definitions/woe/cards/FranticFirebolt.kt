@@ -1,14 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Frantic Firebolt
@@ -31,10 +32,7 @@ val FranticFirebolt = card("Frantic Firebolt") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(
-            DynamicAmount.Add(
-                DynamicAmount.Fixed(2),
-                DynamicAmount.Count(Player.You, Zone.GRAVEYARD, Filters.InstantSorceryOrAdventure)
-            ),
+            2 + DynamicAmounts.count(Player.You, Zone.GRAVEYARD, Filters.InstantSorceryOrAdventure),
             t
         )
     }

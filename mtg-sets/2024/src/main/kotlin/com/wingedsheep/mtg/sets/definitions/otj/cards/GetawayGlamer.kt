@@ -2,22 +2,19 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.CardNumericProperty
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Getaway Glamer {W}
@@ -71,18 +68,13 @@ val GetawayGlamer = card("Getaway Glamer") {
                 ),
                 Mode(
                     effect = Effects.If(
-                        condition = Compare(
-                            left = DynamicAmount.EntityProperty(
-                                EffectTarget.ContextTarget(0),
-                                EntityNumericProperty.Power
-                            ),
+                        condition = Conditions.CompareAmounts(
+                            left = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
                             operator = ComparisonOperator.GTE,
-                            right = DynamicAmount.AggregateBattlefield(
-                                player = Player.Each,
-                                filter = GameObjectFilter.Creature,
-                                aggregation = Aggregation.MAX,
-                                property = CardNumericProperty.POWER
-                            )
+                            right = DynamicAmounts.battlefield(
+                                Player.Each,
+                                GameObjectFilter.Creature
+                            ).maxPower()
                         ),
                         then = Effects.Destroy(EffectTarget.ContextTarget(0))
                     ),

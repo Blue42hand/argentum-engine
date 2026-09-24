@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tester of the Tangential — Secrets of Strixhaven #69
@@ -47,7 +47,7 @@ val TesterOfTheTangential = card("Tester of the Tangential") {
                 run(
                     Effects.MoveCounters(
                         counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                        amount = DynamicAmount.XValue,
+                        amount = DynamicAmounts.xValue(),
                         source = EffectTarget.Self,
                         destination = moveTarget.asTarget,
                     )

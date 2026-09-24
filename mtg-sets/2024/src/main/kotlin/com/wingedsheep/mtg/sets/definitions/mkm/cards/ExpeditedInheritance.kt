@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Expedited Inheritance
@@ -35,7 +34,7 @@ val ExpeditedInheritance = card("Expedited Inheritance") {
         controlledByTriggeringEntityController = true
         effect = Effects.May(
             effect = Patterns.Exile.impulse(
-                count = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+                count = DynamicAmounts.triggerDamageAmount(),
                 expiry = MayPlayExpiry.UntilEndOfNextTurn,
             ),
             descriptionOverride = "You may exile that many cards from the top of your library. " +

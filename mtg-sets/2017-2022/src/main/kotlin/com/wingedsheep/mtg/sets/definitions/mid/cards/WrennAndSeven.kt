@@ -81,7 +81,7 @@ val WrennAndSeven = card("Wrenn and Seven") {
             descriptionOverride = "Reveal the top four cards of your library. Put all land cards " +
                 "revealed this way into your hand and the rest into your graveyard."
         ) {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(4), revealed = true)
             move(revealed, CardDestination.ToZone(Zone.HAND, Player.You), filter = GameObjectFilter.Land)
             move(revealed, CardDestination.ToZone(Zone.GRAVEYARD, Player.You), filter = GameObjectFilter.Nonland)
         }

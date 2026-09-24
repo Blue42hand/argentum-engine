@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.firebending
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.KeywordAbility
 
 /**
@@ -43,7 +42,7 @@ val FireNationAttacks = card("Fire Nation Attacks") {
 
     spell {
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(2),
+            count = 2,
             power = 2,
             toughness = 2,
             colors = setOf(Color.RED),

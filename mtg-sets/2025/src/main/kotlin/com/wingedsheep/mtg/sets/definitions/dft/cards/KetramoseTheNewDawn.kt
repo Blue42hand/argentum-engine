@@ -3,17 +3,16 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttackUnless
 import com.wingedsheep.sdk.scripting.CantBlockUnless
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ketramose, the New Dawn — Aetherdrift #209.
@@ -42,10 +41,10 @@ val KetramoseTheNewDawn = card("Ketramose, the New Dawn") {
 
     keywords(Keyword.MENACE, Keyword.LIFELINK, Keyword.INDESTRUCTIBLE)
 
-    val sevenOrMoreCardsInExile = Compare(
-        DynamicAmount.Count(Player.Each, Zone.EXILE),
+    val sevenOrMoreCardsInExile = Conditions.CompareAmounts(
+        DynamicAmounts.count(Player.Each, Zone.EXILE),
         ComparisonOperator.GTE,
-        DynamicAmount.Fixed(7)
+        7
     )
 
     staticAbility {

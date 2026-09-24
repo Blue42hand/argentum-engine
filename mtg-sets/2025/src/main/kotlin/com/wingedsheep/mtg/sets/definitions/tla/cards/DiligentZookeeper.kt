@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -29,12 +29,9 @@ val DiligentZookeeper = card("Diligent Zookeeper") {
         // Each affected creature gets +N/+N where N = min(its subtype count, 10).
         // EffectTarget.AffectedEntity resolves per-entity inside EffectApplicator,
         // so each creature is evaluated against its own type count.
-        val bonus = DynamicAmount.Min(
-            DynamicAmount.EntityProperty(
-                entity = EffectTarget.AffectedEntity,
-                numericProperty = EntityNumericProperty.SubtypeCount
-            ),
-            DynamicAmount.Fixed(10)
+        val bonus = DynamicAmounts.min(
+            DynamicAmounts.propertyOf(EffectTarget.AffectedEntity, EntityNumericProperty.SubtypeCount),
+            DynamicAmounts.fixed(10)
         )
         ability = GrantDynamicStats(
             filter = GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.HUMAN).youControl()),

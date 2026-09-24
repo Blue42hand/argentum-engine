@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * No More Lies
@@ -22,7 +22,7 @@ val NoMoreLies = card("No More Lies") {
 
     spell {
         val spell = target("target spell", Targets.Spell)
-        effect = Effects.CounterUnlessDynamicPays(DynamicAmount.Fixed(3), exileOnCounter = true)
+        effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.fixed(3), exileOnCounter = true)
     }
 
     metadata {

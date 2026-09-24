@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,13 +10,9 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /** Sita Varma's power at resolution — read off the ability's source, not the iteration entity. */
-private val SitaVarmasPower: DynamicAmount = DynamicAmount.EntityProperty(
-    EffectTarget.Self,
-    EntityNumericProperty.Power
-)
+private val SitaVarmasPower: DynamicAmount = DynamicAmounts.sourcePower()
 
 /**
  * Sita Varma, Masked Racer — Aetherdrift #223
@@ -49,7 +46,7 @@ val SitaVarmaMaskedRacer = card("Sita Varma, Masked Racer") {
         effect = Effects.Composite(
             Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
-                DynamicAmount.XValue,
+                DynamicAmounts.xValue(),
                 EffectTarget.Self
             ),
             Effects.May(

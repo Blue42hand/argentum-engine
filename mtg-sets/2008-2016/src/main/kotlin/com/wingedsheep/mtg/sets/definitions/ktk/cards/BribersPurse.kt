@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Briber's Purse
@@ -29,7 +29,7 @@ val BribersPurse = card("Briber's Purse") {
 
     replacementEffect(EntersWithDynamicCounters(
         counterType = CounterType.GEM,
-        count = DynamicAmount.XValue
+        count = DynamicAmounts.xValue()
     ))
 
     activatedAbility {

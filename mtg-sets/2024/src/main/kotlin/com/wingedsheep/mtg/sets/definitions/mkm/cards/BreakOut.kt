@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Break Out {R}{G}
@@ -56,7 +56,7 @@ val BreakOut = card("Break Out") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(6)))
+            val looked = gather(CardSource.TopOfLibrary(6))
             val (revealed, rest) = chooseUpToSplit(
                 count = 1,
                 from = looked,
@@ -67,7 +67,7 @@ val BreakOut = card("Break Out") {
             reveal(revealed, revealToSelf = false)
             val (cheap, tooExpensive) = filterSplit(
                 from = revealed,
-                filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.Fixed(2))
+                filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmounts.fixed(2))
             )
             val (toBattlefield, declined) = chooseUpToSplit(
                 count = 1,

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -16,7 +17,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kaya, Spirits' Justice
@@ -161,7 +161,7 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
             TargetCreature(
                 filter = TargetFilter.CreatureOpponentControls,
                 optional = true,
-                dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent),
+                dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
                 differentControllers = true,
                 id = "one target creature each other player controls",
             ),

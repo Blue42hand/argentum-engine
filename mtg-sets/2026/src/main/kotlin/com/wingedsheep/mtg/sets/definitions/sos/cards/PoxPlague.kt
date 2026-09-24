@@ -1,13 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Pox Plague
@@ -41,22 +42,14 @@ val PoxPlague = card("Pox Plague") {
         effect = Effects.ForEachPlayer(
             Player.ActivePlayerFirst,
             Effects.LoseLife(
-                amount = DynamicAmount.Divide(
-                    numerator = DynamicAmount.LifeTotal(Player.You),
-                    denominator = DynamicAmount.Fixed(2),
-                    roundUp = false,
-                ),
+                amount = DynamicAmounts.lifeTotal(Player.You) / 2,
                 target = EffectTarget.Controller,
             ),
         ).then(
             Effects.ForEachPlayer(
                 Player.ActivePlayerFirst,
                 Effects.Discard(
-                    count = DynamicAmount.Divide(
-                        numerator = DynamicAmount.AggregateZone(Player.You, Zone.HAND),
-                        denominator = DynamicAmount.Fixed(2),
-                        roundUp = false,
-                    ),
+                    count = DynamicAmounts.zone(Player.You, Zone.HAND).count() / 2,
                     target = EffectTarget.Controller,
                 ),
             )
@@ -65,14 +58,10 @@ val PoxPlague = card("Pox Plague") {
                 Player.ActivePlayerFirst,
                 Effects.Sacrifice(
                     filter = GameObjectFilter.Permanent,
-                    count = DynamicAmount.Divide(
-                        numerator = DynamicAmount.AggregateBattlefield(
-                            Player.You,
-                            GameObjectFilter.Permanent,
-                        ),
-                        denominator = DynamicAmount.Fixed(2),
-                        roundUp = false,
-                    ),
+                    count = DynamicAmounts.battlefield(
+                        Player.You,
+                        GameObjectFilter.Permanent,
+                    ).count() / 2,
                     target = EffectTarget.Controller,
                 ),
             )

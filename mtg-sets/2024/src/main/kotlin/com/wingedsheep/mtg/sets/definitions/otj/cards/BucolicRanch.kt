@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bucolic Ranch
@@ -64,7 +63,7 @@ val BucolicRanch = card("Bucolic Ranch") {
     activatedAbility {
         cost = AbilityCost.Composite(listOf(Costs.Mana("{3}"), AbilityCost.Tap))
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val looked = gather(CardSource.TopOfLibrary(1))
             // If it's a Mount card, you may reveal it and put it into your hand.
             val (kept, rest) = chooseUpToSplit(
                 1,

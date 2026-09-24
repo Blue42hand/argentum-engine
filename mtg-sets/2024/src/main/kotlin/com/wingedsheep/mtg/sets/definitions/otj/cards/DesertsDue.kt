@@ -2,13 +2,15 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Desert's Due
@@ -30,12 +32,12 @@ val DesertsDue = card("Desert's Due") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        val deserts = DynamicAmount.Count(
+        val deserts = DynamicAmounts.count(
             Player.You,
             Zone.BATTLEFIELD,
             GameObjectFilter.Land.withSubtype(Subtype("Desert"))
         )
-        val total = DynamicAmount.Multiply(DynamicAmount.Add(DynamicAmount.Fixed(2), deserts), -1)
+        val total = -(2 + deserts)
         effect = Effects.ModifyStats(total, total, creature)
     }
 

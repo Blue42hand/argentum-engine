@@ -1,16 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,13 +35,10 @@ val GlissaSunseeker = card("Glissa Sunseeker") {
         val artifact = target("target artifact", Targets.Artifact)
         cost = Costs.Tap
         effect = Effects.If(
-            condition = Compare(
-                left = DynamicAmount.EntityProperty(
-                    EffectTarget.ContextTarget(0),
-                    EntityNumericProperty.ManaValue,
-                ),
+            condition = Conditions.CompareAmounts(
+                left = DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
                 operator = ComparisonOperator.EQ,
-                right = DynamicAmount.UnspentMana(Player.You),
+                right = DynamicAmounts.unspentMana(Player.You),
             ),
             then = Effects.Destroy(artifact),
         )

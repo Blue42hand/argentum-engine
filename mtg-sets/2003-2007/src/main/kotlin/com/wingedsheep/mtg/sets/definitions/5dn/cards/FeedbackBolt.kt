@@ -4,13 +4,13 @@
 
 package com.wingedsheep.mtg.sets.definitions.`5dn`.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -26,7 +26,7 @@ val FeedbackBolt = card("Feedback Bolt") {
     oracleText = "Feedback Bolt deals damage to target player or planeswalker equal to the number of artifacts you control."
     spell {
         val t = target("target", TargetPlayerOrPlaneswalker())
-        effect = Effects.DealDamage(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Artifact), t)
+        effect = Effects.DealDamage(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(), t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

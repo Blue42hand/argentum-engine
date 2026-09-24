@@ -4,12 +4,11 @@
 
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -28,7 +27,7 @@ val FearOfFailedTests = card("Fear of Failed Tests") {
     toughness = 7
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = Effects.DrawCards(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
+        effect = Effects.DrawCards(DynamicAmounts.triggerDamageAmount())
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Restless Reef — LCI #282
@@ -58,8 +57,8 @@ val RestlessReef = card("Restless Reef") {
         cost = Costs.Mana("{2}{U}{B}")
         effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
-            power = DynamicAmount.Fixed(4),
-            toughness = DynamicAmount.Fixed(4),
+            power = 4,
+            toughness = 4,
             keywords = setOf(Keyword.DEATHTOUCH),
             creatureTypes = setOf("Shark"),
             colors = setOf(Color.BLUE.name, Color.BLACK.name),

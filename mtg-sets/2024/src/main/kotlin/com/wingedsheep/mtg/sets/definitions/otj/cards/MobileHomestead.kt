@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Mobile Homestead
@@ -56,7 +55,7 @@ val MobileHomestead = card("Mobile Homestead") {
         trigger = Triggers.Attacks
         effect = Effects.Pipeline {
             // Look at top 1 card.
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val looked = gather(CardSource.TopOfLibrary(1))
             // Keep only land cards as candidates.
             val landCards = filter(looked, GameObjectFilter.Land)
             // You may put the land onto the battlefield tapped; otherwise it stays on top.

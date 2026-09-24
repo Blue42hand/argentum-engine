@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -7,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Firefist Adept
@@ -29,7 +29,7 @@ val FirefistAdept = card("Firefist Adept") {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withSubtype("Wizard")),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Wizard")).count(),
             creature
         )
     }

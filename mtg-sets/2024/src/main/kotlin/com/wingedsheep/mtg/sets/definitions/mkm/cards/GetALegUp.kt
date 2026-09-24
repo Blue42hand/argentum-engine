@@ -5,6 +5,7 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -30,8 +30,8 @@ val GetALegUp = card("Get a Leg Up") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.ModifyStats(
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
+                DynamicAmounts.creaturesYouControl(),
+                DynamicAmounts.creaturesYouControl(),
                 t
             ),
             Effects.GrantKeyword(Keyword.REACH, t)

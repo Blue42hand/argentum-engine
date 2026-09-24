@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * One Ring to Rule Them All
@@ -47,10 +46,7 @@ val OneRingToRuleThemAll = card("One Ring to Rule Them All") {
         effect = Effects.Composite(
             Effects.TheRingTemptsYou(),
             Patterns.Library.mill(
-                count = DynamicAmount.EntityProperty(
-                    EffectTarget.RingBearer(Player.You),
-                    EntityNumericProperty.Power
-                ),
+                count = DynamicAmounts.powerOf(EffectTarget.RingBearer(Player.You)),
                 target = EffectTarget.PlayerRef(Player.Each)
             )
         )
@@ -65,7 +61,7 @@ val OneRingToRuleThemAll = card("One Ring to Rule Them All") {
             players = Player.EachOpponent,
             effects = listOf(
                 Effects.LoseLife(
-                    amount = DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature),
+                    amount = DynamicAmounts.creatureCardsInYourGraveyard(),
                     target = EffectTarget.Controller
                 )
             )

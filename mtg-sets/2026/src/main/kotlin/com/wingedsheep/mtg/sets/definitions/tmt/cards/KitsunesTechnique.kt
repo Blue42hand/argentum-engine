@@ -1,13 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kitsune's Technique
@@ -35,11 +36,7 @@ val KitsunesTechnique = card("Kitsune's Technique") {
     spell {
         val opponent = target("target opponent", Targets.Opponent)
         effect = Patterns.Library.mill(
-            count = DynamicAmount.Divide(
-                numerator = DynamicAmount.Count(Player.ContextPlayer(0), Zone.LIBRARY),
-                denominator = DynamicAmount.Fixed(2),
-                roundUp = true
-            ),
+            count = DynamicAmounts.count(Player.ContextPlayer(0), Zone.LIBRARY) divRoundedUp 2,
             target = opponent
         )
     }

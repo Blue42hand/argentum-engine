@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Mind Spiral
@@ -47,7 +46,7 @@ val MindSpiral = card("Mind Spiral") {
                 effect = Effects.Composite(
                     listOf(
                         Effects.CreateToken(
-                            count = DynamicAmount.Fixed(1),
+                            count = 1,
                             power = 1,
                             toughness = 1,
                             colors = setOf(Color.BLUE),

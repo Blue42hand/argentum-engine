@@ -16,8 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kefka, Court Mage // Kefka, Ruler of Ruin
@@ -69,7 +67,7 @@ private val KefkaRulerOfRuin = card("Kefka, Ruler of Ruin") {
         trigger = Triggers.AnOpponentLosesLife
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.DrawCards(
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST)
+            DynamicAmounts.triggerLifeLost()
         )
         description = "Whenever an opponent loses life during your turn, you draw that many cards."
     }

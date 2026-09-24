@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Exalted Angel
@@ -29,7 +28,7 @@ val ExaltedAngel = card("Exalted Angel") {
 
     triggeredAbility {
         trigger = Triggers.DealsDamage
-        effect = Effects.GainLife(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
+        effect = Effects.GainLife(DynamicAmounts.triggerDamageAmount())
     }
 
     morph = "{2}{W}{W}"

@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Curator of Sun's Creation
@@ -27,7 +26,7 @@ val CuratorOfSunsCreation = card("Curator of Sun's Creation") {
         // recursively re-triggering this same ability (its own discover would otherwise chain).
         oncePerTurn = true
         // "discover again for the same value" — reuse the triggering discover's threshold N.
-        effect = Effects.Discover(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCOVER_VALUE))
+        effect = Effects.Discover(DynamicAmounts.triggerDiscoverValue())
     }
     metadata {
         rarity = Rarity.UNCOMMON

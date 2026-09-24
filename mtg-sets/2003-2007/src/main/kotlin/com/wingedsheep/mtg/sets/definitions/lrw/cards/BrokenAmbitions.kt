@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val BrokenAmbitions = card("Broken Ambitions") {
     manaCost = "{X}{U}"
@@ -19,7 +19,7 @@ val BrokenAmbitions = card("Broken Ambitions") {
         effect = Effects.Pipeline {
             val spell = gather(CardSource.ChosenTargets)
             val controllers = captureControllers(spell)
-            run(Effects.CounterUnlessDynamicPays(DynamicAmount.XValue))
+            run(Effects.CounterUnlessDynamicPays(DynamicAmounts.xValue()))
             run(Patterns.Mechanic.clash(ifYouWin = Effects.Pipeline {
                 // The rider applies even when payment or an ability prevents the counter.
                 forEachCaptured(spell, spell, controllers) {

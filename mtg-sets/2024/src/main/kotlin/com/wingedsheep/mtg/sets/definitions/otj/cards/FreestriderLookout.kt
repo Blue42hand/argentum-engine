@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Freestrider Lookout
@@ -45,7 +44,7 @@ val FreestriderLookout = card("Freestrider Lookout") {
             "put a land card from among them onto the battlefield tapped. Put the rest on the bottom of " +
             "your library in a random order. This ability triggers only once each turn."
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val looked = gather(CardSource.TopOfLibrary(5))
             val (kept, rest) = chooseUpToSplit(
                 1,
                 from = looked,

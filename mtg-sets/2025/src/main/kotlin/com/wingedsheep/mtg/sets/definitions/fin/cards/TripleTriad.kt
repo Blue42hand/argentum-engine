@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Triple Triad — Final Fantasy #166
@@ -45,16 +45,16 @@ val TripleTriad = card("Triple Triad") {
         trigger = Triggers.YourUpkeep
         effect = Effects.Pipeline {
             // Your top card → "mine"
-            val mine = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(1), player = Player.You))
+            val mine = gather(CardSource.TopOfLibrary(count = 1, player = Player.You))
             exile(mine)
             // Each opponent's top card → "others"
-            val others = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(1), player = Player.EachOpponent))
+            val others = gather(CardSource.TopOfLibrary(count = 1, player = Player.EachOpponent))
             exile(others)
             // Others with strictly lesser mana value than your card (< mineMV  ==  <= mineMV - 1)
             val playableOthers = filter(
                 others,
                 GameObjectFilter.Any.manaValueAtMostDynamic(
-                    DynamicAmount.Subtract(DynamicAmounts.manaValueOf(mine), DynamicAmount.Fixed(1))
+                    DynamicAmounts.manaValueOf(mine) - 1
                 )
             )
             // Until end of turn, play them without paying mana costs.

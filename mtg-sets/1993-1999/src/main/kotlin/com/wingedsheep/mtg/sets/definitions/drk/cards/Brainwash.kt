@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttackOrBlockUnlessPay
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Brainwash
@@ -31,7 +31,7 @@ val Brainwash = card("Brainwash") {
 
     staticAbility {
         ability = CantAttackOrBlockUnlessPay(
-            amount = DynamicAmount.Fixed(3),
+            amount = DynamicAmounts.fixed(3),
             appliesToBlocking = false,
         )
     }

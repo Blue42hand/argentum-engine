@@ -3,15 +3,16 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Doomsday Excruciator
@@ -49,11 +50,8 @@ val DoomsdayExcruciator = card("Doomsday Excruciator") {
 
     // Top (librarySize - 6) cards = everything except the bottom six. Clamp to >= 0 so a library of
     // six or fewer yields zero cards to exile (CR / ruling: nothing happens).
-    val allButBottomSix = DynamicAmount.IfPositive(
-        DynamicAmount.Subtract(
-            DynamicAmount.Count(Player.You, Zone.LIBRARY),
-            DynamicAmount.Fixed(6)
-        )
+    val allButBottomSix = DynamicAmounts.nonNegative(
+        DynamicAmounts.count(Player.You, Zone.LIBRARY) - 6
     )
 
     triggeredAbility {

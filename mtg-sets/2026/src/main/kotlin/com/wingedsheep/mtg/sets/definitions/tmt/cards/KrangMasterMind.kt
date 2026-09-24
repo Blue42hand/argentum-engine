@@ -2,18 +2,19 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Krang, Master Mind
@@ -38,27 +39,21 @@ val KrangMasterMind = card("Krang, Master Mind") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        interveningIf = Compare(
-            DynamicAmount.Count(Player.You, Zone.HAND, GameObjectFilter.Any),
+        interveningIf = Conditions.CompareAmounts(
+            DynamicAmounts.cardsInYourHand(),
             ComparisonOperator.LT,
-            DynamicAmount.Fixed(4),
+            4,
         )
         effect = Effects.DrawCards(
-            DynamicAmount.Subtract(
-                DynamicAmount.Fixed(4),
-                DynamicAmount.Count(Player.You, Zone.HAND, GameObjectFilter.Any),
-            )
+            4 - DynamicAmounts.cardsInYourHand()
         )
     }
 
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.Subtract(
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Artifact),
-                DynamicAmount.Fixed(1),
-            ),
-            toughnessBonus = DynamicAmount.Fixed(0),
+            powerBonus = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count() - 1,
+            toughnessBonus = DynamicAmounts.fixed(0),
         )
     }
 

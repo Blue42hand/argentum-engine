@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -50,10 +49,7 @@ val CaptainAmericaWingsOfFreedom = card("Captain America, Wings of Freedom") {
 
     triggeredAbility {
         trigger = Triggers.attacks()
-        val sourceToughness = DynamicAmount.EntityProperty(
-            EffectTarget.Self,
-            EntityNumericProperty.Toughness,
-        )
+        val sourceToughness = DynamicAmounts.sourceToughness()
         effect = Patterns.Group.modifyStatsForAll(
             power = sourceToughness,
             toughness = sourceToughness,

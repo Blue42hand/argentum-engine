@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -7,7 +8,6 @@ import com.wingedsheep.sdk.scripting.CantBeTargetedByOpponentAbilities
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Shanna, Sisay's Legacy
@@ -33,14 +33,8 @@ val ShannaSisaysLegacy = card("Shanna, Sisay's Legacy") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.AggregateBattlefield(
-                Player.You,
-                GameObjectFilter.Creature
-            ),
-            toughnessBonus = DynamicAmount.AggregateBattlefield(
-                Player.You,
-                GameObjectFilter.Creature
-            )
+            powerBonus = DynamicAmounts.creaturesYouControl(),
+            toughnessBonus = DynamicAmounts.creaturesYouControl()
         )
     }
 

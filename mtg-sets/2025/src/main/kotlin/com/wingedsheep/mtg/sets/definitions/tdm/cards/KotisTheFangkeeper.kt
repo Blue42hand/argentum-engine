@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -60,7 +59,7 @@ val KotisTheFangkeeper = card("Kotis, the Fangkeeper") {
             // Exile the top X cards of the damaged player's library (X = combat damage).
             val exiled = gather(
                 CardSource.TopOfLibrary(
-                    DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+                    DynamicAmounts.triggerDamageAmount(),
                     player = Player.TriggeringPlayer
                 )
             )
@@ -70,7 +69,7 @@ val KotisTheFangkeeper = card("Kotis, the Fangkeeper") {
             val castable = filter(
                 nonland,
                 GameObjectFilter.Any.manaValueAtMostDynamic(
-                    DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+                    DynamicAmounts.triggerDamageAmount()
                 )
             )
             // Cast any number of them for free, during this ability's resolution.

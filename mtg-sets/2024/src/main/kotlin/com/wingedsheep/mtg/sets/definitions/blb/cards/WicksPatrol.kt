@@ -7,10 +7,10 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wick's Patrol
@@ -33,7 +33,7 @@ val WicksPatrol = card("Wick's Patrol") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val greatestMV = DynamicAmounts.zone(Player.You, Zone.GRAVEYARD).maxManaValue()
-        val negX = DynamicAmount.Multiply(greatestMV, -1)
+        val negX = -greatestMV
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(3),
             optional = false,

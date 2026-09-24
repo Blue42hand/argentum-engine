@@ -6,13 +6,14 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -33,15 +34,15 @@ val FaerieFencing = card("Faerie Fencing") {
             condition = Conditions.CapturedAtCast("controlledFaerie"),
             then = Effects.Composite(
                 Effects.ModifyStats(
-                    DynamicAmount.Multiply(DynamicAmount.XValue, -1),
-                    DynamicAmount.Multiply(DynamicAmount.XValue, -1),
+                    -DynamicAmounts.xValue(),
+                    -DynamicAmounts.xValue(),
                     t
                 ),
                 Effects.ModifyStats(-3, -3, t)
             ),
             otherwise = Effects.ModifyStats(
-                DynamicAmount.Multiply(DynamicAmount.XValue, -1),
-                DynamicAmount.Multiply(DynamicAmount.XValue, -1),
+                -DynamicAmounts.xValue(),
+                -DynamicAmounts.xValue(),
                 t
             )
         )

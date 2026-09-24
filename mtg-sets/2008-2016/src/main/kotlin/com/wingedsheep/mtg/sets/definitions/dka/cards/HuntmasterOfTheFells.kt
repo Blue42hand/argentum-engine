@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 private val createHuntmasterWolf = Effects.CreateToken(
     power = 2,
@@ -52,7 +51,7 @@ private val HuntmasterOfTheFellsFront = card("Huntmaster of the Fells") {
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(0),
+            0,
         )
         effect = Effects.Transform(EffectTarget.Self)
     }
@@ -102,7 +101,7 @@ private val RavagerOfTheFells = card("Ravager of the Fells") {
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(2),
+            2,
         )
         effect = Effects.Transform(EffectTarget.Self)
     }

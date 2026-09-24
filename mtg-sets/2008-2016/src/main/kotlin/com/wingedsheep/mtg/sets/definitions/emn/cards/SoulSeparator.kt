@@ -4,13 +4,12 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Soul Separator
@@ -53,12 +52,8 @@ val SoulSeparator = card("Soul Separator") {
                 addedKeywords = setOf(Keyword.FLYING)
             ),
             Effects.CreateDynamicToken(
-                dynamicPower = DynamicAmount.EntityProperty(
-                    EffectTarget.ContextTarget(0), EntityNumericProperty.Power
-                ),
-                dynamicToughness = DynamicAmount.EntityProperty(
-                    EffectTarget.ContextTarget(0), EntityNumericProperty.Toughness
-                ),
+                dynamicPower = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                dynamicToughness = DynamicAmounts.toughnessOf(EffectTarget.ContextTarget(0)),
                 colors = setOf(Color.BLACK),
                 creatureTypes = setOf("Zombie")
             )

@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -39,7 +39,7 @@ val DyadrineSynthesisAmalgam = card("Dyadrine, Synthesis Amalgam") {
 
     // Enters with +1/+1 counters equal to the total mana spent to cast it.
     replacementEffect(
-        EntersWithDynamicCounters(count = DynamicAmount.TotalManaSpent)
+        EntersWithDynamicCounters(count = DynamicAmounts.totalManaSpent())
     )
 
     // Whenever you attack, optionally remove a +1/+1 counter from each of two creatures

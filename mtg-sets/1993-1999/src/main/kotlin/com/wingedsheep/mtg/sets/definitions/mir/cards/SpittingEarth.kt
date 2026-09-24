@@ -5,6 +5,7 @@
 package com.wingedsheep.mtg.sets.definitions.mir.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -28,7 +28,7 @@ val SpittingEarth = card("Spitting Earth") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN)),
+            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN)).count(),
             t
         )
     }

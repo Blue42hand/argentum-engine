@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -44,7 +43,7 @@ val Dragonologist = card("Dragonologist") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(6), player = Player.You))
+            val looked = gather(CardSource.TopOfLibrary(count = 6, player = Player.You))
             val (kept, toBottom) = chooseUpToSplit(
                 1,
                 from = looked,

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Chandra, Flameshaper
@@ -63,7 +63,7 @@ val ChandraFlameshaper = card("Chandra, Flameshaper") {
     loyaltyAbility(+2) {
         effect = Effects.Pipeline {
             run(Effects.AddMana(Color.RED, 3))
-            val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+            val exiled = gather(CardSource.TopOfLibrary(3))
             exile(exiled)
             val chosen = chooseExactly(
                 1,
@@ -93,7 +93,7 @@ val ChandraFlameshaper = card("Chandra, Flameshaper") {
             TargetObject(
                 unlimited = true,
                 filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker),
-                dynamicMaxCount = DynamicAmount.Fixed(8),
+                dynamicMaxCount = DynamicAmounts.fixed(8),
                 id = "target creatures and/or planeswalkers",
             ),
         )

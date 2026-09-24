@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bristlebud Farmer
@@ -59,7 +58,7 @@ val BristlebudFarmer = card("Bristlebud Farmer") {
             ).then(
                 Effects.Pipeline {
                     // Mill three cards.
-                    val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+                    val milled = gather(CardSource.TopOfLibrary(3))
                     toGraveyard(milled)
                     // You may put a permanent card from among them into your hand.
                     val toHandCards = chooseUpTo(

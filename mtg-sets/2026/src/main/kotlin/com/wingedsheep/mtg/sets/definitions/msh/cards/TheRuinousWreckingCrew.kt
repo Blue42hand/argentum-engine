@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Ruinous Wrecking Crew
@@ -64,13 +64,13 @@ val TheRuinousWreckingCrew = card("The Ruinous Wrecking Crew") {
         "• Each player sacrifices a creature of their choice."
 
     // The Ruinous Wrecking Crew enters with X +1/+1 counters on it.
-    replacementEffect(EntersWithDynamicCounters(count = DynamicAmount.CastX))
+    replacementEffect(EntersWithDynamicCounters(count = DynamicAmounts.castX()))
 
     // When The Ruinous Wrecking Crew enters, choose up to X — …
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseUpToDynamic(
-            dynamicMax = DynamicAmount.CastX,
+            dynamicMax = DynamicAmounts.castX(),
             // Mode 1 — rummage, unconditionally ("then", not "if you do").
             Mode.noTarget(
                 Patterns.Hand.discardCards(1).then(Effects.DrawCards(1)),

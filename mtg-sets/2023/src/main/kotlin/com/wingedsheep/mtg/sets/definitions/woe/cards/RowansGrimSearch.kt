@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Rowan's Grim Search
@@ -56,7 +55,7 @@ val RowansGrimSearch = card("Rowan's Grim Search") {
             Effects.If(
                 condition = Conditions.WasBargained,
                 then = Effects.Pipeline {
-                    val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+                    val looked = gather(CardSource.TopOfLibrary(4))
                     val (kept, rest) = chooseUpToSplit(
                         2,
                         from = looked,

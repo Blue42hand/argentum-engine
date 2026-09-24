@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Patterns
 
@@ -50,7 +49,7 @@ val SazacapsBrew = card("Sazacap's Brew") {
                 effect = Effects.Composite(
                     listOf(
                         Effects.CreateToken(
-                            count = DynamicAmount.Fixed(1),
+                            count = 1,
                             power = 1,
                             toughness = 1,
                             colors = setOf(Color.BLUE),

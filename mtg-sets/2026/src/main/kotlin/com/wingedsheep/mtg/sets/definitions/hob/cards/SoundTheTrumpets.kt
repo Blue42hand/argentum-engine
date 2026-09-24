@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sound the Trumpets
@@ -40,7 +40,7 @@ val SoundTheTrumpets = card("Sound the Trumpets") {
     spell {
         val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
-            condition = Conditions.TargetSpellManaValueAtMost(DynamicAmount.Fixed(2)),
+            condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2)),
             then = Effects.Composite(
                 Effects.CounterSpell(),
                 Patterns.Mechanic.recruit(),

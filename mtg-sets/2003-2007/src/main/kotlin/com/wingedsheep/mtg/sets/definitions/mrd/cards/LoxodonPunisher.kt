@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Loxodon Punisher — Mirrodin #14
@@ -30,8 +30,8 @@ val LoxodonPunisher = card("Loxodon Punisher") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.Multiply(DynamicAmounts.equipmentAttachedToSelf(), 2),
-            toughnessBonus = DynamicAmount.Multiply(DynamicAmounts.equipmentAttachedToSelf(), 2)
+            powerBonus = DynamicAmounts.equipmentAttachedToSelf() * 2,
+            toughnessBonus = DynamicAmounts.equipmentAttachedToSelf() * 2
         )
     }
 

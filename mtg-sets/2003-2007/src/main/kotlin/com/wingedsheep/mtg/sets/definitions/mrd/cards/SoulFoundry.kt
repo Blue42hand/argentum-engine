@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Soul Foundry
@@ -60,10 +59,7 @@ val SoulFoundry = card("Soul Foundry") {
     // {X}, {T}: Create a token that's a copy of the exiled card. X is the mana value of that card.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
-        xDefinedAs = DynamicAmount.EntityProperty(
-            EffectTarget.LinkedExiledCard(),
-            EntityNumericProperty.ManaValue
-        )
+        xDefinedAs = DynamicAmounts.manaValueOf(EffectTarget.LinkedExiledCard())
         // No `description` override on the ability itself: the generated label carries the
         // *resolved* cost ("{3}, {T}: …" for an imprinted three-drop), which is the whole point of
         // a defined X, and an ability-level override would freeze the printed "{X}" instead.

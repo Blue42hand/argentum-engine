@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Professor Dellian Fel
@@ -62,7 +61,7 @@ val ProfessorDellianFel = card("Professor Dellian Fel") {
                 binding = Triggers.YouGainLife.binding,
                 targetRequirement = Targets.Opponent,
                 effect = Effects.LoseLife(
-                    amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED),
+                    amount = DynamicAmounts.triggerLifeGained(),
                     target = EffectTarget.ContextTarget(0)
                 )
             ),

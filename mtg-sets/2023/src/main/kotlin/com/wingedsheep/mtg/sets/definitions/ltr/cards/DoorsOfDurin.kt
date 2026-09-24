@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Doors of Durin
@@ -37,7 +36,7 @@ val DoorsOfDurin = card("Doors of Durin") {
         effect = Patterns.Library.scry(2).then(
             Effects.May(
                 effect = Effects.Pipeline {
-                    val top = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You))
+                    val top = gather(CardSource.TopOfLibrary(1, Player.You))
                     reveal(top)
                     val topCreature = filter(top, GameObjectFilter.Creature)
                     move(

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.mh1.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -14,8 +15,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scrapyard Recombiner
@@ -73,7 +72,7 @@ val ScrapyardRecombiner = card("Scrapyard Recombiner") {
         optional = true
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT),
+            DynamicAmounts.lastKnownPlusOneCounters(),
             permanent
         )
         description = "When this creature dies, you may put its +1/+1 counters on target artifact creature."

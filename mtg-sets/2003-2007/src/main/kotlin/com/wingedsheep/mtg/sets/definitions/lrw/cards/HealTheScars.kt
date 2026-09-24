@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,7 +31,7 @@ val HealTheScars = card("Heal the Scars") {
         effect = Effects.Composite(
             Effects.Regenerate(t),
             Effects.GainLife(
-                DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Toughness)
+                DynamicAmounts.toughnessOf(EffectTarget.ContextTarget(0))
             )
         )
     }

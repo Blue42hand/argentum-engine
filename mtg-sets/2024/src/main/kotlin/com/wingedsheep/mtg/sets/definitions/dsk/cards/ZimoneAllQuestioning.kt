@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Zimone, All-Questioning
@@ -54,15 +53,15 @@ val ZimoneAllQuestioning = card("Zimone, All-Questioning") {
             Conditions.CompareAmounts(
                 DynamicAmounts.landsEnteredUnderControlThisTurn(Player.You),
                 com.wingedsheep.sdk.scripting.conditions.ComparisonOperator.GTE,
-                DynamicAmount.Fixed(1),
+                1,
             ),
             // "and you control a prime number of lands"
             Conditions.AmountIsPrime(
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land),
+                DynamicAmounts.landsYouControl(),
             ),
         )
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(1),
+            count = 1,
             power = 0,
             toughness = 0,
             colors = setOf(Color.GREEN, Color.BLUE),
@@ -73,7 +72,7 @@ val ZimoneAllQuestioning = card("Zimone, All-Questioning") {
         ).then(
             Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land),
+                DynamicAmounts.landsYouControl(),
                 EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
             ),
         )

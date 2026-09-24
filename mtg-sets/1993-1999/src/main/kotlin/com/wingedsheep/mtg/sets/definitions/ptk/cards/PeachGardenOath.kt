@@ -4,12 +4,13 @@
 
 package com.wingedsheep.mtg.sets.definitions.ptk.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -25,7 +26,7 @@ val PeachGardenOath = card("Peach Garden Oath") {
     oracleText = "You gain 2 life for each creature you control."
     spell {
         effect = Effects.GainLife(
-            DynamicAmount.Multiply(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature), 2)
+            DynamicAmounts.creaturesYouControl() * 2
         )
     }
     metadata {

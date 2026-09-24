@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -33,7 +32,7 @@ val GoblinMachinist = card("Goblin Machinist") {
             reveal(allRevealed)
             run(Effects.ModifyStats(
                 power = DynamicAmounts.manaValueOf(nonland),
-                toughness = DynamicAmount.Fixed(0),
+                toughness = DynamicAmounts.fixed(0),
                 target = EffectTarget.Self
             ))
             toLibraryBottom(allRevealed)

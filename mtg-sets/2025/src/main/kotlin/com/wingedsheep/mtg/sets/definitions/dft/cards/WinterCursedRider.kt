@@ -1,8 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantWard
@@ -10,7 +12,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Winter, Cursed Rider — Aetherdrift #228
@@ -65,7 +66,7 @@ val WinterCursedRider = card("Winter, Cursed Rider") {
             Costs.ExileXFromGraveyard(GameObjectFilter.Artifact)
         )
         isExhaust = true
-        val negX = DynamicAmount.Multiply(DynamicAmount.XValue, -1)
+        val negX = -DynamicAmounts.xValue()
         effect = Effects.ForEachInGroup(
             OtherNonartifactCreatures,
             Effects.ModifyStats(negX, negX, EffectTarget.IterationEntity)

@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /** Pipeline slot holding the single player who won the contest, or nothing if it ended undecided. */
 private const val WINNER = "timesifterWinner"
@@ -52,9 +52,9 @@ val Timesifter = card("Timesifter") {
             Effects.ExileTopCardContest(storeWinnerAs = WINNER),
             Effects.If(
                 condition = Conditions.CompareAmounts(
-                    DynamicAmount.DistinctEntitiesInCollections(listOf(WINNER)),
+                    DynamicAmounts.distinctEntitiesIn(WINNER),
                     ComparisonOperator.GTE,
-                    DynamicAmount.Fixed(1)
+                    1
                 ),
                 then = Effects.TakeExtraTurn(target = EffectTarget.PipelineTarget(WINNER))
             )

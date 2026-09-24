@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
@@ -14,8 +15,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.core.ManaCost
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * The Dominion Bracelet
@@ -55,10 +54,7 @@ val TheDominionBracelet = card("The Dominion Bracelet") {
                 effect = Effects.HijackNextTurn(EffectTarget.ContextTarget(0)),
                 targetRequirements = listOf(TargetOpponent()),
                 timing = TimingRule.SorcerySpeed,
-                genericCostReduction = DynamicAmount.EntityProperty(
-                    EffectTarget.Self,
-                    EntityNumericProperty.Power
-                ),
+                genericCostReduction = DynamicAmounts.sourcePower(),
                 descriptionOverride = "{15}, Exile The Dominion Bracelet: You control target " +
                     "opponent during their next turn. This ability costs {X} less to activate, " +
                     "where X is this creature's power."

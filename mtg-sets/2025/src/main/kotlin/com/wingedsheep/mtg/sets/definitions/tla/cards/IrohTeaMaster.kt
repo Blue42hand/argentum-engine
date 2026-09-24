@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -15,7 +16,6 @@ import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Iroh, Tea Master
@@ -90,12 +90,12 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
                     ),
                     Effects.AddDynamicCounters(
                         counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                        amount = DynamicAmount.AggregateBattlefield(
-                            player = Player.EachOpponent,
-                            filter = GameObjectFilter.Permanent.withControllerPredicate(
+                        amount = DynamicAmounts.battlefield(
+                            Player.EachOpponent,
+                            GameObjectFilter.Permanent.withControllerPredicate(
                                 ControllerPredicate.OwnedByYou
                             )
-                        ),
+                        ).count(),
                         target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
                     )
                 ),

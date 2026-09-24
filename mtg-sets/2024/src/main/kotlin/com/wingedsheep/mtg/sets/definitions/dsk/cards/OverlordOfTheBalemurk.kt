@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.impending
 
@@ -52,7 +51,7 @@ val OverlordOfTheBalemurk = card("Overlord of the Balemurk") {
     val returnableFilter = GameObjectFilter.Creature.notSubtype(Subtype.AVATAR) or GameObjectFilter.Planeswalker
     val millAndReturn: Effect = Effects.Pipeline {
         // Mill four cards.
-        val balemurkMilled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4), Player.You))
+        val balemurkMilled = gather(CardSource.TopOfLibrary(4, Player.You))
         toGraveyard(balemurkMilled)
         // ...then you may return a non-Avatar creature or planeswalker card from your
         // graveyard to your hand (any eligible card, not just the milled ones).

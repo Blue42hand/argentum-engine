@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Aragorn, the Uniter
@@ -54,7 +53,7 @@ val AragornTheUniter = card("Aragorn, the Uniter") {
         trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.RED))
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Fixed(3),
+            amount = 3,
             target = opponent,
             damageSource = EffectTarget.Self
         )

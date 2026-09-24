@@ -2,8 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -12,8 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Jackdaw Savior
@@ -58,10 +58,7 @@ val JackdawSavior = card("Jackdaw Savior") {
             "another target creature card with lesser mana value from your graveyard",
             TargetObject(
                 filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMostDynamic(
-                    DynamicAmount.Subtract(
-                        DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue),
-                        DynamicAmount.Fixed(1)
-                    )
+                    DynamicAmounts.triggeringManaValue() - 1
                 )
             )
         )

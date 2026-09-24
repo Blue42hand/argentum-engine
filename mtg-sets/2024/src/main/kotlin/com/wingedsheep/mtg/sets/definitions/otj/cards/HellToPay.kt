@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -35,10 +35,7 @@ val HellToPay = card("Hell to Pay") {
         effect = Effects.Composite(
             Effects.DealXDamage(creature),
             Effects.CreateTreasure(
-                count = DynamicAmount.EntityProperty(
-                    EffectTarget.ContextTarget(0),
-                    EntityNumericProperty.ExcessMarkedDamage
-                ),
+                count = DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage),
                 tapped = true
             )
         )

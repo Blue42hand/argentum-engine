@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -69,7 +68,7 @@ val FecundGreenshell = card("Fecund Greenshell") {
 
         effect = Effects.Pipeline {
             // Look at top 1 card
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val looked = gather(CardSource.TopOfLibrary(1))
             // Split into land and non-land
             val (landCards, nonLandCards) = filterSplit(looked, GameObjectFilter.Land)
             // For lands: player may put onto battlefield tapped, or keep in hand

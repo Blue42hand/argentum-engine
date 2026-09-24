@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -38,7 +38,7 @@ val HollowSpecter = card("Hollow Specter") {
                 // 1. Gather all cards from damaged player's hand
                 val hand = gather(CardSource.FromZone(Zone.HAND, Player.TriggeringPlayer))
                 // 2. Damaged player chooses X cards to reveal
-                val revealed = chooseExactly(DynamicAmount.XValue, from = hand, chooser = Chooser.TriggeringPlayer)
+                val revealed = chooseExactly(DynamicAmounts.xValue(), from = hand, chooser = Chooser.TriggeringPlayer)
                 // 3. Controller chooses 1 card to discard
                 val toDiscard = chooseExactly(1, from = revealed, chooser = Chooser.Controller)
                 // 4. Move chosen card to damaged player's graveyard

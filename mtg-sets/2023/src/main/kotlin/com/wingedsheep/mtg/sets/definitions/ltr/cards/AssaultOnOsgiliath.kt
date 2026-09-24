@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Assault on Osgiliath
@@ -25,7 +25,7 @@ val AssaultOnOsgiliath = card("Assault on Osgiliath") {
         "an Army, create a 0/0 black Orc Army creature token first.)"
 
     spell {
-        effect = Effects.Amass(DynamicAmount.XValue, "Orc")
+        effect = Effects.Amass(DynamicAmounts.xValue(), "Orc")
             .then(
                 Effects.ForEachInGroup(
                     filter = GroupFilter(

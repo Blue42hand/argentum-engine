@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Inquisition
@@ -36,7 +36,7 @@ val Inquisition = card("Inquisition") {
         effect = Effects.Composite(
             Effects.RevealHand(victim),
             Effects.DealDamage(
-                DynamicAmount.Count(
+                DynamicAmounts.count(
                     Player.ContextPlayer(0),
                     Zone.HAND,
                     GameObjectFilter.Any.withColor(Color.WHITE),

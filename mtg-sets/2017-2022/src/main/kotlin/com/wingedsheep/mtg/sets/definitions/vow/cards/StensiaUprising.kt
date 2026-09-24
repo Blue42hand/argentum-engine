@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Stensia Uprising — Innistrad: Crimson Vow #178
@@ -55,9 +55,9 @@ val StensiaUprising = card("Stensia Uprising") {
             ),
             Effects.If(
                 condition = Conditions.CompareAmounts(
-                    DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Any),
+                    DynamicAmounts.battlefield(Player.You, GameObjectFilter.Any).count(),
                     ComparisonOperator.EQ,
-                    DynamicAmount.Fixed(13)
+                    13
                 ),
                 then = Effects.ReflexiveTrigger(
                     action = Effects.SacrificeTarget(EffectTarget.Self),

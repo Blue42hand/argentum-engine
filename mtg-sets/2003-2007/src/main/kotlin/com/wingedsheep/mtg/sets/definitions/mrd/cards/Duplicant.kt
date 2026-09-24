@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,8 +13,6 @@ import com.wingedsheep.sdk.scripting.HasCreatureTypesOf
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -83,14 +82,8 @@ val Duplicant = card("Duplicant") {
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = SetBasePowerToughnessDynamicStatic(
-                power = DynamicAmount.EntityProperty(
-                    EffectTarget.LinkedExiledCard(),
-                    EntityNumericProperty.Power
-                ),
-                toughness = DynamicAmount.EntityProperty(
-                    EffectTarget.LinkedExiledCard(),
-                    EntityNumericProperty.Toughness
-                )
+                power = DynamicAmounts.powerOf(EffectTarget.LinkedExiledCard()),
+                toughness = DynamicAmounts.toughnessOf(EffectTarget.LinkedExiledCard())
             ),
             condition = Conditions.LinkedExiledCardMatches(Filters.Creature)
         )

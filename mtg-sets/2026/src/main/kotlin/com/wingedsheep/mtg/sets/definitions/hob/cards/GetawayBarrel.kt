@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Getaway Barrel — The Hobbit #98
@@ -38,7 +37,7 @@ val GetawayBarrel = card("Getaway Barrel") {
     triggeredAbility {
         trigger = Triggers.PutIntoGraveyardFromBattlefield
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(13), Player.You), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(13, Player.You), revealed = true)
             val (creature, rest) = chooseRandomSplit(1, from = revealed, filter = GameObjectFilter.Creature)
             move(creature, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
             toLibraryBottom(rest, order = CardOrder.Random)

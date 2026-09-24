@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Shantotto, Tactician Magician
@@ -36,14 +35,14 @@ val ShantottoTacticianMagician = card("Shantotto, Tactician Magician") {
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
         effect = Effects.ModifyStats(
-            power = DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
-            toughness = DynamicAmount.Fixed(0),
+            power = DynamicAmounts.manaSpentOnTriggeringSpell(),
+            toughness = DynamicAmounts.fixed(0),
             target = EffectTarget.Self,
         ) then Effects.If(
             condition = Conditions.CompareAmounts(
-                left = DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
+                left = DynamicAmounts.manaSpentOnTriggeringSpell(),
                 operator = ComparisonOperator.GTE,
-                right = DynamicAmount.Fixed(4),
+                right = 4,
             ),
             then = Effects.DrawCards(1),
         )

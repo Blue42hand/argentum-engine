@@ -2,9 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -16,7 +18,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Cemetery Desecrator
@@ -84,7 +85,7 @@ private val desecrate: Effect =
             Mode(
                 effect = Effects.RemoveCounterOfAnyKind(
                     target = EffectTarget.ContextTarget(0),
-                    count = DynamicAmount.StoredCardManaValue(EXILED_CARD)
+                    count = DynamicAmounts.manaValueOf(EXILED_CARD)
                 ),
                 targetRequirements = listOf(
                     TargetObject(filter = TargetFilter.Permanent, id = "target permanent")
@@ -94,8 +95,8 @@ private val desecrate: Effect =
             ),
             Mode(
                 effect = Effects.ModifyStats(
-                    DynamicAmount.Multiply(DynamicAmount.StoredCardManaValue(EXILED_CARD), -1),
-                    DynamicAmount.Multiply(DynamicAmount.StoredCardManaValue(EXILED_CARD), -1),
+                    -DynamicAmounts.manaValueOf(EXILED_CARD),
+                    -DynamicAmounts.manaValueOf(EXILED_CARD),
                     EffectTarget.ContextTarget(0)
                 ),
                 targetRequirements = listOf(

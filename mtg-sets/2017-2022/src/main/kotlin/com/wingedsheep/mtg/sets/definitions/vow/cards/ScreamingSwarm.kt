@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Screaming Swarm — Innistrad: Crimson Vow #75
@@ -51,7 +51,7 @@ val ScreamingSwarm = card("Screaming Swarm") {
         trigger = Triggers.YouAttack
         val victim = target("target", Targets.Player)
         effect = Patterns.Library.mill(
-            DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.attacking()),
+            DynamicAmounts.attackingCreaturesYouControl(),
             victim
         )
     }

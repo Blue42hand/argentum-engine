@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Jacob Hauken, Inspector // Hauken's Insight — Innistrad: Crimson Vow #65
@@ -110,7 +109,7 @@ private val HaukensInsight = card("Hauken's Insight") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.Pipeline {
-            val haukensInsightExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val haukensInsightExiled = gather(CardSource.TopOfLibrary(1))
             move(
                 haukensInsightExiled,
                 CardDestination.ToZone(Zone.EXILE),

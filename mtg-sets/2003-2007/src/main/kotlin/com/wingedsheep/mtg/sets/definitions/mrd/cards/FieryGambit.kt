@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fiery Gambit — Mirrodin #90
@@ -54,9 +54,9 @@ val FieryGambit = card("Fiery Gambit") {
 
         /** `wins >= threshold` over the tally the flip run published. */
         fun wonAtLeast(threshold: Int) = Conditions.CompareAmounts(
-            DynamicAmount.VariableReference("fieryGambitWins"),
+            DynamicAmounts.storedNumber("fieryGambitWins"),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(threshold),
+            threshold,
         )
 
         effect = Effects.FlipCoinsUntilLoss(storeWinsAs = "fieryGambitWins")

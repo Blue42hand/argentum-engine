@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Rollercrusher Ride — Duskmourn: House of Horror #155
@@ -65,10 +65,10 @@ val TheRollercrusherRide = card("The Rollercrusher Ride") {
         trigger = Triggers.EntersBattlefield
         target(
             "up to X target creatures",
-            TargetCreature(optional = true, dynamicMaxCount = DynamicAmount.CastX),
+            TargetCreature(optional = true, dynamicMaxCount = DynamicAmounts.castX()),
         )
         effect = Effects.ForEachTarget(
-            Effects.DealDamage(DynamicAmount.CastX, EffectTarget.ContextTarget(0))
+            Effects.DealDamage(DynamicAmounts.castX(), EffectTarget.ContextTarget(0))
         )
         description = "When The Rollercrusher Ride enters, it deals X damage to each of up to X " +
             "target creatures."

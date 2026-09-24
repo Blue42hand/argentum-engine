@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wickerfolk Thresher
@@ -44,7 +43,7 @@ val WickerfolkThresher = card("Wickerfolk Thresher") {
         interveningIf = Conditions.Delirium()
         effect = Effects.Pipeline {
             // Look at the top card of your library.
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val looked = gather(CardSource.TopOfLibrary(1))
             // Split into land and non-land.
             val (landCards, nonLandCards) = filterSplit(looked, GameObjectFilter.Land)
             // If it's a land, you may put it onto the battlefield; else it stays for hand.

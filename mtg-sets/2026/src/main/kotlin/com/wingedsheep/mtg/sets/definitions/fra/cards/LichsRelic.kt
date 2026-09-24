@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Lich's Relic — Reality Fracture #57
@@ -49,7 +49,7 @@ val LichsRelic = card("Lich's Relic") {
                 TargetObject(
                     filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()),
                     optional = true,
-                    dynamicMaxCount = DynamicAmount.PlayerCount(Player.EachOpponent),
+                    dynamicMaxCount = DynamicAmounts.playerCount(Player.EachOpponent),
                     differentControllers = true,
                     id = "up to one target creature or planeswalker each opponent controls",
                 )

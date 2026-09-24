@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dai Li Agents
@@ -59,10 +59,10 @@ val DaiLiAgents = card("Dai Li Agents") {
         description = "When this creature enters, earthbend 1, then earthbend 1."
     }
 
-    val xAmount = DynamicAmount.AggregateBattlefield(
-        player = Player.You,
-        filter = GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE),
-    )
+    val xAmount = DynamicAmounts.battlefield(
+        Player.You,
+        GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE),
+    ).count()
 
     triggeredAbility {
         trigger = Triggers.Attacks

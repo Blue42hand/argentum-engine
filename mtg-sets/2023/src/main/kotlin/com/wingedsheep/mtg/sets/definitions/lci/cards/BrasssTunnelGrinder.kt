@@ -4,18 +4,18 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Brass's Tunnel-Grinder // Tecutlan, the Searing Rift (The Lost Caverns of Ixalan)
@@ -60,7 +60,7 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
             val discarded = runStoringCollection { Patterns.Hand.discardAnyNumber(storeAs = it) }
-            run(Effects.DrawCards(DynamicAmount.Add(discarded.count, DynamicAmount.Fixed(1))))
+            run(Effects.DrawCards(discarded.count + 1))
         }
         description = "When Brass's Tunnel-Grinder enters, discard any number of cards, then draw " +
             "that many cards plus one."
@@ -112,7 +112,7 @@ private val Tecutlan = card("Tecutlan, the Searing Rift") {
             spellFilter = GameObjectFilter.Permanent,
             requires = setOf(SpellCastPredicate.PaidWithManaFromSource),
         )
-        effect = Effects.Discover(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGERING_SPELL_MANA_VALUE))
+        effect = Effects.Discover(DynamicAmounts.triggeringSpellManaValue())
         description = "Whenever you cast a permanent spell using mana produced by Tecutlan, " +
             "discover X, where X is that spell's mana value."
     }

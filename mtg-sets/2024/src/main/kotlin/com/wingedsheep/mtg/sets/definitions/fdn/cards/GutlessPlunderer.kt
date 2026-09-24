@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gutless Plunderer
@@ -42,7 +41,7 @@ val GutlessPlunderer = card("Gutless Plunderer") {
         trigger = Triggers.EntersBattlefield
         interveningIf = Conditions.YouAttackedThisTurn
         effect = Effects.Pipeline {
-            val gpLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)), revealed = false)
+            val gpLooked = gather(CardSource.TopOfLibrary(3), revealed = false)
             val (gpKept, gpRest) = chooseUpToSplit(
                 1,
                 from = gpLooked,

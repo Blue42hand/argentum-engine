@@ -1,11 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Stargaze
@@ -23,10 +24,10 @@ val Stargaze = card("Stargaze") {
     spell {
         effect = Effects.Pipeline {
             // Gather twice X cards from top of library
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Multiply(DynamicAmount.XValue, 2)))
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue() * 2))
             // Select exactly X to keep
             val (kept, rest) = chooseExactlySplit(
-                DynamicAmount.XValue,
+                DynamicAmounts.xValue(),
                 from = looked,
                 selectedLabel = "Put in hand",
                 remainderLabel = "Put in graveyard"
@@ -36,7 +37,7 @@ val Stargaze = card("Stargaze") {
             // Move rest to graveyard
             toGraveyard(rest)
             // Lose X life
-            run(Effects.LoseLife(DynamicAmount.XValue, EffectTarget.Controller))
+            run(Effects.LoseLife(DynamicAmounts.xValue(), EffectTarget.Controller))
         }
     }
 

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
@@ -24,7 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * file order).
  */
 private val IronManArmorArtifactCount: DynamicAmount =
-    DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Artifact)
+    DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Artifact)
 
 /**
  * Iron Man Armor — Marvel Super Heroes #248
@@ -98,8 +99,8 @@ val IronManArmor = card("Iron Man Armor") {
             condition = Conditions.SourceMatches(GameObjectFilter.Noncreature),
             then = Effects.BecomeCreature(
                 target = EffectTarget.Self,
-                power = DynamicAmount.Fixed(0),
-                toughness = DynamicAmount.Fixed(0),
+                power = DynamicAmounts.fixed(0),
+                toughness = DynamicAmounts.fixed(0),
                 keywords = setOf(Keyword.FLYING),
                 creatureTypes = setOf("Construct", "Hero"),
                 addTypes = setOf("ARTIFACT"),

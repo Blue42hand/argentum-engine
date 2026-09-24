@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ainok Wayfarer — Tarkir: Dragonstorm #134
@@ -39,7 +38,7 @@ val AinokWayfarer = card("Ainok Wayfarer") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
             // Mill three: gather the top three, then move them to the graveyard.
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+            val milled = gather(CardSource.TopOfLibrary(3))
             toGraveyard(milled)
             // You may put a land card from among them into your hand.
             // If you don't, put a +1/+1 counter on this creature.

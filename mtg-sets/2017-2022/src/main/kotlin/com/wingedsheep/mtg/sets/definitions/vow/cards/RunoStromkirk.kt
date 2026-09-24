@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -16,7 +17,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Runo Stromkirk // Krothuss, Lord of the Deep — Innistrad: Crimson Vow #246
@@ -99,7 +99,7 @@ private val RunoStromkirkFront = card("Runo Stromkirk") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.Pipeline {
-            val runoLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val runoLooked = gather(CardSource.TopOfLibrary(1))
             val runoRevealed = chooseUpTo(
                 1,
                 from = runoLooked,
@@ -148,15 +148,15 @@ private val KrothussLordOfTheDeep = card("Krothuss, Lord of the Deep") {
         )
         effect = Effects.CreateTokenCopyOfTarget(
             target = copied,
-            count = DynamicAmount.Conditional(
+            count = DynamicAmounts.conditional(
                 condition = Conditions.TargetMatchesFilter(
                     GameObjectFilter.Creature.withAnySubtype(
                         "Kraken", "Leviathan", "Octopus", "Serpent"
                     ),
                     targetIndex = 0,
                 ),
-                ifTrue = DynamicAmount.Fixed(2),
-                ifFalse = DynamicAmount.Fixed(1),
+                ifTrue = 2,
+                ifFalse = 1,
             ),
             tapped = true,
             attacking = true,

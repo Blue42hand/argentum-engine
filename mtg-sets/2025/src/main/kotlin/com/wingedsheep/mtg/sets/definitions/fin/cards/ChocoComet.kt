@@ -5,6 +5,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -32,7 +32,7 @@ val ChocoComet = card("Choco-Comet") {
     spell {
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
-            Effects.DealDamage(DynamicAmount.XValue, t),
+            Effects.DealDamage(DynamicAmounts.xValue(), t),
             Effects.CreateToken(
                 power = 2,
                 toughness = 2,

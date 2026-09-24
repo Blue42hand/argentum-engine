@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -45,7 +44,7 @@ val LupinflowerVillage = card("Lupinflower Village") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(6)))
+            val looked = gather(CardSource.TopOfLibrary(6))
             val (kept, rest) = chooseUpToSplit(
                 1,
                 from = looked,

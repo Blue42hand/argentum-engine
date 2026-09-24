@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.soi.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Triskaidekaphobia
@@ -41,9 +41,9 @@ val Triskaidekaphobia = card("Triskaidekaphobia") {
             Player.ActivePlayerFirst,
             Effects.If(
                 condition = Conditions.CompareAmounts(
-                    DynamicAmount.LifeTotal(Player.You),
+                    DynamicAmounts.lifeTotal(Player.You),
                     ComparisonOperator.EQ,
-                    DynamicAmount.Fixed(13)
+                    13
                 ),
                 then = Effects.LoseGame()
             )

@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Goblin Charbelcher — Mirrodin #176 (canonical printing)
@@ -55,9 +55,9 @@ val GoblinCharbelcher = card("Goblin Charbelcher") {
             val nonlandsRevealed = DynamicAmounts.distinctEntitiesIn(nonlands)
             run(
                 Effects.DealDamage(
-                    amount = DynamicAmount.Conditional(
+                    amount = DynamicAmounts.conditional(
                         condition = whenMatches(landCard, GameObjectFilter.Land.withSubtype("Mountain")),
-                        ifTrue = DynamicAmount.Multiply(nonlandsRevealed, 2),
+                        ifTrue = nonlandsRevealed * 2,
                         ifFalse = nonlandsRevealed
                     ),
                     target = victim

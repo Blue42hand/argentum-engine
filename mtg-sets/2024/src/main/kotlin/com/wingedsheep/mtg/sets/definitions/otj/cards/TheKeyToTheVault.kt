@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Key to the Vault
@@ -58,7 +57,7 @@ val TheKeyToTheVault = card("The Key to the Vault") {
             recipient = Recipient.AnyPlayer,
             binding = TriggerBinding.ATTACHED
         )
-        val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+        val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.Pipeline {
             val keyLooked = gather(
                 CardSource.TopOfLibrary(count = damageDealt, player = Player.You),

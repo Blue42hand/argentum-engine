@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Memories Returning
@@ -44,7 +43,7 @@ val MemoriesReturning = card("Memories Returning") {
                 chooseExactlySplit(1, from = from, chooser = chooser, showAllCards = true, alwaysPrompt = true, prompt = prompt)
 
             // Reveal the top five cards.
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val revealed = gather(CardSource.TopOfLibrary(5))
             reveal(revealed)
             // You put one of them into your hand.
             val (hand1, rem1) = pickOne(revealed, Chooser.Controller, "Put a card into your hand")

@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Raiding Party
@@ -68,7 +68,7 @@ val RaidingParty = card("Raiding Party") {
                     CardSource.BattlefieldMatching(filter = GameObjectFilter.Land.withSubtype(Subtype.PLAINS))
                 )
                 val spared = chooseUpTo(
-                    DynamicAmount.Multiply(tapped.count, 2),
+                    tapped.count * 2,
                     from = plains,
                     chooser = Chooser.Controller,
                     useTargetingUI = true,

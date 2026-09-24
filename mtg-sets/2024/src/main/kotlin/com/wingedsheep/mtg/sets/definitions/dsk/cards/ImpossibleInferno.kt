@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Impossible Inferno
@@ -33,7 +32,7 @@ val ImpossibleInferno = card("Impossible Inferno") {
             Effects.If(
                 condition = Conditions.Delirium(),
                 then = Effects.Pipeline {
-                    val impulseExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+                    val impulseExiled = gather(CardSource.TopOfLibrary(1))
                     exile(impulseExiled)
                     run(Effects.GrantMayPlayFromExile(impulseExiled, MayPlayExpiry.UntilEndOfNextTurn))
                 }

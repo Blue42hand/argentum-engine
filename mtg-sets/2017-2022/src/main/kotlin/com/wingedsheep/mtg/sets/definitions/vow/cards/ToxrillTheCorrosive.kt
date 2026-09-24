@@ -4,17 +4,17 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /** VOW's own 1/1 black Slug token art. */
 private const val SLUG_TOKEN_IMAGE =
@@ -83,15 +83,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
     // Creatures you don't control get -1/-1 for each slime counter on them.
     staticAbility {
         // Re-evaluated per affected creature: AffectedEntity is *that* creature, not Toxrill.
-        val slimeOnIt = DynamicAmount.Multiply(
-            DynamicAmount.EntityProperty(
-                entity = EffectTarget.AffectedEntity,
-                numericProperty = EntityNumericProperty.CounterCount(
-                    CounterType.SLIME
-                )
-            ),
-            -1
-        )
+        val slimeOnIt = -DynamicAmounts.countersOn(EffectTarget.AffectedEntity, CounterType.SLIME)
         ability = GrantDynamicStats(
             filter = GroupFilter.AllCreaturesOpponentsControl,
             powerBonus = slimeOnIt,

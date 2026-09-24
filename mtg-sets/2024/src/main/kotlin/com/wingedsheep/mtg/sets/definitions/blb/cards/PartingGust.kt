@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Parting Gust
@@ -58,7 +57,7 @@ val PartingGust = card("Parting Gust") {
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, exile target permanently
             Mode.withTarget(
                 Effects.CreateToken(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.BLUE),

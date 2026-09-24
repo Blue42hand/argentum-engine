@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Casey Jones, Jury-Rig Justiciar
@@ -35,7 +34,7 @@ val CaseyJonesJuryRigJusticiar = card("Casey Jones, Jury-Rig Justiciar") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+            val looked = gather(CardSource.TopOfLibrary(4))
             val (kept, rest) = chooseUpToSplit(
                 1,
                 from = looked,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Shared Fate — Mirrodin #49
@@ -61,7 +60,7 @@ val SharedFate = card("Shared Fate") {
             replacementEffect = Effects.Pipeline {
                 val sharedFateExiled = gather(
                     CardSource.TopOfLibrary(
-                        count = DynamicAmount.Fixed(1),
+                        count = 1,
                         player = Player.AnOpponent
                     )
                 )

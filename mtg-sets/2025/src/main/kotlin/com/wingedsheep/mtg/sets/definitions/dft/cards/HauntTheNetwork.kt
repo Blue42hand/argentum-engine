@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Haunt the Network — Aetherdrift #207
@@ -37,7 +37,7 @@ val HauntTheNetwork = card("Haunt the Network") {
 
     spell {
         val opponent = target("target opponent", TargetOpponent())
-        val artifactsYouControl = DynamicAmount.Count(
+        val artifactsYouControl = DynamicAmounts.count(
             Player.You,
             Zone.BATTLEFIELD,
             GameObjectFilter.Artifact

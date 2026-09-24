@@ -2,13 +2,14 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Solstice Revelations — Avatar: The Last Airbender #153
@@ -54,13 +55,10 @@ val SolsticeRevelations = card("Solstice Revelations") {
             val castable = filter(
                 nonland,
                 GameObjectFilter.Any.manaValueAtMostDynamic(
-                    DynamicAmount.Subtract(
-                        DynamicAmount.AggregateBattlefield(
-                            Player.You,
-                            GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN)
-                        ),
-                        DynamicAmount.Fixed(1)
-                    )
+                    DynamicAmounts.battlefield(
+                        Player.You,
+                        GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN)
+                    ).count() - 1
                 )
             )
             // You may cast it without paying its mana cost — only prompted when there is an

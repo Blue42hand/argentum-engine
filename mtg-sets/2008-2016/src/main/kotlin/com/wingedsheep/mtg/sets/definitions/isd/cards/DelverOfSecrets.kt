@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Delver of Secrets // Insectile Aberration (Innistrad #51)
@@ -51,7 +50,7 @@ private val DelverOfSecretsFront = card("Delver of Secrets") {
         trigger = Triggers.YourUpkeep
         effect = Effects.Pipeline {
             // Look at the top card of your library — gather only; it stays on top either way.
-            val delverLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val delverLooked = gather(CardSource.TopOfLibrary(1))
             // You may reveal that card. Selecting it is the reveal; declining selects nothing.
             val delverRevealed = chooseUpTo(
                 1,

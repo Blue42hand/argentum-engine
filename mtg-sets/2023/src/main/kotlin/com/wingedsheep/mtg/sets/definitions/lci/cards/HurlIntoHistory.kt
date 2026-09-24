@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -31,7 +30,7 @@ val HurlIntoHistory = card("Hurl into History") {
             TargetSpell(filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature, zone = Zone.STACK))
         )
         effect = Effects.CounterSpell() then Effects.Discover(
-            DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue)
+            DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0))
         )
     }
     metadata {

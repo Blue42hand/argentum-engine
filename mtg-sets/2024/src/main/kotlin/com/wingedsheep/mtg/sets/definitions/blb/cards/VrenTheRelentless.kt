@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Color
@@ -14,8 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Vren, the Relentless
@@ -59,7 +58,7 @@ val VrenTheRelentless = card("Vren, the Relentless") {
     triggeredAbility {
         trigger = Triggers.EachEndStep
         effect = Effects.CreateToken(
-            count = DynamicAmount.TurnTracking(Player.You, TurnTracker.OPPONENT_CREATURES_EXILED),
+            count = DynamicAmounts.opponentCreaturesExiledThisTurn(),
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK),
@@ -68,16 +67,16 @@ val VrenTheRelentless = card("Vren, the Relentless") {
             staticAbilities = listOf(
                 GrantDynamicStats(
                     filter = GroupFilter.source(),
-                    powerBonus = DynamicAmount.AggregateBattlefield(
-                        player = Player.You,
-                        filter = GameObjectFilter.Creature.withSubtype(Subtype("Rat")),
+                    powerBonus = DynamicAmounts.battlefield(
+                        Player.You,
+                        GameObjectFilter.Creature.withSubtype(Subtype("Rat")),
                         excludeSelf = true
-                    ),
-                    toughnessBonus = DynamicAmount.AggregateBattlefield(
-                        player = Player.You,
-                        filter = GameObjectFilter.Creature.withSubtype(Subtype("Rat")),
+                    ).count(),
+                    toughnessBonus = DynamicAmounts.battlefield(
+                        Player.You,
+                        GameObjectFilter.Creature.withSubtype(Subtype("Rat")),
                         excludeSelf = true
-                    )
+                    ).count()
                 )
             )
         )

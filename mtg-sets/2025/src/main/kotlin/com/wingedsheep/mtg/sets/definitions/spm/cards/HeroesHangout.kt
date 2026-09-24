@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Heroes' Hangout
@@ -51,7 +50,7 @@ val HeroesHangout = card("Heroes' Hangout") {
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 effect = Effects.Pipeline {
-                    val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
+                    val exiledCards = gather(CardSource.TopOfLibrary(2))
                     val chosen = chooseExactly(
                         1,
                         from = exiledCards,

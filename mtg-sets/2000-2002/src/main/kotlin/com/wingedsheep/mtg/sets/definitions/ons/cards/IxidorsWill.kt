@@ -1,10 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -23,10 +24,7 @@ val IxidorsWill = card("Ixidor's Will") {
     spell {
         val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessDynamicPays(
-            DynamicAmount.Multiply(
-                DynamicAmount.AggregateBattlefield(Player.Each, GameObjectFilter.Creature.withSubtype("Wizard")),
-                2
-            )
+            DynamicAmounts.battlefield(Player.Each, GameObjectFilter.Creature.withSubtype("Wizard")).count() * 2
         )
     }
 

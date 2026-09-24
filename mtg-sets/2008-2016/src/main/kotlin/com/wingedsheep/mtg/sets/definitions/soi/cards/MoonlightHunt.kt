@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.soi.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -7,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Moonlight Hunt
@@ -47,10 +46,7 @@ val MoonlightHunt = card("Moonlight Hunt") {
                 GameObjectFilter.Creature.withAnySubtype("Wolf", "Werewolf").youControl()
             ),
             effect = Effects.DealDamage(
-                amount = DynamicAmount.EntityProperty(
-                    EffectTarget.IterationEntity,
-                    EntityNumericProperty.Power,
-                ),
+                amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
                 target = EffectTarget.ContextTarget(0),
                 damageSource = EffectTarget.IterationEntity,
             ),

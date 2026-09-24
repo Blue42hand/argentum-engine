@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gandalf, Goblins' Bane // Flameshape — The Hobbit #96
@@ -67,7 +66,7 @@ val GandalfGoblinsBane = card("Gandalf, Goblins' Bane") {
             "this card. You may cast the creature later from exile.)"
         spell {
             effect = Effects.Pipeline {
-                val flameshapeExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
+                val flameshapeExiled = gather(CardSource.TopOfLibrary(2))
                 exile(flameshapeExiled, faceDown = FaceDownMode.HIDDEN)
                 run(Effects.GrantMayPlayFromExile(
                     from = flameshapeExiled,

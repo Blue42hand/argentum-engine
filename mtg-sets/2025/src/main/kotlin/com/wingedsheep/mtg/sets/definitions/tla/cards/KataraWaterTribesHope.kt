@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Katara, Water Tribe's Hope
@@ -72,8 +72,8 @@ val KataraWaterTribesHope = card("Katara, Water Tribe's Hope") {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
             Effects.SetBasePowerAndToughness(
-                power = DynamicAmount.XValue,
-                toughness = DynamicAmount.XValue,
+                power = DynamicAmounts.xValue(),
+                toughness = DynamicAmounts.xValue(),
                 target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )

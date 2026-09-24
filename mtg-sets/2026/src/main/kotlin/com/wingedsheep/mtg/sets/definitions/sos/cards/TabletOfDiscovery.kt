@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Tablet of Discovery
@@ -36,7 +35,7 @@ val TabletOfDiscovery = card("Tablet of Discovery") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val milledThisWay = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val milledThisWay = gather(CardSource.TopOfLibrary(1))
             toGraveyard(milledThisWay)
             run(Effects.GrantMayPlayFromExile(milledThisWay))
         }

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -16,7 +17,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dowsing Device // Geode Grotto (The Lost Caverns of Ixalan)
@@ -102,8 +102,8 @@ private val GeodeGrotto = card("Geode Grotto") {
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.HASTE, creature),
             Effects.ModifyStats(
-                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Artifact),
-                DynamicAmount.Fixed(0),
+                DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
+                DynamicAmounts.fixed(0),
                 creature,
             ),
         )

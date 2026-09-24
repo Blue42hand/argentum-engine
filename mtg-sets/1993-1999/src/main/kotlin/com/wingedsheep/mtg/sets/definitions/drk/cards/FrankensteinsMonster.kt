@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Frankenstein's Monster
@@ -67,9 +67,9 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
             // yields a smaller Monster instead of no Monster.
             Effects.If(
                 condition = Conditions.CompareAmounts(
-                    DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature),
+                    DynamicAmounts.creatureCardsInYourGraveyard(),
                     ComparisonOperator.GTE,
-                    DynamicAmount.XValue,
+                    DynamicAmounts.xValue(),
                 ),
                 then = Effects.Pipeline {
                     val fmCandidates = gather(
@@ -79,7 +79,7 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
                             filter = GameObjectFilter.Creature,
                         )
                     )
-                    val fmExiled = chooseExactly(DynamicAmount.XValue, from = fmCandidates)
+                    val fmExiled = chooseExactly(DynamicAmounts.xValue(), from = fmCandidates)
                     exile(fmExiled)
                     run(Effects.Modal(
                         modes = listOf(
@@ -98,8 +98,8 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
                         ),
                         allowRepeat = true,
                         countsAsModalSpell = false,
-                        dynamicChooseCount = DynamicAmount.XValue,
-                        dynamicMinChooseCount = DynamicAmount.XValue,
+                        dynamicChooseCount = DynamicAmounts.xValue(),
+                        dynamicMinChooseCount = DynamicAmounts.xValue(),
                     ))
                 },
                 // Not a sacrifice and not a destruction: the card says "put into its owner's

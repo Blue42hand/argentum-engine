@@ -2,13 +2,14 @@ package com.wingedsheep.mtg.sets.definitions.emn.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Spontaneous Mutation
@@ -36,8 +37,8 @@ val SpontaneousMutation = card("Spontaneous Mutation") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
-            powerBonus = DynamicAmount.Multiply(DynamicAmount.Count(Player.You, Zone.GRAVEYARD), -1),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            powerBonus = -DynamicAmounts.cardsInYourGraveyard(),
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

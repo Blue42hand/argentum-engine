@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Collision Course
@@ -39,7 +39,7 @@ val CollisionCourse = card("Collision Course") {
             // Mode 1: deal X damage to target creature
             Mode(
                 effect = Effects.DealDamage(
-                    amount = DynamicAmount.Count(
+                    amount = DynamicAmounts.count(
                         Player.You,
                         Zone.BATTLEFIELD,
                         GameObjectFilter.CreatureOrVehicle,

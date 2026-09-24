@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val RoboticsMastery = card("Robotics Mastery") {
     manaCost = "{4}{U}"
@@ -26,7 +25,7 @@ val RoboticsMastery = card("Robotics Mastery") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(2),
+            count = 2,
             power = 1,
             toughness = 1,
             colors = emptySet(),

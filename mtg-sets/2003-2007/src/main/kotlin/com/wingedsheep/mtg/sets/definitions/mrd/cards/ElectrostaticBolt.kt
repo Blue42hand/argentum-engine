@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Electrostatic Bolt — Mirrodin #89
@@ -30,10 +30,10 @@ val ElectrostaticBolt = card("Electrostatic Bolt") {
     spell {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Conditional(
+            amount = DynamicAmounts.conditional(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature),
-                ifTrue = DynamicAmount.Fixed(4),
-                ifFalse = DynamicAmount.Fixed(2)
+                ifTrue = 4,
+                ifFalse = 2
             ),
             target = creature
         )

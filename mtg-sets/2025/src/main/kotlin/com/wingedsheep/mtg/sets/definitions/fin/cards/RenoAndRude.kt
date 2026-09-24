@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Reno and Rude
@@ -50,7 +49,7 @@ val RenoAndRude = card("Reno and Rude") {
         effect = Effects.Pipeline {
             val exiled = gather(
                 CardSource.TopOfLibrary(
-                    DynamicAmount.Fixed(1),
+                    1,
                     player = Player.TriggeringPlayer,
                 )
             )

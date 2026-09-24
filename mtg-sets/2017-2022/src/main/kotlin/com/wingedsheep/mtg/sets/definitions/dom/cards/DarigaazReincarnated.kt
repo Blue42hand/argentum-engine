@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,11 +11,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Darigaaz Reincarnated
@@ -55,17 +54,17 @@ val DarigaazReincarnated = card("Darigaaz Reincarnated") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         triggerZone = Zone.EXILE
-        interveningIf = Compare(
+        interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.countersOnSelf(CounterType.EGG),
             ComparisonOperator.GTE,
-            DynamicAmount.Fixed(1)
+            1
         )
         effect = Effects.RemoveCounters(CounterType.EGG, 1, EffectTarget.Self) then
             Effects.If(
-                condition = Compare(
+                condition = Conditions.CompareAmounts(
                     DynamicAmounts.countersOnSelf(CounterType.EGG),
                     ComparisonOperator.EQ,
-                    DynamicAmount.Fixed(0)
+                    0
                 ),
                 then = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
             )

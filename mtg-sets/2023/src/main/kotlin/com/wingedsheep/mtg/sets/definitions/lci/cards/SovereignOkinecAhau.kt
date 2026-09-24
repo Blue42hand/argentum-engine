@@ -1,16 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -58,10 +59,8 @@ val SovereignOkinecAhau = card("Sovereign Okinec Ahau") {
             filter = GroupFilter(GameObjectFilter.Creature.youControl().powerGreaterThanBase()),
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                amount = DynamicAmount.Subtract(
-                    DynamicAmount.EntityProperty(EffectTarget.IterationEntity, EntityNumericProperty.Power),
-                    DynamicAmount.EntityProperty(EffectTarget.IterationEntity, EntityNumericProperty.BasePower),
-                ),
+                amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity) -
+                    DynamicAmounts.propertyOf(EffectTarget.IterationEntity, EntityNumericProperty.BasePower),
                 target = EffectTarget.IterationEntity,
             ),
         )

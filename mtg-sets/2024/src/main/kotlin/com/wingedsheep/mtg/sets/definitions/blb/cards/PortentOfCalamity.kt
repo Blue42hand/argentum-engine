@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -40,7 +40,7 @@ val PortentOfCalamity = card("Portent of Calamity") {
     spell {
         effect = Effects.Pipeline {
             // 1. Reveal the top X cards.
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.XValue), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue()), revealed = true)
             // 2. "For each card type, you may exile a card of that type from among them."
             //    The engine enforces the one-per-card-type constraint; the remainder
             //    flows into "graveyardPile" for the next step.

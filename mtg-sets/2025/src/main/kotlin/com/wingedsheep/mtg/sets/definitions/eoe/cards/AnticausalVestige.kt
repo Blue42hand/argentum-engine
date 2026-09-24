@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -37,7 +37,7 @@ val AnticausalVestige = card("Anticausal Vestige") {
             val eligiblePermanents = filter(
                 handPermanents,
                 GameObjectFilter.Any.manaValueAtMostDynamic(
-                    DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land)
+                    DynamicAmounts.landsYouControl()
                 )
             )
             val chosenPermanent = chooseUpTo(

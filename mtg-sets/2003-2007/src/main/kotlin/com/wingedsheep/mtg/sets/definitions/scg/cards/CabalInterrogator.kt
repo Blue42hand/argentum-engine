@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -36,7 +36,7 @@ val CabalInterrogator = card("Cabal Interrogator") {
             // 1. Gather all cards from target player's hand
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             // 2. Target player chooses X cards to reveal (auto-selects all if ≤X, skips if empty)
-            val revealed = chooseExactly(DynamicAmount.XValue, from = hand, chooser = Chooser.TargetPlayer)
+            val revealed = chooseExactly(DynamicAmounts.xValue(), from = hand, chooser = Chooser.TargetPlayer)
             // 3. Controller chooses 1 to discard
             val toDiscard = chooseExactly(1, from = revealed, chooser = Chooser.Controller)
             // 4. Move chosen card to target player's graveyard

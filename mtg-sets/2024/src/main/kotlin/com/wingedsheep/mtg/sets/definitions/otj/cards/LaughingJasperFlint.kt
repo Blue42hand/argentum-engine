@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Laughing Jasper Flint
@@ -66,10 +66,10 @@ val LaughingJasperFlint = card("Laughing Jasper Flint") {
         effect = Effects.Pipeline {
             val stolenCards = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.AggregateBattlefield(
-                        player = Player.You,
-                        filter = Filters.OutlawCreature,
-                    ),
+                    count = DynamicAmounts.battlefield(
+                        Player.You,
+                        Filters.OutlawCreature,
+                    ).count(),
                     player = Player.ContextPlayer(0),
                 )
             )

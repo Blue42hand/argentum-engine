@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Korvold and the Noble Thief
@@ -46,7 +45,7 @@ val KorvoldAndTheNobleThief = card("Korvold and the Noble Thief") {
         effect = Effects.Pipeline {
             val korvoldExiled = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(3),
+                    count = 3,
                     player = Player.TargetOpponent,
                 )
             )

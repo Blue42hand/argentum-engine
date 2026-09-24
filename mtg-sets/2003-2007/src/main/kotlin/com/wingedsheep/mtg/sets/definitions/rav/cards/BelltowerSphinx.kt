@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Patterns
@@ -7,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Belltower Sphinx — Ravnica: City of Guilds #38
@@ -58,7 +57,7 @@ val BelltowerSphinx = card("Belltower Sphinx") {
     triggeredAbility {
         trigger = Triggers.TakesDamage
         effect = Patterns.Library.mill(
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            DynamicAmounts.triggerDamageAmount(),
             EffectTarget.ControllerOfTriggeringEntity,
         )
         description = "Whenever a source deals damage to this creature, that source's controller " +

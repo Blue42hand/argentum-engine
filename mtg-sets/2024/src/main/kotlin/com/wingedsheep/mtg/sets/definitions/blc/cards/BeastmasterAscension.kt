@@ -1,6 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.blc.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,12 +11,9 @@ import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Beastmaster Ascension
@@ -48,13 +47,10 @@ val BeastmasterAscension = card("Beastmaster Ascension") {
                 toughnessBonus = 5,
                 filter = GroupFilter.AllCreaturesYouControl
             ),
-            condition = Compare(
-                DynamicAmount.EntityProperty(
-                    EffectTarget.Self,
-                    EntityNumericProperty.CounterCount(CounterType.QUEST)
-                ),
+            condition = Conditions.CompareAmounts(
+                DynamicAmounts.countersOnSelf(CounterType.QUEST),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(7)
+                7
             )
         )
     }

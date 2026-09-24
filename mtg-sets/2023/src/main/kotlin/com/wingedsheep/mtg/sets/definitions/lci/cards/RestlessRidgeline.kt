@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Restless Ridgeline
@@ -60,8 +59,8 @@ val RestlessRidgeline = card("Restless Ridgeline") {
         cost = Costs.Mana("{2}{R}{G}")
         effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
-            power = DynamicAmount.Fixed(3),
-            toughness = DynamicAmount.Fixed(4),
+            power = 3,
+            toughness = 4,
             creatureTypes = setOf("Dinosaur"),
             colors = setOf(Color.RED.name, Color.GREEN.name),
             duration = Duration.EndOfTurn,

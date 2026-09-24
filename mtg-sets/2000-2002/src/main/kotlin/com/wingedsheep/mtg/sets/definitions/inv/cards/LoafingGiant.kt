@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.PreventionScope
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Loafing Giant
@@ -32,7 +31,7 @@ val LoafingGiant = card("Loafing Giant") {
 
     val millAndMaybePrevent = Effects.Pipeline {
         // Mill a card: gather top card, move it to the graveyard.
-        val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+        val milled = gather(CardSource.TopOfLibrary(1))
         toGraveyard(milled)
         // If a land card was milled this way, prevent all combat damage this creature
         // would deal this turn.

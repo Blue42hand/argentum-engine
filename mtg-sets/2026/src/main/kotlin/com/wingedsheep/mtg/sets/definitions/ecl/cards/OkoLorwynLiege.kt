@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Oko, Lorwyn Liege // Oko, Shadowmoor Scion
@@ -57,7 +56,7 @@ private val OkoShadowmoorScion = card("Oko, Shadowmoor Scion") {
     // −1: Mill three cards. You may put a permanent card from among them into your hand.
     loyaltyAbility(-1) {
         effect = Effects.Pipeline {
-            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+            val milled = gather(CardSource.TopOfLibrary(3))
             val (toHandCards, toGraveyardCards) = chooseUpToSplit(
                 1,
                 from = milled,

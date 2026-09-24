@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
@@ -32,7 +31,7 @@ val DoomCannon = card("Doom Cannon") {
         )
         val t = target("target", AnyTarget())
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Fixed(3),
+            amount = 3,
             target = t
         )
     }

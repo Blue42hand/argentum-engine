@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dune Drifter
@@ -48,7 +48,7 @@ val DuneDrifter = card("Dune Drifter") {
                 filter = TargetFilter(
                     baseFilter = GameObjectFilter.CreatureOrArtifact
                         .ownedByYou()
-                        .manaValueAtMostDynamic(DynamicAmount.CastX),
+                        .manaValueAtMostDynamic(DynamicAmounts.castX()),
                     zone = Zone.GRAVEYARD
                 )
             )

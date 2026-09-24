@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Omega, Heartless Evolution
@@ -52,7 +52,7 @@ val OmegaHeartlessEvolution = card("Omega, Heartless Evolution") {
             "permanent",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
         )
-        val nonbasicLands = DynamicAmount.Count(
+        val nonbasicLands = DynamicAmounts.count(
             Player.You,
             Zone.BATTLEFIELD,
             GameObjectFilter.NonbasicLand

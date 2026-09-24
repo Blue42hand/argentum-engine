@@ -1,18 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Speed
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Spikeshell Harrier — Aetherdrift #65
@@ -61,20 +61,20 @@ val SpikeshellHarrier = card("Spikeshell Harrier") {
         effect = Effects.Composite(
             Effects.ReturnToHand(bounced),
             Effects.If(
-                condition = Compare(
-                    left = DynamicAmount.CountPlayersWith(
+                condition = Conditions.CompareAmounts(
+                    left = DynamicAmounts.countPlayersWith(
                         scope = Player.Each,
-                        condition = Compare(
-                            left = DynamicAmount.Speed(Player.You),
+                        condition = Conditions.CompareAmounts(
+                            left = DynamicAmounts.speed(Player.You),
                             operator = ComparisonOperator.GTE,
-                            right = DynamicAmount.Speed(thatOpponent)
+                            right = DynamicAmounts.speed(thatOpponent)
                         )
                     ),
                     operator = ComparisonOperator.EQ,
-                    right = DynamicAmount.Fixed(1)
+                    right = 1
                 ),
                 then = Effects.ReduceSpeed(
-                    amount = DynamicAmount.Fixed(1),
+                    amount = DynamicAmounts.fixed(1),
                     target = EffectTarget.PlayerRef(thatOpponent),
                     minimum = Speed.STARTING
                 )

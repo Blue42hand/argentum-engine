@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Make Your Own Luck {3}{G}{U}
@@ -33,7 +32,7 @@ val MakeYourOwnLuck = card("Make Your Own Luck") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+            val looked = gather(CardSource.TopOfLibrary(3))
             val (toPlot, toHandCards) = chooseUpToSplit(
                 1,
                 from = looked,

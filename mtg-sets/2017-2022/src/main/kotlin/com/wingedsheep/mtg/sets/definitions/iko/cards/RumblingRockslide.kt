@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.iko.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Rumbling Rockslide — {3}{R}
@@ -24,10 +24,7 @@ val RumblingRockslide = card("Rumbling Rockslide") {
     spell {
         val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(
-            amount = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Land,
-            ),
+            amount = DynamicAmounts.landsYouControl(),
             target = t,
         )
     }

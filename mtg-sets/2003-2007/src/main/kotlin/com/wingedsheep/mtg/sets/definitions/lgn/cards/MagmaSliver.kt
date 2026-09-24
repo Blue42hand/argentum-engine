@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Magma Sliver
@@ -41,7 +40,7 @@ val MagmaSliver = card("Magma Sliver") {
                 cost = Costs.Tap,
                 effect = Effects.ModifyStats(
                     power = DynamicAmounts.permanentsWithSubtype(Subtype.SLIVER),
-                    toughness = DynamicAmount.Fixed(0),
+                    toughness = DynamicAmounts.fixed(0),
                     target = EffectTarget.ContextTarget(0)
                 ),
                 targetRequirement = TargetCreature(

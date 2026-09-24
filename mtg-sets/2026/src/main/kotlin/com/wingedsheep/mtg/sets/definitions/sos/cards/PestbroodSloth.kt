@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Pestbrood Sloth
@@ -37,7 +36,7 @@ val PestbroodSloth = card("Pestbrood Sloth") {
     triggeredAbility {
         trigger = Triggers.Dies
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(2),
+            count = 2,
             power = 1,
             toughness = 1,
             colors = setOf(Color.BLACK, Color.GREEN),

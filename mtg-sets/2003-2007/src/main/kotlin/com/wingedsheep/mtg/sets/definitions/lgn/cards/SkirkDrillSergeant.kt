@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -31,7 +30,7 @@ val SkirkDrillSergeant = card("Skirk Drill Sergeant") {
     oracleText = "Whenever Skirk Drill Sergeant or another Goblin dies, you may pay {2}{R}. If you do, reveal the top card of your library. If it's a Goblin permanent card, put it onto the battlefield. Otherwise, put it into your graveyard."
 
     val revealAndPlace = Effects.Pipeline {
-        val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)), revealed = true)
+        val revealed = gather(CardSource.TopOfLibrary(1), revealed = true)
         val (goblin, nonGoblin) = selectAllSplit(
             from = revealed,
             filter = GameObjectFilter.Permanent.withSubtype(Subtype.GOBLIN)

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -66,7 +65,7 @@ val OutpostSiege = card("Outpost Siege") {
         trigger = Triggers.YourUpkeep
         triggerRestriction = SourceChosenModeIs("khans")
         effect = Effects.Pipeline {
-            val exiledCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)
             run(Effects.GrantMayPlayFromExile(exiledCard, MayPlayExpiry.EndOfTurn))
         }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Guru Pathik
@@ -36,7 +35,7 @@ val GuruPathik = card("Guru Pathik") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
-            count = DynamicAmount.Fixed(5),
+            count = 5,
             filter = GameObjectFilter.Any.withAnySubtype("Lesson", "Saga", "Shrine"),
             prompt = "You may reveal a Lesson, Saga, or Shrine card to put into your hand"
         )

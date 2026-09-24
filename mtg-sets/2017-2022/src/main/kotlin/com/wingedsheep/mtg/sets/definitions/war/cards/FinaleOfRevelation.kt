@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.war.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Finale of Revelation
@@ -34,13 +34,13 @@ val FinaleOfRevelation = card("Finale of Revelation") {
         selfExile()
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                DynamicAmount.XValue,
+                DynamicAmounts.xValue(),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(10),
+                10,
             ),
             then = Effects.Pipeline {
                 run(Patterns.Library.shuffleGraveyardIntoLibrary(EffectTarget.Controller))
-                run(Effects.DrawCards(DynamicAmount.XValue))
+                run(Effects.DrawCards(DynamicAmounts.xValue()))
                 val lands = gather(CardSource.FromZone(Zone.BATTLEFIELD, Player.You, Filters.Land))
                 val landsToUntap = chooseUpTo(
                     5,
@@ -51,7 +51,7 @@ val FinaleOfRevelation = card("Finale of Revelation") {
                 run(Effects.TapCollection(collection = landsToUntap, tap = false))
                 run(Effects.RemoveMaximumHandSize())
             },
-            otherwise = Effects.DrawCards(DynamicAmount.XValue),
+            otherwise = Effects.DrawCards(DynamicAmounts.xValue()),
         )
     }
 

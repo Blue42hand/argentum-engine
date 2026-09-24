@@ -2,15 +2,15 @@ package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
  * Proft's Eidetic Memory — Murders at Karlov Manor #67
@@ -71,10 +71,7 @@ val ProftsEideticMemory = card("Proft's Eidetic Memory") {
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
-            DynamicAmount.Subtract(
-                DynamicAmount.TurnTracking(Player.You, TurnTracker.CARDS_DRAWN),
-                DynamicAmount.Fixed(1),
-            ),
+            DynamicAmounts.cardsDrawnThisTurn(Player.You) - 1,
             creature,
         )
         description = "At the beginning of combat on your turn, if you've drawn more than one " +

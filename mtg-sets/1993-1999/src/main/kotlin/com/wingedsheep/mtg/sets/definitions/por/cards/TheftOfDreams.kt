@@ -4,13 +4,13 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -27,7 +27,7 @@ val TheftOfDreams = card("Theft of Dreams") {
     spell {
         val t = target("target", TargetOpponent())
         effect = Effects.DrawCards(
-            DynamicAmount.AggregateBattlefield(Player.TargetOpponent, GameObjectFilter.Creature.tapped())
+            DynamicAmounts.battlefield(Player.TargetOpponent, GameObjectFilter.Creature.tapped()).count()
         )
     }
     metadata {

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.Aggregation
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Loot, the Key to Everything
@@ -47,12 +46,11 @@ val LootTheKeyToEverything = card("Loot, the Key to Everything") {
         effect = Effects.Pipeline {
             val exiledCards = gather(
                 CardSource.TopOfLibrary(
-                    DynamicAmount.AggregateBattlefield(
-                        player = Player.You,
-                        filter = GameObjectFilter.NonlandPermanent,
-                        aggregation = Aggregation.DISTINCT_TYPES,
+                    DynamicAmounts.battlefield(
+                        Player.You,
+                        GameObjectFilter.NonlandPermanent,
                         excludeSelf = true
-                    )
+                    ).distinctTypes()
                 )
             )
             exile(exiledCards)

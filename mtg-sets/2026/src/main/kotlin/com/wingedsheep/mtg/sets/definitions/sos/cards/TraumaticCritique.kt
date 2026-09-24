@@ -4,12 +4,12 @@
 
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -26,7 +26,7 @@ val TraumaticCritique = card("Traumatic Critique") {
     spell {
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
-            Effects.DealDamage(DynamicAmount.XValue, t),
+            Effects.DealDamage(DynamicAmounts.xValue(), t),
             Effects.DrawCards(2),
             Patterns.Hand.discardCards(1)
         )

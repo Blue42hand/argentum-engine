@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.conditions.EnchantedCreatureHasSubtype
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sorcerer's Wand
@@ -35,10 +35,10 @@ val SorcerersWand = card("Sorcerer's Wand") {
                 id = AbilityId.generate(),
                 cost = Costs.Tap,
                 effect = Effects.DealDamage(
-                    amount = DynamicAmount.Conditional(
+                    amount = DynamicAmounts.conditional(
                         condition = EnchantedCreatureHasSubtype(Subtype("Wizard")),
-                        ifTrue = DynamicAmount.Fixed(2),
-                        ifFalse = DynamicAmount.Fixed(1)
+                        ifTrue = 2,
+                        ifFalse = 1
                     ),
                     target = EffectTarget.ContextTarget(0),
                     damageSource = EffectTarget.Self

@@ -5,10 +5,10 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The graveyard is counted as the spell resolves; a flashed-back copy is on the stack by then, so
@@ -38,11 +38,7 @@ val RecursiveRecruitment = card("Recursive Recruitment") {
                 then = Effects.AddCountersToCollection(
                     CREATED_TOKENS,
                     CounterType.PLUS_ONE_PLUS_ONE,
-                    DynamicAmount.Divide(
-                        DynamicAmounts.cardsInYourGraveyard(),
-                        DynamicAmount.Fixed(3),
-                        roundUp = false
-                    )
+                    DynamicAmounts.cardsInYourGraveyard() / 3
                 )
             )
         )

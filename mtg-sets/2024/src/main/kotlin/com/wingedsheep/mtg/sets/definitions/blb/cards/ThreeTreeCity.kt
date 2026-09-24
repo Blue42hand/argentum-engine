@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Three Tree City
@@ -38,10 +38,10 @@ val ThreeTreeCity = card("Three Tree City") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         effect = Effects.AddAnyColorMana(
-            DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter.Creature.withChosenSubtype()
-            )
+            DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter.Creature.withChosenSubtype()
+            ).count()
         )
         manaAbility = true
         timing = TimingRule.ManaAbility

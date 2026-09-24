@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fear of Burning Alive
@@ -51,7 +50,7 @@ val FearOfBurningAlive = card("Fear of Burning Alive") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Fixed(4),
+            amount = 4,
             target = EffectTarget.PlayerRef(Player.EachOpponent),
         )
         description = "When this creature enters, it deals 4 damage to each opponent."
@@ -76,7 +75,7 @@ val FearOfBurningAlive = card("Fear of Burning Alive") {
             ),
         )
         effect = Effects.DealDamage(
-            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            amount = DynamicAmounts.triggerDamageAmount(),
             target = t,
             damageSource = EffectTarget.Self,
         )

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Suspend Aggression
@@ -42,7 +41,7 @@ val SuspendAggression = card("Suspend Aggression") {
                 ownerControls = true
             ))
             // Exile the top card of your library; you may play it.
-            val suspendAggressionTop = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You))
+            val suspendAggressionTop = gather(CardSource.TopOfLibrary(1, Player.You))
             exile(suspendAggressionTop)
             run(Effects.GrantMayPlayFromExile(
                 from = suspendAggressionTop,

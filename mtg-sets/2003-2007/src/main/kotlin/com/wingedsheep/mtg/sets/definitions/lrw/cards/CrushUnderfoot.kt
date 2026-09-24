@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Crush Underfoot
@@ -64,10 +63,7 @@ val CrushUnderfoot = card("Crush Underfoot") {
                 )
             )
             run(Effects.DealDamage(
-                amount = DynamicAmount.EntityProperty(
-                    crushGiant.asTarget,
-                    EntityNumericProperty.Power
-                ),
+                amount = DynamicAmounts.powerOf(crushGiant.asTarget),
                 target = victim,
                 damageSource = crushGiant.asTarget
             ))

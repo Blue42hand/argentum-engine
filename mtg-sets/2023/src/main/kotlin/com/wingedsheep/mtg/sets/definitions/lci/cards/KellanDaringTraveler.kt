@@ -1,14 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kellan, Daring Traveler // Journey On
@@ -51,7 +52,7 @@ val KellanDaringTraveler = card("Kellan, Daring Traveler") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(1, Player.You), revealed = true)
             run(Effects.If(
                 condition = whenMatches(revealed, GameObjectFilter.Creature.manaValueAtMost(3)),
                 then = Effects.Pipeline { toHand(revealed) },
@@ -70,12 +71,9 @@ val KellanDaringTraveler = card("Kellan, Daring Traveler") {
             "control an artifact. (Then exile this card. You may cast the creature later from exile.)"
         spell {
             effect = Effects.CreateMapToken(
-                DynamicAmount.Add(
-                    DynamicAmount.Fixed(1),
-                    DynamicAmount.CountPlayersWith(
-                        scope = Player.EachOpponent,
-                        condition = Conditions.ControlArtifact
-                    )
+                1 + DynamicAmounts.countPlayersWith(
+                    scope = Player.EachOpponent,
+                    condition = Conditions.ControlArtifact
                 )
             )
         }

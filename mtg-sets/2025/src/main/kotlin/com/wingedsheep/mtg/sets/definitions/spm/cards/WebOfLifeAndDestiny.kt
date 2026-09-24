@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Web of Life and Destiny
@@ -47,7 +46,7 @@ val WebOfLifeAndDestiny = card("Web of Life and Destiny") {
         trigger = Triggers.BeginCombat
         effect = Effects.Pipeline {
             // Look at the top five cards of your library.
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val looked = gather(CardSource.TopOfLibrary(5))
             // You may put a creature card from among them onto the battlefield.
             val (kept, rest) = chooseUpToSplit(
                 1,

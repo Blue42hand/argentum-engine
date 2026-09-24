@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kaslem's Stonetree // Kaslem's Strider (CR 702.167, The Lost Caverns of Ixalan)
@@ -57,7 +56,7 @@ private val KaslemsStonetreeFront = card("Kaslem's Stonetree") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(6)))
+            val looked = gather(CardSource.TopOfLibrary(6))
             val (kept, rest) = chooseUpToSplit(
                 1,
                 from = looked,

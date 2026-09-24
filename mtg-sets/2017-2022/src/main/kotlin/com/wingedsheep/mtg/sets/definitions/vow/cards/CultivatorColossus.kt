@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Cultivator Colossus — Innistrad: Crimson Vow #195
@@ -41,7 +41,7 @@ val CultivatorColossus = card("Cultivator Colossus") {
         "When this creature enters, you may put a land card from your hand onto the battlefield " +
         "tapped. If you do, draw a card and repeat this process."
 
-    dynamicStats(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land))
+    dynamicStats(DynamicAmounts.landsYouControl())
 
     keywords(Keyword.TRAMPLE)
 

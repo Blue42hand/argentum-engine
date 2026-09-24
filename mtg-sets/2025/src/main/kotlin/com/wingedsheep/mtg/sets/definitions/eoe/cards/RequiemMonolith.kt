@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -31,7 +30,7 @@ val RequiemMonolith = card("Requiem Monolith") {
         timing = TimingRule.SorcerySpeed
         val creature = target("target creature", Targets.Creature)
 
-        val damage = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+        val damage = DynamicAmounts.triggerDamageAmount()
         val grantedAbility = TriggeredAbility.create(
             trigger = Triggers.TakesDamage.event,
             binding = Triggers.TakesDamage.binding,

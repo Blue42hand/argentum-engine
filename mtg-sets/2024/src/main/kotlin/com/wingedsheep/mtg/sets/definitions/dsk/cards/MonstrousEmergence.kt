@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -52,10 +51,7 @@ val MonstrousEmergence = card("Monstrous Emergence") {
     spell {
         val damaged = target("creature", Targets.Creature)
         effect = Effects.DealDamage(
-            DynamicAmount.EntityProperty(
-                EffectTarget.PipelineTarget("chosen"),
-                EntityNumericProperty.Power,
-            ),
+            DynamicAmounts.powerOf(EffectTarget.PipelineTarget("chosen")),
             damaged,
         )
     }

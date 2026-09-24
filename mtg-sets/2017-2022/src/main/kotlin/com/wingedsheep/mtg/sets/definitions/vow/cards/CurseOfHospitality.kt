@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Curse of Hospitality
@@ -88,7 +87,7 @@ val CurseOfHospitality = card("Curse of Hospitality") {
         effect = Effects.Pipeline {
             val cursedCard = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     player = Player.TriggeringPlayer,
                 ),
                 lookAudience = LookAudience.None

@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Beseech the Mirror
@@ -49,7 +49,7 @@ val BeseechTheMirror = card("Beseech the Mirror") {
                 then = Effects.Pipeline {
                     val beseechCastable = filter(
                         beseechExiled,
-                        GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.Fixed(4))
+                        GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmounts.fixed(4))
                     )
                     ifNotEmpty(beseechCastable) {
                         run(Effects.May(

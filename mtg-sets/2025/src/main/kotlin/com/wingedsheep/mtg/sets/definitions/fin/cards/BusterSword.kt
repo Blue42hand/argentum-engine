@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
@@ -14,8 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Buster Sword
@@ -58,7 +57,7 @@ val BusterSword = card("Buster Sword") {
         )
         effect = Effects.Pipeline {
             // Capture "that damage" before drawing, so the drawn card can't alter the cap.
-            val combatDamage = storeNumber(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
+            val combatDamage = storeNumber(DynamicAmounts.triggerDamageAmount())
             // Draw a card.
             run(Effects.DrawCards(1))
             // Gather nonland cards from your hand with mana value ≤ that damage.

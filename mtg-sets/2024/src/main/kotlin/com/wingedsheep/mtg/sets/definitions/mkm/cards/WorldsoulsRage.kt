@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Worldsoul's Rage — Murders at Karlov Manor #244
@@ -60,7 +60,7 @@ val WorldsoulsRage = card("Worldsoul's Rage") {
                     filter = GameObjectFilter.Land
                 )
             )
-            val worldsoulLandsChosen = chooseUpTo(DynamicAmount.XValue, from = worldsoulLands)
+            val worldsoulLandsChosen = chooseUpTo(DynamicAmounts.xValue(), from = worldsoulLands)
             move(
                 worldsoulLandsChosen,
                 CardDestination.ToZone(

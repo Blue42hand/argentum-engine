@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scout the City
@@ -32,7 +31,7 @@ val ScoutTheCity = card("Scout the City") {
             mode("Look Around — Mill three cards. You may put a permanent card from among them into your hand. You gain 3 life") {
                 effect = Effects.Pipeline {
                     // Mill three: gather top 3, move to graveyard
-                    val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+                    val milled = gather(CardSource.TopOfLibrary(3))
                     toGraveyard(milled)
                     // You may put a permanent card from among the milled cards into your hand
                     val selected = chooseUpTo(

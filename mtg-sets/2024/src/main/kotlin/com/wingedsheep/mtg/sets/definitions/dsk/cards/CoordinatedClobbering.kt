@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Coordinated Clobbering
@@ -59,10 +58,7 @@ val CoordinatedClobbering = card("Coordinated Clobbering") {
             run(Effects.ForEachInCollection(
                 collection = clobberers,
                 effect = Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(
-                        EffectTarget.IterationEntity,
-                        EntityNumericProperty.Power,
-                    ),
+                    amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
                     target = victim.asTarget,
                     damageSource = EffectTarget.IterationEntity,
                 ),

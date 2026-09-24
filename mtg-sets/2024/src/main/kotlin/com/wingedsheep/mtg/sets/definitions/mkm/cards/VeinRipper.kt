@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Vein Ripper — Murders at Karlov Manor #110
@@ -53,7 +52,7 @@ val VeinRipper = card("Vein Ripper") {
         val opponent = target("target opponent", Targets.Opponent)
         trigger = Triggers.AnyCreatureDies
         effect = Effects.DrainLife(
-            amount = DynamicAmount.Fixed(2),
+            amount = 2,
             from = opponent,
             to = EffectTarget.Controller,
         )

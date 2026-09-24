@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -14,8 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Riku of Many Paths
@@ -56,13 +55,11 @@ val RikuOfManyPaths = card("Riku of Many Paths") {
             requires = setOf(SpellCastPredicate.IsModal)
         )
         effect = ModalEffect.chooseUpToDynamic(
-            dynamicMax = DynamicAmount.ContextProperty(
-                ContextPropertyKey.MODES_CHOSEN_ON_TRIGGERING_SPELL
-            ),
+            dynamicMax = DynamicAmounts.modesChosenOnTriggeringSpell(),
             // Mode 1 — impulse-draw with extended window.
             Mode.noTarget(
                 Effects.Pipeline {
-                    val rikuExile = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+                    val rikuExile = gather(CardSource.TopOfLibrary(1))
                     exile(rikuExile)
                     run(Effects.GrantMayPlayFromExile(
                         rikuExile,

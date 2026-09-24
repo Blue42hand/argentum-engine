@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scroll of Isildur
@@ -74,10 +74,10 @@ val ScrollOfIsildur = card("Scroll of Isildur") {
     sagaChapter(3) {
         target("target opponent", Targets.Opponent)
         effect = Effects.DrawCards(
-            count = DynamicAmount.Count(
-                player = Player.TargetOpponent,
-                zone = Zone.BATTLEFIELD,
-                filter = GameObjectFilter.Creature.tapped()
+            count = DynamicAmounts.count(
+                Player.TargetOpponent,
+                Zone.BATTLEFIELD,
+                GameObjectFilter.Creature.tapped()
             )
         )
     }

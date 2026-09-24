@@ -9,11 +9,11 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Clockwork Avian
@@ -68,13 +68,10 @@ val ClockworkAvian = card("Clockwork Avian") {
         // min(X, 4 - current), floored at 0.
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ZERO,
-            DynamicAmount.IfPositive(
-                DynamicAmount.Min(
-                    DynamicAmount.XValue,
-                    DynamicAmount.Subtract(
-                        DynamicAmount.Fixed(4),
-                        DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ZERO)
-                    )
+            DynamicAmounts.nonNegative(
+                DynamicAmounts.min(
+                    DynamicAmounts.xValue(),
+                    4 - DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ZERO)
                 )
             ),
             EffectTarget.Self

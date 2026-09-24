@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scout for Survivors {2}{W}
@@ -35,7 +35,7 @@ val ScoutForSurvivors = card("Scout for Survivors") {
                 count = 3,
                 optional = true,
                 filter = TargetFilter.CreatureInYourGraveyard,
-                totalManaValueAtMost = DynamicAmount.Fixed(3)
+                totalManaValueAtMost = DynamicAmounts.fixed(3)
             )
         )
         effect = Effects.Pipeline {

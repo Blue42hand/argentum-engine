@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Emissary Escort
@@ -28,19 +27,17 @@ val EmissaryEscort = card("Emissary Escort") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),
-            powerBonus = DynamicAmount.AggregateBattlefield(
-                player = Player.You,
-                filter = GameObjectFilter(
+            powerBonus = DynamicAmounts.battlefield(
+                Player.You,
+                GameObjectFilter(
                     cardPredicates = listOf(
                         com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsArtifact
                     ),
                     controllerPredicate = com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByYou
                 ),
-                aggregation = com.wingedsheep.sdk.scripting.values.Aggregation.MAX,
-                property = com.wingedsheep.sdk.scripting.values.CardNumericProperty.MANA_VALUE,
                 excludeSelf = true
-            ),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            ).maxManaValue(),
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

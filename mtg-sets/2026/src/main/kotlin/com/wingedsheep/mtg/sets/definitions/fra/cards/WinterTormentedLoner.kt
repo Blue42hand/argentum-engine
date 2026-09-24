@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The enters trigger is a reflexive one (CR 603.12): the edict only happens if a creature or
@@ -53,7 +52,7 @@ val WinterTormentedLoner = card("Winter, Tormented Loner") {
                 Zone.GRAVEYARD,
                 GameObjectFilter.CreatureOrPlaneswalker
             ).count(),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

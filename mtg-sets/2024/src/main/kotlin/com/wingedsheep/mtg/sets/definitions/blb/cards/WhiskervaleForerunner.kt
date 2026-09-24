@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -39,7 +38,7 @@ val WhiskervaleForerunner = card("Whiskervale Forerunner") {
         trigger = Triggers.Valiant
         effect = Effects.Pipeline {
             // Look at top 5
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val looked = gather(CardSource.TopOfLibrary(5))
             // May reveal a creature with MV ≤ 3
             val (kept, rest) = chooseUpToSplit(
                 1,

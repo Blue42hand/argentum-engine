@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wild Hypothesis
@@ -43,7 +43,7 @@ val WildHypothesis = card("Wild Hypothesis") {
             .then(
                 Effects.AddDynamicCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
-                    DynamicAmount.XValue,
+                    DynamicAmounts.xValue(),
                     EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
                 )
             )

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Decadent Dragon // Expensive Taste
@@ -67,7 +66,7 @@ val DecadentDragon = card("Decadent Dragon") {
             effect = Effects.Pipeline {
                 val stolen = gather(
                     CardSource.TopOfLibrary(
-                        DynamicAmount.Fixed(2),
+                        2,
                         Player.ContextPlayer(0),
                     )
                 )

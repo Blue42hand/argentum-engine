@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fight Rigging
@@ -50,7 +49,7 @@ val FightRigging = card("Fight Rigging") {
         effect = Effects.Pipeline {
             val fightRiggingTop = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(5),
+                    count = 5,
                     player = Player.You
                 )
             )

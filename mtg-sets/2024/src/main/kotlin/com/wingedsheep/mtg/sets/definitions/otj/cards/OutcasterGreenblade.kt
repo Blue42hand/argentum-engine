@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Outcaster Greenblade
@@ -47,10 +47,10 @@ val OutcasterGreenblade = card("Outcaster Greenblade") {
     }
 
     staticAbility {
-        val deserts = DynamicAmount.Count(
-            player = Player.You,
-            zone = Zone.BATTLEFIELD,
-            filter = GameObjectFilter.Land.withSubtype(Subtype.DESERT)
+        val deserts = DynamicAmounts.count(
+            Player.You,
+            Zone.BATTLEFIELD,
+            GameObjectFilter.Land.withSubtype(Subtype.DESERT)
         )
         ability = GrantDynamicStats(
             filter = GroupFilter.source(),

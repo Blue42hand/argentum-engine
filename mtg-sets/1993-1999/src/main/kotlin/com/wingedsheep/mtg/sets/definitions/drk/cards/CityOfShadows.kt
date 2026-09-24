@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * City of Shadows
@@ -47,10 +46,7 @@ val CityOfShadows = card("City of Shadows") {
         cost = Costs.Tap
         manaAbility = true
         effect = Effects.AddColorlessMana(
-            DynamicAmount.EntityProperty(
-                EffectTarget.Self,
-                EntityNumericProperty.CounterCount(CounterType.STORAGE),
-            )
+            DynamicAmounts.countersOnSelf(CounterType.STORAGE)
         )
         description = "{T}: Add {C} for each storage counter on this land."
     }

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ragavan, Nimble Pilferer — Modern Horizons 2 #138
@@ -49,7 +48,7 @@ val RagavanNimblePilferer = card("Ragavan, Nimble Pilferer") {
             run(Effects.CreateTreasure(1))
             val exiled = gather(
                 CardSource.TopOfLibrary(
-                    DynamicAmount.Fixed(1),
+                    1,
                     player = Player.TriggeringPlayer
                 )
             )

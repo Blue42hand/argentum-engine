@@ -271,6 +271,15 @@ object LibraryPatterns {
      * has.
      */
     fun lookAtTopRevealMatchingToHand(
+        count: Int,
+        filter: GameObjectFilter,
+        prompt: String,
+        restDestination: CardDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
+        restOrder: CardOrder = CardOrder.Random
+    ): CompositeEffect = lookAtTopRevealMatchingToHand(DynamicAmount.Fixed(count), filter, prompt, restDestination, restOrder)
+
+    /** [lookAtTopRevealMatchingToHand] with a count evaluated at resolution. */
+    fun lookAtTopRevealMatchingToHand(
         count: DynamicAmount,
         filter: GameObjectFilter,
         prompt: String,
@@ -295,6 +304,14 @@ object LibraryPatterns {
      * choice-free [FilterCollectionEffect] partition. The remainder keeps its original gather order
      * unless [restOrder] reshuffles it.
      */
+    fun revealTopPutAllMatchingToHand(
+        count: Int,
+        filter: GameObjectFilter,
+        restDestination: CardDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
+        restOrder: CardOrder = CardOrder.Random
+    ): CompositeEffect = revealTopPutAllMatchingToHand(DynamicAmount.Fixed(count), filter, restDestination, restOrder)
+
+    /** [revealTopPutAllMatchingToHand] with a count evaluated at resolution. */
     fun revealTopPutAllMatchingToHand(
         count: DynamicAmount,
         filter: GameObjectFilter,

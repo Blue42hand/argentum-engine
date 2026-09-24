@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Orcish Spy
@@ -33,7 +32,7 @@ val OrcishSpy = card("Orcish Spy") {
         cost = Costs.Tap
         val t = target("target player", TargetPlayer())
         effect = Effects.Pipeline {
-            gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3), Player.TargetPlayer))
+            gather(CardSource.TopOfLibrary(3, Player.TargetPlayer))
         }
     }
 

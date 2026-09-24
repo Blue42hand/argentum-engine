@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fires of Mount Doom
@@ -50,7 +49,7 @@ val FiresOfMountDoom = card("Fires of Mount Doom") {
     activatedAbility {
         cost = Costs.Mana("{2}{R}")
         effect = Effects.Pipeline {
-            val exiledCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)
             run(Effects.GrantMayPlayFromExile(
                 from = exiledCard,

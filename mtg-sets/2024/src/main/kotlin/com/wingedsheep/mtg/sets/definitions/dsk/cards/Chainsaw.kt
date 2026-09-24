@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Chainsaw
@@ -56,7 +55,7 @@ val Chainsaw = card("Chainsaw") {
         ability = GrantDynamicStats(
             filter = Filters.EquippedCreature,
             powerBonus = revCount,
-            toughnessBonus = DynamicAmount.Fixed(0)
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

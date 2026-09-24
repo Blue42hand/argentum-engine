@@ -1,16 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Klaw, Sonic Subjugator — Marvel Super Heroes #103
@@ -49,10 +50,7 @@ val KlawSonicSubjugator = card("Klaw, Sonic Subjugator") {
             val klawHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             // 2. That player reveals 1 + creature cards in your graveyard of them.
             val klawRevealed = chooseExactly(
-                DynamicAmount.Add(
-                        DynamicAmount.Fixed(1),
-                        DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature)
-                    ),
+                1 + DynamicAmounts.creatureCardsInYourGraveyard(),
                 from = klawHand,
                 chooser = Chooser.TargetPlayer,
                 prompt = "Choose cards to reveal"

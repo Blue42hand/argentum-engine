@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -33,10 +32,7 @@ val TheOoze = card("The Ooze") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.CreateMutagenToken(
-            DynamicAmount.EntityProperty(
-                EffectTarget.TriggeringEntity,
-                EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
-            )
+            DynamicAmounts.countersOnTriggering(CounterType.PLUS_ONE_PLUS_ONE)
         )
         description = "Whenever a creature you control with a +1/+1 counter on it leaves the battlefield, create a Mutagen token for each +1/+1 counter on it."
     }

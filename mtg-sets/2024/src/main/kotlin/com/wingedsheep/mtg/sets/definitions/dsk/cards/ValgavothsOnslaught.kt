@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Valgavoth's Onslaught
@@ -46,14 +46,14 @@ val ValgavothsOnslaught = card("Valgavoth's Onslaught") {
     spell {
         effect = Effects.Pipeline {
             run(Effects.Repeat(
-                amount = DynamicAmount.XValue,
+                amount = DynamicAmounts.xValue(),
                 body = Patterns.Library.manifestDread(markEntered = true)
             ))
             val valgavothManifested = gather(CardSource.EnteredViaThisResolution)
             run(Effects.AddCountersToCollection(
                 collection = valgavothManifested,
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                amount = DynamicAmount.XValue
+                amount = DynamicAmounts.xValue()
             ))
         }
     }

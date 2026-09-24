@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Menacing Ogre
@@ -35,7 +35,7 @@ val MenacingOgre = card("Menacing Ogre") {
         effect = Effects.SecretBid(
             highestBidderEffect = Effects.Composite(listOf(
                 // Each highest bidder loses life equal to their bid
-                Effects.LoseLife(DynamicAmount.XValue, EffectTarget.Controller),
+                Effects.LoseLife(DynamicAmounts.xValue(), EffectTarget.Controller),
                 // If the controller is among them, put counters on this creature
                 Effects.If(
                     condition = YouControlSource,

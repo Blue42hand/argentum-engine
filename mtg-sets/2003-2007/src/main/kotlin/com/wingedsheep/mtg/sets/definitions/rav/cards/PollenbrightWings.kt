@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Pollenbright Wings
@@ -52,7 +51,7 @@ val PollenbrightWings = card("Pollenbright Wings") {
             binding = TriggerBinding.ATTACHED,
         )
         effect = Effects.CreateToken(
-            count = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            count = DynamicAmounts.triggerDamageAmount(),
             power = 1,
             toughness = 1,
             colors = setOf(Color.GREEN),

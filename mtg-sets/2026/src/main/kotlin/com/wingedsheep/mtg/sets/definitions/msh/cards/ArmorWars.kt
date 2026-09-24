@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Armor Wars — Marvel Super Heroes #203
@@ -63,7 +62,7 @@ val ArmorWars = card("Armor Wars") {
     sagaChapter(2) {
         effect = Effects.ReduceSpellCostsThisTurn(
             spellFilter = GameObjectFilter.Artifact,
-            amount = DynamicAmount.Fixed(1),
+            amount = DynamicAmounts.fixed(1),
         )
     }
 

@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -13,8 +14,6 @@ import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The Aetherspark — Aetherdrift #231
@@ -46,7 +45,7 @@ val TheAetherspark = card("The Aetherspark") {
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.AddDynamicCounters(
             CounterType.LOYALTY,
-            DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+            DynamicAmounts.triggerDamageAmount(),
             EffectTarget.Self,
         )
         description = "Whenever equipped creature deals combat damage during your turn, put that " +

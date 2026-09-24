@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -17,8 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.DynamicHint
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Jennifer Walters // The Sensational She-Hulk — Marvel Super Heroes #18 (mythic)
@@ -130,14 +129,14 @@ private val TheSensationalSheHulkBack = card("The Sensational She-Hulk") {
         val victim = target("any target", Targets.Any)
         effect = Effects.May(
             Effects.DealDamage(
-                DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+                DynamicAmounts.triggerDamageAmount(),
                 victim,
             ),
             // Without this the three prompts of a multi-block are the same sentence three times
             // and the player picks blind — see the KDoc's note on choosing the biggest number.
             dynamicHint = DynamicHint(
                 "This trigger would deal {n} damage.",
-                DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
+                DynamicAmounts.triggerDamageAmount(),
             ),
         )
         effectOncePerTurn = true

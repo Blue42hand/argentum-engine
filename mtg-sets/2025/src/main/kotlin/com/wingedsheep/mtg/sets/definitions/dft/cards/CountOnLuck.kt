@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -27,7 +26,7 @@ val CountOnLuck = card("Count on Luck") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.Pipeline {
-            val impulseExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val impulseExiled = gather(CardSource.TopOfLibrary(1))
             exile(impulseExiled)
             run(Effects.GrantMayPlayFromExile(impulseExiled, MayPlayExpiry.EndOfTurn))
         }

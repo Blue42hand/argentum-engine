@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ignis Scientia
@@ -39,7 +38,7 @@ val IgnisScientia = card("Ignis Scientia") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
             // Look at the top six cards of your library.
-            val looked = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(6), player = Player.You))
+            val looked = gather(CardSource.TopOfLibrary(count = 6, player = Player.You))
             // You may put a land card from among them onto the battlefield tapped.
             val (toBattlefield, toBottom) = chooseUpToSplit(
                 1,

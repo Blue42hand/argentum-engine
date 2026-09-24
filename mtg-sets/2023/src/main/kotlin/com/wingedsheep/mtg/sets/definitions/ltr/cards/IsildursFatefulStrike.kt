@@ -1,14 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -31,11 +32,8 @@ val IsildursFatefulStrike = card("Isildur's Fateful Strike") {
         val controller = Player.ControllerOf("target creature")
 
         // Number of cards to exile = (controller's hand size − 4), but never negative.
-        val excess = DynamicAmount.IfPositive(
-            DynamicAmount.Subtract(
-                DynamicAmount.Count(controller, Zone.HAND),
-                DynamicAmount.Fixed(4)
-            )
+        val excess = DynamicAmounts.nonNegative(
+            DynamicAmounts.count(controller, Zone.HAND) - 4
         )
 
         effect = Effects.Pipeline {

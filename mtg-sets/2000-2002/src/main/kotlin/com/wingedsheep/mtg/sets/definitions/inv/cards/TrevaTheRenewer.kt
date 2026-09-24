@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Treva, the Renewer
@@ -42,10 +42,10 @@ val TrevaTheRenewer = card("Treva, the Renewer") {
             cost = ManaCost.parse("{2}{W}"),
             then = Effects.ChooseColorThen(
                 then = Effects.GainLife(
-                    amount = DynamicAmount.AggregateBattlefield(
-                        player = Player.Each,
-                        filter = GameObjectFilter.Permanent.withChosenColor()
-                    )
+                    amount = DynamicAmounts.battlefield(
+                        Player.Each,
+                        GameObjectFilter.Permanent.withChosenColor()
+                    ).count()
                 ),
                 prompt = "Choose a color"
             )

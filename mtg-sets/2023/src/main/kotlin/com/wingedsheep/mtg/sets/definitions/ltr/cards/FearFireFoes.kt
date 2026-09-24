@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fear, Fire, Foes!
@@ -35,7 +35,7 @@ val FearFireFoes = card("Fear, Fire, Foes!") {
     spell {
         target("target creature", Targets.Creature)
         effect = Effects.DamageCantBePreventedThisTurn()
-            .then(Effects.DealDamage(DynamicAmount.XValue, EffectTarget.ContextTarget(0)))
+            .then(Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.ContextTarget(0)))
             .then(
                 Patterns.Group.dealDamageToAll(
                     1,

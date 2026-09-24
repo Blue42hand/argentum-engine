@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sting, Bilbo's Sword
@@ -59,7 +59,7 @@ val StingBilbosSword = card("Sting, Bilbo's Sword") {
         )
         effect = Effects.AddDynamicCounters(
             CounterType.HONE,
-            DynamicAmount.AggregateBattlefield(Player.TargetOpponent, GameObjectFilter.Creature),
+            DynamicAmounts.battlefield(Player.TargetOpponent, GameObjectFilter.Creature).count(),
             EffectTarget.Self,
         ).then(Effects.AttachEquipment(creature))
         description = "When Sting enters, put a hone counter on Sting for each creature target " +

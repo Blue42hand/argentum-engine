@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Effects
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Sally Pride, Lioness Leader
@@ -36,10 +36,10 @@ val SallyPrideLionessLeader = card("Sally Pride, Lioness Leader") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Repeat(
-            amount = DynamicAmount.Count(
-                player = Player.You,
-                zone = Zone.BATTLEFIELD,
-                filter = GameObjectFilter.Creature.copy(
+            amount = DynamicAmounts.count(
+                Player.You,
+                Zone.BATTLEFIELD,
+                GameObjectFilter.Creature.copy(
                     cardPredicates = GameObjectFilter.Creature.cardPredicates +
                         CardPredicate.IsNontoken
                 ).youControl()

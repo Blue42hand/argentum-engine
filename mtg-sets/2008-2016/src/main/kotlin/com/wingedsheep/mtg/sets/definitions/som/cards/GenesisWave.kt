@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.som.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Genesis Wave
@@ -40,7 +40,7 @@ val GenesisWave = card("Genesis Wave") {
     spell {
         effect = Effects.Pipeline {
             val genesisWaveRevealed = gather(
-                CardSource.TopOfLibrary(count = DynamicAmount.XValue, player = Player.You),
+                CardSource.TopOfLibrary(count = DynamicAmounts.xValue(), player = Player.You),
                 revealed = true
             )
             val (genesisWaveToBattlefield, genesisWaveToGraveyard) = chooseAnyNumberSplit(

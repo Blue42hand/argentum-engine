@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -49,7 +48,7 @@ val ThickestInTheThicket = card("Thickest in the Thicket") {
         trigger = Triggers.YourEndStep
         triggerRestriction = Conditions.All(
             Conditions.ControlCreature,
-            Compare(
+            Conditions.CompareAmounts(
                 DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower(),
                 ComparisonOperator.GTE,
                 DynamicAmounts.battlefield(Player.Each, GameObjectFilter.Creature).maxPower()

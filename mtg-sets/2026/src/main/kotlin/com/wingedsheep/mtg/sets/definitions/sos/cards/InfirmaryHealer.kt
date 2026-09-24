@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Infirmary Healer // Stream of Life — Secrets of Strixhaven #152
@@ -38,7 +38,7 @@ val InfirmaryHealer = card("Infirmary Healer") {
         oracleText = "Target player gains X life."
         spell {
             val player = target("target player", Targets.Player)
-            effect = Effects.GainLife(DynamicAmount.XValue, player)
+            effect = Effects.GainLife(DynamicAmounts.xValue(), player)
         }
     }
 

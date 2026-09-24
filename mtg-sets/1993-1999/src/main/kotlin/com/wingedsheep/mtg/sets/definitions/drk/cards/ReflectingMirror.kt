@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -46,15 +46,9 @@ val ReflectingMirror = card("Reflecting Mirror") {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                DynamicAmount.XValue,
+                DynamicAmounts.xValue(),
                 ComparisonOperator.GTE,
-                DynamicAmount.Multiply(
-                    DynamicAmount.EntityProperty(
-                        EffectTarget.ContextTarget(0),
-                        EntityNumericProperty.ManaValue,
-                    ),
-                    multiplier = 2,
-                ),
+                DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)) * 2,
             ),
             then = Effects.ChangeTarget(
                 newTargetMustBePlayer = true,

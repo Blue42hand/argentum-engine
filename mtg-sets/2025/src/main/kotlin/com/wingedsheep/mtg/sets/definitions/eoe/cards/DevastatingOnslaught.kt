@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Devastating Onslaught
@@ -45,7 +45,7 @@ val DevastatingOnslaught = card("Devastating Onslaught") {
         )
         effect = Effects.CreateTokenCopyOfTarget(
             target = t,
-            count = DynamicAmount.XValue,
+            count = DynamicAmounts.xValue(),
             addedKeywords = setOf(Keyword.HASTE),
             triggeredAbilities = listOf(sacrificeAtEndStep)
         )

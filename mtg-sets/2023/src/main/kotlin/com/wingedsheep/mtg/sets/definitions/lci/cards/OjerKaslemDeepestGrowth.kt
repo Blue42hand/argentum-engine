@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -18,8 +19,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ojer Kaslem, Deepest Growth // Temple of Cultivation (The Lost Caverns of Ixalan)
@@ -69,7 +68,7 @@ private val OjerKaslemDeepestGrowthFront = card("Ojer Kaslem, Deepest Growth") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
+        val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.Pipeline {
             val kaslemRevealed = gather(
                 CardSource.TopOfLibrary(count = damageDealt, player = Player.You),

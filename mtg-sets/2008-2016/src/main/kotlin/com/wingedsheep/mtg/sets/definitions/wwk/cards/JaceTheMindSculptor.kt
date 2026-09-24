@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Jace, the Mind Sculptor
@@ -55,7 +54,7 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
         effect = Effects.Pipeline {
             val top = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     player = Player.ContextPlayer(0)
                 )
             )

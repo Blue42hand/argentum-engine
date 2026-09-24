@@ -16,8 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Glamdring — The Lord of the Rings: Tales of Middle-earth #239
@@ -64,7 +62,7 @@ val Glamdring = card("Glamdring") {
                 Zone.GRAVEYARD,
                 GameObjectFilter.InstantOrSorcery
             ).count(),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 
@@ -78,7 +76,7 @@ val Glamdring = card("Glamdring") {
         )
         effect = Effects.Pipeline {
             // Capture "that damage" — the combat damage just dealt to the player.
-            val combatDamage = storeNumber(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
+            val combatDamage = storeNumber(DynamicAmounts.triggerDamageAmount())
             // Gather instant/sorcery cards from your hand with MV ≤ that damage.
             val handSpells = gather(
                 CardSource.FromZone(

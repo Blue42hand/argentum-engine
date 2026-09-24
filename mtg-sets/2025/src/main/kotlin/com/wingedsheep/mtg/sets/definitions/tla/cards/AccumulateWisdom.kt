@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Accumulate Wisdom
@@ -39,13 +39,13 @@ val AccumulateWisdom = card("Accumulate Wisdom") {
     spell {
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                DynamicAmount.Count(
+                DynamicAmounts.count(
                     Player.You,
                     Zone.GRAVEYARD,
                     GameObjectFilter.Any.withSubtype(Subtype.LESSON)
                 ),
                 ComparisonOperator.GTE,
-                DynamicAmount.Fixed(3)
+                3
             ),
             // Three or more Lesson cards in graveyard: put each of the looked-at cards into hand.
             then = Patterns.Library.lookAtTopAndKeep(
@@ -55,8 +55,8 @@ val AccumulateWisdom = card("Accumulate Wisdom") {
             ),
             // Default: keep one, rest to the bottom of the library in any order.
             otherwise = Patterns.Library.lookAtTopAndKeep(
-                count = DynamicAmount.Fixed(3),
-                keepCount = DynamicAmount.Fixed(1),
+                count = 3,
+                keepCount = 1,
                 keepDestination = CardDestination.ToZone(Zone.HAND),
                 restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
                 restOrder = CardOrder.ControllerChooses,

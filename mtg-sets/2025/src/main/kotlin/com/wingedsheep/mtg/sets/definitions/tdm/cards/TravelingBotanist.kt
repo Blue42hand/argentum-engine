@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -44,7 +43,7 @@ val TravelingBotanist = card("Traveling Botanist") {
         trigger = Triggers.BecomesTapped
         effect = Effects.Pipeline {
             // Look at the top card of your library (private peek).
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val looked = gather(CardSource.TopOfLibrary(1))
             // Only a land card may be put into hand.
             val landCard = filter(looked, GameObjectFilter.Land)
             // You may reveal the land and put it into your hand.

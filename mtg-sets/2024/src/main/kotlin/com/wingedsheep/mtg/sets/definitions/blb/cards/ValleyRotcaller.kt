@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Valley Rotcaller
@@ -37,11 +37,11 @@ val ValleyRotcaller = card("Valley Rotcaller") {
         GameObjectFilter.Creature.withSubtype("Rat")
     ).youControl()
 
-    val xAmount = DynamicAmount.AggregateBattlefield(
-        player = Player.You,
-        filter = relevantCreatures,
+    val xAmount = DynamicAmounts.battlefield(
+        Player.You,
+        relevantCreatures,
         excludeSelf = true
-    )
+    ).count()
 
     triggeredAbility {
         trigger = Triggers.Attacks

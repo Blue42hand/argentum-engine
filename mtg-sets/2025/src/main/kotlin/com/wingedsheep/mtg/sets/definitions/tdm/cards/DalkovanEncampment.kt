@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dalkovan Encampment — Tarkir: Dragonstorm #253
@@ -60,7 +59,7 @@ val DalkovanEncampment = card("Dalkovan Encampment") {
         effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.YouAttack,
             effect = Effects.CreateToken(
-                count = DynamicAmount.Fixed(2),
+                count = 2,
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),

@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * At Knifepoint
@@ -59,7 +58,7 @@ val AtKnifepoint = card("At Knifepoint") {
         trigger = Triggers.YouCommitCrime
         oncePerTurn = true
         effect = Effects.CreateToken(
-            count = DynamicAmount.Fixed(1),
+            count = 1,
             power = 1,
             toughness = 1,
             colors = setOf(Color.RED),

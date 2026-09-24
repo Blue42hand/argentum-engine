@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Smuggler's Surprise
@@ -54,7 +53,7 @@ val SmugglersSurprise = card("Smuggler's Surprise") {
                 // + {2} — Mill four; put up to two creature/land cards from milled into hand.
                 Mode(
                     effect = Effects.Pipeline {
-                        val smugglerMilled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+                        val smugglerMilled = gather(CardSource.TopOfLibrary(4))
                         toGraveyard(smugglerMilled)
                         val smugglerToHand = chooseUpTo(
                             2,

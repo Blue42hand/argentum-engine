@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Aerid Konstrari — "enters or dies" is two triggers (as on Thawbringer). The activated ability
@@ -43,7 +42,7 @@ val AeridKonstrari = card("Aerid Konstrari") {
             Effects.CreateHeartwood(),
             Effects.ModifyStats(
                 DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
-                DynamicAmount.Fixed(0),
+                DynamicAmounts.fixed(0),
                 EffectTarget.Self,
             ),
         )

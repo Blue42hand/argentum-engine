@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Picklock Prankster // Free the Fae
@@ -55,7 +54,7 @@ val PicklockPrankster = card("Picklock Prankster") {
 
         spell {
             effect = Effects.Pipeline {
-                val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+                val milled = gather(CardSource.TopOfLibrary(4))
                 toGraveyard(milled)
                 val selected = chooseExactly(
                     1,

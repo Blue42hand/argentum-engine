@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val CutPropulsion = card("Cut Propulsion") {
@@ -19,14 +19,14 @@ val CutPropulsion = card("Cut Propulsion") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        val power = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power)
+        val power = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0))
         effect = Effects.DealDamage(
-            amount = DynamicAmount.Conditional(
+            amount = DynamicAmounts.conditional(
                 condition = Conditions.TargetMatchesFilter(
                     filter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING),
                     targetIndex = 0
                 ),
-                ifTrue = DynamicAmount.Multiply(power, 2),
+                ifTrue = power * 2,
                 ifFalse = power
             ),
             target = creature,

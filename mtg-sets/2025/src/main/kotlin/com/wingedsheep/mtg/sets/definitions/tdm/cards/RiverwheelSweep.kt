@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Riverwheel Sweep
@@ -40,7 +39,7 @@ val RiverwheelSweep = card("Riverwheel Sweep") {
             .then(Effects.AddCounters(CounterType.STUN, 3, creature))
             .then(
                 Effects.Pipeline {
-                    val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
+                    val exiled = gather(CardSource.TopOfLibrary(2))
                     exile(exiled)
                     val chosen = chooseExactly(
                         1,

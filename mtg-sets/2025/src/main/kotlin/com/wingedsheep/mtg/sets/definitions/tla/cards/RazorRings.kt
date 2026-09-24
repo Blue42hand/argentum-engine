@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,10 +34,7 @@ val RazorRings = card("Razor Rings") {
         effect = Effects.Composite(
             Effects.DealDamage(4, creature),
             Effects.GainLife(
-                DynamicAmount.EntityProperty(
-                    EffectTarget.ContextTarget(0),
-                    EntityNumericProperty.ExcessMarkedDamage
-                )
+                DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage)
             )
         )
     }

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Spire Mechcycle — Aetherdrift #147
@@ -71,11 +71,11 @@ val SpireMechcycle = card("Spire Mechcycle") {
             ),
             Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
-                DynamicAmount.AggregateBattlefield(
-                    player = Player.You,
-                    filter = MountOrVehicle,
+                DynamicAmounts.battlefield(
+                    Player.You,
+                    MountOrVehicle,
                     excludeSelf = true
-                ),
+                ).count(),
                 EffectTarget.Self
             )
         )

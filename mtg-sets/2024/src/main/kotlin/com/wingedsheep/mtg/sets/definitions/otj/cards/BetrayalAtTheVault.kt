@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Betrayal at the Vault — Outlaws of Thunder Junction #155
@@ -51,7 +50,7 @@ val BetrayalAtTheVault = card("Betrayal at the Vault") {
             TargetOther(baseRequirement = TargetObject(filter = TargetFilter.Creature))
         )
 
-        val sourcePower = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power)
+        val sourcePower = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0))
         effect = Effects.DealDamage(
             amount = sourcePower,
             target = EffectTarget.ContextTarget(1),

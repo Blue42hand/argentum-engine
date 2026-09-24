@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GrantMayCastFromLinkedExile
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -57,7 +56,7 @@ val RonaDiscipleOfGix = card("Rona, Disciple of Gix") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}"), Costs.Tap)
         effect = Effects.Pipeline {
-            val topCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val topCard = gather(CardSource.TopOfLibrary(1))
             exile(topCard, linkToSource = true)
         }
     }

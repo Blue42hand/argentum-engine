@@ -2,12 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.atq.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -38,10 +37,7 @@ val PriestOfYawgmoth = card("Priest of Yawgmoth") {
         cost = Costs.Composite(Costs.Tap, Costs.Sacrifice(GameObjectFilter.Artifact))
         effect = Effects.AddMana(
             Color.BLACK,
-            amount = DynamicAmount.EntityProperty(
-                EffectTarget.SacrificedAsCost(0),
-                EntityNumericProperty.ManaValue
-            )
+            amount = DynamicAmounts.manaValueOf(EffectTarget.SacrificedAsCost(0))
         )
         description = "{T}, Sacrifice an artifact: Add an amount of {B} equal to the sacrificed artifact's mana value."
     }

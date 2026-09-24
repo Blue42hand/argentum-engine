@@ -42,6 +42,10 @@ sealed interface CardSource {
         val player: Player = Player.You,
         val isMill: Boolean = false
     ) : CardSource {
+        /** The top [count] cards — a constant count ("look at the top three cards"). */
+        constructor(count: Int, player: Player = Player.You, isMill: Boolean = false) :
+            this(DynamicAmount.Fixed(count), player, isMill)
+
         override val description: String = "the top ${count.description} cards of ${player.possessive} library"
     }
 

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -63,7 +62,7 @@ val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
             val nonlandToHand = Effects.Pipeline { toHand(nonland) }
             // Compare the exiled nonland's mana value to the life gained this turn.
             run(Effects.If(
-                condition = Compare(
+                condition = Conditions.CompareAmounts(
                     left = DynamicAmounts.manaValueOf(nonland),
                     operator = ComparisonOperator.LTE,
                     right = DynamicAmounts.lifeGainedThisTurn()

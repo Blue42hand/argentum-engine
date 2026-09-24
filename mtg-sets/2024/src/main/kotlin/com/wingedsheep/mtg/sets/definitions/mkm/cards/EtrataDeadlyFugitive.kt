@@ -22,7 +22,6 @@ import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Etrata, Deadly Fugitive — Murders at Karlov Manor #200
@@ -128,7 +127,7 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
         effect = Effects.Pipeline {
             val etrataCloaked = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(1),
+                    count = 1,
                     player = Player.TriggeringPlayer,
                 ),
                 lookAudience = LookAudience.None

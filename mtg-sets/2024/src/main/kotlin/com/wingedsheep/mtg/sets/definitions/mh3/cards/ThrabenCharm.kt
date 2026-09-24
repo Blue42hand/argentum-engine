@@ -5,11 +5,11 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Thraben Charm
@@ -40,7 +40,7 @@ val ThrabenCharm = card("Thraben Charm") {
             mode("Thraben Charm deals damage equal to twice the number of creatures you control to target creature") {
                 val creature = target("target creature", Targets.Creature)
                 effect = Effects.DealDamage(
-                    DynamicAmount.Multiply(DynamicAmounts.creaturesYouControl(), 2),
+                    DynamicAmounts.creaturesYouControl() * 2,
                     creature,
                 )
             }

@@ -2,8 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
@@ -11,8 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -59,13 +59,7 @@ val RepurposingBay = card("Repurposing Bay") {
             val candidates = filter(
                 libraryArtifacts,
                 GameObjectFilter.Any.manaValueEqualsDynamic(
-                    DynamicAmount.Add(
-                        DynamicAmount.EntityProperty(
-                            EffectTarget.SacrificedAsCost(0),
-                            EntityNumericProperty.ManaValue
-                        ),
-                        DynamicAmount.Fixed(1)
-                    )
+                    DynamicAmounts.manaValueOf(EffectTarget.SacrificedAsCost(0)) + 1
                 )
             )
             val found = chooseUpTo(1, from = candidates)

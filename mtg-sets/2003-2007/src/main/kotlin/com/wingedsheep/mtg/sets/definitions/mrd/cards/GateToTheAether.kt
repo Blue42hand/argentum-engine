@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Gate to the Aether
@@ -29,7 +28,7 @@ val GateToTheAether = card("Gate to the Aether") {
     triggeredAbility {
         trigger = Triggers.EachUpkeep
         effect = Effects.Pipeline {
-            val top = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.TriggeringPlayer))
+            val top = gather(CardSource.TopOfLibrary(1, Player.TriggeringPlayer))
             reveal(top)
             val permanent = filter(top, GameObjectFilter.Permanent)
             ifNotEmpty(permanent) {

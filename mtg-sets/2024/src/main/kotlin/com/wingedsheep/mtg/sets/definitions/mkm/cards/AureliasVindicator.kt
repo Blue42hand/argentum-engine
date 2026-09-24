@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Aurelia's Vindicator — Murders at Karlov Manor #4
@@ -73,7 +73,7 @@ val AureliasVindicator = card("Aurelia's Vindicator") {
             TargetObject(
                 optional = true,
                 filter = TargetFilter.OtherCreature.or(TargetFilter.CreatureInGraveyard),
-                dynamicMaxCount = DynamicAmount.XValue,
+                dynamicMaxCount = DynamicAmounts.xValue(),
             ),
         )
         effect = Effects.Pipeline {

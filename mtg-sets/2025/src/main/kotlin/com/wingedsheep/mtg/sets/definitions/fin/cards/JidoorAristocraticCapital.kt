@@ -3,16 +3,17 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Jidoor, Aristocratic Capital // Overture
@@ -53,11 +54,7 @@ val JidoorAristocraticCapital = card("Jidoor, Aristocratic Capital") {
         spell {
             target = Targets.Opponent
             effect = Patterns.Library.mill(
-                count = DynamicAmount.Divide(
-                    numerator = DynamicAmount.AggregateZone(Player.ContextPlayer(0), Zone.LIBRARY),
-                    denominator = DynamicAmount.Fixed(2),
-                    roundUp = false
-                ),
+                count = DynamicAmounts.zone(Player.ContextPlayer(0), Zone.LIBRARY).count() / 2,
                 target = EffectTarget.ContextTarget(0)
             )
         }

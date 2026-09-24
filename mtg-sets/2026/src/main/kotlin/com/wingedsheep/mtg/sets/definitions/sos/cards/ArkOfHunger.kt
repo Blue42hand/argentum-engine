@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ark of Hunger
@@ -45,7 +44,7 @@ val ArkOfHunger = card("Ark of Hunger") {
     activatedAbility {
         cost = Costs.Tap
         effect = Effects.Pipeline {
-            val milledThisWay = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val milledThisWay = gather(CardSource.TopOfLibrary(1))
             toGraveyard(milledThisWay)
             run(Effects.GrantMayPlayFromExile(milledThisWay))
         }

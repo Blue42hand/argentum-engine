@@ -4,12 +4,13 @@
 
 package com.wingedsheep.mtg.sets.definitions.mir.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -27,7 +28,7 @@ val InfernalContract = card("Infernal Contract") {
         effect = Effects.Composite(
             Effects.DrawCards(4),
             Effects.LoseLife(
-                DynamicAmount.Divide(DynamicAmount.LifeTotal(Player.You), DynamicAmount.Fixed(2), roundUp = true),
+                DynamicAmounts.lifeTotal(Player.You) divRoundedUp 2,
                 EffectTarget.Controller
             )
         )

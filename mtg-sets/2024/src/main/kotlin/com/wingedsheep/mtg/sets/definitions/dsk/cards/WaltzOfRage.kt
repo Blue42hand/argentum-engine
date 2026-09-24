@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Waltz of Rage
@@ -62,7 +61,7 @@ val WaltzOfRage = card("Waltz of Rage") {
                 expiry = DelayedTriggerExpiry.EndOfTurn,
                 fireOnce = false,
                 effect = Effects.Pipeline {
-                    val waltzExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+                    val waltzExiled = gather(CardSource.TopOfLibrary(1))
                     exile(waltzExiled)
                     run(Effects.GrantMayPlayFromExile(waltzExiled, MayPlayExpiry.UntilEndOfNextTurn))
                 }

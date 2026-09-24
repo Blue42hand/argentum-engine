@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Desperate Research
@@ -36,7 +35,7 @@ val DesperateResearch = card("Desperate Research") {
                 excludeBasicLandNames = true
             )
             // 2. Reveal the top seven cards of your library.
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(7), Player.You), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(7, Player.You), revealed = true)
             // 3. Partition: cards with the chosen name vs. the rest.
             val (matches, rest) = selectAllSplit(
                 from = revealed,

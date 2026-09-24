@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /** Mendicant Core, Guidelight — Aetherdrift #213. */
 val MendicantCoreGuidelight = card("Mendicant Core, Guidelight") {
@@ -24,7 +24,7 @@ val MendicantCoreGuidelight = card("Mendicant Core, Guidelight") {
         "(The copy becomes a token.)"
     toughness = 3
 
-    dynamicPower(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Artifact))
+    dynamicPower(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count())
     startYourEngines()
     maxSpeed {
         triggeredAbility {

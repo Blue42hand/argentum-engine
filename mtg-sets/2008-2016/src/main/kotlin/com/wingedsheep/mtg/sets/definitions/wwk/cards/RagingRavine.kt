@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -55,8 +54,8 @@ val RagingRavine = card("Raging Ravine") {
             listOf(
                 Effects.BecomeCreature(
                     target = EffectTarget.Self,
-                    power = DynamicAmount.Fixed(3),
-                    toughness = DynamicAmount.Fixed(3),
+                    power = 3,
+                    toughness = 3,
                     creatureTypes = setOf("Elemental"),
                     colors = setOf(Color.RED.name, Color.GREEN.name),
                     duration = Duration.EndOfTurn,

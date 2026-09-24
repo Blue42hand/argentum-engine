@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Great Hall of the Biblioplex
@@ -61,8 +60,8 @@ val GreatHallOfTheBiblioplex = card("Great Hall of the Biblioplex") {
             then = Effects.Composite(
                 Effects.BecomeCreature(
                     target = EffectTarget.Self,
-                    power = DynamicAmount.Fixed(2),
-                    toughness = DynamicAmount.Fixed(4),
+                    power = 2,
+                    toughness = 4,
                     creatureTypes = setOf("Wizard"),
                     duration = Duration.Permanent,
                 ),

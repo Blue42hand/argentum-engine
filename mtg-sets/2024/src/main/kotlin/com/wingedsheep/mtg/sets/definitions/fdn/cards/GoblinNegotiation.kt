@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,10 +35,7 @@ val GoblinNegotiation = card("Goblin Negotiation") {
         effect = Effects.Composite(
             Effects.DealXDamage(creature),
             Effects.CreateToken(
-                count = DynamicAmount.EntityProperty(
-                    EffectTarget.ContextTarget(0),
-                    EntityNumericProperty.ExcessMarkedDamage
-                ),
+                count = DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Elven Farsight
@@ -24,7 +23,7 @@ val ElvenFarsight = card("Elven Farsight") {
         // Scry 3, then reveal the top card; if it's a creature card, put it into your hand (draw it).
         effect = Effects.Pipeline {
             run(Patterns.Library.scry(3))
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(1), revealed = true)
             val creature = selectAll(from = revealed, filter = GameObjectFilter.Creature)
             toHand(creature)
         }

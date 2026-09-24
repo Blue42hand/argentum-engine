@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Balamb Garden, SeeD Academy // Balamb Garden, Airborne — Final Fantasy #272
@@ -97,11 +97,11 @@ private val BalambGardenSeedAcademyFront = card("Balamb Garden, SeeD Academy") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}{G}{U}"), Costs.Tap)
         effect = Effects.Transform(EffectTarget.Self)
-        genericCostReduction = DynamicAmount.AggregateBattlefield(
-            player = Player.You,
-            filter = GameObjectFilter.Land.withSubtype("Town"),
+        genericCostReduction = DynamicAmounts.battlefield(
+            Player.You,
+            GameObjectFilter.Land.withSubtype("Town"),
             excludeSelf = true,
-        )
+        ).count()
     }
 
     metadata {

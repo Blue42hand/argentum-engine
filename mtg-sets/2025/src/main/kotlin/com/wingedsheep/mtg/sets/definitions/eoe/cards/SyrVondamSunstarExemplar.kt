@@ -3,6 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,13 +13,10 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Syr Vondam, Sunstar Exemplar
@@ -75,13 +74,10 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
     }
 
     // Power-is-4-or-greater condition for ability 2
-    val powerAtLeast4 = Compare(
-        left = DynamicAmount.EntityProperty(
-            entity = EffectTarget.Self,
-            numericProperty = EntityNumericProperty.Power
-        ),
+    val powerAtLeast4 = Conditions.CompareAmounts(
+        left = DynamicAmounts.sourcePower(),
         operator = ComparisonOperator.GTE,
-        right = DynamicAmount.Fixed(4)
+        right = 4
     )
 
     // When Syr Vondam dies while its power is 4 or greater, destroy up to one target nonland permanent.

@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Nullstone Gargoyle — Ravnica: City of Guilds #266
@@ -45,9 +45,9 @@ val NullstoneGargoyle = card("Nullstone Gargoyle") {
     triggeredAbility {
         trigger = Triggers.anyPlayerCasts(GameObjectFilter.Noncreature)
         triggerRestriction = Conditions.CompareAmounts(
-            DynamicAmount.SpellsCastThisTurn(player = Player.Each, filter = GameObjectFilter.Noncreature),
+            DynamicAmounts.spellsCastThisTurn(player = Player.Each, filter = GameObjectFilter.Noncreature),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(1),
+            1,
         )
         effect = Effects.CounterTriggeringSpell()
         description = "Whenever the first noncreature spell of a turn is cast, counter that spell."

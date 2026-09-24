@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Psychic Battle
@@ -47,7 +46,7 @@ val PsychicBattle = card("Psychic Battle") {
         trigger = Triggers.AnyPlayerChoosesTargets
         effect = Effects.Pipeline {
             val revealed = gather(
-                CardSource.TopOfLibrary(count = DynamicAmount.Fixed(1), player = Player.Each),
+                CardSource.TopOfLibrary(count = 1, player = Player.Each),
                 revealed = true
             )
             val greatestManaValue = filter(revealed, CollectionFilter.GreatestManaValue)

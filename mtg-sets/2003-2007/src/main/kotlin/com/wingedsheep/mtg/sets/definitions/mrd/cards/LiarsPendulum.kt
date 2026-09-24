@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.namedFromVariable
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Liar's Pendulum — Mirrodin #196
@@ -78,9 +78,9 @@ val LiarsPendulum = card("Liar's Pendulum") {
                         .then(
                             Effects.If(
                                 condition = Conditions.CompareAmounts(
-                                        DynamicAmount.VariableReference("pendulumGuessedRight"),
+                                        DynamicAmounts.storedNumber("pendulumGuessedRight"),
                                         ComparisonOperator.EQ,
-                                        DynamicAmount.Fixed(0),
+                                        0,
                                     ),
                                 then = Effects.DrawCards(1),
                                 descriptionOverride = "If your opponent guessed wrong, draw a card.",

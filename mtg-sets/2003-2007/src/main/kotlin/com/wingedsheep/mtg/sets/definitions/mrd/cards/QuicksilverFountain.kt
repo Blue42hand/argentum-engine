@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -17,7 +18,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetChooser
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Quicksilver Fountain — Mirrodin #233 (canonical printing)
@@ -97,12 +97,12 @@ val QuicksilverFountain = card("Quicksilver Fountain") {
     triggeredAbility {
         trigger = Triggers.phase(Step.END, Player.Each)
         interveningIf = Conditions.CompareAmounts(
-            DynamicAmount.AggregateBattlefield(
+            DynamicAmounts.battlefield(
                 Player.Each,
                 GameObjectFilter.Land.notSubtype(Subtype.ISLAND)
-            ),
+            ).count(),
             ComparisonOperator.EQ,
-            DynamicAmount.Fixed(0)
+            0
         )
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllLands,

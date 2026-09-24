@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.withSubtypeFromVariable
 import com.wingedsheep.sdk.model.Rarity
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.OptionType
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -69,7 +69,7 @@ val CelestialReunion = card("Celestial Reunion") {
                 CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Creature),
                 search = true
             )
-            val mvOk = filter(searchable, GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.XValue))
+            val mvOk = filter(searchable, GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmounts.xValue()))
             val found = chooseUpTo(
                 1,
                 from = mvOk,

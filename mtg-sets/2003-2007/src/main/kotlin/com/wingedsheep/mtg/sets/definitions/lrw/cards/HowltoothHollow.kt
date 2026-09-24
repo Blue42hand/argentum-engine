@@ -2,7 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -11,13 +13,11 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Howltooth Hollow
@@ -55,7 +55,7 @@ val HowltoothHollow = card("Howltooth Hollow") {
         effect = Effects.Pipeline {
             val hideawayTop = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmount.Fixed(4),
+                    count = 4,
                     player = Player.You
                 )
             )
@@ -87,10 +87,10 @@ val HowltoothHollow = card("Howltooth Hollow") {
         }
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
-                Compare(
-                    DynamicAmount.Count(Player.Each, Zone.HAND),
+                Conditions.CompareAmounts(
+                    DynamicAmounts.count(Player.Each, Zone.HAND),
                     ComparisonOperator.EQ,
-                    DynamicAmount.Fixed(0)
+                    0
                 )
             )
         )

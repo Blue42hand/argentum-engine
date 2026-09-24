@@ -1,17 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Overload
@@ -23,10 +22,10 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  */
 private fun destroyIfManaValueAtMost(max: Int): Effect =
     Effects.If(
-        condition = Compare(
-            left = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue),
+        condition = Conditions.CompareAmounts(
+            left = DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
             operator = ComparisonOperator.LTE,
-            right = DynamicAmount.Fixed(max)
+            right = max
         ),
         then = Effects.Destroy(EffectTarget.ContextTarget(0))
     )

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Malevolent Rumble
@@ -33,7 +32,7 @@ val MalevolentRumble = card("Malevolent Rumble") {
 
     spell {
         effect = Effects.Pipeline {
-            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)), revealed = true)
+            val revealed = gather(CardSource.TopOfLibrary(4), revealed = true)
             val (toHandCards, toGraveyardCards) = chooseUpToSplit(
                 1,
                 from = revealed,

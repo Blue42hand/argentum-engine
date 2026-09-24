@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * In the Presence of Ages
@@ -39,7 +38,7 @@ val InThePresenceOfAges = card("In the Presence of Ages") {
 
     spell {
         effect = Effects.Pipeline {
-            val top4 = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+            val top4 = gather(CardSource.TopOfLibrary(4))
             reveal(top4)
             // Step 1 of 2: optionally take one creature card.
             val (chosenCreature, afterCreature) = chooseUpToSplit(

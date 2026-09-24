@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.RedirectDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * With Great Power . . . — Marvel's Spider-Man #24
@@ -37,8 +37,8 @@ val WithGreatPower = card("With Great Power . . .") {
     staticAbility {
         ability = GrantDynamicStats(
             filter = GroupFilter.attachedCreature(),
-            powerBonus = DynamicAmount.Multiply(DynamicAmounts.attachmentsOnEnchantedCreature(), 2),
-            toughnessBonus = DynamicAmount.Multiply(DynamicAmounts.attachmentsOnEnchantedCreature(), 2)
+            powerBonus = DynamicAmounts.attachmentsOnEnchantedCreature() * 2,
+            toughnessBonus = DynamicAmounts.attachmentsOnEnchantedCreature() * 2
         )
     }
 

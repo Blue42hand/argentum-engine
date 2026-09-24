@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mir.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
 /**
@@ -50,7 +50,7 @@ val BuildersBane = card("Builder's Bane") {
         val permanent = target("target permanent", TargetPermanent(
             optional = true,
             filter = TargetFilter.Artifact,
-            dynamicMaxCount = DynamicAmount.XValue
+            dynamicMaxCount = DynamicAmounts.xValue()
         ))
         effect = Effects.Pipeline {
             val targets = gather(CardSource.ChosenTargets)

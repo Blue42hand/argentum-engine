@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Through the Forest Gate — The Hobbit #137
@@ -38,7 +37,7 @@ val ThroughTheForestGate = card("Through the Forest Gate") {
 
     spell {
         effect = Effects.Pipeline {
-            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(20), player = Player.You))
+            val looked = gather(CardSource.TopOfLibrary(20, player = Player.You))
             val toBattlefield = chooseAnyNumber(
                 from = looked,
                 filter = GameObjectFilter.Land,

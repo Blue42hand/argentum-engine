@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Earthen Ally
@@ -54,7 +53,7 @@ val EarthenAlly = card("Earthen Ally") {
                 Player.You,
                 GameObjectFilter.Creature.withSubtype(Subtype.ALLY)
             ),
-            toughnessBonus = DynamicAmount.Fixed(0)
+            toughnessBonus = DynamicAmounts.fixed(0)
         )
     }
 

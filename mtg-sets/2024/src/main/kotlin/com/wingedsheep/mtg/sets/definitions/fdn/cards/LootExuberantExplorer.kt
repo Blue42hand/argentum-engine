@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GrantAdditionalLandDrop
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Loot, Exuberant Explorer
@@ -57,7 +56,7 @@ val LootExuberantExplorer = card("Loot, Exuberant Explorer") {
         )
         effect = Effects.Pipeline {
             // Look at the top six cards of your library.
-            val lootLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(6)))
+            val lootLooked = gather(CardSource.TopOfLibrary(6))
             // You may reveal a creature card with mana value <= the number of lands you control.
             val (lootKept, lootRest) = chooseUpToSplit(
                 1,

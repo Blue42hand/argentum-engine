@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
@@ -14,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Magnetic Mountain
@@ -79,10 +79,7 @@ val MagneticMountain = card("Magnetic Mountain") {
             ifNotEmpty(chosen) {
                 run(Effects.MayPay(
                     cost = Effects.PayDynamicMana(
-                            amount = DynamicAmount.Multiply(
-                                chosen.count,
-                                4
-                            ),
+                            amount = chosen.count * 4,
                             payer = Player.TriggeringPlayer
                         ),
                     decisionMaker = EffectTarget.PlayerRef(Player.TriggeringPlayer),

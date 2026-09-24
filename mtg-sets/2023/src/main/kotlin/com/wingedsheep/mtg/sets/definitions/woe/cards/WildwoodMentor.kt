@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,8 +11,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Wildwood Mentor
@@ -60,10 +59,7 @@ val WildwoodMentor = card("Wildwood Mentor") {
             "another target attacking creature",
             TargetCreature(filter = TargetFilter.Creature.attacking().other())
         )
-        val sourcePower = DynamicAmount.EntityProperty(
-            EffectTarget.Self,
-            EntityNumericProperty.Power
-        )
+        val sourcePower = DynamicAmounts.sourcePower()
         effect = Effects.ModifyStats(power = sourcePower, toughness = sourcePower, target = ally)
         description = "Whenever this creature attacks, another target attacking creature gets " +
             "+X/+X until end of turn, where X is this creature's power."

@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.mid.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Fading Hope
@@ -25,7 +25,7 @@ val FadingHope = card("Fading Hope") {
         effect = Effects.ReturnToHand(creature)
             .then(
                 Effects.If(
-                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmount.Fixed(3)),
+                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3)),
                     then = Patterns.Library.scry(1)
                 )
             )
