@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 120 / 312
+**Implemented:** 129 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -114,7 +114,7 @@
 - [ ] Garruk, Cursed Huntsman
 - [ ] Generous Gift
 - [x] Ghalta, Primal Hunger
-- [ ] Ghirapur Orrery
+- [x] Ghirapur Orrery
 - [ ] Gilded Goose
 - [x] Gilded Lotus
 - [ ] Glacial Fortress
@@ -201,7 +201,7 @@
 - [ ] Path to Exile
 - [ ] Perch Protection
 - [ ] Perplexing Test
-- [ ] Plaguecrafter
+- [x] Plaguecrafter
 - [ ] Plumb the Forbidden
 - [ ] Poison-Tip Archer
 - [ ] Pollywog Prodigy
@@ -227,7 +227,7 @@
 - [ ] Restoration Angel
 - [ ] Riot Control
 - [ ] Rishkar, Peema Renegade
-- [ ] Rites of Flourishing
+- [x] Rites of Flourishing
 - [x] Rolling Hamsphere
 - [x] Rootbound Crag
 - [ ] Rootcast Apprenticeship
@@ -291,8 +291,8 @@
 - [x] Temple of Mystery
 - [x] Temple of Plenty
 - [x] Temple of Triumph
-- [ ] Tempt with Bunnies
-- [ ] Tempt with Discovery
+- [x] Tempt with Bunnies
+- [x] Tempt with Discovery
 - [x] Tendershoot Dryad
 - [ ] Tenuous Truce
 - [x] Terramorphic Expanse
@@ -303,10 +303,10 @@
 - [ ] Thopter Engineer
 - [x] Thought Vessel
 - [x] Thran Dynamo
-- [ ] Thriving Bluff
-- [ ] Thriving Grove
-- [ ] Thriving Heath
-- [ ] Thriving Isle
+- [x] Thriving Bluff
+- [x] Thriving Grove
+- [x] Thriving Heath
+- [x] Thriving Isle
 - [ ] Time Wipe
 - [ ] Tireless Provisioner
 - [ ] Toski, Bearer of Secrets

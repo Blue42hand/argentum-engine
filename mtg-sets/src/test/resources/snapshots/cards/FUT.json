@@ -229,6 +229,60 @@
     ]
 }
 
+// Rites of Flourishing
+{
+    "name": "Rites of Flourishing",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of each player's draw step, that player draws an additional card.\nEach player may play an additional land on each of their turns.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Rites of Flourishing:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "DRAW",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantAdditionalLandDrop",
+                "affected": "Each"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "137",
+        "rarity": "RARE",
+        "artist": "Brandon Kitkouski",
+        "flavorText": "\"Dance, and bring forth the coil! It is an umbilical to Gaea herself, fattening us with the earth's rich bounty.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/1/811458c7-dcdc-43ef-8c3e-a90e21ce315e.jpg?1783943097",
+        "rulings": [
+            {
+                "date": "2013-04-15",
+                "text": "The triggered ability is put onto the stack after you have already drawn your card for the turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Tarmogoyf
 {
     "name": "Tarmogoyf",
