@@ -420,6 +420,7 @@ function processStateUpdate(
       cardId: event.cardId,
       cardName: event.cardName,
       imageUri: card?.imageUri ?? null,
+      playerId: event.playerId,
       isOpponent,
       startTime: Date.now() + index * 100,
     })
