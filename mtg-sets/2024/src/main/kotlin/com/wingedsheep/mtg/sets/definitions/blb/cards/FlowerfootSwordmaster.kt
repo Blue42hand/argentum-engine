@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -46,7 +45,7 @@ val FlowerfootSwordmaster = card("Flowerfoot Swordmaster") {
     triggeredAbility {
         trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         effect = Effects.ForEachInGroup(
-            filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Mouse")).youControl(),
+            filter = GroupFilter.allPermanentsWithSubtype("Mouse").youControl(),
             effect = Effects.ModifyStats(
                 power = 1,
                 toughness = 0,

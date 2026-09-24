@@ -7457,7 +7457,7 @@
                     "space": {
                         "type": "IterationSpace.Group",
                         "filter": {
-                            "baseFilter": "creature Goblin"
+                            "baseFilter": "permanent Goblin"
                         }
                     },
                     "body": {

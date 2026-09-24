@@ -5161,6 +5161,10 @@ creature — damage to a planeswalker or battle doesn't satisfy `AnyCreature`.
 - `GroupFilter.CreaturesOpponentControls` — their creatures.
 - `GroupFilter.AllCreatures` — every creature on the battlefield.
 - `GroupFilter.All(filter)` — custom group.
+- `GroupFilter.allPermanentsWithSubtype("Bat")` — the **bare tribal noun** ("Bats you control get
+  +1/+0", "destroy all Goblins"): a bare creature-type noun names every *permanent* with the subtype.
+  `GroupFilter.allCreaturesWithSubtype("Goblin")` is only for the adjectival "Goblin creatures".
+  `GroupFilter.allLandsWithSubtype(subtype)` — "all Islands".
 - Chained: the whole `ObjectFilterBuilder` surface shared with `GameObjectFilter` and `TargetFilter`
   (`.withColor`, `.notColor`, `.withKeyword`, `.withoutKeyword`, `.withSubtype`, `.notSubtype`,
   `.powerAtLeast`, `.powerAtMost`, `.tapped`, `.youControl`, …), plus `GroupFilter`'s own `.other()`
