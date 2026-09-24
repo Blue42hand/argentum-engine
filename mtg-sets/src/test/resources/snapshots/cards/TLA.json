@@ -10,7 +10,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aang's Iceberg:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -33,7 +33,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Aang's Iceberg:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -61,7 +61,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Aang's Iceberg:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -258,7 +258,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aang, Swift Savior:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -337,7 +337,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Aang, Swift Savior:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -366,7 +366,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_3",
+                    "id": "Aang and La, Ocean's Fury:1",
                     "trigger": "AttackEvent",
                     "effect": {
                         "type": "ForEach",
@@ -428,7 +428,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aang, at the Crossroads:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -485,7 +485,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Aang, at the Crossroads:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -515,7 +515,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_3",
+                    "id": "Aang, Destined Savior:1",
                     "trigger": {
                         "type": "StepEvent",
                         "step": "BEGIN_COMBAT"
@@ -555,7 +555,7 @@
                             {
                                 "type": "GrantTriggeredAbility",
                                 "ability": {
-                                    "id": "ability_4",
+                                    "id": "earthbend_return_tapped",
                                     "trigger": {
                                         "type": "ZoneChangeEvent",
                                         "from": "Battlefield"
@@ -650,7 +650,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aang, the Last Airbender:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -708,7 +708,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Aang, the Last Airbender:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -820,7 +820,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Abandoned Air Temple:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -830,7 +830,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Abandoned Air Temple:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1031,7 +1031,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Agna Qel'a:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1041,7 +1041,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Agna Qel'a:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1138,7 +1138,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Air Nomad Legacy:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1182,7 +1182,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Airbender Ascension:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1237,7 +1237,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Airbender Ascension:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -1253,7 +1253,7 @@
                 "descriptionOverride": "Whenever a creature you control enters, put a quest counter on this enchantment."
             },
             {
-                "id": "ability_3",
+                "id": "Airbender Ascension:3",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -1514,7 +1514,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Airship Engine Room:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1524,7 +1524,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Airship Engine Room:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1534,7 +1534,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Airship Engine Room:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1673,7 +1673,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Appa, Loyal Sky Bison:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1760,7 +1760,7 @@
                 "descriptionOverride": "Whenever Appa enters or attacks, choose one — Target creature you control gains flying until end of turn; or airbend another target nonland permanent you control."
             },
             {
-                "id": "ability_2",
+                "id": "Appa, Loyal Sky Bison:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Modal",
@@ -1873,7 +1873,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Appa, Steadfast Guardian:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1931,7 +1931,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Appa, Steadfast Guardian:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -1992,7 +1992,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Avatar Aang:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -2015,7 +2015,7 @@
                 "descriptionOverride": "Whenever this creature attacks, add {R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
             },
             {
-                "id": "ability_2",
+                "id": "Avatar Aang:2",
                 "trigger": "BendPerformedEvent",
                 "binding": "ANY",
                 "effect": {
@@ -2068,7 +2068,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_3",
+                    "id": "Aang, Master of Elements:1",
                     "trigger": {
                         "type": "StepEvent",
                         "step": "UPKEEP",
@@ -2178,7 +2178,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Avatar Destiny:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2305,7 +2305,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Avatar Enthusiasts:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2515,7 +2515,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Azula, Cunning Usurper:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -2538,7 +2538,7 @@
                 "descriptionOverride": "Whenever this creature attacks, add {R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
             },
             {
-                "id": "ability_2",
+                "id": "Azula, Cunning Usurper:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2702,7 +2702,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Azula, On the Hunt:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -2725,7 +2725,7 @@
                 "descriptionOverride": "Whenever this creature attacks, add {R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
             },
             {
-                "id": "ability_2",
+                "id": "Azula, On the Hunt:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -2772,7 +2772,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ba Sing Se:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2782,7 +2782,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ba Sing Se:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2830,7 +2830,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_3",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -2916,7 +2916,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Badgermole:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2955,7 +2955,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -3047,7 +3047,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Badgermole Cub:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3086,7 +3086,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -3163,7 +3163,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Barrels of Blasting Jelly:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3179,7 +3179,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Barrels of Blasting Jelly:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3239,7 +3239,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Beetle-Headed Merchants:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -3296,7 +3296,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Beifong's Bounty Hunters:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature nonland ctrl:you",
@@ -3342,7 +3342,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -3413,7 +3413,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bender's Waterskin:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -3458,7 +3458,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Benevolent River Spirit:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3493,7 +3493,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bitter Work:1",
                 "trigger": {
                     "type": "YouAttackEvent",
                     "attackerFilter": {
@@ -3519,7 +3519,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Bitter Work:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3561,7 +3561,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_3",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -3641,7 +3641,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Boar-q-pine:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3680,7 +3680,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Boiling Rock Prison:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3690,7 +3690,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Boiling Rock Prison:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3700,7 +3700,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Boiling Rock Prison:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3763,7 +3763,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Boiling Rock Rioter:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -3782,7 +3782,7 @@
                 "descriptionOverride": "Whenever this creature attacks, add {R}. Until end of combat, you don't lose this mana as steps and phases end."
             },
             {
-                "id": "ability_2",
+                "id": "Boiling Rock Rioter:3",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -3818,7 +3818,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Boiling Rock Rioter:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4025,7 +4025,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bumi, King of Three Trials:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4150,7 +4150,7 @@
                                     {
                                         "type": "GrantTriggeredAbility",
                                         "ability": {
-                                            "id": "ability_2",
+                                            "id": "earthbend_return_tapped",
                                             "trigger": {
                                                 "type": "ZoneChangeEvent",
                                                 "from": "Battlefield"
@@ -4240,7 +4240,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bumi, Unleashed:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4279,7 +4279,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -4327,7 +4327,7 @@
                 "descriptionOverride": "When Bumi enters, earthbend 4."
             },
             {
-                "id": "ability_3",
+                "id": "Bumi, Unleashed:2",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -4396,7 +4396,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Buzzard-Wasp Colony:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4421,7 +4421,7 @@
                 "descriptionOverride": "When this creature enters, you may sacrifice an artifact or creature. If you do, draw a card."
             },
             {
-                "id": "ability_2",
+                "id": "Buzzard-Wasp Colony:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -4466,7 +4466,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Callous Inspector:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -4534,7 +4534,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Canyon Crawler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4572,7 +4572,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cat-Gator:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4624,7 +4624,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cat-Owl:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "TapUntap",
@@ -4669,7 +4669,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Combustion Man:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ChooseAction",
@@ -4799,7 +4799,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Compassionate Healer:1",
                 "trigger": "TapEvent",
                 "effect": {
                     "type": "Composite",
@@ -4894,7 +4894,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Crescent Island Temple:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4920,7 +4920,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Crescent Island Temple:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "Shrine ctrl:you",
@@ -4968,7 +4968,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cruel Administrator:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -4986,7 +4986,7 @@
                     "imageUri": "https://cards.scryfall.io/normal/front/2/d/2de43b03-9ac5-4292-ab29-2dc6210ef3d9.jpg?1777982247",
                     "triggeredAbilities": [
                         {
-                            "id": "ability_2",
+                            "id": "Soldier:1",
                             "trigger": "AttackEvent",
                             "effect": {
                                 "type": "Composite",
@@ -5108,7 +5108,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Curious Farm Animals:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -5125,7 +5125,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Curious Farm Animals:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5251,7 +5251,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dai Li Agents:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5293,7 +5293,7 @@
                                 {
                                     "type": "GrantTriggeredAbility",
                                     "ability": {
-                                        "id": "ability_2",
+                                        "id": "earthbend_return_tapped",
                                         "trigger": {
                                             "type": "ZoneChangeEvent",
                                             "from": "Battlefield"
@@ -5365,7 +5365,7 @@
                                 {
                                     "type": "GrantTriggeredAbility",
                                     "ability": {
-                                        "id": "ability_3",
+                                        "id": "earthbend_return_tapped",
                                         "trigger": {
                                             "type": "ZoneChangeEvent",
                                             "from": "Battlefield"
@@ -5424,7 +5424,7 @@
                 "descriptionOverride": "When this creature enters, earthbend 1, then earthbend 1."
             },
             {
-                "id": "ability_4",
+                "id": "Dai Li Agents:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -5596,7 +5596,7 @@
                             {
                                 "type": "GrantTriggeredAbility",
                                 "ability": {
-                                    "id": "ability_1",
+                                    "id": "earthbend_return_tapped",
                                     "trigger": {
                                         "type": "ZoneChangeEvent",
                                         "from": "Battlefield"
@@ -5819,7 +5819,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deserter's Disciple:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
@@ -6019,7 +6019,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dragonfly Swarm:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -6070,7 +6070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earth King's Lieutenant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6089,7 +6089,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Earth King's Lieutenant:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Ally ctrl:you",
@@ -6131,7 +6131,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earth Kingdom General:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6170,7 +6170,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -6218,7 +6218,7 @@
                 "descriptionOverride": "When this creature enters, earthbend 2."
             },
             {
-                "id": "ability_3",
+                "id": "Earth Kingdom General:2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
                     "counterType": "PLUS_ONE_PLUS_ONE",
@@ -6266,7 +6266,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earth Kingdom Jailer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6288,7 +6288,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Earth Kingdom Jailer:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -6343,7 +6343,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earth Kingdom Protectors:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "GrantKeyword",
@@ -6394,7 +6394,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earth Kingdom Soldier:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6480,7 +6480,7 @@
                     {
                         "type": "GrantTriggeredAbility",
                         "ability": {
-                            "id": "ability_1",
+                            "id": "earthbend_return_tapped",
                             "trigger": {
                                 "type": "ZoneChangeEvent",
                                 "from": "Battlefield"
@@ -6682,7 +6682,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earth Village Ruffians:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -6722,7 +6722,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -6791,7 +6791,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earthbender Ascension:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6833,7 +6833,7 @@
                                 {
                                     "type": "GrantTriggeredAbility",
                                     "ability": {
-                                        "id": "ability_2",
+                                        "id": "earthbend_return_tapped",
                                         "trigger": {
                                             "type": "ZoneChangeEvent",
                                             "from": "Battlefield"
@@ -6921,7 +6921,7 @@
                 "descriptionOverride": "When this enchantment enters, earthbend 2. Then search your library for a basic land card, put it onto the battlefield tapped, then shuffle."
             },
             {
-                "id": "ability_3",
+                "id": "Earthbender Ascension:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -7049,7 +7049,7 @@
                 {
                     "type": "GrantTriggeredAbility",
                     "ability": {
-                        "id": "ability_1",
+                        "id": "earthbend_return_tapped",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "from": "Battlefield"
@@ -7121,7 +7121,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earthen Ally:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -7163,7 +7163,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -7703,7 +7703,7 @@
                     {
                         "type": "GrantTriggeredAbility",
                         "ability": {
-                            "id": "ability_1",
+                            "id": "earthbend_return_tapped",
                             "trigger": {
                                 "type": "ZoneChangeEvent",
                                 "from": "Battlefield"
@@ -7864,7 +7864,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Lord Azula:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -7887,7 +7887,7 @@
                 "descriptionOverride": "Whenever this creature attacks, add {R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
             },
             {
-                "id": "ability_2",
+                "id": "Fire Lord Azula:2",
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
@@ -7930,7 +7930,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Lord Zuko:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddMana",
@@ -7945,7 +7945,7 @@
                 "descriptionOverride": "Firebending X, where X is Fire Lord Zuko's power. Whenever this creature attacks, add X {R}. This mana lasts until end of combat."
             },
             {
-                "id": "ability_2",
+                "id": "Fire Lord Zuko:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -7974,7 +7974,7 @@
                 "descriptionOverride": "Whenever you cast a spell from exile, put a +1/+1 counter on each creature you control."
             },
             {
-                "id": "ability_3",
+                "id": "Fire Lord Zuko:3",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "ctrl:you",
@@ -8051,7 +8051,7 @@
             "imageUri": "https://cards.scryfall.io/normal/front/2/d/2de43b03-9ac5-4292-ab29-2dc6210ef3d9.jpg?1777982247",
             "triggeredAbilities": [
                 {
-                    "id": "ability_1",
+                    "id": "Soldier:1",
                     "trigger": "AttackEvent",
                     "effect": {
                         "type": "Composite",
@@ -8097,7 +8097,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Nation Cadets:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -8125,7 +8125,7 @@
                 "ability": {
                     "type": "GrantTriggeredAbility",
                     "ability": {
-                        "id": "ability_2",
+                        "id": "Fire Nation Cadets:1",
                         "trigger": "AttackEvent",
                         "effect": {
                             "type": "Composite",
@@ -8185,7 +8185,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Nation Engineer:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -8246,7 +8246,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Nation Palace:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -8256,7 +8256,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Fire Nation Palace:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -8273,7 +8273,7 @@
                 "effect": {
                     "type": "GrantTriggeredAbility",
                     "ability": {
-                        "id": "ability_3",
+                        "id": "Fire Nation Palace:2",
                         "trigger": "AttackEvent",
                         "effect": {
                             "type": "Composite",
@@ -8347,7 +8347,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Nation Raider:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8408,7 +8408,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Nation Warship:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -8446,7 +8446,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Navy Trebuchet:1",
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
@@ -8504,7 +8504,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Sages:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -8525,7 +8525,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Fire Sages:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -8563,7 +8563,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Firebender Ascension:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8584,7 +8584,7 @@
                     "imageUri": "https://cards.scryfall.io/normal/front/2/d/2de43b03-9ac5-4292-ab29-2dc6210ef3d9.jpg?1777982247",
                     "triggeredAbilities": [
                         {
-                            "id": "ability_2",
+                            "id": "Soldier:1",
                             "trigger": "AttackEvent",
                             "effect": {
                                 "type": "Composite",
@@ -8607,7 +8607,7 @@
                 "descriptionOverride": "When this enchantment enters, create a 2/2 red Soldier creature token with firebending 1."
             },
             {
-                "id": "ability_3",
+                "id": "Firebender Ascension:2",
                 "trigger": {
                     "type": "AbilityTriggeredEvent",
                     "requireAttackCause": true
@@ -8749,7 +8749,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Firebending Student:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -8773,7 +8773,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Firebending Student:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddMana",
@@ -8871,7 +8871,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flexible Waterbender:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -8920,7 +8920,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flopsie, Bumi's Buddy:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8974,7 +8974,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foggy Bottom Swamp:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -8984,7 +8984,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Foggy Bottom Swamp:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -8994,7 +8994,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Foggy Bottom Swamp:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -9105,7 +9105,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foggy Swamp Spirit Keeper:1",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 2
@@ -9178,7 +9178,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foggy Swamp Vinebender:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -9301,7 +9301,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Forecasting Fortune Teller:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9386,7 +9386,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Geyser Leaper:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -9484,7 +9484,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Giant Koi:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -9527,7 +9527,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glider Kids:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9559,7 +9559,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glider Staff:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9616,7 +9616,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Glider Staff:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -9682,7 +9682,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gran-Gran:1",
                 "trigger": "TapEvent",
                 "effect": {
                     "type": "Composite",
@@ -9791,7 +9791,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Great Divide Guide:1",
                     "cost": "CostTap",
                     "effect": "AddManaOfChoice",
                     "timing": "ManaAbility",
@@ -9828,7 +9828,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Guru Pathik:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9886,7 +9886,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Guru Pathik:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -9960,7 +9960,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hakoda, Selfless Commander:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "ForEach",
@@ -10027,7 +10027,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hama, the Bloodbender:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10155,7 +10155,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Haru, Hidden Talent:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Ally ctrl:you",
@@ -10196,7 +10196,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -10348,7 +10348,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hei Bai, Spirit of Balance:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10386,7 +10386,7 @@
                 "descriptionOverride": "Whenever Hei Bai enters, you may sacrifice another creature or artifact. If you do, put two +1/+1 counters on Hei Bai."
             },
             {
-                "id": "ability_2",
+                "id": "Hei Bai, Spirit of Balance:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -10421,7 +10421,7 @@
                 "descriptionOverride": "Whenever Hei Bai attacks, you may sacrifice another creature or artifact. If you do, put two +1/+1 counters on Hei Bai."
             },
             {
-                "id": "ability_3",
+                "id": "Hei Bai, Spirit of Balance:3",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -10470,14 +10470,14 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hermitic Herbalist:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Hermitic Herbalist:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddDynamicMana",
@@ -10530,7 +10530,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hog-Monkey:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -10567,7 +10567,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Hog-Monkey:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -10607,7 +10607,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Honest Work:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10650,7 +10650,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_2",
+                    "id": "Honest Work:2",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddColorlessMana",
@@ -10778,7 +10778,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Iguana Parrot:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -10830,7 +10830,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Invasion Reinforcements:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10874,7 +10874,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Invasion Submersible:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10901,7 +10901,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Invasion Submersible:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -10953,7 +10953,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Invasion Tactics:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10981,7 +10981,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Invasion Tactics:2",
                 "trigger": {
                     "type": "OneOrMoreDealCombatDamageToPlayerEvent",
                     "sourceFilter": "permanent Ally"
@@ -11100,7 +11100,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Iroh, Grand Lotus:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -11177,7 +11177,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Iroh, Tea Master:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11188,7 +11188,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Iroh, Tea Master:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -11319,7 +11319,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jasmine Dragon Tea Shop:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -11332,7 +11332,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Jasmine Dragon Tea Shop:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -11345,7 +11345,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Jasmine Dragon Tea Shop:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11396,7 +11396,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jeong Jeong's Deserters:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11454,7 +11454,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jeong Jeong, the Deserter:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -11475,7 +11475,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Jeong Jeong, the Deserter:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -11622,7 +11622,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jet, Freedom Fighter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11649,7 +11649,7 @@
                 "descriptionOverride": "When Jet enters, he deals damage equal to the number of creatures you control to target creature an opponent controls."
             },
             {
-                "id": "ability_2",
+                "id": "Jet, Freedom Fighter:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -11707,7 +11707,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Joo Dee, One of Many:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11768,7 +11768,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "June, Bounty Hunter:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11835,7 +11835,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Katara, Bending Prodigy:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -11856,7 +11856,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Katara, Bending Prodigy:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -11903,7 +11903,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Katara, Water Tribe's Hope:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11923,7 +11923,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Katara, Water Tribe's Hope:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -12017,7 +12017,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Knowledge Seeker:1",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 2
@@ -12032,7 +12032,7 @@
                 "descriptionOverride": "Whenever you draw your second card each turn, put a +1/+1 counter on this creature."
             },
             {
-                "id": "ability_2",
+                "id": "Knowledge Seeker:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -12070,7 +12070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Koh, the Face Stealer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12095,7 +12095,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Koh, the Face Stealer:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature nontoken",
@@ -12120,7 +12120,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Koh, the Face Stealer:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -12182,7 +12182,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kyoshi Battle Fan:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12214,7 +12214,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Kyoshi Battle Fan:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -12269,7 +12269,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kyoshi Island Plaza:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12315,7 +12315,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Kyoshi Island Plaza:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "Shrine ctrl:you",
@@ -12383,7 +12383,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kyoshi Village:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -12393,7 +12393,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Kyoshi Village:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -12403,7 +12403,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Kyoshi Village:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -12456,7 +12456,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kyoshi Warriors:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12604,7 +12604,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lo and Li, Twin Tutors:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12696,7 +12696,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Long Feng, Grand Secretariat:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature|land ctrl:you",
@@ -12801,7 +12801,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mai, Jaded Edge:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -12827,7 +12827,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Mai, Jaded Edge:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -12876,7 +12876,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mai, Scornful Striker:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -12929,7 +12929,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Master Pakku:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -12953,7 +12953,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Master Pakku:2",
                 "trigger": "TapEvent",
                 "effect": {
                     "type": "Composite",
@@ -13024,7 +13024,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Master Piandao:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -13100,7 +13100,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Meditation Pools:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13110,7 +13110,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Meditation Pools:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13120,7 +13120,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Meditation Pools:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13173,7 +13173,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merchant of Many Hats:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -13218,7 +13218,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Messenger Hawk:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13269,7 +13269,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Meteor Sword:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13294,7 +13294,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Meteor Sword:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -13350,7 +13350,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Misty Palms Oasis:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13360,7 +13360,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Misty Palms Oasis:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13370,7 +13370,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Misty Palms Oasis:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13426,7 +13426,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Momo, Friendly Flier:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature kw:flying ctrl:you",
@@ -13530,7 +13530,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Momo, Playful Pet:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -13620,7 +13620,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mongoose Lizard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13662,7 +13662,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "North Pole Gates:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13672,7 +13672,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "North Pole Gates:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13682,7 +13682,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "North Pole Gates:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13735,7 +13735,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "North Pole Patrol:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "TapUntap",
@@ -13758,7 +13758,7 @@
                 "descriptionOverride": "{T}: Untap another target permanent you control."
             },
             {
-                "id": "ability_2",
+                "id": "North Pole Patrol:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13814,7 +13814,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Northern Air Temple:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13846,7 +13846,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Northern Air Temple:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "Shrine ctrl:you",
@@ -13900,7 +13900,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Obsessive Pursuit:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13924,7 +13924,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Obsessive Pursuit:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -13949,7 +13949,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Obsessive Pursuit:3",
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
@@ -14091,7 +14091,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Omashu City:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -14101,7 +14101,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Omashu City:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -14111,7 +14111,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Omashu City:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -14243,7 +14243,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ostrich-Horse:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -14335,7 +14335,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Otter-Penguin:1",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 2
@@ -14489,7 +14489,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ozai, the Phoenix King:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -14584,7 +14584,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Path to Redemption:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -14682,7 +14682,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phoenix Fleet Airship:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -14818,7 +14818,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pirate Peddlers:1",
                 "trigger": {
                     "type": "PermanentsSacrificedEvent",
                     "filter": "permanent",
@@ -14855,7 +14855,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Planetarium of Wan Shi Tong:2",
                 "trigger": "ScriedOrSurveiledEvent",
                 "binding": "ANY",
                 "effect": {
@@ -14887,7 +14887,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Planetarium of Wan Shi Tong:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -14933,7 +14933,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Platypus-Bear:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -15001,7 +15001,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pretending Poxbearers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -15150,7 +15150,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Professor Zei, Anthropologist:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -15170,7 +15170,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Professor Zei, Anthropologist:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -15251,7 +15251,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rabaroo Troop:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -15313,7 +15313,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ran and Shaw:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -15336,7 +15336,7 @@
                 "descriptionOverride": "Whenever this creature attacks, add {R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
             },
             {
-                "id": "ability_2",
+                "id": "Ran and Shaw:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -15370,7 +15370,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Ran and Shaw:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -15427,7 +15427,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raucous Audience:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Gated",
@@ -15485,7 +15485,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raven Eagle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -15526,7 +15526,7 @@
                 "descriptionOverride": "Whenever this creature enters, exile up to one target card from a graveyard. If a creature card is exiled this way, create a Clue token."
             },
             {
-                "id": "ability_2",
+                "id": "Raven Eagle:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -15564,7 +15564,7 @@
                 "descriptionOverride": "Whenever this creature attacks, exile up to one target card from a graveyard. If a creature card is exiled this way, create a Clue token."
             },
             {
-                "id": "ability_3",
+                "id": "Raven Eagle:3",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 2
@@ -15685,7 +15685,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Realm of Koh:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -15695,7 +15695,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Realm of Koh:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -15791,7 +15791,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rebellious Captives:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -15842,7 +15842,7 @@
                                 {
                                     "type": "GrantTriggeredAbility",
                                     "ability": {
-                                        "id": "ability_2",
+                                        "id": "earthbend_return_tapped",
                                         "trigger": {
                                             "type": "ZoneChangeEvent",
                                             "from": "Battlefield"
@@ -16025,7 +16025,7 @@
                 {
                     "type": "GrantTriggeredAbility",
                     "ability": {
-                        "id": "ability_1",
+                        "id": "earthbend_return_tapped",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "from": "Battlefield"
@@ -16161,7 +16161,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rough Rhino Cavalry:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -16186,7 +16186,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Rough Rhino Cavalry:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -16241,7 +16241,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rowdy Snowballers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -16375,7 +16375,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rumble Arena:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -16388,7 +16388,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Rumble Arena:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -16401,7 +16401,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Rumble Arena:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -16481,7 +16481,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sandbender Scavengers:1",
                 "trigger": {
                     "type": "PermanentsSacrificedEvent",
                     "filter": "permanent",
@@ -16497,7 +16497,7 @@
                 "descriptionOverride": "Whenever you sacrifice another permanent, put a +1/+1 counter on this creature."
             },
             {
-                "id": "ability_2",
+                "id": "Sandbender Scavengers:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -16625,7 +16625,7 @@
                             {
                                 "type": "GrantTriggeredAbility",
                                 "ability": {
-                                    "id": "ability_1",
+                                    "id": "earthbend_return_tapped",
                                     "trigger": {
                                         "type": "ZoneChangeEvent",
                                         "from": "Battlefield"
@@ -16696,7 +16696,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Secret Tunnel:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -16709,7 +16709,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Secret Tunnel:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -16946,7 +16946,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Serpent's Pass:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -16956,7 +16956,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Serpent's Pass:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -16966,7 +16966,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Serpent's Pass:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -17159,7 +17159,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sokka, Bold Boomeranger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -17209,7 +17209,7 @@
                 "descriptionOverride": "When Sokka enters, discard up to two cards, then draw that many cards."
             },
             {
-                "id": "ability_2",
+                "id": "Sokka, Bold Boomeranger:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -17267,7 +17267,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sokka, Lateral Strategist:1",
                 "trigger": {
                     "type": "AttackEvent",
                     "requires": [
@@ -17318,7 +17318,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sokka, Tenacious Tactician:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -17342,7 +17342,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Sokka, Tenacious Tactician:3",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -17385,7 +17385,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_3",
+                    "id": "Sokka, Tenacious Tactician:2",
                     "trigger": {
                         "type": "SpellCastEvent",
                         "spellFilter": {
@@ -17611,7 +17611,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "South Pole Voyager:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Ally ctrl:you",
@@ -17672,7 +17672,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Southern Air Temple:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -17698,7 +17698,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Southern Air Temple:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Shrine ctrl:you",
@@ -17762,7 +17762,7 @@
             "body": {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Sozin's Comet:1",
                     "trigger": "AttackEvent",
                     "effect": {
                         "type": "Composite",
@@ -17815,7 +17815,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sparring Dummy:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -17986,7 +17986,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Suki, Courageous Rescuer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent ctrl:you",
@@ -18052,7 +18052,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Suki, Kyoshi Warrior:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -18106,7 +18106,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sun Warriors:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddMana",
@@ -18123,7 +18123,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sun Warriors:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -18167,7 +18167,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sun-Blessed Peak:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -18177,7 +18177,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Sun-Blessed Peak:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -18187,7 +18187,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Sun-Blessed Peak:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -18280,7 +18280,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Team Avatar:1",
                 "trigger": {
                     "type": "AttackEvent",
                     "filter": "creature ctrl:you",
@@ -18307,7 +18307,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Team Avatar:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -18374,7 +18374,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Teo, Spirited Glider:1",
                 "trigger": {
                     "type": "YouAttackEvent",
                     "attackerFilter": {
@@ -18488,7 +18488,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Boulder, Ready to Rumble:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -18528,7 +18528,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -18692,7 +18692,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_1",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -18764,7 +18764,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Earth King:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -18782,7 +18782,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "The Earth King:2",
                 "trigger": {
                     "type": "YouAttackEvent",
                     "attackerFilter": {
@@ -18875,7 +18875,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Fire Nation Drill:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -18909,7 +18909,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "The Fire Nation Drill:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -19095,7 +19095,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_1",
+                    "id": "Avatar Kuruk:1",
                     "trigger": "SpellCastEvent",
                     "binding": "ANY",
                     "effect": {
@@ -19140,7 +19140,7 @@
             ],
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Avatar Kuruk:2",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -19243,7 +19243,7 @@
                                 {
                                     "type": "GrantTriggeredAbility",
                                     "ability": {
-                                        "id": "ability_1",
+                                        "id": "earthbend_return_tapped",
                                         "trigger": {
                                             "type": "ZoneChangeEvent",
                                             "from": "Battlefield"
@@ -19318,7 +19318,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Avatar Kyoshi:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddManaOfChoice",
@@ -19448,7 +19448,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_1",
+                    "id": "Avatar Roku:1",
                     "trigger": "AttackEvent",
                     "effect": {
                         "type": "Composite",
@@ -19473,7 +19473,7 @@
             ],
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Avatar Roku:2",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -19497,7 +19497,7 @@
                         ],
                         "triggeredAbilities": [
                             {
-                                "id": "ability_3",
+                                "id": "Dragon:1",
                                 "trigger": "AttackEvent",
                                 "effect": {
                                     "type": "Composite",
@@ -19674,7 +19674,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_1",
+                    "id": "Avatar Yangchen:1",
                     "trigger": {
                         "type": "NthSpellCastEvent",
                         "nthSpell": 2,
@@ -19776,7 +19776,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Lion-Turtle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -19792,7 +19792,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "The Lion-Turtle:2",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -19861,7 +19861,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Mechanist, Aerial Artisan:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -19879,7 +19879,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "The Mechanist, Aerial Artisan:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "BecomeCreature",
@@ -20067,7 +20067,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_1",
+                    "id": "Fire Lord Sozin:1",
                     "trigger": "AttackEvent",
                     "effect": {
                         "type": "Composite",
@@ -20090,7 +20090,7 @@
                     "descriptionOverride": "Whenever this creature attacks, add {R}{R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
                 },
                 {
-                    "id": "ability_2",
+                    "id": "Fire Lord Sozin:2",
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
@@ -20175,7 +20175,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Spirit Oasis:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -20190,7 +20190,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "The Spirit Oasis:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "Shrine ctrl:you",
@@ -20246,7 +20246,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Unagi of Kyoshi Island:1",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 2,
@@ -20372,7 +20372,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tiger-Seal:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -20385,7 +20385,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, tap this creature."
             },
             {
-                "id": "ability_2",
+                "id": "Tiger-Seal:2",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 2
@@ -20421,7 +20421,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tolls of War:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -20432,7 +20432,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Tolls of War:2",
                 "trigger": {
                     "type": "PermanentsSacrificedEvent",
                     "filter": "permanent",
@@ -20480,7 +20480,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Toph, Hardheaded Teacher:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -20548,7 +20548,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Toph, Hardheaded Teacher:2",
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
@@ -20588,7 +20588,7 @@
                                 {
                                     "type": "GrantTriggeredAbility",
                                     "ability": {
-                                        "id": "ability_3",
+                                        "id": "earthbend_return_tapped",
                                         "trigger": {
                                             "type": "ZoneChangeEvent",
                                             "from": "Battlefield"
@@ -20692,7 +20692,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Toph, the Blind Bandit:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -20731,7 +20731,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -20805,7 +20805,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Toph, the First Metalbender:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -20845,7 +20845,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "earthbend_return_tapped",
                                 "trigger": {
                                     "type": "ZoneChangeEvent",
                                     "from": "Battlefield"
@@ -20933,7 +20933,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Treetop Freedom Fighters:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -21020,7 +21020,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trusty Boomerang:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -21052,7 +21052,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_2",
+                    "id": "Trusty Boomerang:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -21135,7 +21135,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tundra Tank:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -21154,7 +21154,7 @@
                 "descriptionOverride": "Whenever this creature attacks, add {R}. Until end of combat, you don't lose this mana as steps and phases end."
             },
             {
-                "id": "ability_2",
+                "id": "Tundra Tank:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -21201,7 +21201,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Turtle-Duck:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -21254,7 +21254,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Twin Blades:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -21290,7 +21290,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Twin Blades:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -21354,7 +21354,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ty Lee, Artful Acrobat:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -21378,7 +21378,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Ty Lee, Artful Acrobat:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -21435,7 +21435,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ty Lee, Chi Blocker:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -21459,7 +21459,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Ty Lee, Chi Blocker:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -21533,7 +21533,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Uncle Iroh:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -21644,7 +21644,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Unlucky Cabbage Merchant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -21655,7 +21655,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Unlucky Cabbage Merchant:2",
                 "trigger": {
                     "type": "PermanentsSacrificedEvent",
                     "filter": "artifact Food",
@@ -21747,7 +21747,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vengeful Villagers:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -21826,7 +21826,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vindictive Warden:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -21847,7 +21847,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Vindictive Warden:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -21897,7 +21897,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Walltop Sentries:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -21949,7 +21949,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wan Shi Tong, Librarian:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -21980,7 +21980,7 @@
                 "descriptionOverride": "Put X +1/+1 counters on Wan Shi Tong. Then draw half X cards, rounded down."
             },
             {
-                "id": "ability_2",
+                "id": "Wan Shi Tong, Librarian:2",
                 "trigger": {
                     "type": "SearchLibraryEvent",
                     "player": "EachOpponent"
@@ -22032,7 +22032,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wandering Musicians:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -22094,7 +22094,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "War Balloon:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -22163,7 +22163,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wartime Protestors:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Ally ctrl:you",
@@ -22214,7 +22214,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Water Tribe Captain:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -22270,7 +22270,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Water Tribe Rallier:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -22353,7 +22353,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Waterbender Ascension:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -22409,7 +22409,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Waterbender Ascension:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -22541,7 +22541,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Waterbending Scroll:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -22591,7 +22591,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Watery Grasp:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -22640,7 +22640,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "White Lotus Hideout:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -22653,7 +22653,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "White Lotus Hideout:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -22669,7 +22669,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "White Lotus Hideout:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -22747,7 +22747,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "White Lotus Tile:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -22786,7 +22786,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wolfbat:1",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 2
@@ -22925,7 +22925,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Yue, the Moon Spirit:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -23011,7 +23011,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Yuyan Archers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -23105,7 +23105,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zhao, Ruthless Admiral:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -23128,7 +23128,7 @@
                 "descriptionOverride": "Whenever this creature attacks, add {R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
             },
             {
-                "id": "ability_2",
+                "id": "Zhao, Ruthless Admiral:2",
                 "trigger": {
                     "type": "PermanentsSacrificedEvent",
                     "filter": "permanent",
@@ -23189,7 +23189,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zhao, the Moon Slayer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -23395,7 +23395,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zuko, Conflicted:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "PRECOMBAT_MAIN"
@@ -23554,7 +23554,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zuko, Exiled Prince:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -23579,7 +23579,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Zuko, Exiled Prince:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

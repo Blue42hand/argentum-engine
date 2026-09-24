@@ -7,7 +7,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aeronaut's Wings:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -69,7 +69,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Air Marshal:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -125,7 +125,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ambush Paratrooper:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -181,7 +181,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Argothian Sprite:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -331,7 +331,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Coastal Bulwark:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -443,7 +443,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deathbloom Ritualist:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -481,7 +481,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Demolition Field:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -494,7 +494,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Demolition Field:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -672,7 +672,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Forge-Chanter:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -730,7 +730,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Energy Refractor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -746,7 +746,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Energy Refractor:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -781,7 +781,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fallaji Chaindancer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -824,7 +824,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fallaji Vanguard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -994,7 +994,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gnarlroot Pallbearer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1052,7 +1052,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Firebomb:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1270,7 +1270,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Perimeter Patrol:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -1320,7 +1320,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phalanx Vanguard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -1367,7 +1367,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Retrieval Agent:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1474,7 +1474,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Supply Drop:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1505,7 +1505,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Supply Drop:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1547,7 +1547,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Teferi, Temporal Pilgrim:1",
                 "trigger": "DrawEvent",
                 "binding": "ANY",
                 "effect": {
@@ -1560,7 +1560,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Teferi, Temporal Pilgrim:2",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": 0
@@ -1576,7 +1576,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Teferi, Temporal Pilgrim:4",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": -2
@@ -1597,7 +1597,7 @@
                     "imageUri": "https://cards.scryfall.io/normal/front/3/4/349e3241-8f9d-4c52-9848-e01b575fd372.jpg?1675455446",
                     "triggeredAbilities": [
                         {
-                            "id": "ability_4",
+                            "id": "Teferi, Temporal Pilgrim:3",
                             "trigger": "DrawEvent",
                             "binding": "ANY",
                             "effect": {
@@ -1613,7 +1613,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_5",
+                "id": "Teferi, Temporal Pilgrim:5",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": -12
@@ -1722,7 +1722,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Third Path Savant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1764,7 +1764,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thopter Architect:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -1811,7 +1811,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tocasia's Dig Site:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1824,7 +1824,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Tocasia's Dig Site:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1902,7 +1902,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tyrant of Kher Ridges:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1926,7 +1926,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Tyrant of Kher Ridges:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2104,7 +2104,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wing Commando:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2167,7 +2167,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Yotian Dissident:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",

@@ -14,7 +14,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Angel of Finality:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

@@ -15,7 +15,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Agent Venom:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature nontoken ctrl:you",
@@ -197,7 +197,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Angry Rabble:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -225,7 +225,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Angry Rabble:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -267,7 +267,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Anti-Venom, Horrifying Healer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -343,7 +343,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arachne, Psionic Weaver:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -407,7 +407,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Araña, Heart of the Spider:1",
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
@@ -428,7 +428,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Araña, Heart of the Spider:2",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -503,7 +503,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aunt May:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -563,7 +563,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bagel and Schmear:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -612,7 +612,7 @@
                 "timing": "SorcerySpeed"
             },
             {
-                "id": "ability_2",
+                "id": "Bagel and Schmear:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -676,7 +676,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Beetle, Legacy Criminal:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -790,7 +790,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Biorganic Carapace:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -813,7 +813,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Biorganic Carapace:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -850,7 +850,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_3",
+                    "id": "Biorganic Carapace:2",
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
@@ -905,7 +905,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Black Cat, Cunning Thief:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1021,7 +1021,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Carnage, Crimson Chaos:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1050,7 +1050,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_2",
+                                "id": "Carnage, Crimson Chaos:1",
                                 "trigger": {
                                     "type": "DealsDamageEvent",
                                     "damageType": "DamageCombat",
@@ -1150,7 +1150,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cheering Crowd:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "PRECOMBAT_MAIN",
@@ -1223,7 +1223,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "City Pigeon:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -1260,7 +1260,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Common Crook:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1304,7 +1304,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cosmic Spider-Man:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -1378,7 +1378,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Costume Closet:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": {
@@ -1404,7 +1404,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Costume Closet:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveCounters",
@@ -1460,7 +1460,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Daily Bugle Building:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1473,7 +1473,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Daily Bugle Building:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1492,7 +1492,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Daily Bugle Building:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1555,7 +1555,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Daily Bugle Reporters:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1639,7 +1639,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Damage Control Crew:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1722,7 +1722,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Doc Ock's Henchmen:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Connive",
@@ -1804,7 +1804,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Doc Ock's Tentacles:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature mv>=5 ctrl:you",
@@ -1823,7 +1823,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Doc Ock's Tentacles:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1951,7 +1951,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Doctor Octopus, Master Planner:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -2032,7 +2032,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eddie Brock:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2059,7 +2059,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Eddie Brock:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2090,7 +2090,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_3",
+                    "id": "Venom, Lethal Protector:1",
                     "trigger": "AttackEvent",
                     "effect": {
                         "type": "Gated",
@@ -2215,7 +2215,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eerie Gravestone:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2232,7 +2232,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Eerie Gravestone:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2375,7 +2375,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Electro, Assaulting Battery:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2397,7 +2397,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Electro, Assaulting Battery:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -2454,7 +2454,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ezekiel Sims, Spider-Totem:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -2513,7 +2513,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flash Thompson, Spider-Fan:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2595,7 +2595,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flying Octobot:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Villain ctrl:you",
@@ -2633,7 +2633,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Friendly Neighborhood:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2661,7 +2661,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_2",
+                    "id": "Friendly Neighborhood:2",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -2738,7 +2738,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gallant Citizen:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2782,7 +2782,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Green Goblin, Revenant:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -2918,14 +2918,14 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Guy in the Chair:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Guy in the Chair:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2985,7 +2985,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gwen Stacy:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3025,7 +3025,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Gwen Stacy:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3056,7 +3056,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_3",
+                    "id": "Ghost-Spider:1",
                     "trigger": {
                         "type": "SpellCastEvent",
                         "requires": [
@@ -3076,7 +3076,7 @@
                     "descriptionOverride": "Whenever you cast a spell from exile, put a +1/+1 counter on Ghost-Spider."
                 },
                 {
-                    "id": "ability_4",
+                    "id": "Ghost-Spider:2",
                     "trigger": {
                         "type": "ZoneChangeEvent",
                         "filter": "land ctrl:you",
@@ -3095,7 +3095,7 @@
             ],
             "activatedAbilities": [
                 {
-                    "id": "ability_5",
+                    "id": "Ghost-Spider:3",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -3189,7 +3189,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gwenom, Remorseless:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -3420,7 +3420,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hobgoblin, Mantled Marauder:1",
                 "trigger": "DiscardEvent",
                 "binding": "ANY",
                 "effect": {
@@ -3460,7 +3460,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hot Dog Cart:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3474,7 +3474,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Hot Dog Cart:2",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -3504,7 +3504,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hydro-Man, Fluid Felon:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3536,7 +3536,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Hydro-Man, Fluid Felon:3",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -3559,7 +3559,7 @@
                             "colors": null,
                             "loseAllAbilities": false,
                             "grantedAbility": {
-                                "id": "ability_3",
+                                "id": "Hydro-Man, Fluid Felon:2",
                                 "cost": "CostTap",
                                 "effect": {
                                     "type": "AddMana",
@@ -3596,7 +3596,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Impostor Syndrome:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -3642,7 +3642,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Inner Demons Gangsters:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -3693,7 +3693,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Interdimensional Web Watch:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3735,7 +3735,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Interdimensional Web Watch:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddDynamicMana",
@@ -3783,7 +3783,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Iron Spider, Stark Upgrade:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ForEach",
@@ -3822,7 +3822,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Iron Spider, Stark Upgrade:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3880,7 +3880,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "J. Jonah Jameson:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3902,7 +3902,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "J. Jonah Jameson:2",
                 "trigger": {
                     "type": "AttackEvent",
                     "filter": "creature kw:menace ctrl:you"
@@ -3943,7 +3943,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jackal, Genius Geneticist:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -4102,7 +4102,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kraven the Hunter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": {
@@ -4165,7 +4165,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kraven's Cats:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4371,7 +4371,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lady Octopus, Inspired Inventor:1",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 1
@@ -4386,7 +4386,7 @@
                 "descriptionOverride": "Whenever you draw your first card each turn, put an ingenuity counter on Lady Octopus."
             },
             {
-                "id": "ability_2",
+                "id": "Lady Octopus, Inspired Inventor:2",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 2
@@ -4403,7 +4403,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Lady Octopus, Inspired Inventor:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -4484,7 +4484,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Living Brain, Mechanical Marvel:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -4563,7 +4563,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lizard, Connors's Curse:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4643,7 +4643,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lurking Lizards:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -4689,7 +4689,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Madame Web, Clairvoyant:1",
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
@@ -4755,7 +4755,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mary Jane Watson:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Spider ctrl:you",
@@ -4802,7 +4802,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Masked Meower:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4909,7 +4909,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mechanical Mobster:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5038,7 +5038,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merciless Enforcers:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5084,7 +5084,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Miles Morales:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5115,7 +5115,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Miles Morales:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5145,7 +5145,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_3",
+                    "id": "Ultimate Spider-Man:2",
                     "trigger": "YouAttackEvent",
                     "binding": "ANY",
                     "effect": {
@@ -5193,7 +5193,7 @@
             ],
             "activatedAbilities": [
                 {
-                    "id": "ability_4",
+                    "id": "Ultimate Spider-Man:1",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -5275,7 +5275,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mister Negative:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5325,7 +5325,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mob Lookout:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5430,7 +5430,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Molten Man, Inferno Incarnate:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5476,7 +5476,7 @@
                 "descriptionOverride": "When Molten Man enters, search your library for a basic Mountain card, put it onto the battlefield tapped, then shuffle."
             },
             {
-                "id": "ability_2",
+                "id": "Molten Man, Inferno Incarnate:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -5539,7 +5539,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Morbius the Living Vampire:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5635,7 +5635,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Morlun, Devourer of Spiders:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5746,7 +5746,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mysterio's Phantasm:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -5800,7 +5800,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mysterio, Master of Illusion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5828,7 +5828,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Mysterio, Master of Illusion:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -5889,7 +5889,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "News Helicopter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5932,7 +5932,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Norman Osborn:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -6003,7 +6003,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Norman Osborn:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6094,7 +6094,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ominous Asylum:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -6104,7 +6104,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ominous Asylum:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -6114,7 +6114,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Ominous Asylum:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6273,7 +6273,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oscorp Industries:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6300,7 +6300,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Oscorp Industries:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -6310,7 +6310,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Oscorp Industries:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -6320,7 +6320,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_4",
+                "id": "Oscorp Industries:4",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -6360,7 +6360,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oscorp Research Team:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6398,7 +6398,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Parker Luck:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -6536,7 +6536,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Passenger Ferry:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -6590,7 +6590,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Peter Parker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6615,7 +6615,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Peter Parker:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6698,7 +6698,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Peter Parker's Camera:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6773,7 +6773,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pictures of Spider-Man:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6834,7 +6834,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Pictures of Spider-Man:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6943,7 +6943,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Professional Wrestler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6988,7 +6988,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prowler, Clawed Thief:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Villain ctrl:you",
@@ -7136,7 +7136,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Radioactive Spider:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -7245,7 +7245,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rent Is Due:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -7481,7 +7481,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rhino, Barreling Brute:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "DrawCards",
@@ -7566,7 +7566,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Robotics Mastery:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7634,7 +7634,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rocket-Powered Goblin Glider:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7662,7 +7662,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Rocket-Powered Goblin Glider:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -7792,7 +7792,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "SP//dr, Piloted by Peni:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7815,7 +7815,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "SP//dr, Piloted by Peni:2",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -7960,7 +7960,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sandman, Shifting Scoundrel:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -8038,7 +8038,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savage Mansion:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -8048,7 +8048,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Savage Mansion:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -8058,7 +8058,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Savage Mansion:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -8160,7 +8160,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scarlet Spider, Kaine:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8353,7 +8353,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scorpion, Seething Striker:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -8698,7 +8698,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Selfless Police Captain:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -8748,7 +8748,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shadow of the Goblin:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "PRECOMBAT_MAIN"
@@ -8804,7 +8804,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Shadow of the Goblin:2",
                 "trigger": {
                     "type": "LandPlayedEvent",
                     "fromZoneOtherThan": "Hand"
@@ -8823,7 +8823,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Shadow of the Goblin:3",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -8873,7 +8873,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shocker, Unshakable:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8951,7 +8951,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shriek, Treblemaker:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "PRECOMBAT_MAIN"
@@ -9013,7 +9013,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Shriek, Treblemaker:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:opponent",
@@ -9070,7 +9070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silk, Web Weaver:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -9098,7 +9098,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Silk, Web Weaver:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -9166,7 +9166,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silver Sable, Mercenary Leader:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9190,7 +9190,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Silver Sable, Mercenary Leader:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "GrantKeyword",
@@ -9239,7 +9239,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sinister Hideout:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -9249,7 +9249,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Sinister Hideout:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -9259,7 +9259,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Sinister Hideout:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -9361,7 +9361,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spectacular Spider-Man:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -9376,7 +9376,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Spectacular Spider-Man:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -9533,7 +9533,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider Manifestation:3",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -9555,7 +9555,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Spider Manifestation:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -9565,7 +9565,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Spider Manifestation:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -9604,7 +9604,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Bot:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9677,7 +9677,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Byte, Web Warden:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9726,7 +9726,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Girl, Legacy Hero:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -9791,7 +9791,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Gwen, Free Spirit:1",
                 "trigger": "TapEvent",
                 "effect": {
                     "type": "Gated",
@@ -9872,7 +9872,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Ham, Peter Porker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9954,7 +9954,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Man 2099:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -10039,7 +10039,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Man India:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -10157,7 +10157,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Man Noir:1",
                 "trigger": {
                     "type": "AttackEvent",
                     "filter": "creature ctrl:you",
@@ -10272,7 +10272,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Man, Brooklyn Visionary:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10384,7 +10384,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Mobile:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -10402,7 +10402,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Spider-Mobile:2",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -10618,7 +10618,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Slayer, Hatred Honed:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
@@ -10636,7 +10636,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Spider-Slayer, Hatred Honed:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -10691,7 +10691,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Suit:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -10776,7 +10776,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-UK:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -10839,7 +10839,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spider-Verse:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -10943,7 +10943,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spiders-Man, Heroic Horde:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11008,7 +11008,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spinneret and Spiderling:1",
                 "trigger": {
                     "type": "YouAttackEvent",
                     "minAttackers": 2,
@@ -11031,7 +11031,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Spinneret and Spiderling:2",
                 "trigger": "DealsDamageEvent",
                 "effect": {
                     "type": "Composite",
@@ -11108,7 +11108,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Starling, Aerial Ally:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11152,7 +11152,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Steel Wrecking Ball:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11179,7 +11179,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Steel Wrecking Ball:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11242,7 +11242,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stegron the Dinosaur Man:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11330,7 +11330,7 @@
                 {
                     "type": "GrantTriggeredAbility",
                     "ability": {
-                        "id": "ability_1",
+                        "id": "Strength of Will:1",
                         "trigger": "DamageReceivedEvent",
                         "effect": {
                             "type": "AddDynamicCounters",
@@ -11380,7 +11380,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Suburban Sanctuary:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -11390,7 +11390,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Suburban Sanctuary:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -11400,7 +11400,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Suburban Sanctuary:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11459,7 +11459,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Subway Train:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11589,7 +11589,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sun-Spider, Nimble Webber:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11679,7 +11679,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Superior Foes of Spider-Man:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -11793,7 +11793,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Supportive Parents:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -11865,7 +11865,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Symbiote Spider-Man:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -11926,7 +11926,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Symbiote Spider-Man:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11955,7 +11955,7 @@
                         {
                             "type": "GrantTriggeredAbility",
                             "ability": {
-                                "id": "ability_3",
+                                "id": "Symbiote Spider-Man:2",
                                 "trigger": {
                                     "type": "DealsDamageEvent",
                                     "damageType": "DamageCombat",
@@ -12061,7 +12061,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Taxi Driver:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -12465,7 +12465,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Soul Stone:3",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -12504,7 +12504,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "The Soul Stone:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -12514,7 +12514,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "The Soul Stone:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -12636,7 +12636,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Spot, Living Portal:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12682,7 +12682,7 @@
                 "descriptionOverride": "When The Spot enters, exile up to one target nonland permanent and up to one target nonland permanent card from a graveyard."
             },
             {
-                "id": "ability_2",
+                "id": "The Spot, Living Portal:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -12825,7 +12825,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tombstone, Career Criminal:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12896,7 +12896,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ultimate Green Goblin:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -12971,7 +12971,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "University Campus:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -12981,7 +12981,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "University Campus:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -12991,7 +12991,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "University Campus:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13163,7 +13163,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Urban Retreat:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -13180,7 +13180,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Urban Retreat:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13307,7 +13307,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Venom, Evil Unleashed:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13384,7 +13384,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Venomized Cat:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13437,7 +13437,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vibrant Cityscape:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13576,7 +13576,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vulture, Scheming Scavenger:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -13618,7 +13618,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wall Crawl:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13700,7 +13700,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Web Up:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13721,7 +13721,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Web Up:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -13771,7 +13771,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Web of Life and Destiny:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -13851,7 +13851,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Web-Shooters:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -13892,7 +13892,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_2",
+                    "id": "Web-Shooters:1",
                     "trigger": "AttackEvent",
                     "effect": {
                         "type": "TapUntap",
@@ -13938,7 +13938,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Web-Warriors:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -14049,7 +14049,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wild Pack Squad:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"

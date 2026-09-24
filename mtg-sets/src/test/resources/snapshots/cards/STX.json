@@ -143,7 +143,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Access Tunnel:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -156,7 +156,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Access Tunnel:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -418,7 +418,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Archway Commons:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -438,7 +438,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Archway Commons:2",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -711,7 +711,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blood Researcher:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -748,7 +748,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brackish Trudge:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -816,7 +816,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Burrog Befuddler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -870,7 +870,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Campus Guide:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -946,7 +946,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Combat Professor:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -1128,7 +1128,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Daemogoth Titan:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Sacrifice",
@@ -1136,7 +1136,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Daemogoth Titan:2",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "Sacrifice",
@@ -1458,7 +1458,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dream Strix:1",
                 "trigger": {
                     "type": "BecomesTargetEvent",
                     "spellsOnly": true
@@ -1469,7 +1469,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Dream Strix:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1869,7 +1869,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Excavated Wall:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2020,7 +2020,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eyetwitch:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2406,7 +2406,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flamescroll Celebrant:1",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
                     "player": "EachOpponent"
@@ -2427,7 +2427,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Flamescroll Celebrant:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2521,7 +2521,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fuming Effigy:1",
                 "trigger": "CardsLeftYourGraveyardEvent",
                 "binding": "ANY",
                 "effect": {
@@ -2565,7 +2565,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Galazeth Prismari:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2580,7 +2580,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_2",
+                    "id": "Galazeth Prismari:2",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddManaOfChoice",
@@ -2623,7 +2623,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gnarled Professor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2865,7 +2865,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hall Monitor:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3301,14 +3301,14 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Letter of Acceptance:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Letter of Acceptance:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3351,7 +3351,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lorehold Campus:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3361,7 +3361,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Lorehold Campus:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3371,7 +3371,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Lorehold Campus:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3676,7 +3676,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Novice Dissector:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3747,7 +3747,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oggyar Battle-Seer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Scry",
@@ -3785,7 +3785,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Overgrown Arch:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GainLife",
@@ -3796,7 +3796,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Overgrown Arch:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3957,7 +3957,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pillardrop Rescuer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4001,7 +4001,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Poet's Quill:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4092,7 +4092,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Poet's Quill:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4266,7 +4266,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prismari Campus:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4276,7 +4276,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Prismari Campus:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4286,7 +4286,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Prismari Campus:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4336,7 +4336,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Professor of Symbology:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4512,7 +4512,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Quandrix Campus:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4522,7 +4522,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Quandrix Campus:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4532,7 +4532,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Quandrix Campus:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4582,7 +4582,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Quintorius, Field Historian:1",
                 "trigger": "CardsLeftYourGraveyardEvent",
                 "binding": "ANY",
                 "effect": {
@@ -4920,7 +4920,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silverquill Campus:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4930,7 +4930,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Silverquill Campus:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4940,7 +4940,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Silverquill Campus:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4990,7 +4990,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soothsayer Adept:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5075,7 +5075,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sparring Regimen:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5164,7 +5164,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Sparring Regimen:2",
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
@@ -5275,7 +5275,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Springmane Cervin:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5380,7 +5380,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stonebound Mentor:1",
                 "trigger": "CardsLeftYourGraveyardEvent",
                 "binding": "ANY",
                 "effect": {
@@ -5419,7 +5419,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stonerise Spirit:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5814,7 +5814,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Witherbloom Campus:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -5824,7 +5824,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Witherbloom Campus:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -5834,7 +5834,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Witherbloom Campus:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5884,7 +5884,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wormhole Serpent:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

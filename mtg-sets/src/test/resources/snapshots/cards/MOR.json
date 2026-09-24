@@ -248,7 +248,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Order of the Golden Cricket:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -302,7 +302,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spitebellows:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -383,7 +383,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Taurean Mauler:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "EachOpponent"
@@ -436,7 +436,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Walker of the Grove:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"

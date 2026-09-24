@@ -60,7 +60,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ink-Eyes, Servant of Oni:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -94,7 +94,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Ink-Eyes, Servant of Oni:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

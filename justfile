@@ -332,7 +332,7 @@ coverage-verify-all: _coverage-tool
     done
 
 # Build the Argentum Assay CLI once so the recipes below can call it (fast no-op when up to date).
-# Assay is the first-party Oracle-text parser (docs/oracle-assay.md); it depends on :mtg-sdk only.
+# Assay is the first-party Oracle-text parser (docs/oracle-assay.md); it depends on :mtg-sdk (and :mtg-sdk-tooling) only.
 _assay-tool:
     @scripts/gradle-locked -q --console=plain :oracle-assay:installDist
 

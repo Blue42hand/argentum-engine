@@ -30,7 +30,7 @@ val DefilingTears = card("Defiling Tears") {
             Effects.ModifyStats(1, -1, t) then
             Effects.GrantActivatedAbility(
                 ability = ActivatedAbility(
-                    id = AbilityId.generate(),
+                    id = AbilityId.next(),
                     cost = Costs.Mana(ManaCost.parse("{B}")),
                     effect = Effects.Regenerate(EffectTarget.Self)
                 ),

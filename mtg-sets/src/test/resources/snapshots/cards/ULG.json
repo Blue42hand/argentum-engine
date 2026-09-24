@@ -44,7 +44,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Archivist:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DrawCards",
@@ -194,7 +194,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cloud of Faeries:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -346,7 +346,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Devout Harpist:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveToZone",
@@ -438,7 +438,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eviscerator:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -479,7 +479,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Expendable Troops:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -550,7 +550,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fleeting Image:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -594,7 +594,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fog of Gnats:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -633,7 +633,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ghitu Fire-Eater:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -683,7 +683,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ghitu War Cry:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -759,7 +759,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Iron Maiden:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -851,7 +851,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "King Crab:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1100,7 +1100,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Palinchron:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1130,7 +1130,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Palinchron:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1213,7 +1213,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Broodlings:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1269,7 +1269,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Debaser:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1328,7 +1328,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Defiler:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1388,7 +1388,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Denouncer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1447,7 +1447,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Plaguelord:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1481,7 +1481,7 @@
                 ]
             },
             {
-                "id": "ability_2",
+                "id": "Phyrexian Plaguelord:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1537,7 +1537,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Reclamation:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1662,7 +1662,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pygmy Pyrosaur:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1797,7 +1797,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rank and File:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1854,7 +1854,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shivan Phoenix:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1952,7 +1952,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sustainer of the Realm:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -2039,7 +2039,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thornwind Faeries:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -2085,7 +2085,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tragic Poet:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2184,7 +2184,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viashino Cutthroat:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -2227,7 +2227,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viashino Sandscout:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -2268,7 +2268,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vigilant Drake:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2308,7 +2308,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Weatherseed Elf:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
@@ -2390,7 +2390,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Weatherseed Treefolk:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2424,7 +2424,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wheel of Torture:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",

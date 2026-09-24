@@ -93,7 +93,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aurelia, the Warleader:1",
                 "trigger": {
                     "type": "AttackEvent",
                     "requires": [
@@ -228,7 +228,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Boros Guildgate:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -238,7 +238,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Boros Guildgate:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -291,7 +291,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Consuming Aberration:1",
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
@@ -353,7 +353,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Court Street Denizen:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature white ctrl:you",
@@ -397,7 +397,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dimir Guildgate:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -407,7 +407,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Dimir Guildgate:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -446,7 +446,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foundry Street Denizen:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature red ctrl:you",
@@ -489,7 +489,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gruul Guildgate:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -499,7 +499,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Gruul Guildgate:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -558,7 +558,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "High Priest of Penance:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "Gated",
@@ -610,7 +610,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ivy Lane Denizen:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature green ctrl:you",
@@ -656,7 +656,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orzhov Guildgate:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -666,7 +666,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Orzhov Guildgate:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -705,7 +705,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prime Speaker Zegana:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -816,7 +816,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Simic Guildgate:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -826,7 +826,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Simic Guildgate:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",

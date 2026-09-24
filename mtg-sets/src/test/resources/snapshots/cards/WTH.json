@@ -206,7 +206,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Festering Evil:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -253,7 +253,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Festering Evil:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -394,7 +394,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hidden Horror:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -434,7 +434,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mind Stone:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -447,7 +447,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Mind Stone:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -496,7 +496,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sage Owl:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

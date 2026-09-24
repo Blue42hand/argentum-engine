@@ -46,7 +46,7 @@ val LunarchMantle = card("Lunarch Mantle") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Composite(Costs.Mana("{1}"), Costs.Sacrifice(GameObjectFilter.Permanent)),
                 effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)
             )

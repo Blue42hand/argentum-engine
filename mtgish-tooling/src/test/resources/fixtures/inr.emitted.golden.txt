@@ -2169,7 +2169,7 @@ val CryptolithRite = card("Cryptolith Rite") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Tap,
                 effect = Effects.AddManaOfChoice(),
                 isManaAbility = true,

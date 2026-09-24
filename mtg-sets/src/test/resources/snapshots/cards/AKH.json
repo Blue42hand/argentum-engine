@@ -14,7 +14,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Angler Drake:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -69,7 +69,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Baleful Ammit:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -121,7 +121,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blighted Bat:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -162,7 +162,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bloodlust Inciter:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
@@ -209,7 +209,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bloodrage Brawler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -274,7 +274,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bontu's Monument:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -370,7 +370,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cartouche of Ambition:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -434,7 +434,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cartouche of Knowledge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -486,7 +486,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cartouche of Solidarity:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -544,7 +544,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cartouche of Zeal:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -606,7 +606,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cascading Cataracts:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -619,7 +619,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Cascading Cataracts:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -674,7 +674,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Channeler Initiate:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -700,7 +700,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Channeler Initiate:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -769,7 +769,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Companion of the Trials:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -830,7 +830,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cradle of the Accursed:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -843,7 +843,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Cradle of the Accursed:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -898,7 +898,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Crocodile of the Crossing:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1133,7 +1133,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Doomed Dissenter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1271,7 +1271,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fan Bearer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1329,7 +1329,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Festering Mummy:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1586,7 +1586,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Graceful Cat:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -1623,7 +1623,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grasping Dunes:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1636,7 +1636,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Grasping Dunes:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1737,7 +1737,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hapatra, Vizier of Poisons:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1768,7 +1768,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Hapatra, Vizier of Poisons:2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
                     "counterType": "MINUS_ONE_MINUS_ONE",
@@ -1876,7 +1876,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Honed Khopesh:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1954,7 +1954,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Initiate's Companion:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -2069,7 +2069,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Liliana's Mastery:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2129,7 +2129,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lord of the Accursed:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2196,7 +2196,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Manticore of the Gauntlet:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2266,7 +2266,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merciless Javelineer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2345,7 +2345,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Minotaur Sureshot:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2393,7 +2393,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Naga Oracle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2432,7 +2432,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nimble-Blade Khenra:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2477,7 +2477,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oketra's Monument:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2539,7 +2539,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ornery Kudu:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2584,7 +2584,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Painted Bluffs:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2597,7 +2597,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Painted Bluffs:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2638,7 +2638,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pathmaker Initiate:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
@@ -2755,7 +2755,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Regal Caracal:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2821,7 +2821,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rhonas's Monument:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3070,7 +3070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soul-Scar Mage:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3151,7 +3151,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sparring Mummy:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3260,7 +3260,7 @@
         },
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stir the Sands:1",
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -3298,7 +3298,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sunscorched Desert:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3322,7 +3322,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sunscorched Desert:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -3357,7 +3357,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Supply Caravan:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3452,7 +3452,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tattered Mummy:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -3649,7 +3649,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wayward Servant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Zombie ctrl:you",
@@ -3708,7 +3708,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Weaver of Currents:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",

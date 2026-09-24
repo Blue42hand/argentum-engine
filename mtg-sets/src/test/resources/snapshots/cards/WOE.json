@@ -49,7 +49,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Agatha of the Vile Cauldron:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -182,7 +182,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Agatha's Champion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -245,7 +245,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Agatha's Soul Cauldron:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -354,7 +354,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aquatic Alchemist:1",
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
@@ -457,7 +457,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Archive Dragon:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -737,7 +737,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ash, Party Crasher:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -798,7 +798,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ashiok's Reaper:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -843,7 +843,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ashiok, Wicked Manipulator:1",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": 1
@@ -899,7 +899,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ashiok, Wicked Manipulator:3",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": -2
@@ -921,7 +921,7 @@
                     "imageUri": "https://cards.scryfall.io/normal/front/8/5/858428ee-3a9c-4dfc-84c2-751e59df2ed7.jpg?1783914991",
                     "triggeredAbilities": [
                         {
-                            "id": "ability_3",
+                            "id": "Ashiok, Wicked Manipulator:2",
                             "trigger": {
                                 "type": "StepEvent",
                                 "step": "BEGIN_COMBAT"
@@ -954,7 +954,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_4",
+                "id": "Ashiok, Wicked Manipulator:4",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": -7
@@ -1242,7 +1242,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Barrow Naughty:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1405,7 +1405,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Belligerent of the Ball:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -1893,7 +1893,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bespoke Battlegarb:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -1932,7 +1932,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Bespoke Battlegarb:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1998,7 +1998,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bestial Bloodline:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2049,7 +2049,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bitter Chill:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2060,7 +2060,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Bitter Chill:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2131,7 +2131,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blossoming Tortoise:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2197,7 +2197,7 @@
                 "descriptionOverride": "Whenever this creature enters, mill three cards, then return a land card from your graveyard to the battlefield tapped."
             },
             {
-                "id": "ability_2",
+                "id": "Blossoming Tortoise:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -2315,7 +2315,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Boundary Lands Ranger:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -2407,7 +2407,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bramble Familiar:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2417,7 +2417,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Bramble Familiar:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2974,7 +2974,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Candy Trail:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2987,7 +2987,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Candy Trail:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3049,7 +3049,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chancellor of Tales:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -3099,7 +3099,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Charging Hooligan:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -3181,7 +3181,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Charmed Clothier:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3231,7 +3231,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Charming Scoundrel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3417,7 +3417,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Collector's Vault:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3556,7 +3556,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cooped Up:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3802,7 +3802,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cursed Courtier:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3903,7 +3903,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Decadent Dragon:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -4007,7 +4007,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Devouring Sugarmaw:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -4103,7 +4103,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Diminisher Witch:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4168,7 +4168,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Discerning Financier:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -4197,7 +4197,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Discerning Financier:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4278,7 +4278,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dream Spoilers:1",
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
@@ -4336,7 +4336,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dutiful Griffin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4388,7 +4388,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Edgewall Inn:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -4399,7 +4399,7 @@
                 "descriptionOverride": "{T}: Add one mana of the chosen color."
             },
             {
-                "id": "ability_2",
+                "id": "Edgewall Inn:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4473,7 +4473,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Edgewall Pack:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4683,7 +4683,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elusive Otter:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -4762,7 +4762,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Archivist:1",
                 "trigger": {
                     "type": "PermanentsEnteredEvent",
                     "filter": "artifact"
@@ -4778,7 +4778,7 @@
                 "descriptionOverride": "Whenever one or more artifacts you control enter, put two +1/+1 counters on this creature. This ability triggers only once each turn."
             },
             {
-                "id": "ability_2",
+                "id": "Elvish Archivist:2",
                 "trigger": {
                     "type": "PermanentsEnteredEvent",
                     "filter": "enchantment"
@@ -4820,7 +4820,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Embereth Veteran:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4879,7 +4879,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eriette of the Charmed Apple:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -4963,7 +4963,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eriette's Tempting Apple:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5008,7 +5008,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Eriette's Tempting Apple:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5032,7 +5032,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Eriette's Tempting Apple:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5236,7 +5236,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Experimental Confectioner:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5247,7 +5247,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Experimental Confectioner:2",
                 "trigger": {
                     "type": "PermanentsSacrificedEvent",
                     "filter": "artifact Food",
@@ -5303,7 +5303,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Extraordinary Journey:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5344,7 +5344,7 @@
                 "descriptionOverride": "When this enchantment enters, exile up to X target creatures. For each of those cards, its owner may play it for as long as it remains exiled."
             },
             {
-                "id": "ability_2",
+                "id": "Extraordinary Journey:2",
                 "trigger": {
                     "type": "PermanentsEnteredEvent",
                     "filter": "creature nontoken ctrl:any"
@@ -5400,7 +5400,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Faerie Dreamthief:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5413,7 +5413,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Faerie Dreamthief:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5782,7 +5782,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Faunsbane Troll:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5796,7 +5796,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Faunsbane Troll:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5949,7 +5949,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fell Horseman:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -6262,7 +6262,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Food Coma:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -6293,7 +6293,7 @@
                 "descriptionOverride": "When this enchantment enters, exile target creature an opponent controls until this enchantment leaves the battlefield. Create a Food token."
             },
             {
-                "id": "ability_2",
+                "id": "Food Coma:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -6353,7 +6353,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Food Fight:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -6541,7 +6541,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Frolicking Familiar:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -6625,7 +6625,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Frostbridge Guard:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6813,7 +6813,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Galvanic Giant:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -6939,7 +6939,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gingerbread Hunter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7120,7 +7120,7 @@
                         {
                             "type": "GrantActivatedAbility",
                             "ability": {
-                                "id": "ability_1",
+                                "id": "Goddric, Cloaked Reveler:1",
                                 "cost": {
                                     "type": "CostAtomWrapper",
                                     "atom": {
@@ -7219,7 +7219,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grabby Giant:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -7465,7 +7465,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Greta, Sweettooth Scourge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7478,7 +7478,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Greta, Sweettooth Scourge:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -7520,7 +7520,7 @@
                 "descriptionOverride": "Put a +1/+1 counter on target creature. Activate only as a sorcery."
             },
             {
-                "id": "ability_3",
+                "id": "Greta, Sweettooth Scourge:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -7606,7 +7606,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gruff Triplets:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7623,7 +7623,7 @@
                 "descriptionOverride": "When this creature enters, if it isn't a token, create two tokens that are copies of it."
             },
             {
-                "id": "ability_2",
+                "id": "Gruff Triplets:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -7679,7 +7679,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gumdrop Poisoner:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7778,7 +7778,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hamlet Glutton:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -7851,7 +7851,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Harried Spearguard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -8094,7 +8094,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "High Fae Negotiator:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8164,7 +8164,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hollow Scavenger:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -8246,7 +8246,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hopeful Vigil:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8267,7 +8267,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Hopeful Vigil:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -8281,7 +8281,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Hopeful Vigil:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -8312,7 +8312,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hopeless Nightmare:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -8376,7 +8376,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Hopeless Nightmare:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -8390,7 +8390,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Hopeless Nightmare:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -8556,7 +8556,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hylda of the Icy Crown:1",
                 "trigger": {
                     "type": "TapEvent",
                     "filter": "creature ctrl:opponent",
@@ -8658,7 +8658,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hylda's Crown of Winter:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -8703,7 +8703,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Hylda's Crown of Winter:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -8833,7 +8833,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icewrought Sentry:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -8861,7 +8861,7 @@
                 "descriptionOverride": "Whenever this creature attacks, you may pay {1}{U}. When you do, tap target creature an opponent controls."
             },
             {
-                "id": "ability_2",
+                "id": "Icewrought Sentry:2",
                 "trigger": {
                     "type": "TapEvent",
                     "filter": "creature ctrl:opponent",
@@ -8914,7 +8914,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Imodane's Recruiter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -9018,7 +9018,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Imodane, the Pyrohammer:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
@@ -9070,7 +9070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ingenious Prodigy:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -9217,7 +9217,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Intrepid Trufflesnout:1",
                 "trigger": {
                     "type": "AttackEvent",
                     "requires": [
@@ -9679,7 +9679,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Knight of Doves:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -9811,7 +9811,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lady of Laughter:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -10018,7 +10018,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Likeness Looter:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -10069,7 +10069,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Likeness Looter:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -10160,7 +10160,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Living Lectern:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -10243,7 +10243,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lord Skitter's Blessing:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10266,7 +10266,7 @@
                 "descriptionOverride": "When this enchantment enters, create a Wicked Role token attached to target creature you control."
             },
             {
-                "id": "ability_2",
+                "id": "Lord Skitter's Blessing:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "DRAW"
@@ -10359,7 +10359,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lord Skitter's Butcher:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10494,7 +10494,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lord Skitter, Sewer King:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Rat ctrl:you",
@@ -10522,7 +10522,7 @@
                 "descriptionOverride": "Whenever another Rat you control enters, exile up to one target card from an opponent's graveyard."
             },
             {
-                "id": "ability_2",
+                "id": "Lord Skitter, Sewer King:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -10574,7 +10574,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Malevolent Witchkite:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10632,7 +10632,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merfolk Coralsmith:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -10646,7 +10646,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Merfolk Coralsmith:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -10693,7 +10693,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merry Bards:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -10814,7 +10814,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mintstrosity:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -11083,7 +11083,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Moonshaker Cavalry:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11152,7 +11152,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mosswood Dreadknight:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -11262,7 +11262,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Neva, Stalked by Nightmares:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11286,7 +11286,7 @@
                 "descriptionOverride": "When Neva enters, return target creature or enchantment card from your graveyard to your hand."
             },
             {
-                "id": "ability_2",
+                "id": "Neva, Stalked by Nightmares:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -11344,7 +11344,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Night of the Sweets' Revenge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11357,7 +11357,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Night of the Sweets' Revenge:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11402,7 +11402,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_3",
+                    "id": "Night of the Sweets' Revenge:2",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -11452,7 +11452,7 @@
         "spellEffect": {
             "type": "GrantTriggeredAbility",
             "ability": {
-                "id": "ability_1",
+                "id": "Not Dead After All:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -11588,7 +11588,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Obyra, Dreaming Duelist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Faerie ctrl:you",
@@ -11638,7 +11638,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ogre Chitterlord:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -11710,7 +11710,7 @@
                 "descriptionOverride": "Create two 1/1 black Rat creature tokens with \"This token can't block.\" Then if you control five or more Rats, each Rat you control gets +2/+0 until end of turn."
             },
             {
-                "id": "ability_2",
+                "id": "Ogre Chitterlord:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -11807,7 +11807,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Old Flitterfang:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -11824,7 +11824,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Old Flitterfang:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -11899,7 +11899,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pests of Honor:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -12039,7 +12039,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Picnic Ruiner:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "GrantKeyword",
@@ -12264,7 +12264,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Protective Parents:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -12322,7 +12322,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Provisions Merchant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12333,7 +12333,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Provisions Merchant:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -12424,7 +12424,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Questing Druid:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -12567,7 +12567,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raging Battle Mouse:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -12929,7 +12929,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Realm-Scorcher Hellkite:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -12957,7 +12957,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Realm-Scorcher Hellkite:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -13013,7 +13013,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Redcap Gutter-Dweller:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13039,7 +13039,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Redcap Gutter-Dweller:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -13132,7 +13132,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Redcap Thief:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13168,7 +13168,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Redtooth Genealogist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -13229,7 +13229,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Redtooth Vanguard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -13314,7 +13314,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Restless Bivouac:4",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -13337,7 +13337,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Restless Bivouac:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13347,7 +13347,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Restless Bivouac:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13357,7 +13357,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_4",
+                "id": "Restless Bivouac:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -13420,7 +13420,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Restless Cottage:4",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -13453,7 +13453,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Restless Cottage:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13463,7 +13463,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Restless Cottage:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13473,7 +13473,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_4",
+                "id": "Restless Cottage:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -13540,7 +13540,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Restless Fortress:4",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -13570,7 +13570,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Restless Fortress:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13580,7 +13580,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Restless Fortress:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13590,7 +13590,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_4",
+                "id": "Restless Fortress:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -13649,7 +13649,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Restless Spire:4",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Scry",
@@ -13660,7 +13660,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Restless Spire:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13670,7 +13670,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Restless Spire:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13680,7 +13680,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_4",
+                "id": "Restless Spire:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -13755,7 +13755,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Restless Vinestalk:4",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "SetBaseStats",
@@ -13787,7 +13787,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Restless Vinestalk:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13797,7 +13797,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Restless Vinestalk:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -13807,7 +13807,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_4",
+                "id": "Restless Vinestalk:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -14027,7 +14027,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rimefur Reindeer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -14075,7 +14075,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rootrider Faun:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -14085,7 +14085,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Rootrider Faun:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -14132,7 +14132,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rotisserie Elemental:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -14364,7 +14364,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rowan, Scion of War:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ReduceSpellCostsThisTurn",
@@ -14530,7 +14530,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ruby, Daring Tracker:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -14554,7 +14554,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Ruby, Daring Tracker:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -14564,7 +14564,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Ruby, Daring Tracker:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -14604,7 +14604,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savior of the Sleeping:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -14645,7 +14645,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scalding Viper:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -14729,7 +14729,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scarecrow Guide:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -14771,7 +14771,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scream Puff:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -14812,7 +14812,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sentinel of Lost Lore:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -14952,7 +14952,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sharae of Numbing Depths:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -14988,7 +14988,7 @@
                 "descriptionOverride": "When Sharae enters, tap target creature an opponent controls and put a stun counter on it."
             },
             {
-                "id": "ability_2",
+                "id": "Sharae of Numbing Depths:2",
                 "trigger": {
                     "type": "TapEvent",
                     "filter": "creature ctrl:opponent",
@@ -15114,7 +15114,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shrouded Shepherd:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -15204,7 +15204,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skewer Slinger:1",
                 "trigger": {
                     "type": "BlocksOrBecomesBlockedByEvent",
                     "partnerFilter": {
@@ -15251,7 +15251,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skybeast Tracker:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -15314,7 +15314,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sleep-Cursed Faerie:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -15363,7 +15363,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Slumbering Keepguard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -15378,7 +15378,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Slumbering Keepguard:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -15430,7 +15430,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Snaremaster Sprite:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -15505,7 +15505,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Solitary Sanctuary:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -15541,7 +15541,7 @@
                 "descriptionOverride": "When this enchantment enters, tap target creature an opponent controls and put a stun counter on it."
             },
             {
-                "id": "ability_2",
+                "id": "Solitary Sanctuary:2",
                 "trigger": {
                     "type": "TapEvent",
                     "filter": "creature ctrl:opponent",
@@ -15666,7 +15666,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Specter of Mortality:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -15817,7 +15817,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spellbook Vendor:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -15888,7 +15888,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spellscorn Coven:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -16057,7 +16057,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spiteful Hexmage:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -16105,7 +16105,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Splashy Spellcaster:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -16183,7 +16183,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stingblade Assassin:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -16238,7 +16238,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stockpiling Celebrant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -16372,7 +16372,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stormkeld Prowler:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -16488,7 +16488,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Storyteller Pixie:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "requires": [
@@ -16697,7 +16697,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sweettooth Witch:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -16710,7 +16710,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sweettooth Witch:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -16784,7 +16784,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Syr Armont, the Redeemer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -16865,7 +16865,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Syr Ginger, the Meal Ender:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -16893,7 +16893,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Syr Ginger, the Meal Ender:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -17062,7 +17062,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Talion's Messenger:1",
                 "trigger": {
                     "type": "YouAttackEvent",
                     "attackerFilter": {
@@ -17176,7 +17176,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Talion, the Kindly Lord:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -17286,7 +17286,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tangled Colony:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -17339,7 +17339,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tanglespan Lookout:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment Aura ctrl:you",
@@ -17381,7 +17381,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tattered Ratter:1",
                 "trigger": {
                     "type": "BecomesBlockedEvent",
                     "filter": "permanent Rat ctrl:you"
@@ -17430,7 +17430,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tempest Hart:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -17559,7 +17559,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tenacious Tomeseeker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -17630,7 +17630,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Territorial Witchstalker:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -17973,7 +17973,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Goose Mother:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -17993,7 +17993,7 @@
                 "descriptionOverride": "When The Goose Mother enters, create half X Food tokens, rounded up."
             },
             {
-                "id": "ability_2",
+                "id": "The Goose Mother:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -18242,7 +18242,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Irencrag:3",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": {
@@ -18267,7 +18267,7 @@
                         "colors": null,
                         "name": "Everflame, Heroes' Legacy",
                         "grantedAbility": {
-                            "id": "ability_2",
+                            "id": "The Irencrag:2",
                             "cost": {
                                 "type": "CostAtomWrapper",
                                 "atom": {
@@ -18307,7 +18307,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "The Irencrag:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -18708,7 +18708,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Three Bowls of Porridge:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -18949,7 +18949,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Toadstool Admirer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -19099,7 +19099,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Totentanz, Swarm Piper:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature nontoken ctrl:you",
@@ -19127,7 +19127,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Totentanz, Swarm Piper:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -19188,7 +19188,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tough Cookie:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -19201,7 +19201,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Tough Cookie:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -19248,7 +19248,7 @@
                 "descriptionOverride": "{2}{G}: Until end of turn, target noncreature artifact you control becomes a 4/4 artifact creature."
             },
             {
-                "id": "ability_3",
+                "id": "Tough Cookie:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -19325,7 +19325,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Troublemaker Ouphe:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -19377,7 +19377,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Troyan, Gutsy Explorer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -19406,7 +19406,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Troyan, Gutsy Explorer:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -19752,7 +19752,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Twisted Sewer-Witch:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -19886,7 +19886,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Unassuming Sage:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -19936,7 +19936,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Unruly Catapult:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -19961,7 +19961,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Unruly Catapult:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -19997,7 +19997,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Up the Beanstalk:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -20011,7 +20011,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Up the Beanstalk:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -20119,7 +20119,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Verdant Outrider:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -20173,7 +20173,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Virtue of Courage:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
@@ -20376,7 +20376,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Virtue of Loyalty:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -20476,7 +20476,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Virtue of Persistence:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -20661,7 +20661,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Voracious Vermin:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -20683,7 +20683,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Voracious Vermin:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -20724,7 +20724,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Warehouse Tabby:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -20751,7 +20751,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Warehouse Tabby:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -20942,7 +20942,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Werefox Bodyguard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -20974,7 +20974,7 @@
                 "descriptionOverride": "When this creature enters, exile up to one other target non-Fox creature until this creature leaves the battlefield."
             },
             {
-                "id": "ability_2",
+                "id": "Werefox Bodyguard:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -21002,7 +21002,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Werefox Bodyguard:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -21050,7 +21050,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wicked Visitor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -21096,7 +21096,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wildwood Mentor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "token ctrl:you",
@@ -21112,7 +21112,7 @@
                 "descriptionOverride": "Whenever a token you control enters, put a +1/+1 counter on this creature."
             },
             {
-                "id": "ability_2",
+                "id": "Wildwood Mentor:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -21171,7 +21171,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Will, Scion of Peace:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ReduceSpellCostsThisTurn",
@@ -21415,7 +21415,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Woodland Acolyte:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -21493,7 +21493,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Yenna, Redtooth Regent:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
