@@ -260,7 +260,7 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Spawnbroker | Existing ExchangeControl plus cross-target power filtering; prove both-target legality and exchange atomicity. |
 | ~~Sins of the Past~~ | Done: already composable. `GrantFreeCastTargetFromExile(exileAfterResolve = true)` on the graveyard card (the cast-from-zone path honours graveyard permissions; the permission expires at cleanup) plus `selfExile()`. |
 | Molten Sentry | Coin flip as an entry replacement with persistent stats and keyword. |
-| ~~Warp World~~ | Done: `ForEachPlayerCollectingEffect` sorts each owner's reveal into shared piles, then two battlefield moves under owners' control; stranded Auras go to the bottom (CR 400.3 owner routing added to `MoveCollection`). Gap: an Aura may pick a non-Aura enchantment entering alongside it. |
+| ~~Warp World~~ | Done: `ForEachPlayerCollectingEffect` sorts each owner's reveal into shared piles, then two battlefield moves under owners' control; stranded Auras go to the bottom (CR 400.3 owner routing added to `MoveCollection`). An Aura can't pick anything entering in the same batch. |
 | Blood Funnel | Optional creature sacrifice and counter-on-nonpayment, composed with existing reduction and counter effects. |
 | ~~Shadow of Doubt~~ | Done: `CantSearchLibraries` + `GatherCardsEffect.search`, set by every search primitive and the inline search cards. |
 | Szadek, Lord of Secrets | One damage replacement produces counters and mills the damaged player; independent replacements cannot both consume the same damage. |

@@ -1,6 +1,13 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.LibraryShuffledEvent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.CardScript
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.engine.state.components.player.CantSearchLibrariesComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -25,9 +32,24 @@ import io.kotest.matchers.shouldNotBe
  */
 class ShadowOfDoubtScenarioTest : FunSpec({
 
+    // "You may search your library for a card, put it into your hand, then shuffle."
+    val optionalTutor = CardDefinition.sorcery(
+        name = "Optional Tutor",
+        manaCost = ManaCost.parse("{B}"),
+        oracleText = "You may search your library for a card, put it into your hand, then shuffle.",
+        script = CardScript.spell(effect = MayEffect(Patterns.Library.searchLibrary(GameObjectFilter.Any)))
+    )
+    // "Search your library for a card, put it into your hand, then shuffle."
+    val mandatoryTutor = CardDefinition.sorcery(
+        name = "Mandatory Tutor",
+        manaCost = ManaCost.parse("{B}"),
+        oracleText = "Search your library for a card, put it into your hand, then shuffle.",
+        script = CardScript.spell(effect = Patterns.Library.searchLibrary(GameObjectFilter.Any))
+    )
+
     fun driver(): GameTestDriver {
         val d = GameTestDriver()
-        d.registerCards(TestCards.all + ShadowOfDoubt + ThreeDreams + ClingingDarkness)
+        d.registerCards(TestCards.all + ShadowOfDoubt + ThreeDreams + ClingingDarkness + optionalTutor + mandatoryTutor)
         d.initMirrorMatch(deck = Deck.of("Island" to 40), skipMulligans = true, startingPlayer = 0)
         d.passPriorityUntil(Step.PRECOMBAT_MAIN)
         return d
@@ -98,6 +120,33 @@ class ShadowOfDoubtScenarioTest : FunSpec({
         withClue("the Aura was found and put into hand") {
             d.state.getHand(d.player2).mapNotNull { d.state.getEntity(it)?.get<CardComponent>()?.name }
                 .contains("Clinging Darkness") shouldBe true
+        }
+    }
+
+    fun GameTestDriver.castTutor(name: String): List<com.wingedsheep.engine.core.GameEvent> {
+        val tutor = putCardInHand(player1, name)
+        giveMana(player1, Color.BLACK, 1)
+        castSpell(player1, tutor).error shouldBe null
+        return bothPass().events
+    }
+
+    test("a blocked optional search can't be chosen, so it doesn't shuffle either") {
+        val d = driver()
+        d.castShadow()
+        val events = d.castTutor("Optional Tutor")
+        withClue("no \"search?\" prompt is offered") { d.state.pendingDecision shouldBe null }
+        withClue("\"you may search … then shuffle\": you can't choose to search, so you won't shuffle") {
+            events.any { it is LibraryShuffledEvent } shouldBe false
+        }
+    }
+
+    test("a blocked mandatory search still shuffles") {
+        val d = driver()
+        d.castShadow()
+        val events = d.castTutor("Mandatory Tutor")
+        d.state.pendingDecision shouldBe null
+        withClue("\"search … then shuffle\": you shuffle even though you can't search") {
+            events.any { it is LibraryShuffledEvent } shouldBe true
         }
     }
 })

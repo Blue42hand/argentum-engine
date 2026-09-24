@@ -44,8 +44,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    library — so the enchantments that did *not* move are put on the bottom (owner-routed,
  *    CR 400.3).
  *
- * Known approximation: non-Aura enchantments are placed a beat before Auras choose, so an Aura
- * could pick an enchantment entering alongside it, which the ruling forbids.
+ * An Aura can't enchant an enchantment entering alongside it (the ruling): `MoveCollection`
+ * excludes every card of the batch from its Auras' host choices.
  */
 val WarpWorld = card("Warp World") {
     manaCost = "{5}{R}{R}{R}"

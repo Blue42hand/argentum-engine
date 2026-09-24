@@ -9,6 +9,7 @@ import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.rav.cards.ClingingDarkness
+import com.wingedsheep.mtg.sets.definitions.rav.cards.FaithsFetters
 import com.wingedsheep.mtg.sets.definitions.rav.cards.WarpWorld
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
@@ -36,7 +37,7 @@ class WarpWorldScenarioTest : FunSpec({
 
     fun driver(): GameTestDriver {
         val d = GameTestDriver()
-        d.registerCards(TestCards.all + WarpWorld + ClingingDarkness)
+        d.registerCards(TestCards.all + WarpWorld + ClingingDarkness + FaithsFetters)
         d.initMirrorMatch(deck = Deck.of("Mountain" to 40), skipMulligans = true, startingPlayer = 0)
         d.passPriorityUntil(Step.PRECOMBAT_MAIN)
         // Empty both libraries into exile so the reveals are deterministic.
@@ -60,7 +61,10 @@ class WarpWorldScenarioTest : FunSpec({
     }
 
     /** Cast Warp World and answer every decision until the stack is empty. */
-    fun GameTestDriver.castWarpWorld(auraHost: () -> EntityId? = { null }) {
+    fun GameTestDriver.castWarpWorld(
+        auraHost: () -> EntityId? = { null },
+        offeredHosts: MutableList<List<EntityId>> = mutableListOf()
+    ) {
         val warp = putCardInHand(player1, "Warp World")
         giveMana(player1, Color.RED, 3)
         giveColorlessMana(player1, 5)
@@ -70,6 +74,7 @@ class WarpWorldScenarioTest : FunSpec({
             val decision = state.pendingDecision
             when {
                 decision is ChooseTargetsDecision -> {
+                    offeredHosts += decision.legalTargets[0]!!
                     val host = auraHost() ?: decision.legalTargets[0]!!.first()
                     submitTargetSelection(decision.playerId, listOf(host)).error shouldBe null
                 }
@@ -152,5 +157,22 @@ class WarpWorldScenarioTest : FunSpec({
             d.state.getLibrary(d.player1) shouldContainExactly listOf(aura)
             d.getGraveyardCardNames(d.player1).contains("Clinging Darkness") shouldBe false
         }
+    }
+
+    test("an Aura can't enchant an enchantment entering alongside it") {
+        val d = driver()
+        val mountain = d.putLandOnBattlefield(d.player1, "Mountain")
+        val enchantment = d.putPermanentOnBattlefield(d.player1, "Test Enchantment")
+        val fetters = d.putPermanentOnBattlefield(d.player1, "Faith's Fetters")
+        d.attach(fetters, mountain)
+
+        val offered = mutableListOf<List<EntityId>>()
+        d.castWarpWorld(offeredHosts = offered)
+
+        withClue("Faith's Fetters (enchant permanent) is offered only the Mountain, which entered first") {
+            offered shouldContainExactly listOf(listOf(mountain))
+        }
+        d.getPermanents(d.player1) shouldContainExactlyInAnyOrder listOf(mountain, enchantment, fetters)
+        d.state.getEntity(fetters)?.get<AttachedToComponent>()?.targetId shouldBe mountain
     }
 })

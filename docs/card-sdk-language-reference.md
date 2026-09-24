@@ -2300,6 +2300,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   at the search itself: a `GatherCardsEffect(search = true)` whose effect controller (the searcher) carries it finds no
   library cards, and the `EmitLibrarySearchedEventEffect` tail emits nothing. The rest of the instruction still runs, so a
   "search …, then shuffle" still shuffles; looking at / revealing the top of a library is not a search and is untouched.
+  An optional search ("you may search … then shuffle" — a `MayEffect` whose action leads with a search gather) can't be
+  chosen at all, so it is skipped without a prompt and without the shuffle.
 - `CantPlayCardsFromHandEffect(target = Controller, duration = UntilYourNextTurn)` — target can't play cards (cast
   spells **or** play lands) from their **hand** zone for the duration. Hand-scoped: cards in exile/graveyard with a
   may-play permission stay playable. Facade: `Effects.CantPlayCardsFromHand(target, duration)`. Pairs with an impulse
