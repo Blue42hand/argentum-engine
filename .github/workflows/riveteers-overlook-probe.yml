@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -102,3 +102,14 @@ jobs:
       - name: Fail if printing gate failed
         if: steps.printing.outcome != 'success'
         run: exit 1
+
+      - name: Finalize validated card changes
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mtg-sets/src/test/resources/snapshots/cards/SNC.json
+          git rm .github/workflows/riveteers-overlook-probe.yml
+          git diff --cached --check
+          git commit -m "test: rebless Riveteers Overlook snapshot"
+          git push origin HEAD:codex/issue-19-riveteers-overlook
