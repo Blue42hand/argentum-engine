@@ -16416,7 +16416,7 @@
                                     "player": "You",
                                     "zone": "Hand"
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]

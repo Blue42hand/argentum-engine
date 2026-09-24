@@ -88,7 +88,7 @@ val TheTheoristJaceBeleren = card("The Theorist, Jace Beleren") {
                 Effects.AddDynamicCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmounts.cardsInYourHand(),
-                    EffectTarget.Self,
+                    EffectTarget.IterationEntity,
                 ),
             ),
         )
