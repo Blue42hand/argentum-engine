@@ -82,7 +82,7 @@
 - [x] Mnemonic Nexus
 - [x] Muddle the Mixture
 - [x] Peel from Reality
-- [ ] Quickchange
+- [x] Quickchange
 - [x] Remand
 - [x] Snapping Drake
 - [x] Spawnbroker

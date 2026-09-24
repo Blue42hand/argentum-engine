@@ -25,9 +25,23 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ChooseColorThenEffect(
     val then: Effect,
-    val prompt: String = "Choose a color"
+    val prompt: String = "Choose a color",
+    /**
+     * How many distinct colors the player may pick. `1` (the default) is the ordinary
+     * "choose a color". A larger value makes it "the color **or colors** of your choice" — any
+     * nonempty set of up to [maxColors] colors (Quickchange; per its ruling colorless is not a
+     * choice, so at least one color is always picked). The whole set reaches [then] as
+     * `EffectContext.chosenColors`; `chosenColor` carries one of them for single-color atoms.
+     */
+    val maxColors: Int = 1
 ) : Effect {
-    override val description: String = "Choose a color. ${then.description}"
+    init {
+        require(maxColors >= 1) { "ChooseColorThenEffect.maxColors must be at least 1" }
+    }
+
+    override val description: String =
+        if (maxColors > 1) "Choose one or more colors. ${then.description}"
+        else "Choose a color. ${then.description}"
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newThen = then.applyTextReplacement(replacer)

@@ -2242,6 +2242,8 @@ object Effects {
      * block — reads the chosen color from the effect context. The target may be a spell on the
      * stack or a permanent. Used by Blind Seer:
      * "{1}{U}: Target spell or permanent becomes the color of your choice until end of turn."
+     * Inside a [ChooseColorsThen] block it takes the whole chosen set (Quickchange: "the color or
+     * colors of your choice").
      */
     fun ChangeColorToChosen(
         target: EffectTarget = EffectTarget.ContextTarget(0),
@@ -3168,6 +3170,17 @@ object Effects {
     ): Effect = com.wingedsheep.sdk.scripting.effects.ChooseNumberForSourceEffect(
         minValue, maxValue, slot, prompt
     )
+
+    /**
+     * Choose **one or more** colors — "the color or colors of your choice" — then run [then] with
+     * the whole chosen set exposed via the effect context (`chosenColors`). Pair with
+     * [ChangeColorToChosen] for Quickchange: "Target creature becomes the color or colors of your
+     * choice until end of turn." Colorless is never a choice: at least one color is picked.
+     */
+    fun ChooseColorsThen(
+        then: Effect,
+        prompt: String = "Choose one or more colors"
+    ): Effect = ChooseColorThenEffect(then, prompt, maxColors = Color.entries.size)
 
     /**
      * The controller chooses an opponent, stored durably on the source entity under

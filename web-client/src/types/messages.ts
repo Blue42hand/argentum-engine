@@ -569,6 +569,8 @@ export interface DistributeDecision extends PendingDecisionBase {
 export interface ChooseColorDecision extends PendingDecisionBase {
   readonly type: 'ChooseColorDecision'
   readonly availableColors: readonly string[]
+  /** How many distinct colors may be chosen; >1 means "one or more" (toggle + confirm). */
+  readonly maxColors?: number
 }
 
 /**

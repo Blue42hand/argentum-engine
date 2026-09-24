@@ -946,7 +946,7 @@ export type GameStore = {
   submitDistributeDecision: (decisionId: string, distribution: Record<EntityId, number>) => void
   submitDamageAssignmentDecision: (decisionId: string, assignments: Record<EntityId, number>) => void
   submitCombatResolutionDecision: (decisionId: string, edges: ReadonlyArray<{ edgeId: string; amount: number }>) => void
-  submitColorDecision: (decisionId: string, color: string) => void
+  submitColorDecision: (decisionId: string, color: string, colors?: readonly string[]) => void
   submitManaSourcesDecision: (
     decisionId: string,
     selectedSources: readonly EntityId[],

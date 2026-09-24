@@ -1713,7 +1713,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   **spell on the stack** or a permanent — the color projection reads the recolored entry in both
   zones, so a recolored spell's new color drives color-matching checks (e.g. protection) during
   resolution. Compose as `ChooseColorThen(then = ChangeColorToChosen(target))` for "target ...
-  becomes the color of your choice" (Blind Seer).
+  becomes the color of your choice" (Blind Seer). Under `ChooseColorsThen` it takes the whole chosen
+  set (`EffectContext.chosenColors`) — "the color **or colors** of your choice" (Quickchange).
 - `ChangeWordInText(target, duration)` — Layer-3 text change: the player picks one **color word**
   or **basic land type** on the target and a replacement of the same category, recorded as a
   `TextReplacement` on the target. A basic-land-type swap flows through the projected type line, so
@@ -3018,6 +3019,11 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `GrantProtectionFromCardType(cardType, target, duration)` — the card-type sibling: grant protection from a **fixed** `CardType` (no player choice), a thin recipe over `GrantKeyword("PROTECTION_FROM_CARDTYPE_<TYPE>")` — the same projected keyword the printed `Protection(ProtectionScope.CardType(...))` static and the player-chosen `GrantProtectionFromChosenCardType` produce, so targeting, blocking, and combat damage all read one keyword. Reach for it when the card names the type outright rather than letting the player pick ("gains protection from artifacts" — Razor Barrier).
 - `GrantPlayerProtection(scope = ProtectionScope.Everything, duration = Duration.UntilYourNextTurn, target = Controller)` — grant a **player** protection from a `ProtectionScope` (CR 702.16); the player-level counterpart of the creature protection statics. For a player only the **D**amage and **T**argeting parts of DEBT apply: a protected player can't be the target of, nor be dealt damage by, a source matching the scope. Adds/merges a `PlayerProtectionComponent` (multiple grants stack their scopes); the targeting validator, target enumerator, and `DamageUtils` all consult the shared `PlayerProtectionRules`. `Duration.UntilYourNextTurn` clears it after the untap step of the player's next turn. "You gain protection from everything until your next turn." (The One Ring).
 - `ChooseColorThenEffect(whenChosen)` — pick a color, then run a function of that color.
+- `Effects.ChooseColorsThen(then, prompt)` — the multi-color form (`ChooseColorThenEffect.maxColors > 1`):
+  the player picks **any nonempty set** of colors ("the color or colors of your choice" — never colorless),
+  answered in one `ChooseColorDecision` (`maxColors`) with `ColorChosenResponse.colors`. `then` sees the set as
+  `EffectContext.chosenColors` (and one of them as `chosenColor`). Quickchange:
+  `ChooseColorsThen(ChangeColorToChosen(creature)) then DrawCards(1)`.
 - `Effects.ChooseNumberThen(then, minValue=0, maxValue=16, prompt)` — pick a number in `[minValue, maxValue]`,
   then run `then` once with the chosen number exposed via the effect context as **X**. Atomic effects and filters
   under `then` read it through `ManaValueEqualsX` (`.manaValueEqualsX()`). Compose with `CompositeEffect` for

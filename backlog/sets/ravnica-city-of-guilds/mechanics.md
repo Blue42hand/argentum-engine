@@ -250,7 +250,6 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Cards | Required investigation or capability |
 |---|---|
 | Mausoleum Turnkey | Opponent-chosen targets on triggers: TriggerProcessor currently substitutes the controller and CardLinter rejects the unsupported shape. |
-| Quickchange | Choice of any nonempty subset of colors; the current color decision is singular. |
 | Dream Leash | Casting-only tapped target restriction, independent from resolution legality. |
 | Chant of Vitu-Ghazi | Turn-long prevention from all creatures, with life gained from actual prevented damage. |
 | Concerted Effort | Propagation of actual protection and landwalk variants as well as ordinary keywords. |
