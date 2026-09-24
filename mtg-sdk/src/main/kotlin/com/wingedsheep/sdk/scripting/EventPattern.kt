@@ -2942,6 +2942,24 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
         }
     }
 
+    /**
+     * Whenever one or more of *your opponents* (the trigger controller's opponents, CR 102.3) are
+     * dealt combat damage. Batching trigger keyed on the *damaged players* rather than the sources:
+     * it fires at most once per combat-damage batch however many opponents were hit and whatever
+     * dealt the damage — unlike [OneOrMoreDealCombatDamageToPlayerEvent], which fires once per
+     * damaged player and only counts sources you control.
+     *
+     * Examples:
+     *   → OpponentsDealtCombatDamageEvent + `triggerRestriction = Conditions.IsYourTurn`
+     *     "When one or more of your opponents are dealt combat damage during your turn"
+     *     (Fblthp, Impossibly Lost)
+     */
+    @SerialName("OpponentsDealtCombatDamageEvent")
+    @Serializable
+    data object OpponentsDealtCombatDamageEvent : EventPattern {
+        override val description: String = "one or more of your opponents are dealt combat damage"
+    }
+
     // =========================================================================
     // Leave Battlefield Without Dying Batch Triggers
     // =========================================================================

@@ -558,6 +558,18 @@ data class PlayerLostComponent(
 ) : Component
 
 /**
+ * Marks that a player attempted to draw a card from a library with no cards in it since state-based
+ * actions were last checked (CR 121.4). The draw itself does **not** end the player's game: the loss
+ * is the state-based action of CR 704.5b, applied by
+ * [com.wingedsheep.engine.mechanics.sba.player.EmptyLibraryDrawLossCheck], which consumes this
+ * marker. Deferring it is what lets an effect that makes the drawing player win later in the same
+ * resolution take effect first — Fblthp, Impossibly Lost's "draw two cards. If your library has no
+ * cards in it, you win the game" (CR 104.2b) wins even when the second draw found an empty library.
+ */
+@Serializable
+data object AttemptedDrawFromEmptyLibraryComponent : Component
+
+/**
  * Marks that a player who lost the game has already had the "leaving the game"
  * processing (CR 800.4a–c) applied — their owned objects removed, their stack objects
  * cleared, and control effects involving them ended.

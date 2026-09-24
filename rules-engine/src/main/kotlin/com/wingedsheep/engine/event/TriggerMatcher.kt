@@ -837,6 +837,7 @@ class TriggerMatcher(
             // Combat damage batch triggers are handled by detectCombatDamageBatchTriggers
             is EventPattern.OneOrMoreDealCombatDamageToPlayerEvent -> false
             is EventPattern.OneOrMoreDealCombatDamageToYouEvent -> false
+            is EventPattern.OpponentsDealtCombatDamageEvent -> false
             // Leave battlefield without dying batch triggers are handled by detectLeaveBattlefieldWithoutDyingBatchTriggers
             is EventPattern.LeaveBattlefieldWithoutDyingEvent -> false
             // Creatures-you-control-die batch triggers are handled by detectCreaturesDiedBatchTriggers

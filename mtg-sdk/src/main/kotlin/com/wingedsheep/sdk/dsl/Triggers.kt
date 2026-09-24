@@ -2514,6 +2514,20 @@ object Triggers {
         binding = TriggerBinding.ANY
     )
 
+    /**
+     * Whenever one or more of your opponents are dealt combat damage — by any source. Batching
+     * trigger: fires at most once per combat-damage step no matter how many opponents were hit.
+     * `triggeringPlayerId` is one of the damaged opponents. Narrow with
+     * `triggerRestriction = Conditions.IsYourTurn` for "during your turn".
+     *
+     * Example: "When one or more of your opponents are dealt combat damage during your turn, draw
+     * two cards." (Fblthp, Impossibly Lost)
+     */
+    val OneOrMoreOpponentsDealtCombatDamage: TriggerSpec = TriggerSpec(
+        event = OpponentsDealtCombatDamageEvent,
+        binding = TriggerBinding.ANY
+    )
+
     // =========================================================================
     // Nth Spell Cast Triggers
     // =========================================================================
