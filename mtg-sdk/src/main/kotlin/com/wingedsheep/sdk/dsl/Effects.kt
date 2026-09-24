@@ -3012,6 +3012,18 @@ object Effects {
         CreatePredefinedTokenEffect("Lotus", count, controller)
 
     /**
+     * Create Forest Tentacle tokens (Reality Fracture — Verdant Kraken).
+     * A 3/3 green "Land Creature — Forest Tentacle"; its "{T}: Add {G}." is the Forest type's
+     * intrinsic mana ability (CR 305.6), subject to summoning sickness like any creature's.
+     *
+     * @param count Number of tokens to create
+     * @param tapped Whether the tokens enter the battlefield tapped
+     * @param controller Who controls the tokens (null = the ability's controller)
+     */
+    fun CreateForestTentacle(count: Int = 1, tapped: Boolean = false, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Forest Tentacle", count, controller, tapped)
+
+    /**
      * Create Mutavault land tokens.
      * "{T}: Add {C}."
      * "{1}: This token becomes a 2/2 creature with all creature types until end of turn.

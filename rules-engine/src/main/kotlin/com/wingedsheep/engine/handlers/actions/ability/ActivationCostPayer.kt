@@ -25,6 +25,7 @@ import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
 import com.wingedsheep.engine.state.components.stack.projectedTypeLine
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
@@ -208,7 +209,24 @@ internal class ActivationCostPayer(
         // the tap atom inside costHandler.payAbilityCost (folded in via costResult.events above), so
         // only the loyalty change — which payAbilityCost mutates without an event — is emitted here.
         val abilityCost = ability.cost
-        if (abilityCost is AbilityCost.Loyalty) {
+        if (abilityCost is AbilityCost.Loyalty && abilityCost.change > 0) {
+            // A [+N] cost *puts* N loyalty counters on the planeswalker (CR 606.4), and the
+            // activating player is the one putting them (CR 122.6). Emitting the ordinary
+            // counters-placed event lets "whenever you put one or more loyalty counters on a
+            // planeswalker" (Inspired Tethermage) and any-kind counter triggers see it. It is a
+            // cost, not an effect, so counter-placement replacements (Doubling Season) don't
+            // apply — CostHandler already added exactly `change` counters.
+            val (marked, firstThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(
+                currentState, action.sourceId, Counters.LOYALTY, placerId = action.playerId
+            )
+            currentState = marked
+            events.add(
+                com.wingedsheep.engine.core.CountersAddedEvent(
+                    action.sourceId, Counters.LOYALTY, abilityCost.change, activation.sourceName,
+                    firstThisTurn, placedBy = action.playerId
+                )
+            )
+        } else if (abilityCost is AbilityCost.Loyalty) {
             events.add(LoyaltyChangedEvent(action.sourceId, activation.sourceName, abilityCost.change))
         } else if (abilityCost == AbilityCost.LoyaltyX) {
             events.add(LoyaltyChangedEvent(action.sourceId, activation.sourceName, -xValue))

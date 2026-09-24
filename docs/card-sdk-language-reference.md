@@ -2017,6 +2017,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   green "Artifact — Heartwood" with "{T}: Add {R} or {G}."
 - `CreateLotus(count?, controller?)` — Lotus tokens (Reality Fracture, Kwia Vigorbloom): a colorless
   "Artifact" named Lotus with "{T}, Sacrifice this token: Add three mana of any one color."
+- `CreateForestTentacle(count?, tapped?, controller?)` — Forest Tentacle tokens (Reality Fracture,
+  Verdant Kraken): a 3/3 green "Land Creature — Forest Tentacle". Its "{T}: Add {G}." is the Forest
+  type's intrinsic mana ability (CR 305.6), derived from the subtype, and as a creature it is subject
+  to summoning sickness (CR 302.6).
 - `CreateEverywhere(count?, tapped?, controller?)` — Everywhere land tokens (Overlord of the Hauntwoods):
   a colorless land token with all five basic land subtypes (Plains/Island/Swamp/Mountain/Forest) that
   taps for any color — i.e. the mana ability of each basic land type, without the basic supertype. The
@@ -6534,7 +6538,13 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   permanent entering with counters, CR 122.6a), the mover's controller (CR 122.5 — *moving* a counter
   "puts" it on the destination), or the damage source's controller (wither, CR 702.80). A few
   low-value paths carry no placer (saga lore counters, poison counters on players) and never match a
-  non-null `placedBy`. Default `null` matches any placer. Triggering permanent is
+  non-null `placedBy`. Default `null` matches any placer. A planeswalker's **[+N] loyalty cost** is
+  a placement too (CR 606.4): paying it emits `CountersAddedEvent(loyalty, N, placedBy = activator)`
+  (a cost, so counter-placement replacements such as Doubling Season don't apply), while [−N]/[0]
+  costs still emit `LoyaltyChangedEvent`. Inspired Tethermage's "Whenever you put one or more
+  loyalty counters on a planeswalker" is `countersPlacedOn(filter = Planeswalker, counterType =
+  Counters.LOYALTY, firstTimeEachTurn = false, placedBy = Player.You)` — it sees [+N] costs,
+  planeswalkers entering with loyalty, and empower Jace. Triggering permanent is
   `EffectTarget.TriggeringEntity`. Stalwart Successor shape.
   `batch = true` switches the multiplicity from the per-permanent template ("… on **a** creature you
   control") to the **batch** template ("… on **one or more** other Heroes you control" — Invisible
@@ -10985,7 +10995,12 @@ Numbers computed at resolution time.
   `property` (`POWER`/`TOUGHNESS`/`MANA_VALUE`), and the distinct-set counters
   `DISTINCT_TYPES`, `DISTINCT_PERMANENT_TYPES`, `DISTINCT_COLORS`, `DISTINCT_COLOR_PAIRS`,
   `DISTINCT_NAMES`, `DISTINCT_BASIC_LAND_SUBTYPES`
-  (Domain), `DISTINCT_COUNTER_TYPES` (the number of different kinds of counters present
+  (Domain), `DISTINCT_PLANESWALKER_SUBTYPES` (planeswalker types, CR 205.3j, among the matched
+  permanents that are planeswalkers — two Jaces count once; creature types a creature-planeswalker
+  also carries are excluded rather than a fixed planeswalker-type list included, so a newly printed
+  walker is never silently missed; facade `DynamicAmounts.planeswalkerTypes(player)` — Tam, the
+  Possibility's "proliferate X times, where X is the number of planeswalker types among
+  planeswalkers you control"), `DISTINCT_COUNTER_TYPES` (the number of different kinds of counters present
   across the group — same kind on several permanents counts once), and `DISTINCT_VALUES`
   (the number of *distinct values* of the configured `property` — Selvala, Eager Trailblazer's
   "the number of different powers among creatures you control" via

@@ -222,6 +222,18 @@ object DynamicAmounts {
         )
 
     /**
+     * The number of planeswalker types (CR 205.3j) among planeswalkers [player] controls — two
+     * Jaces count once. Reads projected subtypes. Tam, the Possibility: "Proliferate X times,
+     * where X is the number of planeswalker types among planeswalkers you control."
+     */
+    fun planeswalkerTypes(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.AggregateBattlefield(
+            player = player,
+            filter = GameObjectFilter.Planeswalker,
+            aggregation = Aggregation.DISTINCT_PLANESWALKER_SUBTYPES
+        )
+
+    /**
      * Number of differently named lands [player] controls.
      * Used for cards like All-Fates Scroll: counts each land you control once,
      * but only if its English name isn't shared with another already-counted land.
