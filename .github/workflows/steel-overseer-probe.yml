@@ -1,4 +1,4 @@
-name: Steel Overseer source audit
+name: Steel Overseer add-card validation
 
 on:
   push:
@@ -8,36 +8,77 @@ permissions:
   contents: read
 
 jobs:
-  evidence:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
         uses: actions/checkout@v6
 
-      - name: Audit filter and mass-counter primitives
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Build existing-effect card
+        run: just build
+
+      - name: Rebless card snapshots
+        run: just rebless-cards
+
+      - name: Capture snapshot delta
         shell: bash
         run: |
-          {
-            echo '===== filter files ====='
-            find mtg-sdk -type f -name '*Filter*.kt' | sort
-            echo
-            echo '===== CreatureOrArtifact definitions/usages ====='
-            grep -R -n -B 12 -A 20 'CreatureOrArtifact' mtg-sdk mtg-sets 2>&1 || true
-            echo
-            echo '===== ForEachInGroup card usages ====='
-            grep -R -n -B 12 -A 24 'ForEachInGroup' mtg-sets 2>&1 | head -n 700 || true
-            echo
-            echo '===== AddCountersToCollection definitions/usages ====='
-            grep -R -n -B 12 -A 24 'AddCountersToCollection' mtg-sdk mtg-sets 2>&1 | head -n 700 || true
-            echo
-            echo '===== GameObjectFilter declarations ====='
-            grep -R -n -B 10 -A 35 'GameObjectFilter' mtg-sdk/src/main/kotlin 2>&1 | head -n 900 || true
-          } > steel-overseer-source-audit.txt
-          cat steel-overseer-source-audit.txt
+          git status --short > steel-overseer-status.txt
+          git diff > steel-overseer-snapshot.patch
+          git diff --name-only > steel-overseer-changed-files.txt
+          cat steel-overseer-status.txt
+          cat steel-overseer-changed-files.txt
 
-      - name: Upload source audit
+      - name: Assay differential for M11
+        shell: bash
+        run: |
+          set -o pipefail
+          just assay-differential --set M11 2>&1 | tee steel-overseer-assay-differential.txt
+
+      - name: Check printing registrations
+        id: printing
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          just check-card-printing "Steel Overseer" 2>&1 | tee steel-overseer-printing-gate.txt
+
+      - name: Preserve modified snapshot files
+        shell: bash
+        run: |
+          mkdir -p steel-overseer-modified
+          while IFS= read -r path; do
+            if [ -n "$path" ] && [ -f "$path" ]; then
+              mkdir -p "steel-overseer-modified/$(dirname "$path")"
+              cp "$path" "steel-overseer-modified/$path"
+            fi
+          done < steel-overseer-changed-files.txt
+
+      - name: Upload validation evidence
         uses: actions/upload-artifact@v4
         with:
-          name: steel-overseer-source-audit
-          path: steel-overseer-source-audit.txt
+          name: steel-overseer-validation
+          path: |
+            steel-overseer-status.txt
+            steel-overseer-changed-files.txt
+            steel-overseer-snapshot.patch
+            steel-overseer-assay-differential.txt
+            steel-overseer-printing-gate.txt
+            steel-overseer-modified/
           if-no-files-found: error
+
+      - name: Fail if printing gate failed
+        if: steps.printing.outcome != 'success'
+        run: exit 1
