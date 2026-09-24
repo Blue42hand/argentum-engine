@@ -6,9 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetSpellOrPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -49,36 +46,27 @@ val PressTheEnemy = card("Press the Enemy") {
                 permanentFilter = GameObjectFilter.NonlandPermanent.opponentControls()
             )
         )
-        effect = Effects.Composite(
-            listOf(
-                // Capture the bounced object's mana value as the free-cast cap.
-                Effects.StoreNumber(
-                    "bouncedMv",
-                    DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue)
-                ),
-                // Return the spell or nonland permanent to its owner's hand.
-                Effects.ReturnSpellOrPermanentToOwnersHand(t),
-                // Gather instant/sorcery cards from your hand with MV ≤ the captured cap.
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
-                        zone = Zone.HAND,
-                        player = Player.You,
-                        filter = GameObjectFilter.InstantOrSorcery
-                    ),
-                    storeAs = "handSpells"
-                ),
-                FilterCollectionEffect(
-                    from = "handSpells",
-                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.VariableReference("bouncedMv")),
-                    storeMatching = "castable"
-                ),
-                // You may cast one of them without paying its mana cost.
-                ConditionalOnCollectionEffect(
-                    collection = "castable",
-                    ifNotEmpty = Effects.May(Effects.CastFromCollectionWithoutPayingCost("castable"))
+        effect = Effects.Pipeline {
+            // Capture the bounced object's mana value as the free-cast cap.
+            val bouncedMv = storeNumber(
+                DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue)
+            )
+            // Return the spell or nonland permanent to its owner's hand.
+            run(Effects.ReturnSpellOrPermanentToOwnersHand(t))
+            // Gather instant/sorcery cards from your hand with MV ≤ the captured cap.
+            val handSpells = gather(
+                CardSource.FromZone(
+                    zone = Zone.HAND,
+                    player = Player.You,
+                    filter = GameObjectFilter.InstantOrSorcery
                 )
             )
-        )
+            val castable = filter(handSpells, GameObjectFilter.Any.manaValueAtMostDynamic(bouncedMv.amount))
+            // You may cast one of them without paying its mana cost.
+            ifNotEmpty(castable) {
+                run(Effects.May(Effects.CastFromCollectionWithoutPayingCost(castable)))
+            }
+        }
     }
 
     metadata {

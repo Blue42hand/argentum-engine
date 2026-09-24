@@ -6,12 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TapUntapCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Caparocti Sunborn
@@ -34,25 +29,21 @@ val CaparoctiSunborn = card("Caparocti Sunborn") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        val tapCost = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.ControlledPermanents(
-                        player = Player.You,
-                        filter = (GameObjectFilter.Artifact or GameObjectFilter.Creature).untapped(),
-                    ),
-                    storeAs = "caparoctiTapPool",
-                ),
-                SelectFromCollectionEffect(
-                    from = "caparoctiTapPool",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(2)),
-                    storeSelected = "caparoctiToTap",
-                    prompt = "Tap two untapped artifacts and/or creatures you control",
-                    useTargetingUI = true,
-                ),
-                TapUntapCollectionEffect("caparoctiToTap", tap = true),
-            ),
-        )
+        val tapCost = Effects.Pipeline {
+            val caparoctiTapPool = gather(
+                CardSource.ControlledPermanents(
+                    player = Player.You,
+                    filter = (GameObjectFilter.Artifact or GameObjectFilter.Creature).untapped(),
+                )
+            )
+            val caparoctiToTap = chooseExactly(
+                2,
+                from = caparoctiTapPool,
+                prompt = "Tap two untapped artifacts and/or creatures you control",
+                useTargetingUI = true
+            )
+            run(Effects.TapCollection(caparoctiToTap, tap = true))
+        }
         effect = Effects.MayPay(
             cost = tapCost,
             then = Effects.Discover(3),

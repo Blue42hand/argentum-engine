@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -12,14 +13,11 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Quintorius Kand
@@ -79,18 +77,12 @@ val QuintoriusKand = card("Quintorius Kand") {
                 filter = TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD)
             )
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "kandGathered"),
-                MoveCollectionEffect(
-                    from = "kandGathered",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    storeMovedAs = "kandExiled"
-                ),
-                AddManaEffect(Color.RED, DynamicAmount.DistinctEntitiesInCollections(listOf("kandExiled"))),
-                Effects.GrantMayPlayFromExile("kandExiled", MayPlayExpiry.EndOfTurn)
-            )
-        )
+        effect = Effects.Pipeline {
+            val kandGathered = gather(CardSource.ChosenTargets)
+            val kandExiled = moveTracked(kandGathered, CardDestination.ToZone(Zone.EXILE))
+            run(AddManaEffect(Color.RED, DynamicAmounts.distinctEntitiesIn(kandExiled)))
+            run(Effects.GrantMayPlayFromExile(kandExiled, MayPlayExpiry.EndOfTurn))
+        }
     }
 
     metadata {

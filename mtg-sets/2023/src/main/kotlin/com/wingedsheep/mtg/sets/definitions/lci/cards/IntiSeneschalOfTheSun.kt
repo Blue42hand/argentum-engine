@@ -2,19 +2,14 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -70,17 +65,11 @@ val IntiSeneschalOfTheSun = card("Inti, Seneschal of the Sun") {
     // play that card until your next end step."
     triggeredAbility {
         trigger = Triggers.YouDiscardOneOrMore
-        effect = Effects.Composite(listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                storeAs = "intiExiled"
-            ),
-            MoveCollectionEffect(
-                from = "intiExiled",
-                destination = CardDestination.ToZone(Zone.EXILE)
-            ),
-            GrantMayPlayFromExileEffect("intiExiled", MayPlayExpiry.UntilNextEndStep)
-        ))
+        effect = Effects.Pipeline {
+            val intiExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            exile(intiExiled)
+            run(Effects.GrantMayPlayFromExile(intiExiled, MayPlayExpiry.UntilNextEndStep))
+        }
     }
 
     metadata {

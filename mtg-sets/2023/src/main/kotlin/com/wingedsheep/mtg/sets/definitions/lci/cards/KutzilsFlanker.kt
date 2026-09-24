@@ -8,12 +8,9 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -62,18 +59,10 @@ val KutzilsFlanker = card("Kutzil's Flanker") {
                 "You gain 2 life and scry 2"
             ),
             Mode.withTarget(
-                Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                            storeAs = "targetGraveyard"
-                        ),
-                        MoveCollectionEffect(
-                            from = "targetGraveyard",
-                            destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0))
-                        )
-                    )
-                ),
+                Effects.Pipeline {
+                    val targetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
+                    exile(targetGraveyard, Player.ContextPlayer(0))
+                },
                 Targets.Player,
                 "Exile target player's graveyard"
             )

@@ -13,9 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
@@ -79,32 +76,23 @@ val Glamdring = card("Glamdring") {
             recipient = Recipient.AnyPlayer,
             binding = TriggerBinding.ATTACHED
         )
-        effect = Effects.Composite(
+        effect = Effects.Pipeline {
             // Capture "that damage" — the combat damage just dealt to the player.
-            Effects.StoreNumber(
-                "combatDamage",
-                DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
-            ),
+            val combatDamage = storeNumber(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
             // Gather instant/sorcery cards from your hand with MV ≤ that damage.
-            GatherCardsEffect(
-                source = CardSource.FromZone(
+            val handSpells = gather(
+                CardSource.FromZone(
                     zone = Zone.HAND,
                     player = Player.You,
                     filter = GameObjectFilter.InstantOrSorcery
-                ),
-                storeAs = "handSpells"
-            ),
-            FilterCollectionEffect(
-                from = "handSpells",
-                filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.VariableReference("combatDamage")),
-                storeMatching = "castable"
-            ),
-            // You may cast one of them without paying its mana cost.
-            ConditionalOnCollectionEffect(
-                collection = "castable",
-                ifNotEmpty = Effects.May(Effects.CastFromCollectionWithoutPayingCost("castable"))
+                )
             )
-        )
+            val castable = filter(handSpells, GameObjectFilter.Any.manaValueAtMostDynamic(combatDamage.amount))
+            // You may cast one of them without paying its mana cost.
+            ifNotEmpty(castable) {
+                run(Effects.May(Effects.CastFromCollectionWithoutPayingCost(castable)))
+            }
+        }
     }
 
     equipAbility("{3}")

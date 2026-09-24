@@ -97,14 +97,14 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
             // Gate on "one or more cards milled this way": only exile/copy/cast if a card was milled.
             reflexiveEffect = Effects.If(
                 condition = Conditions.CollectionContainsMatch("milled"),
-                then = Effects.Composite(
-                    Effects.Move(exiledCard, Zone.EXILE),
-                    Effects.CopyCardIntoCollection(exiledCard, storeAs = "copy"),
-                    Effects.May(
-                        Effects.CastFromCollectionWithoutPayingCost("copy"),
+                then = Effects.Pipeline {
+                    run(Effects.Move(exiledCard, Zone.EXILE))
+                    val copy = copyCard(exiledCard)
+                    run(Effects.May(
+                        Effects.CastFromCollectionWithoutPayingCost(copy),
                         descriptionOverride = "You may cast the copy without paying its mana cost.",
-                    ),
-                ),
+                    ))
+                },
             ),
             reflexiveTargetRequirements = listOf(exiledCardTarget),
             descriptionOverride = "Each opponent mills two cards. When one or more cards are " +

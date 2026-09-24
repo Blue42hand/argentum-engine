@@ -16,12 +16,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -76,49 +71,32 @@ private val OjerKaslemDeepestGrowthFront = card("Ojer Kaslem, Deepest Growth") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(count = damageDealt, player = Player.You),
-                    storeAs = "kaslem_revealed",
-                    revealed = true,
-                ),
-                SelectFromCollectionEffect(
-                    from = "kaslem_revealed",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Creature,
-                    showAllCards = true,
-                    storeSelected = "kaslem_creature",
-                    storeRemainder = "kaslem_afterCreature",
-                    prompt = "You may put a creature card onto the battlefield",
-                    selectedLabel = "Put onto the battlefield",
-                ),
-                SelectFromCollectionEffect(
-                    from = "kaslem_afterCreature",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Land,
-                    showAllCards = true,
-                    storeSelected = "kaslem_land",
-                    storeRemainder = "kaslem_toBottom",
-                    prompt = "You may put a land card onto the battlefield",
-                    selectedLabel = "Put onto the battlefield",
-                    remainderLabel = "Put on the bottom of your library",
-                ),
-                MoveCollectionEffect(
-                    from = "kaslem_creature",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You),
-                ),
-                MoveCollectionEffect(
-                    from = "kaslem_land",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You),
-                ),
-                MoveCollectionEffect(
-                    from = "kaslem_toBottom",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Bottom),
-                    order = CardOrder.Random,
-                ),
+        effect = Effects.Pipeline {
+            val kaslemRevealed = gather(
+                CardSource.TopOfLibrary(count = damageDealt, player = Player.You),
+                revealed = true
             )
-        )
+            val (kaslemCreature, kaslemAfterCreature) = chooseUpToSplit(
+                1,
+                from = kaslemRevealed,
+                filter = GameObjectFilter.Creature,
+                showAllCards = true,
+                prompt = "You may put a creature card onto the battlefield",
+                selectedLabel = "Put onto the battlefield"
+            )
+            val (kaslemLand, kaslemToBottom) = chooseUpToSplit(
+                1,
+                from = kaslemAfterCreature,
+                filter = GameObjectFilter.Land,
+                showAllCards = true,
+                prompt = "You may put a land card onto the battlefield",
+                selectedLabel = "Put onto the battlefield",
+                remainderLabel = "Put on the bottom of your library"
+            )
+            move(kaslemCreature, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+            move(kaslemLand, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+            toLibraryBottom(kaslemToBottom, order = CardOrder.Random)
+        }
         description = "Whenever Ojer Kaslem deals combat damage to a player, reveal that many " +
             "cards from the top of your library. You may put a creature card and/or a land card " +
             "from among them onto the battlefield. Put the rest on the bottom of your library in " +

@@ -12,9 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 
 /**
@@ -52,24 +49,19 @@ val GaladrielOfLothlorien = card("Galadriel of Lothlórien") {
     triggeredAbility {
         trigger = Triggers.WheneverYouScry
         effect = Effects.May(
-            Effects.Composite(
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You),
-                        storeAs = "revealedTop"
+            Effects.Pipeline {
+                val revealedTop = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You))
+                reveal(revealedTop)
+                move(
+                    revealedTop,
+                    CardDestination.ToZone(
+                        Zone.BATTLEFIELD,
+                        player = Player.You,
+                        placement = ZonePlacement.Tapped
                     ),
-                    RevealCollectionEffect(from = "revealedTop"),
-                    MoveCollectionEffect(
-                        from = "revealedTop",
-                        filter = GameObjectFilter.Land,
-                        destination = CardDestination.ToZone(
-                            Zone.BATTLEFIELD,
-                            player = Player.You,
-                            placement = ZonePlacement.Tapped
-                        )
-                    )
+                    filter = GameObjectFilter.Land
                 )
-            )
+            }
         )
     }
 

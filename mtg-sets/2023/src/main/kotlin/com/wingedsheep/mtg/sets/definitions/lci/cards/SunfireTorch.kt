@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -60,17 +59,16 @@ val SunfireTorch = card("Sunfire Torch") {
                 trigger = Triggers.attacks().event,
                 binding = Triggers.attacks().binding,
                 effect = ReflexiveTriggerEffect(
-                    action = Effects.Composite(listOf(
-                        SelectTargetEffect(
-                            requirement = TargetObject(
+                    action = Effects.Pipeline {
+                        val toSacrifice = selectTarget(
+                            TargetObject(
                                 filter = TargetFilter(
                                     GameObjectFilter.Artifact.named("Sunfire Torch").attachedToSource()
                                 )
-                            ),
-                            storeAs = "toSacrifice"
-                        ),
-                        Effects.SacrificeTarget(EffectTarget.PipelineTarget("toSacrifice"))
-                    )),
+                            )
+                        )
+                        run(Effects.SacrificeTarget(toSacrifice.asTarget))
+                    },
                     optional = true,
                     reflexiveEffect = Effects.DealDamage(2, EffectTarget.ContextTarget(0)),
                     reflexiveTargetRequirements = listOf(Targets.Any),

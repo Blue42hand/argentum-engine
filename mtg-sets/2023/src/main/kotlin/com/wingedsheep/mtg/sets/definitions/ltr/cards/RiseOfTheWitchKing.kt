@@ -8,13 +8,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Rise of the Witch-king
@@ -56,33 +51,26 @@ val RiseOfTheWitchKing = card("Rise of the Witch-king") {
         ).then(
             Effects.If(
                 condition = Conditions.YouSacrificedThisWay,
-                then = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(
-                                Zone.GRAVEYARD,
-                                Player.You,
-                                GameObjectFilter.Permanent,
-                                // "return ANOTHER permanent card" — the creature you just
-                                // sacrificed to this spell sits in your graveyard but is not
-                                // a legal choice (CR ruling: "You cannot return the same
-                                // permanent card that you sacrificed.").
-                                excludeSacrificedThisWay = true
-                            ),
-                            storeAs = "eligible"
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "eligible",
-                            selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                            storeSelected = "chosen",
-                            prompt = "Choose a permanent card to return to the battlefield"
-                        ),
-                        MoveCollectionEffect(
-                            from = "chosen",
-                            destination = CardDestination.ToZone(Zone.BATTLEFIELD)
+                then = Effects.Pipeline {
+                    val eligible = gather(
+                        CardSource.FromZone(
+                            Zone.GRAVEYARD,
+                            Player.You,
+                            GameObjectFilter.Permanent,
+                            // "return ANOTHER permanent card" — the creature you just
+                            // sacrificed to this spell sits in your graveyard but is not
+                            // a legal choice (CR ruling: "You cannot return the same
+                            // permanent card that you sacrificed.").
+                            excludeSacrificedThisWay = true
                         )
                     )
-                )
+                    val chosen = chooseUpTo(
+                        1,
+                        from = eligible,
+                        prompt = "Choose a permanent card to return to the battlefield"
+                    )
+                    move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD))
+                }
             )
         )
     }

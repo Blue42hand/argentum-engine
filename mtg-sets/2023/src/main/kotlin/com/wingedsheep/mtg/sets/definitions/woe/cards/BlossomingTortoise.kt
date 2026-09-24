@@ -11,10 +11,6 @@ import com.wingedsheep.sdk.scripting.ReduceActivatedAbilityCost
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -32,37 +28,27 @@ val BlossomingTortoise = card("Blossoming Tortoise") {
     power = 3
     toughness = 3
 
-    val millAndReturnLand: Effect = Effects.Composite(
-        GatherCardsEffect(
-            source = CardSource.TopOfLibrary(DynamicAmount.Fixed(3), Player.You),
-            storeAs = "tortoiseMilled",
-        ),
-        MoveCollectionEffect(
-            from = "tortoiseMilled",
-            destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.You),
-        ),
-        GatherCardsEffect(
-            source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Land),
-            storeAs = "tortoiseLands",
-        ),
-        SelectFromCollectionEffect(
-            from = "tortoiseLands",
-            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-            storeSelected = "tortoiseLandToReturn",
+    val millAndReturnLand: Effect = Effects.Pipeline {
+        val tortoiseMilled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3), Player.You))
+        toGraveyard(tortoiseMilled)
+        val tortoiseLands = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Land))
+        val tortoiseLandToReturn = chooseExactly(
+            1,
+            from = tortoiseLands,
             showAllCards = true,
             prompt = "Return a land card from your graveyard to the battlefield tapped",
             selectedLabel = "Return tapped",
-            remainderLabel = "Leave in graveyard",
-        ),
-        MoveCollectionEffect(
-            from = "tortoiseLandToReturn",
-            destination = CardDestination.ToZone(
+            remainderLabel = "Leave in graveyard"
+        )
+        move(
+            tortoiseLandToReturn,
+            CardDestination.ToZone(
                 Zone.BATTLEFIELD,
                 Player.You,
                 ZonePlacement.Tapped,
-            ),
-        ),
-    )
+            )
+        )
+    }
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

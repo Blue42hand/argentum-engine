@@ -1,24 +1,16 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Step
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -67,33 +59,21 @@ val FeralEncounter = card("Feral Encounter") {
         "damage equal to its power to up to one target creature you don't control."
 
     spell {
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(5)),
-                storeAs = "feralLooked"
-            ),
-            SelectFromCollectionEffect(
-                from = "feralLooked",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
+        effect = Effects.Pipeline {
+            val feralLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val (feralExiled, feralRest) = chooseUpToSplit(
+                1,
+                from = feralLooked,
                 filter = GameObjectFilter.Creature,
-                storeSelected = "feralExiled",
-                storeRemainder = "feralRest",
                 prompt = "You may exile a creature card. You may cast it this turn.",
                 selectedLabel = "Exile (you may cast it this turn)",
                 remainderLabel = "Put on the bottom of your library",
                 showAllCards = true
-            ),
-            MoveCollectionEffect(
-                from = "feralExiled",
-                destination = CardDestination.ToZone(Zone.EXILE)
-            ),
-            MoveCollectionEffect(
-                from = "feralRest",
-                destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                order = CardOrder.Random
-            ),
-            GrantMayPlayFromExileEffect("feralExiled"),
-            CreateDelayedTriggerEffect(
+            )
+            exile(feralExiled)
+            toLibraryBottom(feralRest, order = CardOrder.Random)
+            run(Effects.GrantMayPlayFromExile(feralExiled))
+            run(CreateDelayedTriggerEffect(
                 step = Step.BEGIN_COMBAT,
                 timing = DelayedTriggerTiming.THIS_TURN_ONLY,
                 targetRequirement = TargetCreature(filter = TargetFilter.Creature.youControl()),
@@ -105,8 +85,8 @@ val FeralEncounter = card("Feral Encounter") {
                     EffectTarget.ContextTarget(1),
                     damageSource = EffectTarget.ContextTarget(0)
                 )
-            )
-        )
+            ))
+        }
     }
 
     metadata {

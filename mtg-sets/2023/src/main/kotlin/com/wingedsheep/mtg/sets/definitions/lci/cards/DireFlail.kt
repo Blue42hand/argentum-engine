@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -119,19 +118,18 @@ private val DireBlunderbuss = card("Dire Blunderbuss") {
                     // "you may sacrifice an artifact other than Dire Blunderbuss" — a
                     // resolution-time choice of your own artifact (name-based exclusion of
                     // the granting Equipment; see the KDoc approximation note).
-                    action = Effects.Composite(listOf(
-                        SelectTargetEffect(
-                            requirement = TargetObject(
+                    action = Effects.Pipeline {
+                        val toSacrifice = selectTarget(
+                            TargetObject(
                                 filter = TargetFilter(
                                     GameObjectFilter.Artifact
                                         .youControl()
                                         .notGrantingPermanent()
                                 )
-                            ),
-                            storeAs = "toSacrifice"
-                        ),
-                        Effects.SacrificeTarget(EffectTarget.PipelineTarget("toSacrifice"))
-                    )),
+                            )
+                        )
+                        run(Effects.SacrificeTarget(toSacrifice.asTarget))
+                    },
                     optional = true,
                     // "When you do, this creature deals damage equal to its power to
                     // target creature." Source of the granted ability = the equipped

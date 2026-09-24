@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.DonorCards
 import com.wingedsheep.sdk.scripting.HasAllActivatedAbilitiesOfCards
 import com.wingedsheep.sdk.scripting.SpendAnyManaTypeForActivatedAbilities
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Agatha's Soul Cauldron
@@ -83,14 +82,14 @@ val AgathasSoulCauldron = card("Agatha's Soul Cauldron") {
             // you control at resolution and add the counter.
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                then = Effects.Composite(
-                    Effects.SelectTarget(Targets.CreatureYouControl, storeAs = "cauldronCounterTarget"),
-                    Effects.AddCounters(
+                then = Effects.Pipeline {
+                    val cauldronCounterTarget = selectTarget(Targets.CreatureYouControl)
+                    run(Effects.AddCounters(
                         CounterType.PLUS_ONE_PLUS_ONE,
                         1,
-                        EffectTarget.PipelineTarget("cauldronCounterTarget", 0)
-                    )
-                )
+                        cauldronCounterTarget.asTarget
+                    ))
+                }
             )
         )
     }

@@ -11,17 +11,10 @@ import com.wingedsheep.sdk.dsl.craft
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Visage of Dread // Dread Osseosaur (CR 702.167, The Lost Caverns of Ixalan)
@@ -66,28 +59,18 @@ private val VisageOfDreadFront = card("Visage of Dread") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val opponent = target("opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            listOf(
-                RevealHandEffect(opponent),
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
-                    storeAs = "revealedHand"
-                ),
-                SelectFromCollectionEffect(
-                    from = "revealedHand",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    chooser = Chooser.Controller,
-                    filter = GameObjectFilter.CreatureOrArtifact,
-                    storeSelected = "chosenCard",
-                    prompt = "Choose an artifact or creature card to discard"
-                ),
-                MoveCollectionEffect(
-                    from = "chosenCard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                    moveType = MoveType.Discard
-                )
+        effect = Effects.Pipeline {
+            run(RevealHandEffect(opponent))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val chosenCard = chooseExactly(
+                1,
+                from = revealedHand,
+                chooser = Chooser.Controller,
+                filter = GameObjectFilter.CreatureOrArtifact,
+                prompt = "Choose an artifact or creature card to discard"
             )
-        )
+            discard(chosenCard, Player.ContextPlayer(0))
+        }
     }
 
     craft(

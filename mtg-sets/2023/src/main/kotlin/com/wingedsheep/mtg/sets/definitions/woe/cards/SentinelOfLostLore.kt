@@ -7,12 +7,9 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -50,16 +47,12 @@ val SentinelOfLostLore = card("Sentinel of Lost Lore") {
                         "on the bottom of its owner's library.",
                 ),
                 Mode.withTarget(
-                    effect = Effects.Composite(
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                            storeAs = "sentinelTargetGraveyard",
-                        ),
-                        MoveCollectionEffect(
-                            from = "sentinelTargetGraveyard",
-                            destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0)),
-                        ),
-                    ),
+                    effect = Effects.Pipeline {
+                        val sentinelTargetGraveyard = gather(
+                            CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0))
+                        )
+                        exile(sentinelTargetGraveyard, Player.ContextPlayer(0))
+                    },
                     target = Targets.Player,
                     description = "Exile target player's graveyard.",
                 ),

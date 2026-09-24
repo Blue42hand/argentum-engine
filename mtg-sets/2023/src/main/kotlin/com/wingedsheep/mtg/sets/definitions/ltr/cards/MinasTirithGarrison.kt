@@ -7,10 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TapUntapCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -41,26 +37,21 @@ val MinasTirithGarrison = card("Minas Tirith Garrison") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.ControlledPermanents(
-                        player = Player.You,
-                        filter = GameObjectFilter.Creature.youControl().withSubtype("Human").untapped()
-                    ),
-                    storeAs = "humans"
-                ),
-                SelectFromCollectionEffect(
-                    from = "humans",
-                    selection = SelectionMode.ChooseAnyNumber,
-                    storeSelected = "tapped",
-                    prompt = "Tap any number of untapped Humans you control",
-                    useTargetingUI = true
-                ),
-                TapUntapCollectionEffect("tapped", tap = true),
-                DrawCardsEffect(DynamicAmount.VariableReference("tapped_count"))
+        effect = Effects.Pipeline {
+            val humans = gather(
+                CardSource.ControlledPermanents(
+                    player = Player.You,
+                    filter = GameObjectFilter.Creature.youControl().withSubtype("Human").untapped()
+                )
             )
-        )
+            val tapped = chooseAnyNumber(
+                from = humans,
+                prompt = "Tap any number of untapped Humans you control",
+                useTargetingUI = true
+            )
+            run(Effects.TapCollection(tapped, tap = true))
+            run(DrawCardsEffect(tapped.count))
+        }
     }
 
     metadata {

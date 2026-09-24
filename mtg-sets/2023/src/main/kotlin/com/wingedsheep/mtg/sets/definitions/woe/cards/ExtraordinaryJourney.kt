@@ -1,18 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -59,21 +54,15 @@ val ExtraordinaryJourney = card("Extraordinary Journey") {
             dynamicMaxCount = DynamicAmount.CastX
         ))
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.ChosenTargets,
-                storeAs = "extraordinaryJourney_exiled"
-            ),
-            MoveCollectionEffect(
-                from = "extraordinaryJourney_exiled",
-                destination = CardDestination.ToZone(Zone.EXILE)
-            ),
-            GrantMayPlayFromExileEffect(
-                from = "extraordinaryJourney_exiled",
+        effect = Effects.Pipeline {
+            val extraordinaryJourneyExiled = gather(CardSource.ChosenTargets)
+            exile(extraordinaryJourneyExiled)
+            run(Effects.GrantMayPlayFromExile(
+                from = extraordinaryJourneyExiled,
                 expiry = MayPlayExpiry.Permanent,
                 ownerControls = true
-            )
-        )
+            ))
+        }
         description = "When this enchantment enters, exile up to X target creatures. For each of " +
             "those cards, its owner may play it for as long as it remains exiled."
     }
