@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Emeritus of Ideation // Ancestral Recall — Secrets of Strixhaven #45
@@ -45,7 +46,7 @@ val EmeritusOfIdeation = card("Emeritus of Ideation") {
         "(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)"
 
     keywords(Keyword.FLYING, Keyword.PREPARED)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     // Whenever this creature attacks, you may exile eight cards from your graveyard.
     // If you do, this creature becomes prepared.

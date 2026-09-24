@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Famished Worldsire
@@ -41,7 +42,7 @@ val FamishedWorldsire = card("Famished Worldsire") {
         "battlefield tapped, then shuffle."
 
     keywords(Keyword.WARD, Keyword.DEVOUR)
-    keywordAbility(KeywordAbility.ward("{3}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{3}")))
     keywordAbility(KeywordAbility.devourLand(3))
 
     replacementEffect(

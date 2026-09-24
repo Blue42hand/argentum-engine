@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Aegis Sculptor — Tarkir: Dragonstorm #35
@@ -41,7 +42,7 @@ val AegisSculptor = card("Aegis Sculptor") {
         "put a +1/+1 counter on this creature."
 
     keywords(Keyword.FLYING, Keyword.WARD)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep

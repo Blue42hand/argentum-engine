@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Summon: Leviathan
@@ -46,7 +47,7 @@ val SummonLeviathan = card("Summon: Leviathan") {
     power = 6
     toughness = 6
 
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     // "Return each creature that isn't a Kraken, Leviathan, Merfolk, Octopus, or Serpent."
     sagaChapter(1) {

@@ -374,7 +374,7 @@ object CardLinter {
      * as `GrantWard(WardCost.Mana("{2}"))`, and `GrantWard.filter` *defaults* to
      * `GroupFilter.attachedCreature()` — the Aura/Equipment shape. Nothing was attached to the
      * Beast, so no ward trigger was ever generated and no `WARD` keyword was ever projected. A
-     * creature's own printed ward is `keywordAbility(KeywordAbility.ward("{N}"))`; the attach-scope
+     * creature's own printed ward is `keywordAbility(KeywordAbility.Ward(WardCost.Mana("{N}")))`; the attach-scope
      * default only makes sense on a card that attaches.
      *
      * The default filter is exactly what makes this invisible on inspection: it doesn't appear in
@@ -416,7 +416,7 @@ object CardLinter {
                     "silent no-op. Note that attach-scope is the *default* filter on the Grant* " +
                     "static abilities, so an omitted filter argument is the usual cause: for a " +
                     "card's own printed keyword use the keyword ability (e.g. " +
-                    "keywordAbility(KeywordAbility.ward(\"{2}\"))), and for a lord-style grant to " +
+                    "keywordAbility(KeywordAbility.Ward(WardCost.Mana(\"{2}\")))), and for a lord-style grant to " +
                     "other permanents pass an explicit battlefield-scoped GroupFilter."
             )
         )

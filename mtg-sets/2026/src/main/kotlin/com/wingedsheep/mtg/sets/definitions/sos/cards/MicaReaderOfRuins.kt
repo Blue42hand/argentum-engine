@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Mica, Reader of Ruins
@@ -37,7 +38,7 @@ val MicaReaderOfRuins = card("Mica, Reader of Ruins") {
         "Whenever you cast an instant or sorcery spell, you may sacrifice an artifact. If you do, " +
         "copy that spell and you may choose new targets for the copy."
 
-    keywordAbility(KeywordAbility.wardLife(3))
+    keywordAbility(KeywordAbility.Ward(WardCost.Life(3)))
 
     // Whenever you cast an instant or sorcery spell, you may sacrifice an artifact to copy it.
     triggeredAbility {

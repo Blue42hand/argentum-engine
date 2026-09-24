@@ -3914,6 +3914,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -3933,7 +3934,7 @@ val ForumNecroscribe = card("Forum Necroscribe") {
     oracleText = "Ward—Discard a card.\nRepartee — Whenever you cast an instant or sorcery spell that targets a creature, return target creature card from your graveyard to the battlefield."
     power = 5
     toughness = 4
-    keywordAbility(KeywordAbility.wardDiscard())
+    keywordAbility(KeywordAbility.Ward(WardCost.Discard()))
     triggeredAbility {
         trigger = Triggers.youCastSpell(
             spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
@@ -6582,6 +6583,7 @@ package com.wingedsheep.mtg.sets.generated.demo.cards
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 
 /**
@@ -6599,7 +6601,7 @@ val MicaReaderOfRuins = card("Mica, Reader of Ruins") {
     oracleText = "Ward—Pay 3 life. (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays 3 life.)\nWhenever you cast an instant or sorcery spell, you may sacrifice an artifact. If you do, copy that spell and you may choose new targets for the copy."
     power = 4
     toughness = 4
-    keywordAbility(KeywordAbility.wardLife(3))
+    keywordAbility(KeywordAbility.Ward(WardCost.Life(3)))
     // STRUCTURE needs human wiring: MayCost
     metadata {
         rarity = Rarity.UNCOMMON
@@ -8234,6 +8236,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 
 /**
@@ -8253,7 +8256,7 @@ val PrismariTheInspiration = card("Prismari, the Inspiration") {
     power = 7
     toughness = 7
     keywords(Keyword.FLYING)
-    keywordAbility(KeywordAbility.wardLife(5))
+    keywordAbility(KeywordAbility.Ward(WardCost.Life(5)))
     // STRUCTURE needs human wiring: StackSpellsEffect
     metadata {
         rarity = Rarity.MYTHIC
@@ -11023,6 +11026,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 
 /**
@@ -11056,7 +11060,7 @@ val StrifeScholar = card("Strife Scholar") {
             )
         }
     }
-    keywordAbility(KeywordAbility.wardLife(2))
+    keywordAbility(KeywordAbility.Ward(WardCost.Life(2)))
     metadata {
         rarity = Rarity.COMMON
         collectorNumber = "131"
@@ -12086,6 +12090,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 
 /**
@@ -12105,7 +12110,7 @@ val TragedyFeaster = card("Tragedy Feaster") {
     power = 7
     toughness = 6
     keywords(Keyword.TRAMPLE)
-    keywordAbility(KeywordAbility.wardDiscard())
+    keywordAbility(KeywordAbility.Ward(WardCost.Discard()))
     triggeredAbility {
         trigger = Triggers.YourEndStep
         triggerCondition = Conditions.Not(Conditions.YouGainedLifeThisTurn)

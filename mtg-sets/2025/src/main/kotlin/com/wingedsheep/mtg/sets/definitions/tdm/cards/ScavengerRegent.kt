@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Scavenger Regent // Exude Toxin
@@ -25,7 +26,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  *   Each non-Dragon creature gets -X/-X until end of turn.
  *   (Then shuffle this card into its owner's library.)
  *
- * Ward—Discard a card is modeled with [KeywordAbility.wardDiscard]. Exude Toxin is an Omen face
+ * Ward—Discard a card is modeled with [WardCost.Discard]. Exude Toxin is an Omen face
  * (declared via the `omen { }` DSL, so on resolution the card shuffles into its owner's library
  * per the Omen reminder text). The board-wide -X/-X is
  * [Patterns.Group.modifyStatsForAll] over every creature without the Dragon subtype, with the
@@ -40,7 +41,7 @@ val ScavengerRegent = card("Scavenger Regent") {
     oracleText = "Flying\nWard—Discard a card."
 
     keywords(Keyword.FLYING)
-    keywordAbility(KeywordAbility.wardDiscard())
+    keywordAbility(KeywordAbility.Ward(WardCost.Discard()))
 
     // Exude Toxin — Omen. Each non-Dragon creature gets -X/-X until end of turn.
     omen("Exude Toxin") {

@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Benevolent River Spirit
@@ -32,7 +33,7 @@ val BenevolentRiverSpirit = card("Benevolent River Spirit") {
 
     waterbendCost(amount = 5)
     keywords(Keyword.FLYING)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Tragedy Feaster — Secrets of Strixhaven #102
@@ -23,7 +24,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  * — i.e. the trigger only goes on the stack when you did NOT gain life this turn
  * ([Conditions.Not] of [Conditions.YouGainedLifeThisTurn]), and its effect makes the controller
  * sacrifice a permanent of their choice ([SacrificeEffect] over any permanent — the controller-
- * chooses idiom shared with Accursed Centaur). Ward—Discard a card via [KeywordAbility.wardDiscard].
+ * chooses idiom shared with Accursed Centaur). Ward—Discard a card via [WardCost.Discard].
  */
 val TragedyFeaster = card("Tragedy Feaster") {
     manaCost = "{2}{B}{B}"
@@ -37,7 +38,7 @@ val TragedyFeaster = card("Tragedy Feaster") {
         "life this turn."
 
     keywords(Keyword.TRAMPLE)
-    keywordAbility(KeywordAbility.wardDiscard())
+    keywordAbility(KeywordAbility.Ward(WardCost.Discard()))
 
     triggeredAbility {
         trigger = Triggers.YourEndStep

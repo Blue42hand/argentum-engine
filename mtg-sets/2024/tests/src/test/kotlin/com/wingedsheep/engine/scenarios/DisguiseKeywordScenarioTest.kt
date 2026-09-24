@@ -30,6 +30,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Disguise (CR 702.168) — morph plus ward {2}.
@@ -54,7 +55,7 @@ class DisguiseKeywordScenarioTest : FunSpec({
         power = 2
         toughness = 2
         morph = "{2}"
-        keywordAbility(KeywordAbility.ward("{2}"))
+        keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     }
 
     val allCards = TestCards.all + listOf(

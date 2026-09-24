@@ -1,6 +1,5 @@
 package com.wingedsheep.sdk.scripting
 
-import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
@@ -9,7 +8,6 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.WardCost
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import com.wingedsheep.sdk.dsl.firebending
@@ -71,7 +69,8 @@ sealed interface KeywordAbility {
     // =========================================================================
 
     /**
-     * Ward with a configurable cost.
+     * Ward with a configurable cost. This constructor is the one spelling for every ward, whatever
+     * the cost — there are no per-cost factories; new ward costs are new [WardCost] variants.
      *
      * Examples:
      * - `Ward(WardCost.Mana("{2}"))`         — "Ward {2}"
@@ -1109,103 +1108,6 @@ sealed interface KeywordAbility {
          * Create a simple keyword ability from a Keyword enum.
          */
         fun of(keyword: Keyword): KeywordAbility = Simple(keyword)
-
-        /**
-         * Create Ward with mana cost from string.
-         */
-        fun ward(cost: String): KeywordAbility = Ward(WardCost.Mana(cost))
-
-        /**
-         * Create Ward—Waterbend with mana cost from string (Avatar: The Last Airbender —
-         * The Unagi of Kyoshi Island's "Ward—Waterbend {4}"). Same as [ward] but the {N} may
-         * be paid by tapping the paying player's untapped artifacts and creatures, each paying
-         * {1} of the generic, through the shared waterbend payment machinery.
-         */
-        fun wardWaterbend(cost: String): KeywordAbility = Ward(WardCost.Mana(cost, waterbend = true))
-
-        /**
-         * Create Ward with a fixed life cost.
-         */
-        fun wardLife(amount: Int): KeywordAbility = Ward(WardCost.Life(amount))
-
-        /**
-         * Create Ward with a [DynamicAmount] life cost — "Ward—Pay life equal to ~"
-         * (e.g. Raubahn, Bull of Ala Mhigo with [com.wingedsheep.sdk.dsl.DynamicAmounts.sourcePower]).
-         * The amount is evaluated when the ward triggered ability resolves.
-         */
-        fun wardLife(amount: DynamicAmount): KeywordAbility = Ward(WardCost.DynamicLife(amount))
-
-        /**
-         * Create Ward with discard cost. When [filter] is non-null the discarded
-         * card(s) must match it (e.g. "Ward—Discard an enchantment, instant, or sorcery card").
-         */
-        fun wardDiscard(
-            count: Int = 1,
-            random: Boolean = false,
-            filter: GameObjectFilter? = null,
-        ): KeywordAbility =
-            Ward(WardCost.Discard(count, random, filter))
-
-        /**
-         * Create Ward with sacrifice cost. Pass [count] > 1 for "Ward—Sacrifice N ~"
-         * (e.g. Valgavoth, Terror Eater — "Ward—Sacrifice three nonland permanents").
-         */
-        fun wardSacrifice(filter: GameObjectFilter, count: Int = 1): KeywordAbility =
-            Ward(WardCost.Sacrifice(filter, count))
-
-        /**
-         * Create Ward—Collect evidence N (CR 701.59) — "Ward—Collect evidence 4" (Axebane Ferox).
-         * The targeting opponent must exile cards with total mana value [amount] or greater from
-         * their own graveyard, or the spell/ability is countered.
-         */
-        fun wardCollectEvidence(amount: Int): KeywordAbility =
-            Ward(WardCost.CollectEvidence(amount))
-
-        /**
-         * Create Ward with a composite cost — all components must be paid. E.g.
-         * `wardComposite(WardCost.Mana("{2}"), WardCost.Life(2))` for "Ward—{2}, Pay 2 life"
-         * (Gisa, the Hellraiser).
-         */
-        fun wardComposite(vararg parts: WardCost): KeywordAbility =
-            Ward(WardCost.Composite(parts.toList()))
-
-        /**
-         * Create Ward with a cost paid in counters placed on the paying player — e.g.
-         * `wardPlayerCounters(CounterType.POISON, 5)` for "Ward—Get five poison counters."
-         * (The Serpent Society).
-         */
-        fun wardPlayerCounters(counterType: CounterType, amount: Int): KeywordAbility =
-            Ward(WardCost.PlayerCounters(counterType, amount))
-
-        /**
-         * Create Ward with a **disjunctive** cost — the payer picks exactly one of [options] and
-         * pays it. The OR sibling of [wardComposite]'s AND. E.g.
-         * `wardChoice(WardCost.Discard(), WardCost.Mana("{2}"))` for
-         * "Ward—Discard a card or pay {2}." Prefer the named [wardDiscardOrPay] for that printed
-         * wording; reach for this factory for any other combination.
-         */
-        fun wardChoice(vararg options: WardCost): KeywordAbility =
-            Ward(WardCost.Choice(options.toList()))
-
-        /**
-         * "Ward—Discard a card or pay {N}." (Titania, Rugged Rumbler) — the ward-side rendering of
-         * the same printed shape [com.wingedsheep.sdk.dsl.Costs.additional.DiscardOrPay] renders
-         * as an *additional cost*, deliberately named to match it so a card carrying both (as
-         * Titania does) reads as one shape twice, not two inventions.
-         *
-         * They stay separate types because the rails genuinely differ: an additional cost's mana
-         * leg folds into the spell's own mana cost at cast time (`AdditionalCost.OrPay`), while a
-         * ward cost is paid on its own as the ward trigger resolves — so on this side the mana leg
-         * is an ordinary [WardCost.Mana] option with no special status.
-         */
-        fun wardDiscardOrPay(
-            alternativeManaCost: String,
-            filter: GameObjectFilter? = null,
-            count: Int = 1,
-        ): KeywordAbility = wardChoice(
-            WardCost.Discard(count = count, filter = filter),
-            WardCost.Mana(alternativeManaCost),
-        )
 
         /**
          * Create Hexproof from a color.

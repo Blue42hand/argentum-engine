@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Ambling Stormshell — Tarkir: Dragonstorm #37
@@ -17,7 +18,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  * Whenever this creature attacks, put three stun counters on it and draw three cards.
  * Whenever you cast a Turtle spell, untap this creature.
  *
- * Composed entirely from existing primitives: [KeywordAbility.ward] for the ward cost,
+ * Composed entirely from existing primitives: [WardCost.Mana] for the ward cost,
  * [Effects.AddCounters] + [Effects.DrawCards] on the attack trigger, and an untap-self
  * effect keyed to the [Triggers.YouCastSubtype] Turtle-spell trigger. The three stun
  * counters keep the shell tapped after attacking (CR 122.1c stun-counter replacement);
@@ -34,7 +35,7 @@ val AmblingStormshell = card("Ambling Stormshell") {
         "(If a permanent with a stun counter would become untapped, remove one from it instead.)\n" +
         "Whenever you cast a Turtle spell, untap this creature."
 
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
         trigger = Triggers.Attacks

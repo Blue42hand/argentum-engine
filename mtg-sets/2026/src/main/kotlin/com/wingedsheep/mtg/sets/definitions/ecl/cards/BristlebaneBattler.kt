@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Bristlebane Battler
@@ -34,7 +35,7 @@ val BristlebaneBattler = card("Bristlebane Battler") {
         "remove a -1/-1 counter from this creature."
 
     keywords(Keyword.TRAMPLE, Keyword.WARD)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     replacementEffect(
         EntersWithCounters(

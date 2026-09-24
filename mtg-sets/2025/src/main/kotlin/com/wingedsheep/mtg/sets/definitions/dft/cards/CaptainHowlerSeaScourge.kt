@@ -53,7 +53,7 @@ val CaptainHowlerSeaScourge = card("Captain Howler, Sea Scourge") {
         "player this turn, you draw a card."
 
     keywordAbility(
-        KeywordAbility.wardComposite(WardCost.Mana("{2}"), WardCost.Life(2))
+        KeywordAbility.Ward(WardCost.Composite(listOf(WardCost.Mana("{2}"), WardCost.Life(2))))
     )
 
     triggeredAbility {
