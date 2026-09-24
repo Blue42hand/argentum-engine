@@ -12150,7 +12150,13 @@
         "triggeredAbilities": [
             {
                 "id": "Moonstone Harbinger:1",
-                "trigger": "LifeGainOrLossEvent",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        "LifeGainEvent",
+                        "LifeLossEvent"
+                    ]
+                },
                 "binding": "ANY",
                 "effect": {
                     "type": "ForEach",
@@ -21533,25 +21539,13 @@
         "triggeredAbilities": [
             {
                 "id": "Wax-Wane Witness:1",
-                "trigger": "LifeGainEvent",
-                "binding": "ANY",
-                "effect": {
-                    "type": "ModifyStats",
-                    "powerModifier": {
-                        "type": "Fixed",
-                        "amount": 1
-                    },
-                    "toughnessModifier": {
-                        "type": "Fixed",
-                        "amount": 0
-                    },
-                    "target": "Self"
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        "LifeGainEvent",
+                        "LifeLossEvent"
+                    ]
                 },
-                "triggerRestriction": "IsYourTurn"
-            },
-            {
-                "id": "Wax-Wane Witness:2",
-                "trigger": "LifeLossEvent",
                 "binding": "ANY",
                 "effect": {
                     "type": "ModifyStats",

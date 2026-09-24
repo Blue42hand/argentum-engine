@@ -411,18 +411,6 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     }
 
     /**
-     * When a player would gain or lose life.
-     * Used for cards like Moonstone Harbinger: "Whenever you gain or lose life during your turn".
-     */
-    @SerialName("LifeGainOrLossEvent")
-    @Serializable
-    data class LifeGainOrLossEvent(
-        val player: Player = Player.You
-    ) : EventPattern {
-        override val description: String = "${player.description} would gain or lose life"
-    }
-
-    /**
      * When a player loses the game (CR 104.3 — life 0, drawing from an empty library, poison,
      * commander damage, or a "loses the game" effect). Fires from the engine's `PlayerLostEvent`,
      * which is emitted by the state-based-action / turn-based checks when a player loses.
