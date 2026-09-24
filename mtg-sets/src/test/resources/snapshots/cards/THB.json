@@ -14,7 +14,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arasta of the Endless Web:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -76,7 +76,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Archon of Falling Stars:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -137,7 +137,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Archon of Sun's Grace:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -209,7 +209,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blood Aspirant:1",
                 "trigger": {
                     "type": "PermanentsSacrificedEvent",
                     "filter": "permanent",
@@ -226,7 +226,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Blood Aspirant:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -333,7 +333,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bronze Sword:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -392,7 +392,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Captivating Unicorn:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -451,7 +451,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Careless Celebrant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -556,7 +556,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Discordant Piper:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -644,7 +644,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eidolon of Inspiration:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -701,7 +701,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eidolon of Philosophy:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -749,7 +749,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elite Instructor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -875,7 +875,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Favored of Iroas:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -1014,7 +1014,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grim Physician:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1070,7 +1070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hyrax Tower Scout:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1115,7 +1115,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Inevitable End:1",
                     "trigger": {
                         "type": "StepEvent",
                         "step": "UPKEEP"
@@ -1156,7 +1156,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Iroas's Blessing:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1219,7 +1219,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Irreverent Revelers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1286,7 +1286,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lampad of Death's Vigil:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1398,7 +1398,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mire Triton:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1564,7 +1564,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nessian Hornbeetle:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -1613,7 +1613,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nexus Wardens:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -1790,7 +1790,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Omen of the Dead:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1815,7 +1815,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Omen of the Dead:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1859,7 +1859,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Omen of the Forge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1883,7 +1883,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Omen of the Forge:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1927,7 +1927,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Omen of the Sea:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1952,7 +1952,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Omen of the Sea:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1997,7 +1997,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oread of Mountain's Blaze:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2106,7 +2106,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pious Wayfarer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -2177,7 +2177,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rage-Scarred Berserker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2269,7 +2269,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rumbling Sentry:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2305,7 +2305,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sage of Mysteries:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -2378,7 +2378,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Setessan Champion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -2432,7 +2432,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Setessan Skirmisher:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -2475,7 +2475,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Setessan Training:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2527,7 +2527,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soul-Guide Lantern:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2552,7 +2552,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Soul-Guide Lantern:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2563,7 +2563,7 @@
                 "effect": "ExileOpponentsGraveyards"
             },
             {
-                "id": "ability_3",
+                "id": "Soul-Guide Lantern:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2609,7 +2609,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soulreaper of Mogis:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2666,7 +2666,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sphinx Mindbreaker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2730,7 +2730,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stampede Rider:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT",
@@ -2821,7 +2821,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sunmane Pegasus:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2875,7 +2875,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Terror of Mount Velus:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2922,7 +2922,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thassa's Oracle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3055,7 +3055,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thaumaturge's Familiar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3122,7 +3122,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Triton Waverider:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "enchantment ctrl:you",
@@ -3214,7 +3214,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Venomous Hierophant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3299,7 +3299,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Witness of Tomorrows:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

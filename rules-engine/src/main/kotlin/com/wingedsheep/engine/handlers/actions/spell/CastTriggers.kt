@@ -68,10 +68,16 @@ internal class CastTriggers(
      * A triggered ability of the spell itself, put on the stack above it: "when you cast this
      * spell" shapes, sourced by and triggered by the spell.
      */
-    private fun selfTrigger(state: GameState, spell: CastSpellOnStack, effect: Effect, description: String): PendingTrigger {
+    private fun selfTrigger(
+        state: GameState,
+        spell: CastSpellOnStack,
+        key: String,
+        effect: Effect,
+        description: String,
+    ): PendingTrigger {
         val action = spell.action
         val ability = TriggeredAbility(
-            id = AbilityId.generate(),
+            id = AbilityId("cast_$key"),
             trigger = EventPattern.SpellCastEvent(player = Player.You),
             binding = TriggerBinding.SELF,
             effect = effect,
@@ -118,13 +124,13 @@ internal class CastTriggers(
         val name = spell.cardComponent.name
 
         val conspire = if (action.conspiredCreatures.isNotEmpty()) {
-            listOf(selfTrigger(state, spell, copyEffect(spell, spellEffect, 1), "Conspire — copy $name"))
+            listOf(selfTrigger(state, spell, "conspire", copyEffect(spell, spellEffect, 1), "Conspire — copy $name"))
         } else emptyList()
         val casualty = if (action.casualtyCreature != null) {
-            listOf(selfTrigger(state, spell, copyEffect(spell, spellEffect, 1), "Casualty — copy $name"))
+            listOf(selfTrigger(state, spell, "casualty", copyEffect(spell, spellEffect, 1), "Casualty — copy $name"))
         } else emptyList()
         val storm = List(stormInstances(state, action, cardDef)) {
-            selfTrigger(state, spell, copyEffect(spell, spellEffect, stormCount), "Storm — copy $name $stormCount time(s)")
+            selfTrigger(state, spell, "storm", copyEffect(spell, spellEffect, stormCount), "Storm — copy $name $stormCount time(s)")
         }
         return conspire + casualty + storm
     }
@@ -223,7 +229,7 @@ internal class CastTriggers(
         if (!spellMatches(state, spell.action, spellFilter)) return emptyList()
         return listOf(
             selfTrigger(
-                state, spell,
+                state, spell, "copy_when_spent",
                 CopyTargetSpellEffect(target = EffectTarget.TriggeringEntity),
                 "Copy ${spell.cardComponent.name}. You may choose new targets for the copy."
             )
@@ -251,7 +257,7 @@ internal class CastTriggers(
             commanderCard.typeLine.subtypes.any { it.value.lowercase() in spellSubtypes }
         }
         if (!sharesType) return emptyList()
-        return listOf(selfTrigger(state, spell, Patterns.Library.scry(amount), "Scry $amount"))
+        return listOf(selfTrigger(state, spell, "path_of_ancestry_scry", Patterns.Library.scry(amount), "Scry $amount"))
     }
 
     // ---------------------------------------------------------------------------------------------

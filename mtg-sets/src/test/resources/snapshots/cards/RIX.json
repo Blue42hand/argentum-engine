@@ -51,7 +51,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aquatic Incursion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -79,7 +79,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Aquatic Incursion:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -137,14 +137,14 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Atzocan Seer:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Atzocan Seer:2",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "MoveToZone",
@@ -271,7 +271,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brazen Freebooter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -411,7 +411,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cacophodon:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "TapUntap",
@@ -487,7 +487,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Champion of Dusk:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -617,7 +617,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Crested Herdcaller:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -664,7 +664,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deeproot Elite:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Merfolk ctrl:you",
@@ -721,7 +721,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dinosaur Hunter:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
@@ -768,7 +768,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dusk Legion Zealot:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -847,7 +847,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Famished Paladin:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -886,7 +886,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fanatical Firebrand:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -938,7 +938,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Forerunner of the Coalition:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -988,7 +988,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Forerunner of the Coalition:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Pirate ctrl:you",
@@ -1043,7 +1043,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Forerunner of the Heralds:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1093,7 +1093,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Forerunner of the Heralds:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Merfolk ctrl:you",
@@ -1139,7 +1139,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Forerunner of the Legion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1189,7 +1189,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Forerunner of the Legion:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Vampire ctrl:you",
@@ -1251,7 +1251,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Frilled Deathspitter:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "DealDamage",
@@ -1411,7 +1411,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gleaming Barrier:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1507,7 +1507,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Imperial Ceratops:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "GainLife",
@@ -1555,7 +1555,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jadecraft Artisan:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1609,7 +1609,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jungle Creeper:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1653,7 +1653,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jungleborn Pioneer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1824,7 +1824,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Martyr of Dusk:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2047,7 +2047,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Needletooth Raptor:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "DealDamage",
@@ -2146,7 +2146,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Overgrown Armasaur:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -2193,7 +2193,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Path of Discovery:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -2280,7 +2280,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raging Regisaur:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "DealDamage",
@@ -2327,7 +2327,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ravenous Chupacabra:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2514,7 +2514,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Seafloor Oracle:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -2567,7 +2567,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Siegehorn Ceratops:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -2615,7 +2615,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silverclad Ferocidons:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "ForceSacrifice",
@@ -2693,7 +2693,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Squire's Devotion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2821,7 +2821,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sun-Collared Raptor:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2891,7 +2891,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Swift Warden:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2959,7 +2959,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thrashing Brontodon:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3070,7 +3070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Voracious Vampire:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3137,7 +3137,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "World Shaper:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -3172,7 +3172,7 @@
                 "descriptionOverride": "Whenever this creature attacks, you may mill three cards."
             },
             {
-                "id": "ability_2",
+                "id": "World Shaper:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",

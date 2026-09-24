@@ -34,6 +34,7 @@ import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.registry.TokenArtRegistry
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
@@ -446,6 +447,7 @@ class CreateTokenExecutor(
         // Grant it automatically when the token has the PROWESS keyword.
         if (Keyword.PROWESS in effect.keywords) {
             val prowessAbility = TriggeredAbility.create(
+                id = AbilityId("prowess"),
                 trigger = Triggers.YouCastNoncreature.event,
                 binding = Triggers.YouCastNoncreature.binding,
                 effect = ModifyStatsEffect(

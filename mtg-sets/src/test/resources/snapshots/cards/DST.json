@@ -7,7 +7,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Angel's Feather:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -83,7 +83,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darksteel Citadel:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -207,7 +207,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darksteel Ingot:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -235,7 +235,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darksteel Pendant:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -273,7 +273,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Demon's Horn:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -320,7 +320,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dragon's Claw:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -559,7 +559,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grimclaw Bats:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -655,7 +655,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kraken's Eye:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -706,7 +706,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krark-Clan Stoker:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -757,7 +757,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Leonin Battlemage:2",
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
@@ -773,7 +773,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Leonin Battlemage:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ModifyStats",
@@ -827,7 +827,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Loxodon Mystic:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -945,7 +945,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mirrodin's Core:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -958,7 +958,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Mirrodin's Core:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddCounters",
@@ -969,7 +969,7 @@
                 "descriptionOverride": "{T}: Put a charge counter on this land."
             },
             {
-                "id": "ability_3",
+                "id": "Mirrodin's Core:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1012,7 +1012,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Myr Moonvessel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1358,7 +1358,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Roaring Slagwurm:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -1423,7 +1423,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shield of Kaldra:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1488,7 +1488,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Slobad, Goblin Tinkerer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1668,7 +1668,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ur-Golem's Eye:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1704,7 +1704,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viridian Acolyte:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1748,7 +1748,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viridian Zealot:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1808,7 +1808,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Voltaic Construct:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1855,7 +1855,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vulshok Morningstar:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1913,7 +1913,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vulshok War Boar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1953,7 +1953,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wand of the Elements:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1983,7 +1983,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Wand of the Elements:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2030,7 +2030,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Whispersilk Cloak:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2090,7 +2090,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wurm's Tooth:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {

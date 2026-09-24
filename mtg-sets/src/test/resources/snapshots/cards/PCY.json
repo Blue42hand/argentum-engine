@@ -11,7 +11,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Agent of Shauku:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -112,7 +112,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aura Fracture:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -174,7 +174,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bog Elemental:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -222,7 +222,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bog Glider:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -295,7 +295,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Citadel of Pain:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -342,7 +342,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Coastal Hornclaw:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -382,7 +382,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darba:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -643,7 +643,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lesser Gargadon:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Sacrifice",
@@ -651,7 +651,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Lesser Gargadon:2",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "Sacrifice",
@@ -777,7 +777,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mine Bearer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -834,7 +834,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pit Raptor:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -977,7 +977,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ridgeline Rager:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1061,7 +1061,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silt Crawler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1109,7 +1109,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spitting Spider:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1161,7 +1161,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spore Frog:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -1194,7 +1194,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Squirrel Wrangler:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1231,7 +1231,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Squirrel Wrangler:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1303,7 +1303,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stormwatch Eagle:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1343,7 +1343,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sword Dancer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1403,7 +1403,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trenching Steed:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1450,7 +1450,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Troubled Healer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1505,7 +1505,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Troublesome Spirit:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -1593,7 +1593,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Whip Sergeant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1646,7 +1646,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Whipstitched Zombie:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1686,7 +1686,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wintermoon Mesa:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1699,7 +1699,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Wintermoon Mesa:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

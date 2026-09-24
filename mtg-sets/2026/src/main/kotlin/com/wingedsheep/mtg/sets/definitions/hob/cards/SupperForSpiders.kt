@@ -50,14 +50,14 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * applies to creatures, and these are not.
  */
 
-/** The Food token's printed ability, granted to each card returned this way. */
-private val foodSacrificeAbility = ActivatedAbility(
-    cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf),
-    effect = Effects.GainLife(3),
-    descriptionOverride = "{2}, {T}, Sacrifice this artifact: You gain 3 life."
-)
-
 val SupperForSpiders = card("Supper for Spiders") {
+    /** The Food token's printed ability, granted to each card returned this way. */
+    val foodSacrificeAbility = ActivatedAbility(
+        cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf),
+        effect = Effects.GainLife(3),
+        descriptionOverride = "{2}, {T}, Sacrifice this artifact: You gain 3 life."
+    )
+
     manaCost = "{1}{B}"
     colorIdentity = "B"
     typeLine = "Instant"

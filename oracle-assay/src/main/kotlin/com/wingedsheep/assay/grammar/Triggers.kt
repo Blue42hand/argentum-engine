@@ -50,7 +50,7 @@ import com.wingedsheep.sdk.dsl.Triggers as SdkTriggers
  *
  * ### `AbilityId` is arbitrary, in exactly the way a target slot's name is
  *
- * `CardDefinition`s carry generated ids — Kavu Climber's golden says `"ability_1"` — that no printed
+ * `CardDefinition`s carry generated ids — Kavu Climber's golden says `"Kavu Climber:1"` — that no printed
  * text determines. The grammar mints one fixed id and the differential normalizes both sides by
  * position, the same treatment target slot names get. A rule that tried to reproduce the id would be
  * reading a counter, not a card.

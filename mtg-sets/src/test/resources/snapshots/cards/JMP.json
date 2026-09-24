@@ -11,7 +11,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Archaeomender:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -63,7 +63,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chained Brute:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -121,7 +121,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Corsair Captain:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -172,7 +172,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lightning Visionary:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -221,7 +221,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lightning-Core Excavator:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -314,7 +314,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sethron, Hurloon General:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Minotaur nontoken ctrl:you",
@@ -337,7 +337,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sethron, Hurloon General:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -410,7 +410,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stone Haven Pilgrim:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -469,7 +469,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trusty Retriever:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

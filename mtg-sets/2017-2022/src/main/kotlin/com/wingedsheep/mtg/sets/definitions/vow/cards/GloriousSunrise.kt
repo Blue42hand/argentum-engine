@@ -69,7 +69,7 @@ val GloriousSunrise = card("Glorious Sunrise") {
                 val land = target("target land", TargetPermanent(filter = TargetFilter.Land))
                 effect = Effects.GrantActivatedAbility(
                     ability = ActivatedAbility(
-                        id = AbilityId.generate(),
+                        id = AbilityId.next(),
                         cost = com.wingedsheep.sdk.scripting.AbilityCost.Tap,
                         effect = Effects.AddMana(Color.GREEN, 3),
                         isManaAbility = true

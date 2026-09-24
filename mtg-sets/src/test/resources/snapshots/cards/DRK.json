@@ -131,7 +131,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Apprentice Wizard:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -251,7 +251,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ball Lightning:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -286,7 +286,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Banshee:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -367,7 +367,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Barl's Cage:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -549,7 +549,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bone Flute:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -612,7 +612,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Book of Rass:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -705,7 +705,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brothers of Fire:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -798,7 +798,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cave People:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -816,7 +816,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Cave People:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -870,7 +870,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "City of Shadows:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -894,7 +894,7 @@
                 "descriptionOverride": "{T}, Exile a creature you control: Put a storage counter on this land."
             },
             {
-                "id": "ability_2",
+                "id": "City of Shadows:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -978,7 +978,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Coal Golem:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1026,7 +1026,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Curse Artifact:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1088,7 +1088,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dance of Many:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1111,7 +1111,7 @@
                 "descriptionOverride": "When this enchantment enters, create a token that's a copy of target nontoken creature."
             },
             {
-                "id": "ability_2",
+                "id": "Dance of Many:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -1144,7 +1144,7 @@
                 "descriptionOverride": "When this enchantment leaves the battlefield, exile the token."
             },
             {
-                "id": "ability_3",
+                "id": "Dance of Many:3",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": {
@@ -1159,7 +1159,7 @@
                 "descriptionOverride": "When the token leaves the battlefield, sacrifice this enchantment."
             },
             {
-                "id": "ability_4",
+                "id": "Dance of Many:4",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1197,7 +1197,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dark Heart of the Wood:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1236,7 +1236,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dark Sphere:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1272,7 +1272,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deep Water:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1313,7 +1313,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Diabolic Machine:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1351,7 +1351,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drowned:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1437,7 +1437,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eater of the Dead:1",
                 "cost": "CostFree",
                 "effect": {
                     "type": "Gated",
@@ -1508,7 +1508,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Electric Eel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1528,7 +1528,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Electric Eel:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1592,7 +1592,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elves of Deep Shadow:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -1641,7 +1641,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Erosion:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1769,7 +1769,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Exorcist:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1825,7 +1825,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fasting:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1873,7 +1873,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, put a hunger counter on this enchantment. Then destroy this enchantment if it has five or more hunger counters on it."
             },
             {
-                "id": "ability_2",
+                "id": "Fasting:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1900,7 +1900,7 @@
                 "descriptionOverride": "If you would begin your draw step, you may skip that step instead. If you do, you gain 2 life."
             },
             {
-                "id": "ability_3",
+                "id": "Fasting:3",
                 "trigger": "DrawEvent",
                 "binding": "ANY",
                 "effect": {
@@ -1930,7 +1930,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fellwar Stone:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -2005,7 +2005,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Drake:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2159,7 +2159,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flood:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2215,7 +2215,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fountain of Youth:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2372,7 +2372,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gaea's Touch:1",
                 "cost": "CostFree",
                 "effect": {
                     "type": "Composite",
@@ -2416,7 +2416,7 @@
                 "descriptionOverride": "{0}: You may put a basic Forest card from your hand onto the battlefield. Activate only as a sorcery and only once each turn."
             },
             {
-                "id": "ability_2",
+                "id": "Gaea's Touch:2",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "AddMana",
@@ -2458,7 +2458,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ghost Ship:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2497,7 +2497,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Giant Shark:1",
                 "trigger": {
                     "type": "BlocksOrBecomesBlockedByEvent",
                     "partnerFilter": {
@@ -2536,7 +2536,7 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_2",
+                "id": "Giant Shark:2",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -2629,7 +2629,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Digging Team:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2754,7 +2754,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Shrine:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -2828,7 +2828,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Wizard:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -2868,7 +2868,7 @@
                 "descriptionOverride": "{T}: You may put a Goblin permanent card from your hand onto the battlefield."
             },
             {
-                "id": "ability_2",
+                "id": "Goblin Wizard:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2924,7 +2924,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblins of the Flarg:1",
                 "condition": {
                     "type": "Exists",
                     "player": "You",
@@ -2962,7 +2962,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grave Robbers:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3296,7 +3296,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Leviathan:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3381,7 +3381,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Living Armor:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3634,7 +3634,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mana Vortex:1",
                 "trigger": "CastThisSpellEvent",
                 "effect": {
                     "type": "PayOrSuffer",
@@ -3653,7 +3653,7 @@
                 "descriptionOverride": "When you cast this spell, counter it unless you sacrifice a land."
             },
             {
-                "id": "ability_2",
+                "id": "Mana Vortex:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -3673,7 +3673,7 @@
         ],
         "stateTriggeredAbilities": [
             {
-                "id": "ability_3",
+                "id": "Mana Vortex:3",
                 "condition": {
                     "type": "Exists",
                     "player": "Each",
@@ -3778,7 +3778,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Marsh Viper:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
@@ -3883,7 +3883,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Maze of Ith:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -3959,7 +3959,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merfolk Assassin:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveToZone",
@@ -4087,7 +4087,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Miracle Worker:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveToZone",
@@ -4188,7 +4188,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Murk Dwellers:1",
                 "trigger": "BecomesUnblockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -4299,7 +4299,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Necropolis:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4352,7 +4352,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Niall Silvain:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4410,7 +4410,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orc General:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4533,7 +4533,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Preacher:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GainControl",
@@ -4577,7 +4577,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Psychic Allergy:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -4606,7 +4606,7 @@
                 "descriptionOverride": "At the beginning of each opponent's upkeep, this enchantment deals X damage to that player, where X is the number of nontoken permanents of the chosen color they control."
             },
             {
-                "id": "ability_2",
+                "id": "Psychic Allergy:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -4663,7 +4663,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rag Man:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4761,7 +4761,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Reflecting Mirror:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4865,7 +4865,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Runesword:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4951,7 +4951,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Safe Haven:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -4997,7 +4997,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Safe Haven:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5054,7 +5054,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savaen Elves:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5127,7 +5127,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scarecrow:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5178,7 +5178,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scarwood Bandits:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5276,7 +5276,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scarwood Hag:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5310,7 +5310,7 @@
                 "descriptionOverride": "{G}{G}{G}{G}, {T}: Target creature gains forestwalk until end of turn."
             },
             {
-                "id": "ability_2",
+                "id": "Scarwood Hag:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "RemoveKeyword",
@@ -5357,7 +5357,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scavenger Folk:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5413,7 +5413,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Season of the Witch:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5433,7 +5433,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, sacrifice this enchantment unless you pay 2 life."
             },
             {
-                "id": "ability_2",
+                "id": "Season of the Witch:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -5502,7 +5502,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sisters of the Flame:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -5534,7 +5534,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skull of Orm:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5588,7 +5588,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sorrow's Path:2",
                 "trigger": "TapEvent",
                 "effect": {
                     "type": "Composite",
@@ -5625,7 +5625,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sorrow's Path:1",
                 "cost": "CostTap",
                 "effect": "SwapBlockingAssignments",
                 "targetRequirements": [
@@ -5664,7 +5664,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spitting Slug:1",
                 "trigger": {
                     "type": "BlocksOrBecomesBlockedByEvent",
                     "oncePerCombat": true
@@ -5761,7 +5761,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Standing Stones:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5847,7 +5847,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sunken City:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -5896,7 +5896,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tangle Kelp:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5957,7 +5957,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Fallen:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -6034,7 +6034,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tormod's Crypt:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6098,7 +6098,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tower of Coireall:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantStaticAbility",
@@ -6153,7 +6153,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tracker:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6279,7 +6279,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Venom:1",
                 "trigger": {
                     "type": "BlocksOrBecomesBlockedByEvent",
                     "partnerFilter": {
@@ -6333,7 +6333,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wand of Ith:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6489,7 +6489,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "War Barge:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6623,7 +6623,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Whippoorwill:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6711,7 +6711,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Witch Hunter:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -6732,7 +6732,7 @@
                 ]
             },
             {
-                "id": "ability_2",
+                "id": "Witch Hunter:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6827,7 +6827,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Worms of the Earth:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -6946,7 +6946,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wormwood Treefolk:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -6977,7 +6977,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Wormwood Treefolk:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

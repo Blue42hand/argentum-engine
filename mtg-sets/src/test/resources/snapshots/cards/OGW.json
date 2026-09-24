@@ -34,7 +34,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ayli, Eternal Pilgrim:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -66,7 +66,7 @@
                 "descriptionOverride": "You gain life equal to the sacrificed creature's toughness."
             },
             {
-                "id": "ability_2",
+                "id": "Ayli, Eternal Pilgrim:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -229,7 +229,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cinder Barrens:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -239,7 +239,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Cinder Barrens:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -374,7 +374,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Meandering River:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -384,7 +384,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Meandering River:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -455,7 +455,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Submerged Boneyard:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -465,7 +465,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Submerged Boneyard:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -530,7 +530,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thought-Knot Seer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -592,7 +592,7 @@
                 "descriptionOverride": "When this creature enters, target opponent reveals their hand. You choose a nonland card from it and exile that card."
             },
             {
-                "id": "ability_2",
+                "id": "Thought-Knot Seer:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -634,7 +634,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Timber Gorge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -644,7 +644,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Timber Gorge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -680,7 +680,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tranquil Expanse:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -690,7 +690,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Tranquil Expanse:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -769,7 +769,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Warden of Geometries:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",

@@ -7,7 +7,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ajani, Caller of the Pride:1",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": 1
@@ -39,7 +39,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ajani, Caller of the Pride:2",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": -3
@@ -78,7 +78,7 @@
                 "isPlaneswalkerAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Ajani, Caller of the Pride:3",
                 "cost": {
                     "type": "CostLoyalty",
                     "change": -8
@@ -139,7 +139,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bloodhunter Bat:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -260,7 +260,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dragon Hatchling:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -311,7 +311,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Griffin Protector:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -400,7 +400,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krenko, Mob Boss:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "CreateToken",
@@ -559,7 +559,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rummaging Goblin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -752,7 +752,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Talrand, Sky Summoner:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -811,7 +811,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thragtusk:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -825,7 +825,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Thragtusk:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -865,7 +865,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trading Post:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -893,7 +893,7 @@
                 "descriptionOverride": "{1}, {T}, Discard a card: You gain 4 life."
             },
             {
-                "id": "ability_2",
+                "id": "Trading Post:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -928,7 +928,7 @@
                 "descriptionOverride": "{1}, {T}, Pay 1 life: Create a 0/1 white Goat creature token."
             },
             {
-                "id": "ability_3",
+                "id": "Trading Post:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -970,7 +970,7 @@
                 "descriptionOverride": "{1}, {T}, Sacrifice a creature: Return target artifact card from your graveyard to your hand."
             },
             {
-                "id": "ability_4",
+                "id": "Trading Post:4",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1024,7 +1024,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Watercourser:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1103,7 +1103,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Yeva's Forcemage:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

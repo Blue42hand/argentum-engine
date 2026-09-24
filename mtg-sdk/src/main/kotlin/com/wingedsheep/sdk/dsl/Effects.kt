@@ -241,14 +241,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 object Effects {
 
-    /**
-     * Scryfall art for the white Spirit token created by Endure (Tarkir: Dragonstorm).
-     * Every Endure card produces this identical token (an N/N white Spirit), so the
-     * image is shared here rather than duplicated per card.
-     */
-    private const val ENDURE_SPIRIT_TOKEN_IMAGE =
-        "https://cards.scryfall.io/large/front/8/e/8ea4fc2f-95a4-49d0-b06e-b88d19637737.jpg?1743176763"
-
     // =========================================================================
     // Damage Effects
     // =========================================================================
@@ -5922,10 +5914,12 @@ object Effects {
      * The shared "When this dies or is exiled, return it to the battlefield tapped"
      * self-trigger granted by every earthbend. Single grant on any battlefield-leave,
      * gated to the graveyard then exile zones so non-grave/exile leaves resolve as a
-     * no-op (matching the printed "When it dies or is exiled" reading).
+     * no-op (matching the printed "When it dies or is exiled" reading). Keyword-scoped id, like
+     * the other keyword-synthesized triggers: every earthbend grants the same ability.
      */
     private fun earthbendReturnTapped(): TriggeredAbility =
         TriggeredAbility.create(
+            id = AbilityId("earthbend_return_tapped"),
             trigger = EventPattern.ZoneChangeEvent(from = Zone.BATTLEFIELD, to = null),
             binding = TriggerBinding.SELF,
             effect = CompositeEffect(listOf(
@@ -5989,6 +5983,10 @@ object Effects {
      * The polarity follows the printed rule: the counters are the "may", the Spirit is the
      * "unless".
      *
+     * The Spirit carries no `imageUri`: its art comes from the token art registry, keyed by the
+     * set the enduring card was printed in (Tarkir: Dragonstorm prints 1/1, 2/2, 3/3 and X/X
+     * Spirits), so a reprint mints its own set's token rather than one baked into the SDK.
+     *
      * @param amount N — [DynamicAmount.Fixed] for "endure 2",
      *   [DynamicAmount.XValue] for "endures X" (Krumar Initiate), or any other
      *   dynamic value (Warden of the Grove endures "the number of counters on
@@ -6009,8 +6007,7 @@ object Effects {
             colors = setOf(Color.WHITE),
             creatureTypes = setOf("Spirit"),
             dynamicPower = amount,
-            dynamicToughness = amount,
-            imageUri = ENDURE_SPIRIT_TOKEN_IMAGE
+            dynamicToughness = amount
         ),
         hint = "Put ${amount.description} +1/+1 counter(s) on ${target.description}? " +
             "If you don't, create a ${amount.description}/${amount.description} white Spirit " +

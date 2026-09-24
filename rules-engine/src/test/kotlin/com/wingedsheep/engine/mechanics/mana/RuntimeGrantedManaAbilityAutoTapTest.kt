@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.mechanics.mana
 
 import com.wingedsheep.engine.event.GrantedActivatedAbility
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
@@ -47,7 +48,7 @@ class RuntimeGrantedManaAbilityAutoTapTest : FunSpec({
     val allTestCards = TestCards.all + listOf(bear)
 
     val twoColorless = ActivatedAbility(
-        id = AbilityId.generate(),
+        id = AbilityId("RuntimeGrantedManaAbilityAutoTapTest_1"),
         cost = AbilityCost.Tap,
         effect = Effects.AddColorlessMana(2),
         isManaAbility = true,
@@ -74,7 +75,10 @@ class RuntimeGrantedManaAbilityAutoTapTest : FunSpec({
         return Board(driver, playerId, granted, plain)
     }
 
-    fun solver() = ManaSolver(CardRegistry().apply { register(allTestCards) })
+    fun solver(): ManaSolver {
+        val registry = CardRegistry().apply { register(allTestCards) }
+        return ManaSolver(registry, PredicateEvaluator(registry))
+    }
 
     test("the granted ability joins the land's mana source with its own per-kind amount") {
         val (driver, playerId, granted) = board(withPlainForest = false)

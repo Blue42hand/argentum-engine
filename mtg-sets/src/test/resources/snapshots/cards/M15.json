@@ -101,7 +101,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Amphin Pathmage:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -186,7 +186,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blood Host:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -254,7 +254,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Borderland Marauder:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -291,7 +291,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brawler's Plate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -353,7 +353,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Carnivorous Moss-Beast:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -426,7 +426,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Coral Barrier:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -580,7 +580,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dauntless River Marshal:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -847,7 +847,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hammerhand:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -942,7 +942,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Inferno Fist:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1013,7 +1013,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jorubai Murk Lurker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1089,7 +1089,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kapsho Kitefins:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -1139,7 +1139,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kird Chieftain:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1317,7 +1317,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Meteorite:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1341,7 +1341,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Meteorite:2",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -1372,7 +1372,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Miner's Bane:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1429,7 +1429,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nightfire Giant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1523,7 +1523,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Perilous Vault:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1573,7 +1573,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Radiant Fountain:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1590,7 +1590,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Radiant Fountain:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1625,7 +1625,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Reclamation Sage:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1678,7 +1678,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Research Assistant:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1762,7 +1762,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sacred Armory:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1879,7 +1879,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scuttling Doom Engine:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1979,7 +1979,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shadowcloak Vampire:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2019,7 +2019,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shaman of Spring:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2055,7 +2055,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sliver Hive:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2068,7 +2068,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Sliver Hive:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -2083,7 +2083,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Sliver Hive:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2174,7 +2174,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spirit Bonds:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature nontoken ctrl:you",
@@ -2210,7 +2210,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Spirit Bonds:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2426,7 +2426,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sunblade Elf:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2590,7 +2590,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tyrant's Machine:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2770,7 +2770,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vineweft:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

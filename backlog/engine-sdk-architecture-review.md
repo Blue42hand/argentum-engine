@@ -397,12 +397,17 @@ other "target" Oracle text scripted without a target requirement. That can becom
   - The trigger index is rebuilt on every detection pass.
   - Fix: `kotlinx.collections.immutable` behind `withEntity` / `addToZone`; carry the projection
     forward when only fields that can't affect it changed; use `LazyThreadSafetyMode.NONE`.
-- **The SDK isn't strictly pure.**
+- ✅ **The SDK isn't strictly pure.** — DONE
   - `AbilityId.generate()` is a process-global counter, which is why the snapshot test must renumber
     IDs.
   - `Effects` hardcodes a Scryfall image URL.
   - `CardLinter`, `CardValidator` and the filter query parser live in the SDK module. Move tooling
     into its own module.
+  - _Done: `AbilityId.next()` mints `"<card name>:<n>"` from an `AbilityIdScope` that `card { }`
+    opens, and fails outside one; engine-synthesized triggers name fixed ids. The snapshot test no
+    longer renumbers. `Effects.Endure`'s Spirit takes its art from the token art registry. The
+    card-JSON loader/exporter, compact transform, filter query language, validator and linter moved
+    to `:mtg-sdk-tooling` (`com.wingedsheep.sdk.tooling`)._
 - **Testing.**
   - There are two parallel harnesses in `rules-engine/src/testFixtures`: `ScenarioTestBase`
     (builder) and `GameTestDriver` (imperative). Driver-style tests hand-roll decision-answering

@@ -55,7 +55,7 @@ val SwashbucklersWhip = card("Swashbuckler's Whip") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Composite(Costs.Mana("{8}"), Costs.Tap),
                 effect = Effects.Discover(10),
                 descriptionOverride = "{8}, {T}: Discover 10."

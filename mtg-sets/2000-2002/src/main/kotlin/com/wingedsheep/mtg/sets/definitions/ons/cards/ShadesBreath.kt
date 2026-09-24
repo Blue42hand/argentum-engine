@@ -31,7 +31,7 @@ val ShadesBreath = card("Shade's Breath") {
             colors = setOf(Color.BLACK)
         ) then Effects.GrantActivatedAbilityToGroup(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana(ManaCost.parse("{B}")),
                 effect = Effects.ModifyStats(
                     power = 1,

@@ -179,7 +179,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Atarka Monument:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -189,7 +189,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Atarka Monument:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -199,7 +199,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Atarka Monument:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -259,7 +259,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Aven Tactician:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -356,7 +356,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blood-Chin Rager:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -403,7 +403,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Boltwing Marauder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -776,7 +776,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cunning Breezedancer:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1026,7 +1026,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dromoka Dunecaster:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1186,7 +1186,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glaring Aegis:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1399,7 +1399,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Impact Tremors:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -1712,7 +1712,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lightning Berserker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1763,7 +1763,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Necromaster Dragon:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -2023,7 +2023,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Palace Familiar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2069,7 +2069,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pitiless Horde:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2300,7 +2300,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ruthless Deathfang:1",
                 "trigger": {
                     "type": "PermanentsSacrificedEvent",
                     "filter": "creature",
@@ -2348,7 +2348,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Salt Road Quartermasters:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2482,7 +2482,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savage Ventmaw:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -2660,7 +2660,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Servant of the Scale:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2713,7 +2713,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shambling Goblin:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2891,7 +2891,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skywise Teachings:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2954,7 +2954,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Strongarm Monk:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3013,7 +3013,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Student of Ojutai:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3060,7 +3060,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sunscorch Regent:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "EachOpponent"
@@ -3112,7 +3112,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Surrak, the Hunt Caller:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -3400,7 +3400,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vial of Dragonfire:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3570,7 +3570,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Youthful Scholar:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -3611,7 +3611,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zephyr Scribe:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3630,7 +3630,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Zephyr Scribe:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

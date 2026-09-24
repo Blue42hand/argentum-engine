@@ -37,7 +37,7 @@ class LifeLossTriggerTest : FunSpec({
         script = CardScript(
             triggeredAbilities = listOf(
                 TriggeredAbility(
-                    id = AbilityId.generate(),
+                    id = AbilityId("LifeLossTriggerTest_1"),
                     trigger = Triggers.YouLoseLife.event,
                     binding = Triggers.YouLoseLife.binding,
                     effect = DrawCardsEffect(1)
@@ -53,7 +53,7 @@ class LifeLossTriggerTest : FunSpec({
         script = CardScript(
             triggeredAbilities = listOf(
                 TriggeredAbility(
-                    id = AbilityId.generate(),
+                    id = AbilityId("LifeLossTriggerTest_2"),
                     trigger = Triggers.YouLoseLife.event,
                     binding = Triggers.YouLoseLife.binding,
                     effect = LoseLifeEffect(
@@ -170,7 +170,7 @@ class LifeLossTriggerTest : FunSpec({
             script = CardScript(
                 triggeredAbilities = listOf(
                     TriggeredAbility(
-                        id = AbilityId.generate(),
+                        id = AbilityId("LifeLossTriggerTest_3"),
                         trigger = Triggers.AnyPlayerLosesLife.event,
                         binding = Triggers.AnyPlayerLosesLife.binding,
                         effect = DrawCardsEffect(1)

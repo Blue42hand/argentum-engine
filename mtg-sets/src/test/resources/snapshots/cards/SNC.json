@@ -204,7 +204,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Attended Socialite:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -251,7 +251,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Backup Agent:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -340,7 +340,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Bootleggers' Stash:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "CreatePredefinedToken",
@@ -374,7 +374,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Botanical Plaza:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -384,7 +384,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Botanical Plaza:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -394,7 +394,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Botanical Plaza:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -450,7 +450,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brazen Upstart:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -537,7 +537,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brokers Veteran:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -686,7 +686,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cabaretti Initiate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -728,7 +728,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Celebrity Fencer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -769,7 +769,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chrome Cat:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -802,7 +802,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Civic Gardener:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "TapUntap",
@@ -846,7 +846,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cleanup Crew:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -952,7 +952,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Courier's Briefcase:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -974,7 +974,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Courier's Briefcase:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -987,7 +987,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Courier's Briefcase:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1066,7 +1066,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cutthroat Contender:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1176,7 +1176,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darling of the Masses:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -1311,7 +1311,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Exhibition Magician:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1385,7 +1385,7 @@
                 {
                     "type": "GrantTriggeredAbility",
                     "ability": {
-                        "id": "ability_1",
+                        "id": "Fake Your Own Death:1",
                         "trigger": {
                             "type": "ZoneChangeEvent",
                             "from": "Battlefield",
@@ -1454,7 +1454,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fight Rigging:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1513,7 +1513,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Fight Rigging:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -1653,7 +1653,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Giada, Font of Hope:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1714,7 +1714,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gilded Pinions:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1728,7 +1728,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Gilded Pinions:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1784,7 +1784,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glittermonger:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -1821,7 +1821,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goldhound:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1911,7 +1911,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Inspiring Overseer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2019,7 +2019,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jackhammer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2115,7 +2115,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jewel Thief:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2303,7 +2303,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Obscura Initiate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2341,7 +2341,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ominous Parcel:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2396,7 +2396,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Ominous Parcel:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2451,7 +2451,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Racers' Ring:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2461,7 +2461,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Racers' Ring:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2471,7 +2471,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Racers' Ring:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2620,7 +2620,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Riveteers Initiate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2715,7 +2715,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skybridge Towers:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2725,7 +2725,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Skybridge Towers:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2735,7 +2735,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Skybridge Towers:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2788,7 +2788,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Social Climber:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -2928,7 +2928,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tramway Station:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2938,7 +2938,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Tramway Station:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2948,7 +2948,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Tramway Station:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3001,7 +3001,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Venom Connoisseur:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -3195,7 +3195,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Waterfront District:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3205,7 +3205,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Waterfront District:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3215,7 +3215,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Waterfront District:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

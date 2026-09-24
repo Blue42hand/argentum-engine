@@ -11,7 +11,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chandra's Magmutt:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -57,7 +57,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Daybreak Charger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -116,7 +116,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elder Gargaroth:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Modal",
@@ -157,7 +157,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Elder Gargaroth:2",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "Modal",
@@ -239,7 +239,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Garruk's Uprising:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -259,7 +259,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Garruk's Uprising:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature pow>=4 ctrl:you",
@@ -330,7 +330,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Heartfire Immolator:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -356,7 +356,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Heartfire Immolator:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -416,7 +416,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Library Larcenist:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "DrawCards",
@@ -455,7 +455,7 @@
     "script": {
         "stateTriggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mazemind Tome:3",
                 "condition": {
                     "type": "Compare",
                     "left": {
@@ -496,7 +496,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Mazemind Tome:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -516,7 +516,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Mazemind Tome:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -578,7 +578,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ornery Dilophosaur:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -704,7 +704,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rambunctious Mutt:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -824,7 +824,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shipwreck Dowser:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -848,7 +848,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Shipwreck Dowser:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -917,7 +917,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Teferi's Protege:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1014,7 +1014,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Valorous Steed:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1095,7 +1095,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wildwood Scourge:1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
                     "counterType": "PLUS_ONE_PLUS_ONE",
@@ -1156,7 +1156,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Witch's Cauldron:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

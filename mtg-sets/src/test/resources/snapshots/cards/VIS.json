@@ -225,7 +225,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Infantry Veteran:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ModifyStats",
@@ -319,7 +319,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Man-o'-War:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -497,7 +497,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nekrataal:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -651,7 +651,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Quicksand:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -664,7 +664,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Quicksand:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -732,7 +732,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Quirion Ranger:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -790,7 +790,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "River Boa:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -868,7 +868,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sisay's Ring:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -971,7 +971,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Uktabi Orangutan:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

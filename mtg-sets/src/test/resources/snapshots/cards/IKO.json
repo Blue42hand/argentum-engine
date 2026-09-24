@@ -65,7 +65,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Almighty Brushwagg:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -121,7 +121,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Avian Oddity:1",
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -251,7 +251,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blisterspit Gremlin:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -270,7 +270,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Blisterspit Gremlin:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -318,7 +318,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bonders' Enclave:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -331,7 +331,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Bonders' Enclave:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -422,7 +422,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Checkpoint Officer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -549,7 +549,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Durable Coilbug:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -635,7 +635,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Facet Reader:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -726,7 +726,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Farfinder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -918,7 +918,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Frondland Felidar:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -1041,7 +1041,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glimmerbell:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1158,7 +1158,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Honey Mammoth:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1197,7 +1197,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Humble Naturalist:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -1264,7 +1264,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Indatha Crystal:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1274,7 +1274,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Indatha Crystal:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1284,7 +1284,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Indatha Crystal:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1355,7 +1355,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ketria Crystal:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1365,7 +1365,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ketria Crystal:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1375,7 +1375,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Ketria Crystal:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1637,7 +1637,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Patagia Tiger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1694,7 +1694,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pyroceratops:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1781,7 +1781,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Raugrin Crystal:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1791,7 +1791,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Raugrin Crystal:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1801,7 +1801,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Raugrin Crystal:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1874,7 +1874,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Reconnaissance Mission:1",
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
@@ -1962,7 +1962,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sanctuary Lockdown:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2046,7 +2046,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sanctuary Smasher:1",
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -2093,7 +2093,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Savai Crystal:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2103,7 +2103,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Savai Crystal:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2113,7 +2113,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Savai Crystal:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2202,7 +2202,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Serrated Scorpion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2340,7 +2340,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Splendor Mare:1",
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -2441,7 +2441,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Springjaw Trap:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2502,7 +2502,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sprite Dragon:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2634,7 +2634,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Titanoth Rex:1",
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -2688,7 +2688,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Void Beckoner:1",
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -2736,7 +2736,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Voracious Greatshark:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2774,7 +2774,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Weaponize the Monsters:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2835,7 +2835,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Whirlwind of Thought:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2927,7 +2927,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zagoth Crystal:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2937,7 +2937,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Zagoth Crystal:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2947,7 +2947,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Zagoth Crystal:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",

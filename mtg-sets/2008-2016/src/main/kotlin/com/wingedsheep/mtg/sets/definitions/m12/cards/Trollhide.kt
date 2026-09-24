@@ -44,7 +44,7 @@ val Trollhide = card("Trollhide") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{1}{G}"),
                 effect = Effects.Regenerate(EffectTarget.Self)
             )

@@ -57,7 +57,7 @@ val GoddricCloakedReveler = card("Goddric, Cloaked Reveler") {
                     GrantKeyword(Keyword.FLYING, Filters.Self),
                     GrantActivatedAbility(
                         ability = ActivatedAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId.next(),
                             cost = Costs.Mana("{R}"),
                             effect = Effects.ForEachInGroup(
                                 GroupFilter(GameObjectFilter.Creature.withSubtype("Dragon").youControl()),

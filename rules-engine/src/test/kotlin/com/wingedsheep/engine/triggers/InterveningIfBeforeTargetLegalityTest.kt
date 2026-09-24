@@ -7,6 +7,7 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggeredAbility
@@ -51,6 +52,7 @@ class InterveningIfBeforeTargetLegalityTest : FunSpec({
         val victim = driver.putCreatureOnBattlefield(driver.player2, "Centaur Courser")
 
         val ability = TriggeredAbility.create(
+            id = AbilityId("InterveningIfBeforeTargetLegalityTest_1"),
             trigger = EventPattern.StepEvent(Step.END, Player.You),
             effect = DealDamageEffect(2, EffectTarget.ContextTarget(0)),
             targetRequirement = TargetCreature(),

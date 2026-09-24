@@ -66,7 +66,7 @@ val EmrakulTheExigentDoom = card("Emrakul, the Exigent Doom") {
         effect = Effects.Composite(
             Effects.GrantActivatedAbility(
                 ability = ActivatedAbility(
-                    id = AbilityId.generate(),
+                    id = AbilityId.next(),
                     cost = AbilityCost.Tap,
                     effect = Effects.AddColorlessMana(2),
                     isManaAbility = true,
