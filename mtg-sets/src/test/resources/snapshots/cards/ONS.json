@@ -547,41 +547,30 @@
     "oracleText": "Return up to three target creature cards of the creature type of your choice from your graveyard to your hand.",
     "script": {
         "spellEffect": {
-            "type": "Composite",
-            "effects": [
-                {
-                    "type": "GatherCards",
-                    "source": {
-                        "type": "FromZone",
-                        "zone": "Graveyard",
-                        "filter": "creature"
-                    },
-                    "storeAs": "graveyardCreatures"
+            "type": "ForEach",
+            "space": "IterationSpace.Targets",
+            "body": {
+                "type": "MoveToZone",
+                "target": {
+                    "type": "ContextTarget",
+                    "index": 0
                 },
-                {
-                    "type": "SelectFromCollection",
-                    "from": "graveyardCreatures",
-                    "selection": {
-                        "type": "ChooseUpTo",
-                        "count": {
-                            "type": "Fixed",
-                            "amount": 3
-                        }
-                    },
-                    "storeSelected": "chosen",
-                    "matchChosenCreatureType": true
-                },
-                {
-                    "type": "MoveCollection",
-                    "from": "chosen",
-                    "destination": {
-                        "type": "ToZone",
-                        "zone": "Hand"
-                    }
-                }
-            ]
+                "destination": "Hand"
+            }
         },
-        "castTimeCreatureTypeChoice": "GRAVEYARD"
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 3,
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "up to three target creature cards of the creature type of your choice from your graveyard",
+                "sameCreatureType": true
+            }
+        ]
     },
     "metadata": {
         "collectorNumber": "125",

@@ -19062,43 +19062,29 @@
                 },
                 {
                     "effect": {
-                        "type": "Composite",
-                        "effects": [
-                            "ChooseCreatureType",
-                            {
-                                "type": "GatherCards",
-                                "source": {
-                                    "type": "FromZone",
-                                    "zone": "Graveyard",
-                                    "filter": "creature"
-                                },
-                                "storeAs": "graveyardCreatures"
+                        "type": "ForEach",
+                        "space": "IterationSpace.Targets",
+                        "body": {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
                             },
-                            {
-                                "type": "SelectFromCollection",
-                                "from": "graveyardCreatures",
-                                "selection": {
-                                    "type": "ChooseExactly",
-                                    "count": {
-                                        "type": "Fixed",
-                                        "amount": 2
-                                    }
-                                },
-                                "storeSelected": "chosen",
-                                "matchChosenCreatureType": true,
-                                "prompt": "Choose two creature cards of the chosen type"
-                            },
-                            {
-                                "type": "MoveCollection",
-                                "from": "chosen",
-                                "destination": {
-                                    "type": "ToZone",
-                                    "zone": "Hand"
-                                }
-                            }
-                        ]
+                            "destination": "Hand"
+                        }
                     },
-                    "description": "Return two creature cards that share a creature type from your graveyard"
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "count": 2,
+                            "filter": {
+                                "baseFilter": "creature own:you",
+                                "zone": "Graveyard"
+                            },
+                            "sameCreatureType": true
+                        }
+                    ],
+                    "description": "Return two target creature cards that share a creature type from your graveyard to your hand"
                 }
             ]
         }

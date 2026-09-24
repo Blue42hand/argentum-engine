@@ -3119,59 +3119,40 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Battlefield",
-                                "filter": "creature"
-                            },
-                            "storeAs": "myCreatures"
-                        },
-                        {
-                            "type": "FilterCollection",
-                            "from": "myCreatures",
-                            "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "Subtract",
-                                    "left": {
-                                        "type": "EntityProperty",
-                                        "entity": "TriggeringEntity",
-                                        "numericProperty": "ManaValue"
-                                    },
-                                    "right": {
-                                        "type": "Fixed",
-                                        "amount": 1
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "up to one target creature you control with lesser mana value"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "ManaValueAtMostDynamic",
+                                    "amount": {
+                                        "type": "Subtract",
+                                        "left": {
+                                            "type": "EntityProperty",
+                                            "entity": "TriggeringEntity",
+                                            "numericProperty": "ManaValue"
+                                        },
+                                        "right": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
                                     }
                                 }
-                            },
-                            "storeMatching": "eligible"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "eligible",
-                            "selection": {
-                                "type": "ChooseUpTo",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "storeSelected": "chosen",
-                            "selectedLabel": "Return to hand"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "chosen",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Hand"
-                            }
+                            ],
+                            "controllerPredicate": "ControlledByYou"
                         }
-                    ]
+                    },
+                    "id": "up to one target creature you control with lesser mana value"
                 }
             }
         ],
@@ -9517,68 +9498,41 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Graveyard",
-                                "filter": "creature"
-                            },
-                            "storeAs": "graveyardCreatures"
-                        },
-                        {
-                            "type": "FilterCollection",
-                            "from": "graveyardCreatures",
-                            "filter": {
-                                "type": "ExcludeEntity",
-                                "entity": "TriggeringEntity"
-                            },
-                            "storeMatching": "otherCreatures"
-                        },
-                        {
-                            "type": "FilterCollection",
-                            "from": "otherCreatures",
-                            "filter": {
-                                "type": "ManaValueAtMost",
-                                "max": {
-                                    "type": "Subtract",
-                                    "left": {
-                                        "type": "EntityProperty",
-                                        "entity": "TriggeringEntity",
-                                        "numericProperty": "ManaValue"
-                                    },
-                                    "right": {
-                                        "type": "Fixed",
-                                        "amount": 1
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "another target creature card with lesser mana value from your graveyard"
+                    },
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "ManaValueAtMostDynamic",
+                                    "amount": {
+                                        "type": "Subtract",
+                                        "left": {
+                                            "type": "EntityProperty",
+                                            "entity": "TriggeringEntity",
+                                            "numericProperty": "ManaValue"
+                                        },
+                                        "right": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
                                     }
                                 }
-                            },
-                            "storeMatching": "validTargets"
+                            ],
+                            "controllerPredicate": "OwnedByYou"
                         },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "validTargets",
-                            "selection": {
-                                "type": "ChooseExactly",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "storeSelected": "chosen",
-                            "selectedLabel": "Return to the battlefield"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "chosen",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Battlefield"
-                            }
-                        }
-                    ]
+                        "zone": "Graveyard"
+                    },
+                    "id": "another target creature card with lesser mana value from your graveyard"
                 }
             }
         ]
@@ -22260,70 +22214,65 @@
                 "id": "ability_1",
                 "cost": "CostTap",
                 "effect": {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "AddCounters",
-                            "counterType": "COIN",
-                            "count": 1,
-                            "target": "Self"
-                        },
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Graveyard",
-                                "filter": "instant|sorcery"
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "AddCounters",
+                        "counterType": "COIN",
+                        "count": 1,
+                        "target": "Self"
+                    },
+                    "optional": false,
+                    "reflexiveEffect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": "ChosenTargets",
+                                "storeAs": "wishedSpell"
                             },
-                            "storeAs": "graveyardSpells"
-                        },
-                        {
-                            "type": "FilterCollection",
-                            "from": "graveyardSpells",
-                            "filter": {
-                                "type": "ManaValueEquals",
-                                "value": {
-                                    "type": "EntityProperty",
-                                    "entity": "Self",
-                                    "numericProperty": {
-                                        "type": "CounterCount",
-                                        "counterType": "COIN"
-                                    }
+                            {
+                                "type": "Gated",
+                                "gate": "Gate.MayDecide",
+                                "then": {
+                                    "type": "CastFromCollectionWithoutPayingCost",
+                                    "from": "wishedSpell",
+                                    "insteadOfGraveyard": "EXILE"
                                 }
-                            },
-                            "storeMatching": "matchingSpells"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "matchingSpells",
-                            "selection": {
-                                "type": "ChooseUpTo",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "storeSelected": "selected",
-                            "storeRemainder": "remainder",
-                            "prompt": "Choose an instant or sorcery card to cast"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "selected",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Exile"
                             }
-                        },
+                        ]
+                    },
+                    "reflexiveTargetRequirements": [
                         {
-                            "type": "GrantFreeCastTargetFromExile",
-                            "target": {
-                                "type": "PipelineTarget",
-                                "collectionName": "selected"
-                            },
-                            "exileAfterResolve": true
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {
+                                    "cardPredicates": [
+                                        {
+                                            "type": "Or",
+                                            "predicates": [
+                                                "IsInstant",
+                                                "IsSorcery"
+                                            ]
+                                        },
+                                        {
+                                            "type": "ManaValueEqualsDynamic",
+                                            "amount": {
+                                                "type": "EntityProperty",
+                                                "entity": "Self",
+                                                "numericProperty": {
+                                                    "type": "CounterCount",
+                                                    "counterType": "COIN"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "controllerPredicate": "OwnedByYou"
+                                },
+                                "zone": "Graveyard"
+                            }
                         }
-                    ]
+                    ],
+                    "descriptionOverride": "Put a coin counter on this artifact. When you do, you may cast target instant or sorcery card with mana value equal to the number of coin counters on this artifact from your graveyard without paying its mana cost. If that spell would be put into your graveyard, exile it instead."
                 },
                 "timing": "SorcerySpeed"
             }
@@ -22488,136 +22437,128 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Graveyard",
-                                "filter": "nonland permanent mv<=3"
-                            },
-                            "storeAs": "eligible"
-                        },
-                        {
-                            "type": "Gated",
-                            "gate": {
-                                "type": "Gate.MayPay",
-                                "cost": {
-                                    "type": "Composite",
-                                    "effects": [
-                                        {
-                                            "type": "PayManaCost",
-                                            "cost": "{W}{B}"
-                                        },
-                                        {
-                                            "type": "PayLife",
-                                            "amount": 2
-                                        }
-                                    ]
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "PayManaCost",
+                                    "cost": "{W}{B}"
+                                },
+                                {
+                                    "type": "PayLife",
+                                    "amount": 2
                                 }
-                            },
-                            "then": {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "eligible",
-                                        "selection": {
-                                            "type": "ChooseExactly",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "chosen",
-                                        "prompt": "Choose a nonland permanent card with mana value 3 or less to return to the battlefield"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "chosen",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield"
-                                        }
-                                    },
-                                    {
-                                        "type": "AddCountersToCollection",
-                                        "collectionName": "chosen",
-                                        "counterType": "FINALITY"
-                                    }
-                                ]
-                            }
+                            ]
                         }
-                    ]
+                    },
+                    "then": {
+                        "type": "ReflexiveTrigger",
+                        "action": {
+                            "type": "Composite",
+                            "effects": []
+                        },
+                        "optional": false,
+                        "reflexiveEffect": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "MoveToZone",
+                                    "target": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
+                                    "destination": "Battlefield",
+                                    "fromZone": "Graveyard"
+                                },
+                                {
+                                    "type": "AddCounters",
+                                    "counterType": "FINALITY",
+                                    "count": 1,
+                                    "target": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    }
+                                }
+                            ]
+                        },
+                        "reflexiveTargetRequirements": [
+                            {
+                                "type": "TargetObject",
+                                "filter": {
+                                    "baseFilter": "nonland permanent mv<=3 own:you",
+                                    "zone": "Graveyard"
+                                }
+                            }
+                        ],
+                        "descriptionOverride": "return target nonland permanent card with mana value 3 or less from your graveyard to the battlefield with a finality counter on it"
+                    }
                 }
             },
             {
                 "id": "ability_3",
                 "trigger": "AttackEvent",
                 "effect": {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Graveyard",
-                                "filter": "nonland permanent mv<=3"
-                            },
-                            "storeAs": "eligible"
-                        },
-                        {
-                            "type": "Gated",
-                            "gate": {
-                                "type": "Gate.MayPay",
-                                "cost": {
-                                    "type": "Composite",
-                                    "effects": [
-                                        {
-                                            "type": "PayManaCost",
-                                            "cost": "{W}{B}"
-                                        },
-                                        {
-                                            "type": "PayLife",
-                                            "amount": 2
-                                        }
-                                    ]
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "PayManaCost",
+                                    "cost": "{W}{B}"
+                                },
+                                {
+                                    "type": "PayLife",
+                                    "amount": 2
                                 }
-                            },
-                            "then": {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "eligible",
-                                        "selection": {
-                                            "type": "ChooseExactly",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "chosen",
-                                        "prompt": "Choose a nonland permanent card with mana value 3 or less to return to the battlefield"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "chosen",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield"
-                                        }
-                                    },
-                                    {
-                                        "type": "AddCountersToCollection",
-                                        "collectionName": "chosen",
-                                        "counterType": "FINALITY"
-                                    }
-                                ]
-                            }
+                            ]
                         }
-                    ]
+                    },
+                    "then": {
+                        "type": "ReflexiveTrigger",
+                        "action": {
+                            "type": "Composite",
+                            "effects": []
+                        },
+                        "optional": false,
+                        "reflexiveEffect": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "MoveToZone",
+                                    "target": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
+                                    "destination": "Battlefield",
+                                    "fromZone": "Graveyard"
+                                },
+                                {
+                                    "type": "AddCounters",
+                                    "counterType": "FINALITY",
+                                    "count": 1,
+                                    "target": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    }
+                                }
+                            ]
+                        },
+                        "reflexiveTargetRequirements": [
+                            {
+                                "type": "TargetObject",
+                                "filter": {
+                                    "baseFilter": "nonland permanent mv<=3 own:you",
+                                    "zone": "Graveyard"
+                                }
+                            }
+                        ],
+                        "descriptionOverride": "return target nonland permanent card with mana value 3 or less from your graveyard to the battlefield with a finality counter on it"
+                    }
                 }
             }
         ]
