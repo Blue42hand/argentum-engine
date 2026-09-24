@@ -19,7 +19,7 @@ val Discombobulate = card("Discombobulate") {
     oracleText = "Counter target spell. Look at the top four cards of your library, then put them back in any order."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = CounterEffect() then Patterns.Library.lookAtTopAndReorder(4)
     }
 

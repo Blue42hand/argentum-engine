@@ -52,11 +52,11 @@ val BuildersBane = card("Builder's Bane") {
         "equal to the number of artifacts they controlled that were put into a graveyard this way."
 
     spell {
-        target = TargetPermanent(
+        val permanent = target("target permanent", TargetPermanent(
             optional = true,
             filter = TargetFilter.Artifact,
             dynamicMaxCount = DynamicAmount.XValue
-        )
+        ))
         effect = Effects.Composite(
             GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "targets"),
             CaptureControllersEffect(from = "targets", storeAs = "preControllers"),

@@ -215,12 +215,15 @@
                         "amount": 3
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
                 "targetRequirements": [
-                    "AnyTarget"
+                    {
+                        "type": "AnyTarget",
+                        "id": "any target"
+                    }
                 ],
                 "descriptionOverride": "{5}, {T}, Sacrifice this creature: It deals 3 damage to any target."
             }

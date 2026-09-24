@@ -23,7 +23,7 @@ val MemoryDrain = card("Memory Drain") {
     oracleText = "Counter target spell. Scry 2."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.Composite(
             Effects.CounterSpell(),
             Effects.Scry(2),

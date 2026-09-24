@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -39,13 +38,13 @@ val HostOfTheHereafter = card("Host of the Hereafter") {
     replacementEffect(EntersWithCounters(count = 2, selfOnly = true))
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
-        interveningIf = Conditions.TriggeringEntityHadCounters
-        target = TargetCreature(
+        val creature = target("target creature", TargetCreature(
             optional = true,
             filter = TargetFilter(GameObjectFilter.Creature.youControl())
-        )
-        effect = Effects.MoveAllLastKnownCounters(EffectTarget.ContextTarget(0))
+        ))
+        trigger = Triggers.YourCreatureDies
+        interveningIf = Conditions.TriggeringEntityHadCounters
+        effect = Effects.MoveAllLastKnownCounters(creature)
         description = "Whenever this creature or another creature you control dies, if it had " +
             "counters on it, put its counters on up to one target creature you control."
     }

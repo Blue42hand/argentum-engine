@@ -930,8 +930,8 @@
                                 "counterType": "+0/+1",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "description": "Put a +0/+1 counter on it"
@@ -942,8 +942,8 @@
                                 "counterType": "+1/+0",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "description": "Put a +1/+0 counter on it"
@@ -956,7 +956,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ],
                 "descriptionOverride": "{R}, {T}, Discard a card: Put a +0/+1 counter or a +1/+0 counter on target creature."
@@ -1649,8 +1650,8 @@
                     "type": "GrantKeyword",
                     "keyword": "DOESNT_UNTAP",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     },
                     "duration": "UntilAfterAffectedControllersNextUntap"
                 },
@@ -1659,7 +1660,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ],
                 "descriptionOverride": "{1}{G}, {T}: Target creature doesn't untap during its controller's next untap step."
@@ -5831,6 +5833,10 @@
                 "effect": {
                     "type": "SetLandType",
                     "landType": "Forest",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target land"
+                    },
                     "duration": "Permanent"
                 },
                 "targetRequirements": [
@@ -5838,7 +5844,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "land"
-                        }
+                        },
+                        "id": "target land"
                     }
                 ],
                 "descriptionOverride": "{T}, Sacrifice a green creature: Target land becomes a Forest."
@@ -6089,7 +6096,8 @@
                         "filter": {
                             "baseFilter": "black",
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target spell"
                     }
                 ],
                 "descriptionOverride": "{1}{B}: Counter target black spell unless that spell's controller pays {B} or {3}."
@@ -6658,7 +6666,8 @@
                         "filter": {
                             "baseFilter": {},
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target spell"
                     }
                 ]
             }

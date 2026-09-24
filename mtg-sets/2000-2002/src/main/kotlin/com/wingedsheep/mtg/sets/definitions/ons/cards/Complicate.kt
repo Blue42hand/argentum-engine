@@ -22,15 +22,15 @@ val Complicate = card("Complicate") {
     oracleText = "Counter target spell unless its controller pays {3}.\nCycling {2}{U}\nWhen you cycle Complicate, you may counter target spell unless its controller pays {1}."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessPays("{3}")
     }
 
     keywordAbility(KeywordAbility.cycling("{2}{U}"))
 
     triggeredAbility {
+        val spell = target("target spell", Targets.Spell)
         trigger = Triggers.YouCycleThis
-        target = Targets.Spell
         effect = Effects.May(Effects.CounterUnlessPays("{1}"))
     }
 

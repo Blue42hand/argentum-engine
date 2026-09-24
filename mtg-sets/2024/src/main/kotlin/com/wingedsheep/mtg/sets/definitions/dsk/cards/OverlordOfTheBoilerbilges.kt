@@ -49,15 +49,15 @@ val OverlordOfTheBoilerbilges = card("Overlord of the Boilerbilges") {
     )
 
     triggeredAbility {
+        val anyTarget = target("any target", Targets.Any)
         trigger = Triggers.EntersBattlefield
-        target = Targets.Any
         effect = dealFour
         description = "Whenever this permanent enters, it deals 4 damage to any target."
     }
 
     triggeredAbility {
+        val anyTarget = target("any target", Targets.Any)
         trigger = Triggers.Attacks
-        target = Targets.Any
         effect = dealFour
         description = "Whenever this permanent attacks, it deals 4 damage to any target."
     }

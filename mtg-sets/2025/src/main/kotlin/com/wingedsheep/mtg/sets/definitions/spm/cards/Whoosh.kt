@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Whoosh!
@@ -26,8 +25,8 @@ val Whoosh = card("Whoosh!") {
     keywordAbility(KeywordAbility.kicker("{1}{U}"))
 
     spell {
-        target = Targets.NonlandPermanent
-        effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND) then Effects.If(
+        val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+        effect = Effects.Move(nonlandPermanent, Zone.HAND) then Effects.If(
             condition = WasKicked,
             then = Effects.DrawCards(1)
         )

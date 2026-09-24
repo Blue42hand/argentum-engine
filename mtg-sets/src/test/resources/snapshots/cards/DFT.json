@@ -4613,7 +4613,8 @@
                         "filter": {
                             "baseFilter": "instant|sorcery",
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target instant or sorcery spell"
                     }
                 ]
             }
@@ -15801,7 +15802,8 @@
                 "filter": {
                     "baseFilter": "creature|artifact",
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -15836,7 +15838,8 @@
                 "filter": {
                     "baseFilter": "noncreature",
                     "zone": "Stack"
-                }
+                },
+                "id": "target noncreature spell"
             }
         ]
     },

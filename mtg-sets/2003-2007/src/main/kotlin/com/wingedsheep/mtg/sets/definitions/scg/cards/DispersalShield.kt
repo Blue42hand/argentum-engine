@@ -22,7 +22,7 @@ val DispersalShield = card("Dispersal Shield") {
     oracleText = "Counter target spell if its mana value is less than or equal to the greatest mana value among permanents you control."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
             condition = Conditions.TargetSpellManaValueAtMost(
                 DynamicAmounts.battlefield(Player.You).maxManaValue()

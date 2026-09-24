@@ -2046,8 +2046,8 @@
                 }
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -2055,7 +2055,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -3003,7 +3004,8 @@
                 "filter": {
                     "baseFilter": "mv>=4",
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell with mana value at least"
             }
         ]
     },
@@ -6299,7 +6301,8 @@
                     "filter": {
                         "baseFilter": {},
                         "zone": "Stack"
-                    }
+                    },
+                    "id": "target spell"
                 }
             }
         ]
@@ -7615,7 +7618,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -8493,16 +8497,16 @@
                             {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature opponent controls"
                                 }
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DOESNT_UNTAP",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature opponent controls"
                                 },
                                 "duration": "UntilAfterAffectedControllersNextUntap"
                             }
@@ -8513,7 +8517,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -9061,8 +9066,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -9074,7 +9079,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -11174,7 +11180,8 @@
                 "filter": {
                     "baseFilter": "noncreature",
                     "zone": "Stack"
-                }
+                },
+                "id": "target noncreature spell"
             }
         ]
     },
@@ -12412,8 +12419,8 @@
                 "amount": -4
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -12421,7 +12428,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },

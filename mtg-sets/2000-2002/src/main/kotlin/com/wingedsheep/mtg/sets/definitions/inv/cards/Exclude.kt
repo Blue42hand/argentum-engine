@@ -19,7 +19,7 @@ val Exclude = card("Exclude") {
     oracleText = "Counter target creature spell.\nDraw a card."
 
     spell {
-        target = Targets.CreatureSpell
+        val creatureSpell = target("target creature spell", Targets.CreatureSpell)
         effect = Effects.CounterSpell() then Effects.DrawCards(1)
     }
 

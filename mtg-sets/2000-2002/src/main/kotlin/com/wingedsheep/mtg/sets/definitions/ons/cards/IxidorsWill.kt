@@ -21,7 +21,7 @@ val IxidorsWill = card("Ixidor's Will") {
     oracleText = "Counter target spell unless its controller pays {2} for each Wizard on the battlefield."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessDynamicPays(
             DynamicAmount.Multiply(
                 DynamicAmount.AggregateBattlefield(Player.Each, GameObjectFilter.Creature.withSubtype("Wizard")),

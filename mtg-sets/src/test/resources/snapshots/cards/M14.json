@@ -108,12 +108,15 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
                 "targetRequirements": [
-                    "AnyTarget"
+                    {
+                        "type": "AnyTarget",
+                        "id": "any target"
+                    }
                 ],
                 "descriptionOverride": "{R}, Sacrifice a creature: This enchantment deals 1 damage to any target."
             }

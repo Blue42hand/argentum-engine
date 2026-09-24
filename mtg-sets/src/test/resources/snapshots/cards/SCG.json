@@ -20,8 +20,8 @@
                 "property": "MANA_VALUE"
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -29,7 +29,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -1032,7 +1033,10 @@
                     ]
                 },
                 "targetRequirements": [
-                    "TargetPlayer"
+                    {
+                        "type": "TargetPlayer",
+                        "id": "target player"
+                    }
                 ],
                 "timing": "SorcerySpeed"
             }
@@ -2443,7 +2447,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -4197,7 +4202,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -4954,13 +4960,20 @@
             {
                 "id": "ability_1",
                 "trigger": "TurnFaceUpEvent",
-                "effect": "CopyTargetSpell",
+                "effect": {
+                    "type": "CopyTargetSpell",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target instant or sorcery spell"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "instant|sorcery",
                         "zone": "Stack"
-                    }
+                    },
+                    "id": "target instant or sorcery spell"
                 }
             }
         ],
@@ -5791,8 +5804,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target"
             },
             "destination": "Hand"
         },
@@ -5802,7 +5815,8 @@
                 "filter": {
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
-                }
+                },
+                "id": "target"
             }
         ]
     },
@@ -6767,7 +6781,8 @@
                         ]
                     },
                     "zone": "Stack"
-                }
+                },
+                "id": "target activated or triggered ability"
             }
         ]
     },

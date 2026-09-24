@@ -1937,7 +1937,8 @@
                             "filter": {
                                 "baseFilter": "creature",
                                 "zone": "Stack"
-                            }
+                            },
+                            "id": "target creature spell"
                         }
                     ],
                     "description": "Counter target creature spell"
@@ -2662,12 +2663,19 @@
                     "from": "Battlefield",
                     "to": "Graveyard"
                 },
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 }
             }
         ],

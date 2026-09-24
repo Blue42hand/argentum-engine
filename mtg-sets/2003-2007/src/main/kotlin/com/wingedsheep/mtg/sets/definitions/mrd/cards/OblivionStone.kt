@@ -27,9 +27,9 @@ val OblivionStone = card("Oblivion Stone") {
         "on it, then remove all fate counters from all permanents."
 
     activatedAbility {
+        val permanent = target("target permanent", Targets.Permanent)
         cost = Costs.Composite(Costs.Mana("{4}"), Costs.Tap)
-        target = Targets.Permanent
-        effect = Effects.AddCounters(Counters.FATE, 1, EffectTarget.ContextTarget(0))
+        effect = Effects.AddCounters(Counters.FATE, 1, permanent)
         description = "{4}, {T}: Put a fate counter on target permanent."
     }
 

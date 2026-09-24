@@ -23,7 +23,7 @@ val BalanceOfPower = card("Balance of Power") {
     typeLine = "Sorcery"
     oracleText = "If target opponent has more cards in hand than you, draw cards equal to the difference."
     spell {
-        target = TargetOpponent()
+        val opponent = target("target opponent", TargetOpponent())
         effect = DrawCardsEffect(DynamicAmounts.handSizeDifferenceFromTargetOpponent())
     }
     metadata {

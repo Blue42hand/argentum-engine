@@ -3776,7 +3776,8 @@
                             "filter": {
                                 "baseFilter": {},
                                 "zone": "Stack"
-                            }
+                            },
+                            "id": "target spell"
                         }
                     ]
                 },
@@ -5316,7 +5317,8 @@
                         ]
                     },
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -5387,7 +5389,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ],
         "additionalCosts": [
@@ -8017,7 +8020,13 @@
                         "cost": "{W}{U}{B}{R}{G}"
                     }
                 },
-                "effect": "GrantFreeCastTargetFromExile",
+                "effect": {
+                    "type": "GrantFreeCastTargetFromExile",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
                 "targetRequirements": [
                     {
                         "type": "TargetObject",
@@ -8025,7 +8034,7 @@
                             "baseFilter": "Elemental own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "elemental"
+                        "id": "target"
                     }
                 ],
                 "descriptionOverride": "You may play target Elemental card from your graveyard without paying its mana cost."
@@ -15533,7 +15542,8 @@
                             ]
                         },
                         "zone": "Stack"
-                    }
+                    },
+                    "id": "target spell"
                 }
             }
         ]

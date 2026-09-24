@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -30,14 +29,14 @@ val TheodenKingOfRohan = card("Théoden, King of Rohan") {
     oracleText = "Whenever Théoden or another Human you control enters, target creature gains double strike until end of turn."
 
     triggeredAbility {
+        val creature = target("target creature", TargetCreature(
+            filter = TargetFilter(GameObjectFilter.Creature)
+        ))
         trigger = Triggers.entersBattlefield(
             filter = GameObjectFilter.Permanent.youControl().withSubtype("Human"),
             binding = TriggerBinding.ANY
         )
-        target = TargetCreature(
-            filter = TargetFilter(GameObjectFilter.Creature)
-        )
-        effect = GrantKeywordEffect(Keyword.DOUBLE_STRIKE, EffectTarget.ContextTarget(0), Duration.EndOfTurn)
+        effect = GrantKeywordEffect(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn)
     }
 
     metadata {

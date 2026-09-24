@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 /**
@@ -21,8 +20,8 @@ val Zap = card("Zap") {
     oracleText = "Zap deals 1 damage to any target.\nDraw a card."
 
     spell {
-        target = AnyTarget()
-        effect = DealDamageEffect(1, EffectTarget.ContextTarget(0)) then Effects.DrawCards(1)
+        val target = target("target", AnyTarget())
+        effect = DealDamageEffect(1, target) then Effects.DrawCards(1)
     }
 
     metadata {

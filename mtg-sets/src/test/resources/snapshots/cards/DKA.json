@@ -1943,8 +1943,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target artifact"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -1954,7 +1954,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "artifact"
-                        }
+                        },
+                        "id": "target artifact"
                     }
                 ],
                 "descriptionOverride": "{R}, Sacrifice this creature: Destroy target artifact."

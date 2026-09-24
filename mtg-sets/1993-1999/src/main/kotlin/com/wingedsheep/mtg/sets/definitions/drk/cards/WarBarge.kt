@@ -38,14 +38,14 @@ val WarBarge = card("War Barge") {
         "player controls an Island.)"
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Mana("{3}")
-        target = Targets.Creature
         effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.ISLANDWALK, EffectTarget.ContextTarget(0)),
+            Effects.GrantKeyword(Keyword.ISLANDWALK, creature),
             CreateDelayedTriggerEffect(
                 trigger = Triggers.LeavesBattlefield,
                 watchedTarget = EffectTarget.Self,
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0), noRegenerate = true),
+                effect = Effects.Destroy(creature, noRegenerate = true),
                 expiry = DelayedTriggerExpiry.EndOfTurn,
             ),
         )

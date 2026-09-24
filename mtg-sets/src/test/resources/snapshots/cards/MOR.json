@@ -314,15 +314,16 @@
                         "amount": 6
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "descriptionOverride": "When this creature leaves the battlefield, it deals 6 damage to target creature."
             }

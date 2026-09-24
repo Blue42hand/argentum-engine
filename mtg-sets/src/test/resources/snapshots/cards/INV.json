@@ -24,7 +24,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -599,8 +600,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     },
                     "destination": "Hand"
                 },
@@ -609,7 +610,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -1331,6 +1333,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
+                "id": "target creature",
                 "sameController": true
             }
         ]
@@ -1702,7 +1705,8 @@
                         ]
                     },
                     "zone": "Stack"
-                }
+                },
+                "id": "target activated ability"
             }
         ]
     },
@@ -2534,7 +2538,8 @@
                 "filter": {
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
-                }
+                },
+                "id": "target creature card in your graveyard"
             }
         ],
         "castRestrictions": [
@@ -2579,8 +2584,8 @@
                             "amount": 1
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     }
                 },
@@ -2598,7 +2603,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ],
         "castRestrictions": [
@@ -3942,8 +3948,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target artifact or enchantment"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -3969,7 +3975,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "artifact|enchantment"
-                }
+                },
+                "id": "target artifact or enchantment"
             }
         ]
     },
@@ -4016,6 +4023,7 @@
                 "filter": {
                     "baseFilter": "nonland permanent"
                 },
+                "id": "target permanent",
                 "dynamicMaxCount": "XValue"
             }
         ]
@@ -4113,7 +4121,10 @@
             ]
         },
         "targetRequirements": [
-            "TargetPlayer"
+            {
+                "type": "TargetPlayer",
+                "id": "target player"
+            }
         ]
     },
     "metadata": {
@@ -4794,7 +4805,8 @@
                 "filter": {
                     "baseFilter": "creature",
                     "zone": "Stack"
-                }
+                },
+                "id": "target creature spell"
             }
         ]
     },
@@ -5352,8 +5364,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -5403,7 +5415,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "land"
-                }
+                },
+                "id": "target permanent"
             }
         ]
     },
@@ -5528,12 +5541,15 @@
             "type": "DealDamage",
             "amount": "XValue",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "any target"
             }
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ]
     },
     "metadata": {
@@ -7462,7 +7478,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -8480,8 +8497,8 @@
             "then": {
                 "type": "PreventDamageShield",
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "any target"
                 },
                 "amount": {
                     "type": "Fixed",
@@ -8491,8 +8508,8 @@
             "otherwise": {
                 "type": "PreventDamageShield",
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "any target"
                 },
                 "amount": {
                     "type": "Fixed",
@@ -8501,7 +8518,10 @@
             }
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ]
     },
     "metadata": {
@@ -8630,7 +8650,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "artifact"
-                }
+                },
+                "id": "target artifact"
             }
         ]
     },
@@ -9776,7 +9797,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -10393,13 +10415,20 @@
                         "cost": "{G}"
                     }
                 },
-                "effect": "ForceBlock",
+                "effect": {
+                    "type": "ForceBlock",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirements": [
                     {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -10477,12 +10506,15 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 "targetRequirements": [
-                    "AnyTarget"
+                    {
+                        "type": "AnyTarget",
+                        "id": "target"
+                    }
                 ],
                 "descriptionOverride": "{1}, Pay 2 life: This enchantment deals 1 damage to any target."
             }
@@ -10600,8 +10632,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Hand"
                 },
@@ -10620,7 +10652,8 @@
                 "filter": {
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
-                }
+                },
+                "id": "target"
             }
         ]
     },
@@ -10648,8 +10681,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     },
                     "destination": "Hand"
                 },
@@ -10667,7 +10700,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -12382,8 +12416,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -12401,7 +12435,8 @@
                                     }
                                 ]
                             }
-                        }
+                        },
+                        "id": "target permanent"
                     }
                 ],
                 "descriptionOverride": "{1}{R}, Sacrifice a creature: Destroy target nonbasic land."
@@ -12888,8 +12923,8 @@
                     "type": "DealDamage",
                     "amount": "XValue",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
                 {
@@ -12902,7 +12937,10 @@
             ]
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ],
         "xManaRestriction": [
             "BLACK",
@@ -13181,7 +13219,8 @@
                         "filter": {
                             "baseFilter": "noncreature",
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target noncreature spell"
                     }
                 ]
             }
@@ -14421,7 +14460,8 @@
                         "filter": {
                             "baseFilter": "enchantment",
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target spell"
                     }
                 ]
             }
@@ -14523,7 +14563,8 @@
                         "controllerPredicate": "ControlledByOpponent"
                     },
                     "zone": "Stack"
-                }
+                },
+                "id": "target"
             }
         ]
     },
@@ -15590,8 +15631,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -15609,7 +15650,8 @@
                                     }
                                 ]
                             }
-                        }
+                        },
+                        "id": "target permanent"
                     }
                 ],
                 "descriptionOverride": "{2}{R}, {T}: Destroy target nonbasic land."
@@ -16135,8 +16177,8 @@
                 {
                     "type": "PreventLandPlaysThisTurn",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target player"
                     }
                 },
                 {
@@ -16149,7 +16191,10 @@
             ]
         },
         "targetRequirements": [
-            "TargetPlayer"
+            {
+                "type": "TargetPlayer",
+                "id": "target player"
+            }
         ]
     },
     "metadata": {
@@ -16240,7 +16285,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -18059,8 +18105,8 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 {
@@ -18073,7 +18119,10 @@
             ]
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "target"
+            }
         ]
     },
     "metadata": {

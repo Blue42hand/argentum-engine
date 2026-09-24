@@ -56,7 +56,7 @@ val RatKingVerminister = card("Rat King, Verminister") {
             Costs.Tap,
             Costs.SacrificeMultiple(3, GameObjectFilter.Creature.withSubtype(Subtype("Rat")))
         )
-        effect = Effects.ReturnSameNamedFromGraveyard()
+        effect = Effects.ReturnSameNamedFromGraveyard(target = EffectTarget.ContextTarget(0))
         description = "{T}, Sacrifice three Rats: Return target creature card and all other cards with the same name as that card from your graveyard to the battlefield tapped."
     }
 

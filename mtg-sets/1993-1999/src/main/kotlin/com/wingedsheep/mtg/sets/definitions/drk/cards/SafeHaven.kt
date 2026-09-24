@@ -37,9 +37,9 @@ val SafeHaven = card("Safe Haven") {
         "card exiled with this land to the battlefield under its owner's control."
 
     activatedAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        target = Targets.CreatureYouControl
-        effect = Effects.ExileLinkedToSource(EffectTarget.ContextTarget(0))
+        effect = Effects.ExileLinkedToSource(creatureYouControl)
         description = "{2}, {T}: Exile target creature you control."
     }
 

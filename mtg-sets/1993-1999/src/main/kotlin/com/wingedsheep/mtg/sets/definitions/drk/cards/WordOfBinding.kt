@@ -22,7 +22,7 @@ val WordOfBinding = card("Word of Binding") {
     oracleText = "Tap X target creatures."
 
     spell {
-        target = TargetCreature(optional = true, dynamicMaxCount = DynamicAmount.XValue)
+        val creature = target("target creature", TargetCreature(optional = true, dynamicMaxCount = DynamicAmount.XValue))
         effect = Effects.TapEachTarget()
     }
 

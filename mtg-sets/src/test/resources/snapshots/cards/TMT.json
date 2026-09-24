@@ -862,7 +862,8 @@
                             "filter": {
                                 "baseFilter": "artifact own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target"
                         }
                     ],
                     "description": "Return target artifact card in your graveyard to the battlefield. If it isn't an artifact creature card, it's a 3/3 Robot artifact creature with flying"
@@ -2052,8 +2053,8 @@
                                     "counterType": "+1/+1",
                                     "count": 3,
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 {
@@ -2075,8 +2076,8 @@
                                     "then": {
                                         "type": "BecomeCreature",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         },
                                         "power": {
                                             "type": "Fixed",
@@ -2098,7 +2099,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact ctrl:you"
-                            }
+                            },
+                            "id": "target"
                         }
                     }
                 ]
@@ -6539,8 +6541,8 @@
                 {
                     "type": "BecomeCreature",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "power": {
                         "type": "Fixed",
@@ -6554,6 +6556,10 @@
                 {
                     "type": "AddCardType",
                     "cardType": "ARTIFACT",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
                     "duration": "EndOfTurn"
                 },
                 {
@@ -6570,7 +6576,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature|artifact"
-                }
+                },
+                "id": "target"
             }
         ]
     },
@@ -7958,7 +7965,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -8337,8 +8345,8 @@
                             "counterType": "+1/+1",
                             "count": 3,
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target"
                             }
                         },
                         {
@@ -8360,8 +8368,8 @@
                             "then": {
                                 "type": "BecomeCreature",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -8385,7 +8393,8 @@
                     "filter": {
                         "baseFilter": "creature|artifact",
                         "excludeSelf": true
-                    }
+                    },
+                    "id": "target"
                 },
                 "interveningIf": "PermanentLeftBattlefieldThisTurn",
                 "descriptionOverride": "Disappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, put three +1/+1 counters on up to one other target artifact or creature. If it isn't a creature, it becomes a 0/0 Mutant creature in addition to its other types."
@@ -11589,8 +11598,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target"
                             },
                             "destination": "Exile",
                             "linkToSource": true
@@ -11625,7 +11634,8 @@
                     "filter": {
                         "baseFilter": "creature own:you",
                         "zone": "Graveyard"
-                    }
+                    },
+                    "id": "target"
                 }
             },
             {

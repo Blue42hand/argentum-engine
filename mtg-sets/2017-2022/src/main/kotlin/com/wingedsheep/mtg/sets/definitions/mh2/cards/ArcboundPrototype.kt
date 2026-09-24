@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -60,13 +59,13 @@ val ArcboundPrototype = card("Arcbound Prototype") {
 
     // Modular, half two: "When it dies, you may put its +1/+1 counters on target artifact creature."
     triggeredAbility {
+        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactCreature)))
         trigger = Triggers.Dies
-        target = TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactCreature))
         optional = true
         effect = Effects.AddDynamicCounters(
             Counters.PLUS_ONE_PLUS_ONE,
             DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT),
-            EffectTarget.ContextTarget(0)
+            permanent
         )
         description = "When this creature dies, you may put its +1/+1 counters on target artifact creature."
     }

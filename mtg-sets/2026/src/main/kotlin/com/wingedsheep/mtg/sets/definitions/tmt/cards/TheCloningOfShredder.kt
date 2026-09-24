@@ -45,11 +45,11 @@ val TheCloningOfShredder = card("The Cloning of Shredder") {
         "II, III — Create a token that's a copy of a card exiled with this Saga, except it isn't legendary and is a Mutant in addition to its other types."
 
     sagaChapter(1) {
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD)
-        )
+        ))
         // Exile the targeted graveyard card linked to this Saga, then copy it.
-        effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE, linkToSource = true)
+        effect = Effects.Move(target, Zone.EXILE, linkToSource = true)
             .then(cloneFromLinkedExile())
     }
 

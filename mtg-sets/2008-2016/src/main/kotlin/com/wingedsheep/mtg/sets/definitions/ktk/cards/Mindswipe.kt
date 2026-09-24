@@ -26,7 +26,7 @@ val Mindswipe = card("Mindswipe") {
     oracleText = "Counter target spell unless its controller pays {X}. Mindswipe deals X damage to that spell's controller."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessDynamicPays(DynamicAmount.XValue)
             .then(Effects.DealDamage(DynamicAmount.XValue, EffectTarget.TargetController))
     }

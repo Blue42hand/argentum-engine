@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -31,11 +30,11 @@ val ZukosConviction = card("Zuko's Conviction") {
     keywordAbility(KeywordAbility.kicker("{4}"))
 
     spell {
-        target = TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
+        val target = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
         effect = Effects.If(
             condition = WasKicked,
-            then = Effects.PutOntoBattlefield(EffectTarget.ContextTarget(0), tapped = true),
-            otherwise = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+            then = Effects.PutOntoBattlefield(target, tapped = true),
+            otherwise = Effects.ReturnToHand(target)
         )
     }
 

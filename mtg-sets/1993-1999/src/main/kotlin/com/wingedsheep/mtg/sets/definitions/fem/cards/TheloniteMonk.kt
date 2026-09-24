@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Thelonite Monk
@@ -30,14 +29,14 @@ val TheloniteMonk = card("Thelonite Monk") {
     toughness = 2
 
     activatedAbility {
+        val land = target("target land", Targets.Land)
         cost = Costs.Composite(
             Costs.Tap,
             Costs.Sacrifice(GameObjectFilter.Creature.withColor(Color.GREEN))
         )
-        target = Targets.Land
         effect = Effects.SetLandType(
             landType = "Forest",
-            target = EffectTarget.ContextTarget(0),
+            target = land,
             duration = Duration.Permanent
         )
         description = "{T}, Sacrifice a green creature: Target land becomes a Forest."

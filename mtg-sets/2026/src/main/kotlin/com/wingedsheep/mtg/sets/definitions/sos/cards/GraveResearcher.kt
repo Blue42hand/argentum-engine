@@ -63,9 +63,9 @@ val GraveResearcher = card("Grave Researcher") {
         oracleText = "Put target creature card from a graveyard onto the battlefield under your " +
             "control. You lose life equal to that card's mana value."
         spell {
-            target = Targets.CreatureCardInGraveyard
+            val creatureCardInGraveyard = target("target creature card in graveyard", Targets.CreatureCardInGraveyard)
             effect = Effects.Composite(
-                Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD),
+                Effects.Move(creatureCardInGraveyard, Zone.BATTLEFIELD),
                 Effects.LoseLife(
                     DynamicAmount.EntityProperty(
                         EntityReference.Target(0),

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 /**
  * Return the Favor
  * {R}{R}
@@ -44,7 +45,7 @@ val ReturnTheFavor = card("Return the Favor") {
             modes = listOf(
                 // + {1} — Copy target instant/sorcery spell, activated ability, or triggered ability.
                 Mode(
-                    effect = Effects.CopyTargetSpellOrAbility(),
+                    effect = Effects.CopyTargetSpellOrAbility(target = EffectTarget.ContextTarget(0)),
                     targetRequirements = listOf(Targets.InstantSorcerySpellOrAbility),
                     description = "+ {1} — Copy target instant spell, sorcery spell, activated " +
                         "ability, or triggered ability. You may choose new targets for the copy.",

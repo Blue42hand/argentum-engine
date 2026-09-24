@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -35,24 +34,24 @@ val TifasLimitBreak = card("Tifa's Limit Break") {
     spell {
         tiered {
             tier("Somersault", "{0}", "Target creature gets +2/+2 until end of turn.") {
-                effect = Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
-                target = Targets.Creature
+                val creature = target("target creature", Targets.Creature)
+                effect = Effects.ModifyStats(2, 2, creature)
             }
             tier("Meteor Strikes", "{2}", "Double target creature's power and toughness until end of turn.") {
+                val creature = target("target creature", Targets.Creature)
                 effect = Effects.ModifyStats(
                     power = DynamicAmounts.targetPower(0),
                     toughness = DynamicAmounts.targetToughness(0),
-                    target = EffectTarget.ContextTarget(0)
+                    target = creature
                 )
-                target = Targets.Creature
             }
             tier("Final Heaven", "{6}{G}", "Triple target creature's power and toughness until end of turn.") {
+                val creature = target("target creature", Targets.Creature)
                 effect = Effects.ModifyStats(
                     power = DynamicAmount.Multiply(DynamicAmounts.targetPower(0), 2),
                     toughness = DynamicAmount.Multiply(DynamicAmounts.targetToughness(0), 2),
-                    target = EffectTarget.ContextTarget(0)
+                    target = creature
                 )
-                target = Targets.Creature
             }
         }
     }

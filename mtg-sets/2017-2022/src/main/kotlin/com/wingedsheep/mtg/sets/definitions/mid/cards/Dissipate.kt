@@ -19,7 +19,7 @@ val Dissipate = card("Dissipate") {
     oracleText = "Counter target spell. If that spell is countered this way, exile it instead of putting it into its owner's graveyard."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpellToExile()
     }
 

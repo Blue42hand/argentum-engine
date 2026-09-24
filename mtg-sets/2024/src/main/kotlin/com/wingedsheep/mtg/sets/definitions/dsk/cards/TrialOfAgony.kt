@@ -44,11 +44,11 @@ val TrialOfAgony = card("Trial of Agony") {
         "the other can't block this turn."
 
     spell {
-        target = TargetCreature(
+        val creature = target("target creature", TargetCreature(
             count = 2,
             sameController = true,
             filter = TargetFilter.CreatureOpponentControls
-        )
+        ))
         effect = Effects.Composite(
             listOf(
                 // 1. Reference the two targeted creatures.

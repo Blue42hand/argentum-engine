@@ -8962,8 +8962,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "destination": "Hand"
                     },
@@ -8972,7 +8972,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Blizzard — Return target creature to its owner's hand.",
@@ -8982,8 +8983,8 @@
                     "effect": {
                         "type": "PutOnLibraryPositionOfChoice",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -8991,7 +8992,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Blizzara — Target creature's owner puts it on their choice of the top or bottom of their library.",
@@ -9001,8 +9003,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "destination": "Library",
                         "placement": "Shuffled"
@@ -9012,7 +9014,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Blizzaga — Target creature's owner shuffles it into their library.",
@@ -11414,7 +11417,8 @@
                             "zone": "Stack"
                         }
                     ]
-                }
+                },
+                "id": "target"
             }
         ],
         "additionalCosts": [
@@ -14255,8 +14259,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target"
                             },
                             "destination": "Exile"
                         },
@@ -14278,7 +14282,8 @@
                     "filter": {
                         "baseFilter": "instant|sorcery",
                         "zone": "Graveyard"
-                    }
+                    },
+                    "id": "target"
                 },
                 "descriptionOverride": "Blue Magic — When Quistis Trepe enters, you may cast target instant or sorcery card from a graveyard, and mana of any type can be spent to cast that spell. If that spell would be put into a graveyard, exile it instead."
             }
@@ -15153,16 +15158,16 @@
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent"
                                 }
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "INDESTRUCTIBLE",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent"
                                 }
                             }
                         ]
@@ -15172,7 +15177,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "permanent"
-                            }
+                            },
+                            "id": "target permanent"
                         }
                     ],
                     "description": "Cure — Target permanent gains hexproof and indestructible until end of turn.",
@@ -15186,16 +15192,16 @@
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent"
                                 }
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "INDESTRUCTIBLE",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent"
                                 }
                             },
                             {
@@ -15212,7 +15218,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "permanent"
-                            }
+                            },
+                            "id": "target permanent"
                         }
                     ],
                     "description": "Cura — Target permanent gains hexproof and indestructible until end of turn. You gain 3 life.",
@@ -16688,8 +16695,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target"
                             },
                             "destination": "Exile"
                         },
@@ -16714,7 +16721,8 @@
                     "filter": {
                         "baseFilter": "instant|sorcery mv<=3 own:you",
                         "zone": "Graveyard"
-                    }
+                    },
+                    "id": "target"
                 },
                 "descriptionOverride": "Fire Cross — Whenever Seifer Almasy deals combat damage to a player, you may cast target instant or sorcery card with mana value 3 or less from your graveyard without paying its mana cost. If that spell would be put into your graveyard, exile it instead."
             }
@@ -18816,8 +18824,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Battlefield"
                 },
@@ -18826,7 +18834,8 @@
                     "filter": {
                         "baseFilter": "permanent mv<=3 own:you",
                         "zone": "Graveyard"
-                    }
+                    },
+                    "id": "target"
                 },
                 "descriptionOverride": "Whenever Squall deals combat damage to a player, return target permanent card with mana value 3 or less from your graveyard to the battlefield."
             }
@@ -21116,7 +21125,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -22976,8 +22986,8 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -22985,7 +22995,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Thunder — Thunder Magic deals 2 damage to target creature.",
@@ -22999,8 +23010,8 @@
                             "amount": 4
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -23008,7 +23019,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Thundara — Thunder Magic deals 4 damage to target creature.",
@@ -23022,8 +23034,8 @@
                             "amount": 8
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -23031,7 +23043,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Thundaga — Thunder Magic deals 8 damage to target creature.",
@@ -23184,8 +23197,8 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -23193,7 +23206,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Somersault — Target creature gets +2/+2 until end of turn.",
@@ -23213,8 +23227,8 @@
                             "numericProperty": "Toughness"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -23222,7 +23236,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Meteor Strikes — Double target creature's power and toughness until end of turn.",
@@ -23250,8 +23265,8 @@
                             "multiplier": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -23259,7 +23274,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Final Heaven — Triple target creature's power and toughness until end of turn.",
@@ -25156,7 +25172,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Galian Beast — 3/2.",
@@ -25212,7 +25229,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Death Gigas — 5/2.",
@@ -25268,7 +25286,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Hellmasker — 7/2.",
@@ -26496,8 +26515,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Hand"
                 },
@@ -26505,7 +26524,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "land ctrl:you"
-                    }
+                    },
+                    "id": "target"
                 },
                 "descriptionOverride": "At the beginning of your end step, return a land you control to its owner's hand."
             }

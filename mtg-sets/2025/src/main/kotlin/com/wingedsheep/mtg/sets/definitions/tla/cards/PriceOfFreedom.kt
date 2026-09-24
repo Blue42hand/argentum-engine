@@ -45,8 +45,8 @@ val PriceOfFreedom = card("Price of Freedom") {
         "Draw a card."
 
     spell {
-        target = TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactOrLand.opponentControls()))
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactOrLand.opponentControls())))
+        effect = Effects.Destroy(permanent)
             .then(
                 Effects.May(
                     effect = Effects.Composite(

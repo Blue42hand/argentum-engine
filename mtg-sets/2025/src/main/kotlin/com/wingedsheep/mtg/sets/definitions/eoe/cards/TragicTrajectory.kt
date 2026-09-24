@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -24,7 +23,7 @@ val TragicTrajectory = card("Tragic Trajectory") {
     oracleText = "Target creature gets -2/-2 until end of turn.\nVoid — That creature gets -10/-10 until end of turn instead if a nonland permanent left the battlefield this turn or a spell was warped this turn."
 
     spell {
-        target = Targets.Creature
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(
             power = DynamicAmount.Conditional(
                 condition = Conditions.Void,
@@ -36,7 +35,7 @@ val TragicTrajectory = card("Tragic Trajectory") {
                 ifTrue = DynamicAmount.Fixed(-10),
                 ifFalse = DynamicAmount.Fixed(-2)
             ),
-            target = EffectTarget.ContextTarget(0)
+            target = creature
         )
     }
 

@@ -41,8 +41,8 @@ val ScrabblingClaws = card("Scrabbling Claws") {
         "{1}, Sacrifice this artifact: Exile target card from a graveyard. Draw a card."
 
     activatedAbility {
+        val player = target("target player", TargetPlayer())
         cost = Costs.Tap
-        target = TargetPlayer()
         effect = Effects.Pipeline {
             val graveyard = gather(
                 CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),

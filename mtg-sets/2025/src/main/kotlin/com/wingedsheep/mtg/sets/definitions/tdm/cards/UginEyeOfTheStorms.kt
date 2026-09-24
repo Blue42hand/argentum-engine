@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
@@ -59,20 +58,20 @@ val UginEyeOfTheStorms = card("Ugin, Eye of the Storms") {
 
     // When you cast this spell, exile up to one target colored permanent.
     triggeredAbility {
+        val target = target("target", exileUpToOneColoredPermanent())
         trigger = Triggers.WhenYouCastThisSpell()
-        target = exileUpToOneColoredPermanent()
-        effect = Effects.Exile(EffectTarget.ContextTarget(0))
+        effect = Effects.Exile(target)
         description = "When you cast this spell, exile up to one target permanent that's one or more colors."
     }
 
     // Whenever you cast a colorless spell, exile up to one target colored permanent.
     triggeredAbility {
+        val target = target("target", exileUpToOneColoredPermanent())
         trigger = TriggerSpec(
             event = EventPattern.SpellCastEvent(spellFilter = colorlessSpell, player = Player.You),
             binding = TriggerBinding.ANY
         )
-        target = exileUpToOneColoredPermanent()
-        effect = Effects.Exile(EffectTarget.ContextTarget(0))
+        effect = Effects.Exile(target)
         description = "Whenever you cast a colorless spell, exile up to one target permanent that's one or more colors."
     }
 

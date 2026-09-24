@@ -50,7 +50,7 @@ val ForceOfNegation = card("Force of Negation") {
     )
 
     spell {
-        target = Targets.NoncreatureSpell
+        val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
         effect = Effects.CounterSpellToExile()
     }
 

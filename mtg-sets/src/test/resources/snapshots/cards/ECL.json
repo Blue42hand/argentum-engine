@@ -3504,7 +3504,10 @@
                     ]
                 },
                 "targetRequirements": [
-                    "TargetOpponent"
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target opponent"
+                    }
                 ],
                 "timing": "SorcerySpeed"
             }
@@ -8372,7 +8375,8 @@
                         "filter": {
                             "baseFilter": "noncreature",
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target noncreature spell"
                     }
                 ]
             }
@@ -16288,7 +16292,8 @@
                 "filter": {
                     "baseFilter": "mv=2",
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell with mana value"
             }
         ]
     },
@@ -19949,7 +19954,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ],
         "additionalCosts": [

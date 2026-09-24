@@ -355,7 +355,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -543,8 +544,8 @@
         "spellEffect": {
             "type": "PreventDamageShield",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             },
             "direction": "FromTarget",
             "onPrevented": {
@@ -561,7 +562,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -1383,7 +1385,10 @@
                         }
                     ]
                 },
-                "targetRequirement": "TargetOpponent",
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                },
                 "descriptionOverride": "When this creature dies, target opponent puts a card from their hand on top of their library."
             }
         ]
@@ -1957,8 +1962,8 @@
                     "type": "DealDamage",
                     "amount": "XValue",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     }
                 },
                 {
@@ -1968,7 +1973,10 @@
             ]
         },
         "targetRequirements": [
-            "AnyTarget"
+            {
+                "type": "AnyTarget",
+                "id": "any target"
+            }
         ],
         "xManaRestriction": [
             "BLACK"
@@ -2292,8 +2300,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2318,7 +2326,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "id": "target"
                 },
                 "descriptionOverride": "At the beginning of your upkeep, destroy target nonland permanent with the lowest mana value. (If two or more permanents are tied for lowest, target any one of them.)"
             }
@@ -3058,8 +3067,8 @@
                 }
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -3067,7 +3076,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -3821,8 +3831,8 @@
                 "numericProperty": "ManaValue"
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -3830,7 +3840,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ],
         "additionalCosts": [
@@ -4191,8 +4202,8 @@
                     "then": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -4203,7 +4214,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "artifact"
-                        }
+                        },
+                        "id": "target artifact"
                     }
                 ]
             }
@@ -8045,8 +8057,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target land"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -8058,7 +8070,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "land"
-                }
+                },
+                "id": "target land"
             }
         ]
     },
@@ -9322,8 +9335,8 @@
                     "counterType": "fate",
                     "count": 1,
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     }
                 },
                 "targetRequirements": [
@@ -9331,7 +9344,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "permanent"
-                        }
+                        },
+                        "id": "target permanent"
                     }
                 ],
                 "descriptionOverride": "{4}, {T}: Put a fate counter on target permanent."
@@ -9571,7 +9585,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -11205,7 +11220,10 @@
                     ]
                 },
                 "targetRequirements": [
-                    "TargetPlayer"
+                    {
+                        "type": "TargetPlayer",
+                        "id": "target player"
+                    }
                 ],
                 "descriptionOverride": "{T}: Target player exiles a card from their graveyard."
             },
@@ -16184,7 +16202,8 @@
                         "filter": {
                             "baseFilter": {},
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target spell"
                     }
                 ],
                 "descriptionOverride": "{U}, Sacrifice this creature: Counter target spell unless its controller pays {2}."
@@ -16416,7 +16435,10 @@
             ]
         },
         "targetRequirements": [
-            "TargetPlayer"
+            {
+                "type": "TargetPlayer",
+                "id": "target player"
+            }
         ]
     },
     "metadata": {

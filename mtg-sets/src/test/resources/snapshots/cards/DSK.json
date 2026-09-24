@@ -4696,11 +4696,14 @@
                         "key": "TRIGGER_LIFE_GAINED"
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target opponent"
                     }
                 },
-                "targetRequirement": "TargetOpponent"
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                }
             }
         ],
         "staticAbilities": [
@@ -7248,15 +7251,16 @@
                                 "amount": 4
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature opponent controls"
                             }
                         },
                         "targetRequirement": {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         },
                         "descriptionOverride": "When you unlock this door, this Room deals 4 damage to target creature an opponent controls."
                     }
@@ -9388,30 +9392,34 @@
                         "amount": 2
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 {
                     "type": "GrantKeyword",
                     "keyword": "FLYING",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 {
                     "type": "AddCreatureType",
                     "subtype": "Horror",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     },
                     "duration": "EndOfTurn"
                 },
                 {
                     "type": "AddCardType",
                     "cardType": "ENCHANTMENT",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    },
                     "duration": "EndOfTurn"
                 }
             ]
@@ -9421,7 +9429,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -12441,7 +12450,8 @@
                     "minCount": 1,
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "interveningIf": {
                     "type": "Compare",
@@ -12504,7 +12514,8 @@
                     "minCount": 1,
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "interveningIf": {
                     "type": "Compare",
@@ -13204,7 +13215,10 @@
                     },
                     "damageSource": "Self"
                 },
-                "targetRequirement": "AnyTarget",
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "any target"
+                },
                 "descriptionOverride": "Whenever this permanent enters, it deals 4 damage to any target."
             },
             {
@@ -13222,7 +13236,10 @@
                     },
                     "damageSource": "Self"
                 },
-                "targetRequirement": "AnyTarget",
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "any target"
+                },
                 "descriptionOverride": "Whenever this permanent attacks, it deals 4 damage to any target."
             }
         ],
@@ -14787,13 +14804,20 @@
                     "to": "Graveyard"
                 },
                 "binding": "ANY",
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "optional": true,
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "interveningIf": "TriggeringEntityHadCounters",
                 "descriptionOverride": "Whenever this creature or another creature you control dies, if it had counters on it, put those counters on up to one target creature."
@@ -15228,15 +15252,16 @@
                                 "zone": "Hand"
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature opponent controls"
                             }
                         },
                         "targetRequirement": {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         },
                         "descriptionOverride": "When you unlock this door, this Room deals damage equal to the number of cards in your hand to target creature an opponent controls."
                     }
@@ -18488,6 +18513,7 @@
                 "filter": {
                     "baseFilter": "creature ctrl:opponent"
                 },
+                "id": "target creature",
                 "sameController": true
             }
         ]

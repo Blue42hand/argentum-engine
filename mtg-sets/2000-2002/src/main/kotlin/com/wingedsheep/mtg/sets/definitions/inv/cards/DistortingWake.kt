@@ -31,11 +31,11 @@ val DistortingWake = card("Distorting Wake") {
     oracleText = "Return X target nonland permanents to their owners' hands."
 
     spell {
-        target = TargetPermanent(
+        val permanent = target("target permanent", TargetPermanent(
             optional = true,
             filter = TargetFilter.NonlandPermanent,
             dynamicMaxCount = DynamicAmount.XValue,
-        )
+        ))
         effect = Effects.Composite(
             GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "distortingWake_targets"),
             MoveCollectionEffect(

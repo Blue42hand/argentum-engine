@@ -4159,8 +4159,8 @@
                     "counterType": "+1/+1",
                     "count": 1,
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirements": [
@@ -4174,7 +4174,7 @@
                                 ]
                             }
                         },
-                        "id": "creature with power X"
+                        "id": "target creature"
                     }
                 ],
                 "timing": "SorcerySpeed"
@@ -5038,11 +5038,14 @@
                         }
                     },
                     "fireOnPlayer": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target opponent"
                     }
                 },
-                "targetRequirement": "TargetOpponent"
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                }
             }
         ]
     },
@@ -13057,14 +13060,21 @@
             {
                 "id": "ability_1",
                 "cost": "CostTap",
-                "effect": "GrantProtectionFromChosenCardType",
+                "effect": {
+                    "type": "GrantProtectionFromChosenCardType",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target other creature you control"
+                    }
+                },
                 "targetRequirements": [
                     {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:you",
                             "excludeSelf": true
-                        }
+                        },
+                        "id": "target other creature you control"
                     }
                 ]
             }
@@ -15003,7 +15013,10 @@
             ]
         },
         "targetRequirements": [
-            "TargetOpponent"
+            {
+                "type": "TargetOpponent",
+                "id": "target opponent"
+            }
         ]
     },
     "metadata": {
@@ -18477,15 +18490,16 @@
                     "type": "GrantKeyword",
                     "keyword": "DOUBLE_STRIKE",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 }
             }
         ]

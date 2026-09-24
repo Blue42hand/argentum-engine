@@ -42,7 +42,7 @@ val SpellStutter = card("Spell Stutter") {
         "each Faerie you control."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessDynamicPays(
             DynamicAmount.Add(
                 DynamicAmount.Fixed(2),

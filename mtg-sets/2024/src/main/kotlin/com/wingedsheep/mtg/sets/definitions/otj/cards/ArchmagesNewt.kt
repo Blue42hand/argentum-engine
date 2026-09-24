@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -41,14 +40,14 @@ val ArchmagesNewt = card("Archmage's Newt") {
         "Then exile it.)\nSaddle 3"
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()
-        )
+        ))
+        trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.If(
             condition = Conditions.SourceIsSaddled,
-            then = Effects.GrantFlashback(EffectTarget.ContextTarget(0), cost = ManaCost.parse("{0}")),
-            otherwise = Effects.GrantFlashback(EffectTarget.ContextTarget(0))
+            then = Effects.GrantFlashback(target, cost = ManaCost.parse("{0}")),
+            otherwise = Effects.GrantFlashback(target)
         )
         description = "Whenever this creature deals combat damage to a player, target instant or " +
             "sorcery card in your graveyard gains flashback until end of turn. The flashback cost " +

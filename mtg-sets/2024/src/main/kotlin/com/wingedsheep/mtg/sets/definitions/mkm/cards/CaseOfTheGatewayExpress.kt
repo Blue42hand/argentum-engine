@@ -46,13 +46,13 @@ val CaseOfTheGatewayExpress = card("Case of the Gateway Express") {
         "Solved — Creatures you control get +1/+0."
 
     triggeredAbility {
+        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         trigger = Triggers.EntersBattlefield
-        target = TargetCreature(filter = TargetFilter.Creature.opponentControls())
         effect = Effects.ForEachInGroup(
             filter = Filters.AllControlledCreatures,
             effect = Effects.DealDamage(
                 amount = 1,
-                target = EffectTarget.ContextTarget(0),
+                target = creature,
                 damageSource = EffectTarget.Self
             )
         )

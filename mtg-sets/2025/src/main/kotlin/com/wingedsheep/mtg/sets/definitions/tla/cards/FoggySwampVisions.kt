@@ -44,11 +44,11 @@ val FoggySwampVisions = card("Foggy Swamp Visions") {
     waterbendCost(isX = true)
 
     spell {
-        target = TargetObject(
+        val target = target("target", TargetObject(
             optional = true,
             filter = TargetFilter.CreatureInGraveyard,
             dynamicMaxCount = DynamicAmount.XValue,
-        )
+        ))
         effect = Effects.Composite(
             GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "exiled"),
             MoveCollectionEffect(

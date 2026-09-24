@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CreaturesDamagedBySourceAreDoomed
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Runesword
@@ -47,21 +46,21 @@ val Runesword = card("Runesword") {
         "exile that creature instead."
 
     activatedAbility {
+        val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
-        target = Targets.AttackingCreature
 
         effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, EffectTarget.ContextTarget(0)),
+            Effects.ModifyStats(2, 0, attackingCreature),
             // The two death riders are one granted static, not a trigger: a trigger for "whenever
             // this deals damage to a creature" resolves only after state-based actions have binned
             // the dying creature (CR 704.3), too late to send it to exile instead.
             Effects.GrantStaticAbility(
                 CreaturesDamagedBySourceAreDoomed(),
-                EffectTarget.ContextTarget(0),
+                attackingCreature,
             ),
             CreateDelayedTriggerEffect(
                 trigger = Triggers.LeavesBattlefield,
-                watchedTarget = EffectTarget.ContextTarget(0),
+                watchedTarget = attackingCreature,
                 effect = SacrificeSelfEffect,
             ),
         )

@@ -790,7 +790,7 @@ object HandPatterns {
      *   how a hand exile joins the same pile.
      */
     fun revealHandAndExileChosen(
-        target: EffectTarget = EffectTarget.ContextTarget(0),
+        target: EffectTarget,
         filter: GameObjectFilter = GameObjectFilter.Nonland,
         prompt: String = "Choose a nonland card to exile",
         storeChosenAs: String = "chosenCard",
@@ -827,7 +827,7 @@ object HandPatterns {
      * Target player exiles cards from their hand.
      * "Target opponent exiles a card from their hand."
      */
-    fun exileFromHand(count: Int = 1, target: EffectTarget = EffectTarget.ContextTarget(0)): CompositeEffect {
+    fun exileFromHand(count: Int = 1, target: EffectTarget): CompositeEffect {
         val player = effectTargetToPlayer(target)
         val chooser = effectTargetToChooser(target)
         return CompositeEffect(

@@ -44,7 +44,7 @@ val BarrinsSpite = card("Barrin's Spite") {
     oracleText = "Choose two target creatures controlled by the same player. Their controller chooses and sacrifices one of them. Return the other to its owner's hand."
 
     spell {
-        target = TargetCreature(count = 2, sameController = true)
+        val creature = target("target creature", TargetCreature(count = 2, sameController = true))
         effect = Effects.Composite(
             listOf(
                 // 1. Reference the two targeted creatures (still on the battlefield).

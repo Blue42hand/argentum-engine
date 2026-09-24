@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -23,15 +22,15 @@ val BringLow = card("Bring Low") {
     oracleText = "Bring Low deals 3 damage to target creature. If that creature has a +1/+1 counter on it, Bring Low deals 5 damage to it instead."
 
     spell {
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
             amount = DynamicAmount.Conditional(
                 condition = Conditions.TargetHasCounter(CounterTypeFilter.PlusOnePlusOne),
                 ifTrue = DynamicAmount.Fixed(5),
                 ifFalse = DynamicAmount.Fixed(3)
             ),
-            target = EffectTarget.ContextTarget(0)
+            target = creature
         )
-        target = Targets.Creature
     }
 
     metadata {

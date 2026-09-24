@@ -30,7 +30,7 @@ val Blackmail = card("Blackmail") {
     oracleText = "Target player reveals three cards from their hand and you choose one of them. That player discards that card."
 
     spell {
-        target = TargetPlayer()
+        val player = target("target player", TargetPlayer())
         effect = Effects.Composite(
             listOf(
                 // 1. Gather all cards from target player's hand

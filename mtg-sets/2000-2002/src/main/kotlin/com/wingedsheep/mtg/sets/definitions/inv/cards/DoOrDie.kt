@@ -37,7 +37,7 @@ val DoOrDie = card("Do or Die") {
     oracleText = "Separate all creatures target player controls into two piles. Destroy all creatures in the pile of that player's choice. They can't be regenerated."
 
     spell {
-        target = TargetPlayer()
+        val player = target("target player", TargetPlayer())
         effect = Effects.Composite(
             listOf(
                 // 1. Gather every creature the target player controls (projected).

@@ -23,7 +23,7 @@ val StubbornDenial = card("Stubborn Denial") {
     oracleText = "Counter target noncreature spell unless its controller pays {1}.\nFerocious — If you control a creature with power 4 or greater, counter that spell instead."
 
     spell {
-        target = Targets.NoncreatureSpell
+        val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
         // Ferocious: if you control a creature with power 4+, hard counter instead
         effect = Effects.If(
             condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),

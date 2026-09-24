@@ -53,12 +53,12 @@ val ExtraordinaryJourney = card("Extraordinary Journey") {
         "or was cast from exile, you draw a card. This ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetPermanent(
+        val permanent = target("target permanent", TargetPermanent(
             optional = true,
             filter = TargetFilter.Creature,
             dynamicMaxCount = DynamicAmount.CastX
-        )
+        ))
+        trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
             GatherCardsEffect(
                 source = CardSource.ChosenTargets,

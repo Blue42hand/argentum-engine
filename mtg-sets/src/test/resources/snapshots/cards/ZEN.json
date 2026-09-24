@@ -1765,8 +1765,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target nonland permanent"
                     },
                     "destination": "Hand"
                 },
@@ -1791,7 +1791,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "nonland permanent"
-                }
+                },
+                "id": "target nonland permanent"
             }
         ]
     },

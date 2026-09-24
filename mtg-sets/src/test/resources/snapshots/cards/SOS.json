@@ -110,8 +110,8 @@
                     "counterType": "+1/+1",
                     "count": 1,
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirements": [
@@ -119,7 +119,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -309,8 +310,8 @@
                             "counterType": "+1/+1",
                             "count": 1,
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         },
                         {
@@ -327,7 +328,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -1645,7 +1647,10 @@
                         ]
                     },
                     "targetRequirements": [
-                        "TargetOpponent"
+                        {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        }
                     ],
                     "description": "Discard your hand, then draw cards equal to the number of cards in target opponent's hand"
                 },
@@ -1716,7 +1721,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ],
         "staticAbilities": [
@@ -2187,8 +2193,8 @@
                 "spellEffect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature card in your graveyard"
                     },
                     "destination": "Hand"
                 },
@@ -2198,7 +2204,8 @@
                         "filter": {
                             "baseFilter": "creature own:you",
                             "zone": "Graveyard"
-                        }
+                        },
+                        "id": "target creature card in your graveyard"
                     }
                 ]
             }
@@ -3026,8 +3033,8 @@
                         {
                             "type": "TapUntap",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature opponent controls"
                             }
                         },
                         {
@@ -3035,8 +3042,8 @@
                             "counterType": "stun",
                             "count": 1,
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature opponent controls"
                             }
                         }
                     ]
@@ -3045,7 +3052,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             },
             {
@@ -3882,8 +3890,8 @@
                                         "effect": {
                                             "type": "TapUntap",
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target creature"
                                             }
                                         },
                                         "description": "Tap that creature"
@@ -3892,8 +3900,8 @@
                                         "effect": {
                                             "type": "TapUntap",
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target creature"
                                             },
                                             "tap": false
                                         },
@@ -3918,7 +3926,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -4053,8 +4062,8 @@
                 "spellEffect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Hand"
                 },
@@ -4064,7 +4073,8 @@
                         "filter": {
                             "baseFilter": "own:you",
                             "zone": "Graveyard"
-                        }
+                        },
+                        "id": "target"
                     }
                 ]
             }
@@ -4614,8 +4624,8 @@
                     "type": "GrantKeyword",
                     "keyword": "FLYING",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirements": [
@@ -4623,7 +4633,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -4685,7 +4696,10 @@
             ]
         },
         "targetRequirements": [
-            "TargetOpponent"
+            {
+                "type": "TargetOpponent",
+                "id": "target opponent"
+            }
         ]
     },
     "metadata": {
@@ -4724,8 +4738,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "destination": "Exile"
                         },
@@ -4735,8 +4749,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "destination": "Battlefield"
                             }
@@ -4749,7 +4763,8 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you",
                         "excludeSelf": true
-                    }
+                    },
+                    "id": "target creature"
                 }
             },
             {
@@ -5452,8 +5467,8 @@
         "spellEffect": {
             "type": "GrantFlashback",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target"
             }
         },
         "targetRequirements": [
@@ -5462,7 +5477,8 @@
                 "filter": {
                     "baseFilter": "instant|sorcery own:you",
                     "zone": "Graveyard"
-                }
+                },
+                "id": "target"
             }
         ]
     },
@@ -6679,8 +6695,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature card in graveyard"
                             },
                             "destination": "Battlefield"
                         },
@@ -6701,7 +6717,8 @@
                         "filter": {
                             "baseFilter": "creature",
                             "zone": "Graveyard"
-                        }
+                        },
+                        "id": "target creature card in graveyard"
                     }
                 ]
             }
@@ -7405,16 +7422,16 @@
                                 "amount": 0
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         },
                         {
                             "type": "GrantKeyword",
                             "keyword": "FLYING",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         }
                     ]
@@ -7424,7 +7441,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -7731,12 +7749,15 @@
                     "type": "GainLife",
                     "amount": "XValue",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target player"
                     }
                 },
                 "targetRequirements": [
-                    "TargetPlayer"
+                    {
+                        "type": "TargetPlayer",
+                        "id": "target player"
+                    }
                 ]
             }
         }
@@ -8224,14 +8245,17 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target opponent"
                             }
                         }
                     ]
                 },
                 "targetRequirements": [
-                    "TargetOpponent"
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target opponent"
+                    }
                 ]
             }
         }
@@ -8393,16 +8417,16 @@
                             "counterType": "+1/+1",
                             "count": 2,
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         },
                         {
                             "type": "GrantKeyword",
                             "keyword": "TRAMPLE",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         }
                     ]
@@ -8412,7 +8436,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -9246,7 +9271,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -9827,8 +9853,8 @@
                     "type": "DealDamage",
                     "amount": "TotalManaSpent",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 {
@@ -9852,7 +9878,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -10369,8 +10396,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target"
                             },
                             "destination": "Exile"
                         },
@@ -10393,7 +10420,8 @@
                         "filter": {
                             "baseFilter": "instant|sorcery own:opponent",
                             "zone": "Graveyard"
-                        }
+                        },
+                        "id": "target"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -12531,7 +12559,8 @@
                             "filter": {
                                 "baseFilter": {},
                                 "zone": "Stack"
-                            }
+                            },
+                            "id": "target spell"
                         }
                     ]
                 },
@@ -12707,16 +12736,16 @@
                                 "amount": 0
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         },
                         {
                             "type": "GrantKeyword",
                             "keyword": "DOUBLE_STRIKE",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         }
                     ]
@@ -12726,7 +12755,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -12938,8 +12968,8 @@
                         {
                             "type": "SkipNextTurn",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target opponent"
                             },
                             "count": {
                                 "type": "VariableReference",
@@ -12949,7 +12979,10 @@
                     ]
                 },
                 "targetRequirements": [
-                    "TargetOpponent"
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target opponent"
+                    }
                 ],
                 "timing": "SorcerySpeed",
                 "isPlaneswalkerAbility": true
@@ -14024,13 +14057,20 @@
                     "from": "Battlefield",
                     "to": "Graveyard"
                 },
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "optional": true,
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "interveningIf": "TriggeringEntityHadCounters",
                 "descriptionOverride": "When this creature dies, if it had counters on it, put those counters on up to one target creature."
@@ -16969,13 +17009,17 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target"
                             },
                             "destination": "Exile"
                         },
                         {
                             "type": "GrantFreeCastTargetFromExile",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            },
                             "exileAfterResolve": true
                         }
                     ]
@@ -16985,7 +17029,8 @@
                     "filter": {
                         "baseFilter": "instant|sorcery own:you",
                         "zone": "Graveyard"
-                    }
+                    },
+                    "id": "target"
                 }
             }
         ],

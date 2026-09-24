@@ -43,15 +43,15 @@ val SpellstutterSprite = card("Spellstutter Sprite") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetSpell(
+        val spell = target("target spell", TargetSpell(
             filter = TargetFilter.SpellOnStack.manaValueAtMostDynamic(
                 DynamicAmount.AggregateBattlefield(
                     player = Player.You,
                     filter = GameObjectFilter.Permanent.withSubtype(Subtype.FAERIE),
                 )
             )
-        )
+        ))
+        trigger = Triggers.EntersBattlefield
         effect = Effects.CounterSpell()
     }
 

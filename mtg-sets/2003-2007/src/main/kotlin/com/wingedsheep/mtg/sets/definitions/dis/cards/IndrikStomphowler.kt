@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Indrik Stomphowler
@@ -24,9 +23,9 @@ val IndrikStomphowler = card("Indrik Stomphowler") {
     oracleText = "When this creature enters, destroy target artifact or enchantment."
 
     triggeredAbility {
+        val artifactOrEnchantment = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
         trigger = Triggers.EntersBattlefield
-        target = Targets.ArtifactOrEnchantment
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        effect = Effects.Destroy(artifactOrEnchantment)
     }
 
     metadata {

@@ -925,7 +925,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -1031,13 +1032,16 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature or planeswalker"
             },
             "destination": "Exile"
         },
         "targetRequirements": [
-            "TargetCreatureOrPlaneswalker"
+            {
+                "type": "TargetCreatureOrPlaneswalker",
+                "id": "target creature or planeswalker"
+            }
         ],
         "additionalCosts": [
             {

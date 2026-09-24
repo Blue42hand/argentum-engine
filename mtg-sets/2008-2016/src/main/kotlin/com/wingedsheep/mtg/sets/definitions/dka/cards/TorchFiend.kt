@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Torch Fiend
@@ -24,9 +23,9 @@ val TorchFiend = card("Torch Fiend") {
     toughness = 1
 
     activatedAbility {
+        val artifact = target("target artifact", Targets.Artifact)
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
-        target = Targets.Artifact
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        effect = Effects.Destroy(artifact)
         description = "{R}, Sacrifice this creature: Destroy target artifact."
     }
 

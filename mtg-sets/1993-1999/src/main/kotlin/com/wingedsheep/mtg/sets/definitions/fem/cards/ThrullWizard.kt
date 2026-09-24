@@ -31,8 +31,8 @@ val ThrullWizard = card("Thrull Wizard") {
     toughness = 1
 
     activatedAbility {
+        val spell = target("target spell", TargetSpell(filter = TargetFilter.SpellOnStack.withColor(Color.BLACK)))
         cost = Costs.Mana("{1}{B}")
-        target = TargetSpell(filter = TargetFilter.SpellOnStack.withColor(Color.BLACK))
         effect = PayOrSufferEffect(
             cost = Costs.pay.Choice(listOf(Costs.pay.Mana("{B}"), Costs.pay.Mana("{3}"))),
             suffer = Effects.CounterSpell(),

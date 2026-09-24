@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Selfless Police Captain
@@ -40,9 +39,9 @@ val SelflessPoliceCaptain = card("Selfless Police Captain") {
     ))
 
     triggeredAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         trigger = Triggers.LeavesBattlefield
-        target = Targets.CreatureYouControl
-        effect = Effects.MoveAllLastKnownCounters(EffectTarget.ContextTarget(0))
+        effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
         description = "When this creature leaves the battlefield, put its +1/+1 counters on target creature you control."
     }
 

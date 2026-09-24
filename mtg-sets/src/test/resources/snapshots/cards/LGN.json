@@ -606,13 +606,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -1320,13 +1327,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -1946,13 +1960,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],
@@ -2577,13 +2598,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],
@@ -3478,13 +3506,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -4298,13 +4333,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],
@@ -4461,13 +4503,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ]
@@ -6608,13 +6657,20 @@
                 "effect": {
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
-                    "then": "Provoke"
+                    "then": {
+                        "type": "Provoke",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
+                        }
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],
@@ -7130,7 +7186,8 @@
                     "filter": {
                         "baseFilter": {},
                         "zone": "Stack"
-                    }
+                    },
+                    "id": "target spell"
                 }
             }
         ]
@@ -7546,7 +7603,8 @@
                     "filter": {
                         "baseFilter": {},
                         "zone": "Stack"
-                    }
+                    },
+                    "id": "target spell or ability with single target"
                 }
             }
         ]

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -44,21 +43,21 @@ val PizzaFaceGastromancer = card("Pizza Face, Gastromancer") {
     // a noncreature target also becomes a 0/0 Mutant creature in addition to its other
     // types (same conditional-BecomeCreature idiom as Brilliance Unleashed).
     triggeredAbility {
-        trigger = Triggers.YourEndStep
-        interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
-        target = TargetObject(
+        val target = target("target", TargetObject(
             count = 1,
             optional = true,
             filter = TargetFilter.CreatureOrArtifact.copy(excludeSelf = true)
-        )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.ContextTarget(0))
+        ))
+        trigger = Triggers.YourEndStep
+        interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
+        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, target)
             .then(
                 Effects.If(
                     condition = Conditions.Not(
                         Conditions.TargetMatchesFilter(GameObjectFilter.Creature)
                     ),
                     then = Effects.BecomeCreature(
-                        target = EffectTarget.ContextTarget(0),
+                        target = target,
                         power = 0,
                         toughness = 0,
                         creatureTypes = setOf("Mutant"),

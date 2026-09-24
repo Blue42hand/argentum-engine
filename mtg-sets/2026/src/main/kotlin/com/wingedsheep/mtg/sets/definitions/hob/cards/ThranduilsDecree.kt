@@ -39,7 +39,7 @@ val ThranduilsDecree = card("Thranduil's Decree") {
         "its mana cost for as long as it remains exiled."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent),
             then = Effects.CounterSpellToExile(grantFreeCast = true),

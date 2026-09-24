@@ -60,14 +60,14 @@ val SquallSeedMercenary = card("Squall, SeeD Mercenary") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter(
                 GameObjectFilter.Permanent.ownedByYou().manaValueAtMost(3),
                 zone = Zone.GRAVEYARD,
             ),
-        )
-        effect = Effects.PutOntoBattlefield(EffectTarget.ContextTarget(0))
+        ))
+        trigger = Triggers.DealsCombatDamageToPlayer
+        effect = Effects.PutOntoBattlefield(target)
         description = "Whenever Squall deals combat damage to a player, return target permanent card with " +
             "mana value 3 or less from your graveyard to the battlefield."
     }

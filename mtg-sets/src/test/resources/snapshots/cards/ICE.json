@@ -541,7 +541,8 @@
                                 ]
                             },
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target"
                     }
                 ],
                 "descriptionOverride": "{1}{G}, {T}: Counter target activated ability from an artifact source."

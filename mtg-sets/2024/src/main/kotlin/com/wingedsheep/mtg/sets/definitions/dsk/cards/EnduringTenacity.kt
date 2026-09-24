@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.enduring
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -37,11 +36,11 @@ val EnduringTenacity = card("Enduring Tenacity") {
     enduring()
 
     triggeredAbility {
+        val opponent = target("target opponent", Targets.Opponent)
         trigger = Triggers.YouGainLife
-        target = Targets.Opponent
         effect = Effects.LoseLife(
             DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED),
-            EffectTarget.ContextTarget(0)
+            opponent
         )
     }
 

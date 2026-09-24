@@ -49,8 +49,8 @@ val AbigalePoetLaureate = card("Abigale, Poet Laureate") {
         typeLine = "Sorcery"
         oracleText = "Put a +1/+1 counter on target creature."
         spell {
-            target = Targets.Creature
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
         }
     }
 

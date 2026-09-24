@@ -67,12 +67,12 @@ val CaseOfTheShatteredPact = card("Case of the Shattered Pact") {
     )
 
     solvedTriggeredAbility {
+        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.youControl()))
         trigger = Triggers.BeginCombat
-        target = TargetCreature(filter = TargetFilter.Creature.youControl())
         effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FLYING),
-            Effects.GrantKeyword(Keyword.DOUBLE_STRIKE),
-            Effects.GrantKeyword(Keyword.VIGILANCE)
+            Effects.GrantKeyword(Keyword.FLYING, target = creature),
+            Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target = creature),
+            Effects.GrantKeyword(Keyword.VIGILANCE, target = creature)
         )
         description = "Solved — At the beginning of combat on your turn, target creature you " +
             "control gains flying, double strike, and vigilance until end of turn."

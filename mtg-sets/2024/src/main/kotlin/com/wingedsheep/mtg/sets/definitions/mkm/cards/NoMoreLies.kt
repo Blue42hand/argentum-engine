@@ -21,7 +21,7 @@ val NoMoreLies = card("No More Lies") {
     oracleText = "Counter target spell unless its controller pays {3}. If that spell is countered this way, exile it instead of putting it into its owner's graveyard."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessDynamicPays(DynamicAmount.Fixed(3), exileOnCounter = true)
     }
 

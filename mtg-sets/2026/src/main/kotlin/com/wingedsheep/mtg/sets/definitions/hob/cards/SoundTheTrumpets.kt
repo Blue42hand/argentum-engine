@@ -38,7 +38,7 @@ val SoundTheTrumpets = card("Sound the Trumpets") {
         "Human Soldier creature token.)"
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
             condition = Conditions.TargetSpellManaValueAtMost(DynamicAmount.Fixed(2)),
             then = Effects.Composite(

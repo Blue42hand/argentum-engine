@@ -40,8 +40,8 @@ val CauldronDance = card("Cauldron Dance") {
         "Its controller sacrifices it at the beginning of the next end step."
 
     spell {
+        val creatureCardInYourGraveyard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         castOnlyDuring(Phase.COMBAT)
-        target = Targets.CreatureCardInYourGraveyard
 
         // Part 1 — reanimate the targeted graveyard creature, give it haste, and bounce
         // it to its owner's hand at the next end step.

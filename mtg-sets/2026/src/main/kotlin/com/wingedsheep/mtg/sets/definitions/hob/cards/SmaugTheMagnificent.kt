@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Smaug the Magnificent — The Hobbit #110
@@ -41,14 +40,14 @@ val SmaugTheMagnificent = card("Smaug the Magnificent") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
+        val target = target("target", AnyTarget())
         trigger = Triggers.Attacks
-        target = AnyTarget()
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(
                 Player.You,
                 GameObjectFilter.Artifact.withSubtype(Subtype.TREASURE)
             ).count(),
-            EffectTarget.ContextTarget(0)
+            target
         )
         description = "Whenever Smaug the Magnificent attacks, he deals damage equal to the number " +
             "of Treasures you control to any target."

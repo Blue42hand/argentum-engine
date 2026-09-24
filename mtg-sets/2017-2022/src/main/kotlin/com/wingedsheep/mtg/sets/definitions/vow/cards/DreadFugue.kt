@@ -53,7 +53,7 @@ val DreadFugue = card("Dread Fugue") {
     keywordAbility(KeywordAbility.cleave("{2}{B}"))
 
     spell {
-        target = TargetPlayer()
+        val player = target("target player", TargetPlayer())
 
         // Printed (brackets present): choose a nonland card with mana value 2 or less to discard.
         effect = Effects.Composite(

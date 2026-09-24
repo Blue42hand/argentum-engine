@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -55,11 +54,11 @@ val ZellDincht = card("Zell Dincht") {
 
     // At the beginning of your end step, return a land you control to its owner's hand.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter(GameObjectFilter.Land.youControl()),
-        )
-        effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+        ))
+        trigger = Triggers.YourEndStep
+        effect = Effects.ReturnToHand(target)
         description = "At the beginning of your end step, return a land you control to its owner's hand."
     }
 

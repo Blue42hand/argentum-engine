@@ -38,12 +38,12 @@ val EaterOfTheDead = card("Eater of the Dead") {
         "and untap this creature."
 
     activatedAbility {
+        val creatureCardInGraveyard = target("target creature card in graveyard", Targets.CreatureCardInGraveyard)
         cost = Costs.Free
-        target = Targets.CreatureCardInGraveyard
         effect = Effects.If(
             condition = Conditions.SourceIsTapped,
             then = Effects.Composite(
-                Effects.Exile(EffectTarget.ContextTarget(0), fromZone = Zone.GRAVEYARD),
+                Effects.Exile(creatureCardInGraveyard, fromZone = Zone.GRAVEYARD),
                 Effects.Untap(EffectTarget.Self),
             ),
         )

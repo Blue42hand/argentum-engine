@@ -4345,13 +4345,17 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target"
                             },
                             "destination": "Exile"
                         },
                         {
                             "type": "GrantFreeCastTargetFromExile",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            },
                             "exileAfterResolve": true
                         }
                     ]
@@ -4361,7 +4365,8 @@
                     "filter": {
                         "baseFilter": "instant|sorcery mv<=4 own:you",
                         "zone": "Graveyard"
-                    }
+                    },
+                    "id": "target"
                 }
             }
         ]
@@ -5589,7 +5594,8 @@
                     "optional": true,
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 }
             }
         ],
@@ -5852,12 +5858,19 @@
                     "from": "Battlefield",
                     "to": "Graveyard"
                 },
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 }
             }
         ],
@@ -11529,8 +11542,8 @@
                                 "type": "GrantKeyword",
                                 "keyword": "DOUBLE_STRIKE",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "description": "Double strike"
@@ -11540,8 +11553,8 @@
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "description": "Trample"
@@ -11552,7 +11565,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature Mouse ctrl:you"
-                    }
+                    },
+                    "id": "target creature"
                 }
             }
         ]
@@ -15915,8 +15929,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -15925,7 +15939,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "artifact|enchantment ctrl:opponent"
-                    }
+                    },
+                    "id": "target"
                 },
                 "interveningIf": {
                     "type": "CastChoiceMade",
@@ -17675,12 +17690,19 @@
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
                 },
-                "effect": "AttachEquipment",
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 },
                 "interveningIf": {
                     "type": "CastChoiceMade",
@@ -21203,15 +21225,16 @@
                 "effect": {
                     "type": "CantBlockTargetCreatures",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature opponent controls"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             }
         ],

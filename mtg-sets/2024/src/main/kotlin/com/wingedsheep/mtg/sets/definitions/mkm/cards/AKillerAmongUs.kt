@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -102,18 +101,18 @@ val AKillerAmongUs = card("A Killer Among Us") {
     }
 
     activatedAbility {
-        cost = Costs.Composite(Costs.SacrificeSelf, Costs.RevealNotedCreatureType)
-        target = TargetCreature(
+        val creature = target("target creature", TargetCreature(
             filter = TargetFilter(GameObjectFilter.Creature.attacking().token()),
             id = "target attacking creature token"
-        )
+        ))
+        cost = Costs.Composite(Costs.SacrificeSelf, Costs.RevealNotedCreatureType)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(
                 GameObjectFilter.Creature.withSubtypeFromVariable("chosenCreatureType")
             ),
             then = Effects.Composite(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.ContextTarget(0)),
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.ContextTarget(0))
+                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, creature),
+                Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
             )
         )
         description = "Sacrifice this enchantment, Reveal the creature type you chose: If target " +

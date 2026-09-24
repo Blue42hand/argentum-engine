@@ -34,8 +34,8 @@ val MoltenNote = card("Molten Note") {
         "Then exile it.)"
 
     spell {
-        target = Targets.Creature
-        effect = Effects.DealDamage(DynamicAmount.TotalManaSpent, EffectTarget.ContextTarget(0))
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.DealDamage(DynamicAmount.TotalManaSpent, creature)
             .then(
                 Effects.ForEachInGroup(
                     Filters.Group.creaturesYouControl,

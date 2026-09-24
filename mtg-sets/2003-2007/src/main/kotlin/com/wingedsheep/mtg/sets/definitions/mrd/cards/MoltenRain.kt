@@ -23,7 +23,7 @@ val MoltenRain = card("Molten Rain") {
     oracleText = "Destroy target land. If that land was nonbasic, Molten Rain deals 2 damage to the land's controller."
 
     spell {
-        target = Targets.Land
+        val land = target("target land", Targets.Land)
         // Same ordering as Choking Sands: deal the damage while the target is still on the
         // battlefield with its controller intact, then destroy. The conditional reads the
         // target's current nonbasic status, which matches the past-tense oracle phrasing
@@ -38,7 +38,7 @@ val MoltenRain = card("Molten Rain") {
                 )
             ),
             then = Effects.DealDamage(2, EffectTarget.TargetController)
-        ) then Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
+        ) then Effects.Move(land, Zone.GRAVEYARD, byDestruction = true)
     }
 
     metadata {

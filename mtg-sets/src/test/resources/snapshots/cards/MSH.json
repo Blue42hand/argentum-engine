@@ -3166,8 +3166,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "destination": "Hand"
                     },
@@ -3177,7 +3177,8 @@
                             "filter": {
                                 "baseFilter": "artifact own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target"
                         }
                     ],
                     "description": "Return target artifact card from your graveyard to your hand"
@@ -3186,8 +3187,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "destination": "Hand"
                     },
@@ -3197,7 +3198,8 @@
                             "filter": {
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target"
                         }
                     ],
                     "description": "Return target creature card from your graveyard to your hand"
@@ -3206,8 +3208,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "destination": "Hand"
                     },
@@ -3217,7 +3219,8 @@
                             "filter": {
                                 "baseFilter": "enchantment own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target"
                         }
                     ],
                     "description": "Return target enchantment card from your graveyard to your hand"
@@ -3226,8 +3229,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "destination": "Hand"
                     },
@@ -3237,7 +3240,8 @@
                             "filter": {
                                 "baseFilter": "land own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target"
                         }
                     ],
                     "description": "Return target land card from your graveyard to your hand"
@@ -6969,11 +6973,14 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target opponent"
                     }
                 },
-                "targetRequirement": "TargetOpponent"
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                }
             }
         ]
     },
@@ -8269,11 +8276,14 @@
                         "amount": 1
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target opponent"
                     }
                 },
-                "targetRequirement": "TargetOpponent",
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                },
                 "interveningIf": {
                     "type": "Exists",
                     "player": "You",
@@ -12450,8 +12460,8 @@
                 "amount": 1
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -12459,7 +12469,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ],
         "triggeredAbilities": [
@@ -20792,7 +20803,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },

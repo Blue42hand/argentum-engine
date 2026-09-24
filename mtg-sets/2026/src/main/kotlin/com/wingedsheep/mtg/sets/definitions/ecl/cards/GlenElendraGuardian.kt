@@ -41,11 +41,11 @@ val GlenElendraGuardian = card("Glen Elendra Guardian") {
     ))
 
     activatedAbility {
+        val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
         cost = Costs.Composite(
             Costs.Mana("{1}{U}"),
             Costs.RemoveCounterFromSelf(Counters.MINUS_ONE_MINUS_ONE)
         )
-        target = Targets.NoncreatureSpell
         effect = Effects.CounterSpell()
             .then(Effects.DrawCards(1, target = EffectTarget.TargetController))
     }

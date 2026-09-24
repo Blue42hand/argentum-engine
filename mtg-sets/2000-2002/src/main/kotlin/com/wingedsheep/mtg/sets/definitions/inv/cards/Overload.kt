@@ -43,7 +43,7 @@ val Overload = card("Overload") {
     keywordAbility(KeywordAbility.kicker("{2}"))
 
     spell {
-        target = Targets.Artifact
+        val artifact = target("target artifact", Targets.Artifact)
         effect = Effects.If(
             condition = WasKicked,
             then = destroyIfManaValueAtMost(5),

@@ -287,8 +287,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target"
             },
             "destination": "Exile"
         },
@@ -297,7 +297,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "artifact|creature|enchantment"
-                }
+                },
+                "id": "target"
             }
         ],
         "additionalCosts": [
@@ -1027,13 +1028,20 @@
                         "excludeSelf": true
                     }
                 },
-                "effect": "AttachEquipment",
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirements": [
                     {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -3257,8 +3265,8 @@
                         "amount": 2
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 "targetRequirement": {
@@ -3266,7 +3274,8 @@
                     "filter": {
                         "baseFilter": "creature Human ctrl:you",
                         "excludeSelf": true
-                    }
+                    },
+                    "id": "target"
                 }
             }
         ]
@@ -3706,8 +3715,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -3717,7 +3726,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature tapped"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -5313,8 +5323,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Hand"
                 },
@@ -5323,7 +5333,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "permanent Spirit ctrl:you"
-                        }
+                        },
+                        "id": "target"
                     }
                 ]
             }
@@ -5762,8 +5773,8 @@
                         "amount": 2
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 {
@@ -5804,7 +5815,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -6695,8 +6707,8 @@
                     "type": "GrantKeyword",
                     "keyword": "INDESTRUCTIBLE",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 "targetRequirements": [
@@ -6704,7 +6716,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature Wolf|Werewolf attacking"
-                        }
+                        },
+                        "id": "target"
                     }
                 ]
             }

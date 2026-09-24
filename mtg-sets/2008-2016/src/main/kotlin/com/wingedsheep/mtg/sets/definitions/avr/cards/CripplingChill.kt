@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Crippling Chill
@@ -23,9 +22,9 @@ val CripplingChill = card("Crippling Chill") {
     oracleText = "Tap target creature. It doesn't untap during its controller's next untap step.\nDraw a card."
 
     spell {
-        target = Targets.Creature
-        effect = Effects.Tap(EffectTarget.ContextTarget(0)) then
-            GrantKeywordEffect(AbilityFlag.DOESNT_UNTAP.name, EffectTarget.ContextTarget(0), Duration.UntilAfterAffectedControllersNextUntap) then
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.Tap(creature) then
+            GrantKeywordEffect(AbilityFlag.DOESNT_UNTAP.name, creature, Duration.UntilAfterAffectedControllersNextUntap) then
             Effects.DrawCards(1)
     }
 

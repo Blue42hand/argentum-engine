@@ -36,10 +36,10 @@ val VowToErebor = card("Vow to Erebor") {
         "If it's a Dwarf, you may attach an Equipment you control to it."
 
     spell {
-        target = Targets.CreatureYouControl
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
-            Effects.Untap(EffectTarget.ContextTarget(0)),
-            Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
+            Effects.Untap(creatureYouControl),
+            Effects.ModifyStats(2, 2, creatureYouControl, Duration.EndOfTurn),
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(
                     GameObjectFilter.Creature.withSubtype(Subtype.DWARF),
@@ -61,7 +61,7 @@ val VowToErebor = card("Vow to Erebor") {
                     run(
                         Effects.AttachTargetEquipmentToCreature(
                             equipmentTarget = EffectTarget.PipelineTarget(chosen.key),
-                            creatureTarget = EffectTarget.ContextTarget(0)
+                            creatureTarget = creatureYouControl
                         )
                     )
                 }

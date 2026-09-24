@@ -26,7 +26,7 @@ val Unwind = card("Unwind") {
     oracleText = "Counter target noncreature spell. Untap up to three lands."
 
     spell {
-        target = Targets.NoncreatureSpell
+        val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
         effect = Effects.CounterSpell()
             .then(Effects.Composite(listOf(
                 GatherCardsEffect(

@@ -966,7 +966,8 @@
                 "filter": {
                     "baseFilter": "sorcery",
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },

@@ -623,9 +623,9 @@ object PredefinedTokens {
         typeLine = "Artifact"
 
         triggeredAbility {
+            val anyTarget = target("any target", Targets.Any)
             trigger = Triggers.LeavesBattlefield
-            target = Targets.Any
-            effect = Effects.DealDamage(2, EffectTarget.ContextTarget(0))
+            effect = Effects.DealDamage(2, anyTarget)
             description = "When this token leaves the battlefield, it deals 2 damage to any target."
         }
 

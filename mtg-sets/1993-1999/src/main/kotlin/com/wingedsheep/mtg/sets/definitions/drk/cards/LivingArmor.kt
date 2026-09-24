@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
@@ -30,12 +29,12 @@ val LivingArmor = card("Living Armor") {
         "where X is that creature's mana value."
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
-        target = Targets.Creature
         effect = Effects.AddDynamicCounters(
             Counters.PLUS_ZERO_PLUS_ONE,
             DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
-            EffectTarget.ContextTarget(0),
+            creature,
         )
     }
 

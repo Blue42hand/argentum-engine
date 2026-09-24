@@ -50,11 +50,11 @@ val VeinRipper = card("Vein Ripper") {
     keywordAbility(KeywordAbility.Ward(WardCost.Sacrifice(GameObjectFilter.Creature)))
 
     triggeredAbility {
+        val opponent = target("target opponent", Targets.Opponent)
         trigger = Triggers.AnyCreatureDies
-        target = Targets.Opponent
         effect = Effects.DrainLife(
             amount = DynamicAmount.Fixed(2),
-            from = EffectTarget.ContextTarget(0),
+            from = opponent,
             to = EffectTarget.Controller,
         )
         description = "Whenever a creature dies, target opponent loses 2 life and you gain 2 life."

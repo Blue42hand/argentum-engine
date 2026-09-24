@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Faramir, Prince of Ithilien
@@ -48,11 +47,11 @@ val FaramirPrinceOfIthilien = card("Faramir, Prince of Ithilien") {
         "Otherwise, create three 1/1 white Human Soldier creature tokens."
 
     triggeredAbility {
+        val opponent = target("target opponent", Targets.Opponent)
         trigger = Triggers.YourEndStep
-        target = Targets.Opponent
         effect = CreateDelayedTriggerEffect(
             step = Step.END,
-            fireOnPlayer = EffectTarget.ContextTarget(0),
+            fireOnPlayer = opponent,
             // The chosen opponent is never the active player at Faramir's controller's end step,
             // so the next END step gated to that opponent (fireOnPlayer) is necessarily a later
             // turn — CURRENT_TURN_OR_LATER avoids a turn-floor off-by-one while still firing only

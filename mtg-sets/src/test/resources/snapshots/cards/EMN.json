@@ -87,8 +87,8 @@
                 "amount": 4
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -96,7 +96,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },
@@ -3343,7 +3344,8 @@
                         "filter": {
                             "baseFilter": "instant|sorcery",
                             "zone": "Stack"
-                        }
+                        },
+                        "id": "target instant or sorcery spell"
                     }
                 ],
                 "descriptionOverride": "Counter target instant or sorcery spell unless its controller pays {X}, where X is this creature's power."
@@ -4938,12 +4940,15 @@
                     "type": "ExchangeLifeAndStat",
                     "stat": "TOUGHNESS",
                     "player": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target opponent"
                     }
                 },
                 "targetRequirements": [
-                    "TargetOpponent"
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target opponent"
+                    }
                 ],
                 "descriptionOverride": "Exchange target opponent's life total with this creature's toughness"
             }

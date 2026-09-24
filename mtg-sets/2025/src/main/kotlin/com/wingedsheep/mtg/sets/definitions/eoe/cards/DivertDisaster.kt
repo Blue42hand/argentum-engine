@@ -20,7 +20,7 @@ val DivertDisaster = card("Divert Disaster") {
         "(It's an artifact with \"{2}, {T}, Sacrifice this token: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\")"
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessPays(
             cost = "{2}",
             onPaid = Effects.CreateLander()

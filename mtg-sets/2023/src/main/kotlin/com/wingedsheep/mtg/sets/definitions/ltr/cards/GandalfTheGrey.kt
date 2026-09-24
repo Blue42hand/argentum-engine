@@ -70,7 +70,7 @@ val GandalfTheGrey = card("Gandalf the Grey") {
             ),
             // • Copy target instant or sorcery spell you control. You may choose new targets for the copy.
             Mode.withTarget(
-                Effects.CopyTargetSpell(),
+                Effects.CopyTargetSpell(target = EffectTarget.ContextTarget(0)),
                 Targets.InstantOrSorcerySpellYouControl,
                 "Copy target instant or sorcery spell you control. You may choose new targets for the copy"
             ),

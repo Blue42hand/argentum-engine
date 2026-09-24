@@ -38,12 +38,12 @@ val BrillianceUnleashed = card("Brilliance Unleashed") {
                 effect = Effects.DealDamage(5, creature)
             }
             mode("Return target artifact card in your graveyard to the battlefield. If it isn't an artifact creature card, it's a 3/3 Robot artifact creature with flying") {
-                target = TargetObject(
+                val target = target("target", TargetObject(
                     filter = TargetFilter(
                         baseFilter = GameObjectFilter.Artifact.ownedByYou(),
                         zone = Zone.GRAVEYARD,
                     )
-                )
+                ))
                 effect = Effects.Move(
                     target = com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget(0),
                     destination = Zone.BATTLEFIELD,

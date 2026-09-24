@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 /**
  * Breeches, Eager Pillager
  * {2}{R}
@@ -71,7 +72,7 @@ val BreechesEagerPillager = card("Breeches, Eager Pillager") {
             ),
             // • Target creature can't block this turn.
             Mode.withTarget(
-                Effects.CantBlock(),
+                Effects.CantBlock(target = EffectTarget.ContextTarget(0)),
                 Targets.Creature,
                 "Target creature can't block this turn",
             ),

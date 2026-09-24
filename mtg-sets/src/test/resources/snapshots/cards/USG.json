@@ -223,7 +223,8 @@
                 "filter": {
                     "baseFilter": "artifact|enchantment",
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },

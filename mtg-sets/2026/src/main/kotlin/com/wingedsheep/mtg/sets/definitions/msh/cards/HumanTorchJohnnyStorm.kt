@@ -49,13 +49,13 @@ val HumanTorchJohnnyStorm = card("Human Torch, Johnny Storm") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
+        val opponent = target("target opponent", Targets.Opponent)
         trigger = Triggers.YouDraw
         interveningIf = Conditions.YouControl(
             GameObjectFilter.Any.withSubtype(Subtype.HERO.value),
             excludeSelf = true
         )
-        target = Targets.Opponent
-        effect = Effects.DealDamage(1, EffectTarget.ContextTarget(0))
+        effect = Effects.DealDamage(1, opponent)
         description = "Whenever you draw a card, if you control another Hero, Human Torch deals " +
             "1 damage to target opponent."
     }

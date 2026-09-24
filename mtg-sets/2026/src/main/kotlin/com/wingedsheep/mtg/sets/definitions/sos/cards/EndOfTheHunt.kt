@@ -47,7 +47,7 @@ val EndOfTheHunt = card("End of the Hunt") {
         "mana value among creatures and planeswalkers they control."
 
     spell {
-        target = TargetOpponent()
+        val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Composite(
             listOf(
                 GatherCardsEffect(

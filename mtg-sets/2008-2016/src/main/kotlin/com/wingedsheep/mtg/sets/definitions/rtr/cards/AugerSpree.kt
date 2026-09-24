@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Auger Spree
@@ -20,8 +19,8 @@ val AugerSpree = card("Auger Spree") {
     oracleText = "Target creature gets +4/-4 until end of turn."
 
     spell {
-        target = Targets.Creature
-        effect = Effects.ModifyStats(4, -4, EffectTarget.ContextTarget(0))
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.ModifyStats(4, -4, creature)
     }
 
     metadata {

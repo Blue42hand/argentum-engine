@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
@@ -78,11 +77,11 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
     )
 
     solvedTriggeredAbility {
+        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.attacking()))
         trigger = Triggers.YouAttack
-        target = TargetCreature(filter = TargetFilter.Creature.attacking())
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)),
-            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0))
+            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            Effects.GrantKeyword(Keyword.TRAMPLE, creature)
         )
         description = "Solved — Whenever you attack, put a +1/+1 counter on target attacking " +
             "creature. It gains trample until end of turn."

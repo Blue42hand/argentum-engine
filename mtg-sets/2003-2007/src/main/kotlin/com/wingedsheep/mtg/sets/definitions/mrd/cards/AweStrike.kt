@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /** Awe Strike — Mirrodin #6. */
 val AweStrike = card("Awe Strike") {
@@ -16,9 +15,9 @@ val AweStrike = card("Awe Strike") {
         "You gain life equal to the damage prevented this way."
 
     spell {
-        target = Targets.Creature
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.PreventNextDamageDealtBy(
-            target = EffectTarget.ContextTarget(0),
+            target = creature,
             onPrevented = Effects.GainLife(DynamicAmounts.preventedDamage())
         )
     }

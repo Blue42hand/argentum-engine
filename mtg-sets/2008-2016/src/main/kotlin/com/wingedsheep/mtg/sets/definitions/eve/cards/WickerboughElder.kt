@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Wickerbough Elder
@@ -41,12 +40,12 @@ val WickerboughElder = card("Wickerbough Elder") {
     )
 
     activatedAbility {
+        val artifactOrEnchantment = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
         cost = Costs.Composite(
             Costs.Mana("{G}"),
             Costs.RemoveCounterFromSelf(Counters.MINUS_ONE_MINUS_ONE)
         )
-        target = Targets.ArtifactOrEnchantment
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        effect = Effects.Destroy(artifactOrEnchantment)
     }
 
     metadata {

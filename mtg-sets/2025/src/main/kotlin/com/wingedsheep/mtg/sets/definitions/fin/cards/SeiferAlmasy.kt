@@ -65,13 +65,13 @@ val SeiferAlmasy = card("Seifer Almasy") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInYourGraveyard.manaValueAtMost(3),
-        )
+        ))
+        trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.Composite(
             // Exile the targeted card from your graveyard so the free-cast grant keys off it.
-            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
+            Effects.Move(target, Zone.EXILE),
             GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "fireCross"),
             // "You may cast ..." + "if it would be put into your graveyard, exile it instead."
             Effects.GrantMayPlayFromExile(

@@ -36,7 +36,7 @@ val SwallowedByLeviathan = card("Swallowed by Leviathan") {
         "rest on top of your library in any order.)"
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.Composite(
             Effects.Surveil(2),
             Effects.CounterUnlessDynamicPays(

@@ -42,7 +42,7 @@ val ManaSculpt = card("Mana Sculpt") {
         "amount of mana spent to cast that spell at the beginning of your next main phase."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Wizard")),
             then = CreateDelayedTriggerEffect(

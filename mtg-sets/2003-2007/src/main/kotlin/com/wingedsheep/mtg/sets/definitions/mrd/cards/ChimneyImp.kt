@@ -54,8 +54,8 @@ val ChimneyImp = card("Chimney Imp") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
+        val opponent = target("target opponent", TargetOpponent())
         trigger = Triggers.Dies
-        target = TargetOpponent()
         effect = Effects.Composite(
             listOf(
                 GatherCardsEffect(

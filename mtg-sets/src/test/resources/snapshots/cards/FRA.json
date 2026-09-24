@@ -4624,13 +4624,20 @@
                     "from": "Battlefield",
                     "to": "Graveyard"
                 },
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "optional": true,
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature"
                 }
             }
         ],
@@ -8430,7 +8437,8 @@
                 "filter": {
                     "baseFilter": "white|black",
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -10554,14 +10562,17 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature or planeswalker"
             },
             "destination": "Graveyard",
             "byDestruction": true
         },
         "targetRequirements": [
-            "TargetCreatureOrPlaneswalker"
+            {
+                "type": "TargetCreatureOrPlaneswalker",
+                "id": "target creature or planeswalker"
+            }
         ],
         "additionalCosts": [
             {
@@ -12891,7 +12902,8 @@
                             "filter": {
                                 "baseFilter": "noncreature",
                                 "zone": "Stack"
-                            }
+                            },
+                            "id": "target noncreature spell"
                         }
                     ],
                     "description": "Counter target noncreature spell unless its controller pays {2}"

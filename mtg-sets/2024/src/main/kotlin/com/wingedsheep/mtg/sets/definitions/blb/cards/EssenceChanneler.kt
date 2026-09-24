@@ -56,9 +56,9 @@ val EssenceChanneler = card("Essence Channeler") {
     // When this creature dies, put its counters on target creature you control.
     // Per the Bloomburrow ruling, this moves *all* counter kinds, not just +1/+1.
     triggeredAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         trigger = Triggers.Dies
-        target = Targets.CreatureYouControl
-        effect = Effects.MoveAllLastKnownCounters(EffectTarget.ContextTarget(0))
+        effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
     }
 
     metadata {

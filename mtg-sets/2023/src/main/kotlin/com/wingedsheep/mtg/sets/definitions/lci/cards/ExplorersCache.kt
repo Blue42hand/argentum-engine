@@ -66,13 +66,13 @@ val ExplorersCache = card("Explorer's Cache") {
 
     // {T}: Move a +1/+1 counter from this artifact onto target creature. Activate only as a sorcery.
     activatedAbility {
+        val creature = target("target creature", TargetCreature())
         cost = Costs.Tap
-        target = TargetCreature()
         effect = Effects.MoveCounters(
             counterType = Counters.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmount.Fixed(1),
             source = EffectTarget.Self,
-            destination = EffectTarget.ContextTarget(0)
+            destination = creature
         )
         timing = TimingRule.SorcerySpeed
     }

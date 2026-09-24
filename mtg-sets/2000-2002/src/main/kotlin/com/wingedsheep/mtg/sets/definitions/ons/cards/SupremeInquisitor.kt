@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -36,8 +35,8 @@ val SupremeInquisitor = card("Supreme Inquisitor") {
     oracleText = "Tap five untapped Wizards you control: Search target player's library for up to five cards and exile them. Then that player shuffles."
 
     activatedAbility {
+        val player = target("target player", Targets.Player)
         cost = Costs.TapPermanents(5, GameObjectFilter.Creature.withSubtype("Wizard"))
-        target = Targets.Player
         effect = Effects.Composite(
             listOf(
                 GatherCardsEffect(
@@ -55,7 +54,7 @@ val SupremeInquisitor = card("Supreme Inquisitor") {
                     from = "exiled",
                     destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0))
                 ),
-                ShuffleLibraryEffect(EffectTarget.ContextTarget(0))
+                ShuffleLibraryEffect(player)
             )
         )
     }

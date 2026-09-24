@@ -25,7 +25,7 @@ val Simoon = card("Simoon") {
     oracleText = "Simoon deals 1 damage to each creature target opponent controls."
 
     spell {
-        target = Targets.Opponent
+        val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.ForEachInGroup(
             GroupFilter(Filters.Creature.targetOpponentControls()),
             DealDamageEffect(1, EffectTarget.Self)

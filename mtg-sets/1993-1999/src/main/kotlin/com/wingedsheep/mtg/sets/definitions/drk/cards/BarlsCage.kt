@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Barl's Cage
@@ -26,11 +25,11 @@ val BarlsCage = card("Barl's Cage") {
     oracleText = "{3}: Target creature doesn't untap during its controller's next untap step."
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Mana("{3}")
-        target = Targets.Creature
         effect = GrantKeywordEffect(
             AbilityFlag.DOESNT_UNTAP.name,
-            EffectTarget.ContextTarget(0),
+            creature,
             Duration.UntilAfterAffectedControllersNextUntap,
         )
     }

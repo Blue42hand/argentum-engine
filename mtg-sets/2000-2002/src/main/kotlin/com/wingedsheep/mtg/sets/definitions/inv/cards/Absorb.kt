@@ -18,7 +18,7 @@ val Absorb = card("Absorb") {
     oracleText = "Counter target spell. You gain 3 life."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell() then Effects.GainLife(3)
     }
 

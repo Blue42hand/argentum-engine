@@ -40,10 +40,10 @@ val DelugeVirtuoso = card("Deluge Virtuoso") {
         "+2/+2 until end of turn instead."
 
     triggeredAbility {
+        val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
         trigger = Triggers.EntersBattlefield
-        target = Targets.CreatureOpponentControls
-        effect = Effects.Tap(EffectTarget.ContextTarget(0))
-            .then(Effects.AddCounters(Counters.STUN, 1, EffectTarget.ContextTarget(0)))
+        effect = Effects.Tap(creatureOpponentControls)
+            .then(Effects.AddCounters(Counters.STUN, 1, creatureOpponentControls))
     }
 
     opus {

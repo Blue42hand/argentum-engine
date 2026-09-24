@@ -35,9 +35,9 @@ val CabalInterrogator = card("Cabal Interrogator") {
     oracleText = "{X}{B}, {T}: Target player reveals X cards from their hand and you choose one of them. That player discards that card. Activate only as a sorcery."
 
     activatedAbility {
+        val player = target("target player", TargetPlayer())
         cost = Costs.Composite(Costs.Mana("{X}{B}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        target = TargetPlayer()
         effect = Effects.Composite(
             listOf(
                 // 1. Gather all cards from target player's hand

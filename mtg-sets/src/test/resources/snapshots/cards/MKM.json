@@ -111,16 +111,16 @@
                                 "counterType": "+1/+1",
                                 "count": 3,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             }
                         ]
@@ -132,7 +132,7 @@
                         "filter": {
                             "baseFilter": "creature token attacking"
                         },
-                        "id": "target attacking creature token"
+                        "id": "target creature"
                     }
                 ],
                 "descriptionOverride": "Sacrifice this enchantment, Reveal the creature type you chose: If target attacking creature token is the chosen type, put three +1/+1 counters on it and it gains deathtouch until end of turn."
@@ -3319,15 +3319,16 @@
                         "amount": 3
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature"
                 }
             },
             {
@@ -3722,15 +3723,15 @@
                             "counterType": "+1/+1",
                             "count": 4,
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target permanent"
                             }
                         },
                         {
                             "type": "BecomeCreature",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target permanent"
                             },
                             "power": {
                                 "type": "Fixed",
@@ -3763,7 +3764,8 @@
                                     }
                                 ]
                             }
-                        }
+                        },
+                        "id": "target permanent"
                     }
                 ],
                 "restrictions": [
@@ -3842,8 +3844,8 @@
                             "amount": 1
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "damageSource": "Self"
                     }
@@ -3852,7 +3854,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature"
                 }
             },
             {
@@ -3940,8 +3943,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -3958,7 +3961,8 @@
                                 "WasDealtDamageThisTurn"
                             ]
                         }
-                    }
+                    },
+                    "id": "target creature"
                 }
             },
             {
@@ -4546,24 +4550,24 @@
                             "type": "GrantKeyword",
                             "keyword": "FLYING",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         },
                         {
                             "type": "GrantKeyword",
                             "keyword": "DOUBLE_STRIKE",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         },
                         {
                             "type": "GrantKeyword",
                             "keyword": "VIGILANCE",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         }
                     ]
@@ -4572,7 +4576,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "triggerRestriction": {
                     "type": "EntityMatches",
@@ -4863,16 +4868,16 @@
                             "counterType": "+1/+1",
                             "count": 1,
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         },
                         {
                             "type": "GrantKeyword",
                             "keyword": "TRAMPLE",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         }
                     ]
@@ -4881,7 +4886,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature attacking"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "triggerRestriction": {
                     "type": "EntityMatches",
@@ -5659,12 +5665,19 @@
             {
                 "id": "ability_1",
                 "trigger": "TurnFaceUpEvent",
-                "effect": "AttachEquipment",
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 },
                 "descriptionOverride": "When this Equipment is turned face up, attach it to target creature you control."
             }
@@ -6670,24 +6683,38 @@
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
                 },
-                "effect": "MarkMustBlockThisTurn",
+                "effect": {
+                    "type": "MarkMustBlockThisTurn",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "descriptionOverride": "When this creature enters, target creature blocks this turn if able."
             },
             {
                 "id": "ability_2",
                 "trigger": "TurnFaceUpEvent",
-                "effect": "MarkMustBlockThisTurn",
+                "effect": {
+                    "type": "MarkMustBlockThisTurn",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "descriptionOverride": "When this creature is turned face up, target creature blocks this turn if able."
             }
@@ -15723,7 +15750,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -17315,6 +17343,7 @@
                             "baseFilter": "creature",
                             "zone": "Graveyard"
                         },
+                        "id": "target",
                         "sameOwner": true
                     }
                 ]
@@ -22116,11 +22145,14 @@
                         "amount": 2
                     },
                     "from": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target opponent"
                     }
                 },
-                "targetRequirement": "TargetOpponent",
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                },
                 "descriptionOverride": "Whenever a creature dies, target opponent loses 2 life and you gain 2 life."
             }
         ]
@@ -22167,8 +22199,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -22177,7 +22209,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "artifact|enchantment ctrl:opponent"
-                    }
+                    },
+                    "id": "target"
                 },
                 "descriptionOverride": "When this creature is turned face up, destroy target artifact or enchantment an opponent controls."
             }

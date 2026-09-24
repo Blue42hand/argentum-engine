@@ -26,11 +26,11 @@ val ChokingSands = card("Choking Sands") {
     oracleText = "Destroy target non-Swamp land. If that land was nonbasic, Choking Sands deals 2 damage to the land's controller."
 
     spell {
-        target = TargetPermanent(
+        val permanent = target("target permanent", TargetPermanent(
             filter = TargetFilter(
                 GameObjectFilter.Land.notSubtype(Subtype.SWAMP)
             )
-        )
+        ))
         // Deal damage first (while the target is still on the battlefield with its
         // controller intact), then destroy. The conditional reads the target's current
         // nonbasic status, matching the past-tense oracle phrasing ("if that land was
@@ -45,7 +45,7 @@ val ChokingSands = card("Choking Sands") {
                 )
             ),
             then = Effects.DealDamage(2, EffectTarget.TargetController)
-        ) then Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
+        ) then Effects.Move(permanent, Zone.GRAVEYARD, byDestruction = true)
     }
 
     metadata {

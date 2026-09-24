@@ -22,7 +22,7 @@ val Annul = card("Annul") {
     oracleText = "Counter target artifact or enchantment spell."
 
     spell {
-        target = TargetSpell(
+        val spell = target("target spell", TargetSpell(
             filter = TargetFilter(
                 baseFilter = GameObjectFilter(
                     cardPredicates = listOf(
@@ -36,7 +36,7 @@ val Annul = card("Annul") {
                 ),
                 zone = Zone.STACK
             )
-        )
+        ))
         effect = Effects.CounterSpell()
     }
 

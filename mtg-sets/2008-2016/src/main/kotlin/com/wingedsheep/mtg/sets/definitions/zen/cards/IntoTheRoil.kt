@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Into the Roil
@@ -25,8 +24,8 @@ val IntoTheRoil = card("Into the Roil") {
     keywordAbility(KeywordAbility.kicker("{1}{U}"))
 
     spell {
-        target = Targets.NonlandPermanent
-        effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)) then Effects.If(
+        val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+        effect = Effects.ReturnToHand(nonlandPermanent) then Effects.If(
             condition = WasKicked,
             then = Effects.DrawCards(1)
         )

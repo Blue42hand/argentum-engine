@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ForEachEffect
 import com.wingedsheep.sdk.scripting.effects.IterationSpace
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -28,7 +29,7 @@ val UnearthlyBlizzard = card("Unearthly Blizzard") {
         target = TargetCreature(count = 3, optional = true)
         effect = ForEachEffect(
             space = IterationSpace.Targets,
-            body = Effects.CantBlock()
+            body = Effects.CantBlock(target = EffectTarget.ContextTarget(0))
         )
     }
 

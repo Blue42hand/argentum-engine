@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Surgical Skullbomb
@@ -29,10 +28,10 @@ val SurgicalSkullbomb = card("Surgical Skullbomb") {
     }
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.SacrificeSelf)
-        target = Targets.Creature
         effect = Effects.Composite(
-            Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
+            Effects.ReturnToHand(creature),
             Effects.DrawCards(1)
         )
         timing = TimingRule.SorcerySpeed

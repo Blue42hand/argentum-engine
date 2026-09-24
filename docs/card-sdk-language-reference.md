@@ -3661,7 +3661,10 @@ A resolving nonpermanent spell retains its stack instance through serialized eff
 `ForEach` collection/group iteration deliberately binds `Self` to its iteration target, independently of the originating source. The bound object is captured with its own generation, survives a delayed ability and serialized decisions, and cannot be replaced by a later visit of the same card. A present binding whose object vanished fails closed. The original source object remains separately captured for source provenance. Older serialized pending abilities without historical references fail closed for actionable source/trigger card references; importing current zone membership cannot reconstruct that history.
 
 
-- `EffectTarget.ContextTarget(i)` — i-th cast-time target.
+- `EffectTarget.ContextTarget(i)` — i-th cast-time target. Prefer a named handle
+  (`val creature = target("target creature", Targets.Creature)`, see *Named multi-target binding*):
+  **no `Effects.*` / `Patterns.*` facade defaults its target parameter**, so every effect names what
+  it acts on and an omitted argument is a compile error rather than a silent bind to the first target.
 - `EffectTarget.Controller` — controller of the source ability.
 - `EffectTarget.Self` — the source permanent. In a *granted* ability (Equipment/Aura "equipped
   creature has …"), `Self` is the **host** that received the ability — its `{T}` taps the host —

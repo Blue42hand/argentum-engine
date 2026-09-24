@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.model.Rarity
 
@@ -58,7 +59,7 @@ val RediscoverTheWay = card("Rediscover the Way") {
             fireOnce = false,
             expiry = DelayedTriggerExpiry.EndOfTurn,
             targetRequirement = Targets.CreatureYouControl,
-            effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE)
+            effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target = EffectTarget.ContextTarget(0))
         )
     }
 

@@ -39,12 +39,12 @@ val Helldozer = card("Helldozer") {
     toughness = 5
 
     activatedAbility {
+        val land = target("target land", Targets.Land)
         cost = Costs.Composite(Costs.Mana("{B}{B}{B}"), Costs.Tap)
-        target = Targets.Land
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonbasicLand),
             then = Effects.Untap(EffectTarget.Self)
-        ) then Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
+        ) then Effects.Move(land, Zone.GRAVEYARD, byDestruction = true)
         description = "Destroy target land. If that land was nonbasic, untap this creature."
     }
 

@@ -45,16 +45,16 @@ val VincentsLimitBreak = card("Vincent's Limit Break") {
     spell {
         tiered {
             tier("Galian Beast", "{0}", "3/2.") {
+                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
                 effect = transform(3, 2)
-                target = Targets.CreatureYouControl
             }
             tier("Death Gigas", "{1}", "5/2.") {
+                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
                 effect = transform(5, 2)
-                target = Targets.CreatureYouControl
             }
             tier("Hellmasker", "{3}", "7/2.") {
+                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
                 effect = transform(7, 2)
-                target = Targets.CreatureYouControl
             }
         }
     }

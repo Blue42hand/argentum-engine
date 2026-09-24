@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -30,14 +29,14 @@ val IntrepidProvisioner = card("Intrepid Provisioner") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter(
                 GameObjectFilter.Creature.youControl().withSubtype("Human"),
                 excludeSelf = true
             )
-        )
-        effect = Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
+        ))
+        trigger = Triggers.EntersBattlefield
+        effect = Effects.ModifyStats(2, 2, target)
     }
 
     metadata {

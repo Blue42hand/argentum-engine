@@ -24,11 +24,11 @@ val VoidmageProdigy = card("Voidmage Prodigy") {
     oracleText = "{U}{U}, Sacrifice a Wizard: Counter target spell.\nMorph {U}"
 
     activatedAbility {
+        val spell = target("target spell", Targets.Spell)
         cost = Costs.Composite(
             Costs.Mana("{U}{U}"),
             Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype("Wizard"))
         )
-        target = Targets.Spell
         effect = CounterEffect()
     }
 

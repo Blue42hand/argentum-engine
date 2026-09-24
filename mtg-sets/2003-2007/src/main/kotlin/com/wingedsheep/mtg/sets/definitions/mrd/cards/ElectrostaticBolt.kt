@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -29,14 +28,14 @@ val ElectrostaticBolt = card("Electrostatic Bolt") {
         "Electrostatic Bolt deals 4 damage to it instead."
 
     spell {
-        target = Targets.Creature
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
             amount = DynamicAmount.Conditional(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature),
                 ifTrue = DynamicAmount.Fixed(4),
                 ifFalse = DynamicAmount.Fixed(2)
             ),
-            target = EffectTarget.ContextTarget(0)
+            target = creature
         )
     }
 

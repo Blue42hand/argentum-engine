@@ -1190,8 +1190,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target"
             },
             "destination": "Hand"
         },
@@ -1201,7 +1201,8 @@
                 "filter": {
                     "baseFilter": "own:you",
                     "zone": "Graveyard"
-                }
+                },
+                "id": "target"
             }
         ]
     },
@@ -7115,13 +7116,20 @@
                     "to": "Graveyard"
                 },
                 "binding": "ANY",
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "optional": true,
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature"
                 },
                 "interveningIf": "TriggeringEntityHadCounters",
                 "descriptionOverride": "Whenever this creature or another creature you control dies, if it had counters on it, put its counters on up to one target creature you control."
@@ -14703,8 +14711,8 @@
                 "effect": {
                     "type": "GrantHarmonize",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
                 "targetRequirement": {
@@ -14712,7 +14720,8 @@
                     "filter": {
                         "baseFilter": "instant|sorcery own:you",
                         "zone": "Graveyard"
-                    }
+                    },
+                    "id": "target"
                 },
                 "descriptionOverride": "When this creature enters, target instant or sorcery card in your graveyard gains harmonize until end of turn. Its harmonize cost is equal to its mana cost."
             }
@@ -14868,7 +14877,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ],
         "staticAbilities": [
@@ -15908,15 +15918,16 @@
                 "effect": {
                     "type": "CantBlockTargetCreatures",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 }
             }
         ]
@@ -17378,8 +17389,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Exile"
                 },
@@ -17394,7 +17405,7 @@
                             ]
                         }
                     },
-                    "id": "target permanent that's one or more colors"
+                    "id": "target"
                 },
                 "descriptionOverride": "When you cast this spell, exile up to one target permanent that's one or more colors."
             },
@@ -17412,8 +17423,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Exile"
                 },
@@ -17428,7 +17439,7 @@
                             ]
                         }
                     },
-                    "id": "target permanent that's one or more colors"
+                    "id": "target"
                 },
                 "descriptionOverride": "Whenever you cast a colorless spell, exile up to one target permanent that's one or more colors."
             }
@@ -17991,8 +18002,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             },
             "destination": "Hand"
         },
@@ -18001,7 +18012,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ]
     },

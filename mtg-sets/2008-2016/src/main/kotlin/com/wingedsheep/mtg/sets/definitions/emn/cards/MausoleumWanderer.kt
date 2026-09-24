@@ -55,8 +55,8 @@ val MausoleumWanderer = card("Mausoleum Wanderer") {
     }
 
     activatedAbility {
+        val instantOrSorcerySpell = target("target instant or sorcery spell", Targets.InstantOrSorcerySpell)
         cost = Costs.SacrificeSelf
-        target = Targets.InstantOrSorcerySpell
         effect = Effects.CounterUnlessDynamicPays(
             DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
         )

@@ -38,7 +38,7 @@ val BorrowedKnowledge = card("Borrowed Knowledge") {
     spell {
         modal(chooseCount = 1) {
             mode("Discard your hand, then draw cards equal to the number of cards in target opponent's hand") {
-                target = Targets.Opponent
+                val opponent = target("target opponent", Targets.Opponent)
                 effect = Effects.Composite(
                     Patterns.Hand.discardHand(),
                     Effects.DrawCards(DynamicAmount.Count(Player.TargetOpponent, Zone.HAND)),

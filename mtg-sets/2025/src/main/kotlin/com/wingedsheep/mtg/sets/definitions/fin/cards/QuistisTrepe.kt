@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -40,13 +39,13 @@ val QuistisTrepe = card("Quistis Trepe") {
         "put into a graveyard, exile it instead."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        target = TargetObject(
+        val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard,
-        )
+        ))
+        trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
             // Exile the targeted card from its graveyard.
-            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
+            Effects.Move(target, Zone.EXILE),
             // Gather it into a named collection so the may-play grant can key off it.
             GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "borrowed"),
             // "You may cast ... and mana of any type can be spent" + "if it would be put into a

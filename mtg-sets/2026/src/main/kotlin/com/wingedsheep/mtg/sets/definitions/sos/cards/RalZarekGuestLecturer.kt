@@ -65,12 +65,12 @@ val RalZarekGuestLecturer = card("Ral Zarek, Guest Lecturer") {
 
     // −7: Flip five coins. Target opponent skips their next X turns, where X is heads.
     loyaltyAbility(-7) {
-        target = Targets.Opponent
+        val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(
             listOf(
                 Effects.FlipCoins(5, storeHeadsAs = "heads"),
                 Effects.SkipNextTurn(
-                    target = EffectTarget.ContextTarget(0),
+                    target = opponent,
                     count = DynamicAmount.VariableReference("heads"),
                 ),
             )

@@ -46,12 +46,12 @@ val PushPull = card("Push // Pull") {
             "They gain haste until end of turn. Sacrifice them at the beginning of the next end step."
 
         spell {
-            target = TargetObject(
+            val target = target("target", TargetObject(
                 count = 2,
                 optional = true,
                 filter = TargetFilter.CreatureInGraveyard,
                 sameOwner = true,
-            )
+            ))
             effect = Effects.Pipeline {
                 val targets = gather(CardSource.ChosenTargets, name = "pullTargets")
                 val entered = moveTracked(

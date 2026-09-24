@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -50,9 +49,9 @@ val CaseOfTheBurningMasks = card("Case of the Burning Masks") {
         "them. You may play that card this turn."
 
     triggeredAbility {
+        val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         trigger = Triggers.EntersBattlefield
-        target = TargetCreature(filter = TargetFilter.Creature.opponentControls())
-        effect = Effects.DealDamage(3, EffectTarget.ContextTarget(0))
+        effect = Effects.DealDamage(3, creature)
     }
 
     toSolve(Conditions.SourcesYouControlledDealtDamageThisTurn(3))

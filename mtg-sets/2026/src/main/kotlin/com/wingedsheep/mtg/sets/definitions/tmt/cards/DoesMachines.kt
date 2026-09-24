@@ -66,17 +66,17 @@ val DoesMachines = card("Does Machines") {
     // control; a noncreature one also becomes a 0/0 Robot in addition to its other types.
     classLevel(3, "{4}{U}") {
         triggeredAbility {
-            trigger = Triggers.BeginCombat
-            target = TargetObject(
+            val target = target("target", TargetObject(
                 count = 1,
                 filter = TargetFilter(GameObjectFilter.Artifact.youControl())
-            )
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.ContextTarget(0))
+            ))
+            trigger = Triggers.BeginCombat
+            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, target)
                 .then(
                     Effects.If(
                         condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature)),
                         then = Effects.BecomeCreature(
-                            target = EffectTarget.ContextTarget(0),
+                            target = target,
                             power = 0,
                             toughness = 0,
                             creatureTypes = setOf("Robot"),

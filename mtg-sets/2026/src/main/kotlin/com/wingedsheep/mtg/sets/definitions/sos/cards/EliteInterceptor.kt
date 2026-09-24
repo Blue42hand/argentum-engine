@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Elite Interceptor // Rejoinder — Secrets of Strixhaven #12
@@ -44,16 +43,16 @@ val EliteInterceptor = card("Elite Interceptor") {
         typeLine = "Sorcery"
         oracleText = "You may tap or untap target creature.\nDraw a card."
         spell {
-            target = Targets.Creature
+            val creature = target("target creature", Targets.Creature)
             effect = Effects.Composite(
                 Effects.May(
                     ModalEffect.chooseOne(
                         Mode.noTarget(
-                            Effects.Tap(EffectTarget.ContextTarget(0)),
+                            Effects.Tap(creature),
                             "Tap that creature"
                         ),
                         Mode.noTarget(
-                            Effects.Untap(EffectTarget.ContextTarget(0)),
+                            Effects.Untap(creature),
                             "Untap that creature"
                         ),
                         countsAsModalSpell = false

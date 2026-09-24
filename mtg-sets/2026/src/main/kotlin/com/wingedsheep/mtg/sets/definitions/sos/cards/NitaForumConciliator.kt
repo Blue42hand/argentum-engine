@@ -58,17 +58,17 @@ val NitaForumConciliator = card("Nita, Forum Conciliator") {
     }
 
     activatedAbility {
+        val target = target("target", TargetObject(
+            filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByOpponent(),
+        ))
         cost = Costs.Composite(
             Costs.Mana("{2}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature),
         )
-        target = TargetObject(
-            filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByOpponent(),
-        )
         timing = TimingRule.SorcerySpeed
         effect = Effects.Composite(
             // Exile the targeted card from the opponent's graveyard.
-            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
+            Effects.Move(target, Zone.EXILE),
             // Gather it back into a named collection so the may-play grant can key off it.
             GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "borrowed"),
             // "You may cast it this turn, mana of any type" + "if it would be put into a graveyard,

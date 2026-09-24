@@ -28,7 +28,7 @@ val Prohibit = card("Prohibit") {
     keywordAbility(KeywordAbility.kicker("{2}"))
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         // If kicked, counter when the target's mana value is 4 or less; otherwise 2 or less.
         effect = Effects.If(
             condition = WasKicked,

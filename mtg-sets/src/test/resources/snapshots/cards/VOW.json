@@ -75,7 +75,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "opponent"
+                            "id": "target opponent"
                         }
                     ],
                     "description": "Target opponent exiles two cards from their hand"
@@ -6471,7 +6471,10 @@
             ]
         },
         "targetRequirements": [
-            "TargetPlayer"
+            {
+                "type": "TargetPlayer",
+                "id": "target player"
+            }
         ],
         "cleaveSpellEffect": {
             "type": "Composite",
@@ -18877,7 +18880,8 @@
                 "filter": {
                     "baseFilter": "creature|planeswalker",
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -20905,7 +20909,8 @@
                         ]
                     },
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ],
         "cleaveTargetRequirements": [

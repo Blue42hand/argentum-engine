@@ -31,7 +31,7 @@ val SpectralDenial = card("Spectral Denial") {
         "4 or greater.\nCounter target spell unless its controller pays {X}."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessDynamicPays(DynamicAmount.XValue)
     }
 

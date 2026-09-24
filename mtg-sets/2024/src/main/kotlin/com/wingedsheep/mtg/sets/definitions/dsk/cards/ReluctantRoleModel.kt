@@ -73,10 +73,10 @@ val ReluctantRoleModel = card("Reluctant Role Model") {
     // Whenever this creature or another creature you control dies, if it had counters on it,
     // put those counters on up to one target creature.
     triggeredAbility {
+        val creature = target("target creature", TargetCreature(optional = true))
         trigger = Triggers.YourCreatureDies
         interveningIf = Conditions.TriggeringEntityHadCounters
-        target = TargetCreature(optional = true)
-        effect = Effects.MoveAllLastKnownCounters(EffectTarget.ContextTarget(0))
+        effect = Effects.MoveAllLastKnownCounters(creature)
         description = "Whenever this creature or another creature you control dies, if it had " +
             "counters on it, put those counters on up to one target creature."
     }

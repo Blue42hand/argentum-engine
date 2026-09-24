@@ -36,7 +36,7 @@ val WeSayTheeNay = card("We Say Thee Nay!") {
     teamwork(2)
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterUnlessDynamicPays(
             DynamicAmount.Conditional(
                 condition = Conditions.TeamworkWasPaid,

@@ -34,7 +34,7 @@ val CruelclawsHeist = card("Cruelclaw's Heist") {
         "Target opponent reveals their hand. You choose a nonland card from it. Exile that card. If the gift was promised, you may cast that card for as long as it remains exiled, and mana of any type can be spent to cast it."
 
     // Common pipeline for both modes: reveal hand, choose nonland, exile
-    val revealChooseExile = listOf(Patterns.Hand.revealHandAndExileChosen())
+    val revealChooseExile = listOf(Patterns.Hand.revealHandAndExileChosen(target = EffectTarget.ContextTarget(0)))
 
     spell {
         effect = Patterns.Mechanic.giftSpell(

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Elvish Hunter
@@ -29,11 +28,11 @@ val ElvishHunter = card("Elvish Hunter") {
     toughness = 1
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(Costs.Mana("{1}{G}"), Costs.Tap)
-        target = Targets.Creature
         effect = GrantKeywordEffect(
             AbilityFlag.DOESNT_UNTAP.name,
-            EffectTarget.ContextTarget(0),
+            creature,
             Duration.UntilAfterAffectedControllersNextUntap,
         )
         description = "{1}{G}, {T}: Target creature doesn't untap during its controller's next untap step."

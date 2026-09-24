@@ -78,9 +78,9 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
 
     // When Hei Bai leaves the battlefield, put its counters on target creature you control.
     triggeredAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         trigger = Triggers.LeavesBattlefield
-        target = Targets.CreatureYouControl
-        effect = Effects.MoveAllLastKnownCounters(EffectTarget.ContextTarget(0))
+        effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
         description = "When Hei Bai leaves the battlefield, put its counters on target creature you control."
     }
 

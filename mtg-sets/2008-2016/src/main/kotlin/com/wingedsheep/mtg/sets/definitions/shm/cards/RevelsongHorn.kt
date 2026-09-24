@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Revelsong Horn
@@ -30,13 +29,13 @@ val RevelsongHorn = card("Revelsong Horn") {
     oracleText = "{1}, {T}, Tap an untapped creature you control: Target creature gets +1/+1 until end of turn."
 
     activatedAbility {
+        val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(
             Costs.Mana("{1}"),
             Costs.Tap,
             Costs.TapPermanents(1, GameObjectFilter.Creature)
         )
-        target = Targets.Creature
-        effect = Effects.ModifyStats(1, 1, EffectTarget.ContextTarget(0))
+        effect = Effects.ModifyStats(1, 1, creature)
     }
 
     metadata {

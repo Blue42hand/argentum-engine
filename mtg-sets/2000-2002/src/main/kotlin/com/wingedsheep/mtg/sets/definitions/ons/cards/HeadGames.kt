@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -33,7 +32,7 @@ val HeadGames = card("Head Games") {
     oracleText = "Target opponent puts the cards from their hand on top of their library. Search that player's library for that many cards. The player puts those cards into their hand, then shuffles."
 
     spell {
-        target = TargetOpponent()
+        val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Composite(
             listOf(
                 GatherCardsEffect(
@@ -59,7 +58,7 @@ val HeadGames = card("Head Games") {
                     from = "found",
                     destination = CardDestination.ToZone(Zone.HAND, Player.ContextPlayer(0))
                 ),
-                ShuffleLibraryEffect(EffectTarget.ContextTarget(0))
+                ShuffleLibraryEffect(opponent)
             )
         )
     }

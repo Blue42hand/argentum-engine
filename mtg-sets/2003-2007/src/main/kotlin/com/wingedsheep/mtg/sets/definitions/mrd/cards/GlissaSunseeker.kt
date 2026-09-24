@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
@@ -34,8 +33,8 @@ val GlissaSunseeker = card("Glissa Sunseeker") {
     keywords(Keyword.FIRST_STRIKE)
 
     activatedAbility {
+        val artifact = target("target artifact", Targets.Artifact)
         cost = Costs.Tap
-        target = Targets.Artifact
         effect = Effects.If(
             condition = Compare(
                 left = DynamicAmount.EntityProperty(
@@ -45,7 +44,7 @@ val GlissaSunseeker = card("Glissa Sunseeker") {
                 operator = ComparisonOperator.EQ,
                 right = DynamicAmount.UnspentMana(Player.You),
             ),
-            then = Effects.Destroy(EffectTarget.ContextTarget(0)),
+            then = Effects.Destroy(artifact),
         )
     }
 

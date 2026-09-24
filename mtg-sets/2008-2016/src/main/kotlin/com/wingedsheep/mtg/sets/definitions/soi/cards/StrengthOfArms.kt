@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Strength of Arms
@@ -25,8 +24,8 @@ val StrengthOfArms = card("Strength of Arms") {
         "create a 1/1 white Human Soldier creature token."
 
     spell {
-        target = Targets.Creature
-        effect = Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
+        val creature = target("target creature", Targets.Creature)
+        effect = Effects.ModifyStats(2, 2, creature)
             .then(
                 Effects.If(
                     condition = Conditions.YouControlAtLeast(

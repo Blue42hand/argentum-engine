@@ -167,7 +167,8 @@
                             "filter": {
                                 "baseFilter": {},
                                 "zone": "Stack"
-                            }
+                            },
+                            "id": "target spell"
                         }
                     ]
                 },

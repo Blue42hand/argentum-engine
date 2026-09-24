@@ -46,12 +46,12 @@ val ScarwoodBandits = card("Scarwood Bandits") {
     keywords(Keyword.FORESTWALK)
 
     activatedAbility {
+        val artifact = target("target artifact", Targets.Artifact)
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.Tap)
-        target = Targets.Artifact
         effect = PayOrSufferEffect(
             cost = Costs.pay.Mana("{2}"),
             suffer = Effects.GainControl(
-                EffectTarget.ContextTarget(0),
+                artifact,
                 Duration.WhileSourceOnBattlefield("this creature"),
             ),
             player = EffectTarget.PlayerRef(Player.AnOpponent),

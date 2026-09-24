@@ -1488,7 +1488,17 @@
             "typeLine": "Sorcery — Adventure",
             "oracleText": "Exchange control of two target nonland permanents that share a card type. (Then exile this card. You may cast the creature later from exile.)",
             "script": {
-                "spellEffect": "ExchangeControl",
+                "spellEffect": {
+                    "type": "ExchangeControl",
+                    "target1": {
+                        "type": "BoundVariable",
+                        "name": "two target nonland permanents that share a card type[0]"
+                    },
+                    "target2": {
+                        "type": "BoundVariable",
+                        "name": "two target nonland permanents that share a card type[1]"
+                    }
+                },
                 "targetRequirements": [
                     {
                         "type": "TargetObject",
@@ -3267,15 +3277,16 @@
                     "counterType": "+1/+1",
                     "count": 1,
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature"
-                    }
+                    },
+                    "id": "target creature"
                 }
             }
         ],
@@ -3944,8 +3955,8 @@
                 "effect": {
                     "type": "ReturnSelfToBattlefieldAttached",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirements": [
@@ -3953,7 +3964,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature pow<=1 ctrl:you"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -10589,11 +10601,14 @@
                         "filter": "artifact Treasure"
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     }
                 },
-                "targetRequirement": "AnyTarget",
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "target"
+                },
                 "descriptionOverride": "Whenever Smaug the Magnificent attacks, he deals damage equal to the number of Treasures you control to any target."
             },
             {
@@ -10808,8 +10823,8 @@
                         "amount": 5
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     }
                 },
                 "targetRequirements": [
@@ -10817,7 +10832,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ]
             }
@@ -10999,7 +11015,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -11121,8 +11138,8 @@
         "spellEffect": {
             "type": "MoveToZone",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -11132,7 +11149,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ],
         "additionalCosts": [
@@ -13208,7 +13226,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -14197,8 +14216,8 @@
                 {
                     "type": "TapUntap",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
                     },
                     "tap": false
                 },
@@ -14213,8 +14232,8 @@
                         "amount": 2
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
                     }
                 },
                 {
@@ -14265,8 +14284,8 @@
                                     "collectionName": "selected1"
                                 },
                                 "creatureTarget": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             }
                         ]
@@ -14279,7 +14298,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature ctrl:you"
-                }
+                },
+                "id": "target creature you control"
             }
         ]
     },

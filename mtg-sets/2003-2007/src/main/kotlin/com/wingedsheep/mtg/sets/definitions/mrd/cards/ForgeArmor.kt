@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
@@ -38,14 +37,14 @@ val ForgeArmor = card("Forge Armor") {
     additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Artifact))
 
     spell {
-        target = Targets.Creature
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.AddDynamicCounters(
             counterType = Counters.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmount.EntityProperty(
                 EntityReference.Sacrificed(0),
                 EntityNumericProperty.ManaValue
             ),
-            target = EffectTarget.ContextTarget(0)
+            target = creature
         )
     }
 

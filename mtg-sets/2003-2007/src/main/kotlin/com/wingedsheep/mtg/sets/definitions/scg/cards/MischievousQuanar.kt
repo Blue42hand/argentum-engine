@@ -37,9 +37,9 @@ val MischievousQuanar = card("Mischievous Quanar") {
 
     // When turned face up, copy target instant or sorcery spell
     triggeredAbility {
+        val instantOrSorcerySpell = target("target instant or sorcery spell", Targets.InstantOrSorcerySpell)
         trigger = Triggers.TurnedFaceUp
-        target = Targets.InstantOrSorcerySpell
-        effect = Effects.CopyTargetSpell()
+        effect = Effects.CopyTargetSpell(target = instantOrSorcerySpell)
     }
 
     metadata {

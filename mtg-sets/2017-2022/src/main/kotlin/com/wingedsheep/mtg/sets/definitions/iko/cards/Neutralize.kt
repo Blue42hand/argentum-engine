@@ -20,7 +20,7 @@ val Neutralize = card("Neutralize") {
     oracleText = "Counter target spell.\nCycling {2} ({2}, Discard this card: Draw a card.)"
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
     }
 

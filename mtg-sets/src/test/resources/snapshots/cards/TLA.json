@@ -9255,6 +9255,7 @@
                     "baseFilter": "creature",
                     "zone": "Graveyard"
                 },
+                "id": "target",
                 "dynamicMaxCount": "XValue"
             }
         ],
@@ -10407,12 +10408,19 @@
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
                 },
-                "effect": "MoveAllLastKnownCounters",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
                 "targetRequirement": {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature you control"
                 },
                 "descriptionOverride": "When Hei Bai leaves the battlefield, put its counters on target creature you control."
             }
@@ -11268,7 +11276,8 @@
                 "filter": {
                     "baseFilter": {},
                     "zone": "Stack"
-                }
+                },
+                "id": "target spell"
             }
         ]
     },
@@ -15021,8 +15030,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -15095,7 +15104,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "artifact|land ctrl:opponent"
-                }
+                },
+                "id": "target permanent"
             }
         ]
     },
@@ -15162,8 +15172,8 @@
                 "effect": {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target"
                     },
                     "destination": "Hand"
                 },
@@ -15173,7 +15183,8 @@
                         "filter": {
                             "baseFilter": "instant|sorcery own:you",
                             "zone": "Graveyard"
-                        }
+                        },
+                        "id": "target"
                     }
                 ],
                 "restrictions": [
@@ -21223,13 +21234,19 @@
                 "effect": {
                     "type": "Composite",
                     "effects": [
-                        "AttachEquipment",
+                        {
+                            "type": "AttachEquipment",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            }
+                        },
                         {
                             "type": "GrantKeyword",
                             "keyword": "DOUBLE_STRIKE",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             }
                         }
                     ]
@@ -21238,7 +21255,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:you"
-                    }
+                    },
+                    "id": "target creature"
                 }
             }
         ],
@@ -23254,8 +23272,8 @@
             "then": {
                 "type": "MoveToZone",
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "target"
                 },
                 "destination": "Battlefield",
                 "placement": "Tapped"
@@ -23263,8 +23281,8 @@
             "otherwise": {
                 "type": "MoveToZone",
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "target"
                 },
                 "destination": "Hand"
             }
@@ -23275,7 +23293,8 @@
                 "filter": {
                     "baseFilter": "creature own:you",
                     "zone": "Graveyard"
-                }
+                },
+                "id": "target"
             }
         ]
     },

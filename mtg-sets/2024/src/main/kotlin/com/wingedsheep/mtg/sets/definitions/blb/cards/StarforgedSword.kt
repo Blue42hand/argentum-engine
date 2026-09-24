@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GiftKind
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.RemoveKeywordStatic
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Starforged Sword
@@ -41,10 +40,10 @@ val StarforgedSword = card("Starforged Sword") {
     gift(GiftKind.TAPPED_FISH)
 
     triggeredAbility {
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         trigger = Triggers.EntersBattlefield
         interveningIf = Conditions.GiftWasPromised
-        target = Targets.CreatureYouControl
-        effect = Effects.AttachEquipment(EffectTarget.ContextTarget(0))
+        effect = Effects.AttachEquipment(creatureYouControl)
     }
 
     // Equipped creature gets +3/+3

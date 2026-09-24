@@ -26,7 +26,7 @@ val Unravel = card("Unravel") {
     oracleText = "Counter target spell. If the amount of mana spent to cast that spell was less than its mana value, you draw a card."
 
     spell {
-        target = Targets.Spell
+        val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
             condition = Compare(
                 left = DynamicAmounts.targetManaSpent(),

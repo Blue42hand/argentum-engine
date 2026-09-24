@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Rite of the Serpent
@@ -28,6 +27,7 @@ val RiteOfTheSerpent = card("Rite of the Serpent") {
     oracleText = "Destroy target creature. If that creature had a +1/+1 counter on it, create a 1/1 green Snake creature token."
 
     spell {
+        val creature = target("target creature", Targets.Creature)
         // Check counter condition before destroying (counters are removed on zone change)
         effect = Effects.If(
             condition = Conditions.TargetHasCounter(CounterTypeFilter.PlusOnePlusOne),
@@ -38,8 +38,7 @@ val RiteOfTheSerpent = card("Rite of the Serpent") {
                 creatureTypes = setOf("Snake"),
                 imageUri = "https://cards.scryfall.io/normal/front/0/3/032e9f9d-b1e5-4724-9b80-e51500d12d5b.jpg?1562639651"
             )
-        ) then Effects.Destroy(EffectTarget.ContextTarget(0))
-        target = Targets.Creature
+        ) then Effects.Destroy(creature)
     }
 
     metadata {

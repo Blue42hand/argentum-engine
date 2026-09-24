@@ -81,7 +81,8 @@
                 "filter": {
                     "baseFilter": "instant|sorcery",
                     "zone": "Stack"
-                }
+                },
+                "id": "target instant or sorcery spell"
             }
         ]
     },

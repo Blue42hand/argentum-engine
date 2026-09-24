@@ -51,10 +51,10 @@ val ScoldingAdministrator = card("Scolding Administrator") {
 
     // When this creature dies, if it had counters on it, move those counters to up to one target creature.
     triggeredAbility {
+        val creature = target("target creature", TargetCreature(optional = true))
         trigger = Triggers.Dies
         interveningIf = Conditions.TriggeringEntityHadCounters
-        target = TargetCreature(optional = true)
-        effect = Effects.MoveAllLastKnownCounters(EffectTarget.ContextTarget(0))
+        effect = Effects.MoveAllLastKnownCounters(creature)
         description = "When this creature dies, if it had counters on it, put those counters on up to one target creature."
     }
 

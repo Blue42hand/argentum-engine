@@ -31,7 +31,7 @@ val SpiteMalice = card("Spite // Malice") {
         oracleText = "Counter target noncreature spell."
 
         spell {
-            target = Targets.NoncreatureSpell
+            val noncreatureSpell = target("target noncreature spell", Targets.NoncreatureSpell)
             effect = Effects.CounterSpell()
         }
     }

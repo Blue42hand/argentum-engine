@@ -763,6 +763,7 @@
                 "filter": {
                     "baseFilter": "artifact"
                 },
+                "id": "target permanent",
                 "dynamicMaxCount": "XValue"
             }
         ]
@@ -974,8 +975,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target permanent"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -995,7 +996,8 @@
                             }
                         ]
                     }
-                }
+                },
+                "id": "target permanent"
             }
         ]
     },

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -38,9 +37,9 @@ val DuskwatchHunter = card("Duskwatch Hunter") {
     }
 
     triggeredAbility {
+        val creature = target("target creature", TargetCreature())
         trigger = Triggers.EntersBattlefield
-        target = TargetCreature()
-        effect = Effects.AddCounters("+1/+1", 1, EffectTarget.ContextTarget(0))
+        effect = Effects.AddCounters("+1/+1", 1, creature)
     }
 
     metadata {

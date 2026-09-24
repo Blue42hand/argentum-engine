@@ -8393,8 +8393,8 @@
                         {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target land"
                             },
                             "destination": "Graveyard",
                             "byDestruction": true
@@ -8406,7 +8406,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "land"
-                        }
+                        },
+                        "id": "target land"
                     }
                 ],
                 "descriptionOverride": "Destroy target land. If that land was nonbasic, untap this creature."
@@ -14240,6 +14241,10 @@
     "script": {
         "spellEffect": {
             "type": "GrantFreeCastTargetFromExile",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
             "exileAfterResolve": true
         },
         "targetRequirements": [
@@ -14248,7 +14253,8 @@
                 "filter": {
                     "baseFilter": "instant|sorcery own:you",
                     "zone": "Graveyard"
-                }
+                },
+                "id": "target"
             }
         ],
         "selfExileOnResolve": true
@@ -14627,13 +14633,20 @@
                         "cost": "{3}{U}"
                     }
                 },
-                "effect": "AttachEquipment",
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
                 "targetRequirements": [
                     {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 ],
                 "descriptionOverride": "{3}{U}: Attach this Aura to target creature."
