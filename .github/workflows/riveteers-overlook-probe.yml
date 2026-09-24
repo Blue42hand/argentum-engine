@@ -1,0 +1,57 @@
+name: Riveteers Overlook add-card evidence
+
+on:
+  push:
+    branches: [ "codex/issue-19-riveteers-overlook" ]
+  workflow_dispatch:
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Fetch canonical Scryfall evidence
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/riveteers-overlook-evidence
+          curl --fail --silent --show-error --location \
+            --get 'https://api.scryfall.com/cards/named' \
+            --data-urlencode 'exact=Riveteers Overlook' \
+            --data-urlencode 'set=snc' \
+            -o /tmp/riveteers-overlook-evidence/snc.json
+          jq '{name,set,set_name,collector_number,rarity,released_at,artist,image_uris,oracle_id,id,type_line,oracle_text,flavor_text,rulings_uri,prints_search_uri}' \
+            /tmp/riveteers-overlook-evidence/snc.json | tee /tmp/riveteers-overlook-evidence/snc-summary.json
+          RULINGS_URI=$(jq -r '.rulings_uri' /tmp/riveteers-overlook-evidence/snc.json)
+          PRINTS_URI=$(jq -r '.prints_search_uri' /tmp/riveteers-overlook-evidence/snc.json)
+          curl --fail --silent --show-error --location "$RULINGS_URI" -o /tmp/riveteers-overlook-evidence/rulings.json
+          curl --fail --silent --show-error --location "$PRINTS_URI" -o /tmp/riveteers-overlook-evidence/printings.json
+          jq '[.data[] | {set,set_name,collector_number,rarity,released_at,artist,id,image_uris,lang,games,promo_types}]' \
+            /tmp/riveteers-overlook-evidence/printings.json | tee /tmp/riveteers-overlook-evidence/printings-summary.json
+          jq '.data' /tmp/riveteers-overlook-evidence/rulings.json | tee /tmp/riveteers-overlook-evidence/rulings-summary.json
+
+      - name: Run Assay and fidelity preflight
+        run: |
+          set -o pipefail
+          mkdir -p /tmp/riveteers-overlook-evidence
+          just assay parse "Riveteers Overlook" 2>&1 | tee /tmp/riveteers-overlook-evidence/assay-parse.txt || true
+          just assay explain "Riveteers Overlook" 2>&1 | tee /tmp/riveteers-overlook-evidence/assay-explain.txt || true
+          just coverage-fidelity --emit "Riveteers Overlook" 2>&1 | tee /tmp/riveteers-overlook-evidence/fidelity-emit.txt || true
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: riveteers-overlook-evidence
+          path: /tmp/riveteers-overlook-evidence/
+          retention-days: 14
