@@ -3975,10 +3975,15 @@ A resolving nonpermanent spell retains its stack instance through serialized eff
 - `Targets.InstantOrSorceryInGraveyard` / `Targets.InstantOrSorceryInYourGraveyard` — an instant or sorcery card in a graveyard / **your** graveyard (the latter for "return target instant or sorcery card from your graveyard to your hand" — Repository Skaab; pair with `Effects.ReturnToHand`).
 - `TargetFilter.ArtifactInYourGraveyard` — an artifact card in **your** graveyard: the whole "return target artifact card from your graveyard" family (Ritual of Restoration, Myr Retriever, Buried Ruin, Refurbish, Fortuitous Find). Filter-side only — there is no `Targets` alias — so write `TargetObject(filter = TargetFilter.ArtifactInYourGraveyard)`. Its siblings are `TargetFilter.CreatureInYourGraveyard`, `TargetFilter.PermanentInYourGraveyard` (the bare tribal noun — see the table further down) and `TargetFilter.InstantOrSorceryInYourGraveyard`. **Inclusive**, like every card-type filter here: an artifact creature card matches this *and* `CreatureInYourGraveyard`, which is what lets Fortuitous Find's two modes each accept one. Ownership rather than control is the axis because a card in a graveyard has no controller.
 
-**Chained predicates** — `.youControl()`, `.controlledByOpponent()`, `.opponent()`, `.withSubtype(...)`,
-`.notSubtype(...)` (the negation — "target non-Faerie spell", Faerie Trickery; `CardPredicate.NotSubtype`,
+**Chained predicates** — every predicate builder lives once on `ObjectFilterBuilder<Self>`, which
+`GameObjectFilter`, `TargetFilter` and `GroupFilter` all implement, so the same chain reads the same on
+each and keeps the receiver's type (`TargetFilter.Creature.tapped()` is still a `TargetFilter`). The
+builders only append a predicate, through the three primitives `withCardPredicate`,
+`withStatePredicate` and `withControllerPredicate`; wrapper-specific operations (`other()`, `inZone`,
+`or`/`anyOf`, scopes) stay on their own type. Common ones: `.youControl()`, `.opponentControls()`,
+`.withSubtype(...)`, `.notSubtype(...)` (the negation — "target non-Faerie spell", Faerie Trickery; `CardPredicate.NotSubtype`,
 so a changeling object *has* every creature type and is correctly excluded),
-`.withKeyword(...)`, `.ofColor(...)`, `.tapped()`, `.untapped()`, `.power(n)`, `.minPower(n)`, `.maxPower(n)`,
+`.withKeyword(...)`, `.withColor(...)`, `.tapped()`, `.untapped()`, `.power(n)`, `.powerAtLeast(n)`, `.powerAtMost(n)`,
 `.targetsMatching(subfilter)` (a spell/ability on the stack that targets at least one object matching
 `subfilter` — `CardPredicate.TargetsMatching`; e.g. `GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)`
 for "an instant or sorcery spell that targets a creature" — Forum Necroscribe, Lecturing Scornmage);
@@ -4812,8 +4817,10 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
 - `GroupFilter.CreaturesOpponentControls` — their creatures.
 - `GroupFilter.AllCreatures` — every creature on the battlefield.
 - `GroupFilter.All(filter)` — custom group.
-- Chained: `.withColor`, `.withoutColor`, `.withKeyword`, `.withoutKeyword`, `.withSubtype`, `.withoutSubtype`,
-  `.minPower`, `.maxPower`, `.power`.
+- Chained: the whole `ObjectFilterBuilder` surface shared with `GameObjectFilter` and `TargetFilter`
+  (`.withColor`, `.notColor`, `.withKeyword`, `.withoutKeyword`, `.withSubtype`, `.notSubtype`,
+  `.powerAtLeast`, `.powerAtMost`, `.tapped`, `.youControl`, …), plus `GroupFilter`'s own `.other()`
+  and `.otherThanTarget()`.
 
 **Source-relative scopes** (`Scope`) short-circuit the battlefield scan and name specific permanents
 relative to the static's source; `baseFilter` / `excludeSelf` are ignored for these.
