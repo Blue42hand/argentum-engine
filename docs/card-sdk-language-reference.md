@@ -1012,9 +1012,140 @@ self-exclusive one is never offered the source in the first place.
 
 Atomic effect factories. For library/zone manipulation, prefer the pipelines in §5.
 
+### The facade boundary
+
+Card definitions build every effect through a facade — `Effects.*`, the `Patterns.*` compositions,
+`Effects.Pipeline { }` — and never construct an effect data class directly. `FacadeBoundaryTest`
+enforces it corpus-wide: a card may not contain a raw `XxxEffect(…)` construction (qualified calls
+such as `Effects.GrantReplacementEffect(…)` and companion factories such as
+`ModalEffect.chooseOne(…)` are fine), a `GatedEffect(…)` / `Gate.*` (use `Effects.If` / `May` /
+`MayPay` / `MayPayX` / `IfYouDo`), a raw `DynamicAmount.X` (use `DynamicAmounts.*` and the arithmetic
+operators, §13), a raw `Compare(…)` (use `Conditions.CompareAmounts`), or a positional
+`ContextTarget(i)` / `Player.ContextPlayer(i)` outside an `Effects.ForEachTarget(…)` body (use a
+named target handle, §6). The allowlist is empty. That boundary is what lets the SDK reshape a data
+class without touching the card corpus.
+
+The data classes the catalog below names (`DealDamageEffect.excessToController`, …) are still the
+serialized shape; the facade for each is:
+
+| Raw type | Facade |
+|---|---|
+| `AddCardTypeEffect` | `Effects.AddCardType` |
+| `AddColorlessManaEffect` | `Effects.AddColorlessMana` |
+| `AddCountersEffect` | `Effects.AddCounters` |
+| `AddCreatureTypeEffect` | `Effects.AddCreatureType` |
+| `AddDynamicCountersEffect` | `Effects.AddDynamicCounters` |
+| `AddDynamicManaEffect` | `Effects.AddDynamicMana` |
+| `AddManaEffect` | `Effects.AddMana` |
+| `AddManaOfChoiceEffect` | `Effects.AddManaOfChoice` |
+| `AddSubtypeEffect` | `Effects.AddSubtype` |
+| `AnyPlayerMayPayEffect` | `Effects.AnyPlayerMayPay(cost, consequence, eligiblePlayers)` / `UnlessAnyPlayerPays(cost, effect, eligiblePlayers)` |
+| `AttachEquipmentEffect` | `Effects.AttachEquipment` |
+| `BecomeArtifactEffect` | `Effects.BecomeArtifact` |
+| `BecomeCreatureEffect` | `Effects.BecomeCreature` |
+| `BecomeCreatureTypeEffect` | `Effects.BecomeCreatureType` |
+| `BudgetModalEffect` | `Effects.BudgetModal` |
+| `CantBeRegeneratedEffect` | `Effects.CantBeRegenerated` |
+| `CantBlockEffect` | `Effects.CantBlock` |
+| `ChangeCreatureTypeTextEffect` | `Effects.ChangeCreatureTypeText` |
+| `ChangeGroupColorEffect` | `Effects.ChangeGroupColor(colors: Set<Color>, filter, duration)` |
+| `ChooseActionEffect` | `Effects.ChooseAction` |
+| `ChooseColorForTargetEffect` | `Effects.ChooseColorForTarget` |
+| `ConvertCountersToTokensEffect` | `Effects.ConvertCountersToTokens` |
+| `CopyTargetSpellEffect` | `Effects.CopyTargetSpell` |
+| `CounterEffect` | `Effects.CounterSpell()` / `CounterUnlessPays("{N}")` / `CounterTriggeringSpell(destination)` |
+| `CreateDelayedTriggerEffect` | `Effects.CreateDelayedTrigger` |
+| `CreatePredefinedTokenEffect` | `Effects.CreatePredefinedToken(type, count)` (or `CreateTreasure` / `CreateFood` / `CreateMapToken`) |
+| `CreateTokenCopyOfChosenPermanentEffect` | `Effects.CreateTokenCopyOfChosenPermanent` |
+| `CreateTokenCopyOfSourceEffect` | `Effects.CreateTokenCopyOfSelf` |
+| `CreateTokenCopyOfTargetEffect` | `Effects.CreateTokenCopyOfTarget` |
+| `CreateTokenEffect` | `Effects.CreateToken` |
+| `DamageToTargetCantBePreventedThisTurnEffect` | `Effects.DamageCantBePreventedThisTurn` |
+| `DealDamageEffect` | `Effects.DealDamage` |
+| `DividedDamageEffect` | `Effects.DividedDamage` |
+| `DrawCardsEffect` | `Effects.DrawCards` |
+| `DrawUpToEffect` | `Effects.DrawUpTo` |
+| `EachPermanentBecomesCopyOfTargetEffect` | `Effects.EachPermanentBecomesCopyOfTarget` |
+| `EachPlayerDiscardsOrLoseLifeEffect` | `Effects.EachPlayerDiscardsOrLosesLife` |
+| `FlipCoinEffect` | `Effects.FlipCoin` |
+| `FlipTwoCoinsEffect` | `Effects.FlipTwoCoins` |
+| `ForEachEffect` | `Effects.ForEachTarget(body)` / `Effects.ForEachPlayer(players, body)` |
+| `ForEachInCollectionEffect` | `Effects.ForEachInCollection(CollectionSlot.CreatedTokens \| TriggerCaptured, effect)` |
+| `ForEachPlayerEffect` | `Effects.ForEachPlayer(players, effect \| effects)` |
+| `ForEachTargetEffect` | `Effects.ForEachTarget(vararg effects)` |
+| `ForceSacrificeEffect` | `Effects.Sacrifice` |
+| `GainControlByActivePlayerEffect` | `Effects.GainControlByActivePlayer` |
+| `GainControlEffect` | `Effects.GainControl` |
+| `GainLifeEffect` | `Effects.GainLife` |
+| `GiveControlToTargetPlayerEffect` | `Effects.GiveControl` |
+| `GrantActivatedAbilityEffect` | `Effects.GrantActivatedAbility` |
+| `GrantActivatedAbilityToGroupEffect` | `Effects.GrantActivatedAbilityToGroup` |
+| `GrantCantBeBlockedExceptByColorEffect` | `Effects.GrantCantBeBlockedExceptByColor` |
+| `GrantCastCreaturesFromGraveyardWithForageEffect` | `Effects.GrantCastCreaturesFromGraveyardWithForage` |
+| `GrantFreeCastTargetFromExileEffect` | `Effects.GrantFreeCastTargetFromExile` |
+| `GrantKeywordEffect` | `Effects.GrantKeyword(Keyword \| AbilityFlag, target, duration)` |
+| `GrantKeywordToSpellEffect` | `Effects.GrantKeywordToSpell` |
+| `GrantMayPlayFromExileEffect` | `Effects.GrantMayPlayFromExile(from, …)` |
+| `GrantStateTriggeredAbilityEffect` | `Effects.GrantStateTriggeredAbility` |
+| `GrantStaticAbilityEffect` | `Effects.GrantStaticAbility` |
+| `GrantToEnchantedCreatureTypeGroupEffect` | `Effects.GrantToEnchantedCreatureTypeGroup` |
+| `GrantTriggeredAbilityEffect` | `Effects.GrantTriggeredAbility` |
+| `LookAtFaceDownEffect` | `Effects.LookAtFaceDown` |
+| `LookAtTargetHandEffect` | `Effects.LookAtHand` |
+| `LoseLifeEffect` | `Effects.LoseLife` |
+| `MarkExileControllerGraveyardOnDeathEffect` | `Effects.MarkExileControllerGraveyardOnDeath` |
+| `MarkExileOnDeathEffect` | `Effects.MarkExileOnDeath` |
+| `MarkMustAttackThisTurnEffect` | `Effects.MarkMustAttackThisTurn` |
+| `MarkSpellExileWithCountersEffect` | `Effects.MarkSpellExileWithCounters` |
+| `ModalEffect` | `Effects.Modal` |
+| `ModifyStatsEffect` | `Effects.ModifyStats` |
+| `MustBeBlockedEffect` | `Effects.MustBeBlocked` |
+| `OwnerGainsLifeEffect` | `Effects.OwnerGainsLife` |
+| `PayAnyAmountOfLifeAsEntersEffect` | `Effects.PayAnyAmountOfLifeAsEnters` |
+| `PayDynamicLifeEffect` | `Effects.PayDynamicLife` |
+| `PayLifeEffect` | `Effects.PayLife` |
+| `PayManaCostEffect` | `Effects.PayMana("{U}")` |
+| `PayOrSufferEffect` | `Effects.PayOrSuffer` |
+| `PlayAdditionalLandsEffect` | `Effects.PlayAdditionalLands` |
+| `RedirectCombatDamageToControllerEffect` | `Effects.RedirectCombatDamageToController` |
+| `RedirectNextDamageEffect` | `Effects.RedirectNextDamage` |
+| `ReflectCombatDamageEffect` | `Effects.ReflectCombatDamage` |
+| `ReflexiveTriggerEffect` | `Effects.ReflexiveTrigger` |
+| `RegenerateEffect` | `Effects.Regenerate` |
+| `RemoveAllAbilitiesEffect` | `Effects.RemoveAllAbilities` |
+| `RemoveCountersEffect` | `Effects.RemoveCounters` |
+| `RemoveDamageShieldEffect` | `Effects.RemoveDamageShield` |
+| `RemoveFromCombatEffect` | `Effects.RemoveFromCombat` |
+| `RepeatDynamicTimesEffect` | `Effects.Repeat` |
+| `RevealHandEffect` | `Effects.RevealHand(target)` |
+| `SacrificeEffect` | `Effects.SacrificeOwn(filter, count, excludeSource)` / `Effects.SacrificeAnyNumber(filter)` |
+| `SacrificeTargetEffect` | `Effects.SacrificeTarget` |
+| `SecretBidEffect` | `Effects.SecretBid` |
+| `SetGroupCreatureSubtypesEffect` | `Effects.SetGroupCreatureSubtypes` |
+| `SetLifeTotalEffect` | `Effects.SetLifeTotal` |
+| `ShuffleLibraryEffect` | `Effects.ShuffleLibrary` |
+| `SkipCombatPhasesEffect` | `Effects.SkipCombatPhases` |
+| `SkipUntapEffect` | `Effects.SkipUntap` |
+| `TakeExtraTurnEffect` | `Effects.TakeExtraTurn` |
+| `TapUntapEffect` | `Effects.Tap(target)` / `Effects.Untap(target)` |
+| `TauntEffect` | `Effects.Taunt` |
+| `TransformEffect` | `Effects.Transform` |
+| `TurnFaceDownEffect` | `Effects.TurnFaceDown` |
+| `TurnFaceUpEffect` | `Effects.TurnFaceUp` |
+
+Types that are not effects no longer carry the `Effect` suffix, so the rule has no exceptions:
+`GrantDynamicStats` (a static ability), `OnEnterRun`, `ReplaceDrawWith` and `RedirectZoneChangeWith`
+(replacement effects). Their serial names are unchanged.
+
 ### Damage
 
-- `DealDamage(amount, target)` — deal fixed/dynamic damage.
+- `DealDamage(amount, target, damageSource = null, cantBePrevented = false)` — deal fixed/dynamic
+  damage; `damageSource` names the object dealing it when that isn't the resolving source,
+  `cantBePrevented` is "this damage can't be prevented".
+- `DamageCantBePreventedThisTurn(target)` — the per-recipient form of the turn-wide shutoff (Whippoorwill).
+- `RedirectNextDamage(protectedTargets, redirectTo, amount?, scope, creaturesOnly, optional)`,
+  `RedirectCombatDamageToController(target = Self)`, `ReflectCombatDamage(target = Controller)`,
+  `RemoveDamageShield(target)` — the redirect / reflect / shield-removal effects.
 - `DealDamageExcessToController(amount, target)` — deal damage to a creature; any amount beyond
   lethal (CR 120.4a) is dealt to that creature's controller instead (the creature is marked only with
   the lethal portion). Backed by `DealDamageEffect.excessToController`. Used by Gandalf's Sanction.
@@ -1202,14 +1333,14 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `Destroy(target, noRegenerate?)` — destroy target (respects indestructible). `noRegenerate = true`
   marks the target so it "can't be regenerated" (composes `CantBeRegeneratedEffect` before the move) —
   the single-target analogue of `DestroyAll(noRegenerate = …)`, for Terror / Smother / Tunnel.
-- `RegenerateEffect(target)` (raw — no facade) — drop a regeneration shield on `target`, lasting until end
+- `Effects.Regenerate(target)` (`RegenerateEffect`) — drop a regeneration shield on `target`, lasting until end
   of turn. The next time `target` would be destroyed this turn, instead tap it, remove all damage marked on
   it, and remove it from combat. Consumed by the first destruction it intercepts. The tap is a **real tap
   transition** (CR 701.19a, "its controller taps it"): it goes through the `tap()` atom, so it fires
   "becomes tapped" triggers (Deeproot Pilgrimage, Captain America, Living Legend) and stamps the
   per-permanent first-time-tapped window. Regenerating an already-tapped creature taps nothing and emits
   no event (CR 701.26a), while the damage and combat removal still apply.
-- `RemoveDamageShieldEffect(target)` (raw — no facade) — Pyramids' second mode. Same shape as regeneration:
+- `Effects.RemoveDamageShield(target)` (`RemoveDamageShieldEffect`) — Pyramids' second mode. Same shape as regeneration:
   a one-shot destruction shield lasting until end of turn that replaces "destroyed" with "remove all damage
   marked on it". Differs from regeneration in *not* tapping the target and *not* removing it from combat —
   only the marked damage is cleared. The shield isn't a regeneration ability, so a "can't be regenerated"
@@ -3526,6 +3657,11 @@ e.g. `Effects.DrawCards(Patterns.Hand.discardedHand.count)`,
 | `slot.asTarget` / `slot.asTarget(i)` | its first / i-th entity as an `EffectTarget` (`PipelineTarget`) |
 | `slot.controllerOf(i = 0)` | that entity's controller (`ControllerOfPipelineTarget`) |
 
+Two collections are seeded by the engine rather than by a step, so they have well-known slots usable
+outside a pipeline too: `CollectionSlot.CreatedTokens` (the tokens the last token-creating effect in
+this resolution made — "they gain haste") and `CollectionSlot.TriggerCaptured` (what a batch trigger
+captured; `triggerCaptured` inside `Effects.Pipeline { }`).
+
 Collection-reading effects take the handle directly: `Effects.ForEachInCollection(slot, effect)`,
 `Effects.GrantMayPlayFromExile(slot, …)`, `Effects.CastFromCollection(WithoutPayingCost)(slot, …)`,
 `Effects.CastAnyNumberFromCollection…(slot)`, `Effects.PlayFromCollectionWithoutPayingCost(slot)`,
@@ -3950,8 +4086,15 @@ A resolving nonpermanent spell retains its stack instance through serialized eff
   `Patterns.Library.mill(DynamicAmount.ContextProperty(TRIGGER_DAMAGE_AMOUNT),
   EffectTarget.ControllerOfTriggeringEntity)`; Mesmeric Orb is the same shape on
   `Triggers.becomesUntapped`.
-- `Player.ContextPlayer(i)` / `Player.Candidate` / `Player.Any` — positional target, CR 115
-  candidate during target-restriction evaluation, and "a player" matching.
+- `handle.asPlayer` (`Player.BoundVariable(name)`) — the player chosen for a named target, read in a
+  player-typed slot: `CardSource.FromZone(Zone.HAND, opponent.asPlayer)`,
+  `DynamicAmounts.damageReceivedThisTurn(opponent.asPlayer)`. It shares `EffectTarget.BoundVariable`'s
+  serial name, so the JSON says "the target named *name*" either way; the engine resolves it from the
+  named targets. The `Patterns.*` helpers that key a pipeline by player map a handle to it (they used
+  to map every handle to `ContextPlayer(0)`, reading the first target whatever the handle named).
+- `Player.ContextPlayer(i)` / `Player.Candidate` / `Player.Any` — positional target (engine- and
+  pattern-internal; a card writes `handle.asPlayer`), CR 115 candidate during target-restriction
+  evaluation, and "a player" matching.
 - `EffectTarget.ContextProperty(key)` — value plumbed into `EffectContext` (damage amount, life gained, blight
   amount, …).
 - `EnchantedCreature` / `EquippedCreature` — resolve via `AttachedToComponent`; requires the state-aware
@@ -4120,21 +4263,52 @@ predicate evaluator. Stack entities have no projection entry, so the matchers fa
 base card characteristics on their own — which also means a spell's mana value reads off the card
 rather than off a chosen `{X}` (CR 202.3b).
 
-### Named multi-target binding
+### Named target handles
+
+A card reads every target through the handle its declaration returns — never by position.
+`FacadeBoundaryTest` forbids `ContextTarget(i)` / `Player.ContextPlayer(i)` in card definitions except
+inside an `Effects.ForEachTarget(…)` body, where the engine rebinds the target list to the one target
+being visited, so `ContextTarget(0)` *is* "that target".
 
 ```kotlin
 spell {
-    val creature = target("creature", Targets.Creature)
-    val player = target("player", Targets.Player)
+    val creature = target("target creature", Targets.Creature)
+    val player = target("target player", Targets.Player)
     effect = Effects.Composite(
         Effects.Destroy(creature),
         Effects.DealDamage(3, player),
+        Patterns.Hand.discardCards(1, player),          // a player-typed pipeline slot
     )
 }
 ```
 
-For modal spells, prefer the explicit `targetPlayerControls(target)` DSL form; per-mode targets route via
-`modeTargetsOrdered`.
+- `target(name, requirement)` — one target; returns its `EffectTarget.BoundVariable` handle. Every
+  ability builder (`spell`, `triggeredAbility`, `activatedAbility`, `loyaltyAbility`, `sagaChapter`,
+  `mode`, …) has it.
+- `targets(name, requirement)` — a multi-target requirement ("two target creatures"); returns one
+  handle per slot: `val (first, second) = targets("two target creatures", TargetCreature(count = 2))`.
+- `handle.asPlayer` — the handle in a `Player`-typed slot (`CardSource.FromZone(Zone.HAND, p.asPlayer)`).
+- Handle-taking readers: `DynamicAmounts.powerOf / toughnessOf / manaValueOf / countersOn /
+  colorCountOf / manaSpentToCast / propertyOf(handle, …)`; `Conditions.TargetMatchesFilter(filter,
+  handle)`, `TargetHasCounter(type, handle)`, `TargetPowerAtMost(amount, handle)`,
+  `TargetSpellManaValueAtMost(amount, handle)`. (The index-taking overloads remain for the
+  `ForEachTarget` body and for abilities whose target the helper declares itself, such as
+  `equipAbility(genericCostReduction = DynamicAmounts.targetColorCount())`.)
+
+**Effects that declare their own targets** take a `TargetedEffectBuilder` block — `target(…)` /
+`targets(…)` plus `effect = …` — so their handles belong to them, not to the enclosing ability:
+
+- `mode(description) { val c = target(…); additionalManaCost = "{2}"; effect = … }` — one mode, for
+  `ModalEffect.chooseOne(…)`, `Effects.Modal(listOf(…))`, `Patterns.Mechanic.giftSpell(…)` (§14).
+- `Effects.ReflexiveTrigger(action, optional) { val t = target(…); effect = … }` — "when you do, …
+  target …", targets chosen as the reflexive trigger goes on the stack.
+- `Effects.CreateDelayedTrigger(step = …, …) { val t = target(…); effect = … }` — a delayed trigger that
+  targets when it fires.
+- `exploit { val t = target(…); effect = … }` — an exploit payoff's targets.
+- `grantedActivatedAbility { cost = …; val t = target(…); effect = … }` /
+  `grantedTriggeredAbility { trigger = …; val t = target(…); effect = … }` — an ability handed to another
+  object (an Equipment's granted ability, a token's own ability, an emblem's), built with the same
+  builders as the card's own abilities (siblings of `grantedLoyaltyAbility`).
 
 ### Target count
 
@@ -10998,9 +11172,48 @@ number choice not tied to casting (Shapeshifter's 0–7 P/T choice).
 
 ---
 
-## 13. Dynamic amounts (`DynamicAmount.*`)
+## 13. Dynamic amounts (`DynamicAmounts.*`, `DynamicAmount.*`)
 
-Numbers computed at resolution time.
+Numbers computed at resolution time. The `DynamicAmount` members below are the serialized shape;
+**card code builds them through `DynamicAmounts.*` and the arithmetic operators** — `FacadeBoundaryTest`
+forbids `DynamicAmount.X` in card definitions.
+
+### Writing amounts in a card
+
+- **Constants are plain `Int`s** wherever the slot takes one: every effect facade with an amount has an
+  `Int` overload (`DrawCards(2)`, `DealDamage(3, t)`, `CreateToken(count = 2, …)`), and so do
+  `CardSource.TopOfLibrary(3)`, `Conditions.CompareAmounts(x, GTE, 7)`,
+  `DynamicAmounts.conditional(cond, 2, 1)`, and the look-at-top patterns. `DynamicAmounts.fixed(n)` is
+  for the slots that only take a `DynamicAmount` (a `+X/+0` bonus beside a dynamic power, one branch of
+  a conditional whose other branch is dynamic).
+- **Arithmetic is Kotlin arithmetic** (`DynamicAmountOperators.kt`, import `com.wingedsheep.sdk.dsl.plus`
+  etc.), lowering to the same `Add` / `Subtract` / `Multiply` / `Divide` nodes in the same operand order:
+  `x + 1`, `1 + x`, `a + b`, `7 - n`, `a - b`, `a * 2` ("twice"), `-x` ("gets −X/−X", `Multiply(x, -1)`),
+  `a / 2` (**rounded down**, like `Int` division), `a divRoundedUp 2` (**rounded up**). Card text
+  always says which rounding; pick the matching spelling. `DynamicAmounts.max(a, b)`, `min(a, b)`,
+  `nonNegative(a)` (`IfPositive`), `pow(2, x)` (`Power`), `conditional(condition, ifTrue, ifFalse)`.
+- **Named reads**: `xValue()`, `castX()`, `castChoice(slot)`, `storedNumber(name)` (a number a
+  non-pipeline effect stored), `count(player, zone, filter)`, `battlefield(player, filter,
+  excludeSelf).count() / sumPower() / sumToughness() / sumManaValue() / maxPower() / maxToughness() /
+  maxManaValue() / minToughness() / distinctValues(p) / distinctNames() / distinctColors() /
+  distinctTypes() / totalCounters(type)`, `zone(player, zone, filter).count() / distinctTypes() / …`,
+  `lifeTotal(player)`, `yourLifeTotal()`, `startingLifeTotal(player)`, `playerCount(scope)`,
+  `countPlayersWith(scope, condition)`, `greatestAmongPlayers(inner, players)`, `totalManaSpent()`,
+  `manaSpentOnX(color)`, `manaSpentFromSubtype(subtype)`, `unspentMana(player)`,
+  `largestSharedCreatureTypeCount(player)`, `craftedMaterialsTotalPower() / TotalManaValue() /
+  ColorCount()`, the entity readers `powerOf / toughnessOf / manaValueOf / countersOn /
+  manaSpentToCast / propertyOf(entity, property)` (plus the `source…` / `triggering…` shortcuts), and
+  the turn trackers (`cardsDrawnThisTurn(player)`, `damageReceivedThisTurn(player)`,
+  `creaturesDiedThisTurn(player)`, `creaturesLeftBattlefieldThisTurn(player)`,
+  `distinctBendsThisTurn(player)`, …).
+- **Every `ContextPropertyKey` a card reads has a named facade**: `triggerDamageAmount()`,
+  `triggerExcessDamageAmount()`, `triggerRecipientToughness()`, `triggerLifeGained()`,
+  `triggerLifeLost()`, `triggerDiscardCount()`, `triggerScryCount()`, `triggerCountersPlaced()`,
+  `triggerCountersRemoved()`, `triggerDiscoverValue()`, `triggeringSpellManaValue()`,
+  `manaSpentOnTriggeringSpell()`, `modesChosenOnTriggeringSpell()`, `lastKnownPlusOneCounters()`,
+  `lastKnownCounterCount()`, `linkedExileCardCount()`, `linkedExileDistinctCardTypeCount()`,
+  `targetCount()`, `additionalCostExiledCount()`, `colorsSpentOnTriggeringSpell()`,
+  `xValueOfTriggeringSpell()`, `diedBatchTotalPower()`, `preventedDamage()`.
 
 ### Math
 
@@ -12034,6 +12247,11 @@ spell {
 - `.requiresTarget(filter)` — mode needs a target matching filter.
 - `.optional()` — mode can be skipped.
 - `Mode.noTarget(...)` — explicit target-less mode (outer targets are preserved).
+- `mode(description) { … }` at the top level (outside `modal { }`) returns the `Mode` for a modal
+  *effect* — `ModalEffect.chooseOne(mode("…") { val t = target(…); effect = … }, …)`,
+  `Effects.Modal(listOf(…))`, `Patterns.Mechanic.giftSpell(…)`. `additionalManaCost` /
+  `additionalCosts` set a Spree-style per-mode cost. Prefer it to `Mode.withTarget(effect, requirement)`,
+  whose effect would have to read its target by position.
 
 `ModalEffect.chooseOne { mode(...) }` and `ModalEffect.chooseN(n) { ... }` for explicit modal effects.
 

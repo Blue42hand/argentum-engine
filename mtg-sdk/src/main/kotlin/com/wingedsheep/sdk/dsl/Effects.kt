@@ -377,7 +377,7 @@ object Effects {
         com.wingedsheep.sdk.scripting.effects.DamageToTargetCantBePreventedThisTurnEffect(target)
 
     // =========================================================================
-    // Life Effects
+    // Life & Game Effects
     // =========================================================================
 
     /**
@@ -548,7 +548,7 @@ object Effects {
     )
 
     // =========================================================================
-    // Card Drawing Effects
+    // Card Drawing, Hand & Library Effects
     // =========================================================================
 
     /**
@@ -1157,6 +1157,10 @@ object Effects {
     fun ReturnSameNamedFromGraveyard(target: EffectTarget): Effect =
         com.wingedsheep.sdk.scripting.effects.ReturnSameNamedFromGraveyardEffect(target)
 
+    // =========================================================================
+    // Emblems, Player Designations & Speed
+    // =========================================================================
+
     /**
      * Create a global triggered ability that is not attached to any specific permanent, lasting for
      * the given [duration].
@@ -1318,6 +1322,10 @@ object Effects {
     /** "Amass [subtype] X" with a dynamic amount (e.g. Fall of Cair Andros, The Mouth of Sauron). */
     fun Amass(amount: DynamicAmount, subtype: String): Effect =
         com.wingedsheep.sdk.scripting.effects.AmassEffect(amount, subtype)
+
+    // =========================================================================
+    // Return & Library Placement Effects
+    // =========================================================================
 
     /**
      * Return to hand.
@@ -1702,7 +1710,7 @@ object Effects {
     )
 
     // =========================================================================
-    // Stat Modification Effects
+    // Stat, Keyword, Ability, Counter & Type Effects
     // =========================================================================
 
     /** Switch power and toughness after other stat changes for the given duration. */
@@ -3437,7 +3445,7 @@ object Effects {
         CreatePredefinedTokenEffect("Everywhere", count, controller, tapped)
 
     // =========================================================================
-    // Protection Effects
+    // Protection, Choice & Keyword-Grant Effects
     // =========================================================================
 
     /**
@@ -3909,7 +3917,7 @@ object Effects {
     )
 
     // =========================================================================
-    // Composite Effects
+    // Composite, Iteration, Trigger & Modal Effects
     // =========================================================================
 
     /**
@@ -4467,7 +4475,7 @@ object Effects {
     ): Effect = ChooseActionEffect(choices, player)
 
     // =========================================================================
-    // Counter Effects
+    // Stack Effects (counter, copy, retarget)
     // =========================================================================
 
     /**
@@ -4973,7 +4981,7 @@ object Effects {
     ): Effect = com.wingedsheep.sdk.scripting.effects.MayRevealCardFromHandEffect(filter, otherwise)
 
     // =========================================================================
-    // Tap/Untap Effects
+    // Tap/Untap, Door & Phasing Effects
     // =========================================================================
 
     /**
@@ -5073,7 +5081,7 @@ object Effects {
         com.wingedsheep.sdk.scripting.effects.PhaseInLinkedToSourceEffect
 
     // =========================================================================
-    // Group Effects (atomic effect classes)
+    // Combat Restriction & Designation Effects
     // =========================================================================
 
     /**
@@ -5185,11 +5193,7 @@ object Effects {
         RemoveSuspectedEffect(target)
 
     // =========================================================================
-    // Special Effects
-    // =========================================================================
-
-    // =========================================================================
-    // Player Restriction Effects
+    // Player Restriction & Turn Effects
     // =========================================================================
 
     /**
@@ -5367,7 +5371,7 @@ object Effects {
     ): Effect = GrantDamageBonusEffect(bonusAmount, sourceFilter, target, duration)
 
     // =========================================================================
-    // Combat Effects
+    // Combat, Turn-Structure & Prevention Effects
     // =========================================================================
 
     /**
@@ -5767,7 +5771,7 @@ object Effects {
     fun TurnFaceDown(target: EffectTarget): Effect = com.wingedsheep.sdk.scripting.effects.TurnFaceDownEffect(target)
 
     // =========================================================================
-    // Animate Effects
+    // Animate & Become Effects
     // =========================================================================
 
     /**
