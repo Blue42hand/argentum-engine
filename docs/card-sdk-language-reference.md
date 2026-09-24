@@ -2417,8 +2417,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `GrantNextSpellAffinityEffect(spellFilter = Noncreature, forType = ARTIFACT)` (facade `Effects.GrantNextSpellAffinity(spellFilter, forType)`) — one-shot rider mirroring `MakeNextSpellUncounterable`, but the controller's **next** matching spell this turn gains **affinity for `forType`**: the cost calculator reduces it by the caster's count of that card type *at cast time* (dynamic), then `CastSpellHandler` consumes the entry. The *consumption* site evaluates `spellFilter` with the entry's own `sourceId` in context like the other two riders, but the *cost-reduction* site (`CostCalculator`) passes no `sourceEntityId` at all, so it answers `false` for dynamic **and** source-relative card predicates — so keep this rider's filter source-independent until that gap is closed. (This is a call-site difference, not a `CostCalculator` limitation: `GrantNextSpellFreeCastEffect` below passes its entry's `sourceId` into the same helper and source-relative predicates do work there.) Used by **Don & Raph, Hard Science** ("the next noncreature spell you cast this turn has affinity for artifacts").
 - `GrantNextSpellFreeCastEffect(spellFilter = Any)` (facade `Effects.GrantNextSpellFreeCast(spellFilter)`) — one-shot rider in the same family: the controller's **next** spell matching `spellFilter` cast this turn **can be cast without paying its mana cost**, then the entry is consumed. Stored on `GameState.pendingFreeCastSpells`; `CostCalculator.hasFreeCastPermission` reads it (ahead of the battlefield scan) so the cast surfaces the ordinary `CastSpell.useWithoutPayingManaCost` action variant, and `CastSpellHandler` removes the entry on the matching cast. Per CR 118.9 this is an alternative cost — mandatory additional costs still apply, X is 0 (CR 107.3b, enforced by the enumerator: the `CastWithoutPayingManaCost` action variant carries no X and is not flagged `hasXCost`), and only one alternative cost may apply to a cast (CR 118.9a). **Consumed by the cast, not by the discount**: "the next … spell you cast this turn" names a spell, so a matching spell cast for full price is that spell and spends the rider. Non-matching casts leave the entry waiting, and an unused entry clears at the turn boundary (`TurnManager.startTurn`). Prefer this over the battlefield static `MayCastWithoutPayingManaCost` (§ static abilities) whenever the permission has already *resolved*: the rider lives on the state, so it survives its source leaving the battlefield, applies to a cast from any zone, and carries no first-spell / once-per-turn / active-player gate. A rider-funded free cast deliberately does **not** burn a `MayCastWithoutPayingManaCost(oncePerTurn = true)` source's use. Both the permission site and the consumption site evaluate `spellFilter` with the entry's own `sourceId` in context, so source-relative predicates work on both — but the permission site is `CostCalculator`, which still answers `false` for *dynamic* card predicates (mana-value/power comparisons against another entity). The two sites also read different *characteristic* sources: `CostCalculator` matches the printed `CardDefinition`, while the consumption site matches the spell entity through `PredicateEvaluator` (projected values, falling back to base). They agree today because objects on the stack have no projection entry; see the `hasFreeCastRider` KDoc for what would diverge if that changed. Used by **World War Hulk** chapter I ("The next red or green creature spell you cast this turn can be cast without paying its mana cost.", `GameObjectFilter().withAnyColor(RED, GREEN) and GameObjectFilter.Creature`).
 - `ReduceSpellCostsThisTurnEffect(spellFilter, amount)` (facade `Effects.ReduceSpellCostsThisTurn(spellFilter, amount)`) — the **repeating** counterpart of `GrantNextSpellAffinityEffect`: "spells you cast this turn that match `spellFilter` cost {X} less to cast." `amount` (a `DynamicAmount`) is evaluated **once, when this effect resolves**, and the resolved number is stored on `GameState.turnSpellCostReductions`; every matching spell the controller casts for the rest of the turn is discounted by it, and nothing is consumed by a cast. Only generic mana is reduced (CR 601.2f). Two consequences of living on the state rather than on the source: the discount survives the source leaving the battlefield, and it is cleared at the turn boundary by `TurnManager.startTurn`. Resolving `amount` up front is what the Scion cycle's rulings require ("the value of X is determined only once, at the time the ability resolves") — reach for a static `ModifySpellCost` instead when the reduction should track board state continuously. Used by **Will, Scion of Peace** (`DynamicAmounts.lifeGainedThisTurn()`, white and/or blue spells) and **Rowan, Scion of War** (`DynamicAmounts.lifeLostThisTurn()`, black and/or red).
-- `CopyCardIntoCollectionEffect(source, storeAs)` (facade `Effects.CopyCardIntoCollection(source, storeAs)`) — copy a **card in a zone** (not a spell on the stack), publishing the copy's entity id to pipeline collection `storeAs`. Per Rule 707.12 the copy is created in the card's current zone under the effect's controller and tagged as a stack-style copy, so once cast it becomes a token if it's a permanent spell and ceases to exist if it's an instant/sorcery (Rule 707.10). Pair with `CastFromCollectionWithoutPayingCostEffect(from)` (facade `Effects.CastFromCollectionWithoutPayingCost(from)`, wrap in `Effects.May` for "you may cast") to express "copy a card, then cast the copy" — e.g. **Shiko, Paragon of the Way**: `Composite(MoveToZoneEffect(target, Zone.EXILE), Effects.CopyCardIntoCollection(target, "copy"), Effects.May(Effects.CastFromCollectionWithoutPayingCost("copy")))`. A copy that is never cast is swept up by the Rule 707.10a state-based action (`PhantomCardCopiesCheck`), so no explicit cleanup step is needed. For the "you may cast it" wording that **doesn't** say "without paying its mana cost", use `Effects.CastFromCollection(from, storeCastTo?)` (`CastFromCollectionWithoutPayingCostEffect(from, payManaCost = true, storeCastTo)`): the controller pays the spell's normal cost (an {X} spell prompts for X) instead of casting for free. Pass `storeCastTo` to publish the cast card's id to that pipeline collection on a successful cast, then gate a follow-up with `Effects.IfYouDo(this, then, SuccessCriterion.CollectionNonEmpty(storeCastTo))` — e.g. **Kaervek, the Punisher**: `Composite(Move(target, EXILE), CopyCardIntoCollection(target, "copy"), Effects.May(Effects.IfYouDo(CastFromCollection("copy", storeCastTo = "cast"), LoseLife(2, Controller), SuccessCriterion.CollectionNonEmpty("cast"))))` — declining (or being unable to pay) leaves the collection empty, so no life is lost. (`storeCastTo` is reliably published for synchronous casts and target-selection casts; an {X}-cost spell cast with no targets is the one sub-case where the publish doesn't survive the X pause.) **Free-casting still pays the copied spell's non-mana additional costs** (CR 601.2f / 118.9 waive only the mana cost) — when the copy carries a printed sacrifice / discard / exile / tap additional cost, the engine resolves it during the synthesized cast: a forced single option is auto-paid, and a real choice pauses for an on-battlefield (sacrifice/tap) or overlay (discard/exile) selection; if the cost can't be paid the cast doesn't happen (e.g. Roving Actuator copying **Embrace Oblivion**'s "sacrifice an artifact or creature" still makes you sacrifice).
-- `CopyCollectionIntoCollectionEffect(from, storeAs)` (facade `Effects.CopyCollectionIntoCollection(from, storeAs)`) — the collection-wide sibling of `CopyCardIntoCollectionEffect`: copy **every** card in pipeline collection `from`, publishing all the copies' entity ids (in `from` order) to `storeAs`. For "copy them" over a set of cards rather than one (`CopyCardIntoCollection` overwrites its collection, so it can't accumulate across a `ForEach`). Each copy is created in its original's current zone (Rule 707.12) and tagged as a stack-style copy, so gather/exile the originals first, then copy. Pair with `Effects.CastAnyNumberFromCollection(storeAs)` for "copy them. You may cast any number of the copies" — e.g. **The Tale of Tamiyo** IV: `Composite(ForEachTargetEffect(Move(ContextTarget(0), EXILE)), GatherCards(ChosenTargets, "exiled"), CopyCollectionIntoCollection("exiled", "copies"), CastAnyNumberFromCollection("copies"))`. Copies never cast are swept by the Rule 707.10a state-based action.
+- `CopyCardIntoCollectionEffect(source, storeAs)` *(SDK-internal step; cards use `Effects.Pipeline { copyCard }` — §5.5.)* (facade `Effects.CopyCardIntoCollection(source, storeAs)`) — copy a **card in a zone** (not a spell on the stack), publishing the copy's entity id to pipeline collection `storeAs`. Per Rule 707.12 the copy is created in the card's current zone under the effect's controller and tagged as a stack-style copy, so once cast it becomes a token if it's a permanent spell and ceases to exist if it's an instant/sorcery (Rule 707.10). Pair with `CastFromCollectionWithoutPayingCostEffect(from)` (facade `Effects.CastFromCollectionWithoutPayingCost(from)`, wrap in `Effects.May` for "you may cast") to express "copy a card, then cast the copy" — e.g. **Shiko, Paragon of the Way**: `Composite(MoveToZoneEffect(target, Zone.EXILE), Effects.CopyCardIntoCollection(target, "copy"), Effects.May(Effects.CastFromCollectionWithoutPayingCost("copy")))`. A copy that is never cast is swept up by the Rule 707.10a state-based action (`PhantomCardCopiesCheck`), so no explicit cleanup step is needed. For the "you may cast it" wording that **doesn't** say "without paying its mana cost", use `Effects.CastFromCollection(from, storeCastTo?)` (`CastFromCollectionWithoutPayingCostEffect(from, payManaCost = true, storeCastTo)`): the controller pays the spell's normal cost (an {X} spell prompts for X) instead of casting for free. Pass `storeCastTo` to publish the cast card's id to that pipeline collection on a successful cast, then gate a follow-up with `Effects.IfYouDo(this, then, SuccessCriterion.CollectionNonEmpty(storeCastTo))` — e.g. **Kaervek, the Punisher**: `Composite(Move(target, EXILE), CopyCardIntoCollection(target, "copy"), Effects.May(Effects.IfYouDo(CastFromCollection("copy", storeCastTo = "cast"), LoseLife(2, Controller), SuccessCriterion.CollectionNonEmpty("cast"))))` — declining (or being unable to pay) leaves the collection empty, so no life is lost. (`storeCastTo` is reliably published for synchronous casts and target-selection casts; an {X}-cost spell cast with no targets is the one sub-case where the publish doesn't survive the X pause.) **Free-casting still pays the copied spell's non-mana additional costs** (CR 601.2f / 118.9 waive only the mana cost) — when the copy carries a printed sacrifice / discard / exile / tap additional cost, the engine resolves it during the synthesized cast: a forced single option is auto-paid, and a real choice pauses for an on-battlefield (sacrifice/tap) or overlay (discard/exile) selection; if the cost can't be paid the cast doesn't happen (e.g. Roving Actuator copying **Embrace Oblivion**'s "sacrifice an artifact or creature" still makes you sacrifice).
+- `CopyCollectionIntoCollectionEffect(from, storeAs)` *(SDK-internal step; cards use `Effects.Pipeline { copyCards }` — §5.5.)* (facade `Effects.CopyCollectionIntoCollection(from, storeAs)`) — the collection-wide sibling of `CopyCardIntoCollectionEffect`: copy **every** card in pipeline collection `from`, publishing all the copies' entity ids (in `from` order) to `storeAs`. For "copy them" over a set of cards rather than one (`CopyCardIntoCollection` overwrites its collection, so it can't accumulate across a `ForEach`). Each copy is created in its original's current zone (Rule 707.12) and tagged as a stack-style copy, so gather/exile the originals first, then copy. Pair with `Effects.CastAnyNumberFromCollection(storeAs)` for "copy them. You may cast any number of the copies" — e.g. **The Tale of Tamiyo** IV: `Composite(ForEachTargetEffect(Move(ContextTarget(0), EXILE)), GatherCards(ChosenTargets, "exiled"), CopyCollectionIntoCollection("exiled", "copies"), CastAnyNumberFromCollection("copies"))`. Copies never cast are swept by the Rule 707.10a state-based action.
 - `CastFromCollectionWithoutPayingCostEffect(from, payManaCost = false, storeCastTo = null, castTransformed = false, insteadOfGraveyard = null, caster = Chooser.Controller)` — `castTransformed = true` casts the card **transformed**, back face up (CR 712.8c), the way disturb casts a card from the graveyard: the back face supplies the spell's card types (hence its timing), its targets and `auraTarget`, its name in the prompt, and the permanent it becomes. It is carried to the cast as `MayPlayPermission.castTransformed`, so the whole ordinary cast pipeline honors it — distinct from `MayPlayPermission.castFaceIndex`, which picks an alternative *face* of a multi-face card (an Adventure, a split half) rather than turning a transforming double-faced card over. A card with **no back face** is not cast at all and stays where it is (the CR 310.12b ruling: a token or non-transforming card that became a copy of a Siege "remains in exile"). Backs `Sieges.defeatAbility` — "exile it, then you may cast it transformed without paying its mana cost".
 
   `insteadOfGraveyard` is the **cast-this-way destination rider**: an `AfterResolveDestination`
@@ -2446,7 +2446,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   `SelectFromCollection`, or the opponent would be handed the picker too. The default
   `Chooser.Controller` is every non-iterated card.
 - `CastAnyNumberFromCollectionWithoutPayingCostEffect(from, payManaCost = false, maxCasts = null)` (facades `Effects.CastAnyNumberFromCollectionWithoutPayingCost(from)` for free / `Effects.CastAnyNumberFromCollection(from)` for paid / `Effects.CastUpToNFromCollectionWithoutPayingCost(from, maxCasts)` for the capped free form) — the multi-cast sibling of `CastFromCollectionWithoutPayingCostEffect`. **During this effect's resolution**, the controller is offered the cards in pipeline collection `from` (filtered to those still in exile) one at a time and may cast each until they decline; each cast's targets / X / modes flow through the normal cast machinery. With the default `payManaCost = false` each is cast for free; set `payManaCost = true` (facade `Effects.CastAnyNumberFromCollection`) for the "you may cast any number of [them]" wording **without** "without paying their mana costs" — each chosen card is then cast paying its normal cost (an {X} card prompts for X). Because the casts go through the synthesized-cast path (like Cascade), card-type **timing restrictions are ignored** and no lingering "you may play it later" permission is granted — cards left uncast just stay where they are (the controller can't wait until later in the turn). Hand it the eligible set: filter the collection upstream (e.g. nonland + `FilterCollection(Any.manaValueAtMostDynamic(...))`). The free form models "you may cast any number of spells with mana value X or less from among them without paying their mana costs" — e.g. **Kotis, the Fangkeeper**: `GatherCards(TopOfLibrary(damage, TriggeringPlayer)) → MoveCollection(→ exile) → FilterCollection(Nonland) → FilterCollection(Any.manaValueAtMostDynamic(damage)) → CastAnyNumberFromCollectionWithoutPayingCostEffect("castable")` (also **Villainous Wealth**, **Etali, Primal Storm**). The paid form models **The Tale of Tamiyo** IV (cast the copies paying their costs). `maxCasts` bounds the loop for the "you may cast **up to N** spells from among them" wording (**Doom Reigns Supreme**: "target opponent exiles the top five cards of their library. You may cast up to two spells from among the exiled cards without paying their mana costs"); it is a ceiling only — the controller may still stop early, and the loop also ends when the collection runs out. The remaining budget rides on the engine's `CastAnyNumberFromCollectionContinuation`, so the resumer re-enters the loop with `maxCasts - 1` and a budget of 0 makes the effect a no-op before another decision is offered; `null` (the default) is the uncapped "any number" form and leaves every existing caller unchanged. The budget is spent on a cast that **initiates**, not on the pick: a chosen card whose required target has no legal choice can't be cast at all (CR 601.2c), so it stays in exile and the count is untouched (it is still dropped from the pool, so the loop can't re-offer it). Use the facade rather than the raw constructor — it rejects a non-positive `maxCasts`, which would otherwise be a silent no-op, and it only offers `maxCasts` alongside the free form. **`maxCasts` is wired for `payManaCost = false` only**: no printed card pairs "up to N" with "paying their mana costs", and the engine's "did the cast initiate" precondition asks only whether a required target had a legal choice, not whether the controller can afford the cost — so a pick abandoned for want of mana would still spend one of the N. Wire the affordability check before authoring that combination.
-- `FilterCollectionEffect(from, filter = GameObjectFilter.Any, collectionFilter = null, storeMatching, storeNonMatching = null)`
+- `FilterCollectionEffect(from, filter = GameObjectFilter.Any, collectionFilter = null, storeMatching, storeNonMatching = null)` *(SDK-internal step; cards use `Effects.Pipeline { filter/filterSplit/exclude }` — §5.5.)*
   — the choice-free partition step. A card is kept when it matches `filter`, an ordinary
   `GameObjectFilter` evaluated per card with the **resolving** context (a
   `manaValueAtMostDynamic(VariableReference("combatDamage"))` / `manaValueEqualsDynamic(…)` cap reads
@@ -2459,7 +2459,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   chosen this way"). The pipeline builder's `filter(from, …)` / `filterSplit(…)` take either half.
 - `FilterCollection(from, GameObjectFilter.Any.currentlyIn(zone), storeMatching)` — keep only the cards in pipeline collection `from` that are **currently** in `zone`. Pipeline collections track entity refs, not live location, so a card can leave its zone mid-resolution (e.g. an exiled card cast for free moves to the stack). Use this to act on "the ones still there." Models the "you may cast it … if you don't, put that card into your hand" fallback of the **Tarkir: Dragonstorm "…storm" enchantments** (Breaching Dragonstorm): `GatherUntilMatch(Nonland) → MoveCollection(→ exile) → FilterCollection(Any.manaValueAtMostDynamic(Fixed(8)), "castable") → ConditionalOnCollection("castable", ifNotEmpty = Effects.May(CastFromCollectionWithoutPayingCost("castable"))) → FilterCollection("nonland", Any.currentlyIn(EXILE), "uncast") → MoveCollection("uncast" → hand)` — only the nonland still in exile (not the one just cast) goes to hand; the lands stay exiled. The `ConditionalOnCollection` wrapper suppresses the empty "you may cast" prompt when the nonland's mana value is > 8.
 - `FilterCollection(from, collectionFilter = CollectionFilter.GreatestManaValue, storeMatching)` — keep the cards tied for the greatest mana value (ties all kept, so a downstream "exactly one" step can see them). A face-down permanent in the collection counts as mana value 0 (CR 708.2a, 202.3a). Over a gathered battlefield collection it spells "sacrifices a creature with the greatest mana value among creatures they control": Gather → `GreatestManaValue` → `SelectFromCollection(ChooseExactly(1), chooser = TargetPlayer)` → `MoveCollection(moveType = Sacrifice)` (Break Under Pressure). Reveal-and-compare cards use it the same way (Psychic Battle).
-- `MoveCollectionEffect(from, destination, filter = null, …)` — move a pipeline collection to a zone.
+- `MoveCollectionEffect(from, destination, filter = null, …)` *(SDK-internal step; cards use `Effects.Pipeline { move/moveTracked and the destroy/sacrifice/discard/exile/toHand/… shortcuts }` — §5.5.)* — move a pipeline collection to a zone.
   `destination = ToZone(zone, player, placement)` or `ToZoneExiledFrom(fallback = BATTLEFIELD)`
   (below); `ZonePlacement.Tapped` enters the battlefield
   tapped, and `player` sets the controller for a battlefield destination (so a card can enter under
@@ -3126,7 +3126,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `GrantProtectionFromChosenColorEffect(target)` — protection from chosen color. Must run inside `ChooseColorThen`; wrap in `ForEachInGroup` for the group case (Akroma's Blessing: "Creatures you control gain protection from the chosen color").
 - `Effects.GrantProtectionFromChosenCardType(target, duration)` — "gains protection from the card type of your choice" (Pippin, Guard of the Citadel). The card-type analogue of `GrantProtectionFromChosenColor`, but **self-contained**: its executor owns the choice — it presents a `ChooseOptionDecision` over the fixed protectable card-type set (Artifact, Creature, Enchantment, Instant, Land, Planeswalker, Sorcery, Battle) and, on response, grants a floating `PROTECTION_FROM_CARDTYPE_<TYPE>` keyword for `duration`. The targeting validator, `StackResolver` spell-targeting, `DamageUtils`, the combat-damage pipeline/manager, and a `ProtectionFromCardTypeRule` block-evasion rule all match the protected keyword against the source's projected card types. (The "can't be enchanted/equipped by that type" clause is reminder text and unenforced at attach time, mirroring color/subtype protection.)
 - `ChooseCreatureTypeEffect(...)` — pause for creature-type pick.
-- `SelectTargetEffect(requirement, storeAs, nonTargeting = false)` — have a player pick from a valid set mid-resolution. `nonTargeting = true` makes it a plain "choose" that hexproof and shroud don't restrict (Spectral Searchlight's "choose a player"); `TargetFinder` honours `ignoreTargetingRestrictions` for player requirements too.
+- `SelectTargetEffect(requirement, storeAs, nonTargeting = false)` *(SDK-internal step; cards use `Effects.Pipeline { selectTarget }` — §5.5.)* — have a player pick from a valid set mid-resolution. `nonTargeting = true` makes it a plain "choose" that hexproof and shroud don't restrict (Spectral Searchlight's "choose a player"); `TargetFinder` honours `ignoreTargetingRestrictions` for player requirements too.
 
 > **Authoring rule:** prefer composing primitives over adding parameters to an existing effect. Use `CompositeEffect`
 > and the gather/select/move pipeline before writing a new executor.
@@ -3477,15 +3477,20 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
 
 ## 5.5 Inline pipelines (`Effects.Pipeline { }`)
 
-The facade-respecting way to compose a **one-off** Gather → Select → Move pipeline inside a card
-file (see `backlog/inline-pipeline-dsl.md`). Named `Patterns.*` entries are for named MTG mechanics
-and shapes with a demonstrated second user; one-off pipelines go inline via the builder instead of
-hand-threading string slot keys between raw step constructors.
+**The one way a card writes a pipeline.** Any Gather → Select → Move (→ Filter, Reveal, branch …)
+sequence in a card file is an `Effects.Pipeline { }` block; the raw string-keyed step constructors
+(`GatherCardsEffect`, `SelectFromCollectionEffect`, `MoveCollectionEffect`, `FilterCollectionEffect`,
+…) are SDK-internal — the `Patterns.*` helpers, the engine and JSON-loaded cards use them — and
+`FacadeBoundaryTest` fails a card that constructs one, spells a slot key (`storeAs = "…"`,
+`storeSelected = "…"`, `collectionName = "…"`, `VariableReference("…_count")`) or reaches for a
+handle's `.key`. Named `Patterns.*` entries are for named MTG mechanics and shapes with a
+demonstrated second user; everything else is inline.
 
-Each builder verb serializes to the existing pipeline step `Effect` — the result is the exact same
+Each builder verb serializes to the existing pipeline step `Effect` — the result is the same
 `CompositeEffect` tree the raw constructors produce (zero engine change, zero JSON-contract change).
 Steps return **typed slot handles**; the only way to obtain a handle is from a step that produced
-it, so a read-without-write (the `CardLinter` dangling-slot error class) cannot be expressed.
+it, so a read-without-write or a misspelt key (the `CardLinter` dangling-slot error class) cannot be
+expressed.
 
 ```kotlin
 effect = Effects.Pipeline {
@@ -3500,18 +3505,51 @@ effect = Effects.Pipeline {
 
 | Handle | Backing store | Produced by | Consumed by |
 |---|---|---|---|
-| `CollectionSlot` | `storedCollections` | `gather`, `chooseExactly`, `filter`, `captureControllers`, `moveTracked`, … | `move`, `reveal`, the select/filter verbs, `forEachCaptured` |
-| `NumberSlot` | `storedNumbers` | `storeNumber`, `forEachCaptured`'s block param | `.amount` → `DynamicAmount.VariableReference` |
-| `ChosenSlot` | `chosenValues` | `storeCardName`, `chooseOption`, `noteCreatureType` | `GameObjectFilter.namedFromVariable(slot)` |
-| `SubtypeGroupsSlot` | `storedSubtypeGroups` | `gatherSubtypes` | subtype-matching filters |
+| `CollectionSlot` | `storedCollections` | `gather`, `chooseExactly`, `filter`, `captureControllers`, `moveTracked`, `copyCard`, `mill`, `runStoringCollection`, … | `move`, `reveal`, the select/filter verbs, `forEachCaptured`, `whenMatches`; accessors below |
+| `NumberSlot` | `storedNumbers` | `storeNumber`, `runStoringNumber`, `forEachCaptured`'s block param | `.amount` → `DynamicAmount.VariableReference` |
+| `ChosenSlot` | `chosenValues` | `storeCardName`, `chooseOption`, `chooseCardName`, `noteCreatureType`, `runStoringChoice` | `GameObjectFilter.namedFromVariable(slot)` / `.withSubtypeFromVariable(slot)`, `GroupFilter.ChosenSubtypeCreatures(slot)` / `.withChosenSubtype(slot)`, `Effects.SetLandType(target, fromChosen = slot)` |
+| `SubtypeGroupsSlot` | `storedSubtypeGroups` | `gatherSubtypes` | `GameObjectFilter.withSubtypeInEachStoredGroup(slot)` |
+| `StringListSlot` | `storedStringLists` | `eachPlayerChoosesCreatureType` | `GameObjectFilter.withSubtypeInStoredList(slot)` / `withoutSubtypeInStoredList(slot)` |
 
-**Keys are auto-generated deterministically** — `"<verb><stepIndex>"` per builder instance
+**Pattern outputs** are typed handles too, for a card that reads what a `Patterns.*` helper wrote:
+`Patterns.Library.milled` (`mill`), `Patterns.Hand.discarded` (`discardCards` / `discardAnyNumber`),
+`Patterns.Hand.discardedHand` (`discardHand`), `Patterns.Hand.putFromHandCards` (`putFromHand`) —
+e.g. `Effects.DrawCards(Patterns.Hand.discardedHand.count)`,
+`Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.Land)`.
+
+**`CollectionSlot` accessors** — how a non-step effect reads a collection without a key:
+
+| Accessor | Means |
+|---|---|
+| `slot.count` | its size as a `DynamicAmount` ("that many", "for each card exiled this way") — the only spelling of the engine's `"<key>_count"` convention |
+| `slot.asSource` | a `CardSource` for a downstream `gather` |
+| `slot.asTarget` / `slot.asTarget(i)` | its first / i-th entity as an `EffectTarget` (`PipelineTarget`) |
+| `slot.controllerOf(i = 0)` | that entity's controller (`ControllerOfPipelineTarget`) |
+
+Collection-reading effects take the handle directly: `Effects.ForEachInCollection(slot, effect)`,
+`Effects.GrantMayPlayFromExile(slot, …)`, `Effects.CastFromCollection(WithoutPayingCost)(slot, …)`,
+`Effects.CastAnyNumberFromCollection…(slot)`, `Effects.PlayFromCollectionWithoutPayingCost(slot)`,
+`Effects.AddCountersToCollection(slot, …)`, `Effects.TapCollection(slot, tap)`,
+`Effects.MakePlotted(slot)`, `Effects.GrantPlayWithoutPayingCost / …WithAdditionalCost /
+…WithCostIncrease(slot, …)`, `Effects.WaterbendCastFromExile(slot)`,
+`Effects.RecordChosenLinkedExile(slot)`, `Effects.DealDamagePerCardStillIn(slot, zone, …)`,
+`Effects.ChangeTriggeringObjectTargets(chooserOwnerOf = slot)`, and
+`DynamicAmounts.manaValueOf(slot)` / `manaValueSumOf(slot)` / `distinctEntitiesIn(slot | listOf(…))` /
+`distinctCardTypesIn(…)`. `Effects.ForEachPlayer(players, effect)` takes a single (pipeline) body.
+
+**Keys are auto-generated deterministically** — `"<verb><stepIndex>"` per pipeline
 (`gathered0`, `selected1`, `matching3`), so renaming a Kotlin `val` never churns the serialized
-JSON, while reordering steps changes keys (the tree changed anyway). Every producing step takes an
-optional `name = "..."` override: use it for readable goldens on gnarly cards and for **churn-free
-migration** of existing inline cards (keep the old hand-written keys → byte-identical JSON,
-untouched snapshot goldens; `inv/cards/Lobotomy.kt` is the worked example). Duplicate explicit
-names, empty pipelines, and empty branch blocks fail at card-load with `require`.
+JSON, while reordering steps changes keys (the tree changed anyway). Readers hold the handle, so a
+card names a key only when something *outside* the pipeline's lexical scope must read it — the one
+shape in the corpus is an `Effects.IfYouDo(action = Effects.Pipeline { … chooseExactly(8, …, name =
+"ideationExile") … }, successCriterion = SuccessCriterion.CollectionNonEmpty("ideationExile", 8))`
+gate, whose criterion is a sibling of the pipeline, and a `ReflexiveTriggerEffect` whose
+`reflexiveEffect` reads what its `action` pipeline chose (Cemetery Desecrator). Producing verbs take
+`name =` for that and nothing else (duplicates fail at card-load). A pipeline built *while another is
+being built* — an `Effects.Pipeline { }` nested in a `run(Effects.May(…))`, a delayed trigger's
+effect, an `Effects.If` branch — shares the enclosing pipeline's key counter, so the two can never
+generate the same key within one resolution, and the inner block sees the outer handles by plain
+lexical capture. Empty pipelines and empty branch blocks fail at card-load with `require`.
 
 **Step vocabulary** (one verb per existing step type — the vocabulary grows with step types, never
 with cards):
@@ -3519,25 +3557,30 @@ with cards):
 | Builder verb | Serializes to |
 |---|---|
 | `triggerCaptured` (a slot, not a step — the collection the engine already seeded for a batch trigger; see below) | — |
-| `gather(source)` / `gather(filter, player?, …)` (battlefield shorthand) | `GatherCardsEffect` |
+| `gather(source, revealed?, search?, lookAudience?)` / `gather(filter, player?, …)` (battlefield shorthand) | `GatherCardsEffect` |
+| `mill(count, player?)` → the milled cards | `GatherCardsEffect(TopOfLibrary(isMill))` + `MoveCollectionEffect(→ graveyard)` |
 | `gatherUntilMatch(filter, …)` → `(match, revealed)` | `GatherUntilMatchEffect` |
-| `chooseExactly(n, from)` / `chooseUpTo` / `chooseAnyNumber` / `chooseRandom` / `selectAll` (+ `…Split` variants returning `(selected, remainder)`) | `SelectFromCollectionEffect` |
-| `filter(from, filter)` / `filterSplit(…)` → `(matching, rest)` / `exclude(from, minus)` (set difference via `CollectionFilter.ExcludeOtherCollection`) | `FilterCollectionEffect` |
+| `chooseExactly(n, from)` / `chooseUpTo` / `chooseAnyNumber` / `chooseRandom` / `chooseSpell` / `selectAll` (+ `chooseExactlySplit` / `chooseUpToSplit` / `chooseAnyNumberSplit` / `chooseRandomSplit` / `selectAllSplit` returning `(selected, remainder)`; `n` is an `Int` or a `DynamicAmount`) | `SelectFromCollectionEffect` |
+| `filter(from, filter)` / `filter(from, collectionFilter, matching?)` / `filterSplit(…)` → `(matching, rest)` / `exclude(from, minus)` (set difference via `CollectionFilter.ExcludeOtherCollection`) | `FilterCollectionEffect` |
 | `chooseOnePerCategory(from, categories)` | `ChooseOnePerCategoryEffect` |
-| `move(from, destination, …)` / `moveTracked(…)` / sugar `destroy`, `sacrifice`, `exile`, `toHand`, `toGraveyard`, `toLibraryTop`, `toLibraryBottom` | `MoveCollectionEffect` |
+| `move(from, destination, …)` / `moveTracked(…)` (all `MoveCollectionEffect` options: `order`, `moveType`, `faceDown`, `lookableInExile`, `underOwnersControl`, `addCounterType`, `markEnteredViaSourceAbility`, `filter`, `attachTo`, …) / sugar `destroy`, `sacrifice`, `discard`, `exile`, `toHand`, `toGraveyard`, `toLibraryTop`, `toLibraryBottom` | `MoveCollectionEffect` |
+| `copyCard(source)` / `copyCards(from)` | `CopyCardIntoCollectionEffect` / `CopyCollectionIntoCollectionEffect` |
 | `pairWithSource(from)` (soulbond, CR 702.95a — empty `from` is a legal no-op, i.e. a declined "you may pair") | `PairWithSourceEffect` |
 | `reveal(from, …)` | `RevealCollectionEffect` |
 | `captureControllers(from)` | `CaptureControllersEffect` |
 | `forEachCaptured(collection, original, controllers) { count -> … }` | `ForEachCapturedControllerEffect` |
+| `forEachPlayerCollecting(players) { …; listOf(slotA, slotB) }` → the per-iteration collections unioned across players | `ForEachPlayerCollectingEffect` |
+| `eachPlayerChoosesCreatureType()` → `StringListSlot` | `EachPlayerChoosesCreatureTypeEffect` |
 | `gatherSubtypes(from)` | `GatherSubtypesEffect` |
 | `storeCardName(from)` | `StoreCardNameEffect` |
 | `storeNumber(amount)` | `StoreNumberEffect` |
-| `chooseOption(optionType, …)` / `noteCreatureType(…)` | `ChooseOptionEffect` / `NoteCreatureTypeEffect` |
+| `chooseOption(optionType, …)` / `chooseCardName(prompt?, excludeBasicLandNames?)` / `noteCreatureType(…)` | `ChooseOptionEffect` / `NoteCreatureTypeEffect` |
 | `choosePile(a, b, chooser?, …)` → `(chosen, other)` | `ChoosePileEffect` |
-| `selectTarget(requirement)` (resolution-time choice — never printed "target") | `SelectTargetEffect` |
+| `selectTarget(requirement, nonTargeting?)` (resolution-time choice — never printed "target") | `SelectTargetEffect` |
 | `ifNotEmpty(slot, filter?, minSize?) { … } orElse { … }` | `ConditionalOnCollectionEffect` |
 | `whenMatches(slot, filter)` (returns a `Condition`, adds no step) | `CollectionContainsMatch` |
 | `run(effect)` | any other `Effect`, verbatim |
+| `runStoringCollection { key -> effect }` / `runStoringNumber { … }` / `runStoringChoice { … }` | a non-step effect that *writes* a slot under the key it is handed (`Effects.DestroyAll(filter, storeDestroyedAs = it)`, `Patterns.Exile.impulse(…, storeAs = it)`, `Effects.FlipCoins(…, storeHeadsAs = it)`), returning the typed handle |
 
 **`triggerCaptured`** — the collection a **batch trigger** already seeded for this resolution: the
 objects that caused it to fire, i.e. a printed "them" / "those creatures" / "that many". It is
@@ -3554,7 +3597,7 @@ effect = Effects.Pipeline {
     val stillExiled = filter(creatureCards, GameObjectFilter.Any.currentlyIn(Zone.EXILE))
     val chosen = chooseUpTo(1, from = stillExiled, prompt = "You may choose a creature card …")
     run(Effects.EachPermanentBecomesCopyOfTarget(
-        target = EffectTarget.PipelineTarget(chosen.key),
+        target = chosen.asTarget,
         affected = EffectTarget.ContextTarget(0),
         duration = Duration.EndOfTurn,
         sourceFromAnyZone = true,
@@ -3675,8 +3718,9 @@ effect = Effects.Pipeline {
 A card needing a genuinely **new step semantic** (a new capture kind, a new decision shape) still
 adds the `Effect` + executor first (`add-feature`); the builder only composes the existing
 vocabulary. The JSON/custom-card authoring path is unchanged — raw step types stay `@Serializable`
-with string keys, and `CardLinter` remains the backstop for that path and for anything the builder
-can't statically prevent (cross-trigger flows, `IterationEntity`-vs-`ContextTarget` inside `ForEach`).
+with string keys, and `CardLinter` remains the backstop for that path (Assay output, sandbox cards)
+and for anything the builder can't statically prevent (cross-trigger flows, a cost's `storeAs` read
+by the effect, `IterationEntity`-vs-`ContextTarget` inside `ForEach`).
 
 ---
 
@@ -12293,7 +12337,7 @@ staticAbility { ability = GrantLandwalkOfChosenType() }
 - `Effects.SecretlyChooseCreatureType(options = emptyList(), storeAs = "notedType", prompt?)` — "Then secretly choose Human, Merfolk, or Goblin." (MKM — A Killer Among Us). The hidden-information sibling of `NoteCreatureType`, and the same `NoteCreatureTypeEffect` under the hood with `secret = true`: the type is noted on the source permanent exactly as above, but `NotedCreatureTypesComponent.secretTo` records *who* chose it, and two things key off that — the client view shows the note only to that player (badged "Chosen (secret)"; spectators never see it), and only that player can pay `Costs.RevealNotedCreatureType` (§ costs). This is CR 702.106a-b's hidden agenda — the piece of paper kept with the object — applied to a permanent, so a change of control neither hands the new controller the answer nor lets them reveal it. Pass `options` to narrow the choice to a named handful; the source's already-noted types are excluded from whichever set that is. Leave `options` empty for "secretly choose a creature type".
 - `Effects.ChooseCardName(storeAs, prompt?, excludeBasicLandNames?)` — name a card (`ChooseOptionEffect(OptionType.CARD_NAME)`); the chosen name is stored in `chosenValues[storeAs]`. Options are every registry card name (searchable list, not free text); `excludeBasicLandNames` drops the five basics. Match cards by it with `GameObjectFilter.namedFromVariable(storeAs)`. (Desperate Research)
 - `Effects.StoreCardName(from, storeAs)` — capture the name of the first card in collection `from` into `chosenValues[storeAs]`. The "choose a card, then act on cards of that name" counterpart to `ChooseCardName`. (Lobotomy)
-- `SelectTargetEffect(...)` — pick from a valid target set.
+- `SelectTargetEffect(...)` *(SDK-internal step; cards use `Effects.Pipeline { selectTarget }` — §5.5.)* — pick from a valid target set.
 
 ---
 
@@ -13088,7 +13132,7 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
   only the battlefield object identified by both entity ID and entry timestamp. When nested in a
   delayed trigger, target resolution snapshots the timestamp automatically. Use for delayed moves
   that must ignore a permanent that left and returned as a new object (CR 603.7c / 400.7).
-- `MoveCollectionEffect(collectionName, zone, faceDown?, linkToSource?, asOwner?, likelyPosition?)` — pipeline move of a
+- `MoveCollectionEffect(collectionName, zone, faceDown?, linkToSource?, asOwner?, likelyPosition?)` *(SDK-internal step; cards use `Effects.Pipeline { move/moveTracked and the destroy/sacrifice/discard/exile/toHand/… shortcuts }` — §5.5.)* — pipeline move of a
   stored collection.
 - `faceDown` (on both move effects) is a nullable **`FaceDownMode`** — `null` = enter face up;
   `MORPH` = face-down with the card's morph cost as its turn-up cost; `MANIFEST` = face-down with
@@ -13117,7 +13161,7 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
     public information (CR 708.6) and reaches the client as `ClientCard.faceDownMode`, which picks
     the face-down helper-card art (morph token / manifest token / "A Mysterious Creature" for both
     disguise and cloak, matching paper).
-- `GatherCardsEffect(source, filter, into, search = false)` — pipeline gather from a zone into a named collection.
+- `GatherCardsEffect(source, filter, into, search = false)` *(SDK-internal step; cards use `Effects.Pipeline { gather }` — §5.5.)* — pipeline gather from a zone into a named collection.
   `search = true` marks the gather as a library **search** (CR 701.23) rather than a bulk library move or a top-of-library
   look — the only place the two can be told apart, and what `CantSearchLibraries` reads. Every search primitive
   (`Patterns.Library.searchLibrary` / `searchMultipleZones` / `eachPlayerSearchesLibrary`) sets it; an inline search pipeline
@@ -13140,14 +13184,14 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
   single pile face up for everyone — including the caster, before a `ChoosePileEffect` — re-gather
   that pile via `GatherCards(FromVariable("pile"), revealed = true)`; any pile never revealed
   renders to the caster as opaque card backs (Sauron's Ransom's concealed face-down pile).
-- `CaptureControllersEffect(from, storeAs)` — snapshot each entity's current controller into a parallel
+- `CaptureControllersEffect(from, storeAs)` *(SDK-internal step; cards use `Effects.Pipeline { captureControllers }` — §5.5.)* — snapshot each entity's current controller into a parallel
   `List<EntityId>` under `storedCollections[storeAs]`. Required when a later step needs "who controlled
   this card before it left the battlefield" — `ControllerComponent` is stripped on move-out.
   Also captures a spell's stack controller before countering it, even when its caster is not its owner
   (Broken Ambitions). Battlefield permanents use projected control. Pair `captureControllers` with
   `forEachCaptured` over the original collection when the rider applies regardless of whether a move
   succeeded; retain the snapshot through intervening decisions such as counter payments and clashes.
-- `ForEachCapturedControllerEffect(collection, originalCollection, controllerSnapshot, countVariable?, effects)` —
+- `ForEachCapturedControllerEffect(collection, originalCollection, controllerSnapshot, countVariable?, effects)` *(SDK-internal step; cards use `Effects.Pipeline { forEachCaptured }` — §5.5.)* —
   cross-references a post-move `collection` against an `originalCollection` + parallel `controllerSnapshot` to
   build per-controller tallies, then runs `effects` once per controller (turn order from the active player). Each
   iteration sets `context.controllerId` to the controller (so `Player.You` / `EffectTarget.Controller` resolve to
@@ -13165,7 +13209,7 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
   `ForEachInCollection(nonChosenPile, Effects.CantAttack(EffectTarget.IterationEntity))` gives each creature in a chosen pile
   its own snapshot can't-attack floating effect (Fight or Flight / Stand or Fall; creatures entering after the
   split are unaffected).
-- `SelectFromCollectionEffect(from, into, selectCount?, allowZero?, alwaysPrompt?, restrictions?)` — let a player pick
+- `SelectFromCollectionEffect(from, into, selectCount?, allowZero?, alwaysPrompt?, restrictions?)` *(SDK-internal step; cards use `Effects.Pipeline { chooseExactly/chooseUpTo/chooseAnyNumber/chooseRandom/chooseSpell/selectAll }` — §5.5.)* — let a player pick
   from a collection. `restrictions` (`List<SelectionRestriction>`) cap and trim the picks server-side: `OnePerCardType`,
   `OnePerColor(matchControllerPermanentColors?)`, `OnePerCardName`, `OnePerPower`, `TotalManaValueAtMost(max)` /
   `TotalManaValueAtMost(maxAmount = <DynamicAmount>)` (the dynamic overload caps the sum at a resolved amount — e.g.
