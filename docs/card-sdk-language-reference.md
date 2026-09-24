@@ -7414,6 +7414,14 @@ staticAbility {
   enforced as a whole-declaration check in `AttackPhaseManager`/`BlockPhaseManager` rather than a
   per-creature rule. While any permanent with the ability is on the battlefield, declaring more
   than the smallest cap is rejected. (`BlockerCountLimit` counts distinct blocking creatures.)
+  - `AttackerCountLimit(maxAttackers, defenders = groupFilter)` — the **per-defender** axis:
+    each battlefield permanent matching `defenders` (relative to the limiting permanent's
+    controller, projected state) may be attacked by at most `maxAttackers` creatures per combat;
+    attacks on players and non-matching permanents are unaffected. **Tomik, Orzhov Lawmage** —
+    "Planeswalkers you control have 'No more than one creature can attack this planeswalker each
+    combat.'" = `AttackerCountLimit(1, defenders = GroupFilter.PlaneswalkersYouControl)`. A
+    face-down permanent imposes no cap of either shape. Neither shape is pre-filtered by the
+    attack enumerator — an over-cap declaration is rejected at validation.
 - `AdditionalETBOrLTBTriggers(filter, mustBeYouControl = true, directions = setOf(ENTERING))` —
   the Panharmonicon family (CR 603.2d "triggers additional times"). When a permanent matching
   `filter` crosses the battlefield boundary in one of `directions`, triggered abilities of
