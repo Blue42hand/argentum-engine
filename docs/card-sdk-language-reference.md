@@ -5174,7 +5174,7 @@ control no…" clause counts *down*, "1/0" then "0/0"), "you've cast N spells th
 attacked this turn". A composite `All(...)` contributes one badge per countable clause, and none at
 all while an *un*countable clause of it is already false — which is what stops a solved Case sitting
 on a stale "3/3" forever, since `not solved`, not the criterion, is the half that ends the trigger.
-`ClientStateTransformer.buildTriggerConditionBadges` builds them from
+`ConditionBadgeProjector.triggerConditionBadges` builds them from
 `ConditionEvaluator.countProgress`, which is the same counting code the trigger itself runs, so a
 badge can't promise progress the ability disagrees with.
 
