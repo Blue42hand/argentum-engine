@@ -4,6 +4,7 @@
 import type { SliceCreator, EntityId } from './types'
 import type { ConnectionStatus } from '@/network/websocket.ts'
 import type { AvailableSet } from '@/types'
+import type { AiControllerCatalogMessage } from '@/types/aiController'
 import { GameWebSocket, getWebSocketUrl } from '@/network/websocket.ts'
 import { handleServerMessage, createLoggingHandlers } from '@/network/messageHandlers.ts'
 import { createConnectMessage, ErrorCode } from '@/types'
@@ -16,6 +17,7 @@ import {
 } from './shared'
 import { createMessageHandlers } from './handlers'
 import { useAuthStore } from '@/store/authStore'
+import { receiveAiControllerCatalog } from '@/store/aiControllerStore'
 
 export interface ConnectionSliceState {
   connectionStatus: ConnectionStatus
@@ -113,7 +115,16 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
 
     const ws = new GameWebSocket({
       url: getWebSocketUrl(),
-      onMessage: (msg) => handleServerMessage(msg, wrappedHandlers),
+      onMessage: (msg) => {
+        // The controller catalog is a narrow extension added after the legacy monolithic
+        // ServerMessage union. Route it at the connection boundary until that union is split up;
+        // ordinary game/lobby messages still go through the exhaustive central router unchanged.
+        if ((msg as { type: string }).type === 'aiControllerCatalog') {
+          receiveAiControllerCatalog(msg as unknown as AiControllerCatalogMessage)
+          return
+        }
+        handleServerMessage(msg, wrappedHandlers)
+      },
       onStatusChange: (status) => {
         set({ connectionStatus: status })
         if (status === 'connected' && getWebSocket()) {
