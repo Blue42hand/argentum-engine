@@ -56,7 +56,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Priest of Ancient Lore:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -108,7 +108,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prosperous Innkeeper:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -119,7 +119,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Prosperous Innkeeper:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -160,7 +160,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vampire Spawn:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

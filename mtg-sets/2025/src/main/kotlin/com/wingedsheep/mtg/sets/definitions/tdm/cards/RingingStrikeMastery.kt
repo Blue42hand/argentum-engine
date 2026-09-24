@@ -47,7 +47,7 @@ val RingingStrikeMastery = card("Ringing Strike Mastery") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{5}"),
                 effect = Effects.Untap(EffectTarget.Self)
             )

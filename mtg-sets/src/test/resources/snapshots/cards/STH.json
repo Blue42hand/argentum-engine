@@ -55,7 +55,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bottomless Pit:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -131,7 +131,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hermit Druid:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -212,7 +212,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Honor Guard:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -543,7 +543,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stronghold Assassin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -614,7 +614,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wall of Blossoms:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

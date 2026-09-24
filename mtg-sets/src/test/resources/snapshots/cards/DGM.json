@@ -89,7 +89,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kraul Warrior:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -132,7 +132,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Maze's End:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -145,7 +145,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Maze's End:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

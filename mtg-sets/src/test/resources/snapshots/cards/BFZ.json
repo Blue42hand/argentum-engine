@@ -7,7 +7,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ally Encampment:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -20,7 +20,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ally Encampment:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -35,7 +35,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Ally Encampment:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -95,7 +95,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Angel of Renewal:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -132,7 +132,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Angelic Gift:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -186,7 +186,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Beastcaller Savant:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -222,7 +222,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Belligerent Whiptail:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -257,7 +257,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blighted Cataract:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -270,7 +270,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Blighted Cataract:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -316,7 +316,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blighted Gorge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -329,7 +329,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Blighted Gorge:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -385,7 +385,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blighted Steppe:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -398,7 +398,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Blighted Steppe:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -449,7 +449,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blighted Woodland:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -462,7 +462,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Blighted Woodland:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -542,7 +542,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bloodbond Vampire:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -638,7 +638,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chasm Guide:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -726,7 +726,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cliffside Lookout:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -845,7 +845,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Coralhelm Guide:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -900,7 +900,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Courier Griffin:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -982,7 +982,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Desolation Twin:1",
                 "trigger": "CastThisSpellEvent",
                 "effect": {
                     "type": "CreateToken",
@@ -1022,7 +1022,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drana's Emissary:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1151,7 +1151,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Felidar Cub:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "MoveToZone",
@@ -1198,7 +1198,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Firemantle Mage:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -1274,7 +1274,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Geyserfield Stalker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -1399,7 +1399,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grove Rumbler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -1447,7 +1447,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grovetender Druids:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -1504,7 +1504,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hagra Sharpshooter:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1560,7 +1560,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hedron Archive:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1573,7 +1573,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Hedron Archive:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1621,7 +1621,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hero of Goma Fada:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -1673,7 +1673,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jaddi Offshoot:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -1715,7 +1715,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kalastria Healer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -1772,7 +1772,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kalastria Nightwatch:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -1831,7 +1831,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kor Bladewhirl:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -1880,7 +1880,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kor Entanglers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -1929,7 +1929,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kozilek's Channeler:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1965,7 +1965,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lantern Scout:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2014,7 +2014,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lavastep Raider:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2061,7 +2061,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lifespring Druid:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -2089,7 +2089,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Looming Spires:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2133,7 +2133,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Looming Spires:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2170,7 +2170,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Makindi Patrol:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2221,7 +2221,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Makindi Sliderunner:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -2271,7 +2271,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Malakir Familiar:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -2314,7 +2314,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Murasa Ranger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -2365,7 +2365,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nirkana Assassin:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -2400,7 +2400,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Omnath, Locus of Rage:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -2421,7 +2421,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Omnath, Locus of Rage:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Elemental ctrl:you",
@@ -2472,7 +2472,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ondu Champion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2523,7 +2523,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ondu Greathorn:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -2569,7 +2569,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oran-Rief Invoker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2737,7 +2737,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Resolute Blademaster:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -2783,7 +2783,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Retreat to Hagra:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -2884,7 +2884,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Retreat to Valakut:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -2965,7 +2965,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sandstone Bridge:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3009,7 +3009,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Sandstone Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3080,7 +3080,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scythe Leopard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -3197,7 +3197,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Serene Steward:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -3341,7 +3341,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Snapping Gnarlid:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -3401,7 +3401,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stasis Snare:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3422,7 +3422,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Stasis Snare:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -3473,7 +3473,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stone Haven Medic:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3656,7 +3656,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tajuru Beastmaster:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -3711,7 +3711,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tajuru Warcaller:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Ally ctrl:you",
@@ -3828,7 +3828,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tunneling Geopede:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -3877,7 +3877,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ulamog, the Ceaseless Hunger:1",
                 "trigger": "CastThisSpellEvent",
                 "effect": {
                     "type": "ForEach",
@@ -3902,7 +3902,7 @@
                 "descriptionOverride": "When you cast this spell, exile two target permanents."
             },
             {
-                "id": "ability_2",
+                "id": "Ulamog, the Ceaseless Hunger:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -3967,7 +3967,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Valakut Invoker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4019,7 +4019,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Valakut Predator:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -4061,7 +4061,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vampiric Rites:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4190,7 +4190,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Voracious Null:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4248,7 +4248,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wave-Wing Elemental:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -4297,7 +4297,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Windrider Patrol:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -4338,7 +4338,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zulaport Cutthroat:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",

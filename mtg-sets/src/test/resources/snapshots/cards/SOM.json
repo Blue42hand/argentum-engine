@@ -11,7 +11,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Abuna Acolyte:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -33,7 +33,7 @@
                 "descriptionOverride": "{T}: Prevent the next 1 damage that would be dealt to any target this turn."
             },
             {
-                "id": "ability_2",
+                "id": "Abuna Acolyte:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -80,7 +80,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Accorder's Shield:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -159,7 +159,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Asceticism:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -377,7 +377,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Barbed Battlegear:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -437,7 +437,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Barrage Ogre:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -528,7 +528,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blackcleave Cliffs:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -538,7 +538,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Blackcleave Cliffs:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -604,7 +604,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blade-Tribe Berserkers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -667,7 +667,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bladed Pinions:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -729,7 +729,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bleak Coven Vampires:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -805,7 +805,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blistergrub:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -979,7 +979,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Copperline Gorge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -989,7 +989,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Copperline Gorge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1055,7 +1055,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Corrupted Harvester:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1111,7 +1111,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darkslick Drake:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1149,7 +1149,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darkslick Shores:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1159,7 +1159,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Darkslick Shores:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1224,7 +1224,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darksteel Axe:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1330,7 +1330,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dross Hopper:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1370,7 +1370,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Embersmith:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1532,7 +1532,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ferrovore:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1592,7 +1592,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fume Spitter:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "AddCounters",
@@ -1778,7 +1778,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Golem's Heart:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1869,7 +1869,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kuldotha Forgemaster:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1990,7 +1990,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lifesmith:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2068,7 +2068,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lumengrid Drake:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2125,7 +2125,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lux Cannon:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddCounters",
@@ -2136,7 +2136,7 @@
                 "descriptionOverride": "{T}: Put a charge counter on this artifact."
             },
             {
-                "id": "ability_2",
+                "id": "Lux Cannon:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2235,7 +2235,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mox Opal:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -2280,7 +2280,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Necrogen Censer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2349,7 +2349,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Necrogen Scudder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2394,7 +2394,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Neurok Invisimancer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2441,7 +2441,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Neurok Replica:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2499,7 +2499,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oxidda Daredevil:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2539,7 +2539,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oxidda Scrapmelter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2584,7 +2584,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Painful Quandary:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "EachOpponent"
@@ -2640,7 +2640,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Palladium Myr:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2678,7 +2678,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Perilous Myr:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2759,7 +2759,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Razorverge Thicket:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2769,7 +2769,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Razorverge Thicket:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2871,7 +2871,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Saberclaw Golem:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2911,7 +2911,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Salvage Scout:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2987,7 +2987,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Seachrome Coast:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2997,7 +2997,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Seachrome Coast:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3119,7 +3119,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skinrender:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3171,7 +3171,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sky-Eel School:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3297,7 +3297,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soliton:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3341,7 +3341,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Steel Hellkite:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3363,7 +3363,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Steel Hellkite:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3482,7 +3482,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Strider Harness:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3548,7 +3548,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sunblast Angel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3604,7 +3604,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sylvok Replica:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3689,7 +3689,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tower of Calamities:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3745,7 +3745,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trigon of Corruption:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3767,7 +3767,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Trigon of Corruption:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3838,7 +3838,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trigon of Mending:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3861,7 +3861,7 @@
                 "descriptionOverride": "{W}{W}, {T}: Put a charge counter on this artifact."
             },
             {
-                "id": "ability_2",
+                "id": "Trigon of Mending:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3932,7 +3932,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trigon of Rage:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3955,7 +3955,7 @@
                 "descriptionOverride": "{R}{R}, {T}: Put a charge counter on this artifact."
             },
             {
-                "id": "ability_2",
+                "id": "Trigon of Rage:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4033,7 +4033,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trigon of Thought:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4055,7 +4055,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Trigon of Thought:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4119,7 +4119,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vulshok Heartstoker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4174,7 +4174,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vulshok Replica:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4235,7 +4235,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wall of Tanglecord:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

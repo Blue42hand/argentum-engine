@@ -42,7 +42,7 @@ val SingingBellStrike = card("Singing Bell Strike") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{6}"),
                 effect = Effects.Untap(EffectTarget.Self)
             )

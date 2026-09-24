@@ -40,7 +40,7 @@ jobs:
           - name: server            # Spring Boot integration tests; compiles the full module graph
             tasks: ":game-server:test"
           - name: content           # SDK + card definitions + AI advisors
-            tasks: ":mtg-sdk:test :mtg-sets:test :ai:test :mtg-search:test"
+            tasks: ":mtg-sdk:test :mtg-sdk-tooling:test :mtg-sets:test :ai:test :mtg-search:test"
           - name: tools             # gym RL env + mtgish coverage tooling
             tasks: ":gym:test :gym-server:test :gym-trainer:test :mtgish-tooling:test"
     name: test (${{ matrix.name }})

@@ -72,7 +72,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Abyssal Horror:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -156,7 +156,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Angelic Page:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ModifyStats",
@@ -282,7 +282,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Argothian Elder:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ForEach",
@@ -337,7 +337,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Argothian Enchantress:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -405,7 +405,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Barrin, Master Wizard:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -585,7 +585,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blasted Landscape:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -621,7 +621,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blood Vassal:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "AddMana",
@@ -715,7 +715,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cackling Fiend:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -854,7 +854,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cathodion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -896,7 +896,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Child of Gaea:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -917,7 +917,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Child of Gaea:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -958,7 +958,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Citanul Hierophants:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -994,7 +994,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Claws of Gix:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1232,7 +1232,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dark Hatchling:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1420,7 +1420,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Douse:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1463,7 +1463,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dragon Blood:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1530,7 +1530,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drifting Djinn:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1576,7 +1576,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drifting Meadow:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1690,7 +1690,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eastern Paladin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1750,7 +1750,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elite Archers:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -1813,7 +1813,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Herder:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1865,7 +1865,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Lyrist:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1928,7 +1928,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Endless Wurm:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1972,7 +1972,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Endoskeleton:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2099,7 +2099,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fire Ants:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ForEach",
@@ -2270,7 +2270,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gaea's Cradle:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2421,7 +2421,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Great Whale:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2471,7 +2471,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Greater Good:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2645,7 +2645,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hollow Dogs:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -2686,7 +2686,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hopping Automaton:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2742,7 +2742,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Horseshoe Crab:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2828,7 +2828,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Intrepid Hero:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveToZone",
@@ -2918,7 +2918,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Looming Shade:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2993,7 +2993,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Monk Idealist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3042,7 +3042,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Monk Realist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3090,7 +3090,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Morphling:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3105,7 +3105,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Morphling:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3120,7 +3120,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Morphling:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3135,7 +3135,7 @@
                 }
             },
             {
-                "id": "ability_4",
+                "id": "Morphling:4",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3157,7 +3157,7 @@
                 }
             },
             {
-                "id": "ability_5",
+                "id": "Morphling:5",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3200,7 +3200,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oppression:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "Each"
@@ -3330,7 +3330,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Peregrine Drake:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3384,7 +3384,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Ghoul:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3427,7 +3427,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Tower:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -3440,7 +3440,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Phyrexian Tower:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3494,7 +3494,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Polluted Mire:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3531,7 +3531,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Priest of Gix:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3572,7 +3572,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Priest of Titania:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3615,7 +3615,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ravenous Skirge:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3656,7 +3656,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Reclusive Wight:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3761,7 +3761,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Remote Isle:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3839,7 +3839,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sanctum Custodian:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -3943,7 +3943,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sanguine Guard:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3983,7 +3983,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scoria Wurm:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -4128,7 +4128,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Serra's Sanctum:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4203,7 +4203,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shivan Hellkite:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4294,7 +4294,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silent Attendant:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GainLife",
@@ -4333,7 +4333,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skirge Familiar:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -4375,7 +4375,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skittering Skirge:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -4415,7 +4415,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Slippery Karst:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4454,7 +4454,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Smoldering Crater:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4491,7 +4491,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spined Fluke:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4504,7 +4504,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Spined Fluke:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4547,7 +4547,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spire Owl:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4661,7 +4661,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stern Proctor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4730,7 +4730,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tolarian Academy:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4868,7 +4868,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Unworthy Dead:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4995,7 +4995,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Voltaic Key:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5052,7 +5052,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Western Paladin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5157,7 +5157,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Witch Engine:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -5209,7 +5209,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Worn Powerstone:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",

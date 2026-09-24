@@ -37,7 +37,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ant Queen:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -127,7 +127,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blinding Mage:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -184,7 +184,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Borderland Ranger:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -302,7 +302,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cudgel Troll:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -508,7 +508,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dragonskull Summit:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -518,7 +518,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Dragonskull Summit:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -572,7 +572,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drowned Catacomb:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -582,7 +582,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Drowned Catacomb:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -661,7 +661,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Archdruid:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -743,7 +743,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fiery Hellhound:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -786,7 +786,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glacial Fortress:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -796,7 +796,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Glacial Fortress:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -912,7 +912,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Magma Phoenix:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -960,7 +960,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Magma Phoenix:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1002,7 +1002,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merfolk Sovereign:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
@@ -1067,7 +1067,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mold Adder:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1197,7 +1197,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rootbound Crag:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1207,7 +1207,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Rootbound Crag:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1463,7 +1463,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sunpetal Grove:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1473,7 +1473,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Sunpetal Grove:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",

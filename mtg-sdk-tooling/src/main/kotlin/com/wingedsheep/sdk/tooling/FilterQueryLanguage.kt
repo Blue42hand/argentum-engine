@@ -1,4 +1,4 @@
-package com.wingedsheep.sdk.serialization
+package com.wingedsheep.sdk.tooling
 
 import kotlinx.serialization.json.*
 

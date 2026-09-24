@@ -22,7 +22,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arcbound Mouser:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -97,7 +97,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arcbound Prototype:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -173,7 +173,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arcbound Slasher:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -290,7 +290,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arcbound Whelp:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -325,7 +325,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Arcbound Whelp:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -388,7 +388,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Battle Plan:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -451,7 +451,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blazing Rootwalla:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -501,7 +501,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cabal Initiate:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -643,7 +643,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darkmoss Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -653,7 +653,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Darkmoss Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -692,7 +692,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drey Keeper:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -716,7 +716,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Drey Keeper:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -782,7 +782,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drossforge Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -792,7 +792,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Drossforge Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -842,7 +842,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ethersworn Sphinx:1",
                 "trigger": "CastThisSpellEvent",
                 "effect": "Cascade",
                 "descriptionOverride": "Cascade"
@@ -977,7 +977,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flame Blitz:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -1024,7 +1024,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fodder Tosser:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1087,7 +1087,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foundation Breaker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1170,7 +1170,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goldmire Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1180,7 +1180,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Goldmire Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1254,7 +1254,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hell Mongrel:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -1298,7 +1298,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Herd Baloth:1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
                     "counterType": "PLUS_ONE_PLUS_ONE"
@@ -1356,7 +1356,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jade Avenger:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -1373,7 +1373,7 @@
                 "descriptionOverride": "Bushido 2"
             },
             {
-                "id": "ability_2",
+                "id": "Jade Avenger:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -1418,7 +1418,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jewel-Eyed Cobra:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -1591,7 +1591,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lightning Spear:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1625,7 +1625,7 @@
                 "descriptionOverride": "{2}{R}, Sacrifice this Equipment: It deals 3 damage to any target."
             },
             {
-                "id": "ability_2",
+                "id": "Lightning Spear:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1693,7 +1693,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Marble Gargoyle:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1778,7 +1778,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mistvault Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1788,7 +1788,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Mistvault Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1827,7 +1827,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Monoskelion:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1899,7 +1899,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Myr Scrapling:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "AddCounters",
@@ -1957,7 +1957,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orchard Strider:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1996,7 +1996,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ornithopter of Paradise:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -2026,7 +2026,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Parcel Myr:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2081,7 +2081,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ragavan, Nimble Pilferer:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -2178,7 +2178,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Razortide Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2188,7 +2188,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Razortide Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2237,7 +2237,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rift Sower:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -2271,7 +2271,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rishadan Dockhand:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2328,7 +2328,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rustvale Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2338,7 +2338,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Rustvale Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2377,7 +2377,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sanctum Weaver:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -2416,7 +2416,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silverbluff Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2426,7 +2426,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Silverbluff Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2465,7 +2465,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sinister Starfish:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Surveil",
@@ -2507,7 +2507,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Slag Strider:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2572,7 +2572,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Slagwoods Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2582,7 +2582,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Slagwoods Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2627,7 +2627,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sol Talisman:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2674,7 +2674,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soul of Migration:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2767,7 +2767,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Steelfin Whale:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -2807,7 +2807,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Storm God's Oracle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2832,7 +2832,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Storm God's Oracle:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2909,7 +2909,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sylvan Anthem:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature green ctrl:you",
@@ -2958,7 +2958,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sythis, Harvest's Hand:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3015,7 +3015,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tanglepool Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3025,7 +3025,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Tanglepool Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3166,7 +3166,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Underworld Cookbook:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3184,7 +3184,7 @@
                 "descriptionOverride": "{T}, Discard a card: Create a Food token."
             },
             {
-                "id": "ability_2",
+                "id": "The Underworld Cookbook:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3242,7 +3242,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thornglint Bridge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3252,7 +3252,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Thornglint Bridge:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3301,7 +3301,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thought Monitor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3396,7 +3396,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viashino Lashclaw:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3452,7 +3452,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vile Entomber:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

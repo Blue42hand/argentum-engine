@@ -11,7 +11,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Black Cat:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -93,7 +93,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Briarpack Alpha:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -144,7 +144,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chalice of Life:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -196,7 +196,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Chalice of Death:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "LoseLife",
@@ -324,7 +324,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Diregraf Captain:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Zombie ctrl:you",
@@ -392,7 +392,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drogskol Reaver:1",
                 "trigger": "LifeGainEvent",
                 "binding": "ANY",
                 "effect": {
@@ -506,7 +506,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Falkenrath Torturer:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -702,7 +702,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grim Backwoods:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -715,7 +715,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Grim Backwoods:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -809,7 +809,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Havengul Runebinder:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -885,7 +885,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Helvault:3",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -914,7 +914,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Helvault:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -946,7 +946,7 @@
                 ]
             },
             {
-                "id": "ability_3",
+                "id": "Helvault:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1021,7 +1021,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Huntmaster of the Fells:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1052,7 +1052,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Huntmaster of the Fells:2",
                 "trigger": {
                     "type": "TransformEvent",
                     "intoBackFace": false
@@ -1083,7 +1083,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Huntmaster of the Fells:3",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -1118,7 +1118,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_4",
+                    "id": "Ravager of the Fells:1",
                     "trigger": {
                         "type": "TransformEvent",
                         "intoBackFace": true
@@ -1190,7 +1190,7 @@
                     ]
                 },
                 {
-                    "id": "ability_5",
+                    "id": "Ravager of the Fells:2",
                     "trigger": {
                         "type": "StepEvent",
                         "step": "UPKEEP",
@@ -1353,7 +1353,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Midnight Guard:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature",
@@ -1468,7 +1468,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Niblis of the Urn:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Gated",
@@ -1519,7 +1519,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Predator Ooze:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -1529,7 +1529,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Predator Ooze:2",
                 "trigger": "CreatureDealtDamageBySourceDiesEvent",
                 "effect": {
                     "type": "AddCounters",
@@ -1660,7 +1660,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scorned Villager:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -1681,7 +1681,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Scorned Villager:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1707,7 +1707,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_3",
+                    "id": "Moonscarred Werewolf:2",
                     "trigger": {
                         "type": "StepEvent",
                         "step": "UPKEEP",
@@ -1728,7 +1728,7 @@
             ],
             "activatedAbilities": [
                 {
-                    "id": "ability_4",
+                    "id": "Moonscarred Werewolf:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -1781,7 +1781,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Screeching Skaab:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1878,7 +1878,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thraben Heretic:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveToZone",
@@ -1926,7 +1926,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Torch Fiend:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1989,7 +1989,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tower Geist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"

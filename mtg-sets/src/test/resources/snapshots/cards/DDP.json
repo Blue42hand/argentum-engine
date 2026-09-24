@@ -7,7 +7,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Retreat to Kazandu:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",

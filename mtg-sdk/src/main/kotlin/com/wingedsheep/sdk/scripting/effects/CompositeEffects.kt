@@ -368,7 +368,7 @@ sealed interface SuccessCriterion {
      * by at least one entry.
      *
      * Auto is only legal on actions whose shape it can actually infer ([canInfer]) —
-     * card-load validation ([com.wingedsheep.sdk.serialization.CardValidator]) rejects
+     * card-load validation ([com.wingedsheep.sdk.tooling.CardValidator]) rejects
      * everything else. An action whose outcome isn't a zone-size delta (deal damage,
      * gain/lose life, …) must state its criterion explicitly ([Always] when performing
      * the action can't fail, [CollectionNonEmpty] to gate on a pipeline result) instead

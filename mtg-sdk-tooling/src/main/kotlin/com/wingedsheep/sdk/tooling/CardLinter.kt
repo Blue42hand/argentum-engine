@@ -1,4 +1,4 @@
-package com.wingedsheep.sdk.serialization
+package com.wingedsheep.sdk.tooling
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.StaticAbility
+import com.wingedsheep.sdk.serialization.CardSerialization
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement

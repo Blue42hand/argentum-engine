@@ -77,7 +77,7 @@ val ClementTheWorrywort = card("Clement, the Worrywort") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Tap,
                 effect = Effects.AddManaInAnyCombination(
                     amount = 1,

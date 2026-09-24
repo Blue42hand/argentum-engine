@@ -171,7 +171,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mindwrack Demon:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -203,7 +203,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Mindwrack Demon:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -367,7 +367,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tooth Collector:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -396,7 +396,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Tooth Collector:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -469,7 +469,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Topplegeist:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -490,7 +490,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Topplegeist:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",

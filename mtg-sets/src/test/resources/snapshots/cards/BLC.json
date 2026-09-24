@@ -7,7 +7,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Alchemist's Talent:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -28,7 +28,7 @@
                     {
                         "type": "GrantActivatedAbility",
                         "ability": {
-                            "id": "ability_2",
+                            "id": "Alchemist's Talent:2",
                             "cost": {
                                 "type": "CostComposite",
                                 "costs": [
@@ -56,7 +56,7 @@
                 "cost": "{4}{R}",
                 "triggeredAbilities": [
                     {
-                        "id": "ability_3",
+                        "id": "Alchemist's Talent:3",
                         "trigger": {
                             "type": "SpellCastEvent",
                             "requires": [
@@ -118,7 +118,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arcane Signet:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddManaOfChoice",
@@ -216,7 +216,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Beastmaster Ascension:1",
                 "trigger": {
                     "type": "AttackEvent",
                     "filter": "creature ctrl:you"
@@ -506,7 +506,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Bello, Bard of the Brambles:1",
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
@@ -651,7 +651,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brightcap Badger:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -675,7 +675,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_2",
+                    "id": "Brightcap Badger:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -971,7 +971,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Etali, Primal Storm:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -1070,7 +1070,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Evercoat Ursine:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1129,7 +1129,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Evercoat Ursine:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1188,7 +1188,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Evercoat Ursine:3",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1317,7 +1317,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goreclaw, Terror of Qal Sisma:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -1401,7 +1401,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grothama, All-Devouring:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -1413,7 +1413,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_2",
+                    "id": "Grothama, All-Devouring:1",
                     "trigger": "AttackEvent",
                     "effect": {
                         "type": "Gated",
@@ -1532,7 +1532,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kodama of the East Tree:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "ctrl:you",
@@ -1623,7 +1623,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prosperous Bandit:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1636,7 +1636,7 @@
                 "interveningIf": "WasKicked"
             },
             {
-                "id": "ability_2",
+                "id": "Prosperous Bandit:2",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1688,7 +1688,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pyreswipe Hawk:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -1707,7 +1707,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Pyreswipe Hawk:2",
                 "trigger": {
                     "type": "ExpendEvent",
                     "threshold": 6
@@ -1783,7 +1783,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rolling Hamsphere:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "Composite",
@@ -1869,7 +1869,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Simic Ascendancy:2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
                     "counterType": "PLUS_ONE_PLUS_ONE",
@@ -1887,7 +1887,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Simic Ascendancy:3",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -1917,7 +1917,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Simic Ascendancy:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2001,7 +2001,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Steelburr Champion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2014,7 +2014,7 @@
                 "interveningIf": "WasKicked"
             },
             {
-                "id": "ability_2",
+                "id": "Steelburr Champion:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2062,7 +2062,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tendershoot Dryad:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -2118,7 +2118,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thickest in the Thicket:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2148,7 +2148,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Thickest in the Thicket:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -2218,7 +2218,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trailtracker Scout:2",
                 "trigger": {
                     "type": "ExpendEvent",
                     "threshold": 8
@@ -2245,7 +2245,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Trailtracker Scout:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -2295,7 +2295,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wildsear, Scouring Maw:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {

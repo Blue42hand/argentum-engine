@@ -441,7 +441,7 @@ val ArmorSliver = card("Armor Sliver") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{2}"),
                 effect = Effects.ModifyStats(0, 1, EffectTarget.Self)
             ),
@@ -610,7 +610,7 @@ val BarbedSliver = card("Barbed Sliver") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{2}"),
                 effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
             ),
@@ -1704,7 +1704,7 @@ val ClotSliver = card("Clot Sliver") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{2}"),
                 effect = RegenerateEffect(EffectTarget.Self)
             ),
@@ -6618,7 +6618,7 @@ val MindwhipSliver = card("Mindwhip Sliver") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf),
                 effect = Patterns.Hand.discardRandom(1, EffectTarget.ContextTarget(0)),
                 targetRequirement = TargetPlayer(),
@@ -6749,7 +6749,7 @@ val MnemonicSliver = card("Mnemonic Sliver") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf),
                 effect = DrawCardsEffect(1)
             ),

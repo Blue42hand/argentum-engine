@@ -232,7 +232,7 @@ The plumbing already exists; we are wiring it together, not building it:
   exposes every `MtgSet`; each `MtgSet.cards` ([`MtgSet.kt:29`](../mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/model/MtgSet.kt))
   is its `List<CardDefinition>`.
 - **Canonical serialization** — `CardExporter.exportToJson`
-  ([`CardExporter.kt`](../mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/serialization/CardExporter.kt))
+  ([`CardExporter.kt`](../mtg-sdk-tooling/src/main/kotlin/com/wingedsheep/sdk/tooling/CardExporter.kt))
   already produces stable, pretty-printed, `CompactJsonTransformer`-normalized JSON (the same shape it
   uses for the Kotlin→JSON migration). Reuse it verbatim so the snapshot matches a format we already
   trust round-trips.

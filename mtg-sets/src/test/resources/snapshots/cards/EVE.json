@@ -14,7 +14,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Archon of Justice:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -88,7 +88,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Scarecrone:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -118,7 +118,7 @@
                 "descriptionOverride": "{1}, Sacrifice a Scarecrow: Draw a card."
             },
             {
-                "id": "ability_2",
+                "id": "Scarecrone:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -178,7 +178,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wickerbough Elder:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

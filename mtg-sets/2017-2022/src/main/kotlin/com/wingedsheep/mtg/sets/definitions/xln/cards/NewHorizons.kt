@@ -47,7 +47,7 @@ val NewHorizons = card("New Horizons") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Tap,
                 effect = Effects.AddAnyColorMana(2),
                 isManaAbility = true,

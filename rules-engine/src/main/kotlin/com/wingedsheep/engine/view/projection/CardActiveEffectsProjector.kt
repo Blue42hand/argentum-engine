@@ -652,10 +652,9 @@ internal class CardActiveEffectsProjector(
      * oracle text on the recipient doesn't reflect it, so without a badge a player can't see it.
      *
      * The *same* ability can be granted to one permanent more than once — a land earthbended
-     * twice holds two separate grant entries of the identical "return it tapped" trigger (each
-     * grant gets a fresh AbilityId, so they don't collapse by id). To the player they're one
-     * ability, so dedupe by the shown description and emit a single badge instead of stacking
-     * duplicate "Granted Ability" tiles.
+     * twice holds two separate grant entries of the identical "return it tapped" trigger. To the
+     * player they're one ability, so dedupe by the shown description and emit a single badge
+     * instead of stacking duplicate "Granted Ability" tiles.
      */
     private fun grantedAbilityBadges(
         state: GameState,

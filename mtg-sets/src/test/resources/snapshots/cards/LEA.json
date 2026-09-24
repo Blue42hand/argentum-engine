@@ -151,7 +151,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Basalt Monolith:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -164,7 +164,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Basalt Monolith:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -253,7 +253,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Birds of Paradise:1",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -315,7 +315,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Black Lotus:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -559,7 +559,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Celestial Prism:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -623,7 +623,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Conservator:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -693,7 +693,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Copper Tablet:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -871,7 +871,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deathgrip:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1008,7 +1008,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Drudge Skeletons:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1047,7 +1047,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Demolition Team:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveToZone",
@@ -1095,7 +1095,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Warriors:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
@@ -1409,7 +1409,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Frozen Shade:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1516,7 +1516,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Glasses of Urza:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "LookAtTargetHand",
@@ -1556,7 +1556,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Balloon Brigade:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1643,7 +1643,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Granite Gargoyle:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1820,7 +1820,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Helm of Chatzuk:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2037,7 +2037,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hypnotic Specter:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
@@ -2148,7 +2148,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Icy Manipulator:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2261,7 +2261,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jayemdae Tome:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2409,7 +2409,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ley Druid:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "TapUntap",
@@ -2452,7 +2452,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lifeforce:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2536,7 +2536,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Living Wall:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2574,7 +2574,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Llanowar Elves:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2736,7 +2736,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mox Emerald:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2767,7 +2767,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mox Jet:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2798,7 +2798,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mox Pearl:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2829,7 +2829,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mox Ruby:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2860,7 +2860,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mox Sapphire:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2891,7 +2891,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nevinyrral's Disk:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2987,7 +2987,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Northern Paladin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3191,7 +3191,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Prodigal Sorcerer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -3500,7 +3500,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rod of Ruin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3556,7 +3556,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Royal Assassin:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveToZone",
@@ -3604,7 +3604,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Samite Healer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -3840,7 +3840,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shivan Dragon:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3920,7 +3920,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sol Ring:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -4513,7 +4513,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Uthden Troll:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4553,7 +4553,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Verduran Enchantress:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -4631,7 +4631,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wall of Bone:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4674,7 +4674,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wall of Brambles:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4717,7 +4717,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wall of Fire:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4843,7 +4843,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wall of Water:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5095,7 +5095,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Will-o'-the-Wisp:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5179,7 +5179,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Zombie Master:1",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {

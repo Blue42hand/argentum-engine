@@ -26,7 +26,7 @@ val DivergentGrowth = card("Divergent Growth") {
     spell {
         effect = Effects.GrantActivatedAbilityToGroup(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = AbilityCost.Tap,
                 effect = Effects.AddAnyColorMana(1),
                 isManaAbility = true,

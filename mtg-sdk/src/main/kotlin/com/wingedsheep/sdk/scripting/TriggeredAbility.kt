@@ -229,6 +229,10 @@ data class TriggeredAbility(
     }
 
     companion object {
+        /**
+         * @param id Minted from the card being built by default; code that synthesizes a trigger
+         *   with no card around it (the engine's persist, delayed and saga-chapter triggers) names one.
+         */
         fun create(
             trigger: EventPattern,
             binding: TriggerBinding = TriggerBinding.SELF,
@@ -243,10 +247,11 @@ data class TriggeredAbility(
             oncePerTurn: Boolean = false,
             effectOncePerTurn: Boolean = false,
             triggersOnce: Boolean = false,
-            descriptionOverride: String? = null
+            descriptionOverride: String? = null,
+            id: AbilityId = AbilityId.next(),
         ): TriggeredAbility =
             TriggeredAbility(
-                id = AbilityId.generate(),
+                id = id,
                 trigger = trigger,
                 binding = binding,
                 effect = effect,
