@@ -18,17 +18,20 @@ jobs:
         shell: bash
         run: |
           {
+            echo '===== filter files ====='
+            find mtg-sdk -type f -name '*Filter*.kt' | sort
+            echo
             echo '===== CreatureOrArtifact definitions/usages ====='
-            rg -n -B 12 -A 20 'CreatureOrArtifact' mtg-sdk mtg-sets || true
+            grep -R -n -B 12 -A 20 'CreatureOrArtifact' mtg-sdk mtg-sets 2>&1 || true
             echo
             echo '===== ForEachInGroup card usages ====='
-            rg -n -B 12 -A 24 'ForEachInGroup' mtg-sets | head -n 700 || true
+            grep -R -n -B 12 -A 24 'ForEachInGroup' mtg-sets 2>&1 | head -n 700 || true
             echo
             echo '===== AddCountersToCollection definitions/usages ====='
-            rg -n -B 12 -A 24 'AddCountersToCollection' mtg-sdk mtg-sets | head -n 700 || true
+            grep -R -n -B 12 -A 24 'AddCountersToCollection' mtg-sdk mtg-sets 2>&1 | head -n 700 || true
             echo
-            echo '===== GameObjectFilter type predicate definitions ====='
-            rg -n -B 10 -A 30 'sealed (class|interface) GameObjectFilter|data class GameObjectFilter|class GameObjectFilter|object CreatureOrArtifact|val CreatureOrArtifact' mtg-sdk || true
+            echo '===== GameObjectFilter declarations ====='
+            grep -R -n -B 10 -A 35 'GameObjectFilter' mtg-sdk/src/main/kotlin 2>&1 | head -n 900 || true
           } > steel-overseer-source-audit.txt
           cat steel-overseer-source-audit.txt
 
