@@ -234,7 +234,16 @@ data class GrantMayCastFromLinkedExile(
      * Intrepid Paleontologist: `entersWithCounter = CounterType.FINALITY` — "If you cast a spell this
      * way, that creature enters with a finality counter on it."
      */
-    val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null
+    val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null,
+    /**
+     * "…, and mana of any type can be spent to cast that spell" (CR 609.4b): when true, the colored
+     * requirements of a spell cast *through this grant* may be paid with mana of any type. Scoped to
+     * the permission rather than a blanket [SpendAnyManaTypeForSpells] for the same reason as
+     * [MayPlayCardsFromExile.withAnyManaType] — the relaxation belongs to spells cast this way, not
+     * to the card wherever it is cast from. Read by the linked-exile cast enumerator (cost display and
+     * affordability) and by the cast handler's payment. Null Summoner.
+     */
+    val withAnyManaType: Boolean = false
 ) : StaticAbility {
     override val description: String = buildString {
         // "pay life equal to its mana value rather than pay its mana cost" — Valgavoth, Terror Eater
@@ -265,6 +274,7 @@ data class GrantMayCastFromLinkedExile(
         if (exiledThisTurnOnly) append(" this turn")
         if (withoutPayingManaCost) append(" without paying its mana cost")
         if (additionalCost != null) append(" by ${additionalCost.description.lowercase()} in addition to paying their other costs")
+        if (withAnyManaType) append(", and mana of any type can be spent to cast those spells")
         if (oncePerTurn) append(". This ability may be used only once each turn")
         append(".")
         if (entersWithCounter != null) {

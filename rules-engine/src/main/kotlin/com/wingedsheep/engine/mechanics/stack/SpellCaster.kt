@@ -12,6 +12,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.FACE_DOWN_DISPLAY_NAME
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.ObjectRef
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -28,6 +29,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.targets.*
 
@@ -263,6 +265,9 @@ internal class SpellCaster(
         val objectOnStack = newState.objectRef(cardId)
 
         newState = consumeCastPermissions(newState, cardId, castFaceDown)
+        if (castFromZone == Zone.EXILE && objectBeforeCast != null) {
+            newState = endGrantsUntilCastFromExile(newState, objectBeforeCast)
+        }
         newState = unprepareSourceOfPrepareCopy(state, newState, cardId)
 
         // A cast-transformed spell is on the stack back face up (CR 712.8c), so its *name* is the
@@ -475,6 +480,19 @@ internal class SpellCaster(
             }
         )
         return newState
+    }
+
+    /**
+     * End every grant lasting "until this card is cast from exile" (Emrakul, the Exigent Doom's
+     * "{T}: Add {C}{C}") whose source was exactly [castObject] — the exile object being cast now.
+     * Matching the object, not just the entity, is what keeps a card that left exile some other way
+     * and came back from ending a grant that named its earlier incarnation (CR 400.7).
+     */
+    private fun endGrantsUntilCastFromExile(state: GameState, castObject: ObjectRef): GameState {
+        fun ends(grant: com.wingedsheep.engine.event.GrantedActivatedAbility) =
+            grant.duration == Duration.UntilSourceCastFromExile && grant.sourceObject == castObject
+        if (state.grantedActivatedAbilities.none(::ends)) return state
+        return state.copy(grantedActivatedAbilities = state.grantedActivatedAbilities.filterNot(::ends))
     }
 
     /** [state] is the pre-cast state; [current] the state the source is unprepared in. */

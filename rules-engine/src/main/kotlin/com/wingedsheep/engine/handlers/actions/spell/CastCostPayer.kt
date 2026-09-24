@@ -561,8 +561,16 @@ internal class CastCostPayer(
         }
         val inGrantableZone = isCastFrom(state, action.cardId, Zone.EXILE) || isCastFrom(state, action.cardId, Zone.GRAVEYARD)
         if (!inGrantableZone) return false
-        return state.activeMayPlayFor(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
-            .any { it.withAnyManaType }
+        if (state.activeMayPlayFor(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
+                .any { it.withAnyManaType }
+        ) {
+            return true
+        }
+        // 3. A linked-exile cast grant ([com.wingedsheep.sdk.scripting.GrantMayCastFromLinkedExile])
+        //    carrying the same rider — "you may cast the exiled card, and mana of any type can be
+        //    spent to cast that spell" (Null Summoner). Only exile hosts a linked pile.
+        return isCastFrom(state, action.cardId, Zone.EXILE) &&
+            zoneResolver.findLinkedExileGranter(state, action.playerId, action.cardId)?.withAnyManaType == true
     }
 
     private fun isCastFrom(state: GameState, cardId: EntityId, zone: Zone): Boolean =

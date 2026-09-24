@@ -830,22 +830,21 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     val castRestrictions = exiledCardDef?.script?.castRestrictions ?: emptyList()
                     val meetsRestrictions = context.legality.castRestrictionsMet(state, playerId, castRestrictions)
                     val freeCastFromGranter = grantAbility.withoutPayingManaCost
-                    val costString = if (freeCastFromGranter) "0" else run {
-                        val effectiveCost = if (exiledCardDef != null) {
+                    val effectiveCost = if (freeCastFromGranter) null else {
+                        val printed = if (exiledCardDef != null) {
                             context.costCalculator.calculateEffectiveCost(state, exiledCardDef, playerId, fromZone = Zone.EXILE)
                         } else {
                             exiledCard.manaCost
                         }
-                        effectiveCost.toString()
+                        // "…and mana of any type can be spent to cast that spell" (Null Summoner,
+                        // CR 609.4b) — the same relaxation CastCostPayer applies at payment.
+                        if (grantAbility.withAnyManaType ||
+                            context.castPermissionUtils.canSpendAnyManaTypeForSpell(state, playerId, exiledId)
+                        ) printed.relaxColors() else printed
                     }
-                    val canAfford = if (freeCastFromGranter) true else run {
-                        val effectiveCost = if (exiledCardDef != null) {
-                            context.costCalculator.calculateEffectiveCost(state, exiledCardDef, playerId, fromZone = Zone.EXILE)
-                        } else {
-                            exiledCard.manaCost
-                        }
+                    val costString = effectiveCost?.toString() ?: "0"
+                    val canAfford = effectiveCost == null ||
                         context.manaSolver.canPay(state, playerId, effectiveCost, precomputedSources = context.availableManaSources)
-                    }
 
                     // "Pay life equal to its mana value rather than pay its mana cost" (Valgavoth):
                     // the life cost is per-card (the cast card's mana value), so its affordability

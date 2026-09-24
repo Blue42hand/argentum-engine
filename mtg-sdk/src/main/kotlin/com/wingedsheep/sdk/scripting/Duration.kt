@@ -359,6 +359,28 @@ sealed interface Duration {
     }
 
     /**
+     * Effect lasts until the effect's source *card* is cast from exile — "Target land gains
+     * '{T}: Add {C}{C}' until this card is cast from exile" (Emrakul, the Exigent Doom), where the
+     * card exiled itself from hand as part of the ability's cost.
+     *
+     * An *event*-bounded duration, not a "for as long as …" gate: it ends only when the very
+     * object that was in exile when the effect began is cast. If that card leaves exile any other
+     * way it becomes a new object (CR 400.7) that can never be "cast from exile" as this card, so
+     * the effect simply lasts indefinitely — which is also what happens if the card had already
+     * left exile before the ability resolved.
+     *
+     * Honoured by the activated-ability grant ([com.wingedsheep.sdk.scripting.effects
+     * .GrantActivatedAbilityEffect]): the grant records the source's exile object when it is made,
+     * and casting that object from exile removes the grant as the spell moves to the stack. Other
+     * grant/effect stores do not read it yet.
+     */
+    @SerialName("UntilSourceCastFromExile")
+    @Serializable
+    data object UntilSourceCastFromExile : Duration {
+        override val description = "until this card is cast from exile"
+    }
+
+    /**
      * Effect is consumed the first time its replacement effect is applied
      * or end of turn if not consumed.
      */
@@ -381,6 +403,7 @@ object Durations {
     val UntilNextEndStep = Duration.UntilNextEndStep
     val EndOfCombat = Duration.EndOfCombat
     val Permanent = Duration.Permanent
+    val UntilSourceCastFromExile = Duration.UntilSourceCastFromExile
 
     fun whileOnBattlefield(source: String = "this permanent") =
         Duration.WhileSourceOnBattlefield(source)

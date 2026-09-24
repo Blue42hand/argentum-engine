@@ -554,6 +554,9 @@ class CleanupPhaseManager(
                 is Duration.UntilYourNextUpkeep -> true  // Keep until upkeep
                 is Duration.UntilNextEndStep -> true  // Expired on entry to the next end step (performNextEndStepExpiry)
                 is Duration.Permanent -> true  // Never expires
+                // Event-bounded ("until this card is cast from exile"): never a turn boundary. Only
+                // the activated-ability grant store reads the ending event today (SpellCaster).
+                is Duration.UntilSourceCastFromExile -> true
                 is Duration.WhileSourceOnBattlefield -> {
                     // Keep if source is still on battlefield
                     val sourceId = floatingEffect.sourceId
