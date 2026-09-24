@@ -1614,6 +1614,7 @@ internal fun processChosenModeQueue(
         TargetRequirementInfo(
             index = index,
             description = req.description,
+            mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
             minTargets = req.effectiveMinCount,
             maxTargets = req.count
         )

@@ -751,6 +751,7 @@ class TriggerProcessor(
             TargetRequirementInfo(
                 index = index,
                 description = req.description,
+                mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
                 // A dependent slot is optional only if every slot after it is (DependentTargetSelection).
                 minTargets = if (sequential && !DependentTargetSelection.canStopAt(allRequirements, 0)) 1
                     else req.effectiveMinCount,
@@ -1067,6 +1068,7 @@ class TriggerProcessor(
                 TargetRequirementInfo(
                     index = index,
                     description = req.description,
+                    mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
                     minTargets = req.effectiveMinCount,
                     maxTargets = req.count
                 )
