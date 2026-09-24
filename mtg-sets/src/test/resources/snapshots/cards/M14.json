@@ -1337,11 +1337,11 @@
                         "player": "Each",
                         "filter": "creature"
                     },
-                    "storeAs": "creatureCardsInAllGraveyards"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "creatureCardsInAllGraveyards",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"

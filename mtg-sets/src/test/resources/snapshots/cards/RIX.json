@@ -3188,11 +3188,11 @@
                                 "zone": "Graveyard",
                                 "filter": "land"
                             },
-                            "storeAs": "graveyard_lands"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "graveyard_lands",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield",

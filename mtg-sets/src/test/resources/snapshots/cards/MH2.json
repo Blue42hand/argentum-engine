@@ -2107,11 +2107,11 @@
                                 },
                                 "player": "TriggeringPlayer"
                             },
-                            "storeAs": "exiled"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiled",
+                            "from": "gathered1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile",
@@ -2120,7 +2120,7 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "exiled",
+                            "from": "gathered1",
                             "nonLandOnly": true
                         }
                     ]

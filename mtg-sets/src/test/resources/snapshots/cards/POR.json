@@ -1233,11 +1233,11 @@
                         },
                         "player": "TargetOpponent"
                     },
-                    "storeAs": "looked"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "looked",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -1245,14 +1245,14 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "toGraveyard",
-                    "storeRemainder": "toTop",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "selectedLabel": "Put in graveyard",
                     "remainderLabel": "Put on top"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toGraveyard",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard",
@@ -1261,7 +1261,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toTop",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",

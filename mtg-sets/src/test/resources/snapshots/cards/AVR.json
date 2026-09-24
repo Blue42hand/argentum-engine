@@ -134,11 +134,11 @@
                                         "zone": "Graveyard",
                                         "filter": "creature Human"
                                     },
-                                    "storeAs": "graveyard_lands"
+                                    "storeAs": "gathered0"
                                 },
                                 {
                                     "type": "MoveCollection",
-                                    "from": "graveyard_lands",
+                                    "from": "gathered0",
                                     "destination": {
                                         "type": "ToZone",
                                         "zone": "Battlefield"
@@ -251,11 +251,11 @@
                         },
                         "filter": "mv>=4"
                     },
-                    "storeAs": "mv4Plus"
+                    "storeAs": "gathered1"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "mv4Plus",
+                    "from": "gathered1",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -263,12 +263,12 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "chosenCard",
+                    "storeSelected": "selected2",
                     "prompt": "Choose a card with mana value 4 or greater to exile"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "chosenCard",
+                    "from": "selected2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Exile",
@@ -1664,11 +1664,11 @@
                                 "type": "BattlefieldMatching",
                                 "filter": "ctrl:you"
                             },
-                            "storeAs": "yourPermanents"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "yourPermanents",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1676,12 +1676,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "returned",
+                            "storeSelected": "selected1",
                             "prompt": "Choose a permanent you control to return to its owner's hand"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "returned",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"

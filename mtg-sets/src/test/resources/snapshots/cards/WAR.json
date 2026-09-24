@@ -1560,11 +1560,11 @@
                             "zone": "Battlefield",
                             "filter": "land"
                         },
-                        "storeAs": "lands"
+                        "storeAs": "gathered2"
                     },
                     {
                         "type": "SelectFromCollection",
-                        "from": "lands",
+                        "from": "gathered2",
                         "selection": {
                             "type": "ChooseUpTo",
                             "count": {
@@ -1572,13 +1572,13 @@
                                 "amount": 5
                             }
                         },
-                        "storeSelected": "landsToUntap",
+                        "storeSelected": "selected3",
                         "prompt": "Choose up to five lands to untap",
                         "showAllCards": true
                     },
                     {
                         "type": "TapUntapCollection",
-                        "collectionName": "landsToUntap",
+                        "collectionName": "selected3",
                         "tap": false
                     },
                     "RemoveMaximumHandSize"

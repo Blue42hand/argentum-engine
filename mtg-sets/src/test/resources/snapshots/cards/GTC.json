@@ -306,16 +306,16 @@
                             {
                                 "type": "GatherUntilMatch",
                                 "filter": "land",
-                                "storeMatch": "revealedLand",
-                                "storeRevealed": "allRevealed"
+                                "storeMatch": "matched0",
+                                "storeRevealed": "revealed0"
                             },
                             {
                                 "type": "RevealCollection",
-                                "from": "allRevealed"
+                                "from": "revealed0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "allRevealed",
+                                "from": "revealed0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"

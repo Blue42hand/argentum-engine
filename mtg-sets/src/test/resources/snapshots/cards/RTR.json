@@ -2404,11 +2404,11 @@
                                 "zone": "Graveyard",
                                 "player": "Each"
                             },
-                            "storeAs": "allGraveyards"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "allGraveyards",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"

@@ -926,11 +926,11 @@
                                     "index": 0
                                 }
                             },
-                            "storeAs": "topNine"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "topNine",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -938,14 +938,14 @@
                                     "amount": 2
                                 }
                             },
-                            "storeSelected": "exiled",
-                            "storeRemainder": "rest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Exile two of those cards face down.",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiled",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile",
@@ -958,7 +958,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "rest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -972,7 +972,7 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "exiled",
+                            "from": "selected1",
                             "expiry": "Permanent",
                             "withAnyManaType": true
                         }
@@ -2120,11 +2120,11 @@
                                                 "zone": "Hand",
                                                 "filter": "permanent"
                                             },
-                                            "storeAs": "venomHand"
+                                            "storeAs": "gathered0"
                                         },
                                         {
                                             "type": "SelectFromCollection",
-                                            "from": "venomHand",
+                                            "from": "gathered0",
                                             "selection": {
                                                 "type": "ChooseUpTo",
                                                 "count": {
@@ -2132,7 +2132,7 @@
                                                     "amount": 1
                                                 }
                                             },
-                                            "storeSelected": "venomChosen",
+                                            "storeSelected": "selected1",
                                             "prompt": "You may put a permanent card with mana value X or less onto the battlefield",
                                             "restrictions": [
                                                 {
@@ -2147,7 +2147,7 @@
                                         },
                                         {
                                             "type": "MoveCollection",
-                                            "from": "venomChosen",
+                                            "from": "selected1",
                                             "destination": {
                                                 "type": "ToZone",
                                                 "zone": "Battlefield"
@@ -2256,11 +2256,11 @@
                                 },
                                 "isMill": true
                             },
-                            "storeAs": "milled"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "milled",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
@@ -2268,7 +2268,7 @@
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "milled",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -2277,7 +2277,7 @@
                                 }
                             },
                             "filter": "creature",
-                            "storeSelected": "selected",
+                            "storeSelected": "selected2",
                             "prompt": "You may put a creature card into your hand",
                             "selectedLabel": "Put in hand",
                             "remainderLabel": "Leave in graveyard",
@@ -2285,7 +2285,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "selected",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -2996,11 +2996,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "gwenExiled"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "gwenExiled",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -3008,7 +3008,7 @@
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "gwenExiled",
+                            "from": "gathered0",
                             "expiry": "Permanent",
                             "condition": "YouControlSource"
                         }
@@ -3242,11 +3242,11 @@
                                         "amount": 2
                                     }
                                 },
-                                "storeAs": "exiledCards"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "exiledCards",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -3254,13 +3254,13 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "chosen",
+                                "storeSelected": "selected1",
                                 "prompt": "Choose one of the exiled cards to play.",
                                 "showAllCards": true
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "exiledCards",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -3268,7 +3268,7 @@
                             },
                             {
                                 "type": "GrantMayPlayFromExile",
-                                "from": "chosen",
+                                "from": "selected1",
                                 "expiry": {
                                     "type": "UntilControllerStep",
                                     "step": "CLEANUP",
@@ -4408,11 +4408,11 @@
                                 "zone": "Hand",
                                 "filter": "artifact"
                             },
-                            "storeAs": "ladyOctopusCandidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "ladyOctopusCandidates",
+                            "from": "gathered0",
                             "filter": {
                                 "cardPredicates": [
                                     {
@@ -4428,11 +4428,11 @@
                                     }
                                 ]
                             },
-                            "storeMatching": "ladyOctopusEligible"
+                            "storeMatching": "matching1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "ladyOctopusEligible",
+                            "from": "matching1",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -4440,12 +4440,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "ladyOctopusChosen",
+                            "storeSelected": "selected2",
                             "selectedLabel": "Cast without paying its mana cost"
                         },
                         {
                             "type": "CastFromCollectionWithoutPayingCost",
-                            "from": "ladyOctopusChosen"
+                            "from": "selected2"
                         }
                     ]
                 },
@@ -5682,13 +5682,13 @@
                         {
                             "type": "ChooseOption",
                             "optionType": "BASIC_LAND_TYPE",
-                            "storeAs": "chosenLandType"
+                            "storeAs": "chosen0"
                         },
                         {
                             "type": "SetLandType",
                             "target": "Self",
                             "duration": "Permanent",
-                            "fromChosenValueKey": "chosenLandType"
+                            "fromChosenValueKey": "chosen0"
                         },
                         {
                             "type": "Gated",
@@ -5839,11 +5839,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "mysterioTokens"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "mysterioTokens",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -6413,11 +6413,11 @@
                                     "index": 0
                                 }
                             },
-                            "storeAs": "revealedA"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "revealedA"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GatherCards",
@@ -6432,17 +6432,17 @@
                                     "index": 1
                                 }
                             },
-                            "storeAs": "revealedB"
+                            "storeAs": "gathered2"
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "revealedB"
+                            "from": "gathered2"
                         },
                         {
                             "type": "LoseLife",
                             "amount": {
                                 "type": "StoredCardManaValue",
-                                "collectionName": "revealedB"
+                                "collectionName": "gathered2"
                             },
                             "target": {
                                 "type": "ContextTarget",
@@ -6453,7 +6453,7 @@
                             "type": "LoseLife",
                             "amount": {
                                 "type": "StoredCardManaValue",
-                                "collectionName": "revealedA"
+                                "collectionName": "gathered0"
                             },
                             "target": {
                                 "type": "ContextTarget",
@@ -6462,7 +6462,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "revealedA",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand",
@@ -6474,7 +6474,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "revealedB",
+                            "from": "gathered2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand",
@@ -6782,11 +6782,11 @@
                                     "amount": 5
                                 }
                             },
-                            "storeAs": "looked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "looked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -6795,14 +6795,14 @@
                                 }
                             },
                             "filter": "creature",
-                            "storeSelected": "kept",
-                            "storeRemainder": "rest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "You may reveal up to two creature cards to put into your hand.",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "kept",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -6811,7 +6811,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "rest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -7278,11 +7278,11 @@
                                             ]
                                         }
                                     },
-                                    "storeAs": "rentTargets"
+                                    "storeAs": "gathered0"
                                 },
                                 {
                                     "type": "SelectFromCollection",
-                                    "from": "rentTargets",
+                                    "from": "gathered0",
                                     "selection": {
                                         "type": "ChooseExactly",
                                         "count": {
@@ -7290,13 +7290,13 @@
                                             "amount": 2
                                         }
                                     },
-                                    "storeSelected": "toTap",
+                                    "storeSelected": "selected1",
                                     "prompt": "Tap two untapped creatures and/or Treasures you control",
                                     "useTargetingUI": true
                                 },
                                 {
                                     "type": "TapUntapCollection",
-                                    "collectionName": "toTap"
+                                    "collectionName": "selected1"
                                 }
                             ]
                         }
@@ -7361,7 +7361,7 @@
                         "type": "BoundVariable",
                         "name": "target creature an opponent controls"
                     },
-                    "excessDamageVariable": "excess"
+                    "excessDamageVariable": "storedNumber1"
                 },
                 {
                     "type": "Gated",
@@ -7371,7 +7371,7 @@
                             "type": "Compare",
                             "left": {
                                 "type": "VariableReference",
-                                "variableName": "excess"
+                                "variableName": "storedNumber1"
                             },
                             "operator": "GTE",
                             "right": {
@@ -7406,13 +7406,13 @@
                                             }
                                         }
                                     },
-                                    "storeAs": "rampageArtifact"
+                                    "storeAs": "target2"
                                 },
                                 {
                                     "type": "MoveToZone",
                                     "target": {
                                         "type": "PipelineTarget",
-                                        "collectionName": "rampageArtifact"
+                                        "collectionName": "target2"
                                     },
                                     "destination": "Graveyard",
                                     "byDestruction": true
@@ -8461,11 +8461,11 @@
                                         "amount": 3
                                     }
                                 },
-                                "storeAs": "milled"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "milled",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"
@@ -8473,7 +8473,7 @@
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "milled",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseUpTo",
                                     "count": {
@@ -8482,7 +8482,7 @@
                                     }
                                 },
                                 "filter": "permanent",
-                                "storeSelected": "selected",
+                                "storeSelected": "selected2",
                                 "prompt": "You may put a permanent card into your hand",
                                 "selectedLabel": "Put in hand",
                                 "remainderLabel": "Leave in graveyard",
@@ -8490,7 +8490,7 @@
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "selected",
+                                "from": "selected2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Hand"
@@ -12108,19 +12108,19 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "allTargets"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "FilterCollection",
-                    "from": "allTargets",
+                    "from": "gathered0",
                     "filter": "creature ctrl:you",
-                    "storeMatching": "team"
+                    "storeMatching": "matching1"
                 },
                 {
                     "type": "ForEach",
                     "space": {
                         "type": "IterationSpace.Collection",
-                        "collection": "team"
+                        "collection": "matching1"
                     },
                     "body": {
                         "type": "ModifyStats",
@@ -12139,7 +12139,7 @@
                     "type": "ForEach",
                     "space": {
                         "type": "IterationSpace.Collection",
-                        "collection": "team"
+                        "collection": "matching1"
                     },
                     "body": {
                         "type": "DealDamage",
@@ -12253,7 +12253,7 @@
                         {
                             "type": "ChooseOption",
                             "optionType": "CARD_NAME",
-                            "storeAs": "clonedName"
+                            "storeAs": "cardName0"
                         },
                         {
                             "type": "CreateDelayedTrigger",
@@ -12277,7 +12277,7 @@
                                             "IsCreature",
                                             {
                                                 "type": "NameEqualsChosen",
-                                                "variableName": "clonedName"
+                                                "variableName": "cardName0"
                                             }
                                         ]
                                     }
@@ -12410,11 +12410,11 @@
                                         "index": 0
                                     }
                                 },
-                                "storeAs": "gwenTargetGraveyard"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "gwenTargetGraveyard",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -13778,11 +13778,11 @@
                                     "amount": 5
                                 }
                             },
-                            "storeAs": "looked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "looked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -13791,14 +13791,14 @@
                                 }
                             },
                             "filter": "creature",
-                            "storeSelected": "kept",
-                            "storeRemainder": "rest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "You may put a creature card onto the battlefield.",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "kept",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -13806,7 +13806,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "rest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",

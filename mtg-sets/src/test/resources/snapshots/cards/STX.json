@@ -1193,11 +1193,11 @@
                                     "filter": "permanent",
                                     "excludeSacrificedThisWay": true
                                 },
-                                "storeAs": "eligible"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "eligible",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseUpTo",
                                     "count": {
@@ -1205,12 +1205,12 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "chosen",
+                                "storeSelected": "selected1",
                                 "prompt": "Choose a permanent card to return to your hand"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "chosen",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Hand"

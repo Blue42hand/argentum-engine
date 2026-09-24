@@ -532,7 +532,7 @@
                                 "effects": [
                                     {
                                         "type": "StoreNumber",
-                                        "name": "ashlingRemovedCounters",
+                                        "name": "number0",
                                         "amount": {
                                             "type": "EntityProperty",
                                             "entity": "Self",
@@ -559,7 +559,7 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "VariableReference",
-                                                "variableName": "ashlingRemovedCounters"
+                                                "variableName": "number0"
                                             },
                                             "target": "IterationEntity"
                                         }
@@ -574,7 +574,7 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "VariableReference",
-                                                "variableName": "ashlingRemovedCounters"
+                                                "variableName": "number0"
                                             },
                                             "target": "Controller"
                                         }
@@ -2178,12 +2178,12 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "ambitionsSpell"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "CaptureControllers",
-                    "from": "ambitionsSpell",
-                    "storeAs": "ambitionsControllers"
+                    "from": "gathered0",
+                    "storeAs": "controllers1"
                 },
                 {
                     "type": "Counter",
@@ -2216,10 +2216,10 @@
                         "effects": [
                             {
                                 "type": "ForEachCapturedController",
-                                "collection": "ambitionsSpell",
-                                "originalCollection": "ambitionsSpell",
-                                "controllerSnapshot": "ambitionsControllers",
-                                "countVariable": "count0",
+                                "collection": "gathered0",
+                                "originalCollection": "gathered0",
+                                "controllerSnapshot": "controllers1",
+                                "countVariable": "count3",
                                 "effects": [
                                     {
                                         "type": "Composite",
@@ -3387,11 +3387,11 @@
                                     "amount": 7
                                 }
                             },
-                            "storeAs": "colfenorsPlansExiled"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "colfenorsPlansExiled",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -3720,7 +3720,7 @@
                         },
                         "id": "a Giant creature you control"
                     },
-                    "storeAs": "crushGiant"
+                    "storeAs": "target0"
                 },
                 {
                     "type": "DealDamage",
@@ -3728,7 +3728,7 @@
                         "type": "EntityProperty",
                         "entity": {
                             "type": "PipelineTarget",
-                            "collectionName": "crushGiant"
+                            "collectionName": "target0"
                         },
                         "numericProperty": "Power"
                     },
@@ -3738,7 +3738,7 @@
                     },
                     "damageSource": {
                         "type": "PipelineTarget",
-                        "collectionName": "crushGiant"
+                        "collectionName": "target0"
                     }
                 }
             ]
@@ -4024,11 +4024,11 @@
                                 "zone": "Hand",
                                 "filter": "creature"
                             },
-                            "storeAs": "put_candidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "put_candidates",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -4036,12 +4036,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "putting",
+                            "storeSelected": "selected1",
                             "prompt": "Put a creature card from your hand onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "putting",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -4049,12 +4049,12 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "putting",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "AttachEquipment",
                                 "target": {
                                     "type": "PipelineTarget",
-                                    "collectionName": "putting"
+                                    "collectionName": "selected1"
                                 }
                             }
                         }
@@ -6183,11 +6183,11 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "feast_cards"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "feast_cards",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -8273,11 +8273,11 @@
                                     "amount": 4
                                 }
                             },
-                            "storeAs": "hideawayTop"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTop",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -8285,15 +8285,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPicked",
-                            "storeRemainder": "hideawayRest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -8303,7 +8303,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -8347,15 +8347,15 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "hideawayLinked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GrantPlayWithoutPayingCost",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         }
                     ]
                 },
@@ -8799,11 +8799,11 @@
                                 "zone": "Hand",
                                 "filter": "creature Elemental"
                             },
-                            "storeAs": "put_candidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "put_candidates",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -8811,12 +8811,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "putting",
+                            "storeSelected": "selected1",
                             "prompt": "Put an Elemental creature card onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "putting",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -8824,7 +8824,7 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "putting",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "Composite",
                                 "effects": [
@@ -8833,7 +8833,7 @@
                                         "keyword": "HASTE",
                                         "target": {
                                             "type": "PipelineTarget",
-                                            "collectionName": "putting"
+                                            "collectionName": "selected1"
                                         }
                                     },
                                     {
@@ -8843,7 +8843,7 @@
                                             "type": "SacrificeTarget",
                                             "target": {
                                                 "type": "PipelineTarget",
-                                                "collectionName": "putting"
+                                                "collectionName": "selected1"
                                             }
                                         }
                                     }
@@ -10209,7 +10209,7 @@
                 {
                     "type": "ChooseOption",
                     "optionType": "CARD_NAME",
-                    "storeAs": "weaveChosenName",
+                    "storeAs": "cardName0",
                     "prompt": "Choose a card name"
                 },
                 {
@@ -10256,7 +10256,7 @@
                                 "cardPredicates": [
                                     {
                                         "type": "NameEqualsChosen",
-                                        "variableName": "weaveChosenName"
+                                        "variableName": "cardName0"
                                     }
                                 ]
                             }
@@ -10584,11 +10584,11 @@
                                 "player": "Each",
                                 "filter": "creature"
                             },
-                            "storeAs": "creatureCardsInAllGraveyards"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "creatureCardsInAllGraveyards",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -11623,11 +11623,11 @@
                                     }
                                 }
                             },
-                            "storeAs": "mistbindClique_lands"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "TapUntapCollection",
-                            "collectionName": "mistbindClique_lands"
+                            "collectionName": "gathered0"
                         }
                     ]
                 },
@@ -11751,11 +11751,11 @@
                                     "amount": 4
                                 }
                             },
-                            "storeAs": "hideawayTop"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTop",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -11763,15 +11763,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPicked",
-                            "storeRemainder": "hideawayRest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -11781,7 +11781,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -11825,15 +11825,15 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "hideawayLinked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GrantPlayWithoutPayingCost",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         }
                     ]
                 },
@@ -12541,11 +12541,11 @@
                                     "type": "ControlledPermanents",
                                     "filter": "creature|land"
                                 },
-                                "storeAs": "newHosts"
+                                "storeAs": "gathered1"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "newHosts",
+                                "from": "gathered1",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -14238,7 +14238,7 @@
             "effects": [
                 {
                     "type": "StoreNumber",
-                    "name": "scatteredManaValue",
+                    "name": "number0",
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
@@ -14278,7 +14278,7 @@
                                 "type": "AddColorlessMana",
                                 "amount": {
                                     "type": "VariableReference",
-                                    "variableName": "scatteredManaValue"
+                                    "variableName": "number0"
                                 }
                             }
                         },
@@ -14751,11 +14751,11 @@
                                     "amount": 4
                                 }
                             },
-                            "storeAs": "hideawayTop"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTop",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -14763,15 +14763,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPicked",
-                            "storeRemainder": "hideawayRest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -14781,7 +14781,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -14825,15 +14825,15 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "hideawayLinked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GrantPlayWithoutPayingCost",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         }
                     ]
                 },
@@ -15675,11 +15675,11 @@
                                     "amount": 4
                                 }
                             },
-                            "storeAs": "hideawayTop"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTop",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -15687,15 +15687,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPicked",
-                            "storeRemainder": "hideawayRest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -15705,7 +15705,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -15749,15 +15749,15 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "hideawayLinked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GrantPlayWithoutPayingCost",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         }
                     ]
                 },
@@ -16931,11 +16931,11 @@
                             "index": 0
                         }
                     },
-                    "storeAs": "revealedHand"
+                    "storeAs": "gathered1"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "revealedHand",
+                    "from": "gathered1",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -16944,14 +16944,14 @@
                         }
                     },
                     "filter": "nonland",
-                    "storeSelected": "toDiscard",
+                    "storeSelected": "selected2",
                     "prompt": "Choose a nonland card to discard",
                     "showAllCards": true,
                     "alwaysPrompt": true
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toDiscard",
+                    "from": "selected2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard",
@@ -17283,7 +17283,7 @@
                         {
                             "type": "ChooseOption",
                             "optionType": "BASIC_LAND_TYPE",
-                            "storeAs": "chosenLandType"
+                            "storeAs": "chosen0"
                         },
                         {
                             "type": "SetLandType",
@@ -17291,7 +17291,7 @@
                                 "type": "BoundVariable",
                                 "name": "target land"
                             },
-                            "fromChosenValueKey": "chosenLandType"
+                            "fromChosenValueKey": "chosen0"
                         }
                     ]
                 },
@@ -17586,11 +17586,11 @@
                                 "type": "FromZone",
                                 "zone": "Hand"
                             },
-                            "storeAs": "hand"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hand",
+                            "from": "gathered0",
                             "selection": "ChooseSpell",
                             "filter": {
                                 "cardPredicates": [
@@ -17600,14 +17600,14 @@
                                     "SharesNameWithSpellCastThisTurn"
                                 ]
                             },
-                            "storeSelected": "spellToCast",
+                            "storeSelected": "selected1",
                             "prompt": "You may cast a spell with the same name as a spell cast this turn",
                             "selectedLabel": "Cast for free",
                             "showAllCards": true
                         },
                         {
                             "type": "CastFromCollectionWithoutPayingCost",
-                            "from": "spellToCast"
+                            "from": "selected1"
                         }
                     ]
                 },
@@ -18499,7 +18499,7 @@
             "effects": [
                 {
                     "type": "StoreNumber",
-                    "name": "strangledToughness",
+                    "name": "number0",
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
@@ -18541,10 +18541,10 @@
                         "type": "GainLife",
                         "amount": {
                             "type": "VariableReference",
-                            "variableName": "strangledToughness"
+                            "variableName": "number0"
                         }
                     },
-                    "descriptionOverride": "Clash with an opponent. If you win, you gain the stored strangledToughness life"
+                    "descriptionOverride": "Clash with an opponent. If you win, you gain the stored number0 life"
                 }
             ]
         },
@@ -18829,11 +18829,11 @@
                                     "amount": 4
                                 }
                             },
-                            "storeAs": "hideawayTop"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTop",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -18841,15 +18841,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPicked",
-                            "storeRemainder": "hideawayRest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -18859,7 +18859,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -18903,15 +18903,15 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "hideawayLinked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GrantPlayWithoutPayingCost",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         }
                     ]
                 },

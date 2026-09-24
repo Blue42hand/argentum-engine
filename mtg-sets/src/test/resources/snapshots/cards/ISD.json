@@ -1143,11 +1143,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "delverLooked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "delverLooked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -1155,14 +1155,14 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "delverRevealed",
+                            "storeSelected": "selected1",
                             "prompt": "You may reveal the top card of your library",
                             "selectedLabel": "Reveal",
                             "showAllCards": true
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "delverRevealed",
+                            "from": "selected1",
                             "revealToSelf": false
                         },
                         {
@@ -1171,7 +1171,7 @@
                                 "type": "Gate.WhenCondition",
                                 "condition": {
                                     "type": "CollectionContainsMatch",
-                                    "collection": "delverRevealed",
+                                    "collection": "selected1",
                                     "filter": "instant|sorcery"
                                 }
                             },
@@ -2716,11 +2716,11 @@
                                 "zone": "Graveyard",
                                 "filter": "Zombie"
                             },
-                            "storeAs": "zombies"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "zombies",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "Random",
                                 "count": {
@@ -2728,11 +2728,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "chosen"
+                            "storeSelected": "selected1"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "chosen",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -3745,14 +3745,14 @@
                                     "index": 0
                                 }
                             },
-                            "storeAs": "their_permanents"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "their_permanents",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
-                            "storeSelected": "pileA",
-                            "storeRemainder": "pileB",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Separate their permanents into two piles. The permanents you select form Pile 1; the rest form Pile 2.",
                             "selectedLabel": "Pile 1",
                             "remainderLabel": "Pile 2",
@@ -3761,16 +3761,16 @@
                         },
                         {
                             "type": "ChoosePile",
-                            "pileA": "pileA",
-                            "pileB": "pileB",
+                            "pileA": "selected1",
+                            "pileB": "remainder1",
                             "chooser": "TargetPlayer",
-                            "storeChosenAs": "sacrificedPile",
-                            "storeOtherAs": "keptPile",
+                            "storeChosenAs": "chosenPile2",
+                            "storeOtherAs": "otherPile2",
                             "prompt": "Choose a pile. You sacrifice all permanents in the pile you choose."
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "sacrificedPile",
+                            "from": "chosenPile2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
@@ -5227,12 +5227,12 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "target"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "StoreCardName",
-                    "from": "target",
-                    "storeAs": "name"
+                    "from": "gathered0",
+                    "storeAs": "cardName1"
                 },
                 {
                     "type": "GatherCards",
@@ -5243,16 +5243,16 @@
                                 "IsCreature",
                                 {
                                     "type": "NameEqualsChosen",
-                                    "variableName": "name"
+                                    "variableName": "cardName1"
                                 }
                             ]
                         }
                     },
-                    "storeAs": "sameNamed"
+                    "storeAs": "gathered2"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "sameNamed",
+                    "from": "gathered2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Exile"

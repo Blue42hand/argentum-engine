@@ -1468,11 +1468,11 @@
                                     "amount": 5
                                 }
                             },
-                            "storeAs": "fightRiggingTop"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "fightRiggingTop",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1480,15 +1480,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "fightRiggingPicked",
-                            "storeRemainder": "fightRiggingRest",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "fightRiggingPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1498,7 +1498,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "fightRiggingRest",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -1555,11 +1555,11 @@
                                         {
                                             "type": "GatherCards",
                                             "source": "FromLinkedExile",
-                                            "storeAs": "fightRiggingLinked"
+                                            "storeAs": "gathered0"
                                         },
                                         {
                                             "type": "PlayFromCollectionWithoutPayingCost",
-                                            "from": "fightRiggingLinked"
+                                            "from": "gathered0"
                                         }
                                     ]
                                 },

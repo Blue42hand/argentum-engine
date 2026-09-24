@@ -1096,12 +1096,12 @@
                                     "zone": "Library",
                                     "filter": "artifact"
                                 },
-                                "storeAs": "hoardSearchable",
+                                "storeAs": "gathered0",
                                 "search": true
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "hoardSearchable",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseUpTo",
                                     "count": {
@@ -1109,12 +1109,12 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "hoardFound",
+                                "storeSelected": "selected1",
                                 "prompt": "Search for an artifact card to exile"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "hoardFound",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -1143,11 +1143,11 @@
                             {
                                 "type": "GatherCards",
                                 "source": "FromLinkedExile",
-                                "storeAs": "hoardExiled"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "hoardExiled",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Hand"

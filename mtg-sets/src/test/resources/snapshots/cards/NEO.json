@@ -2478,11 +2478,11 @@
                                 "zone": "Graveyard",
                                 "filter": "creature|planeswalker"
                             },
-                            "storeAs": "takenumaGraveyard"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "takenumaGraveyard",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -2490,13 +2490,13 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "takenumaReturned",
+                            "storeSelected": "selected2",
                             "prompt": "Choose a creature or planeswalker card to return to your hand",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "takenumaReturned",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"

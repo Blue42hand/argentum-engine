@@ -1373,16 +1373,16 @@
                                     "key": "TRIGGER_DAMAGE_AMOUNT"
                                 }
                             },
-                            "storeAs": "gishath_revealed",
+                            "storeAs": "gathered0",
                             "revealed": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "gishath_revealed",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
                             "filter": "creature Dinosaur",
-                            "storeSelected": "gishath_toBattlefield",
-                            "storeRemainder": "gishath_toBottom",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Put any number of Dinosaur creature cards onto the battlefield",
                             "selectedLabel": "Put onto the battlefield",
                             "remainderLabel": "Put on the bottom of your library",
@@ -1390,7 +1390,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "gishath_toBattlefield",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -1398,7 +1398,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "gishath_toBottom",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -3055,11 +3055,11 @@
                             }
                         }
                     },
-                    "storeAs": "attackers"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "attackers",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Exile"
@@ -3067,7 +3067,7 @@
                 },
                 {
                     "type": "ConditionalOnCollection",
-                    "collection": "attackers",
+                    "collection": "gathered0",
                     "ifNotEmpty": {
                         "type": "Gated",
                         "gate": "Gate.MayDecide",
@@ -3082,27 +3082,27 @@
                                         "player": "TargetPlayer",
                                         "filter": "basicland"
                                     },
-                                    "storeAs": "searchable"
+                                    "storeAs": "gathered3"
                                 },
                                 {
                                     "type": "SelectFromCollection",
-                                    "from": "searchable",
+                                    "from": "gathered3",
                                     "selection": {
                                         "type": "ChooseUpTo",
                                         "count": {
                                             "type": "DistinctEntitiesInCollections",
                                             "collections": [
-                                                "attackers"
+                                                "gathered0"
                                             ]
                                         }
                                     },
                                     "chooser": "TargetPlayer",
-                                    "storeSelected": "found",
+                                    "storeSelected": "selected4",
                                     "prompt": "Search your library for basic land cards"
                                 },
                                 {
                                     "type": "MoveCollection",
-                                    "from": "found",
+                                    "from": "selected4",
                                     "destination": {
                                         "type": "ToZone",
                                         "zone": "Battlefield",
@@ -3729,12 +3729,12 @@
                                     "numericProperty": "ManaValue"
                                 }
                             },
-                            "storeAs": "revealed",
+                            "storeAs": "gathered0",
                             "revealed": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "revealed",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -3751,8 +3751,8 @@
                                     }
                                 ]
                             },
-                            "storeSelected": "chosen",
-                            "storeRemainder": "toBottom",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "You may cast one of the revealed cards without paying its mana cost.",
                             "selectedLabel": "Cast for free",
                             "remainderLabel": "Put on bottom",
@@ -3760,7 +3760,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toBottom",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -3770,7 +3770,7 @@
                         },
                         {
                             "type": "CastFromCollectionWithoutPayingCost",
-                            "from": "chosen"
+                            "from": "selected1"
                         }
                     ]
                 }

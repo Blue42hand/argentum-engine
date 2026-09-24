@@ -2811,14 +2811,14 @@
                                 "player": "TriggeringPlayer",
                                 "filter": "creature blue tapped"
                             },
-                            "storeAs": "eligible"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "eligible",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
                             "chooser": "TriggeringPlayer",
-                            "storeSelected": "chosen",
+                            "storeSelected": "selected1",
                             "prompt": "Choose any number of tapped blue creatures to untap (pay {4} for each)",
                             "useTargetingUI": true,
                             "restrictions": [
@@ -2831,7 +2831,7 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "chosen",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "Gated",
                                 "gate": {
@@ -2842,7 +2842,7 @@
                                             "type": "Multiply",
                                             "amount": {
                                                 "type": "VariableReference",
-                                                "variableName": "chosen_count"
+                                                "variableName": "selected1_count"
                                             },
                                             "multiplier": 4
                                         },
@@ -2853,7 +2853,7 @@
                                     "type": "ForEach",
                                     "space": {
                                         "type": "IterationSpace.Collection",
-                                        "collection": "chosen"
+                                        "collection": "selected1"
                                     },
                                     "body": {
                                         "type": "TapUntap",
@@ -3883,7 +3883,7 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "toDraw"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "DrawCards",
@@ -3894,7 +3894,7 @@
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "toDraw",
+                            "from": "gathered0",
                             "filter": {
                                 "statePredicates": [
                                     {
@@ -3903,23 +3903,23 @@
                                     }
                                 ]
                             },
-                            "storeMatching": "drawn"
+                            "storeMatching": "matching2"
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "drawn",
+                            "from": "matching2",
                             "revealToSelf": false
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "drawn",
+                            "from": "matching2",
                             "filter": "land",
-                            "storeMatching": "keptLand",
-                            "storeNonMatching": "notLand"
+                            "storeMatching": "matching4",
+                            "storeNonMatching": "rest4"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "notLand",
+                            "from": "rest4",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"

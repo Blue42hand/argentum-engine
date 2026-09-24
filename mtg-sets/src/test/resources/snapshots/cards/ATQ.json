@@ -1433,11 +1433,11 @@
                 {
                     "type": "GatherCards",
                     "source": "ChosenTargets",
-                    "storeAs": "drafna_cards"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "drafna_cards",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -3941,18 +3941,18 @@
                                         ]
                                     }
                                 },
-                                "storeAs": "tetraviteTokens"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "tetraviteTokens",
+                                "from": "gathered0",
                                 "selection": "ChooseAnyNumber",
-                                "storeSelected": "exiledTokens",
+                                "storeSelected": "selected1",
                                 "prompt": "Exile any number of Tetravite tokens created with this creature"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "exiledTokens",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -3963,7 +3963,7 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "amount": {
                                     "type": "VariableReference",
-                                    "variableName": "exiledTokens_count"
+                                    "variableName": "selected1_count"
                                 },
                                 "target": "Self"
                             }
@@ -4168,11 +4168,11 @@
                         "type": "BattlefieldMatching",
                         "filter": "artifact ctrl:you"
                     },
-                    "storeAs": "sacrificeable"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "sacrificeable",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -4180,12 +4180,12 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "sacrificed",
+                    "storeSelected": "selected1",
                     "prompt": "Sacrifice an artifact"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "sacrificed",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard"
@@ -4198,7 +4198,7 @@
                         "type": "Gate.WhenCondition",
                         "condition": {
                             "type": "CollectionContainsMatch",
-                            "collection": "sacrificed"
+                            "collection": "selected1"
                         }
                     },
                     "then": {
@@ -4211,12 +4211,12 @@
                                     "zone": "Library",
                                     "filter": "artifact"
                                 },
-                                "storeAs": "searchable",
+                                "storeAs": "gathered3",
                                 "search": true
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "searchable",
+                                "from": "gathered3",
                                 "selection": {
                                     "type": "ChooseUpTo",
                                     "count": {
@@ -4224,7 +4224,7 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found",
+                                "storeSelected": "selected4",
                                 "prompt": "Search your library for an artifact card"
                             },
                             {
@@ -4235,22 +4235,27 @@
                                         "type": "Compare",
                                         "left": {
                                             "type": "StoredCardManaValue",
-                                            "collectionName": "found"
+                                            "collectionName": "selected4"
                                         },
                                         "operator": "LTE",
                                         "right": {
                                             "type": "StoredCardManaValue",
-                                            "collectionName": "sacrificed"
+                                            "collectionName": "selected1"
                                         }
                                     }
                                 },
                                 "then": {
-                                    "type": "MoveCollection",
-                                    "from": "found",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    }
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "selected4",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Battlefield"
+                                            }
+                                        }
+                                    ]
                                 },
                                 "otherwise": {
                                     "type": "Gated",
@@ -4262,30 +4267,40 @@
                                                 "type": "Subtract",
                                                 "left": {
                                                     "type": "StoredCardManaValue",
-                                                    "collectionName": "found"
+                                                    "collectionName": "selected4"
                                                 },
                                                 "right": {
                                                     "type": "StoredCardManaValue",
-                                                    "collectionName": "sacrificed"
+                                                    "collectionName": "selected1"
                                                 }
                                             }
                                         }
                                     },
                                     "then": {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield"
-                                        }
+                                        "type": "Composite",
+                                        "effects": [
+                                            {
+                                                "type": "MoveCollection",
+                                                "from": "selected4",
+                                                "destination": {
+                                                    "type": "ToZone",
+                                                    "zone": "Battlefield"
+                                                }
+                                            }
+                                        ]
                                     },
                                     "otherwise": {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        }
+                                        "type": "Composite",
+                                        "effects": [
+                                            {
+                                                "type": "MoveCollection",
+                                                "from": "selected4",
+                                                "destination": {
+                                                    "type": "ToZone",
+                                                    "zone": "Graveyard"
+                                                }
+                                            }
+                                        ]
                                     }
                                 }
                             }

@@ -26,11 +26,11 @@
                         },
                         "filter": "nonland"
                     },
-                    "storeAs": "amnesiaDiscard"
+                    "storeAs": "gathered1"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "amnesiaDiscard",
+                    "from": "gathered1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard",
@@ -1129,11 +1129,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "danceToken"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "danceToken",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -2289,20 +2289,20 @@
                                     "zone": "Graveyard",
                                     "filter": "creature"
                                 },
-                                "storeAs": "fmCandidates"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "fmCandidates",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": "XValue"
                                 },
-                                "storeSelected": "fmExiled"
+                                "storeSelected": "selected1"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "fmExiled",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -3827,34 +3827,34 @@
                         "player": "Each",
                         "filter": "creature white"
                     },
-                    "storeAs": "martyrs"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "CaptureControllers",
-                    "from": "martyrs",
-                    "storeAs": "martyrControllers"
+                    "from": "gathered0",
+                    "storeAs": "controllers1"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "martyrs",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Exile"
                     },
-                    "storeMovedAs": "exiledMartyrs"
+                    "storeMovedAs": "moved2"
                 },
                 {
                     "type": "ForEachCapturedController",
-                    "collection": "exiledMartyrs",
-                    "originalCollection": "martyrs",
-                    "controllerSnapshot": "martyrControllers",
-                    "countVariable": "martyrCount",
+                    "collection": "moved2",
+                    "originalCollection": "gathered0",
+                    "controllerSnapshot": "controllers1",
+                    "countVariable": "count3",
                     "effects": [
                         {
                             "type": "DrawCards",
                             "count": {
                                 "type": "VariableReference",
-                                "variableName": "martyrCount"
+                                "variableName": "count3"
                             }
                         }
                     ]
@@ -4015,11 +4015,11 @@
                             "type": "FromZone",
                             "zone": "Hand"
                         },
-                        "storeAs": "mindBombCandidates"
+                        "storeAs": "gathered0"
                     },
                     {
                         "type": "SelectFromCollection",
-                        "from": "mindBombCandidates",
+                        "from": "gathered0",
                         "selection": {
                             "type": "ChooseUpTo",
                             "count": {
@@ -4027,12 +4027,12 @@
                                 "amount": 3
                             }
                         },
-                        "storeSelected": "mindBombDiscarded",
+                        "storeSelected": "selected1",
                         "prompt": "Discard up to three cards?"
                     },
                     {
                         "type": "MoveCollection",
-                        "from": "mindBombDiscarded",
+                        "from": "selected1",
                         "destination": {
                             "type": "ToZone",
                             "zone": "Graveyard"
@@ -4050,7 +4050,7 @@
                             "right": {
                                 "type": "DistinctEntitiesInCollections",
                                 "collections": [
-                                    "mindBombDiscarded"
+                                    "selected1"
                                 ]
                             }
                         },
@@ -4314,14 +4314,14 @@
                         {
                             "type": "GatherCards",
                             "source": "ExiledAsCost",
-                            "storeAs": "necropolisFuel"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "AddDynamicCounters",
                             "counterType": "PLUS_ZERO_PLUS_ONE",
                             "amount": {
                                 "type": "ManaValueSumOfCollection",
-                                "collectionName": "necropolisFuel"
+                                "collectionName": "gathered0"
                             },
                             "target": "Self"
                         }
@@ -4698,11 +4698,11 @@
                                 },
                                 "filter": "creature"
                             },
-                            "storeAs": "ragManCandidates"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "ragManCandidates",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "Random",
                                 "count": {
@@ -4710,11 +4710,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "ragManVictim"
+                            "storeSelected": "selected2"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "ragManVictim",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard",
@@ -6055,11 +6055,11 @@
                                     "index": 0
                                 }
                             },
-                            "storeAs": "crypt_graveyard"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "crypt_graveyard",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile",
@@ -6360,11 +6360,11 @@
                                     "index": 0
                                 }
                             },
-                            "storeAs": "ithCandidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "ithCandidates",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "Random",
                                 "count": {
@@ -6372,22 +6372,22 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "ithRevealed"
+                            "storeSelected": "selected1"
                         },
                         {
                             "type": "RevealCollection",
-                            "from": "ithRevealed"
+                            "from": "selected1"
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "ithRevealed",
+                            "from": "selected1",
                             "filter": "land",
-                            "storeMatching": "ithLand",
-                            "storeNonMatching": "ithNonland"
+                            "storeMatching": "matching3",
+                            "storeNonMatching": "rest3"
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "ithLand",
+                            "collection": "matching3",
                             "ifNotEmpty": {
                                 "type": "PayOrSuffer",
                                 "cost": {
@@ -6398,17 +6398,22 @@
                                     }
                                 },
                                 "suffer": {
-                                    "type": "MoveCollection",
-                                    "from": "ithLand",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard",
-                                        "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "matching3",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Graveyard",
+                                                "player": {
+                                                    "type": "ContextPlayer",
+                                                    "index": 0
+                                                }
+                                            },
+                                            "moveType": "Discard"
                                         }
-                                    },
-                                    "moveType": "Discard"
+                                    ]
                                 },
                                 "player": {
                                     "type": "ContextTarget",
@@ -6418,28 +6423,33 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "ithNonland",
+                            "collection": "rest3",
                             "ifNotEmpty": {
                                 "type": "PayOrSuffer",
                                 "cost": {
                                     "type": "PayDynamicLife",
                                     "amount": {
                                         "type": "ManaValueSumOfCollection",
-                                        "collectionName": "ithNonland"
+                                        "collectionName": "rest3"
                                     }
                                 },
                                 "suffer": {
-                                    "type": "MoveCollection",
-                                    "from": "ithNonland",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard",
-                                        "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "rest3",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Graveyard",
+                                                "player": {
+                                                    "type": "ContextPlayer",
+                                                    "index": 0
+                                                }
+                                            },
+                                            "moveType": "Discard"
                                         }
-                                    },
-                                    "moveType": "Discard"
+                                    ]
                                 },
                                 "player": {
                                     "type": "ContextTarget",

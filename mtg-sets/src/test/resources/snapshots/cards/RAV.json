@@ -116,11 +116,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "searchable",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -128,7 +128,7 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found",
+                            "storeSelected": "selected1",
                             "prompt": "Search for an Aura card that could enchant Auratouched Mage"
                         },
                         {
@@ -143,22 +143,32 @@
                                 }
                             },
                             "then": {
-                                "type": "MoveCollection",
-                                "from": "found",
-                                "destination": {
-                                    "type": "ToZone",
-                                    "zone": "Battlefield"
-                                },
-                                "attachTo": "Self"
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "selected1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield"
+                                        },
+                                        "attachTo": "Self"
+                                    }
+                                ]
                             },
                             "otherwise": {
-                                "type": "MoveCollection",
-                                "from": "found",
-                                "destination": {
-                                    "type": "ToZone",
-                                    "zone": "Hand"
-                                },
-                                "revealed": true
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "selected1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Hand"
+                                        },
+                                        "revealed": true
+                                    }
+                                ]
                             }
                         },
                         "ShuffleLibrary",
@@ -1167,11 +1177,11 @@
                                 "type": "FromZone",
                                 "zone": "Hand"
                             },
-                            "storeAs": "cloisterHand"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "cloisterHand",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1195,17 +1205,17 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "cloisterExiled"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "cloisterExiled",
+                            "from": "gathered0",
                             "filter": "own:you",
-                            "storeMatching": "cloisterMine"
+                            "storeMatching": "matching1"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "cloisterMine",
+                            "from": "matching1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -2132,11 +2142,11 @@
                                 },
                                 "player": "TargetPlayer"
                             },
-                            "storeAs": "circuBlueExile"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "circuBlueExile",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -2177,11 +2187,11 @@
                                 },
                                 "player": "TargetPlayer"
                             },
-                            "storeAs": "circuBlackExile"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "circuBlackExile",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -2466,11 +2476,11 @@
                                 "player": "You",
                                 "excludeTriggering": true
                             },
-                            "storeAs": "candidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "candidates",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -2478,13 +2488,13 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "returned",
+                            "storeSelected": "selected1",
                             "prompt": "You may return another permanent you control that shares a permanent type with the one that entered to its owner's hand",
                             "useTargetingUI": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "returned",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -3712,11 +3722,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeAs": "revealed"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "revealed",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -3727,7 +3737,7 @@
                             "type": "LoseLife",
                             "amount": {
                                 "type": "StoredCardManaValue",
-                                "collectionName": "revealed"
+                                "collectionName": "gathered0"
                             },
                             "target": "Controller"
                         }
@@ -5514,11 +5524,11 @@
                         "player": "Each",
                         "filter": "creature"
                     },
-                    "storeAs": "graveyardCreatures"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "graveyardCreatures",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -5762,16 +5772,16 @@
                                     {
                                         "type": "GatherCards",
                                         "source": "FromLinkedExile",
-                                        "storeAs": "eyeExiled"
+                                        "storeAs": "gathered0"
                                     },
                                     {
                                         "type": "CopyCollectionIntoCollection",
-                                        "from": "eyeExiled",
-                                        "storeAs": "eyeCopies"
+                                        "from": "gathered0",
+                                        "storeAs": "copies1"
                                     },
                                     {
                                         "type": "CastAnyNumberFromCollectionWithoutPayingCost",
-                                        "from": "eyeCopies"
+                                        "from": "copies1"
                                     }
                                 ]
                             }
@@ -6426,7 +6436,7 @@
                                     ]
                                 }
                             },
-                            "storeAs": "flickerHost"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "GatherCards",
@@ -6435,11 +6445,11 @@
                                 "host": "EnchantedCreature",
                                 "filter": "enchantment Aura"
                             },
-                            "storeAs": "flickerAuras"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "flickerHost",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -6447,7 +6457,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "flickerAuras",
+                            "from": "gathered1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -6461,7 +6471,7 @@
                                 "effects": [
                                     {
                                         "type": "MoveCollection",
-                                        "from": "flickerHost",
+                                        "from": "gathered0",
                                         "destination": {
                                             "type": "ToZone",
                                             "zone": "Battlefield"
@@ -6470,7 +6480,7 @@
                                     },
                                     {
                                         "type": "MoveCollection",
-                                        "from": "flickerAuras",
+                                        "from": "gathered1",
                                         "destination": {
                                             "type": "ToZone",
                                             "zone": "Battlefield"
@@ -6478,14 +6488,14 @@
                                         "underOwnersControl": true,
                                         "attachTo": {
                                             "type": "PipelineTarget",
-                                            "collectionName": "flickerHost"
+                                            "collectionName": "gathered0"
                                         }
                                     }
                                 ]
                             },
                             "carryCollections": [
-                                "flickerHost",
-                                "flickerAuras"
+                                "gathered0",
+                                "gathered1"
                             ]
                         }
                     ]
@@ -7099,11 +7109,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "fallen"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "fallen",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -9921,11 +9931,11 @@
                                     "index": 0
                                 }
                             },
-                            "storeAs": "peeked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "peeked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -9933,14 +9943,14 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "toGraveyard",
-                            "storeRemainder": "toTop",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "selectedLabel": "Put into that player's graveyard",
                             "remainderLabel": "Leave on top of that player's library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toGraveyard",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard",
@@ -9952,7 +9962,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toTop",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -10012,7 +10022,7 @@
                                 "host": "EnchantedCreature",
                                 "filter": "permanent Aura"
                             },
-                            "storeAs": "evictedAuras"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveToZone",
@@ -10021,7 +10031,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "evictedAuras",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -10190,11 +10200,11 @@
                                     "zone": "Hand",
                                     "player": "TriggeringPlayer"
                                 },
-                                "storeAs": "opponentsHand"
+                                "storeAs": "gathered1"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "opponentsHand",
+                                "from": "gathered1",
                                 "selection": {
                                     "type": "ChooseUpTo",
                                     "count": {
@@ -10203,14 +10213,14 @@
                                     }
                                 },
                                 "filter": "nonland",
-                                "storeSelected": "spellToCast",
+                                "storeSelected": "selected2",
                                 "prompt": "You may cast a nonland card without paying its mana cost",
                                 "selectedLabel": "Cast for free",
                                 "showAllCards": true
                             },
                             {
                                 "type": "CastFromCollectionWithoutPayingCost",
-                                "from": "spellToCast"
+                                "from": "selected2"
                             }
                         ]
                     }
@@ -10265,11 +10275,11 @@
                                 "type": "FromZone",
                                 "zone": "Hand"
                             },
-                            "storeAs": "hand"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hand",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -10282,7 +10292,7 @@
                             "count": {
                                 "type": "DistinctEntitiesInCollections",
                                 "collections": [
-                                    "hand"
+                                    "gathered0"
                                 ]
                             }
                         }
@@ -10500,13 +10510,13 @@
                             "amount": 5
                         }
                     },
-                    "storeAs": "looked"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "ForEach",
                     "space": {
                         "type": "IterationSpace.Collection",
-                        "collection": "looked"
+                        "collection": "gathered0"
                     },
                     "body": {
                         "type": "Gated",
@@ -12462,11 +12472,11 @@
                             "type": "ControlledPermanents",
                             "filter": "permanent"
                         },
-                        "storeAs": "permanents"
+                        "storeAs": "gathered0"
                     },
                     {
                         "type": "SelectFromCollection",
-                        "from": "permanents",
+                        "from": "gathered0",
                         "selection": {
                             "type": "ChooseExactly",
                             "count": {
@@ -12474,8 +12484,8 @@
                                 "amount": 3
                             }
                         },
-                        "storeSelected": "kept",
-                        "storeRemainder": "sacrificed",
+                        "storeSelected": "selected1",
+                        "storeRemainder": "remainder1",
                         "prompt": "Choose three permanents you control to keep; the rest are sacrificed.",
                         "selectedLabel": "Keep",
                         "remainderLabel": "Sacrifice",
@@ -12484,7 +12494,7 @@
                     },
                     {
                         "type": "MoveCollection",
-                        "from": "sacrificed",
+                        "from": "remainder1",
                         "destination": {
                             "type": "ToZone",
                             "zone": "Graveyard"
@@ -15077,11 +15087,11 @@
                                 "zone": "Library",
                                 "filter": "instant red|white mv<=4"
                             },
-                            "storeAs": "sunforgerSearch"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "sunforgerSearch",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -15089,13 +15099,13 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "sunforgerFound",
+                            "storeSelected": "selected1",
                             "prompt": "Search for a red or white instant card with mana value 4 or less to cast without paying its mana cost"
                         },
                         "ShuffleLibrary",
                         {
                             "type": "CastFromCollectionWithoutPayingCost",
-                            "from": "sunforgerFound"
+                            "from": "selected1"
                         }
                     ]
                 }
@@ -15658,11 +15668,11 @@
                             "amount": 3
                         }
                     },
-                    "storeAs": "looked"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "looked",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -15670,14 +15680,14 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "toHand",
-                    "storeRemainder": "notTaken",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "selectedLabel": "Put into your hand",
                     "remainderLabel": "Keep in your library"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toHand",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -15685,7 +15695,7 @@
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "notTaken",
+                    "from": "remainder1",
                     "selection": {
                         "type": "ChooseExactly",
                         "count": {
@@ -15693,14 +15703,14 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "toTop",
-                    "storeRemainder": "toBottom",
+                    "storeSelected": "selected3",
+                    "storeRemainder": "remainder3",
                     "selectedLabel": "Put on top of your library",
                     "remainderLabel": "Put on the bottom of your library"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toTop",
+                    "from": "selected3",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -15709,7 +15719,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toBottom",
+                    "from": "remainder3",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -15794,7 +15804,7 @@
                         {
                             "type": "ChooseOption",
                             "optionType": "BASIC_LAND_TYPE",
-                            "storeAs": "chosenLandType"
+                            "storeAs": "chosen0"
                         },
                         {
                             "type": "ForEach",
@@ -15807,7 +15817,7 @@
                             "body": {
                                 "type": "SetLandType",
                                 "target": "IterationEntity",
-                                "fromChosenValueKey": "chosenLandType"
+                                "fromChosenValueKey": "chosen0"
                             }
                         }
                     ]
@@ -15962,11 +15972,11 @@
                                     "index": 0
                                 }
                             },
-                            "storeAs": "peeked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "peeked",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -15974,14 +15984,14 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "toExile",
-                            "storeRemainder": "toTop",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "selectedLabel": "Exile",
                             "remainderLabel": "Leave on top of that player's library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toExile",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile",
@@ -15993,7 +16003,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toTop",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -16044,12 +16054,12 @@
                         "zone": "Library",
                         "filter": "enchantment Aura"
                     },
-                    "storeAs": "searchable",
+                    "storeAs": "gathered0",
                     "search": true
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "searchable",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -16057,7 +16067,7 @@
                             "amount": 3
                         }
                     },
-                    "storeSelected": "found",
+                    "storeSelected": "selected1",
                     "prompt": "Search for up to three Aura cards with different names",
                     "restrictions": [
                         "OnePerCardName"
@@ -16065,7 +16075,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "found",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -16495,7 +16505,7 @@
                 {
                     "type": "ChooseOption",
                     "optionType": "CARD_NAME",
-                    "storeAs": "chosenName",
+                    "storeAs": "cardName0",
                     "prompt": "Choose a card name"
                 },
                 {
@@ -16505,38 +16515,38 @@
                         "cardPredicates": [
                             {
                                 "type": "NameEqualsChosen",
-                                "variableName": "chosenName"
+                                "variableName": "cardName0"
                             }
                         ]
                     },
-                    "storeMatch": "match",
-                    "storeRevealed": "revealed"
+                    "storeMatch": "matched1",
+                    "storeRevealed": "revealed1"
                 },
                 {
                     "type": "RevealCollection",
-                    "from": "revealed"
+                    "from": "revealed1"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "revealed",
+                    "from": "revealed1",
                     "selection": "SelectAll",
                     "filter": {
                         "cardPredicates": [
                             {
                                 "type": "NameEqualsChosen",
-                                "variableName": "chosenName"
+                                "variableName": "cardName0"
                             }
                         ]
                     },
-                    "storeSelected": "namedCard",
-                    "storeRemainder": "rest"
+                    "storeSelected": "selected3",
+                    "storeRemainder": "remainder3"
                 },
                 {
                     "type": "ConditionalOnCollection",
-                    "collection": "match",
+                    "collection": "matched1",
                     "ifNotEmpty": {
                         "type": "MoveCollection",
-                        "from": "rest",
+                        "from": "remainder3",
                         "destination": {
                             "type": "ToZone",
                             "zone": "Graveyard",
@@ -17567,18 +17577,18 @@
                                     "type": "BattlefieldMatching",
                                     "filter": "own:you"
                                 },
-                                "storeAs": "owned"
+                                "storeAs": "gathered1"
                             },
                             {
                                 "type": "FilterCollection",
-                                "from": "owned",
+                                "from": "gathered1",
                                 "filter": "token",
-                                "storeMatching": "ownedTokens",
-                                "storeNonMatching": "ownedCards"
+                                "storeMatching": "matching2",
+                                "storeNonMatching": "rest2"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "ownedCards",
+                                "from": "rest2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Library",
@@ -17587,7 +17597,7 @@
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "ownedTokens",
+                                "from": "matching2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Library",
@@ -17600,35 +17610,35 @@
                                     "type": "TopOfLibrary",
                                     "count": {
                                         "type": "VariableReference",
-                                        "variableName": "owned_count"
+                                        "variableName": "gathered1_count"
                                     }
                                 },
-                                "storeAs": "revealed",
+                                "storeAs": "gathered5",
                                 "revealed": true
                             },
                             {
                                 "type": "FilterCollection",
-                                "from": "revealed",
+                                "from": "gathered5",
                                 "filter": "nontoken",
-                                "storeMatching": "revealedCards"
+                                "storeMatching": "matching6"
                             },
                             {
                                 "type": "FilterCollection",
-                                "from": "revealedCards",
+                                "from": "matching6",
                                 "filter": "artifact|creature|land",
-                                "storeMatching": "acl",
-                                "storeNonMatching": "notAcl"
+                                "storeMatching": "matching7",
+                                "storeNonMatching": "rest7"
                             },
                             {
                                 "type": "FilterCollection",
-                                "from": "notAcl",
+                                "from": "rest7",
                                 "filter": "enchantment",
-                                "storeMatching": "enchantments",
-                                "storeNonMatching": "rest"
+                                "storeMatching": "matching8",
+                                "storeNonMatching": "rest8"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "rest",
+                                "from": "rest8",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Library",
@@ -17639,13 +17649,13 @@
                         ]
                     },
                     "collectCollections": {
-                        "acl": "warpAcl",
-                        "enchantments": "warpEnchantments"
+                        "matching7": "collected10",
+                        "matching8": "collected11"
                     }
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "warpAcl",
+                    "from": "collected10",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"
@@ -17654,7 +17664,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "warpEnchantments",
+                    "from": "collected11",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"
@@ -17663,18 +17673,18 @@
                 },
                 {
                     "type": "FilterCollection",
-                    "from": "warpEnchantments",
+                    "from": "collected11",
                     "filter": {
                         "statePredicates": [
                             "IsOnBattlefield"
                         ]
                     },
-                    "storeMatching": "warpEnchantmentsEntered",
-                    "storeNonMatching": "warpStranded"
+                    "storeMatching": "matching14",
+                    "storeNonMatching": "rest14"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "warpStranded",
+                    "from": "rest14",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",

@@ -2056,11 +2056,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "put_candidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "put_candidates",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -2068,11 +2068,11 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "putting"
+                            "storeSelected": "selected1"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "putting",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"
@@ -2080,7 +2080,7 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "putting",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "MoveToZone",
                                 "target": "Self",
@@ -2418,18 +2418,18 @@
                                 "zone": "Graveyard",
                                 "filter": "creature"
                             },
-                            "storeAs": "graveyardCreatures"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "graveyardCreatures",
+                            "from": "gathered1",
                             "selection": "SelectAll",
-                            "storeSelected": "chosen",
+                            "storeSelected": "selected2",
                             "matchChosenCreatureType": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "chosen",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -3800,21 +3800,21 @@
                                     "zone": "Hand",
                                     "player": "TriggeringPlayer"
                                 },
-                                "storeAs": "hand"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "hand",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": "XValue"
                                 },
                                 "chooser": "TriggeringPlayer",
-                                "storeSelected": "revealed"
+                                "storeSelected": "selected1"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "revealed",
+                                "from": "selected1",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -3822,11 +3822,11 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "toDiscard"
+                                "storeSelected": "selected2"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "toDiscard",
+                                "from": "selected2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard",
@@ -4080,11 +4080,11 @@
                                     "zone": "Graveyard",
                                     "filter": "Zombie"
                                 },
-                                "storeAs": "zombies"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "zombies",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Hand"
@@ -6088,20 +6088,20 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeAs": "revealed",
+                                "storeAs": "gathered0",
                                 "revealed": true
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "revealed",
+                                "from": "gathered0",
                                 "selection": "SelectAll",
                                 "filter": "permanent Goblin",
-                                "storeSelected": "goblin",
-                                "storeRemainder": "nonGoblin"
+                                "storeSelected": "selected1",
+                                "storeRemainder": "remainder1"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "goblin",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Battlefield"
@@ -6109,7 +6109,7 @@
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "nonGoblin",
+                                "from": "remainder1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"
@@ -6149,20 +6149,20 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeAs": "revealed",
+                                "storeAs": "gathered0",
                                 "revealed": true
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "revealed",
+                                "from": "gathered0",
                                 "selection": "SelectAll",
                                 "filter": "permanent Goblin",
-                                "storeSelected": "goblin",
-                                "storeRemainder": "nonGoblin"
+                                "storeSelected": "selected1",
+                                "storeRemainder": "remainder1"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "goblin",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Battlefield"
@@ -6170,7 +6170,7 @@
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "nonGoblin",
+                                "from": "remainder1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"

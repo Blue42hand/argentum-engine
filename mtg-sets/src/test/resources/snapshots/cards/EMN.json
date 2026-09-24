@@ -813,11 +813,11 @@
                                         "index": 0
                                     }
                                 },
-                                "storeAs": "opponentHand"
+                                "storeAs": "gathered1"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "opponentHand",
+                                "from": "gathered1",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -826,14 +826,14 @@
                                     }
                                 },
                                 "filter": "instant|sorcery",
-                                "storeSelected": "toDiscard",
+                                "storeSelected": "selected2",
                                 "prompt": "Choose an instant or sorcery card to discard",
                                 "showAllCards": true,
                                 "alwaysPrompt": true
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "toDiscard",
+                                "from": "selected2",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard",
@@ -1423,11 +1423,11 @@
                                     "index": 0
                                 }
                             },
-                            "storeAs": "hand"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hand",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1436,14 +1436,14 @@
                                 }
                             },
                             "filter": "nonland mv<=3",
-                            "storeSelected": "cheap",
+                            "storeSelected": "selected2",
                             "prompt": "Choose a nonland card with mana value 3 or less",
                             "showAllCards": true,
                             "alwaysPrompt": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hand",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1452,14 +1452,14 @@
                                 }
                             },
                             "filter": "mv>=4",
-                            "storeSelected": "expensive",
+                            "storeSelected": "selected3",
                             "prompt": "Choose a card with mana value 4 or greater",
                             "showAllCards": true,
                             "alwaysPrompt": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "cheap",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard",
@@ -1472,7 +1472,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "expensive",
+                            "from": "selected3",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard",
@@ -4217,14 +4217,14 @@
                             {
                                 "type": "GatherCards",
                                 "source": "FromLinkedExile",
-                                "storeAs": "quelledCard"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "Gated",
                                 "gate": "Gate.MayDecide",
                                 "then": {
                                     "type": "CastFromCollectionWithoutPayingCost",
-                                    "from": "quelledCard"
+                                    "from": "gathered0"
                                 },
                                 "descriptionOverride": "Cast the exiled card without paying its mana cost"
                             }
@@ -4294,11 +4294,11 @@
                         "zone": "Graveyard",
                         "filter": "land"
                     },
-                    "storeAs": "graveyard_lands"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "graveyard_lands",
+                    "from": "gathered0",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield",

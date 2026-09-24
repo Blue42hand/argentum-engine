@@ -507,12 +507,12 @@
                             "amount": 4
                         }
                     },
-                    "storeAs": "revealed",
+                    "storeAs": "gathered0",
                     "revealed": true
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "revealed",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -521,8 +521,8 @@
                         }
                     },
                     "filter": "permanent",
-                    "storeSelected": "toHand",
-                    "storeRemainder": "toGraveyard",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "prompt": "You may put a permanent card into your hand",
                     "selectedLabel": "Put into hand",
                     "remainderLabel": "Put into graveyard",
@@ -530,7 +530,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toHand",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -538,7 +538,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "toGraveyard",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Graveyard"
@@ -1044,11 +1044,11 @@
                                             "index": 0
                                         }
                                     },
-                                    "storeAs": "tc_graveyard"
+                                    "storeAs": "gathered0"
                                 },
                                 {
                                     "type": "MoveCollection",
-                                    "from": "tc_graveyard",
+                                    "from": "gathered0",
                                     "destination": {
                                         "type": "ToZone",
                                         "zone": "Exile"
@@ -1111,11 +1111,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "labyrinthEligible"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "labyrinthEligible",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -1123,13 +1123,13 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "labyrinthPicked",
+                            "storeSelected": "selected1",
                             "prompt": "Exile a colorless card with mana value 7 or greater?",
                             "selectedLabel": "Exile"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "labyrinthPicked",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"

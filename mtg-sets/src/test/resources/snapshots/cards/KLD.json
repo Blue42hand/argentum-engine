@@ -2001,28 +2001,33 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "GatherCards",
-                    "source": {
-                        "type": "BattlefieldMatching",
-                        "filter": "creature"
-                    },
-                    "storeAs": "destroyAll_gathered"
-                },
-                {
-                    "type": "MoveCollection",
-                    "from": "destroyAll_gathered",
-                    "destination": {
-                        "type": "ToZone",
-                        "zone": "Graveyard"
-                    },
-                    "moveType": "Destroy",
-                    "storeMovedAs": "destroyed"
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "creature"
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy",
+                            "storeMovedAs": "stored0"
+                        }
+                    ]
                 },
                 {
                     "type": "GainLife",
                     "amount": {
                         "type": "VariableReference",
-                        "variableName": "destroyed_count"
+                        "variableName": "stored0_count"
                     }
                 }
             ]

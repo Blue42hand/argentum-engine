@@ -481,11 +481,11 @@
                             "amount": 5
                         }
                     },
-                    "storeAs": "looked"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "looked",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -494,8 +494,8 @@
                         }
                     },
                     "filter": "creature",
-                    "storeSelected": "kept",
-                    "storeRemainder": "rest",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
                     "prompt": "You may reveal a creature card to put into your hand",
                     "selectedLabel": "Put in hand",
                     "remainderLabel": "Put on bottom",
@@ -503,7 +503,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "kept",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Hand"
@@ -512,7 +512,7 @@
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "rest",
+                    "from": "remainder1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Library",
@@ -6006,11 +6006,11 @@
                         "zone": "Hand",
                         "filter": "creature"
                     },
-                    "storeAs": "put_candidates"
+                    "storeAs": "gathered0"
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "put_candidates",
+                    "from": "gathered0",
                     "selection": {
                         "type": "ChooseUpTo",
                         "count": {
@@ -6018,11 +6018,11 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "putting"
+                    "storeSelected": "selected1"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "putting",
+                    "from": "selected1",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"
@@ -6030,7 +6030,7 @@
                 },
                 {
                     "type": "ConditionalOnCollection",
-                    "collection": "putting",
+                    "collection": "selected1",
                     "ifNotEmpty": {
                         "type": "Composite",
                         "effects": [
@@ -6039,7 +6039,7 @@
                                 "keyword": "HASTE",
                                 "target": {
                                     "type": "PipelineTarget",
-                                    "collectionName": "putting"
+                                    "collectionName": "selected1"
                                 },
                                 "duration": "Permanent"
                             },
@@ -6050,7 +6050,7 @@
                                     "type": "SacrificeTarget",
                                     "target": {
                                         "type": "PipelineTarget",
-                                        "collectionName": "putting"
+                                        "collectionName": "selected1"
                                     }
                                 }
                             }

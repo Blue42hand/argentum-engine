@@ -824,19 +824,19 @@
                             "targetDescription": "target permanent"
                         }
                     },
-                    "storeAs": "revealed",
+                    "storeAs": "gathered1",
                     "revealed": true
                 },
                 {
                     "type": "SelectFromCollection",
-                    "from": "revealed",
+                    "from": "gathered1",
                     "selection": "SelectAll",
                     "filter": "permanent",
-                    "storeSelected": "permanentCard"
+                    "storeSelected": "selected2"
                 },
                 {
                     "type": "MoveCollection",
-                    "from": "permanentCard",
+                    "from": "selected2",
                     "destination": {
                         "type": "ToZone",
                         "zone": "Battlefield"
@@ -986,11 +986,11 @@
                                 },
                                 "player": "Each"
                             },
-                            "storeAs": "exiledCards"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "exiledCards",
+                            "from": "gathered0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -998,13 +998,13 @@
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "exiledCards",
+                            "from": "gathered0",
                             "filter": "nonland",
-                            "storeMatching": "castable"
+                            "storeMatching": "matching2"
                         },
                         {
                             "type": "CastAnyNumberFromCollectionWithoutPayingCost",
-                            "from": "castable"
+                            "from": "matching2"
                         }
                     ]
                 }
@@ -1087,11 +1087,11 @@
                                     "amount": 3
                                 }
                             },
-                            "storeAs": "hideawayTopA"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTopA",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1099,15 +1099,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPickedA",
-                            "storeRemainder": "hideawayRestA",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPickedA",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1117,7 +1117,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRestA",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -1146,11 +1146,11 @@
                                     "amount": 3
                                 }
                             },
-                            "storeAs": "hideawayTopB"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hideawayTopB",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -1158,15 +1158,15 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "hideawayPickedB",
-                            "storeRemainder": "hideawayRestB",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
                             "prompt": "Choose a card to exile face down",
                             "selectedLabel": "Exile face down",
                             "remainderLabel": "Put on bottom of library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayPickedB",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Exile"
@@ -1176,7 +1176,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "hideawayRestB",
+                            "from": "remainder1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -1203,15 +1203,15 @@
                         {
                             "type": "GatherCards",
                             "source": "FromLinkedExile",
-                            "storeAs": "hideawayLinked"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "GrantMayPlayFromExile",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         },
                         {
                             "type": "GrantPlayWithoutPayingCost",
-                            "from": "hideawayLinked"
+                            "from": "gathered0"
                         }
                     ]
                 }
@@ -1556,11 +1556,11 @@
                                     ]
                                 }
                             },
-                            "storeAs": "kodama_candidates"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "kodama_candidates",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -1568,12 +1568,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "kodama_putting",
+                            "storeSelected": "selected1",
                             "prompt": "Choose a permanent card with equal or lesser mana value to put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "kodama_putting",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Battlefield"

@@ -486,11 +486,11 @@
                                 "type": "FromZone",
                                 "zone": "Hand"
                             },
-                            "storeAs": "hand"
+                            "storeAs": "gathered1"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "hand",
+                            "from": "gathered1",
                             "selection": {
                                 "type": "ChooseExactly",
                                 "count": {
@@ -498,12 +498,12 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "toTop",
+                            "storeSelected": "selected2",
                             "selectedLabel": "Put on top of your library"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "toTop",
+                            "from": "selected2",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Library",
@@ -4149,16 +4149,21 @@
                 "id": "ability_1",
                 "cost": "CostTap",
                 "effect": {
-                    "type": "GatherCards",
-                    "source": {
-                        "type": "TopOfLibrary",
-                        "count": {
-                            "type": "Fixed",
-                            "amount": 3
-                        },
-                        "player": "TargetPlayer"
-                    },
-                    "storeAs": "spied"
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "player": "TargetPlayer"
+                            },
+                            "storeAs": "gathered0"
+                        }
+                    ]
                 },
                 "targetRequirements": [
                     {
@@ -4491,13 +4496,13 @@
                                             "type": "ControlledPermanents",
                                             "filter": "creature white untapped"
                                         },
-                                        "storeAs": "tappable"
+                                        "storeAs": "gathered1"
                                     },
                                     {
                                         "type": "SelectFromCollection",
-                                        "from": "tappable",
+                                        "from": "gathered1",
                                         "selection": "ChooseAnyNumber",
-                                        "storeSelected": "tapped",
+                                        "storeSelected": "selected2",
                                         "prompt": "Tap any number of untapped white creatures you control (each spares two Plains)",
                                         "useTargetingUI": true
                                     },
@@ -4505,7 +4510,7 @@
                                         "type": "ForEach",
                                         "space": {
                                             "type": "IterationSpace.Collection",
-                                            "collection": "tapped"
+                                            "collection": "selected2"
                                         },
                                         "body": {
                                             "type": "TapUntap",
@@ -4518,30 +4523,30 @@
                                             "type": "BattlefieldMatching",
                                             "filter": "land Plains"
                                         },
-                                        "storeAs": "plains"
+                                        "storeAs": "gathered4"
                                     },
                                     {
                                         "type": "SelectFromCollection",
-                                        "from": "plains",
+                                        "from": "gathered4",
                                         "selection": {
                                             "type": "ChooseUpTo",
                                             "count": {
                                                 "type": "Multiply",
                                                 "amount": {
                                                     "type": "VariableReference",
-                                                    "variableName": "tapped_count"
+                                                    "variableName": "selected2_count"
                                                 },
                                                 "multiplier": 2
                                             }
                                         },
-                                        "storeSelected": "spared",
+                                        "storeSelected": "selected5",
                                         "prompt": "Choose up to two Plains for each creature you tapped",
                                         "useTargetingUI": true
                                     }
                                 ]
                             },
                             "collectCollections": {
-                                "spared": "allSpared"
+                                "selected5": "collected6"
                             }
                         },
                         {
@@ -4550,20 +4555,20 @@
                                 "type": "BattlefieldMatching",
                                 "filter": "land Plains"
                             },
-                            "storeAs": "allPlains"
+                            "storeAs": "gathered7"
                         },
                         {
                             "type": "FilterCollection",
-                            "from": "allPlains",
+                            "from": "gathered7",
                             "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
-                                "otherCollectionName": "allSpared"
+                                "otherCollectionName": "collected6"
                             },
-                            "storeMatching": "doomed"
+                            "storeMatching": "matching8"
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "doomed",
+                            "from": "matching8",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Graveyard"
@@ -5626,14 +5631,14 @@
                                 "player": "TriggeringPlayer",
                                 "filter": "creature blue tapped"
                             },
-                            "storeAs": "eligible"
+                            "storeAs": "gathered0"
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "eligible",
+                            "from": "gathered0",
                             "selection": "ChooseAnyNumber",
                             "chooser": "TriggeringPlayer",
-                            "storeSelected": "chosen",
+                            "storeSelected": "selected1",
                             "prompt": "Choose any number of tapped blue creatures to untap (pay {U} for each)",
                             "useTargetingUI": true,
                             "restrictions": [
@@ -5646,7 +5651,7 @@
                         },
                         {
                             "type": "ConditionalOnCollection",
-                            "collection": "chosen",
+                            "collection": "selected1",
                             "ifNotEmpty": {
                                 "type": "Gated",
                                 "gate": {
@@ -5655,7 +5660,7 @@
                                         "type": "PayDynamicManaCost",
                                         "amount": {
                                             "type": "VariableReference",
-                                            "variableName": "chosen_count"
+                                            "variableName": "selected1_count"
                                         },
                                         "payer": "TriggeringPlayer",
                                         "color": "BLUE"
@@ -5665,7 +5670,7 @@
                                     "type": "ForEach",
                                     "space": {
                                         "type": "IterationSpace.Collection",
-                                        "collection": "chosen"
+                                        "collection": "selected1"
                                     },
                                     "body": {
                                         "type": "TapUntap",
