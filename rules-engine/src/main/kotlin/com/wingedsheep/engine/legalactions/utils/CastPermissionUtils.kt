@@ -1055,7 +1055,8 @@ class CastPermissionUtils(
 
     /**
      * Count additional land drops granted by static abilities on permanents
-     * controlled by the given player (e.g., GrantAdditionalLandDrop from Hugs, Grisly Guardian).
+     * that apply to the given player (e.g., GrantAdditionalLandDrop from Hugs, Grisly Guardian, or a
+     * symmetric one such as Rites of Flourishing on any player's side).
      * Multiple sources are additive.
      */
     fun getAdditionalLandDrops(state: GameState, playerId: EntityId): Int {

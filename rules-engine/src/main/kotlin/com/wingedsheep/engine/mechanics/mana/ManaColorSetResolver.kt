@@ -52,6 +52,9 @@ object ManaColorSetResolver {
         is ManaColorSet.LandsCouldProduce -> landsCouldProduce(colorSet, state, projected, controllerId, cardRegistry)
         is ManaColorSet.SourceChosenColor -> sourceChosenColor(state, sourceId)
         is ManaColorSet.AmongLinkedExiledCards -> amongLinkedExiledCards(state, sourceId)
+        is ManaColorSet.Union -> colorSet.members.flatMapTo(mutableSetOf()) { member ->
+            resolve(member, state, projected, sourceId, controllerId, cardRegistry, predicateEvaluator)
+        }
     }
 
     /**

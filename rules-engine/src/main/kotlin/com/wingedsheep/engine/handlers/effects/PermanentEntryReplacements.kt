@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.engine.mechanics.stack.colorChoicePrompt
 import com.wingedsheep.engine.core.suspendForDecision
 import com.wingedsheep.engine.core.AnswerContinuation
 import com.wingedsheep.engine.core.ChooseColorDecision
@@ -24,6 +25,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.PlayerComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
@@ -374,7 +376,10 @@ object PermanentEntryReplacements {
         return when (choice.choiceType) {
             ChoiceType.COLOR -> {
                 pause(
-                    { id -> ChooseColorDecision(id, chooserId, "Choose a color", context()) },
+                    { id -> ChooseColorDecision(
+                        id, chooserId, colorChoicePrompt(choice), context(),
+                        availableColors = Color.entries.toSet() - choice.excludedColors
+                    ) },
                     EntersWithChoiceOnBattlefieldContinuation(
                         entityId = entityId,
                         controllerId = controllerId,

@@ -41,6 +41,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.StoreCardNameEffect
 import com.wingedsheep.sdk.scripting.effects.StoreNumberEffect
+import com.wingedsheep.sdk.scripting.effects.StorePlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -79,6 +80,12 @@ value class CollectionSlot(val key: String) {
 
     /** The controller of the entity at [index] in this collection ([EffectTarget.ControllerOfPipelineTarget]). */
     fun controllerOf(index: Int = 0): EffectTarget = EffectTarget.ControllerOfPipelineTarget(key, index)
+
+    /**
+     * The players recorded in it (by [PipelineBuilder.storePlayer]) as a plural [Player] —
+     * "each player who …" — for `Effects.ForEachPlayer(slot.asPlayers, …)`.
+     */
+    val asPlayers: Player get() = Player.InCollection(key)
 
     companion object {
         /**
@@ -776,6 +783,19 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     fun storeCardName(from: CollectionSlot, name: String? = null): ChosenSlot {
         val slot = ChosenSlot(slotKey("cardName", nextIndex(), name))
         steps += StoreCardNameEffect(from = from.key, storeAs = slot.key)
+        return slot
+    }
+
+    /**
+     * Record [player] (default: the player this step resolves for — the iterated player inside
+     * [forEachPlayerCollecting]) in a collection ([StorePlayerEffect]); read it back with
+     * [CollectionSlot.asPlayers]. With [onlyIf], the player is recorded only when the condition
+     * holds at that moment — "each player who can't …" snapshotted before anyone acts.
+     */
+    fun storePlayer(player: Player = Player.You, onlyIf: Condition? = null, name: String? = null): CollectionSlot {
+        val slot = CollectionSlot(slotKey("players", nextIndex(), name))
+        val store = StorePlayerEffect(storeAs = slot.key, player = player)
+        steps += if (onlyIf == null) store else Effects.If(onlyIf, store)
         return slot
     }
 
