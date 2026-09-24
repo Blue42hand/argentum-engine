@@ -432,7 +432,9 @@ class ManaPaymentContinuationResumer(
                     controllerId = continuation.controllerId ?: continuation.payingPlayerId
                 )
             } else {
-                services.stackResolver.counterSpellOrAbility(state, continuation.spellEntityId)
+                services.stackResolver.counterSpellOrAbility(
+                    state, continuation.spellEntityId, countererId = continuation.controllerId
+                )
             }
             return checkForMore(counterResult.newState, counterResult.events)
         }
@@ -590,8 +592,10 @@ class ManaPaymentContinuationResumer(
             is CounterDestination.Exile -> services.stackResolver.counterSpellToExile(
                 state, spellEntityId, grantFreeCast = false, controllerId = controllerId
             )
-            CounterDestination.Hand -> services.stackResolver.counterSpellToHand(state, spellEntityId)
-            CounterDestination.Graveyard -> services.stackResolver.counterSpellOrAbility(state, spellEntityId)
+            CounterDestination.Hand ->
+                services.stackResolver.counterSpellToHand(state, spellEntityId, countererId = controllerId)
+            CounterDestination.Graveyard ->
+                services.stackResolver.counterSpellOrAbility(state, spellEntityId, countererId = controllerId)
         }
         return checkForMore(result.newState, precedingEvents + result.events)
     }

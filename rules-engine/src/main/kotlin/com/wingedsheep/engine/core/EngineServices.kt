@@ -113,7 +113,10 @@ class EngineServices(
         replacementProcessor = replacementEffectProcessor
     )
     val continuationHandler = ContinuationHandler(this)
-    val settler = Settler(triggerDetector, triggerProcessor, sbaChecker, stateTriggerPoller, turnManager)
+    val settler = Settler(
+        triggerDetector, triggerProcessor, sbaChecker, stateTriggerPoller, turnManager,
+        effectExecutor = effectExecutorRegistry::execute
+    )
 
     init {
         // Late wiring: every service in the graph is now constructed, so it's safe to

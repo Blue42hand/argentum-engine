@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.nameVisibleToAll
+import com.wingedsheep.engine.replacement.PendingReplacementRider
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
@@ -1469,9 +1470,7 @@ object DamageUtils {
         var newState = state.copy(floatingEffects = updatedEffects)
 
         // Apply static damage reduction from permanents with ReplacementEffectSourceComponent
-        remainingDamage = applyStaticDamageReduction(newState, targetId, remainingDamage, isCombatDamage, sourceId)
-
-        return newState to remainingDamage
+        return applyStaticDamageReduction(newState, targetId, remainingDamage, isCombatDamage, sourceId)
     }
 
     /**
@@ -1842,6 +1841,13 @@ object DamageUtils {
         // a source that has left the battlefield (see [controllerOfObject]).
         is SourceFilter.YouControl ->
             sourceId != null && damageSourceController(state, sourceId, projected) == hostControllerId
+        // A spell deals its damage while it resolves, and it stays on the stack until its
+        // resolution is over, so "a spell" is a source still carrying its stack component.
+        is SourceFilter.Spell ->
+            sourceId != null && state.getEntity(sourceId)?.has<SpellOnStackComponent>() == true
+        is SourceFilter.SpellYouControl ->
+            sourceId != null && state.getEntity(sourceId)?.has<SpellOnStackComponent>() == true &&
+                damageSourceController(state, sourceId, projected) == hostControllerId
         is SourceFilter.Matching -> {
             if (sourceId == null) false
             else {
@@ -2061,7 +2067,12 @@ object DamageUtils {
      * @param amount The incoming damage amount
      * @param isCombatDamage Whether this is combat damage (for DamageType filtering)
      * @param sourceId The entity dealing damage (for source-based prevention like Sandskin)
-     * @return The reduced damage amount (minimum 0)
+     * A [PreventDamage] with an [PreventDamage.onPrevented] result queues it on
+     * [GameState.pendingReplacementRiders] with the amount that application prevented; see
+     * [com.wingedsheep.engine.replacement.ReplacementRiders].
+     *
+     * @return The state (with any owed prevention results queued) and the reduced damage amount
+     *   (minimum 0)
      */
     private fun applyStaticDamageReduction(
         state: GameState,
@@ -2069,10 +2080,11 @@ object DamageUtils {
         amount: Int,
         isCombatDamage: Boolean = false,
         sourceId: EntityId? = null
-    ): Int {
-        if (amount <= 0) return 0
+    ): Pair<GameState, Int> {
+        if (amount <= 0) return state to 0
 
         var remainingDamage = amount
+        val riders = mutableListOf<PendingReplacementRider>()
         val projected = state.projectedState
 
         for (entityId in state.getBattlefield()) {
@@ -2127,11 +2139,23 @@ object DamageUtils {
                     val preventAmount = effect.amount
                     val prevented = if (preventAmount == null) remainingDamage else minOf(preventAmount, remainingDamage)
                     remainingDamage -= prevented
+                    val onPrevented = effect.onPrevented
+                    if (onPrevented != null && prevented > 0) {
+                        riders += PendingReplacementRider(
+                            effect = onPrevented,
+                            hostId = entityId,
+                            controllerId = sourceControllerId,
+                            subjectId = targetId,
+                            amount = prevented
+                        )
+                    }
                 }
             }
         }
 
-        return remainingDamage.coerceAtLeast(0)
+        val newState = if (riders.isEmpty()) state
+        else state.copy(pendingReplacementRiders = state.pendingReplacementRiders + riders)
+        return newState to remainingDamage.coerceAtLeast(0)
     }
 
     /**

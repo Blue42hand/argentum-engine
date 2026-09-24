@@ -821,6 +821,8 @@ class TriggerMatcher(
             }
             // ExtraTurnEvent is only used as a replacement effect filter, not a trigger
             is EventPattern.ExtraTurnEvent -> false
+            // CounterSpellEvent is only used as a replacement effect filter (Guile), not a trigger
+            is EventPattern.CounterSpellEvent -> false
             // Batching trigger — handled in detectLibraryToGraveyardBatchTriggers
             is EventPattern.CardsPutIntoGraveyardFromLibraryEvent -> false
             // Batching trigger handled separately by detectAnyToGraveyardBatchTriggers

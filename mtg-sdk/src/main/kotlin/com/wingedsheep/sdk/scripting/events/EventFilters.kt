@@ -245,6 +245,18 @@ sealed interface SourceFilter {
         override val description = "a source you control"
     }
 
+    /**
+     * A spell controlled by the effect's controller — Hostility's "If a spell you control would
+     * deal damage to an opponent". A spell deals its damage while it is resolving on the stack, so
+     * this matches a source that is a spell on the stack (a copy included) and not an ability or a
+     * permanent, and compares that spell's controller with the replacement's.
+     */
+    @SerialName("SourceSpellYouControl")
+    @Serializable
+    data object SpellYouControl : SourceFilter {
+        override val description = "a spell you control"
+    }
+
     @SerialName("SourceMatching")
     @Serializable
     data class Matching(val filter: GameObjectFilter) : SourceFilter {

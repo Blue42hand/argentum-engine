@@ -642,6 +642,16 @@ class StaticAbilityHandler(
                     affectsFilter = convertGroupFilter(ability.filter)
                 )
             }
+            is com.wingedsheep.sdk.scripting.GainKeywordsOfGraveyardCreatureCards -> {
+                ContinuousEffectData(
+                    modification = Modification.GrantKeywordsOfGraveyardCreatureCards(
+                        keywords = ability.keywords.mapTo(linkedSetOf()) { it.name },
+                        anyLandwalk = ability.anyLandwalk,
+                        anyProtection = ability.anyProtection
+                    ),
+                    affectsFilter = convertGroupFilter(ability.filter)
+                )
+            }
             is GrantProtectionFromLinkedExiledCardTypes -> {
                 ContinuousEffectData(
                     modification = Modification.GrantProtectionFromLinkedExiledCardTypes,
@@ -1162,6 +1172,8 @@ class StaticAbilityHandler(
             is ReplaceDamageWithCounters,
             is com.wingedsheep.sdk.scripting.ReplaceDamageWithMill,
             is com.wingedsheep.sdk.scripting.HealOtherDamage,
+            // Counter replacement (Guile):
+            is com.wingedsheep.sdk.scripting.ExileCounteredSpellInstead,
             // Life gain/loss:
             is PreventLifeGain,
             is com.wingedsheep.sdk.scripting.ModifyLifeGain,

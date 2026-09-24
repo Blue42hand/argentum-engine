@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers.effects
 
 import com.wingedsheep.engine.core.EffectResult
+import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
@@ -168,7 +169,21 @@ class EffectExecutorRegistry(
         val instructionContext = context.withCurrentObjectReferences(state)
         val result = executor.execute(state, effect, instructionContext)
         val references = instructionContext.objectReferences.authorize(result.events)
-        return result.copy(state = com.wingedsheep.engine.handlers.continuations.propagateObjectReferences(result.state, references))
+        val finished = result.copy(state = com.wingedsheep.engine.handlers.continuations.propagateObjectReferences(result.state, references))
+        return runReplacementRiders(finished, context)
+    }
+
+    /**
+     * A prevention effect that prevented damage during [result] may owe a result of its own
+     * (Purity's life gain, Vigor's counters). Run it now, before the next instruction of the
+     * resolving spell or ability — see [com.wingedsheep.engine.replacement.ReplacementRiders].
+     */
+    private fun runReplacementRiders(result: EffectResult, context: EffectContext): EffectResult {
+        if (result.state.pendingReplacementRiders.isEmpty() || result.outcome !is Outcome.Done) return result
+        val drained = com.wingedsheep.engine.replacement.ReplacementRiders.drain(result.state) { s, e, c ->
+            execute(s, e, c.copy(resolutionDepth = context.resolutionDepth + 1))
+        }
+        return result.copy(state = drained.state, events = result.events + drained.events, outcome = drained.outcome)
     }
 
     /**
