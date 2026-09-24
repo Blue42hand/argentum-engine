@@ -3,6 +3,7 @@ package com.wingedsheep.engine.legalactions.enumerators
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.handlers.effects.composite.asConditional
 import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
+import com.wingedsheep.engine.mechanics.ActivationRestrictionKernel
 import com.wingedsheep.engine.mechanics.SummoningSicknessRules
 import com.wingedsheep.engine.mechanics.mana.TapForGeneric
 import com.wingedsheep.engine.legalactions.*
@@ -1132,14 +1133,8 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
 
     /**
      * Check for "any player may activate" abilities on opponent's permanents (e.g., Lethal Vapors).
+     * The permission is often nested inside `All` — see [ActivationRestrictionKernel.anyPlayerMay].
      */
-    /** See ActivateAbilityHandler.anyPlayerMayIn — the permission is often nested inside `All`. */
-    private fun anyPlayerMayIn(restriction: ActivationRestriction): Boolean = when (restriction) {
-        is ActivationRestriction.AnyPlayerMay -> true
-        is ActivationRestriction.All -> restriction.restrictions.any { anyPlayerMayIn(it) }
-        else -> false
-    }
-
     private fun enumerateAnyPlayerMayAbilities(context: EnumerationContext, result: MutableList<LegalAction>) {
         val state = context.state
         val playerId = context.playerId
@@ -1161,7 +1156,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             val cardDef = context.cardRegistry.getCard(cardComponent.cardDefinitionId) ?: continue
             val anyPlayerAbilities = cardDef.script.activatedAbilities.filter { ability ->
                 !ability.isManaAbility && ability.activateFromZone == Zone.BATTLEFIELD &&
-                    ability.restrictions.any { anyPlayerMayIn(it) }
+                    ability.restrictions.any { ActivationRestrictionKernel.anyPlayerMay(it) }
             }
             if (anyPlayerAbilities.isEmpty()) continue
 
@@ -1454,8 +1449,9 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
     /** True when [cost] contains a [CostAtom.VariablePermanents] atom (top-level or in a Composite). */
     /**
      * Whether [cost] includes "Reveal the creature type you chose" — the cost only the player who
-     * made the source's secret note can pay. Mirrors `ActivateAbilityHandler`'s helper of the same
-     * name, which decides when to capture the note as last-known information.
+     * made the source's secret note can pay. Mirrors the activation path's
+     * `AbilityCost.revealsNotedCreatureType`, which decides when to capture the note as last-known
+     * information.
      */
     private fun costRevealsNotedCreatureType(cost: AbilityCost): Boolean = when (cost) {
         is AbilityCost.Atom -> cost.atom is CostAtom.RevealNotedCreatureType

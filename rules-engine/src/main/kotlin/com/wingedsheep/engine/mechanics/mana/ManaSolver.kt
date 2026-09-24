@@ -1522,8 +1522,9 @@ class ManaSolver(
 
     /**
      * Returns true when every [ActivationRestriction] on the given mana ability is currently
-     * satisfied for the controller. Mirrors `CastPermissionUtils.checkActivationRestriction` but
-     * is inlined here so the auto-tap solver doesn't need to depend on the legalactions module.
+     * satisfied for the controller. Asks the same [ActivationRestrictionKernel] the enumerators and
+     * `ActivateAbilityHandler` use, so auto-tap agrees with them about whether a restricted source
+     * (e.g. an exhaust mana ability, whose once-only memory can be raised or waived) may be tapped.
      */
     private fun activationRestrictionsSatisfied(
         state: GameState,
@@ -1533,52 +1534,12 @@ class ManaSolver(
     ): Boolean {
         if (ability.restrictions.isEmpty()) return true
         return ability.restrictions.all {
-            checkActivationRestriction(state, playerId, sourceId, ability, it)
+            activationRestrictionKernel.isSatisfied(state, playerId, it, sourceId, ability)
         }
     }
 
-    private fun checkActivationRestriction(
-        state: GameState,
-        playerId: EntityId,
-        sourceId: EntityId,
-        ability: ActivatedAbility,
-        restriction: ActivationRestriction
-    ): Boolean = when (restriction) {
-        is ActivationRestriction.AnyPlayerMay -> true
-        is ActivationRestriction.OnlyDuringYourTurn -> state.isActiveTurnFor(playerId)
-        is ActivationRestriction.BeforeStep -> state.step.ordinal < restriction.step.ordinal
-        is ActivationRestriction.DuringPhase -> state.phase == restriction.phase
-        is ActivationRestriction.DuringStep -> state.step == restriction.step
-        is ActivationRestriction.OnlyIfCondition -> {
-            val context = EffectContext(
-                sourceId = sourceId,
-                controllerId = playerId,
-                targets = emptyList(),
-                xValue = 0
-            )
-            conditionEvaluator.evaluate(state, restriction.condition, context)
-        }
-        is ActivationRestriction.OncePerTurn -> {
-            val tracker = state.getEntity(sourceId)?.get<AbilityActivatedThisTurnComponent>()
-            tracker == null || !tracker.hasActivated(ability.id)
-        }
-        is ActivationRestriction.MaxPerTurn -> {
-            val tracker = state.getEntity(sourceId)?.get<AbilityActivatedThisTurnComponent>()
-            (tracker?.activationCount(ability.id) ?: 0) < restriction.count
-        }
-        is ActivationRestriction.Once ->
-            // An exhaust or power-up mana ability's once-only memory can be raised or waived
-            // (Elvish Refueler, Wonder Man), and auto-tap has to agree with the enumerator about
-            // whether it may be tapped again.
-            com.wingedsheep.engine.mechanics.OnceOnlyActivationAllowance
-                .mayActivate(state, playerId, sourceId, ability, cardRegistry, conditionEvaluator)
-        is ActivationRestriction.ControlledSinceYourMostRecentTurn ->
-            state.getEntity(sourceId)
-                ?.has<com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent>() != true
-        is ActivationRestriction.All -> restriction.restrictions.all {
-            checkActivationRestriction(state, playerId, sourceId, ability, it)
-        }
-    }
+    private val activationRestrictionKernel =
+        com.wingedsheep.engine.mechanics.ActivationRestrictionKernel(cardRegistry, conditionEvaluator)
 
     /**
      * Evaluates a DynamicAmount for a mana ability, returning the actual mana count.
@@ -1735,7 +1696,7 @@ class ManaSolver(
      * True if [landId] is subject to a [com.wingedsheep.sdk.scripting.ReplaceLandManaColor] static
      * (Pulse of Llanowar) — its produced mana becomes one mana of a color of its controller's
      * choice, so for solving it is treated as a five-color source. Mirrors
-     * `ActivateAbilityHandler.landMatchesManaColorReplacement`.
+     * `ActivatedManaAbilityResolver.manaColorReplacementFor`.
      *
      * The statics come from [manaStatics] rather than a battlefield walk, so a board with no
      * Pulse of Llanowar answers in zero work instead of one scan per candidate source.
