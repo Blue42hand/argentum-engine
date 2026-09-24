@@ -46,7 +46,7 @@ val CodieRavenousCodex = card("Codie, Ravenous Codex") {
         cost = Costs.Composite(Costs.Mana("{W}{U}{B}{R}{G}"), Costs.Tap)
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-            effect = Effects.BecomePrepared(EffectTarget.Self),
+            effect = Effects.BecomePrepared(EffectTarget.IterationEntity),
         )
         description = "{W}{U}{B}{R}{G}, {T}: Each creature you control becomes prepared."
     }

@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  *
  * The Second Harvest / Multiversal Incursion shape aimed at a chosen player:
  * [Effects.ForEachInGroup] snapshots "creatures target player controls" once at resolution
- * (CR 611.2c), and [EffectTarget.Self] is the creature being iterated. Every token is created under
+ * (CR 611.2c), and [EffectTarget.IterationEntity] is the creature being iterated. Every token is created under
  * the caster's control — the target player only chooses whose board is mirrored, so targeting
  * yourself copies your own creatures.
  *
@@ -52,7 +52,7 @@ val FaceYourself = card("Face Yourself") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls()),
             effect = Effects.CreateTokenCopyOfTarget(
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
                 addedKeywords = setOf(Keyword.HASTE),
                 triggeredAbilities = listOf(sacrificeUnlessPlaneswalker),
             ),

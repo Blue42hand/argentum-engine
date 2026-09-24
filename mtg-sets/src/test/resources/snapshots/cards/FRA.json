@@ -2440,7 +2440,10 @@
                             "baseFilter": "creature ctrl:you"
                         }
                     },
-                    "body": "BecomePrepared"
+                    "body": {
+                        "type": "BecomePrepared",
+                        "target": "IterationEntity"
+                    }
                 },
                 "descriptionOverride": "{W}{U}{B}{R}{G}, {T}: Each creature you control becomes prepared."
             }
@@ -4894,7 +4897,7 @@
             },
             "body": {
                 "type": "CreateTokenCopyOfTarget",
-                "target": "Self",
+                "target": "IterationEntity",
                 "triggeredAbilities": [
                     {
                         "id": "ability_1",
